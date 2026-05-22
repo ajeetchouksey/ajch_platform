@@ -1,0 +1,24 @@
+{
+  "posts": [
+    {
+      "slug": "guardrails-are-not-constraints",
+      "title": "Guardrails Are Not Constraints — They Are the Operating Model",
+      "excerpt": "Most AI failures don't start with bad models. They start with good intentions and no guardrails. Here's why accountability is your real operating model.",
+      "author": "Ajeet Chouksey",
+      "date": "2025-05-22",
+      "updated": null,
+      "tags": ["responsible-ai", "ai-governance", "platform-engineering", "operating-model", "decision-systems"],
+      "category": "Opinions",
+      "readingTime": 3,
+      "featured": false,
+      "draft": false
+    },
+    {
+  "slug": "agents-are-a-new-execution-layer",
+  "title": "Agents Aren't a Feature — They're a New Execution Layer",
+  "date": "2025-05-22",
+  "excerpt": "Most software waits. Agents break that contract. Here's why treating agents as a feature instead of a new execution layer is the most common architectural mistake.",
+  "tags": ["agents", "architecture", "enterprise-strategy", "execution-model"]
+}
+  ]
+}

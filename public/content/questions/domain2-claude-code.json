@@ -1,0 +1,197 @@
+[
+  {
+    "domain": 2,
+    "id": "d2-001",
+    "scenario": "You have a monorepo with frontend, backend, and infrastructure directories. You want Claude Code to enforce different coding standards for each directory.",
+    "question": "What is the correct approach to apply directory-specific rules in Claude Code?",
+    "options": [
+      "Create a single CLAUDE.md at the project root listing all rules for all directories",
+      "Create scoped rule files in .claude/rules/ with YAML frontmatter specifying path globs for each directory",
+      "Create separate CLAUDE.md files in each subdirectory",
+      "Use the --rules flag when invoking Claude Code from the command line"
+    ],
+    "correct": 1,
+    "explanation": "Scoped rule files in .claude/rules/ with YAML frontmatter path globs are the highest-precedence and most precise way to apply directory-specific rules. A single root CLAUDE.md (A) applies globally and can't differentiate directories cleanly. Multiple CLAUDE.md files in subdirectories (C) works but has lower precedence than .claude/rules/ and is harder to manage centrally. There is no --rules CLI flag (D). The 3-level hierarchy is: ~/.claude/CLAUDE.md (global) < ./CLAUDE.md (project) < .claude/rules/*.md (scoped, highest priority).",
+    "tags": ["CLAUDE.md", "scoped-rules", "hierarchy", "claude-code-config"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-002",
+    "scenario": "You want a Claude Code rule that only applies when working on TypeScript files in the src/ directory.",
+    "question": "What is the correct YAML frontmatter for this scoped rule file?",
+    "options": [
+      "# Rule: TypeScript standards\\napplies_to: src/**/*.ts",
+      "---\\npath: src/**/*.ts\\n---",
+      "---\\nscope: typescript\\ndirectory: src/\\n---",
+      "---\\nglob: *.ts\\nroot: src/\\n---"
+    ],
+    "correct": 1,
+    "explanation": "The correct YAML frontmatter key is 'path' with a glob pattern. The triple-dash delimiters (---) are required to mark the frontmatter block. The path glob 'src/**/*.ts' matches all TypeScript files under the src/ directory recursively. The rule is only activated when Claude Code is working on a file that matches the path pattern. Other key names like applies_to, scope, or glob are not recognized by Claude Code.",
+    "tags": ["scoped-rules", "YAML-frontmatter", "path-glob", "claude-code-config"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-003",
+    "scenario": "Your team wants to use Claude Code in a CI/CD pipeline to automatically review PRs. The pipeline runs headless with no interactive terminal.",
+    "question": "How do you invoke Claude Code in non-interactive (headless) mode?",
+    "options": [
+      "Use the --headless flag: claude --headless 'review this PR'",
+      "Use the -p flag with the prompt: claude -p 'review this PR'",
+      "Pipe the prompt via stdin: echo 'review this PR' | claude",
+      "Set the CLAUDE_HEADLESS=true environment variable before running claude"
+    ],
+    "correct": 1,
+    "explanation": "The -p flag (short for --print) puts Claude Code into non-interactive print mode, suitable for CI/CD pipelines. It accepts the prompt as an argument, executes it, prints the output, and exits — no interactive session is started. The --headless flag (A) does not exist. Stdin piping (C) is not the documented approach for headless operation. There is no CLAUDE_HEADLESS env var (D). The -p flag is the standard way to automate Claude Code in scripts and pipelines.",
+    "tags": ["headless-mode", "CI/CD", "automation", "claude-code-config"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-004",
+    "scenario": "You want to add a database query tool to Claude Code that reads from your PostgreSQL database during development. This tool should be available to Claude Code but not exposed as an API endpoint.",
+    "question": "What is the correct way to integrate this tool into Claude Code?",
+    "options": [
+      "Define the tool in the system prompt as a JSON schema",
+      "Configure an MCP server in .claude/settings.json with stdio transport that exposes the query tool",
+      "Add the tool definition to CLAUDE.md as a code block",
+      "Create a skill file in .claude/rules/ describing how to query the database"
+    ],
+    "correct": 1,
+    "explanation": "MCP servers configured in .claude/settings.json with stdio transport are the correct way to expose custom tools to Claude Code. The MCP server runs locally as a subprocess, communicates via stdin/stdout, and exposes tools that Claude Code can call. System prompt tool definitions (A) are for the API, not Claude Code's tool integration mechanism. CLAUDE.md (C) is for instructions, not tool registration. Skill files (D) provide guidance/context but cannot execute database queries — skills = instructional context, tools = runtime execution.",
+    "tags": ["MCP", "tools", "settings.json", "stdio-transport", "claude-code-config"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-005",
+    "scenario": "A developer wants Claude Code to always run tests after modifying any file in the src/ directory. This should happen automatically, not as an optional suggestion.",
+    "question": "What is the best approach?",
+    "options": [
+      "Add to CLAUDE.md: 'Always run tests after modifying src/ files'",
+      "Implement a PostToolUse hook that runs tests when a file write occurs in src/",
+      "Create a slash command /test that the developer can invoke manually",
+      "Set the model instruction in settings.json to run tests automatically"
+    ],
+    "correct": 1,
+    "explanation": "A PostToolUse hook is code-enforced and triggers automatically after every file write tool call. It can inspect the file path, detect if it's in src/, and execute the test suite. CLAUDE.md instructions (A) are guidance — Claude may forget or skip this in long sessions. A slash command (C) is manual and not automatic. There is no model instruction setting in settings.json for this (D). For automatic, guaranteed behavior: use hooks. For suggested behavior: use prompts/instructions.",
+    "tags": ["hooks", "PostToolUse", "automation", "skills-vs-tools"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-006",
+    "scenario": "Your CLAUDE.md describes the project architecture and coding conventions. A colleague asks: 'Should we put the database schema as a skill file or as a tool?'",
+    "question": "What is the correct answer?",
+    "options": [
+      "Tool — the schema needs to be queried at runtime",
+      "Skill — the schema is reference information that provides context to Claude's decision-making",
+      "Neither — database schemas belong in the system prompt",
+      "Both — duplicate it in a skill file and as a tool for redundancy"
+    ],
+    "correct": 1,
+    "explanation": "Skills are instructional context files that inform Claude's decisions (what tables exist, what the relationships are, what naming conventions to follow). Tools are for runtime execution (actually running queries, inserting records). A schema description is read once to give Claude context — that's exactly what a skill file is for. If you need Claude to query the live schema dynamically, that's a tool. The distinction: skills = knowledge that shapes behavior, tools = actions that affect state.",
+    "tags": ["skills-vs-tools", "CLAUDE.md", "claude-code-config"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-007",
+    "scenario": "You have global Claude Code settings in ~/.claude/CLAUDE.md and a project CLAUDE.md that conflicts with the global settings on code formatting rules.",
+    "question": "Which settings take precedence?",
+    "options": [
+      "Global settings (~/.claude/CLAUDE.md) always win",
+      "Project CLAUDE.md overrides global settings for project-specific rules",
+      "Scoped rule files in .claude/rules/ have the highest precedence, followed by project CLAUDE.md, then global",
+      "The most recently modified file wins"
+    ],
+    "correct": 2,
+    "explanation": "The full 3-level hierarchy from lowest to highest precedence is: (1) ~/.claude/CLAUDE.md (global, applies everywhere), (2) ./CLAUDE.md (project-level, overrides global), (3) .claude/rules/*.md with path globs (scoped, highest priority, only applies to matching files). This allows you to set global defaults, override at project level, and further override for specific file types or directories. Modification time (D) has no relevance to precedence.",
+    "tags": ["CLAUDE.md", "hierarchy", "precedence", "claude-code-config"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-008",
+    "scenario": "You want to create a reusable slash command in Claude Code that generates a git commit message based on staged changes.",
+    "question": "Where and how do you define this slash command?",
+    "options": [
+      "In package.json scripts: 'commit': 'claude generate commit message'",
+      "As a .md file in the .claude/commands/ directory with the command logic described",
+      "In .claude/settings.json under the 'commands' key as a JSON object",
+      "As a tool in an MCP server that Claude Code can invoke"
+    ],
+    "correct": 1,
+    "explanation": "Slash commands in Claude Code are defined as Markdown files in .claude/commands/. The filename becomes the command name (e.g., .claude/commands/commit.md creates /commit). The file describes what the command does and Claude executes it when invoked. package.json scripts (A) are for npm, not Claude Code commands. settings.json (C) handles permissions and MCP config, not slash commands. MCP tools (D) are for runtime actions, not reusable prompt commands.",
+    "tags": ["slash-commands", "claude-code-config", "automation"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-009",
+    "scenario": "In a CI pipeline, you run: claude -p 'Review PR #234 for security vulnerabilities' and pipe the output to a report file. The command exits with code 1.",
+    "question": "What does exit code 1 from Claude Code in headless mode indicate?",
+    "options": [
+      "Claude found security vulnerabilities",
+      "The review completed successfully",
+      "An error occurred — invalid flag, missing permissions, or Claude could not complete the task",
+      "Claude's response was truncated due to max_tokens"
+    ],
+    "correct": 2,
+    "explanation": "Exit code 1 from Claude Code indicates an error — not a content judgment. It means the command failed at the infrastructure level: invalid arguments, a permission error (Claude Code blocked an action), authentication failure, or an unrecoverable task failure. Exit code 0 means success. Claude does not use exit codes to indicate the content of its findings (A). A successful review exits 0 (B). Token truncation (D) would appear in the output text, not as exit code 1.",
+    "tags": ["headless-mode", "CI/CD", "exit-codes", "error-handling"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-010",
+    "scenario": "You want Claude Code to have read-only access to your project's files but not be able to write, execute commands, or make network requests by default.",
+    "question": "How do you configure these permissions in Claude Code?",
+    "options": [
+      "Add to CLAUDE.md: 'You are in read-only mode. Do not write files.'",
+      "Configure permission settings in .claude/settings.json to restrict write, execute, and network tool categories",
+      "Use the --read-only flag when launching Claude Code",
+      "Remove write and execute tools from the MCP server configuration"
+    ],
+    "correct": 1,
+    "explanation": "Permission modes in Claude Code are configured in .claude/settings.json. You can allow/deny specific tool categories (read, write, execute, network) to control what Claude Code can do in a given project or session. This is the authoritative permission mechanism. CLAUDE.md instructions (A) are guidance, not enforcement. There is no --read-only flag (C). MCP server config (D) only controls custom tools, not Claude Code's built-in file system and execution tools.",
+    "tags": ["permissions", "settings.json", "claude-code-config"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-011",
+    "scenario": "Your team has a monorepo with 12 services. Each service needs different coding conventions, but some rules (like 'always use TypeScript strict mode') apply to the entire repository.",
+    "question": "How should you structure CLAUDE.md files to handle both repo-wide and service-specific rules?",
+    "options": [
+      "Put all rules in one large CLAUDE.md at the repo root and manually separate by section headers",
+      "Place shared rules in the root CLAUDE.md and service-specific rules in CLAUDE.md files within each service directory, leveraging hierarchical inheritance",
+      "Create a separate .claude-config.yaml for each service with no inheritance mechanism",
+      "Use environment variables to toggle rules per service at runtime"
+    ],
+    "correct": 1,
+    "explanation": "Claude Code's CLAUDE.md system uses hierarchical inheritance—rules in parent directories apply to all subdirectories, while child CLAUDE.md files add or override specifics. A single file becomes unmanageable at scale. YAML config isn't the CLAUDE.md format. Environment variables don't control agent behavior rules.",
+    "tags": ["CLAUDE-md", "hierarchy", "configuration", "monorepo"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-012",
+    "scenario": "You want Claude Code to have access to a PostgreSQL database for querying schema information, but you don't want it to have write access. You're configuring this via MCP.",
+    "question": "What is the correct approach to configure a read-only MCP database server in Claude Code?",
+    "options": [
+      "Add the MCP server to .mcp.json with full credentials and rely on Claude to not write",
+      "Configure the MCP server in .mcp.json with read-only database credentials and scope the server's exposed tools to SELECT-only operations",
+      "Disable MCP entirely and paste the schema into CLAUDE.md as static documentation",
+      "Use a PreToolUse hook to intercept and block all SQL queries at runtime"
+    ],
+    "correct": 1,
+    "explanation": "MCP servers should be configured with least-privilege credentials AND limited tool exposure — defense in depth. Relying on Claude's judgment for access control is insecure. Disabling MCP loses dynamic querying capability. Hooks could block queries but don't address the credential/exposure layer; proper security requires both credential restriction and tool scoping.",
+    "tags": ["MCP-config", "security", "least-privilege", "mcp-server"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-013",
+    "scenario": "You want to add metadata to your CLAUDE.md rules so that certain instructions only apply when working on test files (*.test.ts), not production code.",
+    "question": "Which CLAUDE.md feature allows conditional rule application based on file patterns?",
+    "options": [
+      "Use if/else blocks in CLAUDE.md markdown syntax",
+      "Add YAML frontmatter with an 'applyTo' glob pattern like '**/*.test.ts' to scope the rule file",
+      "Create a separate .claude-test-rules.json file in a JSON format",
+      "Prefix each rule with a file path comment like '// only for tests:'"
+    ],
+    "correct": 1,
+    "explanation": "YAML frontmatter in CLAUDE.md files supports 'applyTo' patterns that scope instructions to matching files. CLAUDE.md doesn't support if/else logic. JSON config files aren't part of the CLAUDE.md system. Comment prefixes have no semantic meaning to the parser.",
+    "tags": ["yaml-frontmatter", "CLAUDE-md", "applyTo", "scoped-rules"]
+  }
+]

@@ -1,0 +1,227 @@
+[
+  {
+    "domain": 5,
+    "id": "d5-001",
+    "scenario": "Your agent processes a 200,000 token context window. It must reference a critical constraint rule: 'Never approve requests from suspended accounts.' You are deciding where to place this rule in the context.",
+    "question": "Where should this critical constraint be placed for maximum reliability?",
+    "options": [
+      "In the middle of the system prompt, surrounded by other instructions",
+      "At the very beginning or very end of the context — critical information suffers from the 'lost-in-the-middle' effect",
+      "Repeated in both the system prompt and every user message",
+      "In a separate tool description as a constraint field"
+    ],
+    "correct": 1,
+    "explanation": "The 'lost-in-the-middle' effect is empirically documented: LLMs pay significantly less attention to content in the middle of very long contexts compared to the beginning and end. For critical constraints in large contexts, place them at the start (system prompt top) or end (just before the current query). Repetition (C) helps but adds token cost. Tool description constraints (D) only apply when that tool is called. For global constraints, position is a key reliability factor in long-context architectures.",
+    "tags": ["lost-in-the-middle", "context-management", "large-context"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-002",
+    "scenario": "Your long-running research agent has accumulated 150,000 tokens of conversation history. The task is only 30% complete. Performance is degrading and costs are escalating.",
+    "question": "What is the most appropriate context management strategy?",
+    "options": [
+      "Continue — the 1M token context window can handle it",
+      "Start a completely new session, losing all context",
+      "Apply progressive summarization: compress older turns into a structured summary, preserving key findings, decisions, and numeric data verbatim before summarizing prose",
+      "Delete the oldest 50% of messages to make room"
+    ],
+    "correct": 2,
+    "explanation": "Progressive summarization is the correct strategy: compress older conversational turns into dense, structured summaries while preserving the task state. Critically, numeric data and structured findings must be copied verbatim into the summary — not paraphrased — because summarization introduces errors into numbers. Simply continuing (A) will hit degradation and eventually the context limit. Starting over (B) loses all work. Arbitrarily deleting old messages (D) may delete critical context without understanding importance.",
+    "tags": ["progressive-summarization", "context-management", "long-running-agent"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-003",
+    "scenario": "A tool call returns a 15,000 token JSON response, but you only need the 'order_id', 'status', and 'total' fields from it.",
+    "question": "What should you do before appending this tool result to the message history?",
+    "options": [
+      "Append the full 15,000 token response — more context is better",
+      "Ask Claude to summarize the response first",
+      "Extract and append only the required fields (order_id, status, total) — strip everything else before it enters the context",
+      "Store the full response externally and only retrieve it if needed"
+    ],
+    "correct": 2,
+    "explanation": "Tool result trimming is a key context management technique: strip tool outputs to only the fields your application actually needs before appending them to message history. Appending the full 15,000 token response (A) wastes 99% of the tokens, fills the context window faster, and increases costs. Asking Claude to summarize (B) adds an extra round-trip and introduces another layer where data can be lost. External storage (D) adds architectural complexity. The right place to trim is the tool handler layer before the result enters the conversation.",
+    "tags": ["tool-result-trimming", "context-management", "token-efficiency"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-004",
+    "scenario": "Your customer service agent is stuck — the user's request requires an action not covered by the agent's current instructions. The user is frustrated and has asked twice.",
+    "question": "When should the agent escalate to a human?",
+    "options": [
+      "Only when the user explicitly says 'I want to speak to a human'",
+      "After 3 failed attempts to resolve the issue",
+      "When: (1) the user explicitly requests human assistance, (2) the agent cannot make progress with available tools/instructions, OR (3) the situation requires judgment outside the agent's defined scope — not based on user frustration alone",
+      "When the context window is 80% full"
+    ],
+    "correct": 2,
+    "explanation": "The three legitimate escalation triggers are: explicit user request, inability to make progress with available resources, and situations requiring out-of-scope judgment. User frustration alone (part of the scenario) is NOT a trigger — frustration is an emotional state, not an indicator that the agent cannot technically resolve the issue. The agent should not escalate based on context fullness (D) — that's a technical implementation concern, not an escalation trigger. Waiting for 3 failures (B) is arbitrary and may let the user suffer unnecessarily.",
+    "tags": ["escalation", "human-in-the-loop", "agent-behavior", "context-management"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-005",
+    "scenario": "You have a system prompt with a 10,000 token static preamble (company context, policies, persona) that is identical across all users. You make 100,000 API calls per day.",
+    "question": "How should you configure prompt caching for maximum savings?",
+    "options": [
+      "Don't cache — the TTL is too short to be useful",
+      "Place cache_control: {type: 'ephemeral'} at the end of the static preamble block. Cache lasts 5 minutes (or 1 hour at 2x write cost). Subsequent requests hitting the cache pay 0.1x input cost.",
+      "Store the preamble in a database and inject it fresh each request",
+      "Compress the preamble to reduce token count instead of caching"
+    ],
+    "correct": 1,
+    "explanation": "Prompt caching is designed for exactly this pattern: static content shared across many requests. At 100,000 calls/day, you're making ~70 calls/minute — the 5-minute TTL cache will be continuously warm. Each cached request pays 0.1x the normal input cost for the 10,000 token preamble, reducing input costs by 90% for that section. You can extend TTL to 1 hour by paying 2x write cost, which is worthwhile at high volume. Injecting fresh each time (C) and compression (D) don't capture the caching benefit.",
+    "tags": ["prompt-caching", "cache_control", "TTL", "cost-optimization"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-006",
+    "scenario": "You need to process 50,000 document classification tasks overnight. The tasks are independent, latency doesn't matter, and you want to minimize cost.",
+    "question": "Which API feature is designed for this use case?",
+    "options": [
+      "Streaming API — process each document as it arrives",
+      "Message Batches API — submit up to 100,000 requests asynchronously at 50% cost reduction with 24-hour expiry",
+      "Extended thinking — enable deeper reasoning for each document",
+      "Parallel tool calls — process all documents in one turn"
+    ],
+    "correct": 1,
+    "explanation": "The Message Batches API is specifically designed for large-scale async workloads where latency is not critical. Key specs: up to 100,000 requests per batch, 50% cost reduction vs. synchronous API, 24-hour processing window, results matched via custom_id. This overnight classification job is a perfect fit: 50,000 tasks, latency-insensitive, cost-sensitive. Streaming (A) is for real-time responses. Extended thinking (C) increases cost, not reduces it. Parallel tool calls (D) is for multi-tool use in one conversation, not batch document processing.",
+    "tags": ["batch-API", "cost-optimization", "async-processing", "large-scale"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-007",
+    "scenario": "You are using the Message Batches API to process 80,000 requests. After 26 hours, some requests haven't returned results.",
+    "question": "What happened and what should you do?",
+    "options": [
+      "The API is experiencing an outage — contact support",
+      "Batch results expire after 24 hours — requests that weren't completed within the window have expired; resubmit them in a new batch",
+      "The requests exceeded max_tokens — reduce the token limit and resubmit",
+      "Batches over 50,000 requests are automatically split — check for a second batch ID"
+    ],
+    "correct": 1,
+    "explanation": "The Message Batches API has a 24-hour processing and expiry window. Requests submitted in a batch must be retrieved within 24 hours — after that, the results expire. If some of your 80,000 requests weren't completed and returned within 24 hours, those results are gone. The solution is to identify which custom_ids didn't return results and resubmit them in a new batch. Batches do support up to 100,000 requests (D is wrong). The issue is expiry timing, not capacity or outages.",
+    "tags": ["batch-API", "24-hour-expiry", "custom_id", "error-handling"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-008",
+    "scenario": "Your application sets cache_control breakpoints in a 200,000 token conversation. You have added 5 cache_control markers at different points.",
+    "question": "What is the problem?",
+    "options": [
+      "No problem — you can add unlimited cache_control markers",
+      "Only the last 4 cache_control markers are active at any time — the 5th marker exceeds the maximum of 4 breakpoints per request",
+      "cache_control only works on system prompts, not conversation history",
+      "You need to set cache_control on every message for it to work"
+    ],
+    "correct": 1,
+    "explanation": "Prompt caching supports a maximum of 4 cache_control breakpoints per API request. If you specify more than 4, only the last 4 are honored — earlier markers are ignored. This is a critical architectural constraint: you must design your caching strategy to use at most 4 breakpoints effectively. Common pattern: use 1 on the system prompt, 1-2 on stable few-shot examples, and leave 1 for dynamic content. Unlimited markers (A), restriction to system prompts (C), and per-message requirement (D) are all incorrect.",
+    "tags": ["prompt-caching", "cache_control", "4-breakpoints", "limitations"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-009",
+    "scenario": "Your API requests are failing with 429 Too Many Requests errors during peak load. You need to implement retry logic.",
+    "question": "What is the correct retry strategy?",
+    "options": [
+      "Immediate retry — send the request again as fast as possible",
+      "Fixed-interval retry — wait exactly 5 seconds between each attempt",
+      "Exponential backoff with jitter — wait 2^n seconds plus a small random amount, increasing with each failure",
+      "Circuit breaker — stop retrying after the first failure and alert the user"
+    ],
+    "correct": 2,
+    "explanation": "Exponential backoff with jitter is the industry-standard pattern for rate limit handling. It provides: (1) increasing wait time so the service has time to recover, (2) random jitter to prevent thundering herd (all clients retrying simultaneously). Immediate retry (A) makes the rate limit problem worse. Fixed-interval retry (B) helps but can still cause synchronized retry spikes. Circuit breaker (D) is a complementary pattern but stopping entirely on first failure is too aggressive for transient rate limits.",
+    "tags": ["rate-limiting", "exponential-backoff", "retry-strategy", "reliability"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-010",
+    "scenario": "You are summarizing a long research conversation that includes: prose analysis (5,000 tokens), a data table with 200 precise measurements, and 10 key decisions made during the session.",
+    "question": "What is the correct summarization strategy?",
+    "options": [
+      "Summarize everything equally — let Claude decide what's important to keep",
+      "Summarize the prose analysis into 2-3 sentences; copy the data table and key decisions verbatim into the summary",
+      "Delete the data table — it can be regenerated from the original data source",
+      "Summarize everything and add a note: 'see original conversation for exact numbers'"
+    ],
+    "correct": 1,
+    "explanation": "The golden rule of context summarization: summarize prose (it compresses well and paraphrasing preserves meaning), but copy numeric data and structured decisions VERBATIM. Summarization is a lossy process — it introduces rounding errors, approximations, and omissions in quantitative data. A measurement summarized as 'approximately 42.7' is qualitatively different from exactly 42.7183. Key decisions should also be preserved exactly — paraphrasing decisions can alter their meaning. Option A (uniform summarization) will corrupt numeric data. Option C loses the data entirely. Option D makes the summary dependent on the original context.",
+    "tags": ["progressive-summarization", "numeric-data-preservation", "context-management"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-011",
+    "scenario": "You're sending a 180K token conversation to Claude (which has a 200K context window). Your critical instructions are in the system prompt, and key reference data is placed in the middle of the conversation history.",
+    "question": "What cognitive bias affects Claude's attention to information placement within large contexts?",
+    "options": [
+      "Recency bias — Claude only processes the last 10 messages and ignores everything before",
+      "The 'lost in the middle' effect — information placed in the middle of long contexts receives less attention than information at the beginning or end",
+      "Token overflow — Claude silently drops middle tokens when context exceeds 150K",
+      "Primacy bias — Claude only reads the first 50K tokens and stops processing"
+    ],
+    "correct": 1,
+    "explanation": "The 'lost in the middle' phenomenon means Claude (like all transformer LLMs) attends more strongly to the beginning and end of context, with reduced attention to middle sections. It doesn't drop tokens (all are processed) — it's an attention distribution pattern. It's not strict primacy or recency — both ends get more attention than the middle.",
+    "tags": ["lost-in-middle", "context-window", "attention", "information-placement"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-012",
+    "scenario": "Your application makes repeated API calls with the same 4000-token system prompt and 10,000-token reference document. You want to reduce costs and latency for subsequent calls.",
+    "question": "Which Anthropic API feature allows you to avoid re-processing identical prompt prefixes across calls?",
+    "options": [
+      "Set a 'cache_key' header on the HTTP request for CDN-level response caching",
+      "Use prompt caching with cache_control: {type: 'ephemeral'} on static content blocks, which caches the prefix server-side for 5 minutes",
+      "Store the prompt in a Claude Project to avoid re-sending it with each request",
+      "Compress the prompt using gzip content-encoding before sending to reduce transfer size"
+    ],
+    "correct": 1,
+    "explanation": "Anthropic's prompt caching uses cache_control markers on content blocks. Cached prefixes are stored server-side for 5 minutes (refreshed on each hit), reducing cost by 90% for reads. CDN caching doesn't apply to inference API calls. Projects are a UI feature, not an API optimization. Gzip reduces transfer but not server-side processing time.",
+    "tags": ["prompt-caching", "cache-control", "cost-optimization", "latency"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-013",
+    "scenario": "You need to process 10,000 customer reviews through Claude for sentiment analysis. You don't need real-time results — overnight processing is acceptable.",
+    "question": "Which Anthropic API feature is designed for high-volume, non-real-time workloads with cost savings?",
+    "options": [
+      "Send all 10,000 requests simultaneously with asyncio for maximum throughput",
+      "Use the Message Batches API which processes requests asynchronously at 50% reduced cost with results within 24 hours",
+      "Create 10 API keys and distribute requests across them to bypass rate limits",
+      "Use streaming mode to process multiple requests on a single persistent connection"
+    ],
+    "correct": 1,
+    "explanation": "The Message Batches API is specifically designed for high-volume async workloads, offering 50% cost reduction with results typically delivered within 1 hour (guaranteed within 24 hours). Sending simultaneous requests will hit rate limits quickly. Multiple API keys to bypass limits violates ToS. Streaming is for real-time single-response delivery, not batch processing.",
+    "tags": ["batches-API", "cost-optimization", "async-processing", "high-volume"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-014",
+    "scenario": "Your agentic loop has been running for 45 minutes and the conversation context is approaching the 200K token limit. The agent still has work to complete.",
+    "question": "What is the recommended strategy to continue productive work when approaching context limits?",
+    "options": [
+      "Increase max_tokens to extend the context window beyond 200K",
+      "Implement progressive summarization — compress older conversation turns into summaries while preserving recent context and critical state verbatim",
+      "Start a brand new conversation and ask the user to re-explain the entire task from scratch",
+      "Switch to a different model with a larger context window"
+    ],
+    "correct": 1,
+    "explanation": "Progressive summarization compresses older turns (preserving exact data like IDs, amounts, decisions) while retaining recent context, allowing the agent to continue within limits. max_tokens controls output length, not context window size. Starting fresh loses all accumulated state. No current Claude model exceeds 200K context.",
+    "tags": ["summarization", "context-window", "progressive-summarization", "agentic-loop"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-015",
+    "scenario": "Your application receives HTTP 429 (rate limit) errors from the Anthropic API during peak hours. You need a robust retry strategy that doesn't worsen the situation.",
+    "question": "What retry strategy does Anthropic recommend for rate limit errors?",
+    "options": [
+      "Retry immediately with no delay to minimize perceived latency impact on users",
+      "Implement exponential backoff with jitter, respecting the retry-after header when provided",
+      "Switch to a different API key after 3 consecutive failures to spread load",
+      "Queue all requests and process exactly one per second regardless of rate limit status"
+    ],
+    "correct": 1,
+    "explanation": "Exponential backoff with jitter prevents thundering herd problems (many clients retrying simultaneously), and retry-after headers give exact wait times. Immediate retry worsens the rate limit situation. Cycling API keys may violate ToS and doesn't solve capacity issues. Fixed 1/second throttling is wasteful when capacity is available and insufficient during actual limits.",
+    "tags": ["rate-limiting", "retry-strategy", "exponential-backoff", "error-handling"]
+  }
+]

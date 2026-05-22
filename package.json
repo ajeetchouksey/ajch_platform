@@ -1,0 +1,49 @@
+{
+  "name": "ajch_cluade_architect",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "cli": "tsx cli/index.ts",
+    "curator": "tsx cli/curator.ts",
+    "curator:stats": "tsx cli/curator.ts stats",
+    "curator:validate": "tsx cli/curator.ts validate",
+    "curator:coverage": "tsx cli/curator.ts coverage"
+  },
+  "dependencies": {
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "lucide-react": "^1.16.0",
+    "mermaid": "^11.15.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.15.1",
+    "react-syntax-highlighter": "^16.1.1",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/inquirer": "^9.0.9",
+    "@types/node": "^24.12.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "inquirer": "^13.4.3",
+    "tailwindcss": "^4.3.0",
+    "tsx": "^4.22.3",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.12"
+  }
+}
