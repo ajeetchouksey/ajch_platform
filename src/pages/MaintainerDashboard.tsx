@@ -18,7 +18,7 @@ import { BarChart2, Eye, Globe, TrendingUp, AlertCircle } from 'lucide-react';
 const OWNER_LOGIN = 'ajeetchouksey';
 
 export default function MaintainerDashboard() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [totals, setTotals] = useState<TotalStats>({ total: 0, totalToday: 0 });
