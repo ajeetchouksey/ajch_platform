@@ -2,14 +2,14 @@
   "posts": [
     {
       "slug": "github-governance-best-practices",
-      "title": "Governance Layer Best Practices in GitHub",
-      "excerpt": "Proven best practices for GitHub governance — branch protection, CODEOWNERS, rulesets, and compliance automation for both Enterprise and Free tiers.",
+      "title": "GitHub Governance Isn't a Settings Page — It's a System",
+      "excerpt": "Most teams treat GitHub governance as a settings page. The teams that ship safely treat it as a system — versioned, automated, and audited.",
       "author": "Ajeet Chouksey",
       "date": "2025-07-07",
       "updated": null,
       "tags": ["github", "governance", "devops", "branch-protection", "platform-engineering"],
-      "category": "Tutorials",
-      "readingTime": 4,
+      "category": "DevOps",
+      "readingTime": 7,
       "featured": false,
       "draft": false
     },
@@ -27,11 +27,11 @@
       "draft": false
     },
     {
-  "slug": "agents-are-a-new-execution-layer",
-  "title": "Agents Aren't a Feature — They're a New Execution Layer",
-  "date": "2025-05-22",
-  "excerpt": "Most software waits. Agents break that contract. Here's why treating agents as a feature instead of a new execution layer is the most common architectural mistake.",
-  "tags": ["agents", "architecture", "enterprise-strategy", "execution-model"]
-}
+      "slug": "agents-are-a-new-execution-layer",
+      "title": "Agents Aren't a Feature — They're a New Execution Layer",
+      "date": "2025-05-22",
+      "excerpt": "Most software waits. Agents break that contract. Here's why treating agents as a feature instead of a new execution layer is the most common architectural mistake.",
+      "tags": ["agents", "architecture", "enterprise-strategy", "execution-model"]
+    }
   ]
 }
