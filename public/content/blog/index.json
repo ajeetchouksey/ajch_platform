@@ -1,6 +1,19 @@
 {
   "posts": [
     {
+      "slug": "github-governance-best-practices",
+      "title": "Governance Layer Best Practices in GitHub",
+      "excerpt": "Proven best practices for GitHub governance — branch protection, CODEOWNERS, rulesets, and compliance automation for both Enterprise and Free tiers.",
+      "author": "Ajeet Chouksey",
+      "date": "2025-07-07",
+      "updated": null,
+      "tags": ["github", "governance", "devops", "branch-protection", "platform-engineering"],
+      "category": "Tutorials",
+      "readingTime": 4,
+      "featured": false,
+      "draft": false
+    },
+    {
       "slug": "guardrails-are-not-constraints",
       "title": "Guardrails Are Not Constraints — They Are the Operating Model",
       "excerpt": "Most AI failures don't start with bad models. They start with good intentions and no guardrails. Here's why accountability is your real operating model.",
