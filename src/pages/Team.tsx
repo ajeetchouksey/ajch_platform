@@ -60,9 +60,9 @@ interface AgentData {
 const orchestrator: AgentData = {
   id: 'orchestrator',
   name: 'Platform Orchestrator',
-  role: 'Master Commander',
+  role: 'Chief Orchestrator',
   tagline: 'Classify. Gate. Route. Synthesize.',
-  description: 'Central brain. Classifies every request, triggers the security gate, routes to the correct domain commander. Never implements directly.',
+  description: 'Central brain. Classifies every request, triggers the security gate, routes to the correct domain lead. Never implements directly.',
   glowColor: 'shadow-violet-500/30',
   borderColor: 'border-violet-500/40 hover:border-violet-400/70',
   bgGradient: 'from-violet-500/10 via-violet-500/5 to-transparent',
@@ -74,7 +74,7 @@ const orchestrator: AgentData = {
   capabilities: ['Intent Classification', 'Security Gate', 'Agent Routing', 'Synthesis'],
   model: 'Claude Sonnet',
   tools: 14,
-  activeTask: 'Routing blog request → Blog Commander',
+  activeTask: 'Routing blog request → Blog Lead',
   version: 'v1.4.0',
   deliveries: [
     { version: 'v1.0', label: 'Core routing engine + agent registry', type: 'major' },
@@ -84,7 +84,7 @@ const orchestrator: AgentData = {
 };
 
 /* ─────────────────────────────────────────────────────────────
-   L1 — Domain Commanders
+   L1 — Domain Leads
 ───────────────────────────────────────────────────────────── */
 export const l1Agents: AgentData[] = [
   {
@@ -92,7 +92,7 @@ export const l1Agents: AgentData[] = [
     name: 'Platform Control',
     role: 'Architect',
     tagline: 'Architecture decisions. Build config. Feature registration.',
-    description: 'Domain commander for platform concerns. Delegates routing changes to Routing Agent and component work to Component Builder. Handles build config and deploy settings directly.',
+    description: 'Domain lead for platform concerns. Delegates routing changes to Routing Agent and component work to Component Builder. Handles build config and deploy settings directly.',,
     glowColor: 'shadow-blue-500/25',
     borderColor: 'border-blue-500/40 hover:border-blue-400/70',
     bgGradient: 'from-blue-500/10 via-blue-500/5 to-transparent',
@@ -104,7 +104,7 @@ export const l1Agents: AgentData[] = [
     capabilities: ['Architecture', 'Build Config', 'Deploy', 'Feature Registration'],
     model: 'Claude Sonnet',
     tools: 8,
-    activeTask: 'Delegating Team page redesign → Component Builder',
+    activeTask: 'Delegating Team page work → Component Builder',
     version: 'v2.5.0',
     deliveries: [
       { version: 'v1.0', label: 'App shell, routing, sidebar, layout', type: 'major' },
@@ -136,10 +136,10 @@ export const l1Agents: AgentData[] = [
   },
   {
     id: 'blog',
-    name: 'Blog Commander',
+    name: 'Blog Lead',
     role: 'Storyteller',
     tagline: 'Coordinate write → validate → publish.',
-    description: 'Domain commander for blog content. Orchestrates the full pipeline: Writer produces prose, Security Gate validates, Publisher commits to disk.',
+    description: 'Domain lead for blog content. Orchestrates the full pipeline: Writer produces prose, Security Gate validates, Publisher commits to disk.',
     glowColor: 'shadow-emerald-500/25',
     borderColor: 'border-emerald-500/40 hover:border-emerald-400/70',
     bgGradient: 'from-emerald-500/10 via-emerald-500/5 to-transparent',
@@ -156,7 +156,7 @@ export const l1Agents: AgentData[] = [
     deliveries: [
       { version: 'v1.0', label: 'Blog post import pipeline + frontmatter', type: 'major' },
       { version: 'v1.4', label: 'Platform-voice rewrite + governance post', type: 'minor' },
-      { version: 'v1.5', label: 'Write → Validate → Publish sub-agent pipeline', type: 'minor' },
+      { version: 'v1.5', label: 'Write → Validate → Publish sub-agent workflow', type: 'minor' },
     ],
     subAgents: [
       {
@@ -183,10 +183,10 @@ export const l1Agents: AgentData[] = [
   },
   {
     id: 'exam-content',
-    name: 'Exam Commander',
+    name: 'Exam Lead',
     role: 'Curator',
     tagline: 'Research. Extract. Deduplicate. Delegate.',
-    description: 'Domain commander for exam content. Handles web research and concept extraction directly, then delegates MCQ generation and notes writing to specialists.',
+    description: 'Domain lead for exam content. Handles web research and concept extraction directly, then delegates MCQ generation and notes writing to specialists.',
     glowColor: 'shadow-amber-500/25',
     borderColor: 'border-amber-500/40 hover:border-amber-400/70',
     bgGradient: 'from-amber-500/10 via-amber-500/5 to-transparent',
@@ -203,7 +203,7 @@ export const l1Agents: AgentData[] = [
     deliveries: [
       { version: 'v1.0', label: 'CCA-F question bank (50 questions)', type: 'major' },
       { version: 'v1.2', label: 'Deduplication engine + web research tools', type: 'minor' },
-      { version: 'v1.3', label: 'Q-Gen + Study Notes sub-agent delegation', type: 'minor' },
+      { version: 'v1.3', label: 'Q-Gen + Study Notes sub-agent workflow', type: 'minor' },
     ],
     subAgents: [
       {
@@ -567,7 +567,7 @@ function OrchestratorCard({ agent, visible }: { agent: AgentData; visible: boole
       <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${agent.bgGradient} pointer-events-none`} />
 
       <div className="absolute -top-3 left-5 flex items-center gap-2">
-        <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest border ${agent.badgeColor}`}>⚡ L0 Orchestrator</span>
+        <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest border ${agent.badgeColor}`}>⚡ L0 · Chief Orchestrator</span>
         <VersionBadge version={agent.version} highlight />
       </div>
 
@@ -616,7 +616,7 @@ function OrchestratorCard({ agent, visible }: { agent: AgentData; visible: boole
 
       {/* L1 mini preview */}
       <div className="relative mt-4 pt-3 border-t border-slate-800/40">
-        <span className="text-[9px] text-slate-600 uppercase tracking-widest font-semibold">Domain Commanders</span>
+        <span className="text-[9px] text-slate-600 uppercase tracking-widest font-semibold">Domain Leads</span>
         <div className="flex justify-around mt-2">
           {l1Agents.map(s => {
             const SIcon = s.icon;
@@ -746,7 +746,7 @@ function SubAgentRow({ sub, textColor, badgeColor }: { sub: SubAgent; textColor:
 }
 
 /* ─────────────────────────────────────────────────────────────
-   L1 Commander card
+   L1 Lead card
 ───────────────────────────────────────────────────────────── */
 function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: number; visible: boolean }) {
   const [hovered, setHovered] = useState(false);
@@ -994,7 +994,7 @@ export default function Team() {
             </span>
           </div>
           <p className="text-sm text-slate-400 max-w-xl">
-            One principal. One orchestrator. One security gate. Five domain commanders. {totalSubAgents} task specialists. Everything has a single responsibility.
+            One principal. One orchestrator. One security gate. Five domain leads. {totalSubAgents} task specialists. Everything has a single responsibility.
           </p>
         </div>
 
@@ -1034,7 +1034,7 @@ export default function Team() {
           <div className={`flex items-center gap-2 mb-2 mt-1 transition-opacity duration-400 ${visible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '600ms' }}>
             <span className="text-[9px] font-bold text-blue-500/60 uppercase tracking-widest bg-blue-500/5 border border-blue-500/15 px-2 py-0.5 rounded">L1 + L2</span>
             <div className="h-px flex-1 bg-slate-800" />
-            <span className="text-[9px] text-slate-600">Domain Commanders + Task Specialists</span>
+            <span className="text-[9px] text-slate-600">Domain Leads + Task Specialists</span>
           </div>
 
           <FanConnector visible={visible} count={l1Agents.length} />

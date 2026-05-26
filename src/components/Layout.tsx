@@ -397,7 +397,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /><span>Security &amp; Governance</span>
                 </div>
               </div>
-              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-2">L1 Commanders</h3>
+              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-2">L1 Domain Leads</h3>
               <div className="space-y-0.5 mb-3">
                 {[
                   { label: 'Platform Control', color: 'bg-blue-400' },
