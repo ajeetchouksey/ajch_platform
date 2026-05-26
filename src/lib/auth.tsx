@@ -104,3 +104,7 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }
+
+export function isOAuthConfigured(): boolean {
+  return !!(CLIENT_ID && PROXY_URL);
+}

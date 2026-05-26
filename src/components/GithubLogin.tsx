@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { LogOut, Key } from 'lucide-react';
-import { useAuth } from '../lib/auth';
+import { useAuth, isOAuthConfigured } from '../lib/auth';
 
 function GithubIcon({ size = 14 }: { size?: number }) {
   return (
@@ -64,20 +64,30 @@ export function GithubLogin() {
   return (
     <div className="flex items-center gap-1">
       <button
-        onClick={login}
+        onClick={() => {
+          if (isOAuthConfigured()) {
+            login();
+          } else {
+            setShowTokenInput(true);
+          }
+        }}
         className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors"
-        title="Login with GitHub OAuth"
+        title={isOAuthConfigured() ? 'Login with GitHub OAuth' : 'Login with Token'}
       >
         <GithubIcon size={14} />
         <span className="hidden sm:inline">Login</span>
       </button>
-      <button
-        onClick={() => setShowTokenInput(true)}
-        className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors"
-        title="Login with Personal Access Token"
-      >
-        <Key size={14} />
-      </button>
+      {isOAuthConfigured() && (
+        <button
+          onClick={() => setShowTokenInput(true)}
+          className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors"
+          title="Login with Personal Access Token"
+        >
+          <Key size={14} />
+        </button>
+      )}
+    </div>
+  );
     </div>
   );
 }
