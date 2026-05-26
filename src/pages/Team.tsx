@@ -92,7 +92,7 @@ export const l1Agents: AgentData[] = [
     name: 'Platform Control',
     role: 'Architect',
     tagline: 'Architecture decisions. Build config. Feature registration.',
-    description: 'Domain lead for platform concerns. Delegates routing changes to Routing Agent and component work to Component Builder. Handles build config and deploy settings directly.',,
+    description: 'Domain lead for platform concerns. Delegates routing changes to Routing Agent and component work to Component Builder. Handles build config and deploy settings directly.',
     glowColor: 'shadow-blue-500/25',
     borderColor: 'border-blue-500/40 hover:border-blue-400/70',
     bgGradient: 'from-blue-500/10 via-blue-500/5 to-transparent',
