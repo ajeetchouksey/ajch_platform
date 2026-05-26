@@ -4,10 +4,11 @@ import {
   Bot, Cpu, PenTool, GraduationCap, BookOpen, GitBranch,
   Globe, ChevronRight, MapPin, Building2, ExternalLink,
   Zap, Brain, ShieldCheck, Lightbulb, ListChecks, Handshake, Trophy,
-  ArrowDown, PackageCheck, Tag, Award, User, Users,
+  ArrowDown, Award, User, Users,
   Layers, Palette, FileText, Send, HelpCircle, Share2,
 } from 'lucide-react';
 import { maintainer } from '../data/maintainer';
+import { PulsingDot, VersionTag, NewBadge, Timeline, StatGrid } from '@/components/ui';
 
 /* ─────────────────────────────────────────────────────────────
    Types
@@ -62,7 +63,7 @@ const orchestrator: AgentData = {
   name: 'Platform Orchestrator',
   role: 'Chief Orchestrator',
   tagline: 'Classify. Gate. Route. Synthesize.',
-  description: 'Central brain. Classifies every request, triggers the security gate, routes to the correct domain lead. Never implements directly.',
+  description: 'Central brain. Classifies every request, triggers the Security Gate pre-flight for mutating tasks, routes to the correct domain lead. Never implements directly.',
   glowColor: 'shadow-violet-500/30',
   borderColor: 'border-violet-500/40 hover:border-violet-400/70',
   bgGradient: 'from-violet-500/10 via-violet-500/5 to-transparent',
@@ -71,15 +72,15 @@ const orchestrator: AgentData = {
   dotColor: 'bg-violet-400',
   icon: Cpu,
   status: 'active',
-  capabilities: ['Intent Classification', 'Security Gate', 'Agent Routing', 'Synthesis'],
+  capabilities: ['Intent Classification', 'Security Pre-flight', 'Agent Routing', 'Synthesis'],
   model: 'Claude Sonnet',
   tools: 14,
   activeTask: 'Routing blog request → Blog Lead',
-  version: 'v1.4.0',
+  version: 'v2.0.0',
   deliveries: [
     { version: 'v1.0', label: 'Core routing engine + agent registry', type: 'major' },
-    { version: 'v1.3', label: 'Clarification workflow + context carry-over', type: 'minor' },
     { version: 'v1.4', label: 'Security gate + sub-agent routing', type: 'minor' },
+    { version: 'v2.0', label: 'Mandatory Security pre-flight + Study Companion split + UX Framework wiring', type: 'major' },
   ],
 };
 
@@ -92,7 +93,7 @@ export const l1Agents: AgentData[] = [
     name: 'Platform Control',
     role: 'Architect',
     tagline: 'Architecture decisions. Build config. Feature registration.',
-    description: 'Domain lead for platform concerns. Delegates routing changes to Routing Agent and component work to Component Builder. Handles build config and deploy settings directly.',
+    description: 'Domain lead for platform concerns. Delegates routing changes to Routing Agent, component work to Component Builder, and UX primitives to UX Framework Agent. Handles build config and deploy settings directly.',
     glowColor: 'shadow-blue-500/25',
     borderColor: 'border-blue-500/40 hover:border-blue-400/70',
     bgGradient: 'from-blue-500/10 via-blue-500/5 to-transparent',
@@ -105,11 +106,11 @@ export const l1Agents: AgentData[] = [
     model: 'Claude Sonnet',
     tools: 8,
     activeTask: 'Delegating Team page work → Component Builder',
-    version: 'v2.5.0',
+    version: 'v3.0.0',
     deliveries: [
       { version: 'v1.0', label: 'App shell, routing, sidebar, layout', type: 'major' },
       { version: 'v2.0', label: 'Team page + org hierarchy design', type: 'major' },
-      { version: 'v2.5', label: 'Sub-agent delegation + UX Framework integration', type: 'minor' },
+      { version: 'v3.0', label: 'Commander refactor: delegates routing/UX/components to L2', type: 'major' },
     ],
     subAgents: [
       {
@@ -152,11 +153,11 @@ export const l1Agents: AgentData[] = [
     model: 'Claude Sonnet',
     tools: 6,
     activeTask: 'Drafting post on AI model optimization...',
-    version: 'v1.5.0',
+    version: 'v2.0.0',
     deliveries: [
       { version: 'v1.0', label: 'Blog post import pipeline + frontmatter', type: 'major' },
-      { version: 'v1.4', label: 'Platform-voice rewrite + governance post', type: 'minor' },
       { version: 'v1.5', label: 'Write → Validate → Publish sub-agent workflow', type: 'minor' },
+      { version: 'v2.0', label: 'Commander refactor: Content Writer + Security Gate + Content Publisher pipeline', type: 'major' },
     ],
     subAgents: [
       {
@@ -199,11 +200,11 @@ export const l1Agents: AgentData[] = [
     model: 'Claude Sonnet',
     tools: 8,
     activeTask: 'Scanning Anthropic docs for new content...',
-    version: 'v1.3.0',
+    version: 'v2.0.0',
     deliveries: [
       { version: 'v1.0', label: 'CCA-F question bank (50 questions)', type: 'major' },
-      { version: 'v1.2', label: 'Deduplication engine + web research tools', type: 'minor' },
-      { version: 'v1.3', label: 'Q-Gen + Study Notes sub-agent workflow', type: 'minor' },
+      { version: 'v1.3', label: 'Deduplication engine + web research tools', type: 'minor' },
+      { version: 'v2.0', label: 'Commander refactor: Question Generator + Study Notes sub-agent pipeline', type: 'major' },
     ],
     subAgents: [
       {
@@ -233,7 +234,7 @@ export const l1Agents: AgentData[] = [
     name: 'Study Companion',
     role: 'Teacher',
     tagline: '101 → 201 → 301. Meet you where you are.',
-    description: 'Multi-persona study partner. Teaching is a conversation, not a pipeline — no sub-agents needed. Shifts between Expert Teacher and student simulation modes.',
+    description: 'Teaching split into two focused sub-agents: Expert Teacher for Socratic instruction and grading; Student Simulator for teaching-back practice at 3 difficulty levels.',
     glowColor: 'shadow-rose-500/25',
     borderColor: 'border-rose-500/40 hover:border-rose-400/70',
     bgGradient: 'from-rose-500/10 via-rose-500/5 to-transparent',
@@ -246,13 +247,34 @@ export const l1Agents: AgentData[] = [
     model: 'Claude Sonnet',
     tools: 7,
     activeTask: 'Standby — awaiting study session',
-    version: 'v0.9.0',
+    version: 'v1.0.0',
     deliveries: [
       { version: 'v0.5', label: '101/201/301 persona framework', type: 'major' },
-      { version: 'v0.8', label: 'Socratic method + knowledge-gap analysis', type: 'minor' },
-      { version: 'v0.9', label: 'Student simulation mode (beta)', type: 'patch' },
+      { version: 'v0.9', label: 'Student simulation mode (beta)', type: 'minor' },
+      { version: 'v1.0', label: 'Split: Expert Teacher + Student Simulator sub-agents', type: 'major' },
     ],
-    noSubAgents: true,
+    subAgents: [
+      {
+        id: 'expert-teacher',
+        name: 'Expert Teacher',
+        role: 'Teaching Specialist',
+        description: 'Socratic method, concept explanation, exam trap highlights, answer grading. Cross-domain connections.',
+        owns: 'no disk write — conversational only',
+        tools: 'read, web/fetch, askQuestions',
+        icon: GraduationCap,
+        isNew: true,
+      },
+      {
+        id: 'student-simulator',
+        name: 'Student Simulator',
+        role: 'Simulation Specialist',
+        description: 'Plays 101/201/301 student to let user practice teaching-back. Escalates confusion, surfaces knowledge gaps.',
+        owns: 'no disk write — conversational only',
+        tools: 'askQuestions only',
+        icon: Users,
+        isNew: true,
+      },
+    ],
   },
 ];
 
@@ -269,36 +291,6 @@ const FLOW_STEPS = [
 /* ─────────────────────────────────────────────────────────────
    Small helpers
 ───────────────────────────────────────────────────────────── */
-function PulsingDot({ active, color = 'bg-emerald-400' }: { active: boolean; color?: string }) {
-  return (
-    <span className="relative flex h-2 w-2 shrink-0">
-      {active && <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${color} opacity-60`} />}
-      <span className={`relative inline-flex rounded-full h-2 w-2 ${active ? color : 'bg-slate-600'}`} />
-    </span>
-  );
-}
-
-function VersionBadge({ version, highlight }: { version: string; highlight?: boolean }) {
-  return (
-    <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold
-      ${highlight ? 'bg-violet-500/20 text-violet-300 border border-violet-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700/60'}`}>
-      <Tag size={8} />{version}
-    </span>
-  );
-}
-
-function NewBadge() {
-  return (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-      NEW
-    </span>
-  );
-}
-
-function DeliveryDot({ type }: { type: Delivery['type'] }) {
-  return <span className={`w-1.5 h-1.5 rounded-full shrink-0 mt-1 ${type === 'major' ? 'bg-white' : type === 'minor' ? 'bg-slate-400' : 'bg-slate-600'}`} />;
-}
-
 function BounceEllipsis({ color }: { color: string }) {
   return (
     <span className="flex gap-0.5 ml-1">
@@ -427,9 +419,11 @@ function HumanCard({ visible, isThinking }: { visible: boolean; isThinking: bool
   function closePopup() { popupTimer.current = setTimeout(() => setShowPopup(false), 150); }
 
   return (
-    <div className={`relative glass-card rounded-2xl p-5 border transition-all duration-600
+    <div
+      className={`relative glass-card card-accent-top rounded-2xl p-5 border transition-all duration-600
       ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'}
       ${hovered ? 'border-slate-400/60 shadow-2xl shadow-slate-400/10' : 'border-slate-600/50'}`}
+      style={{ '--accent-color': 'linear-gradient(90deg,#334155,#94a3b8)' } as React.CSSProperties}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-slate-500/5 to-transparent pointer-events-none" />
       <div className="absolute -top-3 left-5 flex items-center gap-2">
@@ -534,16 +528,17 @@ function OrchestratorCard({ agent, visible }: { agent: AgentData; visible: boole
   }, [hovered]);
 
   return (
-    <div className={`relative glass-card rounded-2xl p-5 border transition-all duration-600
-      ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
-      ${hovered ? 'border-violet-400/60 shadow-2xl shadow-violet-500/20' : 'border-violet-500/30'}`}
-      style={{ transitionDelay: '200ms' }}
+    <div
+      className={`relative glass-card card-accent-top rounded-2xl p-5 border transition-all duration-600
+        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
+        ${hovered ? 'border-violet-400/60 shadow-2xl shadow-violet-500/20' : 'border-violet-500/30'}`}
+      style={{ '--accent-color': 'linear-gradient(90deg,#7c3aed,#a78bfa)', transitionDelay: '200ms' } as React.CSSProperties}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${agent.bgGradient} pointer-events-none`} />
 
       <div className="absolute -top-3 left-5 flex items-center gap-2">
         <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest border ${agent.badgeColor}`}>⚡ L0 · Chief Orchestrator</span>
-        <VersionBadge version={agent.version} highlight />
+        <VersionTag version={agent.version} highlight />
       </div>
 
       <div className="relative flex flex-col sm:flex-row sm:items-start gap-4 pt-2">
@@ -567,19 +562,7 @@ function OrchestratorCard({ agent, visible }: { agent: AgentData; visible: boole
 
           <div className={`overflow-hidden transition-all duration-400 ${showDeliveries ? 'max-h-40 opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
             <div className="pt-3 border-t border-slate-800/40">
-              <div className="flex items-center gap-1.5 mb-2">
-                <PackageCheck size={11} className="text-slate-500" />
-                <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Major Deliveries</span>
-              </div>
-              <div className="space-y-1.5">
-                {agent.deliveries.map(d => (
-                  <div key={d.version} className="flex items-start gap-2">
-                    <DeliveryDot type={d.type} />
-                    <span className={`text-[9px] font-mono font-bold shrink-0 ${agent.textColor}`}>{d.version}</span>
-                    <span className="text-[10px] text-slate-400 leading-tight">{d.label}</span>
-                  </div>
-                ))}
-              </div>
+              <Timeline entries={agent.deliveries} accentColor={agent.textColor} />
             </div>
           </div>
         </div>
@@ -601,7 +584,7 @@ function OrchestratorCard({ agent, visible }: { agent: AgentData; visible: boole
                   <SIcon size={15} className={s.textColor} />
                 </div>
                 <span className={`text-[9px] font-semibold ${s.textColor}`}>{s.role}</span>
-                <VersionBadge version={s.version} />
+                <VersionTag version={s.version} />
               </div>
             );
           })}
@@ -637,7 +620,10 @@ function SecurityGateBand({ visible }: { visible: boolean }) {
         <div className="h-px flex-1 bg-gradient-to-l from-transparent via-amber-500/30 to-transparent" />
       </div>
 
-      <div className="glass-card rounded-2xl p-4 border border-amber-500/30 bg-amber-500/3 relative overflow-hidden">
+      <div
+        className="glass-card card-accent-top rounded-2xl p-4 border border-amber-500/30 bg-amber-500/3 relative overflow-hidden"
+        style={{ '--accent-color': 'linear-gradient(90deg,#92400e,#fbbf24)' } as React.CSSProperties}
+      >
         <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-blue-500/5 pointer-events-none rounded-2xl" />
 
         <div className="relative flex flex-col sm:flex-row sm:items-start gap-4">
@@ -650,7 +636,7 @@ function SecurityGateBand({ visible }: { visible: boolean }) {
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-bold text-white text-sm">Security & Governance</span>
                 <NewBadge />
-                <VersionBadge version="v1.0.0" />
+                <VersionTag version="v1.0.0" />
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold">Cross-Cutting L1</span>
@@ -710,7 +696,10 @@ function UXFoundationBand({ visible }: { visible: boolean }) {
         <div className="h-px flex-1 bg-gradient-to-l from-transparent via-purple-500/30 to-transparent" />
       </div>
 
-      <div className="glass-card rounded-2xl p-4 border border-purple-500/30 bg-purple-500/3 relative overflow-hidden">
+      <div
+        className="glass-card card-accent-top rounded-2xl p-4 border border-purple-500/30 bg-purple-500/3 relative overflow-hidden"
+        style={{ '--accent-color': 'linear-gradient(90deg,#581c87,#c084fc)' } as React.CSSProperties}
+      >
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-violet-500/5 pointer-events-none rounded-2xl" />
 
         <div className="relative flex flex-col sm:flex-row sm:items-start gap-4">
@@ -723,7 +712,7 @@ function UXFoundationBand({ visible }: { visible: boolean }) {
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-bold text-white text-sm">UX Foundation</span>
                 <NewBadge />
-                <VersionBadge version="v1.0.0" />
+                <VersionTag version="v1.0.0" />
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30 font-semibold">Cross-Cutting L1</span>
@@ -799,6 +788,13 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
   const [hovered, setHovered] = useState(false);
   const [showDeliveries, setShowDeliveries] = useState(false);
   const Icon = agent.icon;
+  const accentMap: Record<string, string> = {
+    'platform-control': 'linear-gradient(90deg,#1d4ed8,#60a5fa)',
+    'blog':             'linear-gradient(90deg,#065f46,#34d399)',
+    'exam-content':     'linear-gradient(90deg,#92400e,#fbbf24)',
+    'study-companion':  'linear-gradient(90deg,#9f1239,#fb7185)',
+  };
+  const accentColor = accentMap[agent.id] ?? 'linear-gradient(90deg,#475569,#94a3b8)';
 
   useEffect(() => {
     if (hovered) { const t = setTimeout(() => setShowDeliveries(true), 200); return () => clearTimeout(t); }
@@ -806,10 +802,11 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
   }, [hovered]);
 
   return (
-    <div className={`relative glass-card rounded-xl border transition-all duration-500
-      ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
-      ${hovered ? `${agent.borderColor} shadow-xl ${agent.glowColor} -translate-y-1` : 'border-slate-700/40'}`}
-      style={{ transitionDelay: `${700 + index * 100}ms` }}
+    <div
+      className={`relative glass-card card-accent-top rounded-xl border transition-all duration-500
+        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
+        ${hovered ? `${agent.borderColor} shadow-xl ${agent.glowColor} -translate-y-1` : 'border-slate-700/40'}`}
+      style={{ '--accent-color': accentColor, transitionDelay: `${700 + index * 100}ms` } as React.CSSProperties}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${agent.bgGradient} pointer-events-none transition-opacity duration-300 ${hovered ? 'opacity-100' : 'opacity-40'}`} />
 
@@ -826,7 +823,7 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
             </div>
             <div className="flex items-center gap-1">
               <span className={`text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border ${agent.badgeColor}`}>{agent.role}</span>
-              <VersionBadge version={agent.version} />
+              <VersionTag version={agent.version} />
               {agent.isNew && <NewBadge />}
             </div>
           </div>
@@ -843,19 +840,7 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
         {/* deliveries on hover */}
         <div className={`overflow-hidden transition-all duration-400 ${showDeliveries ? 'max-h-40 opacity-100 mb-3' : 'max-h-0 opacity-0'}`}>
           <div className="pt-2 border-t border-slate-700/30">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <PackageCheck size={10} className="text-slate-500" />
-              <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Major Deliveries</span>
-            </div>
-            <div className="space-y-1">
-              {agent.deliveries.map(d => (
-                <div key={d.version} className="flex items-start gap-2">
-                  <DeliveryDot type={d.type} />
-                  <span className={`text-[9px] font-mono font-bold shrink-0 ${agent.textColor}`}>{d.version}</span>
-                  <span className="text-[10px] text-slate-400 leading-tight">{d.label}</span>
-                </div>
-              ))}
-            </div>
+            <Timeline entries={agent.deliveries} accentColor={agent.textColor} />
           </div>
         </div>
 
@@ -895,19 +880,6 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Stat badge
-───────────────────────────────────────────────────────────── */
-function StatBadge({ icon: Icon, value, label, color }: { icon: React.ElementType; value: string | number; label: string; color: string }) {
-  return (
-    <div className="glass-stats rounded-xl p-4 text-center">
-      <Icon size={16} className={`mx-auto ${color} mb-1.5`} />
-      <div className="text-xl font-bold text-white">{value}</div>
-      <div className="text-[11px] text-slate-500">{label}</div>
     </div>
   );
 }
@@ -961,12 +933,14 @@ export default function Team() {
         </div>
 
         {/* Stats */}
-        <div className={`grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+        <div className={`mb-8 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
           style={{ transitionDelay: '100ms' }}>
-          <StatBadge icon={Bot}        value={totalAgents}      label="Total Agents"   color="text-violet-400" />
-          <StatBadge icon={Users}      value={totalSubAgents}   label="Sub-Agents"     color="text-blue-400" />
-          <StatBadge icon={ShieldCheck} value={1}               label="Security Gate"  color="text-amber-400" />
-          <StatBadge icon={Brain}      value="Claude"           label="Foundation"     color="text-emerald-400" />
+          <StatGrid stats={[
+            { icon: Bot,         value: totalAgents,    label: 'Total Agents',  color: 'text-violet-400',  accent: 'linear-gradient(90deg,#7c3aed,#a78bfa)' },
+            { icon: Users,       value: totalSubAgents,  label: 'Sub-Agents',    color: 'text-blue-400',    accent: 'linear-gradient(90deg,#1d4ed8,#60a5fa)' },
+            { icon: ShieldCheck, value: 1,               label: 'Security Gate', color: 'text-amber-400',   accent: 'linear-gradient(90deg,#92400e,#fbbf24)' },
+            { icon: Brain,       value: 'Claude',        label: 'Foundation',    color: 'text-emerald-400', accent: 'linear-gradient(90deg,#065f46,#34d399)' },
+          ]} />
         </div>
 
         {/* Flow banner */}

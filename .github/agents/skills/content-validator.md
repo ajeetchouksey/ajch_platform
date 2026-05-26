@@ -3,13 +3,22 @@ name: content-validator
 description: >
   Validate generated content for schema compliance, Anthropic alignment,
   and quality standards before committing to the repository.
+  NOTE: This skill handles content quality. Security validation (OWASP, path
+  traversal, secrets) is handled separately by Security & Governance Agent.
 ---
 
 # Content Validator Skill
 
-## Purpose
-Final quality gate before any content is added to the study app.
-Validates both structural correctness and factual accuracy.
+## Role in v2 Pipeline
+
+This skill handles **content quality and accuracy** — it is separate from and runs alongside the Security & Governance Agent:
+
+| Gate | Handles | Agent |
+|------|---------|-------|
+| Security Gate | Path traversal, secrets, OWASP, XSS, dependency gate | Security & Governance Agent |
+| Content Gate (this skill) | Schema compliance, Anthropic alignment, question quality | content-validator skill |
+
+Both gates must pass before content is written to disk.
 
 ## Question Validation
 

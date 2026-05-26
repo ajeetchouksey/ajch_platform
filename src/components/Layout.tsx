@@ -103,9 +103,9 @@ export default function Layout({ children }: { children: ReactNode }) {
   const recentPosts = blogPosts.slice(0, 5);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col text-slate-100">
       {/* Header */}
-      <header className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-50">
+      <header className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-50 relative">
         <div className="flex items-center h-14 px-4 max-w-[1600px] mx-auto">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -173,6 +173,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             )}
           </div>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
       </header>
 
       <div className="flex flex-1 overflow-hidden">
@@ -188,7 +189,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         >
           {/* Mobile: platform nav */}
           <div className="px-4 pb-4 lg:hidden">
-            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">
+            <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
               Platform
             </h3>
             <nav className="space-y-0.5">
@@ -200,7 +201,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
                       isActive
-                        ? 'bg-violet-500/10 text-violet-300 border-l-2 border-violet-400 ml-0 pl-2.5'
+                        ? 'bg-violet-500/15 text-violet-200 border-l-2 border-violet-400 ml-0 pl-2.5'
                         : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
                     }`
                   }
@@ -216,7 +217,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           {isInCcaf && (
             <>
               <div className="px-4 pb-4">
-                <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">
+                <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
                   CCA-F Exam
                 </h3>
                 <nav className="space-y-0.5">
@@ -228,7 +229,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                       className={({ isActive }) =>
                         `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
                           isActive
-                            ? 'bg-violet-500/10 text-violet-300 border-l-2 border-violet-400 pl-2.5'
+                            ? 'bg-violet-500/15 text-violet-200 border-l-2 border-violet-400 pl-2.5'
                             : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
                         }`
                       }
@@ -241,7 +242,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               </div>
 
               <div className="px-4 pb-4">
-                <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">
+                <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
                   Exam Domains
                 </h3>
                 <div className="space-y-0.5">
@@ -253,7 +254,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                         to={`/exams/ccaf/notes?d=${id}`}
                         className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-all duration-200 ${
                           isActive
-                            ? 'bg-slate-800 text-white scale-[1.02]'
+                            ? 'bg-slate-800/80 text-white scale-[1.02] shadow-sm'
                             : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:translate-x-0.5'
                         }`}
                       >
@@ -266,7 +267,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               </div>
 
               <div className="px-4 pb-4">
-                <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">
+                <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
                   Domain Weights
                 </h3>
                 <div className="space-y-2">
@@ -289,7 +290,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               </div>
 
               <div className="px-4 pt-3 border-t border-slate-800/50">
-                <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3 mt-1">
+                <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3 mt-1">
                   Resources
                 </h3>
                 <div className="space-y-1.5 text-xs">
@@ -303,80 +304,34 @@ export default function Layout({ children }: { children: ReactNode }) {
 
           {/* Blog sidebar */}
           {isInBlog && (
-            <>
-              <div className="px-4 pb-4">
-                <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">
-                  Categories
-                </h3>
-                <nav className="space-y-0.5">
-                  <Link
-                    to="/blog"
-                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200"
-                  >
-                    <Newspaper size={14} />
-                    <span>All Posts</span>
-                    <span className="ml-auto text-[10px] bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-full">{blogPosts.length}</span>
+            <div className="px-4 pb-4">
+              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">Categories</h3>
+              <nav className="space-y-0.5">
+                <Link to="/blog" className="flex items-center justify-between px-3 py-1.5 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
+                  <span className="flex items-center gap-2"><Newspaper size={13} />All Posts</span>
+                  <span className="text-[10px] bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-full">{blogPosts.length}</span>
+                </Link>
+                {blogCategories.map((cat) => (
+                  <Link key={cat} to="/blog" className="flex items-center justify-between px-3 py-1.5 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
+                    <span className="flex items-center gap-2"><FolderOpen size={13} />{cat}</span>
+                    <span className="text-[10px] text-slate-600">{blogPosts.filter(p => p.category === cat).length}</span>
                   </Link>
-                  {blogCategories.map((cat) => (
-                    <Link
-                      key={cat}
-                      to="/blog"
-                      className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200"
-                    >
-                      <FolderOpen size={14} />
-                      <span>{cat}</span>
-                    </Link>
-                  ))}
-                </nav>
-              </div>
-
-              <div className="px-4 pb-4">
-                <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">
-                  Recent Posts
-                </h3>
-                <div className="space-y-2">
-                  {recentPosts.map((post) => (
-                    <Link
-                      key={post.slug}
-                      to={`/blog/${post.slug}`}
-                      className="block text-xs text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all duration-200 leading-relaxed line-clamp-2"
-                    >
-                      {post.title}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <div className="px-4 pb-4">
-                <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">
-                  Tags
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {blogTags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center gap-0.5 text-[11px] bg-slate-800/70 text-slate-400 px-1.5 py-0.5 rounded hover:bg-slate-700 hover:text-white transition-all duration-200 cursor-default"
-                    >
-                      <Tag size={9} />
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </>
+                ))}
+              </nav>
+            </div>
           )}
 
           {/* Team sidebar */}
           {isInTeam && (
             <div className="px-4 pb-4">
-              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">The Team</h3>
+              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">The Team</h3>
               <nav className="space-y-0.5">
                 <NavLink
                   to="/team"
                   end
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                      isActive ? 'bg-violet-500/10 text-violet-300 border-l-2 border-violet-400 pl-2.5' : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
+                      isActive ? 'bg-violet-500/15 text-violet-200 border-l-2 border-violet-400 pl-2.5' : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
                     }`
                   }
                 >
@@ -384,7 +339,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <span>Overview</span>
                 </NavLink>
               </nav>
-              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mt-4 mb-2">L0 Orchestrator</h3>
+              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mt-4 mb-2">L0 Orchestrator</h3>
               <div className="space-y-0.5 mb-3">
                 {[{ label: 'Platform Orchestrator', color: 'bg-violet-400' }].map(({ label, color }) => (
                   <div key={label} className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
@@ -392,19 +347,19 @@ export default function Layout({ children }: { children: ReactNode }) {
                   </div>
                 ))}
               </div>
-              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-2">🛡️ Security Gate</h3>
+              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">🛡️ Security Gate</h3>
               <div className="space-y-0.5 mb-3">
                 <div className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /><span>Security &amp; Governance</span>
                 </div>
               </div>
-              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-2">🎨 UX Foundation</h3>
+              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">🎨 UX Foundation</h3>
               <div className="space-y-0.5 mb-3">
                 <div className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
                   <span className="w-1.5 h-1.5 rounded-full bg-purple-400" /><span>UX Foundation</span>
                 </div>
               </div>
-              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-2">L1 Domain Leads</h3>
+              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">L1 Domain Leads</h3>
               <div className="space-y-0.5 mb-3">
                 {[
                   { label: 'Platform Control', color: 'bg-blue-400' },
@@ -417,7 +372,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   </div>
                 ))}
               </div>
-              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-2">L2 Specialists</h3>
+              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">L2 Specialists</h3>
               <div className="space-y-0.5">
                 {[
                   { label: 'Routing Agent', color: 'bg-blue-500/50' },
@@ -438,7 +393,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           {/* Generic sidebar for non-exam, non-blog, non-team pages */}
           {!isInCcaf && !isInBlog && !isInTeam && (
             <div className="px-4 pb-4">
-              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">
+              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
                 Features
               </h3>
               <nav className="space-y-0.5">

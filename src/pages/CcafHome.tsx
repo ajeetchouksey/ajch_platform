@@ -12,6 +12,7 @@ const cards = [
     cta: 'Start Quiz',
     iconBg: 'bg-violet-950/50',
     iconColor: 'text-violet-400',
+    accentColor: 'linear-gradient(90deg, #7c3aed, #a78bfa)',
   },
   {
     to: '/exams/ccaf/notes',
@@ -21,6 +22,7 @@ const cards = [
     cta: 'Open Notes',
     iconBg: 'bg-blue-950/50',
     iconColor: 'text-blue-400',
+    accentColor: 'linear-gradient(90deg, #1d4ed8, #60a5fa)',
   },
   {
     to: '/exams/ccaf/scenarios',
@@ -30,6 +32,7 @@ const cards = [
     cta: 'Browse Scenarios',
     iconBg: 'bg-emerald-950/50',
     iconColor: 'text-emerald-400',
+    accentColor: 'linear-gradient(90deg, #065f46, #34d399)',
   },
   {
     to: '/exams/ccaf/progress',
@@ -39,6 +42,7 @@ const cards = [
     cta: 'View Progress',
     iconBg: 'bg-amber-950/50',
     iconColor: 'text-amber-400',
+    accentColor: 'linear-gradient(90deg, #92400e, #fbbf24)',
   },
 ];
 
@@ -59,10 +63,10 @@ function AnimatedBar({ width, color, delay }: { width: number; color: string; de
   }, [delay]);
 
   return (
-    <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+    <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
       <div
         className={`h-full ${color} rounded-full transition-all duration-1000 ease-out`}
-        style={{ width: animated ? `${width}%` : '0%' }}
+        style={{ width: animated ? `${width}%` : '0%', boxShadow: animated ? '0 0 8px 0 currentColor' : 'none' }}
       />
     </div>
   );
@@ -79,7 +83,7 @@ export default function CcafHome() {
     <div className="space-y-8">
       {/* Header */}
       <div className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <div className="inline-block bg-violet-900/40 text-violet-300 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-widest mb-3 animate-pulse">
+        <div className="inline-block bg-gradient-to-r from-violet-600/30 to-fuchsia-600/20 text-violet-200 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-widest mb-3 animate-pulse border border-violet-500/30">
           CCA-F
         </div>
         <h1 className="text-3xl font-bold text-white">Claude Certified Architect – Foundations</h1>
@@ -90,14 +94,12 @@ export default function CcafHome() {
 
       {/* Nav cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {cards.map(({ to, icon: Icon, title, desc, cta, iconBg, iconColor }, idx) => (
+        {cards.map(({ to, icon: Icon, title, desc, cta, iconBg, iconColor, accentColor }, idx) => (
           <Link
             key={to}
             to={to}
-            className={`glass-card glass-sheen glass-edge rounded-xl p-5 hover:border-violet-500/50 hover:shadow-lg hover:shadow-violet-500/5 hover:-translate-y-0.5 transition-all duration-300 group ${
-              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
-            style={{ transitionDelay: `${200 + idx * 100}ms` }}
+            className={`glass-card glass-sheen card-accent-top rounded-xl p-5 hover:border-violet-500/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+            style={{ '--accent-color': accentColor, transitionDelay: `${200 + idx * 100}ms` } as React.CSSProperties}
           >
             <div className={`w-9 h-9 rounded-lg ${iconBg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
               <Icon size={18} className={iconColor} />
@@ -113,7 +115,7 @@ export default function CcafHome() {
       </div>
 
       {/* Domain weights */}
-      <div className={`glass-card glass-edge rounded-xl p-5 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`} style={{ transitionDelay: '600ms' }}>
+      <div className={`glass-card glass-edge card-accent-top rounded-xl p-5 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`} style={{ '--accent-color': 'linear-gradient(90deg, #7c3aed, #a78bfa)', transitionDelay: '600ms' } as React.CSSProperties}>
         <h2 className="font-semibold text-white mb-4">Exam Domain Weights</h2>
         <div className="space-y-3">
           {Object.entries(DOMAIN_META).map(([d, meta], idx) => (

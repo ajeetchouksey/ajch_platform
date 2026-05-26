@@ -6,28 +6,40 @@ description: >
 
 # Audit Existing Content
 
-## Steps
+This prompt is handled by **Exam Content Agent** (Exam Commander).
 
-1. Read all question files and notes for the specified domain (or all domains)
-2. Check each fact/claim against known Anthropic patterns:
-   - API parameter names and signatures
-   - Model names and capabilities
-   - Feature availability and behavior
-   - Recommended patterns and anti-patterns
-3. Flag any outdated or incorrect content
-4. Suggest specific fixes with file paths and line numbers
-5. Run `npm run curator:validate` after any fixes
+## Workflow (v2)
+
+1. Exam Content Agent reads all question files and notes for the specified domain
+2. Checks facts against known Anthropic patterns (via web/fetch to docs if needed)
+3. Flags outdated or incorrect content with file path + line reference
+4. Suggests fixes → delegates corrections to:
+   - **Question Generator** (for question fixes)
+   - **Study Notes Agent** (for notes fixes)
+5. **Security & Governance Agent** validates before any write
+
+## Usage
+
+```
+@exam-content Audit all content
+@exam-content Audit D3 questions for accuracy
+@exam-content Check if model names are current across all notes
+```
 
 ## Audit Checklist
 
 ### API Accuracy
-- [ ] Model names are current (claude-sonnet-4-20250514, etc.)
+- [ ] Model names are current (`claude-sonnet-4-20250514`, etc.)
 - [ ] Method calls use Messages API (not old Completions)
 - [ ] Parameter names match official SDK
 - [ ] Response structure matches actual API responses
 
 ### Content Quality
-- [ ] No factual errors
+- [ ] No factual errors or contradictions with official docs
+- [ ] No deprecated features presented as current
+- [ ] Domain weights still match official exam guide
+- [ ] All question IDs follow `d{N}-{NNN}` format
+
 - [ ] Code examples are runnable (not pseudocode)
 - [ ] Mermaid diagrams render correctly
 - [ ] No broken markdown formatting
