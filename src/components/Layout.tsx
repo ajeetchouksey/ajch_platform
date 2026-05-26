@@ -383,18 +383,46 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <span>Overview</span>
                 </NavLink>
               </nav>
-              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mt-4 mb-3">AI Agents</h3>
-              <div className="space-y-1">
+              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mt-4 mb-2">L0 Orchestrator</h3>
+              <div className="space-y-0.5 mb-3">
+                {[{ label: 'Platform Orchestrator', color: 'bg-violet-400' }].map(({ label, color }) => (
+                  <div key={label} className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
+                    <span className={`w-1.5 h-1.5 rounded-full ${color}`} /><span>{label}</span>
+                  </div>
+                ))}
+              </div>
+              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-2">🛡️ Security Gate</h3>
+              <div className="space-y-0.5 mb-3">
+                <div className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /><span>Security &amp; Governance</span>
+                </div>
+              </div>
+              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-2">L1 Commanders</h3>
+              <div className="space-y-0.5 mb-3">
                 {[
-                  { label: 'Orchestrator', color: 'bg-violet-400' },
                   { label: 'Platform Control', color: 'bg-blue-400' },
-                  { label: 'Blog Agent', color: 'bg-emerald-400' },
-                  { label: 'Exam Content', color: 'bg-amber-400' },
+                  { label: 'Blog Commander', color: 'bg-emerald-400' },
+                  { label: 'Exam Commander', color: 'bg-amber-400' },
                   { label: 'Study Companion', color: 'bg-rose-400' },
+                  { label: 'UX Framework', color: 'bg-purple-400' },
                 ].map(({ label, color }) => (
-                  <div key={label} className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-slate-500">
-                    <span className={`w-1.5 h-1.5 rounded-full ${color}`} />
-                    <span>{label}</span>
+                  <div key={label} className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
+                    <span className={`w-1.5 h-1.5 rounded-full ${color}`} /><span>{label}</span>
+                  </div>
+                ))}
+              </div>
+              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-2">L2 Specialists</h3>
+              <div className="space-y-0.5">
+                {[
+                  { label: 'Routing Agent', color: 'bg-blue-500/50' },
+                  { label: 'Component Builder', color: 'bg-blue-500/50' },
+                  { label: 'Content Writer', color: 'bg-emerald-500/50' },
+                  { label: 'Content Publisher', color: 'bg-emerald-500/50' },
+                  { label: 'Question Generator', color: 'bg-amber-500/50' },
+                  { label: 'Study Notes Agent', color: 'bg-amber-500/50' },
+                ].map(({ label, color }) => (
+                  <div key={label} className="flex items-center gap-2.5 px-3 py-1 text-[11px] text-slate-600">
+                    <span className={`w-1 h-1 rounded-full ${color}`} /><span>{label}</span>
                   </div>
                 ))}
               </div>
