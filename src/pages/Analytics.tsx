@@ -40,15 +40,15 @@ async function gcFetch<T>(path: string, token: string): Promise<T> {
 async function loadAnalytics(token: string): Promise<AnalyticsData> {
   const [total, pages, locs, hits] = await Promise.all([
     gcFetch<{ total: number; total_utc: number }>('/stats/total', token),
-    gcFetch<{ pages: { path: string; title: string; count: number }[] }>('/stats/hits?limit=10', token),
-    gcFetch<{ locations: { location: string; count: number }[] }>('/stats/locations?limit=15', token),
-    gcFetch<{ hits: { day: string; count: number }[] }>('/stats/hits?limit=30', token),
+    gcFetch<{ pages: { path: string; title: string; count: number }[] }>('/stats/pages?limit=10', token),
+    gcFetch<{ locations: { location: string; count: number }[] }>('/stats/locations', token),
+    gcFetch<{ days: { day: string; count: number }[] }>('/stats/hits?days=30', token),
   ]);
   return {
     totals: { total: total.total ?? 0, totalToday: total.total_utc ?? 0 },
     topPages: (pages.pages ?? []).map(p => ({ path: p.path, title: p.title || p.path, count: p.count })),
-    locations: (locs.locations ?? []).map(l => ({ location: l.location, count: l.count })),
-    hitsByDay: (hits.hits ?? []).map(h => ({ day: h.day, count: h.count })),
+    locations: (locs.locations ?? []).slice(0, 15).map(l => ({ location: l.location, count: l.count })),
+    hitsByDay: (hits.days ?? []).map(h => ({ day: h.day, count: h.count })),
   };
 }
 
