@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LogOut, Key } from 'lucide-react';
+import { LogOut, Key, Copy, Check, ExternalLink } from 'lucide-react';
 import { useAuth, isOAuthConfigured } from '../lib/auth';
 
 function GithubIcon({ size = 14 }: { size?: number }) {
@@ -11,10 +11,18 @@ function GithubIcon({ size = 14 }: { size?: number }) {
 }
 
 export function GithubLogin() {
-  const { user, isLoading, login, loginWithToken, logout } = useAuth();
+  const { user, isLoading, login, loginWithToken, logout, deviceFlow, cancelDeviceFlow } = useAuth();
   const [showTokenInput, setShowTokenInput] = useState(false);
   const [tokenValue, setTokenValue] = useState('');
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const copyCode = () => {
+    navigator.clipboard?.writeText(deviceFlow?.userCode ?? '').then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   if (isLoading) return <div className="w-8 h-8 rounded-full bg-gray-700 animate-pulse" />;
 
@@ -27,6 +35,48 @@ export function GithubLogin() {
         </a>
         <button onClick={logout} className="p-1 text-gray-400 hover:text-red-400 transition-colors" title="Logout">
           <LogOut size={16} />
+        </button>
+      </div>
+    );
+  }
+
+  // Device flow in progress — show code + spinner
+  if (deviceFlow) {
+    const secondsLeft = Math.max(0, Math.round((deviceFlow.expiresAt - Date.now()) / 1000));
+    return (
+      <div className="flex items-center gap-1.5 bg-gray-800/90 border border-violet-500/40 rounded-lg px-2.5 py-1.5">
+        {/* Step hint */}
+        <span className="text-[10px] text-gray-400 hidden sm:inline whitespace-nowrap">
+          <a href={deviceFlow.verificationUri} target="_blank" rel="noopener noreferrer"
+            className="text-violet-400 hover:underline">github.com/login/device</a> →
+        </span>
+        {/* Code */}
+        <button
+          onClick={copyCode}
+          className="flex items-center gap-1 font-mono font-bold text-white text-sm bg-gray-700 hover:bg-gray-600 px-2 py-0.5 rounded transition-colors"
+          title="Click to copy"
+        >
+          {deviceFlow.userCode}
+          {copied ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} className="text-gray-400" />}
+        </button>
+        {/* Open GitHub */}
+        <a
+          href={deviceFlow.verificationUri}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-1 text-gray-400 hover:text-violet-300 transition-colors"
+          title="Open GitHub device activation"
+        >
+          <ExternalLink size={13} />
+        </a>
+        {/* Spinner + expiry */}
+        <span className="flex items-center gap-1 text-[10px] text-gray-500">
+          <span className="w-2.5 h-2.5 border-2 border-violet-400 border-t-transparent rounded-full animate-spin inline-block" />
+          {secondsLeft}s
+        </span>
+        {/* Cancel */}
+        <button onClick={cancelDeviceFlow} className="text-gray-500 hover:text-gray-300 text-xs leading-none" title="Cancel">
+          ✕
         </button>
       </div>
     );

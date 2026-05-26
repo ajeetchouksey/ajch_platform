@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 
 interface GitHubUser {
   login: string;
@@ -7,12 +7,22 @@ interface GitHubUser {
   html_url: string;
 }
 
+export interface DeviceFlowState {
+  userCode: string;
+  verificationUri: string;
+  expiresAt: number;   // ms timestamp
+  deviceCode: string;
+  interval: number;    // seconds between polls
+}
+
 interface AuthContextType {
   user: GitHubUser | null;
   token: string | null;
   isLoading: boolean;
+  deviceFlow: DeviceFlowState | null;
   login: () => void;
   loginWithToken: (token: string) => Promise<boolean>;
+  cancelDeviceFlow: () => void;
   logout: () => void;
 }
 
@@ -20,12 +30,13 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const STORAGE_KEY = 'ccaf_gh_token';
 const CLIENT_ID = import.meta.env.VITE_GH_CLIENT_ID || '';
-const PROXY_URL = import.meta.env.VITE_GH_OAUTH_PROXY || '';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<GitHubUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [deviceFlow, setDeviceFlow] = useState<DeviceFlowState | null>(null);
+  const pollTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const fetchUser = useCallback(async (accessToken: string): Promise<GitHubUser | null> => {
     try {
@@ -53,16 +64,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [fetchUser]);
 
+  const cancelDeviceFlow = useCallback(() => {
+    if (pollTimer.current) clearTimeout(pollTimer.current);
+    setDeviceFlow(null);
+  }, []);
+
+  // Poll GitHub for token once device flow is active
+  useEffect(() => {
+    if (!deviceFlow) return;
+    let cancelled = false;
+
+    const poll = async () => {
+      if (cancelled) return;
+      if (Date.now() >= deviceFlow.expiresAt) { setDeviceFlow(null); return; }
+
+      try {
+        const res = await fetch('https://github.com/login/oauth/access_token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            client_id: CLIENT_ID,
+            device_code: deviceFlow.deviceCode,
+            grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+          }),
+        });
+        const data = await res.json();
+
+        if (data.access_token) {
+          const u = await fetchUser(data.access_token);
+          if (u && !cancelled) {
+            setUser(u);
+            setToken(data.access_token);
+            localStorage.setItem(STORAGE_KEY, data.access_token);
+            setDeviceFlow(null);
+          }
+        } else if (data.error === 'slow_down') {
+          pollTimer.current = setTimeout(poll, (deviceFlow.interval + 5) * 1000);
+        } else if (data.error === 'authorization_pending') {
+          pollTimer.current = setTimeout(poll, deviceFlow.interval * 1000);
+        } else {
+          // expired_token, access_denied, unsupported_grant_type
+          if (!cancelled) setDeviceFlow(null);
+        }
+      } catch {
+        if (!cancelled) pollTimer.current = setTimeout(poll, deviceFlow.interval * 1000);
+      }
+    };
+
+    pollTimer.current = setTimeout(poll, deviceFlow.interval * 1000);
+    return () => { cancelled = true; if (pollTimer.current) clearTimeout(pollTimer.current); };
+  }, [deviceFlow, fetchUser]);
+
   const login = useCallback(() => {
-    if (!CLIENT_ID || !PROXY_URL) {
-      alert('GitHub OAuth not configured. Use "Login with Token" instead.\n\nTo enable: set VITE_GH_CLIENT_ID and VITE_GH_OAUTH_PROXY in .env');
-      return;
-    }
-    window.open(
-      `${PROXY_URL}/login?client_id=${CLIENT_ID}&scope=gist,read:user`,
-      'gh-auth',
-      'width=500,height=700'
-    );
+    if (!CLIENT_ID) return; // Falls through — GithubLogin shows token input
+    fetch('https://github.com/login/device/code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ client_id: CLIENT_ID, scope: 'gist read:user' }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.device_code) {
+          setDeviceFlow({
+            userCode: data.user_code,
+            verificationUri: data.verification_uri || 'https://github.com/login/device',
+            expiresAt: Date.now() + (data.expires_in ?? 900) * 1000,
+            deviceCode: data.device_code,
+            interval: data.interval ?? 5,
+          });
+        }
+      })
+      .catch(() => {}); // silent — user can use token input as fallback
   }, []);
 
   const loginWithToken = useCallback(async (pat: string): Promise<boolean> => {
@@ -76,24 +148,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   }, [fetchUser]);
 
-  useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      if (event.data?.type === 'gh-oauth-token' && event.data.token) {
-        loginWithToken(event.data.token);
-      }
-    };
-    window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
-  }, [loginWithToken]);
-
   const logout = useCallback(() => {
     setUser(null);
     setToken(null);
     localStorage.removeItem(STORAGE_KEY);
-  }, []);
+    cancelDeviceFlow();
+  }, [cancelDeviceFlow]);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, loginWithToken, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, deviceFlow, login, loginWithToken, cancelDeviceFlow, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -105,6 +168,7 @@ export function useAuth() {
   return ctx;
 }
 
+// Device flow only needs a client_id — no proxy, no secret
 export function isOAuthConfigured(): boolean {
-  return !!(CLIENT_ID && PROXY_URL);
+  return !!CLIENT_ID;
 }
