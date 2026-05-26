@@ -5,7 +5,7 @@ description: >
   determines the correct specialist agent, and delegates tasks. Acts as the
   single entry point for all platform operations — routing work to Platform
   Control, Blog, Exam Content, or Study Companion agents as appropriate.
-tools: [read/readFile, read/problems, agent/runSubagent, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, vscode/askQuestions]
+tools: [vscode/askQuestions, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/readNotebookCellOutput, read/terminalSelection, read/terminalLastCommand, read/getTaskOutput, agent/runSubagent, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, web/fetch, web/githubRepo, web/githubTextSearch, todo]
 ---
 
 # Platform Orchestrator

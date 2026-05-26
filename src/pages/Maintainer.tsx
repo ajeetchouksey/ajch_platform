@@ -6,7 +6,7 @@ import { ProfileCard } from '../components/ProfileCard';
 import { StatGrid } from '../components/StatGrid';
 import { SkillBadges } from '../components/SkillBadges';
 import { TimelineSection } from '../components/TimelineSection';
-import { ExternalLink, Rocket, Target, LayoutDashboard } from 'lucide-react';
+import { ExternalLink, Rocket, Target, LayoutDashboard, Users } from 'lucide-react';
 
 const OWNER_LOGIN = 'ajeetchouksey';
 
@@ -35,15 +35,24 @@ export default function Maintainer() {
       {/* Stats */}
       <StatGrid stats={maintainer.stats} />
 
-      {/* Owner-only dashboard link */}
+      {/* Owner-only links */}
       {user?.login === OWNER_LOGIN && (
-        <Link
-          to="/maintainer/dashboard"
-          className="flex items-center gap-2 px-4 py-3 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-300 hover:bg-violet-500/20 transition-colors text-sm font-medium"
-        >
-          <LayoutDashboard size={16} />
-          Open Analytics Dashboard
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link
+            to="/maintainer/dashboard"
+            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-300 hover:bg-violet-500/20 transition-colors text-sm font-medium flex-1"
+          >
+            <LayoutDashboard size={16} />
+            Analytics Dashboard
+          </Link>
+          <Link
+            to="/maintainer/team"
+            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 hover:bg-blue-500/20 transition-colors text-sm font-medium flex-1"
+          >
+            <Users size={16} />
+            My AI Team
+          </Link>
+        </div>
       )}
 
       {/* Tech Stack */}

@@ -13,6 +13,7 @@ import Tools from "./pages/Tools";
 import Profile from "./pages/Profile";
 import Maintainer from "./pages/Maintainer";
 import MaintainerDashboard from "./pages/MaintainerDashboard";
+import Team from "./pages/Team";
 import { AuthProvider } from "./lib/auth";
 
 export default function App() {
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="/tools" element={<Tools />} />
             <Route path="/maintainer" element={<Maintainer />} />
             <Route path="/maintainer/dashboard" element={<MaintainerDashboard />} />
+            <Route path="/maintainer/team" element={<Team />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>
         </Layout>
