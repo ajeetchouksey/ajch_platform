@@ -397,14 +397,19 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /><span>Security &amp; Governance</span>
                 </div>
               </div>
+              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-2">🎨 UX Foundation</h3>
+              <div className="space-y-0.5 mb-3">
+                <div className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400" /><span>UX Foundation</span>
+                </div>
+              </div>
               <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-2">L1 Domain Leads</h3>
               <div className="space-y-0.5 mb-3">
                 {[
                   { label: 'Platform Control', color: 'bg-blue-400' },
-                  { label: 'Blog Commander', color: 'bg-emerald-400' },
-                  { label: 'Exam Commander', color: 'bg-amber-400' },
+                  { label: 'Blog Lead', color: 'bg-emerald-400' },
+                  { label: 'Exam Lead', color: 'bg-amber-400' },
                   { label: 'Study Companion', color: 'bg-rose-400' },
-                  { label: 'UX Framework', color: 'bg-purple-400' },
                 ].map(({ label, color }) => (
                   <div key={label} className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
                     <span className={`w-1.5 h-1.5 rounded-full ${color}`} /><span>{label}</span>

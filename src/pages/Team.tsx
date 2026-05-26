@@ -254,31 +254,6 @@ export const l1Agents: AgentData[] = [
     ],
     noSubAgents: true,
   },
-  {
-    id: 'ux-framework',
-    name: 'UX Framework',
-    role: 'Design Steward',
-    tagline: 'One design system. Zero raw Tailwind classes.',
-    description: 'Owns src/components/ui/. All platform UI is built from typed primitives here. Eliminates style drift and reduces token overhead for component agents.',
-    glowColor: 'shadow-purple-500/25',
-    borderColor: 'border-purple-500/40 hover:border-purple-400/70',
-    bgGradient: 'from-purple-500/10 via-purple-500/5 to-transparent',
-    textColor: 'text-purple-400',
-    badgeColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-    dotColor: 'bg-purple-400',
-    icon: Palette,
-    status: 'active',
-    capabilities: ['Design Tokens', 'Component Library', 'Pattern Governance', 'Style Consistency'],
-    model: 'Claude Sonnet',
-    tools: 5,
-    activeTask: 'Scaffolding src/components/ui/ primitives...',
-    version: 'v1.0.0',
-    deliveries: [
-      { version: 'v1.0', label: 'GlassCard · Badge · Button · Avatar · StatGrid', type: 'major' },
-    ],
-    isNew: true,
-    noSubAgents: true,
-  },
 ];
 
 /* ─────────────────────────────────────────────────────────────
@@ -715,6 +690,78 @@ function SecurityGateBand({ visible }: { visible: boolean }) {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   UX Foundation — cross-cutting band
+───────────────────────────────────────────────────────────── */
+function UXFoundationBand({ visible }: { visible: boolean }) {
+  const primitives = [
+    'GlassCard', 'Badge', 'VersionTag', 'StatGrid',
+    'Timeline', 'Avatar', 'Button', 'PulsingDot', 'SectionHeader',
+  ];
+
+  return (
+    <div className={`relative transition-all duration-600 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '580ms' }}>
+      {/* top label */}
+      <div className="flex items-center gap-2 mb-2 justify-center">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+        <span className="flex items-center gap-1.5 text-[9px] font-bold text-purple-400/70 uppercase tracking-widest whitespace-nowrap">
+          <Palette size={10} className="text-purple-400/70" />
+          Cross-Cutting UX Foundation — consumed by every render
+        </span>
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent via-purple-500/30 to-transparent" />
+      </div>
+
+      <div className="glass-card rounded-2xl p-4 border border-purple-500/30 bg-purple-500/3 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-violet-500/5 pointer-events-none rounded-2xl" />
+
+        <div className="relative flex flex-col sm:flex-row sm:items-start gap-4">
+          {/* icon + badge */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center">
+              <Palette size={22} className="text-purple-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-bold text-white text-sm">UX Foundation</span>
+                <NewBadge />
+                <VersionBadge version="v1.0.0" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30 font-semibold">Cross-Cutting L1</span>
+                <span className="text-[10px] text-slate-500">Design Steward · src/components/ui/</span>
+              </div>
+            </div>
+          </div>
+
+          {/* primitives */}
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] text-slate-500 mb-2">All domain agents render UI through these typed primitives. Zero raw Tailwind in components. Eliminates style drift across agent outputs.</p>
+            <div className="flex flex-wrap gap-1.5">
+              {primitives.map(c => (
+                <span key={c} className="flex items-center gap-1 text-[9px] px-2 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-purple-300 font-mono">
+                  <Layers size={8} className="text-purple-500/60" />{c}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* status indicators */}
+          <div className="shrink-0 flex sm:flex-col gap-2 items-center sm:items-end">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+              <span className="text-[10px] text-purple-400 font-bold">LIVE ✓</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/40">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+              <span className="text-[10px] text-slate-400 font-bold">9 PRIMITIVES</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
    Sub-agent row (compact L2 display inside L1 card)
 ───────────────────────────────────────────────────────────── */
 function SubAgentRow({ sub, textColor, badgeColor }: { sub: SubAgent; textColor: string; badgeColor: string }) {
@@ -844,17 +891,8 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
         <div className="border-t border-slate-800/60 px-4 py-3">
           <div className={`flex items-center gap-2 text-[10px] ${agent.textColor} opacity-60`}>
             <span className="text-base">✦</span>
-            {agent.id === 'ux-framework'
-              ? 'Owns src/components/ui/ — used by Component Builder'
-              : 'Teaching is a conversation — no sub-agent pipeline needed'}
+            Teaching is a conversation — no sub-agent pipeline needed
           </div>
-          {agent.id === 'ux-framework' && (
-            <div className="mt-2 flex flex-wrap gap-1">
-              {['GlassCard','Badge','VersionTag','StatGrid','Timeline','Avatar','Button','PulsingDot','SectionHeader'].map(c => (
-                <span key={c} className="text-[9px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400/70 border border-purple-500/20">{c}</span>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -891,7 +929,8 @@ export default function Team() {
     return () => timers.current.forEach(clearTimeout);
   }, []);
 
-  const totalAgents = 1 + 1 + l1Agents.length + l1Agents.reduce((acc, a) => acc + (a.subAgents?.length ?? 0), 0);
+  // 1 Orchestrator + 1 Security Gate + 1 UX Foundation + L1 Domain Leads + L2 Specialists
+  const totalAgents = 1 + 1 + 1 + l1Agents.length + l1Agents.reduce((acc, a) => acc + (a.subAgents?.length ?? 0), 0);
   const totalSubAgents = l1Agents.reduce((acc, a) => acc + (a.subAgents?.length ?? 0), 0);
 
   return (
@@ -917,7 +956,7 @@ export default function Team() {
             </span>
           </div>
           <p className="text-sm text-slate-400 max-w-xl">
-            One principal. One orchestrator. One security gate. Five domain leads. {totalSubAgents} task specialists. Everything has a single responsibility.
+            One principal. One orchestrator. Two cross-cutting layers. Four domain leads. {totalSubAgents} task specialists. Everything has a single responsibility.
           </p>
         </div>
 
@@ -953,6 +992,10 @@ export default function Team() {
           <SecurityGateBand visible={visible} />
           <VerticalConnector visible={visible} delay={550} />
 
+          {/* UX Foundation */}
+          <UXFoundationBand visible={visible} />
+          <VerticalConnector visible={visible} delay={650} />
+
           {/* L1 layer label */}
           <div className={`flex items-center gap-2 mb-2 mt-1 transition-opacity duration-400 ${visible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '600ms' }}>
             <span className="text-[9px] font-bold text-blue-500/60 uppercase tracking-widest bg-blue-500/5 border border-blue-500/15 px-2 py-0.5 rounded">L1 + L2</span>
@@ -962,7 +1005,7 @@ export default function Team() {
 
           <FanConnector visible={visible} count={l1Agents.length} />
 
-          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-6">
+          <div className="grid sm:grid-cols-2 gap-3 mb-6">
             {l1Agents.map((agent, i) => (
               <L1CommanderCard key={agent.id} agent={agent} index={i} visible={visible} />
             ))}
