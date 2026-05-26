@@ -88,6 +88,4 @@ export function GithubLogin() {
       )}
     </div>
   );
-    </div>
-  );
 }
