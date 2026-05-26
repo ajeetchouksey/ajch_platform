@@ -29,9 +29,15 @@
     {
       "slug": "agents-are-a-new-execution-layer",
       "title": "Agents Aren't a Feature — They're a New Execution Layer",
-      "date": "2025-05-22",
       "excerpt": "Most software waits. Agents break that contract. Here's why treating agents as a feature instead of a new execution layer is the most common architectural mistake.",
-      "tags": ["agents", "architecture", "enterprise-strategy", "execution-model"]
+      "author": "Ajeet Chouksey",
+      "date": "2025-05-22",
+      "updated": null,
+      "tags": ["agents", "architecture", "enterprise-strategy", "execution-model"],
+      "category": "AI Architecture",
+      "readingTime": 6,
+      "featured": false,
+      "draft": false
     }
   ]
 }
