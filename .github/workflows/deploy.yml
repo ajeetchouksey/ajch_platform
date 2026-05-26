@@ -41,9 +41,6 @@ jobs:
           VITE_GOAT_SITE: ${{ secrets.VITE_GOAT_SITE }}
         run: npm run build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
