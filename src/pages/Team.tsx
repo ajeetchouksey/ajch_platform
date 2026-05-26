@@ -1,13 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Bot, Cpu, PenTool, GraduationCap, BookOpen, GitBranch,
   Globe, ChevronRight, MapPin, Building2, ExternalLink,
   Zap, Brain, Shield, Lightbulb, ListChecks, Handshake, Trophy,
-  ArrowDown,
+  ArrowDown, PackageCheck, Tag, Award, User,
 } from 'lucide-react';
 import { maintainer } from '../data/maintainer';
 
-/* ─── Types ──────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────
+   Types
+────────────────────────────────────────────────────────────── */
+interface Delivery {
+  version: string;       // e.g. "v2.0"
+  label: string;         // short milestone description
+  type: 'major' | 'minor' | 'patch';
+}
+
 interface Agent {
   id: string;
   name: string;
@@ -27,9 +36,13 @@ interface Agent {
   type: 'orchestrator' | 'specialist';
   tools: number;
   activeTask: string;
+  version: string;       // current semver
+  deliveries: Delivery[];
 }
 
-/* ─── Agent data ─────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────
+   Agent data
+────────────────────────────────────────────────────────────── */
 export const agents: Agent[] = [
   {
     id: 'orchestrator',
@@ -50,6 +63,12 @@ export const agents: Agent[] = [
     type: 'orchestrator',
     tools: 12,
     activeTask: 'Routing blog request → Blog Agent',
+    version: 'v1.3.0',
+    deliveries: [
+      { version: 'v1.0', label: 'Core routing engine + agent registry',       type: 'major' },
+      { version: 'v1.1', label: 'Multi-domain synthesis pipeline',             type: 'minor' },
+      { version: 'v1.3', label: 'Clarification workflow + context carry-over', type: 'minor' },
+    ],
   },
   {
     id: 'platform-control',
@@ -70,6 +89,12 @@ export const agents: Agent[] = [
     type: 'specialist',
     tools: 10,
     activeTask: 'Building Team page hierarchy...',
+    version: 'v2.4.0',
+    deliveries: [
+      { version: 'v1.0', label: 'App shell, routing, sidebar, layout',        type: 'major' },
+      { version: 'v2.0', label: 'Team page + org hierarchy design',           type: 'major' },
+      { version: 'v2.4', label: 'Animated flow + semantic versioning cards',  type: 'minor' },
+    ],
   },
   {
     id: 'blog',
@@ -90,6 +115,12 @@ export const agents: Agent[] = [
     type: 'specialist',
     tools: 10,
     activeTask: 'Drafting post on AI model optimization...',
+    version: 'v1.4.0',
+    deliveries: [
+      { version: 'v1.0', label: 'Post import pipeline + frontmatter system',  type: 'major' },
+      { version: 'v1.3', label: 'SEO metadata + category/tag indexing',       type: 'minor' },
+      { version: 'v1.4', label: 'Platform-voice rewrite + governance post',   type: 'minor' },
+    ],
   },
   {
     id: 'exam-content',
@@ -110,6 +141,12 @@ export const agents: Agent[] = [
     type: 'specialist',
     tools: 10,
     activeTask: 'Scanning Anthropic docs for new content...',
+    version: 'v1.2.0',
+    deliveries: [
+      { version: 'v1.0', label: 'CCA-F MCQ question bank (50 questions)',     type: 'major' },
+      { version: 'v1.1', label: 'Study notes across all 5 exam domains',      type: 'minor' },
+      { version: 'v1.2', label: 'Deduplication engine + web research tools',  type: 'minor' },
+    ],
   },
   {
     id: 'study-companion',
@@ -130,38 +167,28 @@ export const agents: Agent[] = [
     type: 'specialist',
     tools: 7,
     activeTask: 'Standby — awaiting study session',
+    version: 'v0.9.0',
+    deliveries: [
+      { version: 'v0.5', label: '101 / 201 / 301 persona framework',          type: 'major' },
+      { version: 'v0.8', label: 'Socratic method + knowledge-gap analysis',   type: 'minor' },
+      { version: 'v0.9', label: 'Student simulation mode (beta)',              type: 'patch' },
+    ],
   },
 ];
 
-/* ─── Flow step definitions ──────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────
+   Flow steps
+────────────────────────────────────────────────────────────── */
 const FLOW_STEPS = [
-  {
-    icon: Lightbulb, label: 'Thought', sub: 'An idea sparks',
-    color: 'text-yellow-400', glow: 'shadow-yellow-400/30',
-    border: 'border-yellow-500/40', bg: 'from-yellow-500/10 to-transparent',
-    lineFrom: '#eab308', lineTo: '#3b82f6',
-  },
-  {
-    icon: ListChecks, label: 'Plan', sub: 'Scope & structure',
-    color: 'text-blue-400', glow: 'shadow-blue-400/30',
-    border: 'border-blue-500/40', bg: 'from-blue-500/10 to-transparent',
-    lineFrom: '#3b82f6', lineTo: '#8b5cf6',
-  },
-  {
-    icon: Handshake, label: 'AI Partner', sub: 'Delegate to the team',
-    color: 'text-violet-400', glow: 'shadow-violet-400/30',
-    border: 'border-violet-500/40', bg: 'from-violet-500/10 to-transparent',
-    lineFrom: '#8b5cf6', lineTo: '#10b981',
-  },
-  {
-    icon: Trophy, label: 'Achievement', sub: 'Ship the outcome',
-    color: 'text-emerald-400', glow: 'shadow-emerald-400/30',
-    border: 'border-emerald-500/40', bg: 'from-emerald-500/10 to-transparent',
-    lineFrom: '#10b981', lineTo: '#10b981',
-  },
+  { icon: Lightbulb,  label: 'Thought',     sub: 'An idea sparks',        color: 'text-yellow-400', glow: 'shadow-yellow-400/30', border: 'border-yellow-500/40', bg: 'from-yellow-500/10 to-transparent', lineFrom: '#eab308', lineTo: '#3b82f6' },
+  { icon: ListChecks, label: 'Plan',         sub: 'Scope & structure',     color: 'text-blue-400',   glow: 'shadow-blue-400/30',   border: 'border-blue-500/40',   bg: 'from-blue-500/10 to-transparent',   lineFrom: '#3b82f6', lineTo: '#8b5cf6' },
+  { icon: Handshake,  label: 'AI Partner',   sub: 'Delegate to the team',  color: 'text-violet-400', glow: 'shadow-violet-400/30', border: 'border-violet-500/40', bg: 'from-violet-500/10 to-transparent', lineFrom: '#8b5cf6', lineTo: '#10b981' },
+  { icon: Trophy,     label: 'Achievement',  sub: 'Ship the outcome',      color: 'text-emerald-400',glow: 'shadow-emerald-400/30',border: 'border-emerald-500/40',bg: 'from-emerald-500/10 to-transparent',lineFrom: '#10b981', lineTo: '#10b981' },
 ];
 
-/* ─── Helpers ────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────
+   Small helpers
+────────────────────────────────────────────────────────────── */
 function PulsingDot({ active, color = 'bg-emerald-400' }: { active: boolean; color?: string }) {
   return (
     <span className="relative flex h-2 w-2 shrink-0">
@@ -171,14 +198,36 @@ function PulsingDot({ active, color = 'bg-emerald-400' }: { active: boolean; col
   );
 }
 
-/* ─── Flow Banner ────────────────────────────────────────────── */
+function VersionBadge({ version, type }: { version: string; type?: 'orchestrator' | 'specialist' }) {
+  return (
+    <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold
+      ${type === 'orchestrator'
+        ? 'bg-violet-500/20 text-violet-300 border border-violet-500/40'
+        : 'bg-slate-800 text-slate-400 border border-slate-700/60'
+      }`}>
+      <Tag size={8} />
+      {version}
+    </span>
+  );
+}
+
+function DeliveryDot({ type }: { type: Delivery['type'] }) {
+  return (
+    <span className={`w-1.5 h-1.5 rounded-full shrink-0 mt-1 ${
+      type === 'major' ? 'bg-white' : type === 'minor' ? 'bg-slate-400' : 'bg-slate-600'
+    }`} />
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Flow Banner
+────────────────────────────────────────────────────────────── */
 function FlowBanner({ step }: { step: number }) {
   return (
     <div className="relative mb-8">
       <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-4 flex items-center gap-2">
         <Brain size={11} /> How it works
       </p>
-
       <div className="flex items-start">
         {FLOW_STEPS.map((s, i) => {
           const Icon = s.icon;
@@ -186,14 +235,10 @@ function FlowBanner({ step }: { step: number }) {
           const current = i === step;
           return (
             <div key={s.label} className="flex items-start flex-1 min-w-0">
-              {/* node */}
               <div className="flex flex-col items-center w-full">
-                <div
-                  className={`relative w-11 h-11 rounded-2xl border flex items-center justify-center transition-all duration-700
-                    ${active ? `bg-gradient-to-br ${s.bg} ${s.border} shadow-lg ${s.glow}` : 'bg-slate-900/60 border-slate-800'}
-                    ${current ? 'scale-110' : ''}
-                  `}
-                >
+                <div className={`relative w-11 h-11 rounded-2xl border flex items-center justify-center transition-all duration-700
+                  ${active ? `bg-gradient-to-br ${s.bg} ${s.border} shadow-lg ${s.glow}` : 'bg-slate-900/60 border-slate-800'}
+                  ${current ? 'scale-110' : ''}`}>
                   <Icon size={18} className={`transition-colors duration-700 ${active ? s.color : 'text-slate-700'}`} />
                   {current && <span className={`absolute inset-0 rounded-2xl border ${s.border} animate-ping opacity-25`} />}
                 </div>
@@ -202,19 +247,11 @@ function FlowBanner({ step }: { step: number }) {
                   <div className="text-[9px] text-slate-600 hidden sm:block leading-tight mt-0.5">{s.sub}</div>
                 </div>
               </div>
-
-              {/* connector line between nodes */}
               {i < FLOW_STEPS.length - 1 && (
                 <div className="relative flex items-center pt-5 shrink-0" style={{ width: 32 }}>
                   <div className="w-full h-px bg-slate-800 relative overflow-hidden rounded">
-                    <div
-                      className="absolute inset-y-0 left-0 h-full rounded transition-all duration-500"
-                      style={{
-                        width: i < step ? '100%' : '0%',
-                        background: `linear-gradient(to right, ${s.lineFrom}, ${s.lineTo})`,
-                        transitionDelay: `${i * 100}ms`,
-                      }}
-                    />
+                    <div className="absolute inset-y-0 left-0 h-full rounded transition-all duration-500"
+                      style={{ width: i < step ? '100%' : '0%', background: `linear-gradient(to right, ${s.lineFrom}, ${s.lineTo})`, transitionDelay: `${i * 100}ms` }} />
                   </div>
                 </div>
               )}
@@ -222,61 +259,41 @@ function FlowBanner({ step }: { step: number }) {
           );
         })}
       </div>
-
-      {/* typing thought when on step 0 */}
-      {step >= 0 && step <= 1 && (
-        <div className="mt-4 flex items-center gap-2 pl-1">
-          <Lightbulb size={12} className="text-yellow-400/70 shrink-0" />
-          <span className="text-[11px] text-yellow-400/60 italic font-mono">
-            {step === 0 ? '"I have an idea for the platform..."' : '"Let me break this down and plan it..."'}
-          </span>
-          <span className="flex gap-0.5 ml-1">
-            {[0, 100, 200].map(d => <span key={d} className="w-1 h-1 rounded-full bg-yellow-400/50 animate-bounce" style={{ animationDelay: `${d}ms` }} />)}
-          </span>
-        </div>
-      )}
-      {step === 2 && (
-        <div className="mt-4 flex items-center gap-2 pl-1">
-          <Cpu size={12} className="text-violet-400/70 shrink-0" />
-          <span className="text-[11px] text-violet-400/60 italic font-mono">"Delegating to my AI team..."</span>
-          <span className="flex gap-0.5 ml-1">
-            {[0, 100, 200].map(d => <span key={d} className="w-1 h-1 rounded-full bg-violet-400/50 animate-bounce" style={{ animationDelay: `${d}ms` }} />)}
-          </span>
-        </div>
-      )}
-      {step >= 3 && (
-        <div className="mt-4 flex items-center gap-2 pl-1">
-          <Trophy size={12} className="text-emerald-400/70 shrink-0" />
-          <span className="text-[11px] text-emerald-400/70 font-semibold font-mono">Shipped. ✓</span>
-        </div>
-      )}
+      <div className="mt-3 h-5 flex items-center pl-1">
+        {step === 0 && <span className="flex items-center gap-2 text-[11px] text-yellow-400/60 italic font-mono"><Lightbulb size={11} className="text-yellow-400/60" />"I have an idea for the platform..."<BounceEllipsis color="bg-yellow-400/50" /></span>}
+        {step === 1 && <span className="flex items-center gap-2 text-[11px] text-blue-400/60 italic font-mono"><ListChecks size={11} className="text-blue-400/60" />"Let me break this down and plan it..."<BounceEllipsis color="bg-blue-400/50" /></span>}
+        {step === 2 && <span className="flex items-center gap-2 text-[11px] text-violet-400/60 italic font-mono"><Cpu size={11} className="text-violet-400/60" />"Delegating to my AI team..."<BounceEllipsis color="bg-violet-400/50" /></span>}
+        {step >= 3 && <span className="flex items-center gap-2 text-[11px] text-emerald-400/80 font-semibold font-mono"><Trophy size={11} className="text-emerald-400" />Shipped. ✓</span>}
+      </div>
     </div>
   );
 }
 
-/* ─── Animated vertical connector ───────────────────────────── */
+function BounceEllipsis({ color }: { color: string }) {
+  return (
+    <span className="flex gap-0.5 ml-1">
+      {[0, 100, 200].map(d => <span key={d} className={`w-1 h-1 rounded-full ${color} animate-bounce`} style={{ animationDelay: `${d}ms` }} />)}
+    </span>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Animated vertical connector
+────────────────────────────────────────────────────────────── */
 function VerticalConnector({ label, visible, delay = 0 }: { label?: string; visible: boolean; delay?: number }) {
   return (
-    <div className="flex flex-col items-center" style={{ alignSelf: 'center', width: 'fit-content', margin: '0 auto' }}>
-      {/* top line */}
+    <div className="flex flex-col items-center" style={{ alignSelf: 'center', margin: '0 auto' }}>
       <div className="relative overflow-hidden" style={{ width: 1, height: 28 }}>
-        <div
-          className="absolute inset-x-0 top-0 bg-gradient-to-b from-slate-500 to-slate-600"
-          style={{ height: visible ? '100%' : '0%', width: '100%', transition: `height 500ms ease ${delay}ms` }}
-        />
+        <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-slate-500 to-slate-600"
+          style={{ height: visible ? '100%' : '0%', width: '100%', transition: `height 500ms ease ${delay}ms` }} />
         {visible && (
-          <div
-            className="absolute inset-x-0 bg-gradient-to-b from-white/50 to-transparent rounded-full"
-            style={{ width: '100%', height: 12, animation: `signalPulse 2s ease-in-out ${delay}ms infinite` }}
-          />
+          <div className="absolute inset-x-0 bg-gradient-to-b from-white/50 to-transparent rounded-full"
+            style={{ width: '100%', height: 12, animation: `signalPulse 2s ease-in-out ${delay}ms infinite` }} />
         )}
       </div>
-
       {label && (
-        <div
-          className="flex items-center gap-2 py-1 transition-all duration-400"
-          style={{ opacity: visible ? 1 : 0, transitionDelay: `${delay + 150}ms` }}
-        >
+        <div className="flex items-center gap-2 py-1 transition-all duration-400"
+          style={{ opacity: visible ? 1 : 0, transitionDelay: `${delay + 150}ms` }}>
           <div className="h-px w-8 bg-gradient-to-r from-transparent to-slate-700" />
           <div className="flex items-center gap-1">
             <ArrowDown size={9} className="text-slate-600" />
@@ -285,62 +302,36 @@ function VerticalConnector({ label, visible, delay = 0 }: { label?: string; visi
           <div className="h-px w-8 bg-gradient-to-l from-transparent to-slate-700" />
         </div>
       )}
-
-      {/* bottom line */}
       <div className="relative overflow-hidden" style={{ width: 1, height: 28 }}>
-        <div
-          className="absolute inset-x-0 top-0 bg-gradient-to-b from-slate-600 to-slate-800"
-          style={{ height: visible ? '100%' : '0%', width: '100%', transition: `height 500ms ease ${delay + 200}ms` }}
-        />
+        <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-slate-600 to-slate-800"
+          style={{ height: visible ? '100%' : '0%', width: '100%', transition: `height 500ms ease ${delay + 200}ms` }} />
       </div>
     </div>
   );
 }
 
-/* ─── Fan connector — Orchestrator → Specialists ─────────────── */
+/* ──────────────────────────────────────────────────────────────
+   Fan connector
+────────────────────────────────────────────────────────────── */
 function FanConnector({ visible, count }: { visible: boolean; count: number }) {
   return (
     <div className="relative my-1" style={{ minHeight: 56 }}>
-      {/* center drop */}
       <div className="absolute left-1/2 -translate-x-px top-0 overflow-hidden" style={{ width: 1, height: 26 }}>
-        <div
-          className="absolute inset-x-0 top-0 bg-gradient-to-b from-slate-500 to-slate-600"
-          style={{ height: visible ? '100%' : '0%', width: '100%', transition: 'height 400ms ease 450ms' }}
-        />
+        <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-slate-500 to-slate-600"
+          style={{ height: visible ? '100%' : '0%', width: '100%', transition: 'height 400ms ease 450ms' }} />
       </div>
-
-      {/* horizontal bar */}
       <div className="absolute top-[26px] left-0 right-0 overflow-hidden" style={{ height: 1 }}>
-        <div
-          className="absolute top-0 h-full bg-gradient-to-r from-transparent via-slate-600 to-transparent"
-          style={{
-            left: visible ? '8%' : '50%',
-            right: visible ? '8%' : '50%',
-            transition: 'left 500ms ease 500ms, right 500ms ease 500ms',
-          }}
-        />
+        <div className="absolute top-0 h-full bg-gradient-to-r from-transparent via-slate-600 to-transparent"
+          style={{ left: visible ? '8%' : '50%', right: visible ? '8%' : '50%', transition: 'left 500ms ease 500ms, right 500ms ease 500ms' }} />
       </div>
-
-      {/* label */}
-      <div
-        className="absolute flex justify-center w-full"
-        style={{ top: 20, opacity: visible ? 1 : 0, transition: 'opacity 300ms ease 560ms' }}
-      >
+      <div className="absolute flex justify-center w-full" style={{ top: 20, opacity: visible ? 1 : 0, transition: 'opacity 300ms ease 560ms' }}>
         <span className="text-[9px] text-slate-600 uppercase tracking-widest bg-slate-950 px-2 font-semibold">delegates to</span>
       </div>
-
-      {/* drop lines */}
       <div className="absolute left-0 right-0 flex justify-around px-[8%]" style={{ top: 27 }}>
         {Array.from({ length: count }).map((_, i) => (
           <div key={i} className="overflow-hidden" style={{ width: 1, height: 28 }}>
-            <div
-              className="bg-gradient-to-b from-slate-500 to-slate-700"
-              style={{
-                height: visible ? '100%' : '0%',
-                width: '100%',
-                transition: `height 350ms ease ${580 + i * 60}ms`,
-              }}
-            />
+            <div className="bg-gradient-to-b from-slate-500 to-slate-700"
+              style={{ height: visible ? '100%' : '0%', width: '100%', transition: `height 350ms ease ${580 + i * 60}ms` }} />
           </div>
         ))}
       </div>
@@ -348,14 +339,27 @@ function FanConnector({ visible, count }: { visible: boolean; count: number }) {
   );
 }
 
-/* ─── Human card ─────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────
+   Human card — with hover profile popup
+────────────────────────────────────────────────────────────── */
 function HumanCard({ visible, isThinking }: { visible: boolean; isThinking: boolean }) {
+  const [showPopup, setShowPopup] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const popupTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  function openPopup() {
+    clearTimeout(popupTimer.current);
+    setShowPopup(true);
+  }
+  function closePopup() {
+    popupTimer.current = setTimeout(() => setShowPopup(false), 150);
+  }
+
   return (
     <div
       className={`relative glass-card rounded-2xl p-5 border transition-all duration-600 cursor-default
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'}
-        ${hovered ? 'border-slate-400/60 shadow-2xl shadow-slate-400/10 -translate-y-0.5' : 'border-slate-600/50'}
+        ${hovered ? 'border-slate-400/60 shadow-2xl shadow-slate-400/10' : 'border-slate-600/50'}
       `}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -369,26 +373,78 @@ function HumanCard({ visible, isThinking }: { visible: boolean; isThinking: bool
       </div>
 
       <div className="relative flex items-center gap-4 pt-2">
-        {/* avatar */}
-        <div className="relative shrink-0">
+        {/* avatar — hover triggers profile popup */}
+        <div
+          className="relative shrink-0 cursor-pointer"
+          onMouseEnter={openPopup}
+          onMouseLeave={closePopup}
+        >
           <img
             src={maintainer.avatar}
             alt={maintainer.name}
-            className={`w-16 h-16 rounded-2xl ring-2 transition-all duration-300 ${hovered ? 'ring-slate-400 scale-105' : 'ring-slate-700'}`}
+            className={`w-16 h-16 rounded-2xl ring-2 transition-all duration-300 ${showPopup || hovered ? 'ring-violet-400/60 scale-105' : 'ring-slate-700'}`}
           />
           <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 ring-2 ring-slate-950 flex items-center justify-center">
             <span className="w-1.5 h-1.5 rounded-full bg-white" />
           </span>
+
+          {/* Profile popup */}
+          <div
+            className={`absolute left-20 -top-2 z-50 w-64 transition-all duration-300 pointer-events-none
+              ${showPopup ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`}
+            onMouseEnter={openPopup}
+            onMouseLeave={closePopup}
+            style={{ pointerEvents: showPopup ? 'all' : 'none' }}
+          >
+            <div className="glass-card rounded-2xl p-4 border border-violet-500/30 shadow-2xl shadow-violet-500/10 bg-slate-900/95 backdrop-blur-xl">
+              {/* popup arrow */}
+              <div className="absolute left-0 top-6 -translate-x-1.5 w-3 h-3 rotate-45 bg-slate-900/95 border-l border-b border-violet-500/30" />
+
+              <div className="flex items-start gap-3 mb-3">
+                <img src={maintainer.avatar} alt="" className="w-10 h-10 rounded-xl ring-1 ring-violet-500/40 shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-bold text-white text-sm truncate">{maintainer.name}</div>
+                  <div className="text-[11px] text-slate-400 truncate">{maintainer.title}</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                {[
+                  { icon: Award,    val: `${maintainer.certifications?.length ?? 4} Certs`,  },
+                  { icon: Brain,    val: `${maintainer.stats?.[0]?.value ?? '18+'} Yrs`,     },
+                  { icon: Building2,val: maintainer.company,                                   },
+                  { icon: MapPin,   val: maintainer.location,                                  },
+                ].map(({ icon: Ic, val }) => (
+                  <div key={val} className="flex items-center gap-1.5 text-[10px] text-slate-400">
+                    <Ic size={11} className="text-slate-600 shrink-0" />
+                    <span className="truncate">{val}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Link
+                to="/maintainer"
+                className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-xl bg-violet-500/15 hover:bg-violet-500/25 text-violet-300 text-xs font-semibold border border-violet-500/30 transition-colors duration-200"
+              >
+                <User size={12} />
+                View Full Profile
+                <ExternalLink size={10} />
+              </Link>
+            </div>
+          </div>
         </div>
 
+        {/* name — also triggers popup */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            <h3 className="text-base font-bold text-white">{maintainer.name}</h3>
-            <a
-              href={maintainer.links?.[0]?.url ?? 'https://github.com/ajeetchouksey'}
-              target="_blank" rel="noopener noreferrer"
-              className="text-slate-600 hover:text-violet-400 transition-colors"
+            <h3
+              className="text-base font-bold text-white hover:text-violet-300 transition-colors cursor-pointer"
+              onMouseEnter={openPopup}
+              onMouseLeave={closePopup}
             >
+              {maintainer.name}
+            </h3>
+            <a href={maintainer.links?.[0]?.url ?? 'https://github.com/ajeetchouksey'} target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-violet-400 transition-colors">
               <ExternalLink size={12} />
             </a>
           </div>
@@ -411,8 +467,8 @@ function HumanCard({ visible, isThinking }: { visible: boolean; isThinking: bool
         </div>
       </div>
 
-      {/* chips + thought bubble row */}
-      <div className="flex flex-wrap items-center gap-1.5 mt-4 pt-3 border-t border-slate-800/60 relative">
+      {/* bottom row */}
+      <div className="flex flex-wrap items-center gap-1.5 mt-4 pt-3 border-t border-slate-800/60">
         {['Azure', 'Terraform', 'AI Agents', 'DevSecOps', 'Claude API'].map(s => (
           <span key={s} className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-800/80 text-slate-400 border border-slate-700/50">{s}</span>
         ))}
@@ -420,7 +476,7 @@ function HumanCard({ visible, isThinking }: { visible: boolean; isThinking: bool
           +{maintainer.certifications?.length ?? 4} certs
         </span>
 
-        {/* animated thought bubble */}
+        {/* "thinking" bubble */}
         <div className={`ml-auto flex items-center gap-1.5 transition-all duration-500 ${isThinking ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
           <Lightbulb size={11} className="text-yellow-400 shrink-0" />
           <span className="text-[10px] text-yellow-400/80 font-mono italic">thinking</span>
@@ -428,22 +484,39 @@ function HumanCard({ visible, isThinking }: { visible: boolean; isThinking: bool
             {[0, 100, 200].map(d => <span key={d} className="w-0.5 h-2 rounded-full bg-yellow-400/70 animate-bounce" style={{ animationDelay: `${d}ms` }} />)}
           </span>
         </div>
+
+        {/* View profile button — always visible on hover */}
+        <Link
+          to="/maintainer"
+          className={`ml-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-semibold bg-slate-800 hover:bg-violet-500/20 text-slate-400 hover:text-violet-300 border border-slate-700/60 hover:border-violet-500/40 transition-all duration-200 ${hovered ? 'opacity-100' : 'opacity-0'}`}
+        >
+          <User size={10} />
+          View Profile
+        </Link>
       </div>
     </div>
   );
 }
 
-/* ─── Orchestrator card ──────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────
+   Orchestrator card
+────────────────────────────────────────────────────────────── */
 function OrchestratorCard({ agent, visible }: { agent: Agent; visible: boolean }) {
   const [hovered, setHovered] = useState(false);
+  const [showDeliveries, setShowDeliveries] = useState(false);
   const Icon = agent.icon;
   const specialists = agents.filter(a => a.type === 'specialist');
+
+  useEffect(() => {
+    if (hovered) { const t = setTimeout(() => setShowDeliveries(true), 200); return () => clearTimeout(t); }
+    setShowDeliveries(false);
+  }, [hovered]);
 
   return (
     <div
       className={`relative glass-card rounded-2xl p-5 border transition-all duration-600 cursor-default
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
-        ${hovered ? `border-violet-400/60 shadow-2xl shadow-violet-500/20` : 'border-violet-500/30'}
+        ${hovered ? 'border-violet-400/60 shadow-2xl shadow-violet-500/20' : 'border-violet-500/30'}
       `}
       style={{ transitionDelay: '200ms' }}
       onMouseEnter={() => setHovered(true)}
@@ -451,17 +524,15 @@ function OrchestratorCard({ agent, visible }: { agent: Agent; visible: boolean }
     >
       <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${agent.bgGradient} pointer-events-none`} />
 
-      <div className="absolute -top-3 left-5">
-        <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest border ${agent.badgeColor}`}>
-          ⚡ Commander
-        </span>
+      <div className="absolute -top-3 left-5 flex items-center gap-2">
+        <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest border ${agent.badgeColor}`}>⚡ Commander</span>
+        <VersionBadge version={agent.version} type="orchestrator" />
       </div>
 
       <div className="relative flex flex-col sm:flex-row sm:items-start gap-4 pt-2">
         <div className={`shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${agent.bgGradient} border ${agent.borderColor} flex items-center justify-center transition-transform duration-300 ${hovered ? 'scale-110' : ''}`}>
           <Icon size={22} className={agent.textColor} />
         </div>
-
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <h3 className="font-bold text-white">{agent.name}</h3>
@@ -474,26 +545,38 @@ function OrchestratorCard({ agent, visible }: { agent: Agent; visible: boolean }
               <span key={c} className={`px-2 py-0.5 rounded text-[10px] font-medium border ${agent.badgeColor}`}>{c}</span>
             ))}
           </div>
-          {/* live task ticker */}
+          {/* live task */}
           <div className="flex items-center gap-1.5 mt-3 bg-slate-900/50 rounded px-2.5 py-1.5">
             <span className="flex gap-0.5">{[0,100,200].map(d=><span key={d} className="w-0.5 h-2 rounded-full bg-violet-400/60 animate-bounce" style={{animationDelay:`${d}ms`}}/>)}</span>
             <code className={`text-[10px] ${agent.textColor} font-mono`}>{agent.activeTask}</code>
           </div>
-        </div>
 
+          {/* deliveries — reveal on hover */}
+          <div className={`overflow-hidden transition-all duration-400 ${showDeliveries ? 'max-h-40 opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
+            <div className="pt-3 border-t border-slate-800/40">
+              <div className="flex items-center gap-1.5 mb-2">
+                <PackageCheck size={11} className="text-slate-500" />
+                <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Major Deliveries</span>
+              </div>
+              <div className="space-y-1.5">
+                {agent.deliveries.map(d => (
+                  <div key={d.version} className="flex items-start gap-2">
+                    <DeliveryDot type={d.type} />
+                    <span className={`text-[9px] font-mono font-bold shrink-0 ${agent.textColor}`}>{d.version}</span>
+                    <span className="text-[10px] text-slate-400 leading-tight">{d.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="shrink-0 flex sm:flex-col gap-4 sm:gap-2 text-center items-center sm:items-end">
-          <div>
-            <div className={`text-xl font-bold ${agent.textColor}`}>{agent.tools}</div>
-            <div className="text-[10px] text-slate-500">Tools</div>
-          </div>
-          <div>
-            <div className="text-xl font-bold text-slate-300">4</div>
-            <div className="text-[10px] text-slate-500">Reports</div>
-          </div>
+          <div><div className={`text-xl font-bold ${agent.textColor}`}>{agent.tools}</div><div className="text-[10px] text-slate-500">Tools</div></div>
+          <div><div className="text-xl font-bold text-slate-300">4</div><div className="text-[10px] text-slate-500">Reports</div></div>
         </div>
       </div>
 
-      {/* mini specialist row */}
+      {/* mini specialist preview */}
       <div className="relative mt-4 pt-3 border-t border-slate-800/40">
         <div className="flex justify-around">
           {specialists.map(s => {
@@ -504,6 +587,7 @@ function OrchestratorCard({ agent, visible }: { agent: Agent; visible: boolean }
                   <SIcon size={15} className={s.textColor} />
                 </div>
                 <span className={`text-[9px] font-semibold ${s.textColor}`}>{s.role}</span>
+                <VersionBadge version={s.version} />
               </div>
             );
           })}
@@ -513,18 +597,17 @@ function OrchestratorCard({ agent, visible }: { agent: Agent; visible: boolean }
   );
 }
 
-/* ─── Specialist card ────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────
+   Specialist card — with version + deliveries popup
+────────────────────────────────────────────────────────────── */
 function SpecialistCard({ agent, index, visible }: { agent: Agent; index: number; visible: boolean }) {
   const [hovered, setHovered] = useState(false);
-  const [showTask, setShowTask] = useState(false);
+  const [showDeliveries, setShowDeliveries] = useState(false);
   const Icon = agent.icon;
 
   useEffect(() => {
-    if (hovered) {
-      const t = setTimeout(() => setShowTask(true), 200);
-      return () => clearTimeout(t);
-    }
-    setShowTask(false);
+    if (hovered) { const t = setTimeout(() => setShowDeliveries(true), 200); return () => clearTimeout(t); }
+    setShowDeliveries(false);
   }, [hovered]);
 
   return (
@@ -540,6 +623,7 @@ function SpecialistCard({ agent, index, visible }: { agent: Agent; index: number
       <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${agent.bgGradient} pointer-events-none transition-opacity duration-300 ${hovered ? 'opacity-100' : 'opacity-40'}`} />
 
       <div className="relative">
+        {/* header */}
         <div className="flex items-start justify-between mb-3">
           <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${agent.bgGradient} border ${agent.borderColor} flex items-center justify-center transition-transform duration-300 ${hovered ? 'scale-110' : ''}`}>
             <Icon size={17} className={agent.textColor} />
@@ -549,7 +633,10 @@ function SpecialistCard({ agent, index, visible }: { agent: Agent; index: number
               <PulsingDot active={agent.status === 'active'} color={agent.dotColor} />
               <span className="text-[10px] text-slate-500">{agent.status}</span>
             </div>
-            <span className={`text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border ${agent.badgeColor}`}>{agent.role}</span>
+            <div className="flex items-center gap-1">
+              <span className={`text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border ${agent.badgeColor}`}>{agent.role}</span>
+              <VersionBadge version={agent.version} />
+            </div>
           </div>
         </div>
 
@@ -557,20 +644,38 @@ function SpecialistCard({ agent, index, visible }: { agent: Agent; index: number
         <p className={`text-[11px] ${agent.textColor} mb-2 font-medium`}>{agent.tagline}</p>
         <p className="text-[11px] text-slate-400 leading-relaxed mb-3 line-clamp-2">{agent.description}</p>
 
-        {/* active task on hover */}
-        <div className={`overflow-hidden transition-all duration-300 ${showTask ? 'max-h-10 opacity-100 mb-3' : 'max-h-0 opacity-0'}`}>
-          <div className="flex items-center gap-1.5 bg-slate-900/60 rounded px-2.5 py-1.5">
-            <span className="flex gap-0.5">
-              {[0,100,200].map(d=><span key={d} className="w-0.5 h-2 rounded-full bg-slate-400/60 animate-bounce" style={{animationDelay:`${d}ms`}}/>)}
-            </span>
-            <code className={`text-[10px] ${agent.textColor} font-mono truncate`}>{agent.activeTask}</code>
-          </div>
-        </div>
-
+        {/* capabilities */}
         <div className="flex flex-wrap gap-1 mb-3">
           {agent.capabilities.map(c => (
             <span key={c} className={`px-1.5 py-0.5 rounded text-[9px] font-medium border ${agent.badgeColor}`}>{c}</span>
           ))}
+        </div>
+
+        {/* deliveries — reveal on hover */}
+        <div className={`overflow-hidden transition-all duration-400 ${showDeliveries ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className="pt-3 border-t border-slate-700/30 mb-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <PackageCheck size={10} className="text-slate-500" />
+              <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Major Deliveries</span>
+            </div>
+            <div className="space-y-1.5">
+              {agent.deliveries.map(d => (
+                <div key={d.version} className="flex items-start gap-2">
+                  <DeliveryDot type={d.type} />
+                  <span className={`text-[9px] font-mono font-bold shrink-0 ${agent.textColor}`}>{d.version}</span>
+                  <span className="text-[10px] text-slate-400 leading-tight">{d.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* active task on hover */}
+        <div className={`overflow-hidden transition-all duration-300 ${hovered && !showDeliveries ? 'max-h-8 opacity-100 mb-3' : 'max-h-0 opacity-0'}`}>
+          <div className="flex items-center gap-1.5 bg-slate-900/60 rounded px-2.5 py-1.5">
+            <span className="flex gap-0.5">{[0,100,200].map(d=><span key={d} className="w-0.5 h-2 rounded-full bg-slate-400/60 animate-bounce" style={{animationDelay:`${d}ms`}}/>)}</span>
+            <code className={`text-[10px] ${agent.textColor} font-mono truncate`}>{agent.activeTask}</code>
+          </div>
         </div>
 
         <div className="flex items-center justify-between pt-2.5 border-t border-slate-700/30">
@@ -582,7 +687,9 @@ function SpecialistCard({ agent, index, visible }: { agent: Agent; index: number
   );
 }
 
-/* ─── Stat badge ─────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────
+   Stat badge
+────────────────────────────────────────────────────────────── */
 function StatBadge({ icon: Icon, value, label, color }: { icon: React.ElementType; value: string | number; label: string; color: string }) {
   return (
     <div className="glass-stats rounded-xl p-4 text-center">
@@ -593,7 +700,9 @@ function StatBadge({ icon: Icon, value, label, color }: { icon: React.ElementTyp
   );
 }
 
-/* ─── Main page export ───────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────
+   Page
+────────────────────────────────────────────────────────────── */
 export default function Team() {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -603,8 +712,7 @@ export default function Team() {
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
     const t0 = setTimeout(() => setVisible(true), 150);
-    const flowDelays = [400, 1100, 1800, 2500];
-    const flowTimers = flowDelays.map((delay, i) =>
+    const flowTimers = [400, 1100, 1800, 2500].map((delay, i) =>
       setTimeout(() => setFlowStep(i), delay)
     );
     timers.current = [t0, ...flowTimers];
@@ -650,42 +758,27 @@ export default function Team() {
           <StatBadge icon={Shield} value="18+"    label="Yrs Exp."    color="text-emerald-400" />
         </div>
 
-        {/* flow banner */}
-        <div className={`transition-opacity duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}
-          style={{ transitionDelay: '200ms' }}>
+        {/* flow */}
+        <div className={`transition-opacity duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
           <FlowBanner step={flowStep} />
         </div>
 
-        {/* org hierarchy */}
+        {/* hierarchy */}
         <div className="flex flex-col">
 
-          {/* tier 1 — human */}
           <HumanCard visible={visible} isThinking={flowStep === 0 || flowStep === 1} />
-
-          {/* connector */}
           <VerticalConnector label="instructs orchestrator" visible={visible} delay={300} />
-
-          {/* tier 2 — orchestrator */}
           <OrchestratorCard agent={orchestrator} visible={visible} />
-
-          {/* fan */}
           <FanConnector visible={visible} count={specialists.length} />
 
-          {/* tier 3 — specialists header */}
-          <div
-            className={`flex items-center gap-2 mb-3 transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
-            style={{ transitionDelay: '700ms' }}
-          >
+          <div className={`flex items-center gap-2 mb-3 transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '700ms' }}>
             <ChevronRight size={13} className="text-slate-600" />
             <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Specialist Agents</span>
             <div className="flex gap-1 ml-1">
-              {specialists.map(s => (
-                <span key={s.id} className={`w-1.5 h-1.5 rounded-full ${s.dotColor}`} />
-              ))}
+              {specialists.map(s => <span key={s.id} className={`w-1.5 h-1.5 rounded-full ${s.dotColor}`} />)}
             </div>
           </div>
 
-          {/* tier 3 — specialist grid */}
           <div className="grid sm:grid-cols-2 gap-3">
             {specialists.map((agent, i) => (
               <SpecialistCard key={agent.id} agent={agent} index={i} visible={visible} />
@@ -694,14 +787,11 @@ export default function Team() {
         </div>
 
         {/* footer */}
-        <div
-          className={`flex items-start gap-3 p-4 rounded-xl bg-slate-900/40 border border-slate-800 text-xs text-slate-500 mt-6 transition-opacity duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}
-          style={{ transitionDelay: '1000ms' }}
-        >
+        <div className={`flex items-start gap-3 p-4 rounded-xl bg-slate-900/40 border border-slate-800 text-xs text-slate-500 mt-6 transition-opacity duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}
+          style={{ transitionDelay: '1000ms' }}>
           <Globe size={14} className="shrink-0 mt-0.5 text-slate-600" />
           <span>
-            All agents powered by{' '}
-            <span className="text-slate-400 font-medium">Claude Sonnet</span> via GitHub Copilot agent mode.
+            All agents powered by <span className="text-slate-400 font-medium">Claude Sonnet</span> via GitHub Copilot agent mode.
             Definitions live in <code className="text-violet-400">.github/agents/</code> — loaded automatically in this workspace.
           </span>
         </div>

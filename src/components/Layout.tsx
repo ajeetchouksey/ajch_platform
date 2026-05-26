@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Tag, FolderOpen, ChevronRight, User, Users } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Tag, FolderOpen, ChevronRight, Users } from 'lucide-react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -12,7 +12,6 @@ const platformLinks = [
   { to: '/exams', label: 'Exams', icon: GraduationCap },
   { to: '/blog', label: 'Blog', icon: Newspaper },
   { to: '/tools', label: 'Tools', icon: Wrench },
-  { to: '/maintainer', label: 'Maintainer', icon: User },
   { to: '/team', label: 'Team', icon: Users },
 ];
 
