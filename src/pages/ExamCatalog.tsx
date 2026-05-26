@@ -16,6 +16,7 @@ const exams = [
     color: 'border-violet-600/50 hover:border-violet-400',
     badge: 'bg-violet-900/40 text-violet-300',
     glow: 'hover:shadow-lg hover:shadow-violet-500/5',
+    accentColor: 'linear-gradient(90deg,#7c3aed,#a78bfa)',
   },
   {
     id: 'future-1',
@@ -30,6 +31,7 @@ const exams = [
     color: 'border-slate-700',
     badge: 'bg-slate-800 text-slate-500',
     glow: '',
+    accentColor: undefined,
   },
 ];
 
@@ -51,10 +53,10 @@ export default function ExamCatalog() {
         {exams.map((exam, idx) => (
           <div
             key={exam.id}
-            className={`glass-card glass-sheen glass-edge rounded-xl p-6 transition-all duration-500 group ${exam.color} ${exam.glow} ${
+            className={`glass-card glass-sheen glass-edge rounded-xl p-6 transition-all duration-500 group ${exam.color} ${exam.glow} ${exam.accentColor ? 'card-accent-top' : ''} ${
               !exam.available ? 'opacity-60' : 'hover:-translate-y-0.5'
             } ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-            style={{ transitionDelay: `${200 + idx * 150}ms` }}
+            style={{ transitionDelay: `${200 + idx * 150}ms`, ...(exam.accentColor ? { '--accent-color': exam.accentColor } : {}) } as React.CSSProperties}
           >
             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
               <div className="flex-1">
