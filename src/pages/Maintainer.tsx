@@ -46,7 +46,7 @@ export default function Maintainer() {
             Analytics Dashboard
           </Link>
           <Link
-            to="/maintainer/team"
+            to="/team"
             className="flex items-center gap-2 px-4 py-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 hover:bg-blue-500/20 transition-colors text-sm font-medium flex-1"
           >
             <Users size={16} />

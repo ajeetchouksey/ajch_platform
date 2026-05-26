@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Tag, FolderOpen, ChevronRight, User } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Tag, FolderOpen, ChevronRight, User, Users } from 'lucide-react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -13,6 +13,7 @@ const platformLinks = [
   { to: '/blog', label: 'Blog', icon: Newspaper },
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/maintainer', label: 'Maintainer', icon: User },
+  { to: '/team', label: 'Team', icon: Users },
 ];
 
 const ccafLinks = [
@@ -47,6 +48,8 @@ function Breadcrumbs() {
     progress: 'Progress',
     blog: 'Blog',
     tools: 'Tools',
+    team: 'Team',
+    maintainer: 'Maintainer',
   };
 
   let path = '';
@@ -82,6 +85,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   const isInCcaf = location.pathname.startsWith('/exams/ccaf');
   const isInBlog = location.pathname.startsWith('/blog');
+  const isInTeam = location.pathname.startsWith('/team') || location.pathname.startsWith('/maintainer/team');
 
   useEffect(() => {
     setSidebarOpen(false);
@@ -362,8 +366,44 @@ export default function Layout({ children }: { children: ReactNode }) {
             </>
           )}
 
-          {/* Generic sidebar for non-exam, non-blog pages */}
-          {!isInCcaf && !isInBlog && (
+          {/* Team sidebar */}
+          {isInTeam && (
+            <div className="px-4 pb-4">
+              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">The Team</h3>
+              <nav className="space-y-0.5">
+                <NavLink
+                  to="/team"
+                  end
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                      isActive ? 'bg-violet-500/10 text-violet-300 border-l-2 border-violet-400 pl-2.5' : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
+                    }`
+                  }
+                >
+                  <Users size={15} />
+                  <span>Overview</span>
+                </NavLink>
+              </nav>
+              <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mt-4 mb-3">AI Agents</h3>
+              <div className="space-y-1">
+                {[
+                  { label: 'Orchestrator', color: 'bg-violet-400' },
+                  { label: 'Platform Control', color: 'bg-blue-400' },
+                  { label: 'Blog Agent', color: 'bg-emerald-400' },
+                  { label: 'Exam Content', color: 'bg-amber-400' },
+                  { label: 'Study Companion', color: 'bg-rose-400' },
+                ].map(({ label, color }) => (
+                  <div key={label} className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-slate-500">
+                    <span className={`w-1.5 h-1.5 rounded-full ${color}`} />
+                    <span>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Generic sidebar for non-exam, non-blog, non-team pages */}
+          {!isInCcaf && !isInBlog && !isInTeam && (
             <div className="px-4 pb-4">
               <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">
                 Features

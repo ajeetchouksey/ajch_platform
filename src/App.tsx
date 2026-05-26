@@ -35,6 +35,7 @@ export default function App() {
             <Route path="/maintainer" element={<Maintainer />} />
             <Route path="/maintainer/dashboard" element={<MaintainerDashboard />} />
             <Route path="/maintainer/team" element={<Team />} />
+            <Route path="/team" element={<Team />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>
         </Layout>
