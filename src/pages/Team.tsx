@@ -191,9 +191,8 @@ function FlowBanner({ step }: { step: number }) {
                 <div
                   className={`relative w-11 h-11 rounded-2xl border flex items-center justify-center transition-all duration-700
                     ${active ? `bg-gradient-to-br ${s.bg} ${s.border} shadow-lg ${s.glow}` : 'bg-slate-900/60 border-slate-800'}
-                    ${current ? 'scale-110 ring-1 ring-offset-1 ring-offset-slate-950' : ''}
+                    ${current ? 'scale-110' : ''}
                   `}
-                  style={current ? { ringColor: s.border } : undefined}
                 >
                   <Icon size={18} className={`transition-colors duration-700 ${active ? s.color : 'text-slate-700'}`} />
                   {current && <span className={`absolute inset-0 rounded-2xl border ${s.border} animate-ping opacity-25`} />}
