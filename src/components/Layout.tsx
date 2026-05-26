@@ -123,7 +123,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               <div className="absolute inset-0 bg-violet-400/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
             <span className="font-bold text-sm tracking-wide select-none bg-gradient-to-r from-violet-300 to-violet-500 bg-clip-text text-transparent">
-              AI Architect Hub
+              My AI Hub
             </span>
           </NavLink>
 
@@ -488,7 +488,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <Cpu size={14} className="text-violet-400" />
-            <span>AI Architect Hub — by Ajeet Chouksey</span>
+            <span>My AI Hub — by Ajeet Chouksey</span>
           </div>
           <div className="flex items-center gap-4">
             <Link to="/exams" className="hover:text-violet-300 transition-colors">Exams</Link>

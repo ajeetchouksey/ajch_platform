@@ -60,7 +60,7 @@ export const maintainer: MaintainerProfile = {
       tech: ['Python', 'Terraform', 'Azure OpenAI', 'GitHub Actions'],
     },
     {
-      name: 'AI Architect Hub',
+      name: 'My AI Hub',
       description: 'CCA-F exam prep platform with AI-powered study tools, interactive quizzes, and scenario-based learning.',
       url: 'https://github.com/ajeetchouksey/ajch_cluade_architect',
       tech: ['React', 'TypeScript', 'Vite', 'Tailwind CSS'],

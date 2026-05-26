@@ -88,7 +88,7 @@ export default function Home() {
           Personal AI Learning Platform
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white via-violet-200 to-violet-400 bg-clip-text text-transparent">
-          AI Architect Hub
+          My AI Hub
         </h1>
         <p className="text-lg text-slate-400 max-w-2xl mx-auto">
           Your platform for AI certification prep, technical writing, and developer tools.
