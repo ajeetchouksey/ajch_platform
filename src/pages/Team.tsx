@@ -862,83 +862,6 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Asset ownership panel
-───────────────────────────────────────────────────────────── */
-function AssetPanel({ visible }: { visible: boolean }) {
-  const buckets = [
-    {
-      title: 'src/components/ui/',
-      owner: 'UX Framework Agent',
-      ownerColor: 'text-purple-400',
-      icon: Palette,
-      files: ['GlassCard.tsx', 'Badge.tsx', 'VersionTag.tsx', 'StatGrid.tsx', 'Timeline.tsx', 'Avatar.tsx', 'Button.tsx', 'PulsingDot.tsx', 'index.ts'],
-      borderColor: 'border-purple-500/20',
-      bg: 'from-purple-500/5 to-transparent',
-    },
-    {
-      title: 'App.tsx · Layout.tsx nav',
-      owner: 'Routing Agent',
-      ownerColor: 'text-blue-400',
-      icon: Share2,
-      files: ['App.tsx (routes)', 'Layout.tsx (nav links)', 'Layout.tsx (sidebar)'],
-      borderColor: 'border-blue-500/20',
-      bg: 'from-blue-500/5 to-transparent',
-    },
-    {
-      title: 'public/content/blog/',
-      owner: 'Content Publisher',
-      ownerColor: 'text-emerald-400',
-      icon: Send,
-      files: ['index.json (manifest)', 'posts/slug.md (articles)'],
-      borderColor: 'border-emerald-500/20',
-      bg: 'from-emerald-500/5 to-transparent',
-    },
-    {
-      title: 'public/content/exam/',
-      owner: 'Q-Gen + Study Notes Agent',
-      ownerColor: 'text-amber-400',
-      icon: HelpCircle,
-      files: ['questions/d*.json', 'notes/d*.md', 'scenarios/*.md'],
-      borderColor: 'border-amber-500/20',
-      bg: 'from-amber-500/5 to-transparent',
-    },
-  ];
-
-  return (
-    <div className={`transition-all duration-600 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '1100ms' }}>
-      <div className="flex items-center gap-2 mb-3">
-        <Layers size={13} className="text-slate-600" />
-        <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">File & Asset Ownership</span>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        {buckets.map(b => {
-          const BIcon = b.icon;
-          return (
-            <div key={b.title} className={`glass-card rounded-xl p-3 border ${b.borderColor} bg-gradient-to-br ${b.bg}`}>
-              <div className="flex items-center gap-2 mb-2">
-                <BIcon size={13} className={b.ownerColor} />
-                <div className="min-w-0">
-                  <div className="text-[10px] font-bold text-white font-mono truncate">{b.title}</div>
-                  <div className={`text-[9px] ${b.ownerColor}`}>owned by {b.owner}</div>
-                </div>
-              </div>
-              <div className="space-y-0.5">
-                {b.files.map(f => (
-                  <div key={f} className="flex items-center gap-1 text-[9px] text-slate-600">
-                    <span className="w-1 h-1 rounded-full bg-slate-700 shrink-0" />
-                    <span className="font-mono truncate">{f}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────
    Stat badge
 ───────────────────────────────────────────────────────────── */
 function StatBadge({ icon: Icon, value, label, color }: { icon: React.ElementType; value: string | number; label: string; color: string }) {
@@ -1044,9 +967,6 @@ export default function Team() {
               <L1CommanderCard key={agent.id} agent={agent} index={i} visible={visible} />
             ))}
           </div>
-
-          {/* Asset ownership */}
-          <AssetPanel visible={visible} />
 
         </div>
 
