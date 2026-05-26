@@ -15,6 +15,7 @@ const features = [
     borderColor: 'border-violet-600/50 hover:border-violet-400',
     iconColor: 'text-violet-400',
     glowColor: 'group-hover:shadow-violet-500/10',
+    accentColor: 'linear-gradient(90deg,#7c3aed,#a78bfa)',
   },
   {
     to: '/blog',
@@ -27,6 +28,7 @@ const features = [
     borderColor: 'border-blue-600/50 hover:border-blue-400',
     iconColor: 'text-blue-400',
     glowColor: 'group-hover:shadow-blue-500/10',
+    accentColor: 'linear-gradient(90deg,#1d4ed8,#60a5fa)',
   },
   {
     to: '/tools',
@@ -39,6 +41,7 @@ const features = [
     borderColor: 'border-slate-700 hover:border-slate-600',
     iconColor: 'text-slate-500',
     glowColor: '',
+    accentColor: undefined,
   },
 ];
 
@@ -100,14 +103,14 @@ export default function Home() {
 
       {/* Feature Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {features.map(({ to, icon: Icon, title, desc, cta, available, gradient, borderColor, iconColor, glowColor }, idx) => (
+        {features.map(({ to, icon: Icon, title, desc, cta, available, gradient, borderColor, iconColor, glowColor, accentColor }, idx) => (
           <Link
             key={to}
             to={to}
-            className={`glass-card glass-sheen glass-edge relative rounded-xl p-6 transition-all duration-300 group ${borderColor} ${glowColor} hover:shadow-xl hover:-translate-y-1 ${
+            className={`glass-card glass-sheen glass-edge relative rounded-xl p-6 transition-all duration-300 group ${borderColor} ${glowColor} hover:shadow-xl hover:-translate-y-1 ${accentColor ? 'card-accent-top' : ''} ${
               !available ? 'opacity-70' : ''
             } ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-            style={{ transitionDelay: `${300 + idx * 150}ms` }}
+            style={{ transitionDelay: `${300 + idx * 150}ms`, ...(accentColor ? { '--accent-color': accentColor } : {}) } as React.CSSProperties}
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
             <div className="relative z-10">
