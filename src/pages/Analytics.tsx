@@ -12,6 +12,10 @@ const ADMIN_USERS = ['ajeetchouksey', 'ajchava'];
 const GC_BASE = 'https://ajch.goatcounter.com/api/v0';
 const TOKEN_KEY = 'gc_admin_token'; // sessionStorage — cleared on tab close
 
+// Build-time token injected by CI (VITE_GOAT_TOKEN GitHub secret).
+// Falls back to empty string — manual entry used in local dev.
+const BUILD_TOKEN: string = (import.meta.env.VITE_GOAT_TOKEN as string | undefined) ?? '';
+
 /* ─────────────────────────────────────────────────────────────
    Types
 ───────────────────────────────────────────────────────────── */
@@ -253,7 +257,8 @@ function Dashboard({ data, onRefresh, loading }: { data: AnalyticsData; onRefres
 export default function Analytics() {
   const { user, isLoading: authLoading, login } = useAuth();
   const [mounted, setMounted]     = useState(false);
-  const [token, setToken]         = useState<string>(() => sessionStorage.getItem(TOKEN_KEY) ?? '');
+  // Use build-time token if injected by CI, else check sessionStorage (local dev)
+  const [token, setToken]         = useState<string>(() => BUILD_TOKEN || sessionStorage.getItem(TOKEN_KEY) || '');
   const [data, setData]           = useState<AnalyticsData | null>(null);
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState('');
@@ -321,14 +326,21 @@ export default function Analytics() {
             GoatCounter · <a href="https://ajch.goatcounter.com" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:underline">ajch.goatcounter.com</a>
           </p>
         </div>
-        {token && (
-          <button
-            onClick={handleClearToken}
-            className="text-[11px] text-slate-600 hover:text-slate-400 transition-colors"
-          >
-            Clear token
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          {BUILD_TOKEN ? (
+            <span className="flex items-center gap-1.5 text-[10px] text-emerald-500/70 border border-emerald-500/20 bg-emerald-500/5 px-2 py-1 rounded-lg">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              CI-injected token
+            </span>
+          ) : token ? (
+            <button
+              onClick={handleClearToken}
+              className="text-[11px] text-slate-600 hover:text-slate-400 transition-colors"
+            >
+              Clear token
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {/* Auth loading */}
@@ -366,9 +378,19 @@ export default function Analytics() {
         </div>
       )}
 
-      {/* Admin — no token yet */}
+      {/* Admin — no token yet (local dev only; CI build skips this) */}
       {!authLoading && isAdmin && !token && (
-        <TokenForm onSubmit={handleTokenSubmit} />
+        <>
+          <div className="glass-card rounded-xl p-3 border border-amber-500/20 bg-amber-500/5 mb-4 flex items-start gap-2">
+            <span className="text-amber-400 text-sm mt-0.5">⚠</span>
+            <p className="text-[11px] text-slate-400">
+              <span className="text-amber-300 font-semibold">Local dev:</span> No build-time token found.
+              In production, set <code className="text-violet-400">VITE_GOAT_TOKEN</code> as a GitHub Actions secret.
+              For now, enter your GoatCounter token below.
+            </p>
+          </div>
+          <TokenForm onSubmit={handleTokenSubmit} />
+        </>
       )}
 
       {/* Admin — token present, loading */}

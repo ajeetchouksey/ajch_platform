@@ -37,6 +37,8 @@ jobs:
       - name: Build
         env:
           VITE_REPO_BASE: /${{ github.event.repository.name }}/
+          VITE_GOAT_TOKEN: ${{ secrets.VITE_GOAT_TOKEN }}
+          VITE_GOAT_SITE: ${{ secrets.VITE_GOAT_SITE }}
         run: npm run build
 
       - name: Setup Pages
