@@ -33,12 +33,13 @@ If `PROJECT_NUMBER` or `PROJECT_ID` is `~` (not yet set), prompt the user to run
 
 ### 1. Setup — Bootstrap GitHub Project Infrastructure
 
-**Trigger**: "set up the project board", "initialize", "bootstrap", first run
+**Trigger**: "set up the project board", "initialize", "bootstrap", "connect my project", first run
 
 **Steps**:
 
-1. Read `gh-project-config.md` — confirm CONFIG values are `~` (unset)
-2. Prompt user to confirm: "I'll create labels, milestones, and a GitHub Project board on `ajeetchouksey/ajch_platform`. Continue?"
+1. Read `gh-project-config.md` — check if `PROJECT_NUMBER` is already set
+2. **If PROJECT_NUMBER is already set** (existing project): skip to step 6 to fetch the `PROJECT_ID`
+3. If not set, prompt user: "I'll create labels, milestones, and a GitHub Project board on `ajeetchouksey/ajch_platform`. Continue?"
 3. Ask user to confirm their `GH_PO_TOKEN` is set:
    ```powershell
    echo $env:GH_PO_TOKEN   # should print a PAT starting with ghp_

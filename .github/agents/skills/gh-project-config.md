@@ -23,15 +23,14 @@ PROJECT_NUMBER: ~               # Fill in after Setup — integer (e.g. 5)
 PROJECT_ID: ~                   # Fill in after Setup — PVT_... GraphQL node ID
 ```
 
-**First-time setup**: Invoke `Product Owner Agent → Setup` to bootstrap labels,
-milestones, and the project board. The agent will output the values to fill in
-`PROJECT_NUMBER` and `PROJECT_ID` above.
+**First-time setup**: If you already have a GitHub Project, find its number from the URL
+(`https://github.com/users/ajeetchouksey/projects/N`) and paste it below.
+Otherwise invoke `Product Owner Agent → Setup` to create one.
 
-**Token setup**: Create a GitHub PAT at https://github.com/settings/tokens with
-scopes `repo` + `project`, then set it as an environment variable:
+**Token setup**: Create a **classic PAT** at https://github.com/settings/tokens
+→ "Generate new token (classic)" with scopes `repo` + `project`, then:
 ```powershell
-$env:GH_PO_TOKEN = "ghp_..."   # PowerShell (current session)
-# Or add to your shell profile for persistence
+$env:GH_PO_TOKEN = "ghp_..."
 ```
 
 ---
