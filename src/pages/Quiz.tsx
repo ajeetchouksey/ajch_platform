@@ -237,7 +237,7 @@ export default function Quiz() {
           <span>
             Question {current + 1} of {questions.length}
           </span>
-          <span>D{q.domain} · {DOMAIN_META[q.domain].title}</span>
+          <span>D{q.domain} · {examDomains.find(d => d.id === q.domain)?.title ?? `Domain ${q.domain}`}</span>
         </div>
         <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
           <div

@@ -90,7 +90,7 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
-  const fade = (delay: number) =>
+  const fade = (_delay: number) =>
     `transition-all duration-600 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`;
 
   return (

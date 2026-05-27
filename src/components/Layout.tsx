@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Tag, FolderOpen, ChevronRight, Users, LineChart } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, ChevronRight, Users, LineChart } from 'lucide-react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -100,8 +100,6 @@ export default function Layout({ children }: { children: ReactNode }) {
   }, [isInBlog]);
 
   const blogCategories = [...new Set(blogPosts.map((p) => p.category))];
-  const blogTags = [...new Set(blogPosts.flatMap((p) => p.tags))];
-  const recentPosts = blogPosts.slice(0, 5);
 
   return (
     <div className="min-h-screen flex flex-col text-slate-100">
