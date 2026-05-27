@@ -117,7 +117,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           </button>
 
-          <NavLink to="/" className="flex items-center gap-2.5 mr-8 group">
+          <NavLink to="/" className="flex items-center gap-2.5 mr-4 group">
             <div className="relative">
               <Cpu size={22} className="text-violet-400 transition-transform duration-300 group-hover:rotate-12" />
               <div className="absolute inset-0 bg-violet-400/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -180,7 +180,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         {/* Sidebar */}
         <aside
           className={`
-            fixed lg:static inset-y-0 left-0 z-40 w-64 bg-slate-800/70 backdrop-blur-md border-r border-slate-700/60
+            fixed lg:static inset-y-0 left-0 z-40 w-64 bg-slate-900/30 backdrop-blur-xl border-r border-slate-700/20
             transform transition-all duration-300 ease-out
             ${sidebarOpen ? 'translate-x-0 shadow-2xl shadow-black/50' : '-translate-x-full shadow-none'}
             lg:translate-x-0 lg:shadow-none lg:block
@@ -448,7 +448,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       </div>
 
       {/* Footer */}
-      <footer className="bg-slate-800/60 backdrop-blur-md border-t border-slate-700/50 py-4 px-4">
+      <footer className="bg-slate-900/30 backdrop-blur-xl border-t border-slate-700/20 py-4 px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <Cpu size={14} className="text-violet-400" />

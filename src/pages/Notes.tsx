@@ -58,7 +58,7 @@ export default function Notes() {
           <div className="text-rose-400 text-sm">Failed to load: {error}</div>
         )}
         {!loading && !error && (
-          <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-a:text-violet-400 prose-code:text-violet-300 prose-pre:bg-slate-800 prose-blockquote:border-violet-500 prose-blockquote:text-slate-400">
+          <div className="prose prose-invert max-w-none prose-headings:text-white prose-a:text-violet-400 prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-blockquote:border-violet-500 prose-blockquote:text-slate-400 prose-p:text-[0.9375rem] prose-p:leading-7">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}

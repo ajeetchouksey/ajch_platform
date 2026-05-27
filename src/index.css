@@ -222,3 +222,32 @@
   top: 0.85em;
   font-size: 1.1em;
 }
+
+/* ─── Platform-wide prose code blocks ─── */
+.prose pre {
+  background: linear-gradient(135deg, rgba(15, 26, 48, 0.85), rgba(8, 14, 26, 0.92)) !important;
+  border: 1px solid rgba(99, 102, 241, 0.18) !important;
+  border-radius: 12px !important;
+  font-size: 0.875rem !important;
+  line-height: 1.65 !important;
+  box-shadow:
+    0 4px 24px -4px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+.prose pre code {
+  font-size: inherit !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: #c4b5fd !important;
+}
+
+.prose :not(pre) > code {
+  background: rgba(109, 40, 217, 0.18) !important;
+  border: 1px solid rgba(109, 40, 217, 0.28) !important;
+  border-radius: 4px !important;
+  padding: 0.1em 0.4em !important;
+  font-size: 0.875em !important;
+  color: #c4b5fd !important;
+}

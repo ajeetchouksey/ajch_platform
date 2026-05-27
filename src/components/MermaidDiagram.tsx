@@ -5,20 +5,22 @@ mermaid.initialize({
   startOnLoad: false,
   theme: 'dark',
   themeVariables: {
-    primaryColor: '#7c3aed',
-    primaryTextColor: '#f8fafc',
-    primaryBorderColor: '#a78bfa',
-    lineColor: '#94a3b8',
-    secondaryColor: '#1e293b',
-    tertiaryColor: '#0f172a',
-    background: '#1e293b',
-    mainBkg: '#1e293b',
-    nodeBorder: '#a78bfa',
-    clusterBkg: '#0f172a',
-    titleColor: '#f8fafc',
-    edgeLabelBackground: '#1e293b',
+    primaryColor: '#6d28d9',
+    primaryTextColor: '#e2e8f0',
+    primaryBorderColor: '#7c3aed',
+    lineColor: '#64748b',
+    secondaryColor: '#162236',
+    tertiaryColor: '#0e1a2d',
+    background: '#0e1a2d',
+    mainBkg: '#1a2a42',
+    nodeBorder: '#7c3aed',
+    clusterBkg: '#111f35',
+    titleColor: '#e2e8f0',
+    edgeLabelBackground: '#162236',
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+    fontSize: '13px',
   },
-  flowchart: { curve: 'basis', padding: 16 },
+  flowchart: { curve: 'basis', padding: 20 },
   sequence: { actorMargin: 50, messageMargin: 40 },
 });
 
@@ -53,7 +55,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
   return (
     <div
       ref={containerRef}
-      className="my-4 flex justify-center overflow-x-auto rounded-lg bg-slate-800/50 p-4"
+      className="my-6 flex justify-center overflow-x-auto rounded-xl border border-violet-900/30 bg-gradient-to-br from-slate-900/60 to-slate-900/80 backdrop-blur-sm p-6 shadow-inner shadow-black/20"
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
