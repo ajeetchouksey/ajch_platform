@@ -1,5 +1,6 @@
 ---
 name: Exam Content Agent
+version: 1.0.0
 description: >
   Exam Commander for AI Architect Hub. Orchestrates exam content pipeline:
   handles web research and concept extraction directly, then delegates MCQ

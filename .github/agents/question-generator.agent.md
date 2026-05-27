@@ -1,5 +1,6 @@
 ---
 name: Question Generator
+version: 1.0.0
 description: >
   MCQ generation specialist for CCA-F exam preparation. Wraps the
   question-generator.md skill. Generates schema-validated question JSON

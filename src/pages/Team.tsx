@@ -54,6 +54,7 @@ interface AgentData {
   deliveries: Delivery[];
   isNew?: boolean;
   noSubAgents?: boolean;
+  noSubAgentsNote?: string;
   humanFeedback?: string;
   profileFile?: string;
   subAgents?: SubAgent[];
@@ -330,6 +331,95 @@ export const l1Agents: AgentData[] = [
     ],
   },
 ];
+
+/* ─────────────────────────────────────────────────────────────
+   Cross-Cutting Agents
+───────────────────────────────────────────────────────────── */
+const securityAgent: AgentData = {
+  id: 'security-governance',
+  name: 'Security Gate',
+  role: 'Governance Lead',
+  tagline: 'Validate. Block. Never regret.',
+  description: 'Hard pre-build and post-build gate. Inspects every planned write before code ships. Returns PASS ✓ or BLOCK ✗ — no partial passes, no exceptions.',
+  glowColor: 'shadow-amber-500/25',
+  borderColor: 'border-amber-500/40 hover:border-amber-400/70',
+  bgGradient: 'from-amber-500/10 via-amber-500/5 to-transparent',
+  textColor: 'text-amber-400',
+  badgeColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+  dotColor: 'bg-amber-400',
+  icon: ShieldCheck,
+  status: 'active',
+  capabilities: ['Pre-flight Validation', 'OWASP A03/A09', 'Secrets Scan', 'Post-build Audit'],
+  model: 'Claude Sonnet',
+  tools: 5,
+  noSubAgents: true,
+  activeTask: 'Standing by — next write request incoming',
+  version: 'v1.1.0',
+  profileFile: 'security-governance.agent.md',
+  deliveries: [
+    { version: 'v1.0', label: 'Pre-build gate: path traversal, OWASP, content policy, schema checks', type: 'major' },
+    { version: 'v1.1', label: 'Post-build audit: reads actual produced files, XSS + secrets re-check', type: 'minor' },
+  ],
+};
+
+const uxAgent: AgentData = {
+  id: 'ux-framework',
+  name: 'UX Framework',
+  role: 'Design System Lead',
+  tagline: 'One token. Every component.',
+  description: 'Design system steward. Owns src/components/ui/ — the typed primitive library used by all agents. Zero raw Tailwind in components; all styling via design tokens.',
+  glowColor: 'shadow-purple-500/25',
+  borderColor: 'border-purple-500/40 hover:border-purple-400/70',
+  bgGradient: 'from-purple-500/10 via-purple-500/5 to-transparent',
+  textColor: 'text-purple-400',
+  badgeColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+  dotColor: 'bg-purple-400',
+  icon: Palette,
+  status: 'active',
+  capabilities: ['UI Primitives', 'Design Tokens', 'Post-build Audit', 'Component Scaffolding'],
+  model: 'Claude Sonnet',
+  tools: 8,
+  noSubAgents: true,
+  activeTask: 'Post-build UX audit of changed components',
+  version: 'v1.1.0',
+  profileFile: 'ux-framework.agent.md',
+  deliveries: [
+    { version: 'v1.0', label: 'src/components/ui/ primitive library — Badge, Card, Stat, Timeline, PulsingDot', type: 'major' },
+    { version: 'v1.1', label: 'Post-build UX audit: scans changed .tsx files for raw Tailwind pattern violations', type: 'minor' },
+  ],
+};
+
+/* ─────────────────────────────────────────────────────────────
+   Operations Agent
+───────────────────────────────────────────────────────────── */
+const devopsAgent: AgentData = {
+  id: 'devops',
+  name: 'DevOps Agent',
+  role: 'CI/CD Lead',
+  tagline: 'Build. Tag. Deploy. Never skip the CHANGELOG.',
+  description: 'Owns all GitHub Actions workflows, semver releases, and agent-file versioning. Every build passes through CI. Every ship gets a version bump and CHANGELOG entry.',
+  glowColor: 'shadow-orange-500/25',
+  borderColor: 'border-orange-500/40 hover:border-orange-400/70',
+  bgGradient: 'from-orange-500/10 via-orange-500/5 to-transparent',
+  textColor: 'text-orange-400',
+  badgeColor: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
+  dotColor: 'bg-orange-400',
+  icon: Zap,
+  status: 'active',
+  capabilities: ['CI/CD Pipelines', 'Semver Releases', 'Agent Versioning', 'CHANGELOG'],
+  model: 'Claude Sonnet',
+  tools: 7,
+  noSubAgents: true,
+  isNew: true,
+  activeTask: 'Monitoring deploy.yml — last deploy: main branch',
+  version: 'v1.0.0',
+  profileFile: 'devops.agent.md',
+  deliveries: [
+    { version: 'v1.0-a', label: 'ci.yml — PR build-check on every PR to main (TypeScript + build)', type: 'major' },
+    { version: 'v1.0-b', label: 'Agent versioning: version: field across all 17 .agent.md files', type: 'major' },
+    { version: 'v1.0-c', label: 'Release flow: PO notes → semver bump → git tag → GitHub Pages deploy', type: 'major' },
+  ],
+};
 
 /* ─────────────────────────────────────────────────────────────
    Flow steps
@@ -1120,16 +1210,22 @@ function L1CommanderCard({ agent, index, visible, onOpenProfile }: { agent: Agen
   const [showDeliveries, setShowDeliveries] = useState(false);
   const Icon = agent.icon;
   const accentMap: Record<string, string> = {
-    'platform-control': 'linear-gradient(90deg,#1d4ed8,#60a5fa)',
-    'blog':             'linear-gradient(90deg,#065f46,#34d399)',
-    'exam-content':     'linear-gradient(90deg,#92400e,#fbbf24)',
-    'study-companion':  'linear-gradient(90deg,#9f1239,#fb7185)',
+    'platform-control':     'linear-gradient(90deg,#1d4ed8,#60a5fa)',
+    'blog':                 'linear-gradient(90deg,#065f46,#34d399)',
+    'exam-content':         'linear-gradient(90deg,#92400e,#fbbf24)',
+    'study-companion':      'linear-gradient(90deg,#9f1239,#fb7185)',
+    'security-governance':  'linear-gradient(90deg,#92400e,#fbbf24)',
+    'ux-framework':         'linear-gradient(90deg,#581c87,#c084fc)',
+    'devops':               'linear-gradient(90deg,#9a3412,#fb923c)',
   };
   const accentColorMap: Record<string, string> = {
-    'platform-control': '#60a5fa',
-    'blog':             '#34d399',
-    'exam-content':     '#fbbf24',
-    'study-companion':  '#fb7185',
+    'platform-control':     '#60a5fa',
+    'blog':                 '#34d399',
+    'exam-content':         '#fbbf24',
+    'study-companion':      '#fb7185',
+    'security-governance':  '#fbbf24',
+    'ux-framework':         '#c084fc',
+    'devops':               '#fb923c',
   };
   const accentColor = accentColorMap[agent.id] ?? '#94a3b8';
   const accentGrad  = accentMap[agent.id] ?? 'linear-gradient(90deg,#475569,#94a3b8)';
@@ -1219,11 +1315,11 @@ function L1CommanderCard({ agent, index, visible, onOpenProfile }: { agent: Agen
       )}
 
       {/* No sub-agents note */}
-      {agent.noSubAgents && (
+      {agent.noSubAgents && agent.noSubAgentsNote && (
         <div className="border-t border-slate-800/60 px-4 py-3">
           <div className={`flex items-center gap-2 text-[10px] ${agent.textColor} opacity-60`}>
             <span className="text-base">✦</span>
-            Teaching is a conversation — no sub-agent pipeline needed
+            {agent.noSubAgentsNote}
           </div>
         </div>
       )}
@@ -1262,8 +1358,8 @@ export default function Team() {
     return () => timers.current.forEach(clearTimeout);
   }, []);
 
-  // 2 L0 (Orchestrator + PO) + 1 Security Gate + 1 UX Foundation + L1 Domain Leads + L2 Specialists
-  const totalAgents = 2 + 1 + 1 + l1Agents.length + l1Agents.reduce((acc, a) => acc + (a.subAgents?.length ?? 0), 0);
+  // L0 (Orchestrator + PO) + cross-cutting (Security + UX) + operations (DevOps) + L1 Domain Leads + L2 Specialists
+  const totalAgents = 2 + 2 + 1 + l1Agents.length + l1Agents.reduce((acc, a) => acc + (a.subAgents?.length ?? 0), 0);
   const totalSubAgents = l1Agents.reduce((acc, a) => acc + (a.subAgents?.length ?? 0), 0);
 
   return (
@@ -1286,11 +1382,11 @@ export default function Team() {
             <Bot size={20} className="text-violet-400" />
             <h1 className="text-xl font-bold text-white">The Team</h1>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-violet-500/15 text-violet-300 border border-violet-500/30">
-              1 Human · {totalAgents} Agents · 3 Tiers
+              1 Human · {totalAgents} Agents · 4 Tiers
             </span>
           </div>
           <p className="text-sm text-slate-400 max-w-xl">
-            One principal. Two L0 leads. Two vertical governance rails. Four domain leads. {totalSubAgents} task specialists. Human feedback loop where it counts.
+            One principal. Two L0 leads. Two cross-cutting agents. Four domain leads. One ops agent. {totalSubAgents} task specialists.
           </p>
         </div>
 
@@ -1332,6 +1428,20 @@ export default function Team() {
               <POAgentCard agent={poAgent} visible={visible} onOpenProfile={setDrawer} />
             </div>
 
+            <VerticalConnector label="enforced by" visible={visible} delay={420} />
+
+            {/* Cross-Cutting tier label */}
+            <div className={`flex items-center gap-2 mb-2 mt-1 transition-opacity duration-400 ${visible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '550ms' }}>
+              <span className="text-[9px] font-bold text-amber-500/70 uppercase tracking-widest bg-amber-500/5 border border-amber-500/20 px-2 py-0.5 rounded">Cross-Cutting</span>
+              <div className="h-px flex-1 bg-slate-800" />
+              <span className="text-[9px] text-slate-600">Guards every write · Audits every render</span>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3">
+              <L1CommanderCard agent={securityAgent} index={0} visible={visible} onOpenProfile={setDrawer} />
+              <L1CommanderCard agent={uxAgent} index={1} visible={visible} onOpenProfile={setDrawer} />
+            </div>
+
             <VerticalConnector visible={visible} delay={450} />
 
             {/* L1 layer label */}
@@ -1347,6 +1457,17 @@ export default function Team() {
               {l1Agents.map((agent, i) => (
                 <L1CommanderCard key={agent.id} agent={agent} index={i} visible={visible} onOpenProfile={setDrawer} />
               ))}
+            </div>
+
+            {/* Operations tier label */}
+            <div className={`flex items-center gap-2 mb-2 mt-1 transition-opacity duration-400 ${visible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '900ms' }}>
+              <span className="text-[9px] font-bold text-amber-500/70 uppercase tracking-widest bg-amber-500/5 border border-amber-500/20 px-2 py-0.5 rounded">Operations</span>
+              <div className="h-px flex-1 bg-slate-800" />
+              <span className="text-[9px] text-slate-600">CI/CD · Versioning · Releases</span>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3 mb-6">
+              <L1CommanderCard agent={devopsAgent} index={0} visible={visible} onOpenProfile={setDrawer} />
             </div>
 
           </div>

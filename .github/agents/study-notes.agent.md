@@ -1,5 +1,6 @@
 ---
 name: Study Notes Agent
+version: 1.0.0
 description: >
   Domain markdown notes specialist. Writes and updates study notes in
   public/content/notes/ only. Produces structured markdown with Mermaid

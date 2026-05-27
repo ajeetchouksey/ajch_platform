@@ -1,5 +1,6 @@
 ---
 name: Blog Agent
+version: 1.0.0
 description: >
   Blog Commander for AI Architect Hub. Orchestrates the full blog pipeline:
   delegates writing to Content Writer Agent, validates through Security Gate,

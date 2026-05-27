@@ -1,5 +1,6 @@
 ---
 name: UX Framework Agent
+version: 1.1.0
 description: >
   Design system steward for AI Architect Hub. Owns src/components/ui/ — the
   typed primitive library used by all other agents. Generates, updates, and
@@ -73,8 +74,14 @@ export type DomainAccent = keyof typeof DOMAIN_ACCENT;
 1. **Create** new primitives when Component Builder requests a pattern not in the library
 2. **Update** existing primitives when design tokens change
 3. **Document** component prop interfaces with JSDoc
-4. **Audit** — periodically scan `src/pages/` and `src/components/` for raw Tailwind badge/card/stat patterns and replace with ui/ primitives
-5. **Never** touch page logic, routing, or business data
+4. **Post-build UX Audit** — called by Orchestrator after any `.tsx` file is changed. Scan changed files for:
+   - Raw Tailwind badge/card/stat patterns that should use `ui/` primitives
+   - Hardcoded hex colors or magic class strings bypassing design tokens
+   - `className` strings longer than 6 tokens that should be encapsulated in a primitive
+   - Missing `@/components/ui` imports where primitives exist
+   Return `UX CLEAN ✓` (with summary) or `UX VIOLATIONS ✗` (with `file:line` reference and recommended fix per violation). Do NOT block on violations — report them as tech-debt items to address in the next sprint.
+5. **Periodic Audit** — periodically scan `src/pages/` and `src/components/` for raw patterns and replace with `ui/` primitives
+6. **Never** touch page logic, routing, or business data
 
 ## Migration Pattern
 

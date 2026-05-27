@@ -1,5 +1,6 @@
 ---
 name: Content Publisher Agent
+version: 1.0.0
 description: >
   Blog manifest and frontmatter specialist. Manages public/content/blog/ only.
   Writes .md post files and updates index.json manifest. Receives validated

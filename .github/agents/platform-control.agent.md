@@ -1,5 +1,6 @@
 ---
 name: Platform Control Agent
+version: 3.0.0
 description: >
   Platform architecture domain lead for AI Architect Hub. Acts as commander
   for platform concerns — delegates routing changes to Routing Agent, component

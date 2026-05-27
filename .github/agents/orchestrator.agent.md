@@ -1,5 +1,6 @@
 ---
 name: Platform Orchestrator
+version: 2.0.0
 description: >
   Central orchestration agent for AI Architect Hub. Analyzes user requests,
   triggers security gate pre-flight for mutations, determines the correct
@@ -62,6 +63,11 @@ Read-only tasks (questions, explanations, searches) skip the security gate.
 | **Expert Teacher Agent** | explain, teach, what is, how does, quiz me, grade my answer | Socratic teaching, concept explanation, exam trap highlights |
 | **Student Simulator Agent** | 101/201/301 mode, be a student, act like a beginner, challenge me | Student simulation — asks questions at specified level for teaching-back practice |
 
+### Operations
+| Agent | Trigger Keywords | Handles |
+|-------|-----------------|--------|
+| **DevOps Agent** | deploy, release, version, changelog, tag, CI, pipeline, semver, build, workflow, agent version, bump version, cut release | CI/CD ownership, agent-file versioning, platform semver releases, CHANGELOG, PR build-check workflow |
+
 ## Decision Logic
 
 ```
@@ -74,19 +80,36 @@ User Request
     ├─ Product/planning request (roadmap, backlog, stories, sprint, content calendar)?
     │   └─→ Product Owner Agent (no security gate needed for read; gate fires inside PO for writes)
     │
-    ├─ Mutating task (write files, create content)?
-    │   ├─ → Security & Governance Agent (MANDATORY pre-flight)
-    │   │   ├─ BLOCK ✗ → Report to user, stop
-    │   │   └─ PASS ✓ → Continue routing below
+    ├─ Feature / bug fix / service change / any implementation request?
     │   │
-    │   ├─ UI/layout/navigation/routing/deploy?
-    │   │   └─→ Platform Control Agent
+    │   ├─ STEP 1 — Issue Gate (MANDATORY before any build work)
+    │   │   └─→ Product Owner Agent: "Find or create a GitHub issue for: [request summary]"
+    │   │       ├─ Issue found → PO returns issue # + title + ACs
+    │   │       └─ No issue → PO asks user for details, creates issue, returns issue #
     │   │
-    │   ├─ Blog post/content?
-    │   │   └─→ Blog Agent
+    │   ├─ STEP 2 — Security Gate (MANDATORY before any file write)
+    │   │   └─→ Security & Governance Agent: validate file paths + inputs
+    │   │       ├─ BLOCK ✗ → Stop, report reason, do NOT proceed
+    │   │       └─ PASS ✓ → Continue
     │   │
-    │   └─ Exam questions/notes/scenarios?
-    │       └─→ Exam Content Agent
+    │   ├─ STEP 3 — Implement (route by domain, always cite the issue #)
+    │   │   ├─ UI/layout/routing/deploy? → Platform Control Agent
+    │   │   ├─ Blog content? → Blog Agent
+    │   │   ├─ Exam questions/notes? → Exam Content Agent
+    │   │   └─ Release/version/CI/CHANGELOG? → DevOps Agent
+    │   │
+    │   ├─ STEP 4 — Post-build Security Audit
+    │   │   └─→ Security & Governance Agent: "Post-build audit of [files changed]"
+    │   │       ├─ POST-BUILD FAIL ✗ → Block, must fix before push
+    │   │       └─ POST-BUILD PASS ✓ → Continue
+    │   │
+    │   ├─ STEP 5 — Post-build UX Validation (if any .tsx files changed)
+    │   │   └─→ UX Framework Agent: "UX audit of [changed components]"
+    │   │       ├─ UX VIOLATIONS ✗ → Log as backlog tech-debt
+    │   │       └─ UX CLEAN ✓ → Continue
+    │   │
+    │   └─ STEP 6 — Close the loop
+    │       └─→ Product Owner Agent: "Mark issue #N Done"
     │
     ├─ Ambiguous or multi-domain?
     │   └─→ Ask clarifying question, then route
@@ -97,25 +120,32 @@ User Request
 
 ## Multi-Agent Workflows
 
+### ANY feature / bug fix / service change (STANDARD FLOW — always follow this)
+1. → **Product Owner Agent**: "Issue Gate — find or create issue for: [request]"
+2. PO returns issue # and acceptance criteria
+3. → **Security Gate** (pre-build): validate planned file paths + inputs
+4. → **Domain Agent** (Platform Control / Blog / Exam Content): implement, referencing issue #
+5. → **Security Gate** (post-build): audit all changed files for OWASP/secret/schema issues
+6. → **UX Framework Agent** (post-build): UX audit if any `.tsx` files changed
+7. → **Product Owner Agent**: mark issue Done — only after both post-build gates pass
+
 ### "Add content from this URL and update the blog"
-1. → **Security Gate**: validate URL + planned file paths
-2. → **Exam Content Agent**: extract exam-relevant concepts
-3. → **Blog Agent**: write companion blog post
+1. → **Product Owner Agent**: Issue Gate — find or create issue
+2. → **Security Gate**: validate URL + planned file paths
+3. → **Exam Content Agent**: extract exam-relevant concepts
+4. → **Blog Agent**: write companion blog post
+5. → **Product Owner Agent**: mark Done
 
 ### "Create a new exam section with its own page"
-1. → **Security Gate**: validate file paths
-2. → **Platform Control Agent**: scaffold route + page + nav
-3. → **Exam Content Agent**: populate with initial content
+1. → **Product Owner Agent**: Issue Gate — find or create issue
+2. → **Security Gate**: validate file paths
+3. → **Platform Control Agent**: scaffold route + page + nav
+4. → **Exam Content Agent**: populate with initial content
+5. → **Product Owner Agent**: mark Done
 
 ### "Teach me about [topic], then quiz me"
 1. → **Expert Teacher Agent**: explain + Socratic method
 2. → **Student Simulator Agent**: switch to student mode if user wants to practice teaching-back
-
-### "Plan and implement a new feature"
-1. → **Product Owner Agent**: generate user story, RICE score, confirm issue creation
-2. → **Security Gate**: validate planned file paths
-3. → **Platform Control / Exam Content / Blog Agent**: implement based on story domain
-4. → **Product Owner Agent**: mark issue Done on project board
 
 ### "What should we build next sprint?"
 1. → **Product Owner Agent**: fetch open issues, compute RICE scores, recommend sprint
@@ -124,10 +154,13 @@ User Request
 
 ## Response Pattern
 
-1. **Security check** — confirm gate result (if mutating)
-2. **Acknowledge** — "I'll route this to [Agent Name] for [reason]"
-3. **Delegate** — Call the specialist via runSubagent
-4. **Report** — Summarize what was done, what files changed, any follow-ups
+1. **Issue Gate** — PO Agent finds or creates the issue
+2. **Pre-build Security** — gate must PASS before any file write
+3. **Acknowledge** — "Implementing Issue #N: [title]"
+4. **Delegate** — call the specialist via runSubagent
+5. **Post-build Security** — re-audit all changed files
+6. **Post-build UX** — design system compliance check (if UI files changed)
+7. **Report** — files changed, both gate results, issue marked Done
 
 ## Platform Context
 
@@ -188,6 +221,14 @@ User Request
 
 Some requests span multiple agents. Handle sequentially:
 
+### ANY implementation request (feature / bug / service change)
+1. → **Product Owner Agent**: Issue Gate — find or create GitHub issue
+2. → **Security Gate** (pre-build): validate planned files + inputs
+3. → **Domain Agent**: implement
+4. → **Security Gate** (post-build): audit changed files
+5. → **UX Framework Agent** (post-build): UX audit if `.tsx` files changed
+6. → **Product Owner Agent**: mark issue Done
+
 ### "Add content from this URL and update the blog"
 1. → **Exam Content Agent**: Extract exam-relevant content, generate questions
 2. → **Blog Agent**: Write a companion blog post about the topic
@@ -225,9 +266,13 @@ Handle these yourself (no delegation needed):
 
 ## Response Pattern
 
-1. **Acknowledge** — "I'll route this to [Agent Name] for [reason]"
-2. **Delegate** — Call the specialist via runSubagent
-3. **Report** — Summarize what was done, what files changed, any follow-ups needed
+1. **Issue Gate** — PO Agent finds or creates the issue
+2. **Pre-build Security** — gate must PASS before any file write
+3. **Acknowledge** — "Implementing Issue #N: [title]"
+4. **Delegate** — Call the specialist via runSubagent
+5. **Post-build Security** — re-audit all changed files
+6. **Post-build UX** — design system compliance check (if UI files changed)
+7. **Report** — Summarize what was done, files changed, both gate results, issue marked Done
 
 ## Platform Context
 

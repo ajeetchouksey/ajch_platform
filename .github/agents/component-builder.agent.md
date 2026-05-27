@@ -1,5 +1,6 @@
 ---
 name: Component Builder Agent
+version: 1.0.0
 description: >
   React component scaffolding specialist for AI Architect Hub. Creates and
   modifies page components and domain components using ONLY src/components/ui/

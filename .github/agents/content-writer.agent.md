@@ -1,5 +1,6 @@
 ---
 name: Content Writer Agent
+version: 1.0.0
 description: >
   Prose-only writing specialist for AI Architect Hub blog. Returns markdown
   string output only — no file I/O, no terminal access. Content is passed

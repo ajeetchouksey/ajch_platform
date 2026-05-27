@@ -1,0 +1,35 @@
+name: CI — Build Check
+# Owned by DevOps Agent. Do not modify without DevOps Agent review.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches-ignore: [main]   # also run on feature branches (not main — deploy.yml handles that)
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: TypeScript + Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          # Non-secret build vars — intentionally empty for PR builds;
+          # the build must succeed without real tokens.
+          VITE_REPO_BASE: /ajch_platform/
