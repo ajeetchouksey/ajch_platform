@@ -7,7 +7,7 @@ description: >
   stakeholder updates. Configurable to link with a GitHub Project board
   (Projects v2 GraphQL API). Positioned as L0 peer of the Orchestrator —
   owns the "what and when" while Orchestrator owns the "how".
-tools: [vscode/askQuestions, read/readFile, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, edit/editFiles, agent/runSubagent, web/fetch, web/githubRepo, web/githubTextSearch, todo]
+tools: [vscode/askQuestions, read/readFile, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, edit/editFiles, agent/runSubagent, web/fetch, web/githubRepo, web/githubTextSearch, browser/openBrowserPage, browser/readPage, todo]
 ---
 
 # Product Owner Agent
@@ -383,6 +383,166 @@ If `PROJECT_NUMBER` or `PROJECT_ID` is `~` (not yet set), prompt the user to run
    ```
 
 **Output**: Formatted stakeholder update (ready to paste into Slack/email/GitHub Discussion).
+
+---
+
+### 8. Research & Analysis — Platform Intelligence
+
+**Trigger**: "research", "analyze", "competitive analysis", "what's trending", "market research", "user feedback", "technology radar", "gap analysis", "what should we add", "compare to competitors"
+
+---
+
+#### 8a. Competitive Research
+
+Analyze similar platforms, certification bodies, and learning tools to identify landscape and opportunities.
+
+**Steps**:
+
+1. Use `web/fetch` (or `browser/openBrowserPage` + `browser/readPage` for JS-heavy sites) to retrieve content from up to 5 competitor or reference URLs provided by user, or known defaults (A Cloud Guru, Cloud Academy, Linux Foundation, Anthropic docs, learn.microsoft.com)
+2. Extract: content categories offered, exam tracks available, interactive features, key differentiators
+3. Cross-reference with the platform's current `public/content/` state
+4. Summarize as a competitive landscape matrix:
+
+   ```
+   | Platform | Exam Tracks | Notes Coverage | Interactive | Key Gap vs Us |
+   |----------|------------|----------------|-------------|---------------|
+   ```
+
+5. Identify 3 top opportunities (things competitors offer that the platform lacks)
+6. Optionally generate draft user stories via Story Engine for top opportunities
+
+---
+
+#### 8b. Content Gap Analysis
+
+Cross-reference platform content vs industry certifications and popular topics.
+
+**Steps**:
+
+1. Read all registered content:
+   - List files in `public/content/questions/` — count question files per exam
+   - List files in `public/content/notes/` — count domain note files
+   - Read `public/content/blog/index.json` — count published posts per category
+
+2. Search GitHub for popular AI/cloud certification repos as demand signals:
+   ```
+   web/githubTextSearch: "claude certification" OR "AI architect exam" OR "cloud certification study"
+   ```
+
+3. Cross-reference: which popular certification domains or topics are missing from the platform?
+
+4. Score each gap by:
+   - **Demand**: GitHub stars / search result count (proxy signal)
+   - **Effort**: Estimated content size (S/M/L — number of questions/notes needed)
+   - **Fit**: Alignment with platform personas (AI Practitioners, Cloud Architects, Developers)
+
+5. Produce a gap analysis table:
+   ```
+   | Topic | Demand | Effort | Fit | Action |
+   |-------|--------|--------|-----|--------|
+   | Claude Code workflow | High | S | ✅ Core | Add now |
+   | AWS SAA exam track | High | L | ⚠️ Adjacent | Consider |
+   ```
+
+6. Offer to create GitHub Issues for "Add now" items via Story Engine
+
+---
+
+#### 8c. Trend Analysis
+
+Surface emerging AI/cloud topics gaining traction.
+
+**Steps**:
+
+1. Search GitHub for trending AI/cloud topics:
+   - `web/githubTextSearch`: `"anthropic" language:python stars:>100 pushed:>2026-01-01`
+   - `web/githubTextSearch`: `"claude" "agent" "mcp" stars:>50 pushed:>2026-01-01`
+
+2. Optionally fetch web pages (dev.to, anthropic.com/news, changelog links) via `web/fetch` if user provides URLs
+
+3. Extract trending signals:
+   - New tools gaining rapid adoption
+   - New certification programs announced
+   - New AI model releases with exam-relevant content
+
+4. Present as a Technology Radar (scored by relevance to platform personas):
+
+   ```markdown
+   ## Technology Radar — [date]
+
+   ### 🟢 Adopt Now
+   - Claude Code: High practitioner demand, core to platform persona
+
+   ### 🟡 Trial
+   - MCP (Model Context Protocol): Growing adoption, exam content emerging
+
+   ### 🟠 Assess
+   - Foundry Agents: Microsoft ecosystem, adjacent to platform focus
+
+   ### ⚪ Hold
+   - Legacy LangChain patterns: Declining relative to native tool-use
+   ```
+
+5. Offer to create stories for "Adopt Now" items
+
+---
+
+#### 8d. User Feedback Mining
+
+Extract patterns from GitHub Issues and Discussions.
+
+**Steps**:
+
+1. Fetch open issues with user-facing labels:
+   ```
+   GET /repos/ajeetchouksey/ajch_platform/issues?state=open&per_page=100
+   ```
+
+2. Fetch recently closed issues (last 30 days):
+   ```
+   GET /repos/ajeetchouksey/ajch_platform/issues?state=closed&since=[30 days ago]&per_page=100
+   ```
+
+3. Scan titles and bodies for recurring themes:
+   - Categorize by: UX complaint | missing content | performance | feature request | bug
+   - Count frequency per category
+
+4. Identify top 3 pain points (most frequent + highest priority label combination)
+
+5. Present:
+   ```markdown
+   ## User Feedback Analysis — [date]
+   Scanned [N] issues · [M] open · [K] recently closed
+
+   ### Top Pain Points
+   1. [Theme] — mentioned N times — related: #N, #N
+   2. ...
+
+   ### By Category
+   | Category | Count | Severity |
+   |----------|-------|----------|
+   ```
+
+6. Offer to promote top pain points to P1-High backlog items via Story Engine
+
+---
+
+#### 8e. Research → Story Pipeline
+
+Convert any research finding into actionable user stories.
+
+After any of the above analyses:
+
+1. Identify top 3 actionable findings
+2. For each, draft a user story using Story Engine (Module 2)
+3. Pre-fill RICE score based on research signals:
+   - **Reach**: derived from demand signal (High demand → Reach 8–10)
+   - **Impact**: derived from gap severity or pain point frequency
+   - **Confidence**: 60% if trend-based, 80% if user feedback, 90% if content gap analysis
+   - **Effort**: estimate from content size or feature complexity
+4. Present the 3 draft stories and ask: "Create these GitHub Issues?"
+
+**Output**: Research findings → ranked opportunity list → optional GitHub Issue batch creation via Story Engine.
 
 ---
 

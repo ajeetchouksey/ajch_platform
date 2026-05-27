@@ -83,6 +83,16 @@ export default function Layout({ children }: { children: ReactNode }) {
     if (mainEl) mainEl.scrollTop = 0;
   }, [location.pathname, location.search]);
 
+  // Lock body scroll when sidebar is open on mobile (iOS Safari fix)
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [sidebarOpen]);
+
   useEffect(() => {
     if (isInExam && currentExamId) {
       loadExamRegistry().then((r) => {
@@ -431,13 +441,14 @@ export default function Layout({ children }: { children: ReactNode }) {
           )}
         </aside>
 
-        {/* Sidebar overlay (mobile) */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden top-14 transition-opacity duration-300"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
+        {/* Sidebar overlay (mobile) — always rendered for smooth fade out */}
+        <div
+          className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden top-14 transition-opacity duration-300 ${
+            sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
 
         {/* Main content */}
         <main

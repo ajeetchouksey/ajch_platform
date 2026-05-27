@@ -5,7 +5,7 @@ import {
   Globe, ChevronRight, MapPin, Building2, ExternalLink,
   Zap, Brain, ShieldCheck, Lightbulb, ListChecks, Handshake, Trophy,
   ArrowDown, Award, User, Users,
-  Layers, Palette, FileText, Send, HelpCircle, Share2,
+  Layers, Palette, FileText, Send, HelpCircle, Share2, TrendingUp,
 } from 'lucide-react';
 import { maintainer } from '../data/maintainer';
 import { PulsingDot, VersionTag, NewBadge, Timeline, StatGrid } from '@/components/ui';
@@ -81,6 +81,36 @@ const orchestrator: AgentData = {
     { version: 'v1.0', label: 'Core routing engine + agent registry', type: 'major' },
     { version: 'v1.4', label: 'Security gate + sub-agent routing', type: 'minor' },
     { version: 'v2.0', label: 'Mandatory Security pre-flight + Study Companion split + UX Framework wiring', type: 'major' },
+  ],
+};
+
+/* ─────────────────────────────────────────────────────────────
+   L0 — Product Owner (peer of Orchestrator)
+───────────────────────────────────────────────────────────── */
+const poAgent: AgentData = {
+  id: 'product-owner',
+  name: 'Product Owner',
+  role: 'Product Lead',
+  tagline: 'Roadmap. RICE. Sprints. Research.',
+  description: 'Owns the "what and when". Manages GitHub Project board, RICE-scored backlog, sprint plans, content calendar, release notes, stakeholder updates, and competitive research & analysis. L0 peer of the Orchestrator.',
+  glowColor: 'shadow-teal-500/25',
+  borderColor: 'border-teal-500/40 hover:border-teal-400/70',
+  bgGradient: 'from-teal-500/10 via-teal-500/5 to-transparent',
+  textColor: 'text-teal-400',
+  badgeColor: 'bg-teal-500/15 text-teal-300 border-teal-500/30',
+  dotColor: 'bg-teal-400',
+  icon: TrendingUp,
+  status: 'active',
+  capabilities: ['Roadmap', 'RICE Scoring', 'Sprint Planning', 'Research & Analysis', 'Release Notes'],
+  model: 'Claude Sonnet',
+  tools: 14,
+  activeTask: 'Analyzing backlog — recommending sprint priorities',
+  version: 'v1.1.0',
+  isNew: true,
+  noSubAgents: true,
+  deliveries: [
+    { version: 'v1.0', label: 'Backlog engine, RICE scoring, sprint planner, content calendar, release notes, stakeholder updates', type: 'major' },
+    { version: 'v1.1', label: 'Research & Analysis module — competitive, trends, gap analysis, user feedback, tech radar', type: 'minor' },
   ],
 };
 
@@ -595,6 +625,83 @@ function OrchestratorCard({ agent, visible }: { agent: AgentData; visible: boole
 }
 
 /* ─────────────────────────────────────────────────────────────
+   L0 — Product Owner card
+───────────────────────────────────────────────────────────── */
+function POAgentCard({ agent, visible }: { agent: AgentData; visible: boolean }) {
+  const [hovered, setHovered] = useState(false);
+  const [showDeliveries, setShowDeliveries] = useState(false);
+  const Icon = agent.icon;
+
+  useEffect(() => {
+    if (hovered) { const t = setTimeout(() => setShowDeliveries(true), 200); return () => clearTimeout(t); }
+    setShowDeliveries(false);
+  }, [hovered]);
+
+  const modules = [
+    'Setup', 'Story Engine', 'Backlog Grooming', 'Sprint Planner',
+    'Content Calendar', 'Release Notes', 'Stakeholder Update', 'Research & Analysis',
+  ];
+
+  return (
+    <div
+      className={`relative glass-card card-accent-top rounded-2xl p-5 border transition-all duration-600
+        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
+        ${hovered ? 'border-teal-400/60 shadow-2xl shadow-teal-500/20' : 'border-teal-500/30'}`}
+      style={{ '--accent-color': 'linear-gradient(90deg,#0f766e,#2dd4bf)', transitionDelay: '300ms' } as React.CSSProperties}
+      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${agent.bgGradient} pointer-events-none`} />
+
+      <div className="absolute -top-3 left-5 flex items-center gap-2">
+        <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest border ${agent.badgeColor}`}>⚡ L0 · Product Lead</span>
+        <VersionTag version={agent.version} highlight />
+        <NewBadge />
+      </div>
+
+      <div className="relative flex flex-col sm:flex-row sm:items-start gap-4 pt-2">
+        <div className={`shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${agent.bgGradient} border ${agent.borderColor} flex items-center justify-center transition-transform duration-300 ${hovered ? 'scale-110' : ''}`}>
+          <Icon size={22} className={agent.textColor} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h3 className="font-bold text-white">{agent.name}</h3>
+            <PulsingDot active color={agent.dotColor} />
+          </div>
+          <p className={`text-xs font-medium ${agent.textColor} mb-1`}>{agent.tagline}</p>
+          <p className="text-xs text-slate-400 leading-relaxed mb-3">{agent.description}</p>
+          <div className="flex flex-wrap gap-1.5">
+            {agent.capabilities.map(c => <span key={c} className={`px-2 py-0.5 rounded text-[10px] font-medium border ${agent.badgeColor}`}>{c}</span>)}
+          </div>
+          <div className="flex items-center gap-1.5 mt-3 bg-slate-900/50 rounded px-2.5 py-1.5">
+            <span className="flex gap-0.5">{[0, 100, 200].map(d => <span key={d} className="w-0.5 h-2 rounded-full bg-teal-400/60 animate-bounce" style={{ animationDelay: `${d}ms` }} />)}</span>
+            <code className={`text-[10px] ${agent.textColor} font-mono`}>{agent.activeTask}</code>
+          </div>
+
+          <div className={`overflow-hidden transition-all duration-400 ${showDeliveries ? 'max-h-40 opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
+            <div className="pt-3 border-t border-slate-800/40">
+              <Timeline entries={agent.deliveries} accentColor={agent.textColor} />
+            </div>
+          </div>
+        </div>
+        <div className="shrink-0 flex sm:flex-col gap-4 sm:gap-2 text-center items-center sm:items-end">
+          <div><div className={`text-xl font-bold ${agent.textColor}`}>{agent.tools}</div><div className="text-[10px] text-slate-500">Tools</div></div>
+          <div><div className="text-xl font-bold text-slate-300">{modules.length}</div><div className="text-[10px] text-slate-500">Modules</div></div>
+        </div>
+      </div>
+
+      {/* Capability modules mini list */}
+      <div className="relative mt-4 pt-3 border-t border-slate-800/40">
+        <span className="text-[9px] text-slate-600 uppercase tracking-widest font-semibold">Capability Modules</span>
+        <div className="flex flex-wrap gap-1 mt-2">
+          {modules.map((m, i) => (
+            <span key={m} className={`text-[9px] px-2 py-0.5 rounded border ${agent.badgeColor} ${i === modules.length - 1 ? 'ring-1 ring-teal-400/30' : ''}`}>{m}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
    Security Gate — cross-cutting band
 ───────────────────────────────────────────────────────────── */
 function SecurityGateBand({ visible }: { visible: boolean }) {
@@ -901,8 +1008,8 @@ export default function Team() {
     return () => timers.current.forEach(clearTimeout);
   }, []);
 
-  // 1 Orchestrator + 1 Security Gate + 1 UX Foundation + L1 Domain Leads + L2 Specialists
-  const totalAgents = 1 + 1 + 1 + l1Agents.length + l1Agents.reduce((acc, a) => acc + (a.subAgents?.length ?? 0), 0);
+  // 2 L0 (Orchestrator + PO) + 1 Security Gate + 1 UX Foundation + L1 Domain Leads + L2 Specialists
+  const totalAgents = 2 + 1 + 1 + l1Agents.length + l1Agents.reduce((acc, a) => acc + (a.subAgents?.length ?? 0), 0);
   const totalSubAgents = l1Agents.reduce((acc, a) => acc + (a.subAgents?.length ?? 0), 0);
 
   return (
@@ -928,7 +1035,7 @@ export default function Team() {
             </span>
           </div>
           <p className="text-sm text-slate-400 max-w-xl">
-            One principal. One orchestrator. Two cross-cutting layers. Four domain leads. {totalSubAgents} task specialists. Everything has a single responsibility.
+            One principal. Two L0 leads. Two cross-cutting layers. Four domain leads. {totalSubAgents} task specialists. Everything has a single responsibility.
           </p>
         </div>
 
@@ -958,8 +1065,11 @@ export default function Team() {
           </div>
 
           <HumanCard visible={visible} isThinking={flowStep === 0 || flowStep === 1} />
-          <VerticalConnector label="instructs orchestrator" visible={visible} delay={300} />
-          <OrchestratorCard agent={orchestrator} visible={visible} />
+          <VerticalConnector label="instructs L0 leads" visible={visible} delay={300} />
+          <div className="grid sm:grid-cols-2 gap-3">
+            <OrchestratorCard agent={orchestrator} visible={visible} />
+            <POAgentCard agent={poAgent} visible={visible} />
+          </div>
 
           {/* Security Gate */}
           <VerticalConnector visible={visible} delay={450} />
