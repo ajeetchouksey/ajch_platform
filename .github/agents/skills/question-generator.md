@@ -70,6 +70,14 @@ Bad distractors:
 ## ID Assignment Rules
 
 Check existing questions to determine next available ID:
+
+**Format**: `{examId}-d{domain}-{NNN}` (zero-padded to 3 digits)
+
+Examples:
+- CCA-F Domain 2: `ccaf-d2-014`
+- AB-100 Domain 3: `ab100-d3-002`
+
+**`domain` is a `number`** — not a string union. Any positive integer is valid.
 - Domain 1: d1-001 through d1-NNN
 - Domain 2: d2-001 through d2-NNN
 - etc.

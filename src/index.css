@@ -4,6 +4,7 @@
 @layer base {
   body {
     @apply text-slate-100 antialiased;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     background:
       radial-gradient(ellipse 100% 60% at 50% -5%,  rgba(139,92,246,0.22) 0%, transparent 65%),
       radial-gradient(ellipse 70%  50% at 85% 85%,  rgba(59,130,246,0.14) 0%, transparent 55%),
@@ -91,12 +92,52 @@
 
 /* ─── Brand heading gradient ─────────────────────────────────────────────── */
 /* Wrap key word(s) in <span className="heading-gradient"> inside any page h1 */
+@keyframes gradientShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
 .heading-gradient {
-  background: linear-gradient(135deg, #a78bfa 0%, #38bdf8 100%);
+  background: linear-gradient(135deg, #a78bfa 0%, #38bdf8 50%, #a78bfa 100%);
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+  animation: gradientShimmer 5s ease infinite;
+}
+
+/* ─── Eyebrow label above page h1 ─── */
+/* Usage: <p className="page-eyebrow">Label</p> immediately before the h1 */
+.page-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #a78bfa;
+  margin-bottom: 0.35rem;
+}
+.page-eyebrow::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #7c3aed;
+  flex-shrink: 0;
+}
+
+/* ─── Section h2 left-accent rule ─── */
+/* Usage: <h2 className="section-heading [mb-N] [flex items-center gap-2]"> */
+.section-heading {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: white;
+  border-left: 2px solid #7c3aed;
+  padding-left: 0.75rem;
+  letter-spacing: -0.01em;
 }
 
 /* Glossy card base */

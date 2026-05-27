@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight } from 'lucide-react';
-import { DOMAIN_META } from '../types/content';
+import type { DomainConfig } from '../types/content';
+import { loadExamRegistry } from '../lib/content-loader';
 
 const cards = [
   {
@@ -74,18 +75,24 @@ function AnimatedBar({ width, color, delay }: { width: number; color: string; de
 
 export default function CcafHome() {
   const [mounted, setMounted] = useState(false);
+  const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
 
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
+  }, []);
+
+  useEffect(() => {
+    loadExamRegistry().then(registry => {
+      const exam = registry.exams.find(e => e.id === 'ccaf');
+      if (exam) setExamDomains(exam.domains);
+    });
   }, []);
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <div className="inline-block bg-gradient-to-r from-violet-600/30 to-fuchsia-600/20 text-violet-200 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-widest mb-3 animate-pulse border border-violet-500/30">
-          CCA-F
-        </div>
+        <p className="page-eyebrow">CCA-F Exam</p>
         <h1 className="text-3xl font-bold tracking-tight">Claude Certified Architect – <span className="heading-gradient">Foundations</span></h1>
         <p className="text-slate-400 mt-2">
           60 scenario-based MCQs · 120 min · 72% pass threshold · 5 domains
@@ -116,15 +123,15 @@ export default function CcafHome() {
 
       {/* Domain weights */}
       <div className={`glass-card glass-edge card-accent-top rounded-xl p-5 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`} style={{ '--accent-color': 'linear-gradient(90deg, #7c3aed, #a78bfa)', transitionDelay: '600ms' } as React.CSSProperties}>
-        <h2 className="font-semibold text-white mb-4">Exam Domain Weights</h2>
+        <h2 className="section-heading mb-4">Exam Domain Weights</h2>
         <div className="space-y-3">
-          {Object.entries(DOMAIN_META).map(([d, meta], idx) => (
-            <div key={d} className="group cursor-default">
+          {examDomains.map((domain, idx) => (
+            <div key={domain.id} className="group cursor-default">
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-slate-300 group-hover:text-white transition-colors">D{d}: {meta.title}</span>
-                <span className="text-slate-400 font-mono group-hover:text-white transition-colors">{meta.weight}%</span>
+                <span className="text-slate-300 group-hover:text-white transition-colors">D{domain.id}: {domain.title}</span>
+                <span className="text-slate-400 font-mono group-hover:text-white transition-colors">{domain.weight}%</span>
               </div>
-              <AnimatedBar width={meta.weight} color={meta.color} delay={700 + idx * 150} />
+              <AnimatedBar width={domain.weight} color={domain.color} delay={700 + idx * 150} />
             </div>
           ))}
         </div>
@@ -132,7 +139,7 @@ export default function CcafHome() {
 
       {/* Official resources */}
       <div className={`glass-card glass-edge rounded-xl p-5 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`} style={{ transitionDelay: '800ms' }}>
-        <h2 className="font-semibold text-white mb-3">Official Resources</h2>
+        <h2 className="section-heading mb-3">Official Resources</h2>
         <ul className="space-y-2">
           {resources.map(({ label, url }) => (
             <li key={url}>

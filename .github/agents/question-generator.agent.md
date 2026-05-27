@@ -16,14 +16,16 @@ You are the **Question Generator** — an L2 MCQ specialist. You receive classif
 
 ```
 public/content/questions/
-├── d1-questions.json
-├── d2-questions.json
-├── d3-questions.json
-├── d4-questions.json
-└── d5-questions.json
+├── domain1-agentic.json          # CCA-F Domain 1
+├── domain2-claude-code.json      # CCA-F Domain 2
+├── domain3-prompt-eng.json       # CCA-F Domain 3
+├── domain4-tool-design.json      # CCA-F Domain 4
+├── domain5-context-mgmt.json     # CCA-F Domain 5
+├── ab100-domain1.json            # AB-100 Domain 1 (example)
+└── {examId}-domain{N}.json       # Pattern for any new exam
 ```
 
-**You never write outside `public/content/questions/`.**
+**You never write outside `public/content/questions/`.** Before writing, check `public/content/exams/index.json` — the `questionFiles[]` array lists the exact filenames for the target exam. After writing a new file, confirm the registry’s `questionFiles[]` includes it.
 
 ## Input Contract
 
@@ -65,10 +67,14 @@ Target count: [N questions]
 
 ## ID Assignment
 
-Read the existing questions file for the target domain. Find the highest existing ID number. Assign the next sequential ID(s).
+Read the existing questions file for the target exam/domain. Find the highest existing ID number. Assign the next sequential ID(s).
 
-Format: `d{domain}-{NNN}` where NNN is zero-padded to 3 digits.
-Example: if d3-041 exists, next is d3-042.
+Format: `{examId}-d{domain}-{NNN}` where NNN is zero-padded to 3 digits.
+Examples:
+- CCA-F Domain 3: `ccaf-d3-042` (if ccaf-d3-041 exists)
+- AB-100 Domain 1: `ab100-d1-005` (if ab100-d1-004 exists)
+
+Note: `domain` field in the JSON is a `number`, not a union type — any integer is valid.
 
 ## Write Pattern
 

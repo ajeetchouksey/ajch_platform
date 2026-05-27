@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { loadAllQuestions, loadQuestionsByDomain } from '../lib/content-loader';
+import { useParams } from 'react-router-dom';
+import { loadQuestionsForExam, loadQuestionsByDomainForExam, loadExamRegistry } from '../lib/content-loader';
 import { saveSession } from '../lib/storage';
-import { DOMAIN_META, type Question, type QuizSession } from '../types/content';
+import { type Question, type QuizSession, type DomainConfig } from '../types/content';
 import { CheckCircle, XCircle, ChevronRight, RotateCcw, Filter } from 'lucide-react';
 
 type Phase = 'setup' | 'quiz' | 'review';
@@ -20,6 +21,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export default function Quiz() {
+  const { examId = 'ccaf' } = useParams<{ examId: string }>();
   const [phase, setPhase] = useState<Phase>('setup');
   const [domainFilter, setDomainFilter] = useState<number | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -29,12 +31,26 @@ export default function Quiz() {
   const [revealed, setRevealed] = useState(false);
   const [session, setSession] = useState<QuizSession | null>(null);
   const [loading, setLoading] = useState(false);
+  const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
+  const [passThreshold, setPassThreshold] = useState(72);
+  const [examShortTitle, setExamShortTitle] = useState('Exam');
+
+  useEffect(() => {
+    loadExamRegistry().then((r) => {
+      const exam = r.exams.find((e) => e.id === examId);
+      if (exam) {
+        setExamDomains(exam.domains);
+        setPassThreshold(exam.passThreshold);
+        setExamShortTitle(exam.shortTitle);
+      }
+    }).catch(() => {});
+  }, [examId]);
 
   const startQuiz = useCallback(async () => {
     setLoading(true);
     const qs = domainFilter
-      ? await loadQuestionsByDomain(domainFilter)
-      : await loadAllQuestions();
+      ? await loadQuestionsByDomainForExam(examId, domainFilter)
+      : await loadQuestionsForExam(examId);
     const picked = shuffle(qs).slice(0, Math.min(qs.length, domainFilter ? 15 : 60));
     const newSession: QuizSession = {
       id: randomId(),
@@ -91,6 +107,7 @@ export default function Quiz() {
   if (phase === 'setup') {
     return (
       <div className="max-w-lg mx-auto space-y-6">
+        <p className="page-eyebrow">{examShortTitle} Exam</p>
         <h1 className="text-2xl font-bold tracking-tight">Practice <span className="heading-gradient">Quiz</span></h1>
 
         <div className="glass-card rounded-xl p-5 space-y-4">
@@ -109,18 +126,18 @@ export default function Quiz() {
             >
               <span className="font-semibold">All Domains</span> — 60 questions, full mock exam
             </button>
-            {Object.entries(DOMAIN_META).map(([d, meta]) => (
+            {examDomains.map((domain) => (
               <button
-                key={d}
-                onClick={() => setDomainFilter(Number(d))}
+                key={domain.id}
+                onClick={() => setDomainFilter(domain.id)}
                 className={`text-left px-4 py-3 rounded-lg border text-sm transition-colors ${
-                  domainFilter === Number(d)
+                  domainFilter === domain.id
                     ? 'border-violet-500 bg-violet-900/30 text-white'
                     : 'border-slate-700 text-slate-400 hover:border-slate-600'
                 }`}
               >
-                <span className="font-semibold">D{d}</span> · {meta.title}{' '}
-                <span className="text-slate-500">({meta.weight}%)</span>
+                <span className="font-semibold">D{domain.id}</span> · {domain.title}{' '}
+                <span className="text-slate-500">({domain.weight}%)</span>
               </button>
             ))}
           </div>
@@ -141,10 +158,11 @@ export default function Quiz() {
   if (phase === 'review') {
     const score = questions.filter((q) => answers[q.id] === q.correct).length;
     const pct = Math.round((score / questions.length) * 100);
-    const passed = pct >= 72;
+    const passed = pct >= passThreshold;
 
     return (
       <div className="max-w-lg mx-auto space-y-6">
+        <p className="page-eyebrow">{examShortTitle} Exam</p>
         <h1 className="text-2xl font-bold tracking-tight">Session <span className="heading-gradient">Complete</span></h1>
         <div
           className={`rounded-xl p-6 text-center border ${
@@ -158,7 +176,7 @@ export default function Quiz() {
             {score} / {questions.length} correct
           </p>
           <p className={`text-sm font-semibold mt-2 ${passed ? 'text-emerald-400' : 'text-rose-400'}`}>
-            {passed ? '✓ Above 72% pass threshold' : '✗ Below 72% pass threshold'}
+            {passed ? `✓ Above ${passThreshold}% pass threshold` : `✗ Below ${passThreshold}% pass threshold`}
           </p>
         </div>
 

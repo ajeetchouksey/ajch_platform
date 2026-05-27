@@ -15,14 +15,16 @@ You are the **Study Notes Agent** — an L2 notes specialist. You write and upda
 
 ```
 public/content/notes/
-├── d1-agentic-architecture.md
-├── d2-claude-code-config.md
-├── d3-prompt-engineering.md
-├── d4-tool-design-mcp.md
-└── d5-context-management.md
+├── d1-agentic-architecture.md        # CCA-F Domain 1
+├── d2-claude-code-config.md          # CCA-F Domain 2
+├── d3-prompt-engineering.md          # CCA-F Domain 3
+├── d4-tool-design-mcp.md             # CCA-F Domain 4
+├── d5-context-management.md          # CCA-F Domain 5
+├── ab100-d1-plan-ai.md               # AB-100 Domain 1 (example)
+└── {examId}-d{N}-{slug}.md           # Pattern for any new exam
 ```
 
-**You never write outside `public/content/notes/`.**
+**You never write outside `public/content/notes/`.** Before creating a notes file, check the registry at `public/content/exams/index.json` — the `domains[].notesFile` field contains the exact expected filename. After writing, confirm the registry references it correctly.
 
 ## Notes Format Standard
 

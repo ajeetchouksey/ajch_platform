@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { getSessions, getScoreByDomain } from '../lib/storage';
-import { DOMAIN_META } from '../types/content';
-import { loadBlogManifest } from '../lib/content-loader';
+import { loadBlogManifest, loadExamRegistry } from '../lib/content-loader';
+import type { DomainConfig } from '../types/content';
 import {
   User, Shield, BookOpen, Brain, BarChart2, Clock, Trophy,
   Target, TrendingUp, Calendar, ExternalLink, LogOut, ArrowRight
@@ -18,11 +18,18 @@ export default function Profile() {
   const { user, logout } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [blogCount, setBlogCount] = useState(0);
+  const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
 
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
     loadBlogManifest()
       .then((m) => setBlogCount(m.posts.filter((p) => !p.draft).length))
+      .catch(() => {});
+    loadExamRegistry()
+      .then((r) => {
+        const ccaf = r.exams.find((e) => e.id === 'ccaf');
+        if (ccaf) setExamDomains(ccaf.domains);
+      })
       .catch(() => {});
   }, []);
 
@@ -45,7 +52,6 @@ export default function Profile() {
   const uniqueDays = [...new Set(sessions.map((s) => new Date(s.finishedAt!).toDateString()))];
   const streak = uniqueDays.length;
 
-  // Domain mastery (domains with >= 72%)
   const masteredDomains = Object.entries(domainScores).filter(
     ([, stats]: [string, DomainStats]) => stats.total > 0 && Math.round((stats.correct / stats.total) * 100) >= 72
   ).length;
@@ -57,6 +63,7 @@ export default function Profile() {
           <div className="w-20 h-20 rounded-full bg-slate-800 mx-auto mb-4 flex items-center justify-center">
             <User size={36} className="text-slate-600" />
           </div>
+          <p className="page-eyebrow">My Account</p>
           <h1 className="text-2xl font-bold tracking-tight mb-2"><span className="heading-gradient">Profile</span></h1>
           <p className="text-slate-400 text-sm mb-6">Sign in with GitHub to view your profile and sync progress.</p>
           <Link
@@ -136,29 +143,29 @@ export default function Profile() {
       {/* Domain Progress */}
       <div className={`glass-card glass-edge rounded-xl p-6 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`} style={{ transitionDelay: '300ms' }}>
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-semibold text-white flex items-center gap-2">
+          <h2 className="section-heading flex items-center gap-2">
             <BarChart2 size={16} className="text-violet-400" />
             Domain Mastery
           </h2>
           <span className="text-xs text-slate-500">
-            {masteredDomains}/5 domains mastered (72%+ threshold)
+            {masteredDomains}/{examDomains.length || 5} domains mastered (72%+ threshold)
           </span>
         </div>
         <div className="space-y-4">
-          {Object.entries(DOMAIN_META).map(([d, meta]) => {
-            const stats: DomainStats = domainScores[Number(d)];
-            const pct = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : null;
+          {examDomains.map((domain) => {
+            const stats: DomainStats = domainScores[domain.id];
+            const pct = stats?.total > 0 ? Math.round((stats.correct / stats.total) * 100) : null;
             const passed = pct !== null && pct >= 72;
             return (
-              <div key={d} className="group">
+              <div key={domain.id} className="group">
                 <div className="flex justify-between text-sm mb-1.5">
                   <span className="text-slate-300 group-hover:text-white transition-colors flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${meta.color}`} />
-                    D{d}: {meta.title}
+                    <span className={`w-2 h-2 rounded-full ${domain.color}`} />
+                    D{domain.id}: {domain.title}
                   </span>
                   <span className={`font-mono text-xs ${passed ? 'text-emerald-400' : pct !== null ? 'text-rose-400' : 'text-slate-600'}`}>
                     {pct !== null ? `${pct}%` : 'not started'}
-                    {stats.total > 0 && <span className="text-slate-600 ml-1.5">({stats.correct}/{stats.total})</span>}
+                    {stats?.total > 0 && <span className="text-slate-600 ml-1.5">({stats.correct}/{stats.total})</span>}
                   </span>
                 </div>
                 <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
@@ -179,7 +186,7 @@ export default function Profile() {
       <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`} style={{ transitionDelay: '450ms' }}>
         {/* Recent Activity */}
         <div className="glass-card glass-edge rounded-xl p-5">
-          <h2 className="font-semibold text-white mb-4 flex items-center gap-2">
+          <h2 className="section-heading mb-4 flex items-center gap-2">
             <Clock size={15} className="text-blue-400" />
             Recent Activity
           </h2>
@@ -219,7 +226,7 @@ export default function Profile() {
 
         {/* Platform Overview */}
         <div className="glass-card glass-edge rounded-xl p-5">
-          <h2 className="font-semibold text-white mb-4 flex items-center gap-2">
+          <h2 className="section-heading mb-4 flex items-center gap-2">
             <BookOpen size={15} className="text-emerald-400" />
             Platform Overview
           </h2>

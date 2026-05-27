@@ -84,34 +84,72 @@ Use `<GlassCard accent="violet|blue|emerald|amber|rose|slate|purple">` for all p
 
 ## Brand Heading System
 
-Every page `<h1>` must use the `.heading-gradient` CSS class on the **key noun** to create consistent violet→sky gradient branding.
+Every page `<h1>` must follow the full 3-part structure: **eyebrow → h1 with gradient → subtitle**.
 
-### Pattern
+### Part 1 — Eyebrow label
 
 ```tsx
-// ✗ WRONG — plain white heading
+// ✓ CORRECT — always add a page-eyebrow before the h1
+<p className="page-eyebrow">Field Notes</p>
+<h1 className="text-2xl font-bold tracking-tight">
+  <span className="heading-gradient">Blog</span>
+</h1>
+```
+
+Eyebrow text conventions: "CCA-F EXAM", "FIELD NOTES", "CERTIFICATIONS", "EXAM TRACKING", "DEVELOPER TOOLS", "PLATFORM METRICS", "MY ACCOUNT".
+
+### Part 2 — h1 with gradient accent
+
+```tsx
+// ✗ WRONG — plain white heading, no eyebrow
 <h1 className="text-2xl font-bold text-white">Practice Quiz</h1>
 
 // ✓ CORRECT — key word gets gradient accent
+<p className="page-eyebrow">CCA-F Exam</p>
 <h1 className="text-2xl font-bold tracking-tight">
   Practice <span className="heading-gradient">Quiz</span>
 </h1>
 ```
 
-### Sizing by context
+### Heading scale lock
 
-| Context | Class |
+| Context | `<h1>` class | Notes |
+|---|---|---|
+| Inner-page title (most pages) | `text-2xl font-bold tracking-tight` | Remove `text-white` |
+| Exam / catalog / doc pages | `text-3xl font-bold tracking-tight` | |
+| Compact UI (admin, analytics) | `text-xl font-bold tracking-tight` | |
+| Hero (Home only) | `text-4xl sm:text-5xl font-extrabold tracking-tight` | Uses `from-violet-400 to-fuchsia-400` inline, already has eyebrow pill |
+
+### Part 3 — Section `<h2>` left-accent rule
+
+All genuine section titles inside cards use `.section-heading` for a violet left-border accent:
+
+```tsx
+// ✗ WRONG — plain font-semibold text-white
+<h2 className="font-semibold text-white mb-4">Session History</h2>
+
+// ✓ CORRECT — section-heading class, keep mb-N and flex if needed
+<h2 className="section-heading mb-4">Session History</h2>
+
+// ✓ With icon
+<h2 className="section-heading mb-4 flex items-center gap-2">
+  <Clock size={15} className="text-blue-400" />
+  Recent Activity
+</h2>
+```
+
+**Do NOT apply `.section-heading` to:**
+- Dynamic card titles (post title, exam title, project name)
+- Compact inline labels inside stat rows
+- Modal alert headings
+
+### CSS classes (all defined in `src/index.css` — never replicate inline)
+
+| Class | Purpose |
 |---|---|
-| Inner-page title (most pages) | `text-2xl font-bold tracking-tight` |
-| Exam / catalog / doc pages | `text-3xl font-bold tracking-tight` |
-| Compact UI (admin, analytics) | `text-xl font-bold tracking-tight` |
-| Hero (Home only) | `text-4xl sm:text-5xl font-extrabold tracking-tight` — already uses `from-violet-400 to-fuchsia-400` inline |
-
-### Rules
-- **Remove `text-white`** on the `<h1>` — the span is the colored element; rest of the heading inherits `text-slate-100` from body.
-- The **last or most meaningful word** gets the gradient (e.g. "Practice **Quiz**", "Exam **Scenarios**", "Claude Certified Architect – **Foundations**").
-- **Single-word titles** (Progress, Analytics, Profile, Blog) — the whole title is wrapped in the span.
-- `.heading-gradient` is defined in `src/index.css`. Do not replicate it inline with Tailwind classes.
+| `.heading-gradient` | `<span>` inside h1 — violet→sky shimmer gradient text |
+| `.page-eyebrow` | `<p>` before h1 — violet uppercase dot + label |
+| `.section-heading` | `<h2>` — `font-semibold white border-l-2 border-violet-600 pl-3` |
 
 ## What NOT to Do
 

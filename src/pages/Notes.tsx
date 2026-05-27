@@ -1,50 +1,53 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { loadNote } from '../lib/content-loader';
-import { DOMAIN_META } from '../types/content';
+import { loadNoteForExam, loadExamRegistry } from '../lib/content-loader';
+import type { DomainConfig } from '../types/content';
 
 const MermaidDiagram = lazy(() => import('../components/MermaidDiagram'));
 
 export default function Notes() {
+  const { examId = 'ccaf' } = useParams<{ examId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const domain = Number(searchParams.get('d')) || 1;
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
+
+  useEffect(() => {
+    loadExamRegistry().then((r) => {
+      const exam = r.exams.find((e) => e.id === examId);
+      if (exam) setExamDomains(exam.domains);
+    }).catch(() => {});
+  }, [examId]);
 
   useEffect(() => {
     setLoading(true);
     setError(null);
-    loadNote(domain)
-      .then((md) => {
-        setContent(md);
-        setLoading(false);
-      })
-      .catch((e: unknown) => {
-        setError(String(e));
-        setLoading(false);
-      });
-  }, [domain]);
+    loadNoteForExam(examId, domain)
+      .then((md) => { setContent(md); setLoading(false); })
+      .catch((e: unknown) => { setError(String(e)); setLoading(false); });
+  }, [examId, domain]);
 
   return (
     <div>
       {/* Mobile-only domain tabs (sidebar handles desktop) */}
       <div className="flex flex-wrap gap-2 mb-6 lg:hidden">
-        {Object.entries(DOMAIN_META).map(([d, meta]) => (
+        {examDomains.map((d) => (
           <button
-            key={d}
-            onClick={() => setSearchParams({ d })}
+            key={d.id}
+            onClick={() => setSearchParams({ d: String(d.id) })}
             className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              domain === Number(d)
+              domain === d.id
                 ? 'bg-violet-700 text-white'
                 : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
             }`}
           >
-            <span className="font-mono text-xs mr-1">D{d}</span>
-            <span className="hidden sm:inline">{meta.title}</span>
+            <span className="font-mono text-xs mr-1">D{d.id}</span>
+            <span className="hidden sm:inline">{d.title}</span>
           </button>
         ))}
       </div>

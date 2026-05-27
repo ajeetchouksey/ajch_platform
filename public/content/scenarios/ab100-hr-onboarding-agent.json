@@ -1,0 +1,17 @@
+{
+  "id": "ab100-hr-onboarding-agent",
+  "title": "Multi-Agent HR Onboarding System",
+  "description": "A financial services firm wants to automate new employee onboarding. The process involves: (1) collecting personal and tax information from the new hire via a conversational interface, (2) provisioning Active Directory accounts and software licenses, (3) enrolling the employee in benefits (health, 401k, ESPP), (4) scheduling orientation meetings, and (5) generating and routing the offer letter for HR signature. The solution must integrate with Workday (HRIS), Microsoft 365, and the internal benefits portal. HR policy requires that any changes to compensation data require manager approval.",
+  "architecture_notes": "Deploy a hierarchical multi-agent system in Azure AI Foundry: an OrchestratorAgent (Copilot Studio for the conversational UI) routes to four specialist agents built with Azure AI Agent Service: (1) IdentityAgent — calls Azure Functions to provision Entra ID accounts and M365 licenses; (2) BenefitsAgent — calls the benefits portal REST API to enroll in plans; (3) CalendarAgent — uses Microsoft Graph API to schedule orientation; (4) DocumentAgent — uses Azure AI Document Intelligence to generate and route the offer letter via Power Automate approval flow. The OrchestratorAgent uses Azure Service Bus queues to decouple the parallel specialist tasks. The compensation data modification step routes through a Power Automate approval gate requiring manager sign-off before the IdentityAgent proceeds. Store the onboarding state in Cosmos DB to survive partial failures. Each specialist agent reports status to Cosmos DB — the orchestrator polls status to determine when all tasks are complete before triggering the 'welcome email' conclusion step.",
+  "key_patterns": [
+    "hierarchical coordinator-specialist multi-agent",
+    "Copilot Studio as conversational front-end to AI Agent Service orchestrator",
+    "Azure Service Bus for async specialist task decoupling",
+    "Power Automate approval gate for compensation data changes (HITL)",
+    "Cosmos DB as saga state store for partial failure recovery",
+    "Azure Functions as tool layer for identity and license provisioning",
+    "Microsoft Graph API integration for calendar scheduling",
+    "Azure AI Document Intelligence for offer letter generation"
+  ],
+  "questionIds": ["ab100-d1-004", "ab100-d2-001", "ab100-d2-012", "ab100-d4-006"]
+}

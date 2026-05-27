@@ -3,33 +3,18 @@ import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, 
 import { useState, useEffect, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
-import { loadBlogManifest } from '../lib/content-loader';
+import { loadBlogManifest, loadExamRegistry } from '../lib/content-loader';
 import { useAuth } from '../lib/auth';
-import type { BlogPostMeta } from '../types/content';
+import { EXAM_SCHEMES } from '../types/content';
+import type { BlogPostMeta, ExamConfig } from '../types/content';
 
 const platformLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
-  { to: '/exams', label: 'Exams', icon: GraduationCap },
+  { to: '/exams', label: 'Learn', icon: GraduationCap },
   { to: '/blog', label: 'Blog', icon: Newspaper },
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/team', label: 'Team', icon: Users },
   { to: '/analytics', label: 'Analytics', icon: LineChart },
-];
-
-const ccafLinks = [
-  { to: '/exams/ccaf', label: 'Overview', icon: GraduationCap, end: true },
-  { to: '/exams/ccaf/quiz', label: 'Quiz', icon: Brain },
-  { to: '/exams/ccaf/notes', label: 'Study Notes', icon: BookOpen },
-  { to: '/exams/ccaf/scenarios', label: 'Scenarios', icon: Layers },
-  { to: '/exams/ccaf/progress', label: 'Progress', icon: BarChart2 },
-];
-
-const domainLinks = [
-  { id: 1, label: 'D1: Agentic Architecture', color: 'bg-violet-500' },
-  { id: 2, label: 'D2: Claude Code Config', color: 'bg-blue-500' },
-  { id: 3, label: 'D3: Prompt Engineering', color: 'bg-emerald-500' },
-  { id: 4, label: 'D4: Tool Design & MCP', color: 'bg-amber-500' },
-  { id: 5, label: 'D5: Context Management', color: 'bg-rose-500' },
 ];
 
 function Breadcrumbs() {
@@ -40,8 +25,9 @@ function Breadcrumbs() {
 
   const crumbs: { label: string; to: string }[] = [];
   const labelMap: Record<string, string> = {
-    exams: 'Exams',
+    exams: 'Learn',
     ccaf: 'CCA-F',
+    ab100: 'AB-100',
     quiz: 'Quiz',
     notes: 'Notes',
     scenarios: 'Scenarios',
@@ -81,19 +67,31 @@ export default function Layout({ children }: { children: ReactNode }) {
   const [searchParams] = useSearchParams();
   const [blogPosts, setBlogPosts] = useState<BlogPostMeta[]>([]);
   const [pageKey, setPageKey] = useState(location.pathname + location.search);
+  const [currentExam, setCurrentExam] = useState<ExamConfig | null>(null);
   const { user } = useAuth();
 
-  const isInCcaf = location.pathname.startsWith('/exams/ccaf');
+  const examIdMatch = location.pathname.match(/^\/exams\/([^/]+)/);
+  const currentExamId = examIdMatch ? examIdMatch[1] : null;
+  const isInExam = Boolean(currentExamId);
   const isInBlog = location.pathname.startsWith('/blog');
   const isInTeam = location.pathname.startsWith('/team') || location.pathname.startsWith('/maintainer/team');
 
   useEffect(() => {
     setSidebarOpen(false);
     setPageKey(location.pathname + location.search);
-    // Scroll main content to top on every navigation
     const mainEl = document.querySelector('main');
     if (mainEl) mainEl.scrollTop = 0;
   }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (isInExam && currentExamId) {
+      loadExamRegistry().then((r) => {
+        setCurrentExam(r.exams.find((e) => e.id === currentExamId) ?? null);
+      }).catch(() => setCurrentExam(null));
+    } else {
+      setCurrentExam(null);
+    }
+  }, [currentExamId, isInExam]);
 
   useEffect(() => {
     if (isInBlog) {
@@ -218,94 +216,102 @@ export default function Layout({ children }: { children: ReactNode }) {
             </nav>
           </div>
 
-          {/* CCA-F exam navigation */}
-          {isInCcaf && (
-            <>
-              <div className="px-4 pb-4">
-                <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
-                  CCA-F Exam
-                </h3>
-                <nav className="space-y-0.5">
-                  {ccafLinks.map(({ to, label, icon: Icon, end }) => (
-                    <NavLink
-                      key={to}
-                      to={to}
-                      end={end}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                          isActive
-                            ? 'bg-violet-500/15 text-violet-200 border-l-2 border-violet-400 pl-2.5'
-                            : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
-                        }`
-                      }
-                    >
-                      <Icon size={16} />
-                      <span>{label}</span>
-                    </NavLink>
-                  ))}
-                </nav>
-              </div>
-
-              <div className="px-4 pb-4">
-                <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
-                  Exam Domains
-                </h3>
-                <div className="space-y-0.5">
-                  {domainLinks.map(({ id, label, color }) => {
-                    const isActive = location.pathname === '/exams/ccaf/notes' && searchParams.get('d') === String(id);
-                    return (
-                      <Link
-                        key={id}
-                        to={`/exams/ccaf/notes?d=${id}`}
-                        className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-all duration-200 ${
-                          isActive
-                            ? 'bg-slate-800/80 text-white scale-[1.02] shadow-sm'
-                            : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:translate-x-0.5'
-                        }`}
+          {/* Exam navigation — registry-driven */}
+          {isInExam && currentExam && (() => {
+            const scheme = EXAM_SCHEMES[currentExam.colorScheme] ?? EXAM_SCHEMES['violet'];
+            const examLinks = [
+              { to: `/exams/${currentExam.id}`, label: 'Overview', icon: GraduationCap, end: true },
+              { to: `/exams/${currentExam.id}/quiz`, label: 'Quiz', icon: Brain },
+              { to: `/exams/${currentExam.id}/notes`, label: 'Study Notes', icon: BookOpen },
+              { to: `/exams/${currentExam.id}/scenarios`, label: 'Scenarios', icon: Layers },
+              { to: `/exams/${currentExam.id}/progress`, label: 'Progress', icon: BarChart2 },
+            ];
+            return (
+              <>
+                <div className="px-4 pb-4">
+                  <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
+                    {currentExam.shortTitle} Exam
+                  </h3>
+                  <nav className="space-y-0.5">
+                    {examLinks.map(({ to, label, icon: Icon, end }) => (
+                      <NavLink
+                        key={to}
+                        to={to}
+                        end={end}
+                        className={({ isActive }) =>
+                          `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                            isActive
+                              ? scheme.sidebarActive
+                              : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
+                          }`
+                        }
                       >
-                        <span className={`w-2 h-2 rounded-full ${color} ${isActive ? 'ring-2 ring-offset-1 ring-offset-slate-900' : ''} transition-all`} />
+                        <Icon size={16} />
                         <span>{label}</span>
-                      </Link>
-                    );
-                  })}
+                      </NavLink>
+                    ))}
+                  </nav>
                 </div>
-              </div>
 
-              <div className="px-4 pb-4">
-                <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
-                  Domain Weights
-                </h3>
-                <div className="space-y-2">
-                  {[
-                    { label: 'D1', pct: 27, color: 'bg-violet-500' },
-                    { label: 'D2', pct: 20, color: 'bg-blue-500' },
-                    { label: 'D3', pct: 20, color: 'bg-emerald-500' },
-                    { label: 'D4', pct: 18, color: 'bg-amber-500' },
-                    { label: 'D5', pct: 15, color: 'bg-rose-500' },
-                  ].map(({ label, pct, color }) => (
-                    <div key={label} className="flex items-center gap-2 group">
-                      <span className="text-xs text-slate-500 w-6 font-mono group-hover:text-white transition-colors">{label}</span>
-                      <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                        <div className={`h-full ${color} rounded-full transition-all duration-500 group-hover:brightness-125`} style={{ width: `${pct}%` }} />
+                <div className="px-4 pb-4">
+                  <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
+                    Exam Domains
+                  </h3>
+                  <div className="space-y-0.5">
+                    {currentExam.domains.map((domain) => {
+                      const isActive = location.pathname === `/exams/${currentExam.id}/notes` && searchParams.get('d') === String(domain.id);
+                      return (
+                        <Link
+                          key={domain.id}
+                          to={`/exams/${currentExam.id}/notes?d=${domain.id}`}
+                          className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-all duration-200 ${
+                            isActive
+                              ? 'bg-slate-800/80 text-white scale-[1.02] shadow-sm'
+                              : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:translate-x-0.5'
+                          }`}
+                        >
+                          <span className={`w-2 h-2 rounded-full ${domain.color} ${isActive ? 'ring-2 ring-offset-1 ring-offset-slate-900' : ''} transition-all`} />
+                          <span>D{domain.id}: {domain.title}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="px-4 pb-4">
+                  <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
+                    Domain Weights
+                  </h3>
+                  <div className="space-y-2">
+                    {currentExam.domains.map((domain) => (
+                      <div key={domain.id} className="flex items-center gap-2 group">
+                        <span className="text-xs text-slate-500 w-6 font-mono group-hover:text-white transition-colors">D{domain.id}</span>
+                        <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                          <div className={`h-full ${domain.color} rounded-full transition-all duration-500 group-hover:brightness-125`} style={{ width: `${domain.weight}%` }} />
+                        </div>
+                        <span className="text-xs text-slate-500 w-8 text-right font-mono group-hover:text-white transition-colors">{domain.weight}%</span>
                       </div>
-                      <span className="text-xs text-slate-500 w-8 text-right font-mono group-hover:text-white transition-colors">{pct}%</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <div className="px-4 pt-3 border-t border-slate-800/50">
-                <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3 mt-1">
-                  Resources
-                </h3>
-                <div className="space-y-1.5 text-xs">
-                  <a href="https://docs.anthropic.com" target="_blank" rel="noopener noreferrer" className="block text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all duration-200">Anthropic Docs ↗</a>
-                  <a href="https://github.com/anthropics/anthropic-cookbook" target="_blank" rel="noopener noreferrer" className="block text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all duration-200">Anthropic Cookbook ↗</a>
-                  <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" className="block text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all duration-200">MCP Docs ↗</a>
-                </div>
-              </div>
-            </>
-          )}
+                {currentExam.resources.length > 0 && (
+                  <div className="px-4 pt-3 border-t border-slate-800/50">
+                    <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3 mt-1">
+                      Resources
+                    </h3>
+                    <div className="space-y-1.5 text-xs">
+                      {currentExam.resources.map((res) => (
+                        <a key={res.url} href={res.url} target="_blank" rel="noopener noreferrer" className={`block text-slate-400 ${scheme.resourceHover} hover:translate-x-0.5 transition-all duration-200`}>
+                          {res.label} ↗
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
 
           {/* Blog sidebar */}
           {isInBlog && (
@@ -399,7 +405,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           )}
 
           {/* Generic sidebar for non-exam, non-blog, non-team pages */}
-          {!isInCcaf && !isInBlog && !isInTeam && (
+          {!isInExam && !isInBlog && !isInTeam && (
             <div className="px-4 pb-4">
               <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
                 Features

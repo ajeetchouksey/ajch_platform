@@ -313,6 +313,7 @@ export default function Analytics() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
+          <p className="page-eyebrow">Platform Analytics</p>
           <div className="flex items-center gap-2 mb-1">
             <BarChart2 size={20} className="text-violet-400" />
             <h1 className="text-xl font-bold tracking-tight"><span className="heading-gradient">Analytics</span></h1>
@@ -354,7 +355,7 @@ export default function Analytics() {
           <div className="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4">
             <LogIn size={22} className="text-slate-400" />
           </div>
-          <h2 className="text-base font-bold text-white mb-2">Sign in required</h2>
+          <h2 className="section-heading mb-2">Sign in required</h2>
           <p className="text-sm text-slate-400 mb-5">This page is restricted to repository collaborators.</p>
           <button
             onClick={login}
@@ -371,7 +372,7 @@ export default function Analytics() {
           <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto mb-4">
             <ShieldOff size={22} className="text-red-400" />
           </div>
-          <h2 className="text-base font-bold text-white mb-2">Access denied</h2>
+          <h2 className="section-heading mb-2">Access denied</h2>
           <p className="text-sm text-slate-400">
             Signed in as <span className="text-slate-300 font-medium">@{user.login}</span> — not a repository collaborator.
           </p>

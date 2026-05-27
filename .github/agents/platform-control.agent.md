@@ -52,7 +52,20 @@ Do not approve raw Tailwind badge/card/stat patterns in PRs — redirect to Comp
 | `.github/workflows/*.yml` | CI/CD |
 | `tsconfig.*.json` | TypeScript config |
 | `package.json` | Dependencies (with Security Gate approval) |
+## Registry Architecture Rule
 
+The platform uses a **registry-driven exam framework**. Adding a new exam requires ONLY:
+1. Content files (`public/content/questions/`, `notes/`, `scenarios/`)
+2. One JSON entry in `public/content/exams/index.json`
+3. Zero TypeScript changes, zero new page components, zero new routes
+
+**NEVER approve:**
+- Per-exam TypeScript constants (e.g. `CCAF_DOMAIN_META`, `AB100_LINKS`)
+- Per-exam page components (e.g. `Ab100Quiz.tsx`, `CcafHome.tsx`)
+- Per-exam route entries in `App.tsx`
+- Per-exam sidebar blocks in `Layout.tsx`
+
+All of the above have been replaced by the registry pattern. Violations reintroduce the scaling problem the registry was designed to solve.
 ## How to Delegate
 
 ### Routing task

@@ -1,0 +1,17 @@
+{
+  "id": "ab100-invoice-processing",
+  "title": "Intelligent Invoice Processing Agent",
+  "description": "A manufacturing company receives 5,000+ supplier invoices per month via email and EDI. The current manual process takes 3 days per invoice. The company wants to automate: (1) extracting invoice fields (vendor, amount, PO number, line items), (2) matching invoices to open purchase orders in SAP, (3) detecting discrepancies (quantity/price mismatch), (4) routing invoices over $50,000 for human approval, and (5) posting approved invoices to SAP. The solution must handle PDFs, scanned images, and structured EDI formats with 99%+ field extraction accuracy.",
+  "architecture_notes": "Trigger: Azure Logic Apps monitor an Exchange mailbox and Azure Blob Storage for new invoice files. Extraction: Azure AI Document Intelligence (prebuilt invoice model) extracts structured fields — vendor ID, invoice number, PO reference, line items, amounts, dates — with confidence scores. Orchestration: Azure AI Agent Service InvoiceAgent receives the extracted data, uses a Code Interpreter tool to calculate line item totals and compare against SAP PO data (retrieved via Azure Functions calling the SAP REST API). The agent uses Azure AI Search over a vendor history index to detect anomalous pricing patterns (hybrid search: BM25 + semantic reranking against historical invoices). Discrepancy handling: InvoiceAgent calls a DiscrepancyClassifierTool to categorize issues (quantity mismatch, price variance, missing PO). For invoices over $50,000 or with unresolvable discrepancies, the agent creates a Power Automate approval request routed to the AP manager — a HITL gate before SAP posting. Approved invoices: InvoiceAgent calls Azure Functions to post to SAP GL. State management: Cosmos DB stores invoice processing state, discrepancy details, and approval audit trail with TTL for GDPR compliance.",
+  "key_patterns": [
+    "Azure AI Document Intelligence for structured extraction from PDFs and images",
+    "Azure AI Agent Service for orchestration and business rule application",
+    "Azure AI Search hybrid search for anomaly detection against vendor history",
+    "Code Interpreter tool for financial calculations and PO matching",
+    "Power Automate HITL approval for high-value or discrepant invoices",
+    "Cosmos DB saga state for multi-step invoice lifecycle",
+    "Azure Functions as SAP integration adapter",
+    "Confidence score thresholds to route low-confidence extractions to human review"
+  ],
+  "questionIds": ["ab100-d2-005", "ab100-d2-006", "ab100-d2-012", "ab100-d3-008", "ab100-d4-009"]
+}

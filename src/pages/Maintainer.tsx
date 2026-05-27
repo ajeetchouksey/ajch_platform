@@ -57,7 +57,7 @@ export default function Maintainer() {
 
       {/* Tech Stack */}
       <section className="glass-card rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+        <h2 className="section-heading mb-4 flex items-center gap-2">
           <Target size={18} className="text-violet-400" />
           Tech Stack & Expertise
         </h2>
@@ -66,7 +66,7 @@ export default function Maintainer() {
 
       {/* Focus Areas */}
       <section className="glass-card rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+        <h2 className="section-heading mb-4 flex items-center gap-2">
           <Rocket size={18} className="text-violet-400" />
           Current Focus
         </h2>
@@ -82,7 +82,7 @@ export default function Maintainer() {
 
       {/* Featured Projects */}
       <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Featured Projects</h2>
+        <h2 className="section-heading mb-4">Featured Projects</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {maintainer.featuredProjects.map((proj) => (
             <a

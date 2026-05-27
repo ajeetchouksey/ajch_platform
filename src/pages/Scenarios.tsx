@@ -1,27 +1,36 @@
 import { useState, useEffect } from 'react';
-import { loadAllScenarios } from '../lib/content-loader';
+import { useParams } from 'react-router-dom';
+import { loadScenariosForExam, loadExamRegistry } from '../lib/content-loader';
 import type { Scenario } from '../types/content';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function Scenarios() {
+  const { examId = 'ccaf' } = useParams<{ examId: string }>();
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [examShortTitle, setExamShortTitle] = useState('Exam');
 
   useEffect(() => {
-    loadAllScenarios()
-      .then((s) => {
-        setScenarios(s);
-        setLoading(false);
-      })
+    loadExamRegistry().then((r) => {
+      const exam = r.exams.find((e) => e.id === examId);
+      if (exam) setExamShortTitle(exam.shortTitle);
+    }).catch(() => {});
+  }, [examId]);
+
+  useEffect(() => {
+    setLoading(true);
+    loadScenariosForExam(examId)
+      .then((s) => { setScenarios(s); setLoading(false); })
       .catch(() => setLoading(false));
-  }, []);
+  }, [examId]);
 
   if (loading) return <p className="text-slate-500 text-sm animate-pulse">Loading scenarios…</p>;
 
   return (
     <div className="space-y-4">
       <div className="space-y-1">
+        <p className="page-eyebrow">{examShortTitle} Exam</p>
         <h1 className="text-2xl font-bold tracking-tight">Exam <span className="heading-gradient">Scenarios</span></h1>
         <p className="text-sm text-slate-400">
           4 of these 6 scenarios are randomly assigned per sitting. Study all of them.

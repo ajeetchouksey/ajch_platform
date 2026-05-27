@@ -21,6 +21,7 @@ export default function Tools() {
         <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center mx-auto mb-4">
           <Wrench size={32} className="text-slate-500" />
         </div>
+        <p className="page-eyebrow">Developer Tools</p>
         <h1 className="text-2xl font-bold tracking-tight mb-2">AI <span className="heading-gradient">Tools</span></h1>
         <p className="text-slate-400 max-w-md mx-auto">
           Utilities for prompt testing, token counting, context window visualization, and MCP server scaffolding.

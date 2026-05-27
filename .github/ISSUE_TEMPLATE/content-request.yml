@@ -1,0 +1,115 @@
+name: "Content Request"
+description: "Request new or updated content: study notes, MCQs, blog posts, exam scenarios."
+title: "[M] Add [content type]: [title] (#content)"
+labels: ["type:content", "P2-medium"]
+assignees: ["ajeetchouksey"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for **content work** — new study notes, MCQs, blog posts, exam registration, or scenario packs. For platform features, use the **Platform User Story** template.
+
+  - type: dropdown
+    id: content_type
+    attributes:
+      label: "Content Type"
+      options:
+        - "New exam registration (add to exams/index.json)"
+        - "Study notes — new domain"
+        - "Study notes — update/expand existing"
+        - "MCQ question pack (10+ questions)"
+        - "Blog post — article"
+        - "Blog post — series"
+        - "Scenario pack"
+        - "Other"
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: "Content Title"
+      description: "Working title for the content piece."
+      placeholder: "e.g. GitHub Actions Security Best Practices — Domain 2 Notes"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target_persona
+    attributes:
+      label: "Target Persona"
+      description: "Who is this content primarily for?"
+      options:
+        - "Exam Candidate — studying for a certification"
+        - "AI Practitioner — engineer/architect learning AI patterns"
+        - "Blog Reader — consuming articles for insights"
+        - "Study Partner — using AI study companion"
+        - "Platform Contributor — developer contributing to the platform"
+    validations:
+      required: true
+
+  - type: textarea
+    id: source_material
+    attributes:
+      label: "Source Material"
+      description: "URLs, documentation links, or reference materials to draw from."
+      placeholder: "https://docs.github.com/en/actions/security-guides/..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: "Content Scope"
+      description: "What topics / domains / sub-topics must be covered?"
+      placeholder: |
+        - Topic 1
+        - Topic 2
+        - Topic 3
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      options:
+        - "P0-critical — blocker"
+        - "P1-high — next sprint"
+        - "P2-medium — upcoming milestone"
+        - "P3-low — backlog"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: "Target Milestone"
+      options:
+        - "v2.0 — Content Expansion (Q2 2026)"
+        - "v2.1 — Platform Features (Q3 2026)"
+        - "v2.2 — Tooling & Agents (Q4 2026)"
+        - "Backlog — Unscheduled"
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "Acceptance Criteria"
+      description: "What does Done look like for this content?"
+      placeholder: |
+        - [ ] Content registered/linked in the appropriate index file
+        - [ ] Reviewed for technical accuracy
+        - [ ] Follows platform content style (mermaid diagrams, exam traps)
+    validations:
+      required: false
+
+  - type: input
+    id: related_exam
+    attributes:
+      label: "Related Exam ID"
+      description: "If content belongs to an exam module, enter the exam ID (e.g. ccaf, ghbp)."
+      placeholder: "ghbp"
+    validations:
+      required: false

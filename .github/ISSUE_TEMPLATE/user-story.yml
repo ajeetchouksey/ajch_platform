@@ -1,0 +1,100 @@
+name: "Platform User Story"
+description: "Structured user story for a new platform feature or improvement."
+title: "[S] Short imperative title (#domain)"
+labels: ["type:feat", "P2-medium"]
+assignees: ["ajeetchouksey"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for **feature requests and improvements**. For content work (new exam, blog post, notes), use the **Content Request** template instead.
+
+  - type: textarea
+    id: user_story
+    attributes:
+      label: "User Story"
+      description: "Who benefits, what they want, and why."
+      placeholder: |
+        As a [persona],
+        I want [capability],
+        so that [value delivered].
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Context"
+      description: "Why does this matter now? What problem does it solve?"
+      placeholder: "1-3 sentences on the current gap and why solving it is valuable."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "Acceptance Criteria"
+      description: "Specific, testable conditions for Done. Minimum 3."
+      placeholder: |
+        - [ ] AC1: ...
+        - [ ] AC2: ...
+        - [ ] AC3: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: "Out of Scope"
+      description: "What this story explicitly does NOT include."
+      placeholder: "- Does not include X\n- Accessibility audit deferred to v2.1"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: estimate
+    attributes:
+      label: "Size Estimate"
+      description: "T-shirt sizing for effort."
+      options:
+        - "XS — < 2 hours"
+        - "S — 2–4 hours"
+        - "M — 1–2 days"
+        - "L — 3–5 days"
+        - "XL — > 1 week"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: "Domain"
+      options:
+        - "platform — core UI/UX"
+        - "exam — exam framework and content"
+        - "blog — blog publishing pipeline"
+        - "tools — AI tools and utilities"
+        - "agent — AI agent infrastructure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: "Target Milestone"
+      options:
+        - "v2.0 — Content Expansion (Q2 2026)"
+        - "v2.1 — Platform Features (Q3 2026)"
+        - "v2.2 — Tooling & Agents (Q4 2026)"
+        - "Backlog — Unscheduled"
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: "Technical Notes"
+      description: "Known constraints, affected files, or dependencies (optional)."
+      placeholder: "Leave blank if none. Do not guess at implementation details."
+    validations:
+      required: false

@@ -1,11 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { getSessions, getScoreByDomain, clearSessions } from '../lib/storage';
-import { DOMAIN_META } from '../types/content';
+import { loadExamRegistry } from '../lib/content-loader';
+import type { DomainConfig } from '../types/content';
 import { Trash2 } from 'lucide-react';
 
 export default function Progress() {
+  const { examId = 'ccaf' } = useParams<{ examId: string }>();
   const [sessions, setSessions] = useState(() => getSessions().filter((s) => s.finishedAt));
   const [domainScores, setDomainScores] = useState(() => getScoreByDomain());
+  const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
+  const [examShortTitle, setExamShortTitle] = useState('Exam');
+
+  useEffect(() => {
+    loadExamRegistry().then((r) => {
+      const exam = r.exams.find((e) => e.id === examId);
+      if (exam) {
+        setExamDomains(exam.domains);
+        setExamShortTitle(exam.shortTitle);
+      }
+    }).catch(() => {});
+  }, [examId]);
 
   function handleClear() {
     if (!window.confirm('Clear all session history? This cannot be undone.')) return;
@@ -17,6 +32,7 @@ export default function Progress() {
   if (sessions.length === 0) {
     return (
       <div className="space-y-3">
+        <p className="page-eyebrow">{examShortTitle} Tracking</p>
         <h1 className="text-2xl font-bold tracking-tight"><span className="heading-gradient">Progress</span></h1>
         <p className="text-slate-400 text-sm">
           No completed sessions yet. Take a quiz to start tracking your progress.
@@ -27,6 +43,7 @@ export default function Progress() {
 
   return (
     <div className="space-y-8">
+      <p className="page-eyebrow">{examShortTitle} Tracking</p>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight"><span className="heading-gradient">Progress</span></h1>
         <button
@@ -40,14 +57,14 @@ export default function Progress() {
       {/* Domain breakdown */}
       <div className="glass-card rounded-xl p-5">
         <div className="space-y-4">
-          {Object.entries(DOMAIN_META).map(([d, meta]) => {
-            const stats = domainScores[Number(d)];
-            const pct = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : null;
+          {examDomains.map((domain) => {
+            const stats = domainScores[domain.id];
+            const pct = stats?.total > 0 ? Math.round((stats.correct / stats.total) * 100) : null;
             return (
-              <div key={d}>
+              <div key={domain.id}>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-slate-300">
-                    D{d}: {meta.title}
+                    D{domain.id}: {domain.title}
                   </span>
                   <span className="text-slate-400 font-mono">
                     {pct !== null ? `${pct}%` : 'no data'}
@@ -56,12 +73,12 @@ export default function Progress() {
                 <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
                   {pct !== null && (
                     <div
-                      className={`h-full rounded-full ${pct >= 72 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                      className={`h-full rounded-full ${pct >= 70 ? 'bg-emerald-500' : 'bg-rose-500'}`}
                       style={{ width: `${pct}%` }}
                     />
                   )}
                 </div>
-                {stats.total > 0 && (
+                {stats?.total > 0 && (
                   <p className="text-xs text-slate-600 mt-0.5">
                     {stats.correct}/{stats.total} correct
                   </p>
@@ -74,7 +91,7 @@ export default function Progress() {
 
       {/* Session history */}
       <div className="glass-card rounded-xl p-5">
-        <h2 className="font-semibold text-white mb-4">Session History</h2>
+        <h2 className="section-heading mb-4">Session History</h2>
         <div className="space-y-2">
           {[...sessions].reverse().map((s) => {
             const pct = Math.round((s.score / s.total) * 100);
@@ -88,7 +105,7 @@ export default function Progress() {
                 <div>
                   <span className="text-slate-300">
                     {s.domainFilter !== null
-                      ? `D${s.domainFilter}: ${DOMAIN_META[s.domainFilter].title}`
+                      ? `D${s.domainFilter}: ${examDomains.find((d) => d.id === s.domainFilter)?.title ?? 'Domain'}`
                       : 'Full Mock Exam'}
                   </span>
                   <span className="text-slate-600 ml-2 text-xs">{date}</span>

@@ -36,10 +36,11 @@ Read-only tasks (questions, explanations, searches) skip the security gate.
 
 ## Agent Registry
 
-### L0 — This Agent
+### L0 — Entry Points
 | Agent | Handles |
 |-------|--------|
-| **Platform Orchestrator** (you) | Dispatch, security pre-flight, synthesis |
+| **Platform Orchestrator** (you) | Dispatch, security pre-flight, synthesis — routes execution requests |
+| **Product Owner Agent** | Roadmap, backlog, user stories, sprint planning, content calendar, release notes, stakeholder updates — routes product/planning requests |
 
 ### Cross-Cutting
 | Agent | Trigger | Handles |
@@ -52,7 +53,8 @@ Read-only tasks (questions, explanations, searches) skip the security gate.
 |-------|-----------------|--------|
 | **Platform Control Agent** | layout, navigation, routing, sidebar, header, footer, component, page, feature module, design, responsive, deploy | Delegates routing → Routing Agent, UX → UX Framework Agent, components → Component Builder |
 | **Blog Agent** | blog, article, post, write about, publish, draft, SEO, content pipeline | Blog Commander: delegates write → Content Writer → Security Gate → Content Publisher |
-| **Exam Content Agent** | question, quiz content, exam, notes, domain, scenario, study material, add from URL | Exam Commander: delegates MCQs → Question Generator, notes → Study Notes Agent |
+| **Exam Content Agent** | question, quiz content, exam, notes, domain, scenario, study material, add from URL, **add exam**, **new certification**, **new learning topic**, **learning** | Exam Commander: delegates MCQs → Question Generator, notes → Study Notes Agent |
+| **Product Owner Agent** | roadmap, backlog, user story, epic, sprint, iteration, milestone, prioritize, RICE, release notes, changelog, stakeholder update, content calendar, **what should we build**, **what's next**, **project board**, feature request, acceptance criteria, planning | Product decisions, backlog management, GitHub Project board operations, content roadmap |
 
 ### Study (L1 — split)
 | Agent | Trigger Keywords | Handles |
@@ -68,6 +70,9 @@ User Request
     ├─ Read-only (explain, search, question)?
     │   ├─ Study/learning topic? → Expert Teacher Agent or Student Simulator
     │   └─ Platform info? → Handle directly or delegate
+    │
+    ├─ Product/planning request (roadmap, backlog, stories, sprint, content calendar)?
+    │   └─→ Product Owner Agent (no security gate needed for read; gate fires inside PO for writes)
     │
     ├─ Mutating task (write files, create content)?
     │   ├─ → Security & Governance Agent (MANDATORY pre-flight)
@@ -105,6 +110,17 @@ User Request
 ### "Teach me about [topic], then quiz me"
 1. → **Expert Teacher Agent**: explain + Socratic method
 2. → **Student Simulator Agent**: switch to student mode if user wants to practice teaching-back
+
+### "Plan and implement a new feature"
+1. → **Product Owner Agent**: generate user story, RICE score, confirm issue creation
+2. → **Security Gate**: validate planned file paths
+3. → **Platform Control / Exam Content / Blog Agent**: implement based on story domain
+4. → **Product Owner Agent**: mark issue Done on project board
+
+### "What should we build next sprint?"
+1. → **Product Owner Agent**: fetch open issues, compute RICE scores, recommend sprint
+2. User approves sprint plan
+3. → **Product Owner Agent**: update project board iterations
 
 ## Response Pattern
 

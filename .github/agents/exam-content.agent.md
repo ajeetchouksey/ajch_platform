@@ -60,6 +60,9 @@ Mermaid diagram if applicable: [diagram code]"
 
 ## Domain Classification
 
+> **Registry-first**: Always read `public/content/exams/index.json` to get the correct domain list, weights, and file paths for the target exam before classifying concepts. Do NOT assume CCA-F D1–D5.
+
+### CCA-F Example
 | Domain | Core Topics |
 |--------|-------------|
 | D1 | Agentic patterns, orchestration, tool loops, multi-agent |
@@ -67,6 +70,15 @@ Mermaid diagram if applicable: [diagram code]"
 | D3 | Prompt engineering, structured output, few-shot, XML tags |
 | D4 | Tool design, MCP servers, input validation, 18-tool limit |
 | D5 | Context management, token budgets, caching, summarization |
+
+### Adding Content for Any Exam
+
+1. Read `public/content/exams/index.json`
+2. Find the exam entry by `id`
+3. Use `exam.domains[].id` and `exam.domains[].title` to classify concepts
+4. Question files are listed in `exam.questionFiles[]` (e.g. `ab100-domain1.json`)
+5. Notes files are in `exam.domains[].notesFile` (e.g. `ab100-d1-plan-ai.md`)
+6. After generating content, confirm the registry entries exist — update `questionFiles[]` if adding a new file
 
 ## Deduplication Rule
 
@@ -145,7 +157,8 @@ When asked to add content from a URL or topic:
 
 ## Existing Content Locations
 
-- Questions: `public/content/questions/domain{1-5}-*.json`
-- Notes: `public/content/notes/d{1-5}-*.md`
-- Scenarios: `public/content/scenarios/*.json`
-- Types: `src/types/content.ts`
+- **Registry**: `public/content/exams/index.json` — single source of truth for all exams
+- **Questions**: `public/content/questions/{examId}-domain{N}.json` (e.g. `ab100-domain1.json`, `domain1-agentic.json` for CCA-F)
+- **Notes**: `public/content/notes/{examId}-d{N}-{slug}.md` (per registry `domains[].notesFile`)
+- **Scenarios**: `public/content/scenarios/{examId}-*.json` (per registry `scenarioFiles[]`)
+- **Types**: `src/types/content.ts`

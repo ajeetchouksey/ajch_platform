@@ -16,7 +16,38 @@ You are the **Routing Agent** — a narrow L2 specialist. You touch exactly two 
 | File | What you manage |
 |------|----------------|
 | `src/App.tsx` | Route definitions (`<Route path=... element=...>`) |
-| `src/components/Layout.tsx` | `platformLinks`, `ccafLinks`, `domainLinks`, sidebar context blocks |
+| `src/components/Layout.tsx` | `platformLinks`, registry-driven sidebar state |
+
+## Route Pattern (Registry-Driven)
+
+All exam routes use a single generic `:examId` param. **Never add per-exam routes.**
+
+```tsx
+// Existing generic exam routes — do NOT duplicate these
+<Route path="/exams/:examId" element={<ExamHome />} />
+<Route path="/exams/:examId/quiz" element={<Quiz />} />
+<Route path="/exams/:examId/notes" element={<Notes />} />
+<Route path="/exams/:examId/scenarios" element={<Scenarios />} />
+<Route path="/exams/:examId/progress" element={<Progress />} />
+```
+
+When a new exam is added to `public/content/exams/index.json`, NO routing changes are required.
+
+## Sidebar Context (Registry-Driven)
+
+The exam sidebar in Layout.tsx is registry-driven. It reads `public/content/exams/index.json` and renders the current exam’s domains/weights/resources dynamically. **Never add a hardcoded per-exam sidebar block.**
+
+For non-exam features (blog, team, tools), the existing pattern applies:
+
+```tsx
+const isInNewFeature = location.pathname.startsWith('/new-feature');
+// ...
+{isInNewFeature && (
+  <div className="px-4 pb-4">
+    {/* feature-specific sidebar */}
+  </div>
+)}
+```
 
 ## Hard Boundaries
 
@@ -92,12 +123,13 @@ Layout.tsx owns the full page transition system. **Do not modify these without u
 ## Checklist
 
 Before completing a routing task:
-- [ ] Route added to App.tsx with correct path and element
+- [ ] Route added to App.tsx (use `:examId` generic pattern for exams)
 - [ ] Page component imported in App.tsx
-- [ ] Nav link added to `platformLinks` (or section-specific link array)
+- [ ] Nav link added to `platformLinks` (if top-level feature)
 - [ ] Lucide icon imported in Layout.tsx
-- [ ] Sidebar context added if feature needs it
+- [ ] Sidebar context added ONLY if it's a non-exam feature
 - [ ] `end={true}` set on index routes to avoid nav highlight bleed
+- [ ] NO per-exam hardcoded constants or sidebar blocks added
 
 ## What to Report
 

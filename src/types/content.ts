@@ -1,5 +1,60 @@
+// ── Exam Registry ─────────────────────────────────────────────────────────
+export interface DomainConfig {
+  id: number;
+  title: string;
+  weight: number;
+  color: string;      // Tailwind bg class, e.g. "bg-violet-600"
+  notesFile: string;  // relative to public/, e.g. "content/notes/d1-..."
+}
+
+export interface ExamResource {
+  label: string;
+  url: string;
+}
+
+export interface ExamConfig {
+  id: string;
+  title: string;
+  shortTitle: string;
+  description: string;
+  questions: number;
+  duration: string;
+  passScore: string;
+  passThreshold: number; // numeric %, e.g. 72
+  available: boolean;
+  accentColor: string;
+  colorScheme: string;   // key into EXAM_SCHEMES, e.g. "violet" | "blue"
+  domains: DomainConfig[];
+  questionFiles: string[];
+  scenarioFiles: string[];
+  resources: ExamResource[];
+}
+
+export interface ExamRegistry {
+  exams: ExamConfig[];
+}
+
+// Color scheme lookup — all Tailwind classes pre-defined for purge safety
+export const EXAM_SCHEMES: Record<string, {
+  sidebarActive: string;
+  resourceHover: string;
+  startButton: string;
+}> = {
+  violet: {
+    sidebarActive: 'bg-violet-500/15 text-violet-200 border-l-2 border-violet-400 pl-2.5',
+    resourceHover: 'hover:text-violet-300',
+    startButton: 'bg-violet-700 hover:bg-violet-600 hover:shadow-lg hover:shadow-violet-500/20',
+  },
+  blue: {
+    sidebarActive: 'bg-blue-500/15 text-blue-200 border-l-2 border-blue-400 pl-2.5',
+    resourceHover: 'hover:text-blue-300',
+    startButton: 'bg-blue-700 hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/20',
+  },
+};
+
+// ── Questions ──────────────────────────────────────────────────────────────
 export interface Question {
-  domain: 1 | 2 | 3 | 4 | 5;
+  domain: number;
   id: string;
   scenario: string;
   question: string;
@@ -11,7 +66,7 @@ export interface Question {
 
 export interface DomainNote {
   id: string;
-  domain: 1 | 2 | 3 | 4 | 5;
+  domain: number;
   title: string;
   weight: number; // exam weight %
   content: string; // raw markdown
@@ -35,15 +90,6 @@ export interface QuizSession {
   score: number;
   total: number;
 }
-
-export const DOMAIN_META: Record<number, { title: string; weight: number; color: string }> = {
-  1: { title: 'Agentic Architecture & Orchestration', weight: 27, color: 'bg-violet-600' },
-  2: { title: 'Claude Code Configuration & Workflows', weight: 20, color: 'bg-blue-600' },
-  3: { title: 'Prompt Engineering & Structured Output', weight: 20, color: 'bg-emerald-600' },
-  4: { title: 'Tool Design & MCP Integration', weight: 18, color: 'bg-amber-600' },
-  5: { title: 'Context Management & Reliability', weight: 15, color: 'bg-rose-600' },
-};
-
 
 export interface BlogPostMeta {
   slug: string;
