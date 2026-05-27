@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   Bot, Cpu, PenTool, GraduationCap, BookOpen, GitBranch,
   Globe, ChevronRight, MapPin, Building2, ExternalLink,
   Zap, Brain, ShieldCheck, Lightbulb, ListChecks, Handshake, Trophy,
   ArrowDown, Award, User, Users,
   Layers, Palette, FileText, Send, HelpCircle, Share2, TrendingUp,
+  X,
 } from 'lucide-react';
 import { maintainer } from '../data/maintainer';
 import { PulsingDot, VersionTag, NewBadge, Timeline, StatGrid } from '@/components/ui';
@@ -28,6 +31,7 @@ interface SubAgent {
   tools: string;
   icon: React.ElementType;
   isNew?: boolean;
+  profileFile?: string;
 }
 
 interface AgentData {
@@ -52,6 +56,8 @@ interface AgentData {
   deliveries: Delivery[];
   isNew?: boolean;
   noSubAgents?: boolean;
+  humanFeedback?: string;
+  profileFile?: string;
   subAgents?: SubAgent[];
 }
 
@@ -77,6 +83,7 @@ const orchestrator: AgentData = {
   tools: 14,
   activeTask: 'Routing blog request → Blog Lead',
   version: 'v2.0.0',
+  profileFile: 'orchestrator.agent.md',
   deliveries: [
     { version: 'v1.0', label: 'Core routing engine + agent registry', type: 'major' },
     { version: 'v1.4', label: 'Security gate + sub-agent routing', type: 'minor' },
@@ -108,6 +115,8 @@ const poAgent: AgentData = {
   version: 'v1.1.0',
   isNew: true,
   noSubAgents: true,
+  humanFeedback: 'Human approves sprint plan & priorities',
+  profileFile: 'product-owner.agent.md',
   deliveries: [
     { version: 'v1.0', label: 'Backlog engine, RICE scoring, sprint planner, content calendar, release notes, stakeholder updates', type: 'major' },
     { version: 'v1.1', label: 'Research & Analysis module — competitive, trends, gap analysis, user feedback, tech radar', type: 'minor' },
@@ -135,8 +144,10 @@ export const l1Agents: AgentData[] = [
     capabilities: ['Architecture', 'Build Config', 'Deploy', 'Feature Registration'],
     model: 'Claude Sonnet',
     tools: 8,
+    humanFeedback: 'Human triggers features & approves deploys',
     activeTask: 'Delegating Team page work → Component Builder',
     version: 'v3.0.0',
+    profileFile: 'platform-control.agent.md',
     deliveries: [
       { version: 'v1.0', label: 'App shell, routing, sidebar, layout', type: 'major' },
       { version: 'v2.0', label: 'Team page + org hierarchy design', type: 'major' },
@@ -152,6 +163,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, edit (2 files only)',
         icon: Share2,
         isNew: true,
+        profileFile: 'routing.agent.md',
       },
       {
         id: 'builder',
@@ -162,6 +174,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, edit, search',
         icon: Layers,
         isNew: true,
+        profileFile: 'component-builder.agent.md',
       },
     ],
   },
@@ -182,8 +195,10 @@ export const l1Agents: AgentData[] = [
     capabilities: ['Content Pipeline', 'Voice Strategy', 'Category Management'],
     model: 'Claude Sonnet',
     tools: 6,
+    humanFeedback: 'Human reviews draft before publish',
     activeTask: 'Drafting post on AI model optimization...',
     version: 'v2.0.0',
+    profileFile: 'blog.agent.md',
     deliveries: [
       { version: 'v1.0', label: 'Blog post import pipeline + frontmatter', type: 'major' },
       { version: 'v1.5', label: 'Write → Validate → Publish sub-agent workflow', type: 'minor' },
@@ -199,6 +214,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, web/fetch only',
         icon: FileText,
         isNew: true,
+        profileFile: 'content-writer.agent.md',
       },
       {
         id: 'publisher',
@@ -209,6 +225,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, edit (blog/ only)',
         icon: Send,
         isNew: true,
+        profileFile: 'content-publisher.agent.md',
       },
     ],
   },
@@ -229,8 +246,10 @@ export const l1Agents: AgentData[] = [
     capabilities: ['Web Research', 'Concept Extraction', 'Deduplication', 'Classification'],
     model: 'Claude Sonnet',
     tools: 8,
+    humanFeedback: 'Human validates question quality',
     activeTask: 'Scanning Anthropic docs for new content...',
     version: 'v2.0.0',
+    profileFile: 'exam-content.agent.md',
     deliveries: [
       { version: 'v1.0', label: 'CCA-F question bank (50 questions)', type: 'major' },
       { version: 'v1.3', label: 'Deduplication engine + web research tools', type: 'minor' },
@@ -246,6 +265,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, edit (questions/ only)',
         icon: HelpCircle,
         isNew: false,
+        profileFile: 'question-generator.agent.md',
       },
       {
         id: 'notes',
@@ -256,6 +276,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, edit (notes/ only)',
         icon: BookOpen,
         isNew: true,
+        profileFile: 'study-notes.agent.md',
       },
     ],
   },
@@ -276,8 +297,10 @@ export const l1Agents: AgentData[] = [
     capabilities: ['Expert Teaching', 'Socratic Method', 'Student Sim', 'Gap Analysis'],
     model: 'Claude Sonnet',
     tools: 7,
+    humanFeedback: 'Human IS the loop — every reply counts',
     activeTask: 'Standby — awaiting study session',
     version: 'v1.0.0',
+    profileFile: 'study-companion.agent.md',
     deliveries: [
       { version: 'v0.5', label: '101/201/301 persona framework', type: 'major' },
       { version: 'v0.9', label: 'Student simulation mode (beta)', type: 'minor' },
@@ -293,6 +316,8 @@ export const l1Agents: AgentData[] = [
         tools: 'read, web/fetch, askQuestions',
         icon: GraduationCap,
         isNew: true,
+        profileFile: 'expert-teacher.agent.md',
+        isNew: true,
       },
       {
         id: 'student-simulator',
@@ -303,6 +328,7 @@ export const l1Agents: AgentData[] = [
         tools: 'askQuestions only',
         icon: Users,
         isNew: true,
+        profileFile: 'student-simulator.agent.md',
       },
     ],
   },
@@ -317,6 +343,147 @@ const FLOW_STEPS = [
   { icon: Handshake,  label: 'AI Partner',  sub: 'Delegate to the team', color: 'text-violet-400', glow: 'shadow-violet-400/30', border: 'border-violet-500/40', bg: 'from-violet-500/10 to-transparent', lineFrom: '#8b5cf6', lineTo: '#10b981' },
   { icon: Trophy,     label: 'Achievement', sub: 'Ship the outcome',     color: 'text-emerald-400',glow: 'shadow-emerald-400/30',border: 'border-emerald-500/40',bg: 'from-emerald-500/10 to-transparent',lineFrom: '#10b981', lineTo: '#10b981' },
 ];
+
+/* ─────────────────────────────────────────────────────────────
+   Agent Profile Drawer
+───────────────────────────────────────────────────────────── */
+const RAW_BASE = 'https://raw.githubusercontent.com/ajeetchouksey/ajch_platform/main/.github/agents/';
+const GH_BASE  = 'https://github.com/ajeetchouksey/ajch_platform/blob/main/.github/agents/';
+
+interface DrawerState {
+  file: string;
+  name: string;
+  accentColor: string;
+  icon: React.ElementType;
+}
+
+function AgentProfileDrawer({ drawer, onClose }: { drawer: DrawerState | null; onClose: () => void }) {
+  const [content, setContent] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (!drawer) { setContent(null); setError(false); return; }
+    setLoading(true); setError(false); setContent(null);
+    fetch(RAW_BASE + drawer.file)
+      .then(r => { if (!r.ok) throw new Error(); return r.text(); })
+      .then(t => { setContent(t); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [drawer?.file]);
+
+  // Close on Escape
+  useEffect(() => {
+    if (!drawer) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [drawer, onClose]);
+
+  if (!drawer) return null;
+  const Icon = drawer.icon;
+
+  return (
+    <>
+      {/* Overlay */}
+      <div
+        className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm transition-opacity duration-300"
+        onClick={onClose}
+      />
+      {/* Drawer */}
+      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-xl flex flex-col
+        bg-slate-950/98 border-l border-slate-700/60 shadow-2xl shadow-black/50
+        animate-[slideInRight_280ms_cubic-bezier(0.32,0.72,0,1)]">
+        <style>{`
+          @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
+          }
+        `}</style>
+
+        {/* Header */}
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-800/60 shrink-0"
+          style={{ borderTopColor: 'transparent', background: `linear-gradient(135deg, ${drawer.accentColor}18 0%, transparent 60%)` }}>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: `${drawer.accentColor}22`, border: `1px solid ${drawer.accentColor}44` }}>
+            <Icon size={17} style={{ color: drawer.accentColor }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="font-bold text-white text-sm truncate">{drawer.name}</h2>
+            <p className="text-[10px] text-slate-500 font-mono truncate">.github/agents/{drawer.file}</p>
+          </div>
+          <a
+            href={GH_BASE + drawer.file}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold
+              bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60
+              hover:border-slate-600 transition-colors duration-200 shrink-0"
+          >
+            <ExternalLink size={11} />View on GitHub
+          </a>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 border border-slate-700/40
+              flex items-center justify-center text-slate-400 hover:text-white transition-colors duration-200 shrink-0"
+          >
+            <X size={14} />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          {loading && (
+            <div className="flex items-center gap-3 text-slate-500 text-sm mt-8">
+              <span className="flex gap-1">{[0,80,160].map(d => <span key={d} className="w-1.5 h-1.5 rounded-full bg-slate-600 animate-bounce" style={{ animationDelay: `${d}ms` }} />)}</span>
+              Loading agent definition…
+            </div>
+          )}
+          {error && (
+            <div className="mt-8 p-4 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-sm">
+              Could not load agent profile. <a href={GH_BASE + drawer.file} target="_blank" rel="noopener noreferrer" className="underline hover:text-red-300">Open on GitHub instead →</a>
+            </div>
+          )}
+          {content && !loading && (
+            <div className="prose prose-invert prose-sm max-w-none
+              prose-headings:text-white prose-headings:font-bold
+              prose-h1:text-lg prose-h2:text-base prose-h3:text-sm
+              prose-p:text-slate-400 prose-p:leading-relaxed
+              prose-code:text-violet-300 prose-code:bg-slate-800/60 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-[11px]
+              prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl
+              prose-strong:text-slate-200
+              prose-ul:text-slate-400 prose-ol:text-slate-400
+              prose-li:marker:text-slate-600
+              prose-blockquote:border-l-violet-500/50 prose-blockquote:text-slate-400
+              prose-hr:border-slate-800
+              prose-a:text-violet-400 prose-a:no-underline hover:prose-a:underline
+              prose-table:text-slate-400 prose-th:text-slate-300 prose-th:border-slate-700 prose-td:border-slate-800">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Profile badge — appears on hover over agent name area
+───────────────────────────────────────────────────────────── */
+function ProfileBadge({ onClick, accentColor }: { onClick: (e: React.MouseEvent) => void; accentColor?: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-semibold
+        bg-slate-800/80 hover:bg-slate-700 border border-slate-700/50 hover:border-slate-600
+        text-slate-400 hover:text-slate-200 transition-all duration-150 opacity-0 group-hover:opacity-100
+        shrink-0"
+      title="View agent profile"
+    >
+      <FileText size={9} style={{ color: accentColor }} />
+      <span>Profile</span>
+    </button>
+  );
+}
 
 /* ─────────────────────────────────────────────────────────────
    Small helpers
@@ -547,7 +714,7 @@ function HumanCard({ visible, isThinking }: { visible: boolean; isThinking: bool
 /* ─────────────────────────────────────────────────────────────
    L0 Orchestrator card
 ───────────────────────────────────────────────────────────── */
-function OrchestratorCard({ agent, visible }: { agent: AgentData; visible: boolean }) {
+function OrchestratorCard({ agent, visible, onOpenProfile }: { agent: AgentData; visible: boolean; onOpenProfile: (s: DrawerState) => void }) {
   const [hovered, setHovered] = useState(false);
   const [showDeliveries, setShowDeliveries] = useState(false);
   const Icon = agent.icon;
@@ -559,7 +726,7 @@ function OrchestratorCard({ agent, visible }: { agent: AgentData; visible: boole
 
   return (
     <div
-      className={`relative glass-card card-accent-top rounded-2xl p-5 border transition-all duration-600
+      className={`relative glass-card card-accent-top rounded-2xl p-5 border transition-all duration-600 group
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
         ${hovered ? 'border-violet-400/60 shadow-2xl shadow-violet-500/20' : 'border-violet-500/30'}`}
       style={{ '--accent-color': 'linear-gradient(90deg,#7c3aed,#a78bfa)', transitionDelay: '200ms' } as React.CSSProperties}
@@ -579,6 +746,7 @@ function OrchestratorCard({ agent, visible }: { agent: AgentData; visible: boole
           <div className="flex items-center gap-2 mb-0.5">
             <h3 className="font-bold text-white">{agent.name}</h3>
             <PulsingDot active color={agent.dotColor} />
+            <ProfileBadge onClick={e => { e.stopPropagation(); onOpenProfile({ file: agent.profileFile!, name: agent.name, accentColor: '#a78bfa', icon: agent.icon }); }} accentColor="#a78bfa" />
           </div>
           <p className={`text-xs font-medium ${agent.textColor} mb-1`}>{agent.tagline}</p>
           <p className="text-xs text-slate-400 leading-relaxed mb-3">{agent.description}</p>
@@ -627,7 +795,7 @@ function OrchestratorCard({ agent, visible }: { agent: AgentData; visible: boole
 /* ─────────────────────────────────────────────────────────────
    L0 — Product Owner card
 ───────────────────────────────────────────────────────────── */
-function POAgentCard({ agent, visible }: { agent: AgentData; visible: boolean }) {
+function POAgentCard({ agent, visible, onOpenProfile }: { agent: AgentData; visible: boolean; onOpenProfile: (s: DrawerState) => void }) {
   const [hovered, setHovered] = useState(false);
   const [showDeliveries, setShowDeliveries] = useState(false);
   const Icon = agent.icon;
@@ -644,7 +812,7 @@ function POAgentCard({ agent, visible }: { agent: AgentData; visible: boolean })
 
   return (
     <div
-      className={`relative glass-card card-accent-top rounded-2xl p-5 border transition-all duration-600
+      className={`relative glass-card card-accent-top rounded-2xl p-5 border transition-all duration-600 group
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
         ${hovered ? 'border-teal-400/60 shadow-2xl shadow-teal-500/20' : 'border-teal-500/30'}`}
       style={{ '--accent-color': 'linear-gradient(90deg,#0f766e,#2dd4bf)', transitionDelay: '300ms' } as React.CSSProperties}
@@ -665,6 +833,7 @@ function POAgentCard({ agent, visible }: { agent: AgentData; visible: boolean })
           <div className="flex items-center gap-2 mb-0.5">
             <h3 className="font-bold text-white">{agent.name}</h3>
             <PulsingDot active color={agent.dotColor} />
+            <ProfileBadge onClick={e => { e.stopPropagation(); onOpenProfile({ file: agent.profileFile!, name: agent.name, accentColor: '#2dd4bf', icon: agent.icon }); }} accentColor="#2dd4bf" />
           </div>
           <p className={`text-xs font-medium ${agent.textColor} mb-1`}>{agent.tagline}</p>
           <p className="text-xs text-slate-400 leading-relaxed mb-3">{agent.description}</p>
@@ -696,6 +865,16 @@ function POAgentCard({ agent, visible }: { agent: AgentData; visible: boolean })
             <span key={m} className={`text-[9px] px-2 py-0.5 rounded border ${agent.badgeColor} ${i === modules.length - 1 ? 'ring-1 ring-teal-400/30' : ''}`}>{m}</span>
           ))}
         </div>
+        {agent.humanFeedback && (
+          <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-slate-800/40">
+            <div className="w-4 h-4 rounded-full bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center shrink-0">
+              <User size={8} className="text-cyan-400" />
+            </div>
+            <span className="text-[8px] font-bold text-cyan-400/60 uppercase tracking-widest">Human Loop</span>
+            <span className="text-[8px] text-slate-600">·</span>
+            <span className="text-[9px] text-slate-500">{agent.humanFeedback}</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -858,9 +1037,115 @@ function UXFoundationBand({ visible }: { visible: boolean }) {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   Security Pillar — left vertical governance rail (sticky card)
+───────────────────────────────────────────────────────────── */
+function SecurityPillar({ visible }: { visible: boolean }) {
+  return (
+    <div
+      className={`hidden lg:flex flex-col items-center w-12 shrink-0 transition-opacity duration-700 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      style={{ transitionDelay: '500ms' }}>
+      {/* Icon cap */}
+      <div className="w-9 h-9 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
+        <ShieldCheck size={16} className="text-amber-400" />
+      </div>
+      <div className="text-[7px] font-black text-amber-400/60 uppercase tracking-widest mt-1 mb-2 shrink-0">GATE</div>
+
+      {/* Bidirectional rail */}
+      <div className="relative flex-1 w-full" style={{ minHeight: 60 }}>
+        {/* Base line */}
+        <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-[2px] bg-gradient-to-b from-amber-500/30 via-amber-500/15 to-amber-500/5 rounded-full" />
+        {/* ↓ Downward — write request (amber) */}
+        <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-[2px] overflow-hidden">
+          <div className="absolute left-0 right-0 bg-gradient-to-b from-transparent via-amber-300/90 to-transparent"
+            style={{ height: '22%', animation: 'signalPulse 2.4s ease-in-out 0ms infinite' }} />
+        </div>
+        {/* ↑ Upward — gate result (emerald), rail flipped via scaleY(-1) */}
+        <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-[2px] overflow-hidden" style={{ transform: 'scaleY(-1)' }}>
+          <div className="absolute left-0 right-0 bg-gradient-to-b from-transparent via-emerald-400/70 to-transparent"
+            style={{ height: '16%', animation: 'signalPulse 2.9s ease-in-out 1100ms infinite' }} />
+        </div>
+        {/* Rotated label */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span
+            className="text-[10px] font-black text-amber-400/20 uppercase tracking-[0.2em] whitespace-nowrap select-none"
+            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+            Security Gate
+          </span>
+        </div>
+      </div>
+
+      {/* Status badges */}
+      <div className="flex flex-col gap-1.5 items-center mt-2 shrink-0">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <span className="text-[8px] text-emerald-400 font-bold tracking-wide">PASS</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-500/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+          <span className="text-[8px] text-red-400 font-bold tracking-wide">STOP</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   UX Pillar — right vertical governance rail (sticky card)
+───────────────────────────────────────────────────────────── */
+function UXPillar({ visible }: { visible: boolean }) {
+  return (
+    <div
+      className={`hidden lg:flex flex-col items-center w-12 shrink-0 transition-opacity duration-700 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      style={{ transitionDelay: '580ms' }}>
+      {/* Icon cap */}
+      <div className="w-9 h-9 rounded-2xl bg-purple-500/15 border border-purple-500/40 flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0">
+        <Palette size={16} className="text-purple-400" />
+      </div>
+      <div className="text-[7px] font-black text-purple-400/60 uppercase tracking-widest mt-1 mb-2 shrink-0">UX</div>
+
+      {/* Bidirectional rail */}
+      <div className="relative flex-1 w-full" style={{ minHeight: 60 }}>
+        {/* Base line */}
+        <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-[2px] bg-gradient-to-b from-purple-500/30 via-purple-500/15 to-purple-500/5 rounded-full" />
+        {/* ↓ Downward — render request (purple) */}
+        <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-[2px] overflow-hidden">
+          <div className="absolute left-0 right-0 bg-gradient-to-b from-transparent via-purple-300/90 to-transparent"
+            style={{ height: '22%', animation: 'signalPulse 2.6s ease-in-out 400ms infinite' }} />
+        </div>
+        {/* ↑ Upward — styled component returned (cyan), rail flipped via scaleY(-1) */}
+        <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-[2px] overflow-hidden" style={{ transform: 'scaleY(-1)' }}>
+          <div className="absolute left-0 right-0 bg-gradient-to-b from-transparent via-cyan-400/65 to-transparent"
+            style={{ height: '16%', animation: 'signalPulse 3.1s ease-in-out 1500ms infinite' }} />
+        </div>
+        {/* Rotated label */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span
+            className="text-[10px] font-black text-purple-400/20 uppercase tracking-[0.2em] whitespace-nowrap select-none"
+            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+            UX Foundation
+          </span>
+        </div>
+      </div>
+
+      {/* Status badges */}
+      <div className="flex flex-col gap-1.5 items-center mt-2 shrink-0">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse shrink-0" />
+          <span className="text-[8px] text-purple-400 font-bold tracking-wide">LIVE</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/60 border border-slate-700/40">
+          <Layers size={9} className="text-slate-500 shrink-0" />
+          <span className="text-[8px] text-slate-400 font-bold">9 UI</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
    Sub-agent row (compact L2 display inside L1 card)
 ───────────────────────────────────────────────────────────── */
-function SubAgentRow({ sub, textColor, badgeColor }: { sub: SubAgent; textColor: string; badgeColor: string }) {
+function SubAgentRow({ sub, textColor, badgeColor, onOpenProfile }: { sub: SubAgent; textColor: string; badgeColor: string; onOpenProfile?: () => void }) {
   const Icon = sub.icon;
   return (
     <div className="flex items-start gap-2.5 py-2 px-3 rounded-lg bg-slate-900/50 border border-slate-800/60 group hover:border-slate-700/60 transition-colors duration-200">
@@ -873,6 +1158,17 @@ function SubAgentRow({ sub, textColor, badgeColor }: { sub: SubAgent; textColor:
           <span className={`text-[8px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded border ${badgeColor}`}>{sub.role}</span>
           {sub.isNew && <NewBadge />}
           {!sub.isNew && <span className="text-[8px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 border border-slate-700/50">existing skill ↑</span>}
+          {sub.profileFile && onOpenProfile && (
+            <button
+              onClick={e => { e.stopPropagation(); onOpenProfile?.(); }}
+              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold
+                bg-slate-800/60 hover:bg-slate-700 border border-slate-700/40 hover:border-slate-600
+                text-slate-500 hover:text-slate-300 transition-all duration-150 opacity-0 group-hover:opacity-100"
+              title="View agent profile"
+            >
+              <FileText size={8} />Profile
+            </button>
+          )}
         </div>
         <p className="text-[10px] text-slate-500 leading-tight mb-1">{sub.description}</p>
         <div className="flex flex-wrap gap-1">
@@ -891,7 +1187,7 @@ function SubAgentRow({ sub, textColor, badgeColor }: { sub: SubAgent; textColor:
 /* ─────────────────────────────────────────────────────────────
    L1 Lead card
 ───────────────────────────────────────────────────────────── */
-function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: number; visible: boolean }) {
+function L1CommanderCard({ agent, index, visible, onOpenProfile }: { agent: AgentData; index: number; visible: boolean; onOpenProfile: (s: DrawerState) => void }) {
   const [hovered, setHovered] = useState(false);
   const [showDeliveries, setShowDeliveries] = useState(false);
   const Icon = agent.icon;
@@ -901,7 +1197,14 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
     'exam-content':     'linear-gradient(90deg,#92400e,#fbbf24)',
     'study-companion':  'linear-gradient(90deg,#9f1239,#fb7185)',
   };
-  const accentColor = accentMap[agent.id] ?? 'linear-gradient(90deg,#475569,#94a3b8)';
+  const accentColorMap: Record<string, string> = {
+    'platform-control': '#60a5fa',
+    'blog':             '#34d399',
+    'exam-content':     '#fbbf24',
+    'study-companion':  '#fb7185',
+  };
+  const accentColor = accentColorMap[agent.id] ?? '#94a3b8';
+  const accentGrad  = accentMap[agent.id] ?? 'linear-gradient(90deg,#475569,#94a3b8)';
 
   useEffect(() => {
     if (hovered) { const t = setTimeout(() => setShowDeliveries(true), 200); return () => clearTimeout(t); }
@@ -910,10 +1213,10 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
 
   return (
     <div
-      className={`relative glass-card card-accent-top rounded-xl border transition-all duration-500
+      className={`relative glass-card card-accent-top rounded-xl border transition-all duration-500 group
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
         ${hovered ? `${agent.borderColor} shadow-xl ${agent.glowColor} -translate-y-1` : 'border-slate-700/40'}`}
-      style={{ '--accent-color': accentColor, transitionDelay: `${700 + index * 100}ms` } as React.CSSProperties}
+      style={{ '--accent-color': accentGrad, transitionDelay: `${700 + index * 100}ms` } as React.CSSProperties}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${agent.bgGradient} pointer-events-none transition-opacity duration-300 ${hovered ? 'opacity-100' : 'opacity-40'}`} />
 
@@ -936,7 +1239,10 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
           </div>
         </div>
 
-        <h3 className="font-bold text-white text-sm mb-0.5">{agent.name}</h3>
+        <div className="flex items-center gap-2 mb-0.5">
+          <h3 className="font-bold text-white text-sm">{agent.name}</h3>
+          <ProfileBadge onClick={e => { e.stopPropagation(); onOpenProfile({ file: agent.profileFile!, name: agent.name, accentColor, icon: agent.icon }); }} accentColor={accentColor} />
+        </div>
         <p className={`text-[11px] ${agent.textColor} mb-2 font-medium`}>{agent.tagline}</p>
         <p className="text-[11px] text-slate-400 leading-relaxed mb-3 line-clamp-2">{agent.description}</p>
 
@@ -972,7 +1278,13 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
           </div>
           <div className="space-y-1.5">
             {agent.subAgents.map(sub => (
-              <SubAgentRow key={sub.id} sub={sub} textColor={agent.textColor} badgeColor={agent.badgeColor} />
+              <SubAgentRow
+                key={sub.id}
+                sub={sub}
+                textColor={agent.textColor}
+                badgeColor={agent.badgeColor}
+                onOpenProfile={sub.profileFile ? () => onOpenProfile({ file: sub.profileFile!, name: sub.name, accentColor, icon: sub.icon }) : undefined}
+              />
             ))}
           </div>
         </div>
@@ -987,6 +1299,19 @@ function L1CommanderCard({ agent, index, visible }: { agent: AgentData; index: n
           </div>
         </div>
       )}
+      {/* Human Feedback Loop */}
+      {agent.humanFeedback && (
+        <div className="border-t border-slate-800/40 px-4 py-2">
+          <div className="flex items-center gap-1.5">
+            <div className="w-4 h-4 rounded-full bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center shrink-0">
+              <User size={8} className="text-cyan-400" />
+            </div>
+            <span className="text-[8px] font-bold text-cyan-400/60 uppercase tracking-widest">Human Loop</span>
+            <span className="text-[8px] text-slate-600">·</span>
+            <span className="text-[9px] text-slate-500">{agent.humanFeedback}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -998,6 +1323,7 @@ export default function Team() {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
   const [flowStep, setFlowStep] = useState(-1);
+  const [drawer, setDrawer] = useState<DrawerState | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
@@ -1014,6 +1340,7 @@ export default function Team() {
 
   return (
     <>
+      <AgentProfileDrawer drawer={drawer} onClose={() => setDrawer(null)} />
       <style>{`
         @keyframes signalPulse {
           0%   { top: -50%; opacity: 0; }
@@ -1035,7 +1362,7 @@ export default function Team() {
             </span>
           </div>
           <p className="text-sm text-slate-400 max-w-xl">
-            One principal. Two L0 leads. Two cross-cutting layers. Four domain leads. {totalSubAgents} task specialists. Everything has a single responsibility.
+            One principal. Two L0 leads. Two vertical governance rails. Four domain leads. {totalSubAgents} task specialists. Human feedback loop where it counts.
           </p>
         </div>
 
@@ -1055,45 +1382,49 @@ export default function Team() {
           <FlowBanner step={flowStep} />
         </div>
 
-        {/* ─── Hierarchy ─── */}
-        <div className="flex flex-col">
+        {/* ─── Hierarchy with vertical governance rails ─── */}
+        <div className="flex gap-2 lg:gap-3 items-stretch">
 
-          {/* L0 layer label */}
-          <div className={`flex items-center gap-2 mb-2 transition-opacity duration-400 ${visible ? 'opacity-100' : 'opacity-0'}`}>
-            <span className="text-[9px] font-bold text-violet-500/60 uppercase tracking-widest bg-violet-500/5 border border-violet-500/15 px-2 py-0.5 rounded">L0</span>
-            <div className="h-px flex-1 bg-slate-800" />
+          {/* LEFT — Security governance rail */}
+          <SecurityPillar visible={visible} />
+
+          {/* CENTER — Agent flow */}
+          <div className="flex-1 min-w-0 flex flex-col">
+
+            {/* L0 layer label */}
+            <div className={`flex items-center gap-2 mb-2 transition-opacity duration-400 ${visible ? 'opacity-100' : 'opacity-0'}`}>
+              <span className="text-[9px] font-bold text-violet-500/60 uppercase tracking-widest bg-violet-500/5 border border-violet-500/15 px-2 py-0.5 rounded">L0</span>
+              <div className="h-px flex-1 bg-slate-800" />
+            </div>
+
+            <HumanCard visible={visible} isThinking={flowStep === 0 || flowStep === 1} />
+            <VerticalConnector label="instructs L0 leads" visible={visible} delay={300} />
+            <div className="grid sm:grid-cols-2 gap-3">
+              <OrchestratorCard agent={orchestrator} visible={visible} onOpenProfile={setDrawer} />
+              <POAgentCard agent={poAgent} visible={visible} onOpenProfile={setDrawer} />
+            </div>
+
+            <VerticalConnector visible={visible} delay={450} />
+
+            {/* L1 layer label */}
+            <div className={`flex items-center gap-2 mb-2 mt-1 transition-opacity duration-400 ${visible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '600ms' }}>
+              <span className="text-[9px] font-bold text-blue-500/60 uppercase tracking-widest bg-blue-500/5 border border-blue-500/15 px-2 py-0.5 rounded">L1 + L2</span>
+              <div className="h-px flex-1 bg-slate-800" />
+              <span className="text-[9px] text-slate-600">Domain Leads + Task Specialists</span>
+            </div>
+
+            <FanConnector visible={visible} count={l1Agents.length} />
+
+            <div className="grid sm:grid-cols-2 gap-3 mb-6">
+              {l1Agents.map((agent, i) => (
+                <L1CommanderCard key={agent.id} agent={agent} index={i} visible={visible} onOpenProfile={setDrawer} />
+              ))}
+            </div>
+
           </div>
 
-          <HumanCard visible={visible} isThinking={flowStep === 0 || flowStep === 1} />
-          <VerticalConnector label="instructs L0 leads" visible={visible} delay={300} />
-          <div className="grid sm:grid-cols-2 gap-3">
-            <OrchestratorCard agent={orchestrator} visible={visible} />
-            <POAgentCard agent={poAgent} visible={visible} />
-          </div>
-
-          {/* Security Gate */}
-          <VerticalConnector visible={visible} delay={450} />
-          <SecurityGateBand visible={visible} />
-          <VerticalConnector visible={visible} delay={550} />
-
-          {/* UX Foundation */}
-          <UXFoundationBand visible={visible} />
-          <VerticalConnector visible={visible} delay={650} />
-
-          {/* L1 layer label */}
-          <div className={`flex items-center gap-2 mb-2 mt-1 transition-opacity duration-400 ${visible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '600ms' }}>
-            <span className="text-[9px] font-bold text-blue-500/60 uppercase tracking-widest bg-blue-500/5 border border-blue-500/15 px-2 py-0.5 rounded">L1 + L2</span>
-            <div className="h-px flex-1 bg-slate-800" />
-            <span className="text-[9px] text-slate-600">Domain Leads + Task Specialists</span>
-          </div>
-
-          <FanConnector visible={visible} count={l1Agents.length} />
-
-          <div className="grid sm:grid-cols-2 gap-3 mb-6">
-            {l1Agents.map((agent, i) => (
-              <L1CommanderCard key={agent.id} agent={agent} index={i} visible={visible} />
-            ))}
-          </div>
+          {/* RIGHT — UX governance rail */}
+          <UXPillar visible={visible} />
 
         </div>
 
@@ -1103,8 +1434,7 @@ export default function Team() {
           <Globe size={14} className="shrink-0 mt-0.5 text-slate-600" />
           <span>
             All agents powered by <span className="text-slate-400 font-medium">Claude Sonnet</span> via GitHub Copilot agent mode.
-            Definitions in <code className="text-violet-400">.github/agents/</code> · Security gate runs before every disk write ·
-            UX library at <code className="text-purple-400">src/components/ui/</code>
+            Definitions in <code className="text-violet-400">.github/agents/</code> · <span className="text-amber-400/70">Security rail</span> guards every write · <span className="text-purple-400/70">UX rail</span> unifies every render · Human feedback loop closes the cycle
           </span>
         </div>
 
