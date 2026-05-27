@@ -93,7 +93,7 @@ export default function Quiz() {
       <div className="max-w-lg mx-auto space-y-6">
         <h1 className="text-2xl font-bold text-white">Practice Quiz</h1>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+        <div className="glass-card rounded-xl p-5 space-y-4">
           <div className="flex items-center gap-2 text-slate-400 text-sm">
             <Filter size={14} />
             <span>Filter by domain (optional)</span>

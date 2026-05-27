@@ -38,8 +38,7 @@ export default function Progress() {
       </div>
 
       {/* Domain breakdown */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-        <h2 className="font-semibold text-white mb-4">Score by Domain</h2>
+      <div className="glass-card rounded-xl p-5">
         <div className="space-y-4">
           {Object.entries(DOMAIN_META).map(([d, meta]) => {
             const stats = domainScores[Number(d)];
@@ -74,7 +73,7 @@ export default function Progress() {
       </div>
 
       {/* Session history */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+      <div className="glass-card rounded-xl p-5">
         <h2 className="font-semibold text-white mb-4">Session History</h2>
         <div className="space-y-2">
           {[...sessions].reverse().map((s) => {
@@ -84,7 +83,7 @@ export default function Progress() {
             return (
               <div
                 key={s.id}
-                className="flex items-center justify-between text-sm bg-slate-800 rounded-lg px-4 py-3"
+                className="flex items-center justify-between text-sm bg-slate-800/40 rounded-lg px-4 py-3"
               >
                 <div>
                   <span className="text-slate-300">

@@ -29,7 +29,7 @@ export default function Scenarios() {
       </div>
 
       {scenarios.map((s) => (
-        <div key={s.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <div key={s.id} className="glass-card rounded-xl overflow-hidden">
           <button
             onClick={() => setOpen(open === s.id ? null : s.id)}
             className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-800/50 transition-colors"
@@ -43,7 +43,7 @@ export default function Scenarios() {
           </button>
 
           {open === s.id && (
-            <div className="px-5 pb-5 space-y-4 border-t border-slate-800">
+            <div className="px-5 pb-5 space-y-4 border-t border-slate-700/40">
               <p className="text-sm text-slate-300 pt-4">{s.description}</p>
 
               <div>
