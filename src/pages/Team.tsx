@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import {
   Bot, Cpu, PenTool, GraduationCap, BookOpen, GitBranch,
   Globe, ChevronRight, MapPin, Building2, ExternalLink,
@@ -346,31 +344,17 @@ const FLOW_STEPS = [
 /* ─────────────────────────────────────────────────────────────
    Agent Profile Drawer
 ───────────────────────────────────────────────────────────── */
-const RAW_BASE = 'https://raw.githubusercontent.com/ajeetchouksey/ajch_platform/main/.github/agents/';
-const GH_BASE  = 'https://github.com/ajeetchouksey/ajch_platform/blob/main/.github/agents/';
+const GH_BASE = 'https://github.com/ajeetchouksey/ajch_platform/blob/main/.github/agents/';
 
 interface DrawerState {
   file: string;
   name: string;
   accentColor: string;
   icon: React.ElementType;
+  agentData?: AgentData;
 }
 
 function AgentProfileDrawer({ drawer, onClose }: { drawer: DrawerState | null; onClose: () => void }) {
-  const [content, setContent] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    if (!drawer) { setContent(null); setError(false); return; }
-    setLoading(true); setError(false); setContent(null);
-    fetch(RAW_BASE + drawer.file)
-      .then(r => { if (!r.ok) throw new Error(); return r.text(); })
-      .then(t => { setContent(t); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
-  }, [drawer?.file]);
-
-  // Close on Escape
   useEffect(() => {
     if (!drawer) return;
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -380,17 +364,14 @@ function AgentProfileDrawer({ drawer, onClose }: { drawer: DrawerState | null; o
 
   if (!drawer) return null;
   const Icon = drawer.icon;
+  const ac = drawer.accentColor;
+  const d = drawer.agentData;
 
   return (
     <>
-      {/* Overlay */}
-      <div
-        className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm transition-opacity duration-300"
-        onClick={onClose}
-      />
-      {/* Drawer */}
-      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-xl flex flex-col
-        bg-slate-950/98 border-l border-slate-700/60 shadow-2xl shadow-black/50
+      <div className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md flex flex-col
+        bg-slate-950 border-l border-slate-800/80 shadow-2xl shadow-black/60
         animate-[slideInRight_280ms_cubic-bezier(0.32,0.72,0,1)]">
         <style>{`
           @keyframes slideInRight {
@@ -399,67 +380,171 @@ function AgentProfileDrawer({ drawer, onClose }: { drawer: DrawerState | null; o
           }
         `}</style>
 
-        {/* Header */}
+        {/* ── Header ── */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-800/60 shrink-0"
-          style={{ borderTopColor: 'transparent', background: `linear-gradient(135deg, ${drawer.accentColor}18 0%, transparent 60%)` }}>
+          style={{ background: `linear-gradient(135deg, ${ac}18 0%, transparent 60%)` }}>
           <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: `${drawer.accentColor}22`, border: `1px solid ${drawer.accentColor}44` }}>
-            <Icon size={17} style={{ color: drawer.accentColor }} />
+            style={{ background: `${ac}22`, border: `1px solid ${ac}44` }}>
+            <Icon size={17} style={{ color: ac }} />
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="font-bold text-white text-sm truncate">{drawer.name}</h2>
-            <p className="text-[10px] text-slate-500 font-mono truncate">.github/agents/{drawer.file}</p>
+            {d && <p className="text-[10px] text-slate-500 truncate">{d.role}</p>}
           </div>
-          <a
-            href={GH_BASE + drawer.file}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold
-              bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60
-              hover:border-slate-600 transition-colors duration-200 shrink-0"
-          >
-            <ExternalLink size={11} />View on GitHub
+          <a href={GH_BASE + drawer.file} target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold
+              bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700/60
+              hover:border-slate-600 transition-colors duration-200 shrink-0">
+            <ExternalLink size={10} />Full spec
           </a>
-          <button
-            onClick={onClose}
+          <button onClick={onClose}
             className="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 border border-slate-700/40
-              flex items-center justify-center text-slate-400 hover:text-white transition-colors duration-200 shrink-0"
-          >
+              flex items-center justify-center text-slate-400 hover:text-white transition-colors duration-200 shrink-0">
             <X size={14} />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
-          {loading && (
-            <div className="flex items-center gap-3 text-slate-500 text-sm mt-8">
-              <span className="flex gap-1">{[0,80,160].map(d => <span key={d} className="w-1.5 h-1.5 rounded-full bg-slate-600 animate-bounce" style={{ animationDelay: `${d}ms` }} />)}</span>
-              Loading agent definition…
-            </div>
-          )}
-          {error && (
-            <div className="mt-8 p-4 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-sm">
-              Could not load agent profile. <a href={GH_BASE + drawer.file} target="_blank" rel="noopener noreferrer" className="underline hover:text-red-300">Open on GitHub instead →</a>
-            </div>
-          )}
-          {content && !loading && (
-            <div className="prose prose-invert prose-sm max-w-none
-              prose-headings:text-white prose-headings:font-bold
-              prose-h1:text-lg prose-h2:text-base prose-h3:text-sm
-              prose-p:text-slate-400 prose-p:leading-relaxed
-              prose-code:text-violet-300 prose-code:bg-slate-800/60 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-[11px]
-              prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl
-              prose-strong:text-slate-200
-              prose-ul:text-slate-400 prose-ol:text-slate-400
-              prose-li:marker:text-slate-600
-              prose-blockquote:border-l-violet-500/50 prose-blockquote:text-slate-400
-              prose-hr:border-slate-800
-              prose-a:text-violet-400 prose-a:no-underline hover:prose-a:underline
-              prose-table:text-slate-400 prose-th:text-slate-300 prose-th:border-slate-700 prose-td:border-slate-800">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+        {/* ── Body ── */}
+        <div className="flex-1 overflow-y-auto">
+          {d ? (
+            <>
+              {/* Hero */}
+              <div className="px-5 pt-5 pb-4 border-b border-slate-800/40">
+                <div className="flex items-start gap-2 mb-2">
+                  {d.isNew && (
+                    <span className="shrink-0 mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold
+                      bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider">
+                      New
+                    </span>
+                  )}
+                  <p className="text-base font-bold leading-snug" style={{ color: ac }}>{d.tagline}</p>
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed">{d.description}</p>
+              </div>
+
+              {/* Capabilities */}
+              <div className="px-5 py-4 border-b border-slate-800/40">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2.5">Capabilities</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {d.capabilities.map(c => (
+                    <span key={c} className="px-2.5 py-1 rounded-full text-[11px] font-medium
+                      text-slate-300 bg-slate-800 border border-slate-700/60">{c}</span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Stats row */}
+              <div className="grid grid-cols-3 divide-x divide-slate-800/60 border-b border-slate-800/40">
+                {[
+                  { label: 'Model', value: d.model.replace('Claude ', '') },
+                  { label: 'Tools', value: `${d.tools} available` },
+                  { label: 'Status', value: d.status === 'active' ? '● Active' : '○ Standby',
+                    valueColor: d.status === 'active' ? 'text-emerald-400' : 'text-slate-500' },
+                ].map(({ label, value, valueColor }) => (
+                  <div key={label} className="px-4 py-3 text-center">
+                    <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-1">{label}</p>
+                    <p className={`text-xs font-semibold ${valueColor ?? 'text-slate-300'}`}>{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Active now */}
+              <div className="px-5 py-4 border-b border-slate-800/40">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Active Now</p>
+                <div className="flex items-start gap-2.5 bg-slate-900/60 rounded-xl px-3 py-2.5 border border-slate-800/60">
+                  <span className="flex gap-0.5 mt-1 shrink-0">
+                    {[0, 100, 200].map(delay => (
+                      <span key={delay} className="w-0.5 h-3 rounded-full animate-bounce"
+                        style={{ background: ac, opacity: 0.6, animationDelay: `${delay}ms` }} />
+                    ))}
+                  </span>
+                  <p className="text-[11px] text-slate-400 font-mono leading-relaxed">{d.activeTask}</p>
+                </div>
+                {d.humanFeedback && (
+                  <div className="mt-2 flex items-center gap-2 px-3 py-2 rounded-xl
+                    bg-amber-500/8 border border-amber-500/20">
+                    <span className="text-amber-400 text-sm shrink-0">👤</span>
+                    <p className="text-[11px] text-amber-300/80">{d.humanFeedback}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Ships / deliveries */}
+              <div className="px-5 py-4 border-b border-slate-800/40">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Ships</p>
+                <div className="space-y-2.5">
+                  {d.deliveries.map((delivery, i) => (
+                    <div key={i} className="flex items-start gap-2.5">
+                      <span className="shrink-0 mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold
+                        font-mono bg-slate-800 border border-slate-700/60" style={{ color: ac }}>
+                        {delivery.version}
+                      </span>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">{delivery.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Delegates to (sub-agents) */}
+              {d.subAgents && d.subAgents.length > 0 && (
+                <div className="px-5 py-4">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Delegates To</p>
+                  <div className="space-y-2">
+                    {d.subAgents.map(sub => {
+                      const SubIcon = sub.icon;
+                      return (
+                        <div key={sub.id} className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl
+                          bg-slate-900/50 border border-slate-800/60">
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                            style={{ background: `${ac}15`, border: `1px solid ${ac}30` }}>
+                            <SubIcon size={12} style={{ color: ac }} />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span className="text-xs font-semibold text-white">{sub.name}</span>
+                              {sub.isNew && (
+                                <span className="px-1 py-0.5 rounded text-[8px] font-bold
+                                  bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">New</span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-500 leading-relaxed">{sub.description}</p>
+                            <p className="text-[10px] text-slate-600 mt-0.5 font-mono">owns: {sub.owns}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            /* Minimal view for sub-agents without full AgentData */
+            <div className="px-5 py-6">
+              <p className="text-sm text-slate-400 leading-relaxed mb-4">
+                Specialist sub-agent. View the full spec for implementation details.
+              </p>
+              <a href={GH_BASE + drawer.file} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 justify-center w-full px-4 py-2.5 rounded-xl
+                  text-xs font-semibold border transition-colors duration-200"
+                style={{ background: `${ac}15`, borderColor: `${ac}40`, color: ac }}>
+                <ExternalLink size={12} />View agent spec on GitHub
+              </a>
             </div>
           )}
         </div>
+
+        {/* ── Footer ── */}
+        {d && (
+          <div className="shrink-0 flex items-center justify-between px-5 py-3
+            border-t border-slate-800/60 bg-slate-950/80">
+            <span className="text-[10px] text-slate-600 font-mono">{d.version}</span>
+            <a href={GH_BASE + drawer.file} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-[10px] text-slate-500
+                hover:text-slate-300 transition-colors duration-200">
+              <ExternalLink size={10} />View full spec
+            </a>
+          </div>
+        )}
       </div>
     </>
   );
@@ -745,7 +830,7 @@ function OrchestratorCard({ agent, visible, onOpenProfile }: { agent: AgentData;
           <div className="flex items-center gap-2 mb-0.5">
             <h3 className="font-bold text-white">{agent.name}</h3>
             <PulsingDot active color={agent.dotColor} />
-            <ProfileBadge onClick={e => { e.stopPropagation(); onOpenProfile({ file: agent.profileFile!, name: agent.name, accentColor: '#a78bfa', icon: agent.icon }); }} accentColor="#a78bfa" />
+            <ProfileBadge onClick={e => { e.stopPropagation(); onOpenProfile({ file: agent.profileFile!, name: agent.name, accentColor: '#a78bfa', icon: agent.icon, agentData: agent }); }} accentColor="#a78bfa" />
           </div>
           <p className={`text-xs font-medium ${agent.textColor} mb-1`}>{agent.tagline}</p>
           <p className="text-xs text-slate-400 leading-relaxed mb-3">{agent.description}</p>
@@ -832,7 +917,7 @@ function POAgentCard({ agent, visible, onOpenProfile }: { agent: AgentData; visi
           <div className="flex items-center gap-2 mb-0.5">
             <h3 className="font-bold text-white">{agent.name}</h3>
             <PulsingDot active color={agent.dotColor} />
-            <ProfileBadge onClick={e => { e.stopPropagation(); onOpenProfile({ file: agent.profileFile!, name: agent.name, accentColor: '#2dd4bf', icon: agent.icon }); }} accentColor="#2dd4bf" />
+            <ProfileBadge onClick={e => { e.stopPropagation(); onOpenProfile({ file: agent.profileFile!, name: agent.name, accentColor: '#2dd4bf', icon: agent.icon, agentData: agent }); }} accentColor="#2dd4bf" />
           </div>
           <p className={`text-xs font-medium ${agent.textColor} mb-1`}>{agent.tagline}</p>
           <p className="text-xs text-slate-400 leading-relaxed mb-3">{agent.description}</p>
@@ -1084,7 +1169,7 @@ function L1CommanderCard({ agent, index, visible, onOpenProfile }: { agent: Agen
 
         <div className="flex items-center gap-2 mb-0.5">
           <h3 className="font-bold text-white text-sm">{agent.name}</h3>
-          <ProfileBadge onClick={e => { e.stopPropagation(); onOpenProfile({ file: agent.profileFile!, name: agent.name, accentColor, icon: agent.icon }); }} accentColor={accentColor} />
+          <ProfileBadge onClick={e => { e.stopPropagation(); onOpenProfile({ file: agent.profileFile!, name: agent.name, accentColor, icon: agent.icon, agentData: agent }); }} accentColor={accentColor} />
         </div>
         <p className={`text-[11px] ${agent.textColor} mb-2 font-medium`}>{agent.tagline}</p>
         <p className="text-[11px] text-slate-400 leading-relaxed mb-3 line-clamp-2">{agent.description}</p>
