@@ -19,8 +19,8 @@ description: >
 OWNER: ajeetchouksey
 REPO: ajch_platform
 TOKEN_ENV: GH_PO_TOKEN          # PAT with scopes: repo, project
-PROJECT_NUMBER: ~               # Fill in after Setup — integer (e.g. 5)
-PROJECT_ID: ~                   # Fill in after Setup — PVT_... GraphQL node ID
+PROJECT_NUMBER: 12              # https://github.com/users/ajeetchouksey/projects/12
+PROJECT_ID: ~                   # Fill in after Setup — PVT_... GraphQL node ID (agent fetches this)
 ```
 
 **First-time setup**: If you already have a GitHub Project, find its number from the URL
