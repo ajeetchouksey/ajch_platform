@@ -45,7 +45,7 @@ export default function ExamCatalog() {
   return (
     <div className="space-y-8">
       <div className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <h1 className="text-3xl font-bold text-white">Certification Exams</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Certification <span className="heading-gradient">Exams</span></h1>
         <p className="text-slate-400 mt-2">Practice for AI certification exams with real-world scenarios.</p>
       </div>
 

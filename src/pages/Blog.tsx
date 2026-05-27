@@ -207,7 +207,7 @@ export default function Blog() {
     <div>
       {/* Header */}
       <div className="mb-5">
-        <h1 className="text-2xl font-bold text-white mb-1">Blog</h1>
+        <h1 className="text-2xl font-bold tracking-tight mb-1"><span className="heading-gradient">Blog</span></h1>
         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
           <span>{posts.length} posts</span>
           <span className="text-slate-700">·</span>

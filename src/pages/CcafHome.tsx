@@ -86,7 +86,7 @@ export default function CcafHome() {
         <div className="inline-block bg-gradient-to-r from-violet-600/30 to-fuchsia-600/20 text-violet-200 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-widest mb-3 animate-pulse border border-violet-500/30">
           CCA-F
         </div>
-        <h1 className="text-3xl font-bold text-white">Claude Certified Architect – Foundations</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Claude Certified Architect – <span className="heading-gradient">Foundations</span></h1>
         <p className="text-slate-400 mt-2">
           60 scenario-based MCQs · 120 min · 72% pass threshold · 5 domains
         </p>

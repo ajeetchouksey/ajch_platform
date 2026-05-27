@@ -17,7 +17,7 @@ export default function Progress() {
   if (sessions.length === 0) {
     return (
       <div className="space-y-3">
-        <h1 className="text-2xl font-bold text-white">Progress</h1>
+        <h1 className="text-2xl font-bold tracking-tight"><span className="heading-gradient">Progress</span></h1>
         <p className="text-slate-400 text-sm">
           No completed sessions yet. Take a quiz to start tracking your progress.
         </p>
@@ -28,7 +28,7 @@ export default function Progress() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Progress</h1>
+        <h1 className="text-2xl font-bold tracking-tight"><span className="heading-gradient">Progress</span></h1>
         <button
           onClick={handleClear}
           className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-rose-400 transition-colors"

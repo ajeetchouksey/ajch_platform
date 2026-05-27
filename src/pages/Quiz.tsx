@@ -91,7 +91,7 @@ export default function Quiz() {
   if (phase === 'setup') {
     return (
       <div className="max-w-lg mx-auto space-y-6">
-        <h1 className="text-2xl font-bold text-white">Practice Quiz</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Practice <span className="heading-gradient">Quiz</span></h1>
 
         <div className="glass-card rounded-xl p-5 space-y-4">
           <div className="flex items-center gap-2 text-slate-400 text-sm">
@@ -145,7 +145,7 @@ export default function Quiz() {
 
     return (
       <div className="max-w-lg mx-auto space-y-6">
-        <h1 className="text-2xl font-bold text-white">Session Complete</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Session <span className="heading-gradient">Complete</span></h1>
         <div
           className={`rounded-xl p-6 text-center border ${
             passed ? 'border-emerald-600 bg-emerald-900/20' : 'border-rose-600 bg-rose-900/20'

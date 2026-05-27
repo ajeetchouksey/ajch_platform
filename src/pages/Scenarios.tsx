@@ -22,7 +22,7 @@ export default function Scenarios() {
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <h1 className="text-2xl font-bold text-white">Exam Scenarios</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Exam <span className="heading-gradient">Scenarios</span></h1>
         <p className="text-sm text-slate-400">
           4 of these 6 scenarios are randomly assigned per sitting. Study all of them.
         </p>

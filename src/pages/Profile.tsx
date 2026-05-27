@@ -57,7 +57,7 @@ export default function Profile() {
           <div className="w-20 h-20 rounded-full bg-slate-800 mx-auto mb-4 flex items-center justify-center">
             <User size={36} className="text-slate-600" />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Profile</h1>
+          <h1 className="text-2xl font-bold tracking-tight mb-2"><span className="heading-gradient">Profile</span></h1>
           <p className="text-slate-400 text-sm mb-6">Sign in with GitHub to view your profile and sync progress.</p>
           <Link
             to="/"

@@ -82,6 +82,37 @@ Use `<GlassCard accent="violet|blue|emerald|amber|rose|slate|purple">` for all p
 <div className="text-center py-12 text-slate-500 text-sm">No content yet.</div>
 ```
 
+## Brand Heading System
+
+Every page `<h1>` must use the `.heading-gradient` CSS class on the **key noun** to create consistent violet→sky gradient branding.
+
+### Pattern
+
+```tsx
+// ✗ WRONG — plain white heading
+<h1 className="text-2xl font-bold text-white">Practice Quiz</h1>
+
+// ✓ CORRECT — key word gets gradient accent
+<h1 className="text-2xl font-bold tracking-tight">
+  Practice <span className="heading-gradient">Quiz</span>
+</h1>
+```
+
+### Sizing by context
+
+| Context | Class |
+|---|---|
+| Inner-page title (most pages) | `text-2xl font-bold tracking-tight` |
+| Exam / catalog / doc pages | `text-3xl font-bold tracking-tight` |
+| Compact UI (admin, analytics) | `text-xl font-bold tracking-tight` |
+| Hero (Home only) | `text-4xl sm:text-5xl font-extrabold tracking-tight` — already uses `from-violet-400 to-fuchsia-400` inline |
+
+### Rules
+- **Remove `text-white`** on the `<h1>` — the span is the colored element; rest of the heading inherits `text-slate-100` from body.
+- The **last or most meaningful word** gets the gradient (e.g. "Practice **Quiz**", "Exam **Scenarios**", "Claude Certified Architect – **Foundations**").
+- **Single-word titles** (Progress, Analytics, Profile, Blog) — the whole title is wrapped in the span.
+- `.heading-gradient` is defined in `src/index.css`. Do not replicate it inline with Tailwind classes.
+
 ## What NOT to Do
 
 - Do not touch `src/App.tsx` or `src/components/Layout.tsx` (that's Routing Agent's job)

@@ -315,7 +315,7 @@ export default function Analytics() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <BarChart2 size={20} className="text-violet-400" />
-            <h1 className="text-xl font-bold text-white">Analytics</h1>
+            <h1 className="text-xl font-bold tracking-tight"><span className="heading-gradient">Analytics</span></h1>
             {isAdmin && (
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                 Admin

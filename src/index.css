@@ -89,6 +89,16 @@
   }
 }
 
+/* ─── Brand heading gradient ─────────────────────────────────────────────── */
+/* Wrap key word(s) in <span className="heading-gradient"> inside any page h1 */
+.heading-gradient {
+  background: linear-gradient(135deg, #a78bfa 0%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
 /* Glossy card base */
 .glass-card {
   background: linear-gradient(135deg, rgba(51, 65, 85, 0.65), rgba(30, 41, 59, 0.82));
