@@ -66,6 +66,29 @@ Each feature can have its own sidebar context block:
 )}
 ```
 
+## Page Transition Mechanism
+
+Layout.tsx owns the full page transition system. **Do not modify these without understanding the full chain.**
+
+| What | Where | Detail |
+|---|---|---|
+| `pageKey` state | Layout.tsx | Tracks `location.pathname + location.search` — includes query params so domain switches in Notes also animate |
+| Navigation useEffect | Layout.tsx | Sets `pageKey`, closes sidebar, resets `main.scrollTop = 0` |
+| Progress bar | Layout.tsx JSX | `<div key={\`np-${pageKey}\`} className="nav-progress" />` — keyed div restarts the CSS animation on every navigation |
+| Content animation | Layout.tsx JSX | `<div key={pageKey} className="animate-[fadeIn_0.38s_cubic-bezier(0.22,1,0.36,1)_both]">` |
+| CSS animations | `src/index.css` | `@keyframes fadeIn`, `@keyframes pageLeave`, `.nav-progress`, View Transitions `::view-transition-*` |
+
+### Transition Flow (per navigation)
+1. `location.pathname` or `location.search` changes → `useEffect` fires
+2. `pageKey` updates → `<div key={pageKey}>` remounts → `fadeIn` animation plays (380ms, expo-ease)
+3. Progress bar div remounts → `navProgress` animation plays (550ms, violet → sky gradient, fades out)
+4. `main.scrollTop = 0` resets scroll position
+
+### Rules
+- Never remove the `key={pageKey}` or `key={\`np-${pageKey}\`}` props — they drive the transitions
+- Duration targets: enter = 380ms, progress bar = 550ms
+- Easing: `cubic-bezier(0.22, 1, 0.36, 1)` (ease-out-expo) everywhere
+
 ## Checklist
 
 Before completing a routing task:

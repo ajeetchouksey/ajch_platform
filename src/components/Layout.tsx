@@ -80,7 +80,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [blogPosts, setBlogPosts] = useState<BlogPostMeta[]>([]);
-  const [pageKey, setPageKey] = useState(location.pathname);
+  const [pageKey, setPageKey] = useState(location.pathname + location.search);
   const { user } = useAuth();
 
   const isInCcaf = location.pathname.startsWith('/exams/ccaf');
@@ -89,8 +89,11 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setSidebarOpen(false);
-    setPageKey(location.pathname);
-  }, [location.pathname]);
+    setPageKey(location.pathname + location.search);
+    // Scroll main content to top on every navigation
+    const mainEl = document.querySelector('main');
+    if (mainEl) mainEl.scrollTop = 0;
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     if (isInBlog) {
@@ -104,6 +107,8 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col text-slate-100">
+      {/* Navigation progress bar — restarts on every route change */}
+      <div key={`np-${pageKey}`} className="nav-progress" aria-hidden="true" />
       {/* Header */}
       <header className="bg-slate-800/75 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50 relative">
         <div className="flex items-center h-14 px-6 w-full">
@@ -440,7 +445,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         >
           <div className="max-w-5xl mx-auto">
             <Breadcrumbs />
-            <div key={pageKey} className="animate-[fadeIn_0.3s_ease-out]">
+            <div key={pageKey} className="animate-[fadeIn_0.38s_cubic-bezier(0.22,1,0.36,1)_both]">
               {children}
             </div>
           </div>

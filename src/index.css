@@ -19,12 +19,56 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(5px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes pageLeave {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* ─── View Transitions — progressive enhancement for Chrome/Edge 111+ ─── */
+@keyframes vt-slide-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes vt-slide-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-4px); }
+}
+
+@supports (view-transition-name: none) {
+  ::view-transition-old(page-content) {
+    animation: 180ms ease-in both vt-slide-out;
+  }
+  ::view-transition-new(page-content) {
+    animation: 380ms cubic-bezier(0.22, 1, 0.36, 1) both vt-slide-in;
+  }
+}
+
+/* ─── Navigation progress bar ─── */
+@keyframes navProgress {
+  0%   { width: 0%; opacity: 1; }
+  60%  { width: 80%; opacity: 1; }
+  100% { width: 100%; opacity: 0; }
+}
+.nav-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa, #38bdf8);
+  animation: navProgress 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  z-index: 9999;
+  pointer-events: none;
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
 }
 
 @keyframes sheen {
