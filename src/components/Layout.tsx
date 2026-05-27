@@ -309,14 +309,17 @@ export default function Layout({ children }: { children: ReactNode }) {
               <nav className="space-y-0.5">
                 <Link to="/blog" className="flex items-center justify-between px-3 py-1.5 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
                   <span className="flex items-center gap-2"><Newspaper size={13} />All Posts</span>
-                  <span className="text-[10px] bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-full">{blogPosts.length}</span>
+                  <span className="text-[10px] font-semibold bg-violet-500/15 text-violet-300 px-1.5 py-0.5 rounded-full">{blogPosts.length}</span>
                 </Link>
-                {blogCategories.map((cat) => (
+                {blogCategories.map((cat, i) => {
+                  const countColors = ['text-blue-400','text-emerald-400','text-amber-400','text-rose-400','text-fuchsia-400','text-cyan-400'];
+                  return (
                   <Link key={cat} to="/blog" className="flex items-center justify-between px-3 py-1.5 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
                     <span className="flex items-center gap-2"><FolderOpen size={13} />{cat}</span>
-                    <span className="text-[10px] text-slate-600">{blogPosts.filter(p => p.category === cat).length}</span>
+                    <span className={`text-[10px] font-semibold ${countColors[i % countColors.length]}`}>{blogPosts.filter(p => p.category === cat).length}</span>
                   </Link>
-                ))}
+                  );
+                })}
               </nav>
             </div>
           )}
