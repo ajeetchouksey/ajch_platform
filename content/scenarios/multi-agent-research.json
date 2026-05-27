@@ -1,0 +1,15 @@
+{
+  "id": "multi-agent-research",
+  "title": "Multi-Agent Research System",
+  "description": "Build a research system where a coordinator agent manages: a web_searcher (searches the web), a data_analyzer (processes and synthesizes findings), and a report_writer (formats the final output). The system must handle hour-long research sessions, be resumable if interrupted, and produce structured reports. Data from searches can be very large — some search results return 20,000+ tokens.",
+  "architecture_notes": "Sequential execution is required (search → analyze → report, each depending on prior). Persist agent state to external storage after each phase completion for resumability. Implement tool result trimming in the search tool handler — extract only relevant fields before appending to context. Use progressive summarization when conversation history exceeds 80% of context window, preserving all quantitative data verbatim. Implement structured error propagation: if data_analyzer fails, return typed error with retryable flag so coordinator can retry or reroute. Trace all calls with a shared trace_id for debugging.",
+  "key_patterns": [
+    "sequential execution for dependent tasks",
+    "state persistence for resumability",
+    "tool result trimming before context append",
+    "progressive summarization with verbatim numeric preservation",
+    "structured error propagation",
+    "distributed tracing with trace_id"
+  ],
+  "questionIds": ["d1-002", "d1-003", "d1-005", "d1-008", "d5-002", "d5-003"]
+}

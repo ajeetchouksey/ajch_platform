@@ -1,0 +1,227 @@
+[
+  {
+    "domain": 1,
+    "id": "ab100-d1-001",
+    "scenario": "A financial services company wants to automate their loan pre-qualification process. The process involves collecting applicant data, running credit checks via an external API, and generating a preliminary recommendation. The team has no ML engineers but has experienced Power Platform developers.",
+    "question": "Which Azure service combination best fits this scenario?",
+    "options": [
+      "Azure AI Foundry Agent Service with a custom Python orchestrator and Azure Functions",
+      "Copilot Studio with Power Automate flows and Dataverse for applicant data",
+      "Azure Machine Learning pipeline with a custom scikit-learn model",
+      "Azure Logic Apps with Azure Cognitive Services Form Recognizer"
+    ],
+    "correct": 1,
+    "explanation": "Copilot Studio with Power Automate is correct because: the team has Power Platform expertise (not ML engineers), the data is in Microsoft ecosystem (Dataverse), and the workflow can be built without custom code. Azure AI Foundry Agent Service (A) requires pro-code Python skills the team lacks. Azure ML (C) is for custom model training, not agent orchestration. Logic Apps + Form Recognizer (D) handles document processing but lacks the conversational/reasoning layer needed for pre-qualification recommendations.",
+    "tags": ["copilot-studio", "power-automate", "make-vs-buy", "use-case-selection"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-002",
+    "scenario": "A global retailer processes 500,000 customer support queries daily. Their Azure OpenAI deployment currently uses pay-as-you-go pricing and the team is seeing highly variable response times during peak hours. They want predictable latency and have analyzed that their average daily token consumption is stable at around 2 billion tokens.",
+    "question": "What pricing strategy should they adopt?",
+    "options": [
+      "Stay on pay-as-you-go but add more regional endpoints with Azure Front Door for load distribution",
+      "Switch to Provisioned Throughput Units (PTU) as primary with pay-as-you-go as overflow",
+      "Switch entirely to PTU to eliminate variable latency",
+      "Use Azure Cache for Redis to cache common responses and reduce Azure OpenAI calls"
+    ],
+    "correct": 1,
+    "explanation": "PTU as primary with PAYG overflow (B) is the spillover pattern — ideal when volume is high and predictable (2B tokens/day), but some capacity buffer is needed for spikes. PTU alone (C) risks throttling during unexpected traffic spikes with no fallback. PAYG with more endpoints (A) addresses distribution but not the fundamental latency variability from shared capacity. Caching (D) reduces volume but doesn't guarantee latency for novel queries and introduces cache invalidation complexity.",
+    "tags": ["PTU", "pay-as-you-go", "capacity-planning", "spillover-pattern"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-003",
+    "scenario": "A healthcare company is building an AI agent to assist doctors with clinical decision support. The agent will analyze patient symptoms, suggest differential diagnoses, and recommend next steps. Legal has flagged EU AI Act compliance concerns.",
+    "question": "Under the EU AI Act, how should this system be classified?",
+    "options": [
+      "Minimal risk — it's only providing suggestions, not making decisions",
+      "Limited risk — it interacts with users so transparency obligations apply",
+      "High risk — it's a medical device used in clinical decision-making",
+      "Prohibited — AI systems in healthcare are not permitted under EU AI Act"
+    ],
+    "correct": 2,
+    "explanation": "Clinical decision support systems are explicitly listed as high-risk under EU AI Act Annex III. High-risk classification applies because it affects patient safety and clinical outcomes. It requires a conformity assessment, risk management system, technical documentation, and human oversight mechanisms before deployment. Minimal risk (A) ignores the safety implications. Limited risk (B) only applies to chatbots/content generation without safety impact. Prohibited (D) is wrong — medical AI is regulated, not banned.",
+    "tags": ["EU-AI-Act", "high-risk", "healthcare", "responsible-AI"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-004",
+    "scenario": "An e-commerce company wants to build an order inquiry agent. Their order data lives in a proprietary SQL database, their return policy is in SharePoint, and their shipping status comes from a third-party logistics REST API. They have a team of .NET developers.",
+    "question": "Which approach best meets these requirements?",
+    "options": [
+      "Copilot Studio with SharePoint knowledge source and HTTP connector actions",
+      "Azure AI Foundry Agent Service with Azure Functions tools for SQL and logistics API",
+      "Azure AI Foundry Agent Service with only the built-in file search tool for SharePoint documents",
+      "Copilot Studio with a Power Automate flow connecting to SQL and the logistics API"
+    ],
+    "correct": 1,
+    "explanation": "Azure AI Foundry Agent Service with Azure Functions (B) is correct: .NET developers can build custom Functions for SQL queries and REST API calls, and the Agent Service handles orchestration. The data sources are non-Microsoft (proprietary SQL + third-party API), which is the key signal for AI Agent Service over Copilot Studio. Copilot Studio with HTTP connector (A) can handle SharePoint and simple APIs but lacks robust SQL integration. File search only (C) ignores the dynamic SQL and logistics data. Copilot Studio + Power Automate (D) could work but is more complex and the team's .NET skills are better applied in Azure Functions.",
+    "tags": ["AI-agent-service", "azure-functions", "make-vs-buy", "tool-design"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-005",
+    "scenario": "A company is designing an Azure AI Foundry Hub for three teams: HR, Finance, and Customer Support. Each team has different data sensitivity requirements, and the Finance team must comply with SOC 2 isolation requirements.",
+    "question": "What is the correct Hub and Project structure?",
+    "options": [
+      "One Hub with one Project, using Azure RBAC roles to restrict access per team",
+      "One Hub with three Projects (one per team), each Project having isolated endpoints and storage",
+      "Three separate Hubs, one per team, each with its own Key Vault and Storage Account",
+      "One Hub with three Projects, where the Finance Project uses a dedicated Key Vault separate from the shared Hub Key Vault"
+    ],
+    "correct": 1,
+    "explanation": "One Hub with three Projects (B) is the standard AI Foundry governance pattern. The Hub provides shared governance infrastructure (Key Vault, Storage, ACR, App Insights), while Projects provide workload isolation with separate endpoints and deployments. One project for Finance gives it isolated deployments without requiring a separate Hub. One project/one RBAC approach (A) doesn't isolate compute or endpoints. Three separate Hubs (C) is over-engineered and loses the shared governance benefit. A separate Key Vault outside the Hub (D) breaks the Hub architecture pattern — Finance Project inherits the Hub's Key Vault but has its own deployment isolation.",
+    "tags": ["AI-foundry-hub", "project-isolation", "governance", "RBAC"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-006",
+    "scenario": "A startup is building a customer-facing chatbot using Azure AI Foundry. They expect 1,000 users/day during the first 3 months, ramping to 50,000 users/day by month 6. Token consumption will scale proportionally.",
+    "question": "What is the most cost-effective deployment strategy for this growth trajectory?",
+    "options": [
+      "Start with PTU from day 1 to lock in capacity before demand grows",
+      "Start with pay-as-you-go and switch to PTU once usage consistently exceeds 60% of a PTU unit",
+      "Use only pay-as-you-go with no PTU to maximize flexibility",
+      "Deploy Phi-3-mini on a dedicated compute cluster to avoid Azure OpenAI costs entirely"
+    ],
+    "correct": 1,
+    "explanation": "Starting with PAYG and migrating to PTU when utilization consistently exceeds 60% of a PTU (B) is the correct cost-optimization pattern. PTU break-even is typically at >60% utilization — below that, PAYG is cheaper. At 1,000 users/day, PAYG is clearly cheaper. At 50,000 users/day with stable consumption, PTU is cost-effective. PTU from day 1 (A) wastes money on idle capacity. PAYG only (C) becomes expensive at high scale. Phi-3-mini on dedicated compute (D) changes the model entirely and adds infrastructure management overhead.",
+    "tags": ["PTU", "cost-optimization", "pay-as-you-go", "capacity-planning"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-007",
+    "scenario": "A legal technology company is building a contract review agent that will process documents containing personally identifiable information (PII) for clients in the European Union. They need to ensure GDPR compliance.",
+    "question": "Which GDPR requirement specifically affects how conversation history is stored for this agent?",
+    "options": [
+      "Data portability — users must be able to export their conversation history",
+      "Data minimization and storage limitation — conversation logs must have a defined TTL and only store necessary data",
+      "Consent — users must consent to the agent reading their contracts",
+      "Right to rectification — users must be able to correct factual errors in agent responses"
+    ],
+    "correct": 1,
+    "explanation": "Data minimization (Article 5) and storage limitation require that personal data is kept only as long as necessary for the specified purpose. For an agent processing legal documents with PII, conversation logs must have an explicit TTL policy (e.g., 90 days) and only store data necessary for the service. Data portability (A) is a requirement but doesn't specifically impact how logs are stored. Consent (C) is required before processing but is about legal basis, not storage mechanics. Right to rectification (D) applies to factual data about individuals, not AI responses.",
+    "tags": ["GDPR", "data-minimization", "storage-limitation", "compliance"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-008",
+    "scenario": "A manufacturing company wants to predict equipment failures using sensor data and then automatically trigger maintenance orders in their ERP system. The engineering team says this is a 'natural fit for an AI agent.' The data science team has a working LSTM model for failure prediction.",
+    "question": "Is an AI agent the right architecture for this use case?",
+    "options": [
+      "Yes — an AI agent should replace the LSTM model and use LLM reasoning for failure prediction",
+      "No — the failure prediction component should remain an ML model (LSTM); an agent is appropriate for the ERP integration and escalation logic",
+      "Yes — Azure AI Foundry Agent Service can directly consume sensor data streams and learn from them",
+      "No — this should use Azure Logic Apps for the full pipeline without any AI component"
+    ],
+    "correct": 1,
+    "explanation": "The correct architecture separates concerns: the LSTM model handles structured time-series prediction (what it's designed for), while an agent handles the subsequent workflow — interpreting the prediction, drafting a maintenance order, calling the ERP API, and escalating if needed. LLMs are not appropriate for time-series anomaly detection (A) — they don't process raw sensor streams. AI Foundry Agent Service (C) can receive predictions as tool outputs but cannot process raw sensor streams or train on them. Logic Apps alone (D) lacks the reasoning layer needed for contextual escalation decisions.",
+    "tags": ["use-case-selection", "ML-vs-agent", "orchestration", "architecture"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-009",
+    "scenario": "A bank is deploying an AI agent for customer service. Before go-live, the CTO asks for a document that explains to regulators what the agent does, what it cannot do, what data it uses, and what safeguards are in place.",
+    "question": "What is this document called in the Microsoft Responsible AI framework?",
+    "options": [
+      "Model Card",
+      "Transparency Note",
+      "RAI Impact Assessment",
+      "System Prompt Disclosure"
+    ],
+    "correct": 1,
+    "explanation": "A Transparency Note is the Microsoft document that explains to stakeholders (including regulators and customers) what an AI system does, its capabilities and limitations, intended use cases, and the safeguards in place. A Model Card (A) documents model performance metrics and training data — it's a technical document about the model itself, not the deployed system. The RAI Impact Assessment (C) is an internal evaluation document used during design, not an external-facing regulatory document. System Prompt Disclosure (D) is not a formal Microsoft artifact.",
+    "tags": ["transparency-note", "responsible-AI", "governance", "regulatory"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-010",
+    "scenario": "A media company wants to build an AI agent that generates marketing copy for social media posts. The content will be published automatically without human review. The agent uses GPT-4o accessed via Azure AI Foundry.",
+    "question": "Which risk must be addressed before enabling fully automated publishing?",
+    "options": [
+      "Token quota exhaustion — the agent might exceed Azure OpenAI rate limits",
+      "Intellectual property — generated content might inadvertently reproduce protected material from training data",
+      "Latency — social media APIs have strict rate limits",
+      "Cost — GPT-4o is expensive for high-volume content generation"
+    ],
+    "correct": 1,
+    "explanation": "Protected material reproduction is the primary risk for automated publishing — GPT-4o might generate content similar to copyrighted text or protected brand assets from its training data. Azure AI Content Safety's 'Protected Material' detection evaluator should be run on all outputs before publishing. Token quota (A) is an operational concern, not a blocker for automated publishing. Latency (C) is an API rate limit issue, not a publishing risk. Cost (D) is a business consideration but not a risk that blocks automated publishing from a governance standpoint.",
+    "tags": ["protected-material", "content-safety", "responsible-AI", "automated-publishing"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-011",
+    "scenario": "A company operates in three Azure regions: East US, West Europe, and Southeast Asia. They need their AI agents to serve customers in all regions with data residency requirements: EU customers must have their data processed and stored only in West Europe.",
+    "question": "How should they architect the Azure AI Foundry deployment?",
+    "options": [
+      "One AI Foundry Hub in East US with projects for each region, routing traffic globally",
+      "Three AI Foundry Hubs, one per region, with region-specific routing at the application tier",
+      "One AI Foundry Hub in West Europe (the strictest requirement), shared across all regions",
+      "One AI Foundry Hub with a single project, using Azure API Management to route and transform requests by region"
+    ],
+    "correct": 1,
+    "explanation": "Three regional Hubs (B) is correct for strict data residency. West Europe processes EU data (GDPR requirement), East US handles North American traffic, and Southeast Asia handles APAC. A single Hub in East US (A) violates EU data residency requirements. A single West Europe Hub (C) forces all traffic through EU, adding unnecessary latency for non-EU users. API Management routing (D) doesn't change where the data is processed — it still touches the single Hub's infrastructure.",
+    "tags": ["data-residency", "GDPR", "multi-region", "hub-architecture"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-012",
+    "scenario": "A project manager asks: 'Our AI agent project starts in 3 months. Which tasks must be completed before we write any code?' You are the AI solutions architect.",
+    "question": "Which pre-development task is uniquely required for AI agent projects but not for traditional software projects?",
+    "options": [
+      "Stakeholder requirements gathering and user story definition",
+      "RAI Impact Assessment — identifying potential harms, affected populations, and mitigation strategies",
+      "Architecture design and technology stack selection",
+      "Security threat modeling and pen testing plan"
+    ],
+    "correct": 1,
+    "explanation": "An RAI (Responsible AI) Impact Assessment is uniquely required for AI systems and must be completed before development begins. It identifies potential harms, affected population groups, and mitigation strategies that shape the architecture and safeguards. Stakeholder requirements (A), architecture design (C), and security threat modeling (D) are all standard software engineering tasks done for any project. The RAI Impact Assessment is specifically required by Microsoft's responsible AI framework and the EU AI Act for AI systems, particularly high-risk ones.",
+    "tags": ["RAI-impact-assessment", "responsible-AI", "pre-development", "governance"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-013",
+    "scenario": "A company has selected GPT-4o for their customer service agent. Six months later, Azure releases GPT-4o-mini, which costs 80% less and benchmarks show it performs comparably on their specific use case. The business wants to switch immediately to reduce costs.",
+    "question": "What is the correct model migration procedure?",
+    "options": [
+      "Update the model parameter in the AI Foundry deployment configuration and redeploy immediately",
+      "Run the golden dataset evaluation against GPT-4o-mini, validate metrics meet thresholds, deploy to a staging slot, run canary traffic at 1-5%, then promote to production",
+      "Deploy GPT-4o-mini in parallel and use A/B testing with 50/50 traffic split for two weeks before switching",
+      "Switch during a maintenance window to minimize user impact"
+    ],
+    "correct": 1,
+    "explanation": "The staged migration process (B) — eval against golden dataset → staging → canary → production — is the correct MLOps pattern for model changes. Benchmarks on general tasks don't guarantee equivalent performance on your specific domain; the golden dataset validates on your actual use case. Immediate redeployment (A) skips quality validation. 50/50 A/B (C) exposes too many users to an unvalidated model; 1-5% canary is the correct starting point. Maintenance window switch (D) is about downtime, not validation — it skips the quality check entirely.",
+    "tags": ["model-migration", "MLOps", "golden-dataset", "canary-deployment"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-014",
+    "scenario": "A retail company's AI agent triggers purchase orders when inventory drops below a threshold. The procurement manager wants the agent to automatically place orders up to $10,000 but require approval for orders above that amount.",
+    "question": "Where should this business rule enforcement be implemented?",
+    "options": [
+      "In the agent's system prompt: 'Orders above $10,000 must be approved before placement'",
+      "As a code-enforced check in the Azure Function that places orders, blocking calls above the threshold and routing to an approval workflow",
+      "In the LLM's reasoning through few-shot examples showing the agent seeking approval for large orders",
+      "In Azure API Management policies that reject order API calls above $10,000"
+    ],
+    "correct": 1,
+    "explanation": "Code enforcement in the Azure Function (B) is the only option that provides a guaranteed, unforgeable boundary. The function checks the order amount before executing and routes to a Power Automate approval flow if the threshold is exceeded — the LLM literally cannot bypass this regardless of how it reasons. System prompt instructions (A) and few-shot examples (C) are probabilistic — a crafted input could potentially override them. API Management (D) could work as a secondary defense but doesn't handle the approval routing and shouldn't be the primary enforcement mechanism for business rules.",
+    "tags": ["human-in-the-loop", "business-rules", "code-enforcement", "approval-workflow"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-015",
+    "scenario": "A startup is planning to use Azure AI Foundry to build a product recommendation agent. The CTO asks you to estimate the monthly Azure OpenAI cost. The system will handle 10,000 queries/day, each with an average 500 token prompt and 300 token response, using GPT-4o.",
+    "question": "What additional information is most important to refine this cost estimate?",
+    "options": [
+      "The latency requirements — lower latency models cost more",
+      "Whether they will use RAG — retrieved context significantly increases prompt token count",
+      "The number of Azure Functions invocations for tool calls",
+      "The Azure region — token pricing varies by region"
+    ],
+    "correct": 1,
+    "explanation": "RAG context injection is the most significant variable in token cost estimation — each retrieved chunk (typically 200-500 tokens) can double or triple the prompt token count. A 500-token estimate assumes no RAG context; with 3 retrieved chunks at 400 tokens each, the prompt becomes 1,700 tokens — a 3.4× cost increase. Latency requirements (A) don't affect token pricing (PTU vs PAYG affects latency but the token rate is the same). Azure Functions cost (C) is typically negligible compared to LLM inference. Azure OpenAI token pricing (D) is consistent across regions within the same deployment type.",
+    "tags": ["cost-estimation", "RAG", "token-usage", "capacity-planning"]
+  }
+]

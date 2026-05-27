@@ -1,0 +1,152 @@
+[
+  {
+    "domain": 3,
+    "id": "ghbp-d3-001",
+    "scenario": "A repository has no .gitignore file. A developer adds AWS credentials to a local config.yml file for testing, runs git add . and git commit -m 'test config', and pushes to a feature branch. They delete the file in the next commit. The credentials are still accessible to anyone with repository access.",
+    "question": "Why does deleting a file in a subsequent commit NOT remove the credentials from the repository?",
+    "options": [
+      "The file is cached in GitHub's CDN and takes 24 hours to expire",
+      "Git history is immutable — the commit containing the credentials still exists and is retrievable by anyone who can clone the repository",
+      "The deletion commit creates a new reference but doesn't overwrite the old object",
+      "GitHub requires a security scan to complete before old commits are purged"
+    ],
+    "correct": 1,
+    "explanation": "Git stores all history immutably. Deleting a file creates a new commit that doesn't include it, but the original commit still exists. Anyone with git access can run `git checkout <old-commit-sha> -- config.yml` to retrieve the deleted file with credentials. The only remediation is a full history rewrite (git filter-branch or git-filter-repo), followed by force-pushing, and rotating the compromised credentials immediately. This is why .gitignore is a Critical control — it prevents the commit entirely.",
+    "tags": ["git-history", "secrets", "gitignore", "history-rewrite"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-002",
+    "scenario": "A team is asked to demonstrate SOC 2 compliance for their development process. The auditor asks to see evidence of code review for all production code changes. The team has GitHub branch protection with required reviews enabled. However, when reviewing a recent incident, the auditor finds a commit to main without a linked PR or reviewer.",
+    "question": "What is the most likely explanation for a direct commit to main bypassing required PR reviews?",
+    "options": [
+      "The developer used a deploy key which bypasses branch protection",
+      "A GitHub administrator or repository owner with admin permissions pushed directly, and 'Do not allow bypassing the above settings' was not enabled",
+      "The branch protection rule had a timing window where it was temporarily disabled for maintenance",
+      "Required reviews only apply to PRs opened from forks, not internal branches"
+    ],
+    "correct": 1,
+    "explanation": "By default, GitHub admins and repository owners can bypass branch protection rules. If 'Do not allow bypassing the above settings' is not enabled, an admin can push directly to main regardless of the configured protections. This is one of the most common compliance findings in SOC 2 audits. Deploy keys (A) have write access but are still subject to branch protection unless admin-level. The timing window explanation (C) would appear in audit logs but is not the most likely cause. Required reviews apply to all PR merges, not just forks (D).",
+    "tags": ["admin-bypass", "SOC2", "compliance", "audit", "branch-protection"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-003",
+    "scenario": "A security researcher discovers a Cross-Site Scripting (XSS) vulnerability in a popular open-source library hosted on GitHub. They check the repository for a security disclosure process. The repository has no SECURITY.md file and no 'Report a vulnerability' button on the Security tab. The researcher opens a public issue titled 'XSS vulnerability found in v2.3.1'.",
+    "question": "What is the PRIMARY harm caused by the lack of a SECURITY.md and Private Vulnerability Reporting configuration?",
+    "options": [
+      "The researcher's report is not tracked in the repository's issue system",
+      "The vulnerability is now publicly disclosed before the maintainer has had time to develop and release a patch — exposing all users to active exploitation",
+      "GitHub will not scan the repository for the vulnerability",
+      "The reporter cannot receive bug bounty payment without a SECURITY.md"
+    ],
+    "correct": 1,
+    "explanation": "A public issue immediately exposes the vulnerability to malicious actors who monitor repositories for security disclosures. This is called premature/irresponsible disclosure. The maintainer now faces a race condition: patch and release before attackers exploit the vulnerability. SECURITY.md + Private Vulnerability Reporting provides a confidential channel so the researcher can share details privately, allowing a coordinated disclosure (patch first, publish disclosure with the fix). Tracking (A) is a minor concern compared to immediate exploitation risk.",
+    "tags": ["SECURITY.md", "responsible-disclosure", "CVD", "private-vulnerability-reporting"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-004",
+    "scenario": "A large PR is opened containing 800 lines of changes across 12 files. The PR description says: 'Various fixes and improvements'. Three reviewers spend 45 minutes each reviewing it, eventually approving it despite not understanding all the changes. Two weeks later, a regression is traced back to this PR.",
+    "question": "Which repository governance control would have been MOST effective at preventing low-quality PR descriptions?",
+    "options": [
+      "Requiring all PRs to pass a word count check on the description",
+      "Configuring a .github/pull_request_template.md that structures what the author must provide: summary, linked issue, type of change, test plan, and checklist",
+      "Setting a maximum PR size limit via a GitHub Actions check",
+      "Requiring the author to leave a review comment on their own PR explaining each file change"
+    ],
+    "correct": 1,
+    "explanation": "A PR template pre-populates the description field with a structured form when a PR is opened. The author must fill in each section — what changed, why, how it was tested, and a review checklist. This dramatically improves review quality because reviewers understand intent without reading every line. A word count check (A) incentivizes padding, not clarity. PR size limits (C) are useful but don't improve description quality. Self-review comments (D) add overhead without the structured clarity of a template.",
+    "tags": ["PR-template", "code-review", "governance", "pull-request"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-005",
+    "scenario": "A team adopts Conventional Commits. A developer pushes: `git commit -m 'feat!: remove support for Node.js 16 and upgrade minimum to Node.js 20'`. An automated release pipeline using semantic-release processes this commit.",
+    "question": "What version bump will semantic-release apply to this commit?",
+    "options": [
+      "PATCH — because removing support is a minor change",
+      "MINOR — because feat commits trigger minor version bumps",
+      "MAJOR — because the `!` indicates a breaking change",
+      "No bump — only fix commits trigger releases"
+    ],
+    "correct": 2,
+    "explanation": "In Conventional Commits, appending `!` after the type (or scope) — e.g., `feat!:` — indicates a BREAKING CHANGE regardless of the type prefix. Breaking changes always trigger a MAJOR version bump. Removing Node.js 16 support breaks existing users who rely on that runtime. The `feat` prefix alone (B) would trigger MINOR. A plain `feat:` without `!` would be MINOR. `fix:` without `!` would be PATCH. The `!` is the critical signal here.",
+    "tags": ["conventional-commits", "semantic-versioning", "breaking-change", "MAJOR"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-006",
+    "scenario": "An engineering team maintains 12 microservice repositories. When a new developer joins, they need to understand which team owns each service and who to contact for on-call issues. Currently, this information is spread across Confluence pages, Slack channels, and individual README files — all frequently out of date.",
+    "question": "What GitHub-native mechanism keeps code ownership and reviewer routing accurate and up-to-date with the codebase itself?",
+    "options": [
+      "A pinned issue in each repository listing the current owner",
+      "GitHub Teams configured at the organization level with repository access",
+      "A .github/CODEOWNERS file that maps file paths and directories to GitHub users or teams, automatically updated when files move",
+      "Repository topics set to include the owning team's name"
+    ],
+    "correct": 2,
+    "explanation": "CODEOWNERS maps paths directly to owners inside the repository. Because it's a file in the repo, it evolves with the code — when a new directory is created or ownership changes, the CODEOWNERS file is updated in the same PR. It's also automatically enforced for review assignment, not just documentation. GitHub Teams (B) control access but don't map to file paths. Pinned issues (A) and topics (D) are documentation-only with no enforcement mechanism.",
+    "tags": ["CODEOWNERS", "ownership", "review-routing", "team-management"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-007",
+    "scenario": "A repository's CI workflow stores deployment credentials as repository secrets. The team moves to a new deployment target and rotates credentials, but the old credentials are still configured as secrets. The team wants to reduce the risk of long-lived credentials being exfiltrated from workflows that access AWS.",
+    "question": "What is the architecture that eliminates long-lived AWS credentials from GitHub repository secrets entirely?",
+    "options": [
+      "Store credentials in GitHub Environments instead of repository secrets and set a 30-day expiry",
+      "Use GitHub Actions' built-in credential vault to encrypt secrets with per-run keys",
+      "Configure AWS IAM Identity Provider to trust GitHub's OIDC provider, allowing workflows to assume IAM roles via short-lived federated tokens instead of static credentials",
+      "Generate new access keys before each deployment using a Lambda function triggered by the workflow"
+    ],
+    "correct": 2,
+    "explanation": "OIDC federation with AWS completely eliminates static credentials. The workflow uses GitHub's OIDC provider to obtain a short-lived JWT, presents it to AWS STS's AssumeRoleWithWebIdentity API, and receives temporary credentials scoped to a specific IAM role with a short TTL (typically 1 hour). No AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY is ever stored. The IAM role trust policy can restrict which GitHub org, repo, and branch can assume it. Environment secrets (A) still store long-lived keys. There is no per-run key encryption built in (B). Lambda credential generation (D) adds infrastructure complexity and still needs initial credentials.",
+    "tags": ["OIDC", "AWS", "federated-identity", "no-secrets", "IAM"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-008",
+    "scenario": "A repository has 50,000 stars and is widely used as a dependency. A contributor opens an issue titled: 'SQL injection vulnerability in query builder — here are the full details and a working exploit.' The repository has no SECURITY.md, no private vulnerability reporting, and the issue is indexed by Google within 30 minutes.",
+    "question": "What is the correct order of response operations for the maintainer in this scenario?",
+    "options": [
+      "1. Close the public issue, 2. Patch the vulnerability, 3. Publish a new release, 4. Post a public security advisory",
+      "1. Lock the public issue immediately, 2. Contact the reporter privately to remove details, 3. Develop patch, 4. Release patch, 5. Enable private vulnerability reporting, 6. Publish CVE with coordinated disclosure",
+      "1. Publish a new release with a patch, 2. Delete the public issue, 3. Add SECURITY.md",
+      "1. Temporarily take the repository private, 2. Patch, 3. Make it public again, 4. Release the fix"
+    ],
+    "correct": 1,
+    "explanation": "The correct response is to immediately minimize further public visibility (lock the issue), contact the reporter privately to get full details without further public exposure, develop and release the patch, then enable proper infrastructure for future disclosures, and finally publish a coordinated CVE. Deleting issues (C) is ineffective once indexed and destroys transparency. Taking a repository private (D) breaks all users' dependency resolution. Simply closing the issue (A) without addressing the public exploit details leaves the information visible.",
+    "tags": ["incident-response", "security-disclosure", "CVE", "SECURITY.md"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-009",
+    "scenario": "A repository audit finds the following: no CONTRIBUTING.md, no issue templates, commit messages like 'fix', 'wip', 'stuff', and PRs with no description. New contributors open issues that are duplicates, and PRs that don't follow any convention. The team spends 30% of their time on triage.",
+    "question": "Which combination of governance files would MOST reduce the triage overhead described?",
+    "options": [
+      "README.md update and a stricter branch protection requiring 3 reviewers",
+      "CONTRIBUTING.md, .github/ISSUE_TEMPLATE/, .github/pull_request_template.md, and a commitlint workflow",
+      "A CODE_OF_CONDUCT.md and SECURITY.md",
+      "A detailed CHANGELOG.md and GitHub Releases for each version"
+    ],
+    "correct": 1,
+    "explanation": "Each governance file targets a specific triage cost: CONTRIBUTING.md tells contributors how to work before they open anything; issue templates structure bug reports and feature requests, eliminating 'what version?' follow-up cycles; PR templates ensure descriptions include context; commitlint enforces message standards. Together they reduce malformed issues, undescribed PRs, and unusable commit messages. README updates (A) and code of conduct (C) improve documentation and community standards but don't address the triage mechanics. CHANGELOG (D) is for consumers, not contributors.",
+    "tags": ["CONTRIBUTING", "issue-templates", "PR-templates", "commitlint", "governance"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-010",
+    "scenario": "An organization wants to make all their repositories discoverable by topic so platform teams can quickly find all 'infrastructure' repositories or all 'python' repositories. Currently, topics are inconsistently applied — some repos have 20 topics, some have none.",
+    "question": "What is the BEST approach to standardize repository topics across an organization?",
+    "options": [
+      "Create a Wiki page listing all approved topics and ask teams to update their repositories",
+      "Use the GitHub API or a GitHub Actions workflow triggered on repository creation to enforce a baseline taxonomy of topics (language, type, team, status) — with a required-topics check in each repository",
+      "Require all repositories to have at least 1 topic as a branch protection condition",
+      "Use GitHub's built-in topic suggestions which automatically detect the technology stack"
+    ],
+    "correct": 1,
+    "explanation": "Standardization at scale requires automation. Using the GitHub API (programmatically via a workflow or a governance bot) allows you to audit all repositories for required topics and either apply defaults or flag non-compliant repos via issues. A Wiki page (A) is purely advisory and degrades immediately. Branch protection (C) cannot enforce repository metadata — it only gates branch merges. GitHub's topic suggestions (D) are unstructured and vary widely — they generate tags like 'hacktoberfest' alongside technical topics, not a curated taxonomy.",
+    "tags": ["repository-topics", "organization-governance", "API", "discoverability"]
+  }
+]

@@ -1,0 +1,152 @@
+[
+  {
+    "domain": 1,
+    "id": "ghbp-d1-001",
+    "scenario": "A platform team's main branch has no branch protection rules. A senior engineer discovers a critical bug at 11pm and pushes a fix directly to main without review. The fix introduces a regression that takes the payment service offline for 2 hours.",
+    "question": "Which branch protection control, if enabled, would have DIRECTLY prevented this incident?",
+    "options": [
+      "Require signed commits",
+      "Require a pull request before merging",
+      "Restrict who can push to matching branches",
+      "Require linear history"
+    ],
+    "correct": 1,
+    "explanation": "Requiring a pull request before merging is the foundational control that blocks ALL direct pushes to main — including from senior engineers and admins (when 'Do not allow bypassing above settings' is also enabled). Signed commits (A) only verify identity, not review. Restrict push access (C) can still allow specific users to bypass. Linear history (D) affects merge strategy, not whether a push is permitted.",
+    "tags": ["branch-protection", "required-reviews", "direct-push", "main-branch"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-002",
+    "scenario": "A developer gets their PR approved by two reviewers on Monday. They then push 15 more commits addressing feedback on Tuesday. On Wednesday, a third reviewer merges the PR, noting the original approvals are still valid. A bug is discovered in the Wednesday commits that the original reviewers never saw.",
+    "question": "Which branch protection setting would have prevented the merge of unreviewed Wednesday commits?",
+    "options": [
+      "Require conversation resolution before merging",
+      "Require deployments to succeed before merging",
+      "Dismiss stale pull request approvals when new commits are pushed",
+      "Require signed commits"
+    ],
+    "correct": 2,
+    "explanation": "Dismiss stale pull request approvals invalidates existing approvals whenever new commits are pushed. This forces the PR to be re-approved after any changes — ensuring reviewers see the final state of the code, not just the original version. Conversation resolution (A) only ensures comments are addressed, not that new code is reviewed. Deployment checks (B) test functionality, not code quality. Signed commits (D) verify identity only.",
+    "tags": ["stale-reviews", "branch-protection", "code-review", "dismiss-stale"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-003",
+    "scenario": "A security audit reveals that a repository admin accidentally force-pushed to main, overwriting 3 days of merged PRs. The team had branch protection configured with 'Require pull request before merging' and '2 required reviewers', but both settings had the default admin bypass enabled.",
+    "question": "What single configuration change would have prevented the admin from bypassing these protections?",
+    "options": [
+      "Increase required reviewers to 3",
+      "Enable 'Do not allow bypassing the above settings'",
+      "Add the admin to the CODEOWNERS file",
+      "Enable 'Require deployments to succeed before merging'"
+    ],
+    "correct": 1,
+    "explanation": "By default, admins and repository owners can bypass branch protection rules. Enabling 'Do not allow bypassing the above settings' applies all configured rules universally — including to admins. This is a critical control in repositories where admin credentials could be compromised. Increasing reviewers (A) still doesn't prevent admin bypass. CODEOWNERS (C) adds reviewers but doesn't restrict admins. Deployment checks (D) are unrelated to push restrictions.",
+    "tags": ["admin-bypass", "branch-protection", "force-push", "security"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-004",
+    "scenario": "A CODEOWNERS file is configured mapping /src/payments/ to @security-lead. A developer opens a PR that modifies 3 files in /src/payments/ and 2 files in /src/ui/. The security lead is on vacation and doesn't respond for 5 days. Another developer approves the PR and merges it.",
+    "question": "What is the correct behaviour of branch protection in this scenario, assuming 'Require review from code owners' is enabled?",
+    "options": [
+      "The PR can be merged once 2 general reviewers approve, since the code owner is unavailable",
+      "The PR cannot be merged until @security-lead or a designated team member approves the payments changes",
+      "GitHub automatically reassigns the code owner review to the next available reviewer",
+      "The CODEOWNERS rule only applies if ALL files in the PR are in the protected path"
+    ],
+    "correct": 1,
+    "explanation": "When 'Require review from code owners' is enabled, a code owner's approval is mandatory before merging — regardless of how many general approvals exist. The PR cannot merge until @security-lead (or another member of their team if CODEOWNERS specifies a team) approves. GitHub does not auto-reassign code owner reviews (C). CODEOWNERS rules apply to any PR that touches files matching the pattern, not only PRs where all files match (D).",
+    "tags": ["CODEOWNERS", "code-owners", "required-reviews", "branch-protection"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-005",
+    "scenario": "A team's repository has 47 stale branches. Most are from features that were merged over 6 months ago. The team wants to automate cleanup going forward without manually deleting old branches.",
+    "question": "What is the MOST efficient combination of controls to prevent this accumulation going forward?",
+    "options": [
+      "Write a cron job that runs monthly and deletes all branches older than 90 days",
+      "Enable 'Automatically delete head branches' in repository settings AND configure a scheduled GitHub Actions workflow to detect branches with no activity for 30+ days",
+      "Require all developers to manually delete their branches after merging",
+      "Create a branch naming convention that includes the creation date in the branch name"
+    ],
+    "correct": 1,
+    "explanation": "Enabling 'Automatically delete head branches' handles the common case (merged PR branches disappear immediately). A scheduled Actions workflow catches remote-only branches and branches not associated with PRs. Together, these cover the full lifecycle. Manual cleanup (C) relies on developer discipline and will fail. Date-in-name conventions (D) improve visibility but don't delete anything. A simple monthly cron (A) risks deleting long-lived branches (release/, hotfix/) that happen to be old.",
+    "tags": ["branch-lifecycle", "stale-branches", "automation", "cleanup"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-006",
+    "scenario": "A developer on a team opens a PR from a branch named 'ajay-temp-stuff'. The team lead rejects it, citing naming conventions. The developer argues that branch naming conventions are just guidelines and not enforceable. The team wants to make naming conventions mandatory.",
+    "question": "What is the correct way to enforce branch naming conventions as a hard gate?",
+    "options": [
+      "Add the convention to the CONTRIBUTING.md and rely on code review to enforce it",
+      "Configure a branch protection rule that uses a regex pattern to restrict branch names",
+      "Create a GitHub Actions workflow triggered on pull_request that validates the head branch name and fails if it doesn't match the pattern",
+      "Use a CODEOWNERS file to require team lead approval for branches with incorrect names"
+    ],
+    "correct": 2,
+    "explanation": "A GitHub Actions workflow that validates the branch name on pull_request events and fails (exit 1) if the pattern doesn't match will block the PR from being merged if it's configured as a required status check. Documentation (A) is advisory only. Branch protection regex rules (B) restrict which branches can be pushed to — not the naming of source branches. CODEOWNERS (D) assigns reviewers but doesn't block based on naming.",
+    "tags": ["branch-naming", "enforcement", "github-actions", "status-checks"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-007",
+    "scenario": "An organization's security team assesses a repository and finds: main branch has 2 required reviewers, CI status checks required, but force pushes are NOT restricted. The security team classifies this as a High severity finding.",
+    "question": "Why is unrestricted force push to a protected branch classified as High severity even when PR reviews are required?",
+    "options": [
+      "Force pushes can bypass required status checks",
+      "Force pushes rewrite branch history, potentially removing the audit trail of merged and reviewed commits",
+      "Force pushes automatically trigger a deploy to production",
+      "Force pushes disable branch protection rules for 24 hours"
+    ],
+    "correct": 1,
+    "explanation": "Git history is the immutable audit trail. A force push can rewrite history — making it appear that reviewed, approved commits never existed, or inserting unreviewed commits between reviewed ones. This destroys forensic capability and compliance audit trails. It does not bypass status checks (A) — those apply to current branch state. It doesn't trigger deploys (C) or affect protection rules (D) in those ways.",
+    "tags": ["force-push", "history-rewrite", "audit-trail", "security"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-008",
+    "scenario": "A team configures branch protection requiring 2 reviewer approvals before merge. The team has 4 engineers total. Reviews are slow because everyone waits for whoever is available. The team asks: is there a way to automatically assign reviews so the right people are always notified immediately?",
+    "question": "What is the correct GitHub-native mechanism for automatic review assignment?",
+    "options": [
+      "Set up a webhook that emails the team whenever a PR is opened",
+      "Create a .github/CODEOWNERS file mapping file paths to specific users or teams",
+      "Use GitHub Projects automation to assign reviewers based on PR labels",
+      "Configure required reviewers in the branch protection settings"
+    ],
+    "correct": 1,
+    "explanation": "CODEOWNERS is the GitHub-native mechanism for automatic review assignment. When a PR is opened touching files that match a CODEOWNERS pattern, the mapped users/teams are automatically requested as reviewers. This works at the file-path level, not just the PR level. Webhooks (A) notify but don't assign. Projects automation (C) operates on labels/status, not file paths. Listing required reviewers in branch protection (D) creates static requirements, not path-based dynamic assignment.",
+    "tags": ["CODEOWNERS", "review-assignment", "automation", "branch-protection"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-009",
+    "scenario": "A compliance requirement states: 'All code merged to main must have been reviewed by someone other than the author.' The repository has 2 required approvals configured. A solo developer opens a PR, gets 2 approvals from teammates, then self-merges. Is this compliant?",
+    "question": "What additional branch protection control ensures the author cannot merge their own PR, even with sufficient approvals?",
+    "options": [
+      "Require more than 2 reviewers",
+      "Enable 'Restrict who can push to matching branches' and exclude the author",
+      "There is no such control — branch protection cannot prevent self-merging by default",
+      "GitHub automatically prevents merging one's own approved PR when CODEOWNERS is configured"
+    ],
+    "correct": 2,
+    "explanation": "Standard GitHub branch protection does not prevent a PR author from merging their own PR after collecting the required approvals. The control that prevents self-approval exists (under required approvals: 'Do not allow bypassing the above settings' combined with CODEOWNERS requiring someone else), but pure self-merge restriction is not a single toggle — it requires combining controls or using GitHub Enterprise policies. This is a common compliance gap teams discover after audit. CODEOWNERS (D) requires specific people to review, but doesn't block the author from pressing Merge.",
+    "tags": ["self-merge", "compliance", "branch-protection", "audit"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-010",
+    "scenario": "A security scan identifies that 3 feature branches in a repository contain a file matching the pattern *.pem (a certificate file). The .gitignore does not exclude *.pem files. The team wants to prevent secrets/certificates from being committed going forward.",
+    "question": "What is the MOST effective combination of controls to prevent future secret commits?",
+    "options": [
+      "Add *.pem to .gitignore and conduct team training on secret management",
+      "Enable GitHub Secret Scanning and add *.pem to .gitignore, then add a pre-commit hook and a GitHub Actions check that scans for secrets on every PR",
+      "Rotate the compromised certificates and close the stale branches",
+      "Require all PRs to be reviewed by the security team before merging"
+    ],
+    "correct": 1,
+    "explanation": "A layered approach is required: .gitignore prevents accidental adds, Secret Scanning detects known secret patterns across the repository history, a pre-commit hook catches secrets before they're committed locally, and a CI check catches any that pass through. Training (A) and .gitignore alone are insufficient — both rely on developer discipline. Rotating certs (C) is remediation, not prevention. Security review on every PR (D) is expensive and slows development without automated tooling.",
+    "tags": ["secret-scanning", "gitignore", "pre-commit", "secrets-prevention"]
+  }
+]

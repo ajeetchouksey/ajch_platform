@@ -1,0 +1,15 @@
+{
+  "id": "customer-support-agent",
+  "title": "Customer Support Resolution Agent",
+  "description": "Build a coordinator agent that handles customer support requests across refunds, shipping inquiries, and technical issues. The agent must route tasks to specialized subagents, enforce business rules (refunds over $500 require human approval), and escalate appropriately. It must handle 10,000+ requests per day with a 95% resolution rate without human intervention.",
+  "architecture_notes": "Use a coordinator-subagent pattern with three subagents: refund_agent (billing tools), shipping_agent (logistics tools), technical_agent (knowledge base tools). Implement a PreToolUse hook on the refund tool to enforce the $500 threshold. Use tool_choice: any to ensure the coordinator always delegates rather than answering directly. Design structured error returns from each subagent with retryable flags so the coordinator can implement retry logic or escalate. Cache the static policy content in the system prompt with cache_control for cost efficiency at high request volume.",
+  "key_patterns": [
+    "coordinator-subagent delegation",
+    "PreToolUse hook for business rule enforcement",
+    "human-in-the-loop gate for high-value actions",
+    "structured error returns with retryable flag",
+    "tool_choice: any on coordinator",
+    "prompt caching for shared policy context"
+  ],
+  "questionIds": ["d1-001", "d1-007", "d4-001", "d5-005"]
+}
