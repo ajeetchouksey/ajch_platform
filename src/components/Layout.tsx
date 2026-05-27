@@ -106,7 +106,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col text-slate-100">
       {/* Header */}
       <header className="bg-slate-800/75 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50 relative">
-        <div className="flex items-center h-14 px-4 max-w-[1600px] mx-auto">
+        <div className="flex items-center h-14 px-6 w-full">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="lg:hidden mr-3 p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200 active:scale-95"
