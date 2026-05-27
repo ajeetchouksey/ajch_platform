@@ -11,6 +11,7 @@
       radial-gradient(ellipse 55%  45% at 100% 45%, rgba(59,130,246,0.10) 0%, transparent 60%),
       radial-gradient(ellipse 45%  35% at 0%   95%, rgba(139,92,246,0.09) 0%, transparent 55%),
       #0e1a2d;
+    background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
   }
 }
@@ -46,7 +47,7 @@
 
 /* Glossy card base */
 .glass-card {
-  background: linear-gradient(135deg, rgba(51, 65, 85, 0.78), rgba(30, 41, 59, 0.92));
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.65), rgba(30, 41, 59, 0.82));
   backdrop-filter: blur(12px);
   border: 1px solid rgba(148, 163, 184, 0.12);
   box-shadow:
@@ -111,7 +112,7 @@
 
 /* Stats card inner glow */
 .glass-stats {
-  background: linear-gradient(135deg, rgba(51, 65, 85, 0.65), rgba(30, 41, 59, 0.85));
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.55), rgba(30, 41, 59, 0.72));
   backdrop-filter: blur(8px);
   border: 1px solid rgba(148, 163, 184, 0.10);
   box-shadow:

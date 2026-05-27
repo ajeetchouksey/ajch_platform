@@ -431,7 +431,13 @@ export default function Layout({ children }: { children: ReactNode }) {
         )}
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8">
+        <main
+          className="flex-1 overflow-y-auto p-4 lg:p-8"
+          style={{
+            background: 'radial-gradient(ellipse 120% 45% at 50% 0%, rgba(139,92,246,0.10) 0%, transparent 55%)',
+            backgroundAttachment: 'fixed',
+          }}
+        >
           <div className="max-w-5xl mx-auto">
             <Breadcrumbs />
             <div key={pageKey} className="animate-[fadeIn_0.3s_ease-out]">
