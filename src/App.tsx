@@ -12,6 +12,7 @@ import BlogPost from "./pages/BlogPost";
 import Tools from "./pages/Tools";
 import TokenCounter from "./pages/TokenCounter";
 import ContextVisualizer from "./pages/ContextVisualizer";
+import McpScaffold from "./pages/McpScaffold";
 import Profile from "./pages/Profile";
 import Maintainer from "./pages/Maintainer";
 import MaintainerDashboard from "./pages/MaintainerDashboard";
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="/tools" element={<Tools />} />
             <Route path="/tools/token-counter" element={<TokenCounter />} />
             <Route path="/tools/context-visualizer" element={<ContextVisualizer />} />
+            <Route path="/tools/mcp-scaffold" element={<McpScaffold />} />
             <Route path="/maintainer" element={<Maintainer />} />
             <Route path="/maintainer/dashboard" element={<MaintainerDashboard />} />
             <Route path="/maintainer/team" element={<Team />} />

@@ -13,8 +13,8 @@ interface ToolDef {
 const tools: ToolDef[] = [
   { icon: Hash,     label: 'Token Counter',      href: '/tools/token-counter',      live: true,  desc: 'Count tokens for Claude, GPT, and other model families' },
   { icon: Eye,      label: 'Context Visualizer',  href: '/tools/context-visualizer', live: true,  desc: 'See how your context window fills up with messages' },
+  { icon: Server,   label: 'MCP Scaffold',         href: '/tools/mcp-scaffold',       live: true,  desc: 'Generate MCP server boilerplate from a config spec' },
   { icon: Terminal, label: 'Prompt Tester',        desc: 'Test prompts with different models and compare outputs' },
-  { icon: Server,   label: 'MCP Scaffold',         desc: 'Generate MCP server boilerplate from a config spec' },
 ];
 
 export default function Tools() {

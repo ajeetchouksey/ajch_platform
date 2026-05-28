@@ -336,6 +336,7 @@ function TokenizationDocs() {
     <div className="glass-card rounded-xl border border-slate-800/50 overflow-hidden">
       <button
         onClick={() => setOpen(v => !v)}
+        aria-expanded={open}
         className="w-full flex items-center justify-between px-5 py-4 text-left
           hover:bg-slate-800/30 transition-colors"
       >
@@ -353,6 +354,7 @@ function TokenizationDocs() {
             <div key={i}>
               <button
                 onClick={() => setExpanded(expanded === i ? null : i)}
+                aria-expanded={expanded === i}
                 className="w-full flex items-center justify-between px-5 py-3 text-left
                   hover:bg-slate-800/20 transition-colors gap-3"
               >

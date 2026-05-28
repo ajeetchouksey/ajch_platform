@@ -156,6 +156,8 @@ function TurnRow({ turn, index, onUpdate, onDelete, onRoleChange }: TurnRowProps
               <button
                 key={r}
                 onClick={() => onRoleChange(turn.id, r)}
+                aria-pressed={turn.role === r}
+                aria-label={`Set role to ${ROLE_CONFIG[r].label}`}
                 className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-all duration-150 ${
                   turn.role === r
                     ? `${ROLE_CONFIG[r].bg} ${ROLE_CONFIG[r].border} ${ROLE_CONFIG[r].color}`
