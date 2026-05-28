@@ -10,6 +10,8 @@ import Progress from "./pages/Progress";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Tools from "./pages/Tools";
+import TokenCounter from "./pages/TokenCounter";
+import ContextVisualizer from "./pages/ContextVisualizer";
 import Profile from "./pages/Profile";
 import Maintainer from "./pages/Maintainer";
 import MaintainerDashboard from "./pages/MaintainerDashboard";
@@ -33,6 +35,8 @@ export default function App() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/tools" element={<Tools />} />
+            <Route path="/tools/token-counter" element={<TokenCounter />} />
+            <Route path="/tools/context-visualizer" element={<ContextVisualizer />} />
             <Route path="/maintainer" element={<Maintainer />} />
             <Route path="/maintainer/dashboard" element={<MaintainerDashboard />} />
             <Route path="/maintainer/team" element={<Team />} />

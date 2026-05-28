@@ -28,10 +28,12 @@ PROJECT_ID: PVT_kwHOBmF8RM4BY8v6  # GraphQL node ID for project board
 Otherwise invoke `Product Owner Agent → Setup` to create one.
 
 **Token setup**: Create a **classic PAT** at https://github.com/settings/tokens
-→ "Generate new token (classic)" with scopes `repo` + `project`, then:
-```powershell
-$env:GH_PO_TOKEN = "ghp_..."
+→ "Generate new token (classic)" with scopes `repo` + `project`, then paste it into
+`gh_po_token.env` at the workspace root (already in `.gitignore`):
 ```
+GH_PO_TOKEN=ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+The PO Agent reads this file in Module 1 (Setup). Never echo or log the token value.
 
 ---
 

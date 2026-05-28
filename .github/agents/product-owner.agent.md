@@ -110,7 +110,23 @@ If `PROJECT_NUMBER` or `PROJECT_ID` is `~` (not yet set), prompt the user to run
    gh auth status
    ```
    If not authenticated: `gh auth login --web`
-4. **Create Labels** via REST API — all labels from `gh-project-config.md`:
+
+4. **Load PAT from `gh_po_token.env`** (required for REST API calls in steps 5–9):
+   ```powershell
+   # Read the token from the local env file — do NOT echo or log it
+   if (Test-Path 'gh_po_token.env') {
+     $line = Get-Content 'gh_po_token.env' | Where-Object { $_ -match '^GH_PO_TOKEN=' }
+     $env:GH_PO_TOKEN = $line -replace '^GH_PO_TOKEN=', ''
+   } else {
+     Write-Host "gh_po_token.env not found. Create it from the template and add your PAT."
+     exit 1
+   }
+   ```
+   > ⚠ **Security rule**: Never print, echo, or include `$env:GH_PO_TOKEN` in any output,
+   > issue body, comment, log, or captured variable. The token must flow only into
+   > `Authorization` headers — never into visible output.
+
+5. **Create Labels** via REST API — all labels from `gh-project-config.md`:
    ```
    POST https://api.github.com/repos/ajeetchouksey/ajch_platform/labels
    Authorization: Bearer {GH_PO_TOKEN}

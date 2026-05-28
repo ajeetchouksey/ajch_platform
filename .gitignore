@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Local secrets — never commit
+gh_po_token.env
+*.env
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

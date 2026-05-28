@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Wrench, Terminal, Hash, Eye, Server } from 'lucide-react';
 
-const tools = [
-  { icon: Terminal, label: 'Prompt Tester', desc: 'Test prompts with different models and compare outputs' },
-  { icon: Hash, label: 'Token Counter', desc: 'Count tokens for Claude, GPT, and other model families' },
-  { icon: Eye, label: 'Context Visualizer', desc: 'See how your context window fills up with messages' },
-  { icon: Server, label: 'MCP Scaffold', desc: 'Generate MCP server boilerplate from a config spec' },
+interface ToolDef {
+  icon: React.ElementType;
+  label: string;
+  desc: string;
+  href?: string;
+  live?: boolean;
+}
+
+const tools: ToolDef[] = [
+  { icon: Hash,     label: 'Token Counter',      href: '/tools/token-counter',      live: true,  desc: 'Count tokens for Claude, GPT, and other model families' },
+  { icon: Eye,      label: 'Context Visualizer',  href: '/tools/context-visualizer', live: true,  desc: 'See how your context window fills up with messages' },
+  { icon: Terminal, label: 'Prompt Tester',        desc: 'Test prompts with different models and compare outputs' },
+  { icon: Server,   label: 'MCP Scaffold',         desc: 'Generate MCP server boilerplate from a config spec' },
 ];
 
 export default function Tools() {
@@ -34,21 +43,50 @@ export default function Tools() {
 
       {/* Tool previews */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-        {tools.map(({ icon: Icon, label, desc }, idx) => (
-          <div
-            key={label}
-            className={`glass-card glass-edge rounded-xl p-5 transition-all duration-500 hover:opacity-80 hover:border-slate-700 ${
-              mounted ? 'opacity-60 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
-            style={{ transitionDelay: `${300 + idx * 100}ms` }}
-          >
-            <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center mb-3">
-              <Icon size={16} className="text-slate-500" />
+        {tools.map(({ icon: Icon, label, desc, href, live }, idx) => {
+          const cardClass = `glass-card glass-edge rounded-xl p-5 transition-all duration-500 ${
+            href
+              ? 'hover:border-violet-500/40 hover:bg-violet-500/5 cursor-pointer opacity-100'
+              : 'hover:opacity-80 hover:border-slate-700 opacity-60'
+          } ${mounted ? 'translate-y-0' : 'opacity-0 translate-y-6'}`;
+
+          const inner = (
+            <>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-3 ${href ? 'bg-violet-500/10' : 'bg-slate-800'}`}>
+                <Icon size={16} className={href ? 'text-violet-400' : 'text-slate-500'} />
+              </div>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-sm font-medium text-slate-300">{label}</h3>
+                {live && (
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full
+                    bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 uppercase tracking-wide">
+                    Live
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500">{desc}</p>
+            </>
+          );
+
+          return href ? (
+            <Link
+              key={label}
+              to={href}
+              className={cardClass}
+              style={{ transitionDelay: `${300 + idx * 100}ms` }}
+            >
+              {inner}
+            </Link>
+          ) : (
+            <div
+              key={label}
+              className={cardClass}
+              style={{ transitionDelay: `${300 + idx * 100}ms` }}
+            >
+              {inner}
             </div>
-            <h3 className="text-sm font-medium text-slate-300 mb-1">{label}</h3>
-            <p className="text-xs text-slate-500">{desc}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

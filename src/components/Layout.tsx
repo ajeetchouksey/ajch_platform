@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, ChevronRight, Users, LineChart } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, ChevronRight, Users, LineChart, Hash, Eye } from 'lucide-react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -435,6 +435,14 @@ export default function Layout({ children }: { children: ReactNode }) {
                     <span className="w-1 h-1 rounded-full bg-amber-400 animate-pulse" />
                     dev
                   </span>
+                </Link>
+                <Link to="/tools/token-counter" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
+                  <Hash size={14} />
+                  <span>Token Counter</span>
+                </Link>
+                <Link to="/tools/context-visualizer" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
+                  <Eye size={14} />
+                  <span>Context Visualizer</span>
                 </Link>
               </nav>
             </div>

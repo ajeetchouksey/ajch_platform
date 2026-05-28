@@ -1,0 +1,5 @@
+# Local secret files — git archive exclusion
+# gh_po_token.env is already gitignored below; this marks it
+# as excluded from `git archive` exports as well.
+gh_po_token.env  export-ignore
+*.env            export-ignore
