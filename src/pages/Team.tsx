@@ -6,7 +6,7 @@ import {
   Zap, Brain, ShieldCheck, Lightbulb, ListChecks, Handshake, Trophy,
   ArrowDown, Award, User, Users,
   Layers, Palette, FileText, Send, HelpCircle, Share2, TrendingUp,
-  X,
+  X, Megaphone,
 } from 'lucide-react';
 import { maintainer } from '../data/maintainer';
 import { PulsingDot, VersionTag, NewBadge, Timeline, StatGrid } from '@/components/ui';
@@ -418,6 +418,38 @@ const devopsAgent: AgentData = {
     { version: 'v1.0-a', label: 'ci.yml — PR build-check on every PR to main (TypeScript + build)', type: 'major' },
     { version: 'v1.0-b', label: 'Agent versioning: version: field across all 17 .agent.md files', type: 'major' },
     { version: 'v1.0-c', label: 'Release flow: PO notes → semver bump → git tag → GitHub Pages deploy', type: 'major' },
+  ],
+};
+
+/* ─────────────────────────────────────────────────────────────
+   Community Agent
+───────────────────────────────────────────────────────────── */
+const socialMediaAgent: AgentData = {
+  id: 'social-media',
+  name: 'Social Media Agent',
+  role: 'Community Lead',
+  tagline: 'Transform. Socialise. Never auto-post.',
+  description: 'Community Commander. Transforms blog posts, tool releases, and CCA-F study milestones into polished LinkedIn posts, Twitter/X threads, and Dev.to drafts. All output is copy for human review — never auto-published.',
+  glowColor: 'shadow-pink-500/25',
+  borderColor: 'border-pink-500/40 hover:border-pink-400/70',
+  bgGradient: 'from-pink-500/10 via-pink-500/5 to-transparent',
+  textColor: 'text-pink-400',
+  badgeColor: 'bg-pink-500/15 text-pink-300 border-pink-500/30',
+  dotColor: 'bg-pink-400',
+  icon: Megaphone,
+  status: 'standby',
+  capabilities: ['LinkedIn Posts', 'Twitter/X Threads', 'Dev.to Drafts', 'Hashnode Drafts', 'CCA-F Study Tips'],
+  model: 'Claude Sonnet',
+  tools: 5,
+  noSubAgents: true,
+  noSubAgentsNote: 'Output is copy only — human posts to platform',
+  isNew: true,
+  humanFeedback: 'Human reviews & posts all social content',
+  activeTask: 'Standby — awaiting content promotion request',
+  version: 'v1.0.0',
+  profileFile: 'social-media.agent.md',
+  deliveries: [
+    { version: 'v1.0', label: 'LinkedIn, Twitter/X, Dev.to, Hashnode copy generation — platform-specific templates + tone guide', type: 'major' },
   ],
 };
 
@@ -1217,6 +1249,7 @@ function L1CommanderCard({ agent, index, visible, onOpenProfile }: { agent: Agen
     'security-governance':  'linear-gradient(90deg,#92400e,#fbbf24)',
     'ux-framework':         'linear-gradient(90deg,#581c87,#c084fc)',
     'devops':               'linear-gradient(90deg,#9a3412,#fb923c)',
+    'social-media':         'linear-gradient(90deg,#9d174d,#f472b6)',
   };
   const accentColorMap: Record<string, string> = {
     'platform-control':     '#60a5fa',
@@ -1226,6 +1259,7 @@ function L1CommanderCard({ agent, index, visible, onOpenProfile }: { agent: Agen
     'security-governance':  '#fbbf24',
     'ux-framework':         '#c084fc',
     'devops':               '#fb923c',
+    'social-media':         '#f472b6',
   };
   const accentColor = accentColorMap[agent.id] ?? '#94a3b8';
   const accentGrad  = accentMap[agent.id] ?? 'linear-gradient(90deg,#475569,#94a3b8)';
@@ -1468,6 +1502,17 @@ export default function Team() {
 
             <div className="grid sm:grid-cols-2 gap-3 mb-6">
               <L1CommanderCard agent={devopsAgent} index={0} visible={visible} onOpenProfile={setDrawer} />
+            </div>
+
+            {/* Community tier label */}
+            <div className={`flex items-center gap-2 mb-2 mt-1 transition-opacity duration-400 ${visible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '1050ms' }}>
+              <span className="text-[9px] font-bold text-pink-500/70 uppercase tracking-widest bg-pink-500/5 border border-pink-500/20 px-2 py-0.5 rounded">Community</span>
+              <div className="h-px flex-1 bg-slate-800" />
+              <span className="text-[9px] text-slate-600">Socialise · Promote · Human-in-the-loop</span>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3 mb-6">
+              <L1CommanderCard agent={socialMediaAgent} index={0} visible={visible} onOpenProfile={setDrawer} />
             </div>
 
           </div>

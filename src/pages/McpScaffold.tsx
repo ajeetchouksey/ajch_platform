@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Server, Plus, Trash2, Copy, Check, ChevronDown, Info, Code2 } from 'lucide-react';
+import { Server, Plus, Trash2, Copy, Check, ChevronDown, Info, Code2, HelpCircle, BookOpen, Terminal } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -281,6 +281,7 @@ function ToolCard({
   onDelete: () => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const addParam = () =>
     onChange({
@@ -313,6 +314,15 @@ function ToolCard({
             placeholder:text-slate-600 focus:outline-none focus:text-violet-200"
         />
         <button
+          onClick={() => setHelpOpen(v => !v)}
+          aria-pressed={helpOpen}
+          aria-label="Show tool help"
+          title="Why descriptions matter"
+          className={`transition-colors ${helpOpen ? 'text-blue-400' : 'text-slate-600 hover:text-blue-400'}`}
+        >
+          <HelpCircle size={13} />
+        </button>
+        <button
           onClick={() => setCollapsed(v => !v)}
           aria-expanded={!collapsed}
           aria-label={collapsed ? 'Expand tool' : 'Collapse tool'}
@@ -329,13 +339,33 @@ function ToolCard({
         </button>
       </div>
 
+      {/* Inline help callout */}
+      {helpOpen && (
+        <div className="px-4 py-2.5 border-b border-slate-800/40 bg-blue-500/3">
+          <div className="flex items-start gap-2">
+            <Info size={11} className="text-blue-400 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="text-[11px] text-blue-300/90 leading-relaxed">
+                <span className="font-semibold">Tool name</span> — use snake_case (e.g. <code className="font-mono bg-blue-500/10 px-1 rounded">search_web</code>). Claude reads the name to decide which tool fits.
+              </p>
+              <p className="text-[11px] text-blue-300/90 leading-relaxed">
+                <span className="font-semibold">Description</span> — be specific. "Search the web for current news" beats "Get information". Vague descriptions cause the model to misuse or skip the tool.
+              </p>
+              <p className="text-[11px] text-blue-300/70">
+                CCA-F Domain 4 exam tip: tool descriptions consume tokens from your context window.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {!collapsed && (
         <div className="px-4 py-3 space-y-3">
           <input
             type="text"
             value={tool.description}
             onChange={e => onChange({ ...tool, description: e.target.value })}
-            placeholder="What does this tool do?"
+            placeholder="What does this tool do? Be specific — Claude reads this."
             className="w-full bg-slate-900/60 border border-slate-700/50 rounded-lg px-3 py-2
               text-xs text-slate-300 placeholder:text-slate-600 focus:outline-none
               focus:border-violet-500/50"
@@ -344,7 +374,7 @@ function ToolCard({
           {/* Parameters */}
           {tool.params.length > 0 && (
             <div className="space-y-2">
-              <div className="grid grid-cols-[1fr_120px_1fr_auto_auto] gap-2 text-[10px] text-slate-600 uppercase tracking-wider px-0.5">
+              <div className="grid grid-cols-[1fr_110px_1fr_auto_auto] gap-2 text-[10px] text-slate-600 uppercase tracking-wider px-0.5">
                 <span>Name</span><span>Type</span><span>Description</span><span>Req</span><span />
               </div>
               {tool.params.map(p => (
@@ -372,9 +402,18 @@ function ToolCard({
   );
 }
 
-type Tab = 'index' | 'package';
+// ─── Tab system ───────────────────────────────────────────────────────────────
 
-// ─── MCP Docs ─────────────────────────────────────────────────────────────────
+type Tab = 'index' | 'package' | 'quickstart' | 'primer';
+
+const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
+  { id: 'index',      label: 'src/index.ts',  icon: Code2     },
+  { id: 'package',    label: 'package.json',  icon: Code2     },
+  { id: 'quickstart', label: 'Quick Start',   icon: Terminal  },
+  { id: 'primer',     label: 'MCP Primer',    icon: BookOpen  },
+];
+
+// ─── MCP Primer panel (flat, no outer accordion) ──────────────────────────────
 
 const MCP_DOCS = [
   {
@@ -404,57 +443,39 @@ const MCP_DOCS = [
   },
 ];
 
-function McpDocs() {
-  const [open, setOpen] = useState(false);
+function McpPrimerPanel() {
   const [expanded, setExpanded] = useState<number | null>(null);
-
   return (
-    <div className="glass-card rounded-xl border border-slate-800/50 overflow-hidden">
-      <button
-        onClick={() => setOpen(v => !v)}
-        aria-expanded={open}
-        className="w-full flex items-center justify-between px-5 py-4 text-left
-          hover:bg-slate-800/30 transition-colors"
-      >
-        <div className="flex items-center gap-2.5">
-          <Info size={15} className="text-blue-400" />
-          <span className="text-sm font-semibold text-slate-300">MCP Primer</span>
-          <span className="text-[10px] text-slate-500 font-normal">— CCA-F Domain 4 study guide</span>
-        </div>
-        <ChevronDown size={14} className={`text-slate-500 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-      </button>
-
-      {open && (
-        <div className="border-t border-slate-800/60 divide-y divide-slate-800/40">
-          {MCP_DOCS.map((doc, i) => (
-            <div key={i}>
-              <button
-                onClick={() => setExpanded(expanded === i ? null : i)}
-                aria-expanded={expanded === i}
-                className="w-full flex items-center justify-between px-5 py-3 text-left
-                  hover:bg-slate-800/20 transition-colors gap-3"
-              >
-                <span className="text-sm text-slate-300 font-medium">{doc.q}</span>
-                <ChevronDown size={12} className={`text-slate-600 shrink-0 transition-transform duration-200
-                  ${expanded === i ? 'rotate-180' : ''}`} />
-              </button>
-              {expanded === i && (
-                <div className="px-5 pb-4 space-y-2.5">
-                  <p className="text-[12px] text-slate-400 leading-relaxed">{doc.a}</p>
-                  {doc.exam && (
-                    <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg
-                      bg-blue-500/5 border border-blue-500/20">
-                      <span className="text-[9px] font-bold text-blue-400 uppercase tracking-widest
-                        shrink-0 mt-0.5">Exam Tip</span>
-                      <p className="text-[11px] text-blue-300/80 leading-relaxed">{doc.exam}</p>
-                    </div>
-                  )}
-                </div>
-              )}
+    <div className="divide-y divide-slate-800/40">
+      <div className="px-5 py-3 flex items-center gap-2.5">
+        <Info size={14} className="text-blue-400" />
+        <span className="text-xs font-semibold text-slate-400">CCA-F Domain 4 — Tool Design &amp; MCP</span>
+      </div>
+      {MCP_DOCS.map((doc, i) => (
+        <div key={i}>
+          <button
+            onClick={() => setExpanded(expanded === i ? null : i)}
+            aria-expanded={expanded === i}
+            className="w-full flex items-center justify-between px-5 py-3 text-left
+              hover:bg-slate-800/20 transition-colors gap-3"
+          >
+            <span className="text-sm text-slate-300 font-medium">{doc.q}</span>
+            <ChevronDown size={12} className={`text-slate-600 shrink-0 transition-transform duration-200
+              ${expanded === i ? 'rotate-180' : ''}`} />
+          </button>
+          {expanded === i && (
+            <div className="px-5 pb-4 space-y-2.5">
+              <p className="text-[12px] text-slate-400 leading-relaxed">{doc.a}</p>
+              <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg
+                bg-blue-500/5 border border-blue-500/20">
+                <span className="text-[9px] font-bold text-blue-400 uppercase tracking-widest
+                  shrink-0 mt-0.5">Exam Tip</span>
+                <p className="text-[11px] text-blue-300/80 leading-relaxed">{doc.exam}</p>
+              </div>
             </div>
-          ))}
+          )}
         </div>
-      )}
+      ))}
     </div>
   );
 }
@@ -482,7 +503,10 @@ export default function McpScaffold() {
 
   const generatedIndex = generateCode(config, tools);
   const generatedPackage = generatePackageJson(config);
-  const activeCode = activeTab === 'index' ? generatedIndex : generatedPackage;
+
+  const codeForCopy = activeTab === 'index' ? generatedIndex
+    : activeTab === 'package' ? generatedPackage
+    : '';
 
   return (
     <div className="space-y-6">
@@ -509,9 +533,11 @@ export default function McpScaffold() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {/* ── Left: Config ── */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+
+        {/* ── Left: Builder ─────────────────────────────────────────────── */}
         <div className="space-y-4">
+
           {/* Server config */}
           <div className="glass-card rounded-xl border border-slate-800/50 p-4 space-y-3">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Server</p>
@@ -558,9 +584,12 @@ export default function McpScaffold() {
           {/* Tools */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Tools <span className="text-slate-700 font-normal normal-case">({tools.length})</span>
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Tools
+                </p>
+                <span className="text-slate-700 text-xs font-normal">({tools.length})</span>
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={reset}
@@ -596,68 +625,99 @@ export default function McpScaffold() {
               </div>
             )}
           </div>
-
-          {/* Docs */}
-          <McpDocs />
         </div>
 
-        {/* ── Right: Generated code ── */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Generated</p>
-            <CopyButton text={activeCode} />
-          </div>
+        {/* ── Right: Output + Docs tabs ─────────────────────────────────── */}
+        <div className="glass-card rounded-xl border border-slate-800/50 overflow-hidden">
 
-          {/* File tabs */}
-          <div className="flex gap-1 p-1 bg-slate-900/40 rounded-lg border border-slate-800/50 w-fit">
-            {(['index', 'package'] as Tab[]).map(tab => (
+          {/* Tab bar */}
+          <div className="flex items-center border-b border-slate-800/50 bg-slate-900/20 overflow-x-auto">
+            {TABS.map(({ id, label, icon: Icon }) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                aria-pressed={activeTab === tab}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-150 ${
-                  activeTab === tab
-                    ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300'
-                    : 'text-slate-500 hover:text-slate-400'
+                key={id}
+                onClick={() => setActiveTab(id)}
+                aria-pressed={activeTab === id}
+                className={`flex items-center gap-1.5 px-4 py-3 text-xs font-medium
+                  border-b-2 shrink-0 transition-all duration-150 ${
+                  activeTab === id
+                    ? 'border-emerald-400 text-emerald-300 bg-emerald-500/5'
+                    : 'border-transparent text-slate-500 hover:text-slate-400 hover:bg-slate-800/30'
                 }`}
               >
-                {tab === 'index' ? 'src/index.ts' : 'package.json'}
+                <Icon size={11} />
+                {label}
               </button>
             ))}
+
+            {/* Copy button — only for code tabs */}
+            {(activeTab === 'index' || activeTab === 'package') && (
+              <div className="ml-auto px-3 py-2 shrink-0">
+                <CopyButton text={codeForCopy} />
+              </div>
+            )}
           </div>
 
-          {/* Code block */}
-          <div className="glass-card rounded-xl border border-slate-800/50 overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-800/50 bg-slate-900/30">
-              <Code2 size={13} className="text-emerald-400" />
-              <span className="text-xs text-slate-500 font-mono">
-                {activeTab === 'index' ? 'src/index.ts' : 'package.json'}
-              </span>
-            </div>
-            <pre className="p-4 text-[11px] leading-relaxed text-slate-300 font-mono overflow-x-auto max-h-[620px] overflow-y-auto">
-              <code>{activeCode}</code>
+          {/* Tab content */}
+          {(activeTab === 'index' || activeTab === 'package') && (
+            <pre className="p-4 text-[11px] leading-relaxed text-slate-300 font-mono
+              overflow-x-auto max-h-[640px] overflow-y-auto">
+              <code>{activeTab === 'index' ? generatedIndex : generatedPackage}</code>
             </pre>
-          </div>
+          )}
 
-          {/* Install instructions */}
-          <div className="glass-card rounded-xl border border-slate-800/50 p-4 space-y-2">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Quick Start</p>
-            <div className="space-y-1.5 text-[11px] text-slate-400 font-mono">
-              <p className="text-slate-600"># 1. Save the files and install deps</p>
-              <p>npm install</p>
-              <p className="text-slate-600"># 2. Build</p>
-              <p>npm run build</p>
-              <p className="text-slate-600"># 3. Add to Claude Desktop config</p>
-              <p className="text-slate-500">{'{'}</p>
-              <p className="pl-4 text-slate-500">{`"mcpServers": {`}</p>
-              <p className="pl-8 text-slate-400">{`"${sanitizeName(config.name)}": {`}</p>
-              <p className="pl-12 text-slate-400">{`"command": "node",`}</p>
-              <p className="pl-12 text-slate-400">{`"args": ["dist/index.js"]`}</p>
-              <p className="pl-8 text-slate-500">{'}'}</p>
-              <p className="pl-4 text-slate-500">{'}'}</p>
-              <p className="text-slate-500">{'}'}</p>
+          {activeTab === 'quickstart' && (
+            <div className="p-5 space-y-4">
+              <p className="text-xs text-slate-500">
+                After downloading your generated files, follow these steps:
+              </p>
+              <div className="space-y-3">
+                {[
+                  { step: '1', title: 'Install dependencies', code: 'npm install' },
+                  { step: '2', title: 'Build', code: 'npm run build' },
+                  { step: '3', title: 'Dev mode (skip build)', code: 'npm run dev' },
+                ].map(({ step, title, code }) => (
+                  <div key={step} className="flex items-start gap-3">
+                    <span className="text-[10px] font-bold text-emerald-500/70 w-4 shrink-0 mt-0.5">
+                      {step}.
+                    </span>
+                    <div className="space-y-1 flex-1">
+                      <p className="text-xs text-slate-400 font-medium">{title}</p>
+                      <code className="block bg-slate-900/70 border border-slate-800/60 rounded-lg
+                        px-3 py-1.5 text-[11px] font-mono text-emerald-300">
+                        {code}
+                      </code>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2 border-t border-slate-800/50 space-y-2">
+                <p className="text-xs font-medium text-slate-400">
+                  4. Add to Claude Desktop config
+                </p>
+                <p className="text-[10px] text-slate-600">
+                  macOS: <code className="font-mono">~/Library/Application Support/Claude/claude_desktop_config.json</code><br />
+                  Windows: <code className="font-mono">%APPDATA%\Claude\claude_desktop_config.json</code>
+                </p>
+                <pre className="bg-slate-900/70 border border-slate-800/60 rounded-lg p-3
+                  text-[11px] font-mono text-slate-300 overflow-x-auto">
+{`{
+  "mcpServers": {
+    "${sanitizeName(config.name)}": {
+      "command": "node",
+      "args": ["dist/index.js"]
+    }
+  }
+}`}
+                </pre>
+                <p className="text-[10px] text-slate-600">
+                  Restart Claude Desktop after saving the config.
+                </p>
+              </div>
             </div>
-          </div>
+          )}
+
+          {activeTab === 'primer' && <McpPrimerPanel />}
         </div>
       </div>
     </div>
