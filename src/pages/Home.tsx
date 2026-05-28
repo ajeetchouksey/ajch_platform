@@ -80,7 +80,7 @@ const whyCards = [
     border: 'border-violet-600/25 hover:border-violet-500/50',
     glow: 'from-violet-500/5',
     label: 'Practitioner-built',
-    body: '20+ years designing AI and cloud systems in production. Every resource here fills a gap I hit on a real project — not a syllabus requirement.',
+    body: '20+ years in cloud and DevOps — now applying that depth to AI. Every resource here fills a gap I hit on a real project — not a syllabus requirement.',
   },
   {
     icon: Users,
