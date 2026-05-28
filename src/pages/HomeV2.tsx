@@ -4,7 +4,7 @@ import {
   GraduationCap, Newspaper, Wrench, ArrowRight,
   GitBranch, Users, BookOpen, ExternalLink,
   GitCommit, Award, Calendar, Zap, ShieldCheck, Terminal,
-  CheckCircle2, Brain, Sparkles, Globe,
+  CheckCircle2, Brain, Globe,
 } from 'lucide-react';
 import {
   Badge, Button, Avatar, PulsingDot, type StatItem,
@@ -269,18 +269,7 @@ export default function HomeV2() {
               <StarRepo />
             </div>
 
-            {/* Micro proof */}
-            <div className="flex flex-wrap items-center gap-5 text-xs text-slate-500">
-              {[
-                { icon: CheckCircle2, label: 'Free forever — no account required' },
-                { icon: CheckCircle2, label: 'Open source · MIT licensed' },
-                { icon: CheckCircle2, label: 'No ads · No tracking' },
-              ].map(({ icon: I, label }) => (
-                <span key={label} className="flex items-center gap-1.5" style={{ color: '#64748b' }}>
-                  <I size={12} style={{ color: '#10b981' }} /> {label}
-                </span>
-              ))}
-            </div>
+
           </div>
 
           {/* ── Right: terminal ─────────────────────────────────────────── */}
@@ -554,14 +543,6 @@ export default function HomeV2() {
             style={{ backgroundImage: 'radial-gradient(rgba(139,92,246,0.6) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
           <div className="relative z-10">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Sparkles size={14} style={{ color: '#fbbf24' }} />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: '#64748b' }}>
-                Free · No account required · Open source
-              </span>
-              <Sparkles size={14} style={{ color: '#fbbf24' }} />
-            </div>
-
             <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight tracking-tight mb-3">
               Ready to level up{' '}
               <span style={{
@@ -594,11 +575,7 @@ export default function HomeV2() {
               </Link>
             </div>
 
-            <p className="text-xs text-slate-600 mt-6 flex items-center justify-center gap-4 flex-wrap">
-              <span className="flex items-center gap-1.5"><CheckCircle2 size={11} style={{ color: '#10b981' }} /> No signup</span>
-              <span className="flex items-center gap-1.5"><CheckCircle2 size={11} style={{ color: '#10b981' }} /> No paywall</span>
-              <span className="flex items-center gap-1.5"><CheckCircle2 size={11} style={{ color: '#10b981' }} /> No ads</span>
-            </p>
+
           </div>
         </div>
       </section>
