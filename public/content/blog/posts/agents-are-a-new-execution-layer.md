@@ -1,6 +1,6 @@
 ---
 title: "Agents Aren't a Feature — They're a New Execution Layer"
-date: "2025-05-22"
+date: "2026-05-22"
 slug: agents-are-a-new-execution-layer
 excerpt: "Most software waits. Agents break that contract."
 tags: ["agents", "architecture", "enterprise-strategy", "execution-model"]

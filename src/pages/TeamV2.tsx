@@ -755,10 +755,20 @@ export default function TeamV2() {
               <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-1 font-medium">
                 One human. Twenty-one specialised AI agents.
               </p>
-              <p className="text-slate-500 text-sm leading-relaxed mb-8">
+              <p className="text-slate-400 text-sm leading-relaxed mb-8">
                 Every feature on this platform ships through a gated, seven-step pipeline —
-                from a single intent to a version-tagged release.
-                Agent speed. Human control.
+                from a single intent to a version-tagged release.{' '}
+                <span className="font-black" style={{
+                  background: 'linear-gradient(90deg, #38bdf8, #60a5fa)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>Agent speed.</span>
+                {' '}
+                <span className="font-black" style={{
+                  background: 'linear-gradient(90deg, #a78bfa, #c084fc)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>Human control.</span>
               </p>
 
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600 mb-4">

@@ -1,6 +1,6 @@
 ---
 title: "Guardrails Are Not Constraints — They Are the Operating Model"
-date: 2025-05-22
+date: 2026-05-22
 author: Ajeet Chouksey
 tags: [responsible-ai, ai-governance, platform-engineering, operating-model, decision-systems]
 category: Opinions
