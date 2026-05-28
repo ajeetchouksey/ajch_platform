@@ -417,15 +417,6 @@ export default function SystemPromptBuilder() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
 
-      {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb">
-        <ol className="flex items-center gap-2 text-xs text-slate-500 list-none p-0 m-0">
-          <li><Link to="/tools" className="hover:text-violet-400 transition-colors">Tools</Link></li>
-          <li aria-hidden="true"><ChevronRight size={12} /></li>
-          <li><span className="text-slate-400" aria-current="page">System Prompt Builder</span></li>
-        </ol>
-      </nav>
-
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <p className="page-eyebrow">AI Tools</p>

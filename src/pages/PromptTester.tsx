@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight, Terminal, Copy, Check, ChevronDown } from 'lucide-react';
+import { Terminal, Copy, Check, ChevronDown } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -168,13 +167,6 @@ export default function PromptTester() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-sm text-slate-500">
-        <Link to="/tools" className="hover:text-slate-300 transition-colors">Tools</Link>
-        <ChevronRight size={14} />
-        <span className="text-slate-300">Prompt Tester</span>
-      </nav>
-
       {/* Header */}
       <div className="flex items-start gap-4">
         <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"

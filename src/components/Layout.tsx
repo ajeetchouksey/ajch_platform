@@ -1,8 +1,9 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, ChevronRight, Users, LineChart, Hash, Eye, Server, Terminal, BookMarked } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, Users, LineChart, Hash, Eye, Server, Terminal, BookMarked } from 'lucide-react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
+import { Breadcrumb, type BreadcrumbItem } from './ui';
 import { loadBlogManifest, loadExamRegistry } from '../lib/content-loader';
 import { useAuth } from '../lib/auth';
 import { EXAM_SCHEMES } from '../types/content';
@@ -20,45 +21,55 @@ const platformLinks = [
 function Breadcrumbs() {
   const location = useLocation();
   const segments = location.pathname.split('/').filter(Boolean);
-
   if (segments.length === 0) return null;
 
-  const crumbs: { label: string; to: string }[] = [];
+  // Full label map — URL segment → human label
   const labelMap: Record<string, string> = {
-    exams: 'Learn',
-    ccaf: 'CCA-F',
-    ab100: 'AB-100',
-    quiz: 'Quiz',
-    notes: 'Notes',
-    scenarios: 'Scenarios',
-    progress: 'Progress',
-    blog: 'Blog',
-    tools: 'Tools',
-    team: 'Team',
+    // Platform sections
+    exams:      'Learn',
+    blog:       'Blog',
+    tools:      'Tools',
+    team:       'Team',
+    analytics:  'Analytics',
     maintainer: 'Maintainer',
+    profile:    'Profile',
+    progress:   'Progress',
+    // Exam IDs
+    ccaf:       'CCA-F',
+    ab100:      'AB-100',
+    ghbp:       'GitHub Best Practices',
+    // Exam sub-sections
+    quiz:       'Quiz',
+    notes:      'Notes',
+    scenarios:  'Scenarios',
+    // Tool routes
+    'token-counter':         'Token Counter',
+    'context-visualizer':   'Context Visualizer',
+    'mcp-scaffold':          'MCP Scaffold',
+    'rag-chunk-visualizer': 'RAG Chunk Visualizer',
+    'prompt-tester':         'Prompt Tester',
+    'prompt-library':        'Prompt Library',
+    'system-prompt-builder': 'System Prompt Builder',
+    'tool-schema-builder':   'Tool Schema Builder',
+    'model-cost-calc':       'Model Cost Calc',
+    // Team / misc
+    v2: 'V2',
   };
 
+  const toTitle = (seg: string) =>
+    labelMap[seg] ?? seg.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const items: BreadcrumbItem[] = [];
   let path = '';
-  for (const seg of segments) {
-    path += `/${seg}`;
-    crumbs.push({ label: labelMap[seg] || seg, to: path });
+  for (let i = 0; i < segments.length; i++) {
+    path += `/${segments[i]}`;
+    items.push({
+      label: toTitle(segments[i]),
+      to: i < segments.length - 1 ? path : undefined,
+    });
   }
 
-  return (
-    <div className="flex items-center gap-1 text-xs text-slate-500 mb-4 overflow-x-auto">
-      <Link to="/" className="hover:text-violet-300 transition-colors shrink-0">Home</Link>
-      {crumbs.map(({ label, to }, idx) => (
-        <span key={to} className="flex items-center gap-1 shrink-0">
-          <ChevronRight size={10} className="text-slate-700" />
-          {idx === crumbs.length - 1 ? (
-            <span className="text-slate-300 font-medium">{label}</span>
-          ) : (
-            <Link to={to} className="hover:text-violet-300 transition-colors">{label}</Link>
-          )}
-        </span>
-      ))}
-    </div>
-  );
+  return <Breadcrumb items={items} />;
 }
 
 export default function Layout({ children }: { children: ReactNode }) {

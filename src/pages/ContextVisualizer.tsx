@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { Eye, Plus, Trash2, ChevronRight, Info, AlertTriangle } from 'lucide-react';
+import { Eye, Plus, Trash2, Info, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
   countTokens,
@@ -229,13 +229,6 @@ export default function ContextVisualizer() {
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
-
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-xs text-slate-500">
-        <Link to="/tools" className="hover:text-slate-300 transition-colors">Tools</Link>
-        <ChevronRight size={12} />
-        <span className="text-slate-300">Context Visualizer</span>
-      </nav>
 
       {/* Header */}
       <div className="space-y-1">

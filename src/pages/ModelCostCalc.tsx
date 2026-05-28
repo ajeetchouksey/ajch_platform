@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight, DollarSign, TrendingDown, ExternalLink } from 'lucide-react';
+import { DollarSign, TrendingDown, ExternalLink } from 'lucide-react';
 import rawPricing from '../data/model-pricing.json';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -102,15 +101,6 @@ export default function ModelCostCalc() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb">
-        <ol className="flex items-center gap-2 text-xs text-slate-500 list-none p-0 m-0">
-          <li><Link to="/tools" className="hover:text-violet-400 transition-colors">Tools</Link></li>
-          <li aria-hidden="true"><ChevronRight size={12} /></li>
-          <li><span className="text-slate-400" aria-current="page">Model Cost Calculator</span></li>
-        </ol>
-      </nav>
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>

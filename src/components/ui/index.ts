@@ -22,3 +22,6 @@ export type { TimelineEntry } from './Timeline';
 export { Avatar } from './Avatar';
 
 export { Button } from './Button';
+
+export { Breadcrumb } from './Breadcrumb';
+export type { BreadcrumbItem } from './Breadcrumb';

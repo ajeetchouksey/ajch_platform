@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight, Layers, Copy, Check } from 'lucide-react';
+import { Layers, Copy, Check } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -170,13 +169,6 @@ export default function RagChunkVisualizer() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-sm text-slate-500">
-        <Link to="/tools" className="hover:text-slate-300 transition-colors">Tools</Link>
-        <ChevronRight size={14} />
-        <span className="text-slate-300">RAG Chunk Visualizer</span>
-      </nav>
-
       {/* Header */}
       <div className="flex items-start gap-4">
         <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"

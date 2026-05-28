@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { Server, Plus, Trash2, Copy, Check, ChevronDown, Info, Code2, HelpCircle, BookOpen, Terminal } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -497,12 +496,6 @@ export default function McpScaffold() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <nav className="flex items-center gap-2 text-xs text-slate-500 mb-4">
-          <Link to="/tools" className="hover:text-violet-300 transition-colors">Tools</Link>
-          <span className="text-slate-700">›</span>
-          <span className="text-slate-400">MCP Scaffold</span>
-        </nav>
-
         <div className="flex items-start gap-4">
           <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20
             flex items-center justify-center shrink-0">

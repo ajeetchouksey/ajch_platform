@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import {
-  ChevronRight, Plus, Trash2, Copy, Check, Download,
+  Plus, Trash2, Copy, Check, Download,
   AlertCircle, Code2, FileJson, LayoutTemplate,
 } from 'lucide-react';
 import rawExamples from '../data/tool-schema-examples.json';
@@ -201,15 +200,6 @@ export default function ToolSchemaBuilder() {
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb">
-        <ol className="flex items-center gap-2 text-xs text-slate-500 list-none p-0 m-0">
-          <li><Link to="/tools" className="hover:text-violet-400 transition-colors">Tools</Link></li>
-          <li aria-hidden="true"><ChevronRight size={12} /></li>
-          <li><span className="text-slate-400" aria-current="page">Tool Schema Builder</span></li>
-        </ol>
-      </nav>
-
       {/* Header */}
       <div>
         <p className="page-eyebrow">AI Tools</p>
