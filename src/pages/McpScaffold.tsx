@@ -63,16 +63,6 @@ function toZodType(t: ParamType): string {
   }
 }
 
-function toTsType(t: ParamType): string {
-  switch (t) {
-    case 'string': return 'string';
-    case 'number': return 'number';
-    case 'boolean': return 'boolean';
-    case 'array': return 'unknown[]';
-    case 'object': return 'Record<string, unknown>';
-  }
-}
-
 function sanitizeName(s: string): string {
   return s.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[0-9]/, '_$&') || 'unnamed';
 }
@@ -128,11 +118,6 @@ function generateCode(config: ServerConfig, tools: ToolDef[]): string {
 
       // async handler
       if (hasParams) {
-        const paramNames = tool.params
-          .filter(p => p.required)
-          .map(p => sanitizeName(p.name))
-          .join(', ');
-        const optionalParams = tool.params.filter(p => !p.required);
         const allParams = tool.params.map(p => sanitizeName(p.name)).join(', ');
         lines.push(`  async ({ ${allParams} }) => {`);
       } else {
