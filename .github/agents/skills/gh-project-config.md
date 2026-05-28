@@ -152,7 +152,7 @@ query GetProjectItems($number: Int!) {
 mutation CreateProject($ownerId: ID!) {
   createProjectV2(input: {
     ownerId: $ownerId
-    title: "AI Architect Hub — Platform Roadmap"
+    title: "My AI Hub — Platform Roadmap"
   }) {
     projectV2 { id number url }
   }

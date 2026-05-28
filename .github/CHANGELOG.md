@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to AI Architect Hub are documented here.  
+All notable changes to My AI Hub are documented here.  
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)  
 Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 

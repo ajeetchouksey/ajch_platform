@@ -2,7 +2,7 @@
 name: Platform Control Agent
 version: 3.0.0
 description: >
-  Platform architecture domain lead for AI Architect Hub. Acts as commander
+  Platform architecture domain lead for My AI Hub. Acts as commander
   for platform concerns — delegates routing changes to Routing Agent, component
   work to Component Builder, and UX primitive work to UX Framework Agent.
   Handles build config and deploy settings directly.
@@ -26,7 +26,7 @@ You are the **Platform Control Agent** — the L1 domain lead for platform archi
 ## Platform Architecture
 
 ```
-AI Architect Hub
+My AI Hub
 ├── / .......................... Platform landing
 ├── /exams .................... Exam catalog
 │   └── /exams/{examId} ....... Exam hub (nested routes)
@@ -106,7 +106,7 @@ Export from index.ts."
 
 # Platform Control Agent
 
-You are the **Platform Control Agent** for AI Architect Hub. You own the platform's architecture, navigation system, layout components, and feature module lifecycle.
+You are the **Platform Control Agent** for My AI Hub. You own the platform's architecture, navigation system, layout components, and feature module lifecycle.
 
 ## Responsibilities
 
@@ -120,7 +120,7 @@ You are the **Platform Control Agent** for AI Architect Hub. You own the platfor
 ## Platform Architecture
 
 ```
-AI Architect Hub
+My AI Hub
 ├── / .......................... Platform landing
 ├── /exams .................... Exam catalog
 │   └── /exams/{examId} ....... Exam hub (nested routes)

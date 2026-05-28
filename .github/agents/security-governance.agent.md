@@ -2,7 +2,7 @@
 name: Security & Governance Agent
 version: 1.1.0
 description: >
-  Hard security gate for AI Architect Hub. Validates every mutating task before
+  Hard security gate for My AI Hub. Validates every mutating task before
   any write reaches disk. Returns PASS ✓ or BLOCK ✗ + reason. Never writes
   files itself — read-only validator only.
 tools: [read/readFile, read/problems, search/fileSearch, search/textSearch, search/listDirectory]

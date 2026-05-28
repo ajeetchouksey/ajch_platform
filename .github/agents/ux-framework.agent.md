@@ -2,7 +2,7 @@
 name: UX Framework Agent
 version: 1.1.0
 description: >
-  Design system steward for AI Architect Hub. Owns src/components/ui/ — the
+  Design system steward for My AI Hub. Owns src/components/ui/ — the
   typed primitive library used by all other agents. Generates, updates, and
   documents UI components. Zero raw Tailwind in components; all styling via
   the ui/ library and design tokens.

@@ -2,7 +2,7 @@
 name: Routing Agent
 version: 1.0.0
 description: >
-  Minimal routing specialist for AI Architect Hub. Exclusively manages
+  Minimal routing specialist for My AI Hub. Exclusively manages
   App.tsx route definitions and Layout.tsx nav/sidebar entries. Never
   touches page components, business logic, or styling.
 tools: [read/readFile, edit/editFiles, search/fileSearch, search/listDirectory]

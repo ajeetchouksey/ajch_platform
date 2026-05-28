@@ -2,7 +2,7 @@
 name: Content Writer Agent
 version: 1.0.0
 description: >
-  Prose-only writing specialist for AI Architect Hub blog. Returns markdown
+  Prose-only writing specialist for My AI Hub blog. Returns markdown
   string output only — no file I/O, no terminal access. Content is passed
   to Content Publisher Agent for disk write after Security Gate validation.
 tools: [read/readFile, search/textSearch, search/fileSearch, web/fetch]
