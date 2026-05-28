@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Wrench, Terminal, Hash, Eye, Server, FileText,
-  Calculator, Layers, FileJson,
+  Calculator, Layers, FileJson, BookMarked,
 } from 'lucide-react';
 
 interface ToolDef {
@@ -66,14 +66,26 @@ const TOOLS: ToolDef[] = [
   {
     icon: Layers,
     label: 'RAG Chunk Visualizer',
-    category: 'planned',
-    desc: 'Visualise how chunking strategies split your text — coming in v2.3.',
+    href: '/tools/rag-chunk-visualizer',
+    live: true,
+    category: 'tokens',
+    desc: 'Visualise how fixed-size, sentence, paragraph and recursive chunking splits your text.',
   },
   {
     icon: Terminal,
     label: 'Prompt Tester',
-    category: 'planned',
-    desc: 'Test prompts live with your own API key — requires BYOK proxy (planned v2.4).',
+    href: '/tools/prompt-tester',
+    live: true,
+    category: 'prompting',
+    desc: 'Compose a system prompt and get a ready-to-run Claude or OpenAI API payload — BYOK.',
+  },
+  {
+    icon: BookMarked,
+    label: 'Prompt Library',
+    href: '/tools/prompt-library',
+    live: true,
+    category: 'prompting',
+    desc: 'Browse, preview, and copy production-ready system prompt templates for common AI tasks.',
   },
 ];
 

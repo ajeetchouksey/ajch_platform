@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Bot, Cpu, PenTool, GraduationCap, BookOpen, GitBranch,
   Globe, MapPin, Building2, ExternalLink,
   Zap, Brain, ShieldCheck, Lightbulb, ListChecks, Handshake, Trophy,
-  Award, Users, Layers, Palette, FileText, Send, HelpCircle, Share2, TrendingUp,
-  Megaphone, Github, Linkedin, Sparkles, Terminal, Activity, ChevronRight,
+  Award, Users, Layers, Palette, FileText, Send, HelpCircle, TrendingUp,
+  Megaphone, GitFork, Globe2, Sparkles, Terminal, Activity, ChevronRight,
   Radio, Command, Boxes,
 } from 'lucide-react';
 import { maintainer } from '../data/maintainer';
@@ -85,12 +85,10 @@ function OrbitalAvatar({ src, name, size = 96 }: { src: string; name: string; si
 /* ─── Stat chip ──────────────────────────────────────────────────────────────── */
 function StatChip({ value, label, icon: Icon }: { value: string; label: string; icon: React.ElementType }) {
   return (
-    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800/50 border border-slate-700/40">
+    <div className="flex flex-col items-center justify-center gap-1.5 px-3 py-3 rounded-xl bg-slate-800/50 border border-slate-700/40 text-center w-full">
       <Icon size={13} className="text-violet-400 shrink-0" />
-      <div>
-        <p className="text-sm font-bold text-white leading-none">{value}</p>
-        <p className="text-[9px] text-slate-500 uppercase tracking-wide mt-0.5">{label}</p>
-      </div>
+      <p className="text-base font-black text-white leading-none">{value}</p>
+      <p className="text-[9px] text-slate-500 uppercase tracking-wide leading-tight">{label}</p>
     </div>
   );
 }
@@ -142,7 +140,7 @@ const GH_BASE = 'https://github.com/ajeetchouksey/ajch_platform/blob/main/.githu
 function AgentCard({
   name, role, tagline, description, capabilities, status,
   activeTask, model, tools, version, icon: Icon,
-  accentHex, accentClass, isNew, isLarge, profileFile,
+  accentHex, isNew, isLarge, profileFile,
 }: AgentCardProps) {
   return (
     <div
@@ -282,6 +280,107 @@ function AgentCard({
   );
 }
 
+/* ─── Agent cluster (lead card + its specialist sub-agents) ────────────────────── */
+function AgentCluster({
+  agent, subs, accentHex, accentClass, delay = 0, mounted,
+}: {
+  agent: Omit<AgentCardProps, 'accentHex' | 'accentClass'> & { id?: string };
+  subs: SubAgentProps[];
+  accentHex: string;
+  accentClass: string;
+  delay?: number;
+  mounted: boolean;
+}) {
+  return (
+    <div
+      className={`transition-all duration-700 ${
+        mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }`}
+      style={{ transitionDelay: `${delay}ms` }}>
+      <AgentCard {...agent} accentHex={accentHex} accentClass={accentClass} />
+
+      {subs.length > 0 && (
+        <div className="mt-1 ml-6 sm:ml-10">
+          <div className="relative pl-4 pt-3 pb-1 border-l-2 rounded-bl-xl"
+            style={{ borderColor: `${accentHex}28` }}>
+            {/* Connector dot */}
+            <div className="absolute -left-[5px] top-3.5 w-2.5 h-2.5 rounded-full border-2"
+              style={{ background: 'rgb(10,14,30)', borderColor: `${accentHex}55` }} />
+            <p className="text-[9px] font-bold uppercase tracking-[0.18em] mb-2.5"
+              style={{ color: `${accentHex}60` }}>
+              ↳ delegates to
+            </p>
+            <div className={`grid gap-2 ${
+              subs.length === 1 ? 'grid-cols-1 max-w-sm' : 'grid-cols-1 sm:grid-cols-2'
+            }`}>
+              {subs.map(sub => (
+                <SubAgentCard key={sub.id} {...sub} parentColor={accentHex} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Sub-agent compact card ─────────────────────────────────────────────────── */
+interface SubAgentProps {
+  id: string;
+  name: string;
+  role: string;
+  tagline: string;
+  capabilities: string[];
+  status: 'active' | 'standby';
+  icon: React.ElementType;
+  parentColor?: string;
+  profileFile: string;
+}
+
+function SubAgentCard({ name, role, capabilities, status, icon: Icon, parentColor = '#8b5cf6', profileFile }: SubAgentProps) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+      hover:-translate-y-0.5 hover:shadow-xl group"
+      style={{
+        background: `${parentColor}09`,
+        border: `1px solid ${parentColor}22`,
+        boxShadow: `0 2px 12px -4px ${parentColor}18`,
+      }}>
+      {/* Icon */}
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+        style={{ background: `${parentColor}18`, border: `1px solid ${parentColor}35` }}>
+        <Icon size={16} style={{ color: parentColor }} />
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="text-xs font-bold text-white truncate">{name}</p>
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+            status === 'active' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'
+          }`} />
+        </div>
+        <p className="text-[10px] font-semibold mt-0.5" style={{ color: `${parentColor}bb` }}>{role}</p>
+        <div className="flex flex-wrap gap-1 mt-1.5">
+          {capabilities.slice(0, 3).map(c => (
+            <span key={c} className="text-[9px] px-1.5 py-0.5 rounded
+              bg-slate-800/60 border border-slate-700/30 text-slate-500">
+              {c}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Spec link */}
+      <a href={GH_BASE + profileFile} target="_blank" rel="noopener noreferrer"
+        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+        aria-label={`View ${name} specification`}>
+        <ExternalLink size={12} style={{ color: parentColor }} />
+      </a>
+    </div>
+  );
+}
+
 /* ─── Section divider ────────────────────────────────────────────────────────── */
 function SectionDivider({ label, icon: Icon, color }: { label: string; icon: React.ElementType; color: string }) {
   return (
@@ -293,34 +392,6 @@ function SectionDivider({ label, icon: Icon, color }: { label: string; icon: Rea
         <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: `${color}cc` }}>{label}</span>
       </div>
       <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${color}40, transparent)` }} />
-    </div>
-  );
-}
-
-/* ─── Workflow step ──────────────────────────────────────────────────────────── */
-function WorkflowStep({
-  icon: Icon, label, sub, color, step, total,
-}: { icon: React.ElementType; label: string; sub: string; color: string; step: number; total: number }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="flex flex-col items-center gap-1">
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center relative"
-          style={{ background: `${color}18`, border: `1px solid ${color}35`,
-            boxShadow: `0 0 24px -4px ${color}40` }}>
-          <Icon size={20} style={{ color }} />
-          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center
-            text-[8px] font-bold bg-slate-900 border border-slate-700 text-slate-400">
-            {step}
-          </div>
-        </div>
-        {step < total && (
-          <div className="w-px h-6 bg-gradient-to-b from-slate-600 to-transparent" />
-        )}
-      </div>
-      <div>
-        <p className="text-sm font-semibold text-white">{label}</p>
-        <p className="text-xs text-slate-500">{sub}</p>
-      </div>
     </div>
   );
 }
@@ -338,10 +409,27 @@ const TICKER_ITEMS = [
   '🔍 AI Researcher scanning arXiv',
 ];
 
+/* ─── Pipeline steps (hero) ─────────────────────────────────────────────────── */
+const PIPELINE_STEPS = [
+  { icon: Cpu,         label: 'Staff Engineer',   sub: 'classifies the request, picks the domain lead', color: '#8b5cf6' },
+  { icon: TrendingUp,  label: 'Product Manager',  sub: 'gates it — opens a traceable GitHub issue',     color: '#14b8a6' },
+  { icon: ShieldCheck, label: 'AppSec Engineer',  sub: 'hard pre-build gate — PASS ✓ or BLOCK ✗',       color: '#ef4444' },
+  { icon: GitBranch,   label: 'Domain Lead',      sub: 'implements via their own specialist sub-agents', color: '#3b82f6' },
+  { icon: ShieldCheck, label: 'Post-build Audit', sub: 'AppSec re-scans every changed file',             color: '#f59e0b' },
+  { icon: Zap,         label: 'SRE',              sub: 'semver release, CHANGELOG, agent versioning',   color: '#f97316' },
+  { icon: Megaphone,   label: 'DevRel',           sub: 'drafts the announcement copy for human review', color: '#ec4899' },
+];
+
+const ARCH_LAYERS = [
+  { label: 'Dispatch Layer',      color: '#8b5cf6', agents: ['Staff Engineer', 'Product Manager'],                          count: 2  },
+  { label: 'Domain Leads',        color: '#3b82f6', agents: ['Platform Architect', 'Content Lead', 'Curriculum Eng', 'Pair Programmer'], count: 4 },
+  { label: 'Platform Foundation', color: '#f59e0b', agents: ['AppSec Engineer', 'Design Systems', 'SRE', 'DevRel'],         count: 4  },
+  { label: 'Specialists',         color: '#10b981', agents: ['11 sub-agents across all domain leads'],                      count: 11 },
+];
+
 /* ─── Main page ──────────────────────────────────────────────────────────────── */
 export default function TeamV2() {
   const [mounted, setMounted] = useState(false);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
@@ -495,6 +583,135 @@ export default function TeamV2() {
   const l1Agents  = agents.filter(a => ['platform-control', 'blog', 'exam-content', 'study-companion'].includes(a.id));
   const opsAgents = agents.filter(a => ['security-governance', 'ux-framework', 'devops', 'social-media'].includes(a.id));
 
+  const subAgentGroups = [
+    {
+      parentId: 'orchestrator',
+      parentName: 'Staff Engineer',
+      parentColor: '#8b5cf6',
+      agents: [
+        {
+          id: 'ai-research-tool', name: 'AI Researcher', role: 'Research & Intelligence',
+          tagline: 'Fetch. Synthesise. Surface signal.',
+          capabilities: ['arXiv Scan', 'Model Benchmarks', 'Tool Discovery', 'Trend Synthesis'],
+          status: 'standby' as const, icon: Globe2,
+          profileFile: 'ai-research-tool.agent.md',
+        },
+      ],
+    },
+    {
+      parentId: 'product-owner',
+      parentName: 'Product Manager',
+      parentColor: '#14b8a6',
+      agents: [
+        {
+          id: 'scrum-master', name: 'Delivery Manager', role: 'Sprint Facilitator',
+          tagline: 'Ceremonies. Velocity. Retros.',
+          capabilities: ['Sprint Planning', 'Retrospectives', 'Burndown', 'Backlog Grooming'],
+          status: 'standby' as const, icon: ListChecks,
+          profileFile: 'scrum-master.agent.md',
+        },
+      ],
+    },
+    {
+      parentId: 'platform-control',
+      parentName: 'Platform Architect',
+      parentColor: '#3b82f6',
+      agents: [
+        {
+          id: 'routing', name: 'Platform Engineer', role: 'Routing & Navigation',
+          tagline: 'Routes, nav entries, and lazy-loaded pages.',
+          capabilities: ['React Router', 'Lazy Loading', 'Nav Registration', 'Page Scaffold'],
+          status: 'active' as const, icon: GitBranch,
+          profileFile: 'routing.agent.md',
+        },
+        {
+          id: 'component-builder', name: 'Frontend Engineer', role: 'UI Components',
+          tagline: 'Build typed primitives. Zero raw Tailwind.',
+          capabilities: ['React Components', 'TypeScript', 'Design Tokens', 'Accessibility'],
+          status: 'active' as const, icon: Layers,
+          profileFile: 'component-builder.agent.md',
+        },
+      ],
+    },
+    {
+      parentId: 'blog',
+      parentName: 'Content Lead',
+      parentColor: '#10b981',
+      agents: [
+        {
+          id: 'content-writer', name: 'Tech Writer', role: 'Blog Author',
+          tagline: 'Draft, refine, and pass to the gate.',
+          capabilities: ['Technical Writing', 'SEO Copy', 'Code Samples', 'Markdown'],
+          status: 'active' as const, icon: FileText,
+          profileFile: 'content-writer.agent.md',
+        },
+        {
+          id: 'content-publisher', name: 'Release Engineer', role: 'Publishing Pipeline',
+          tagline: 'Validate metadata. Write index. Ship.',
+          capabilities: ['JSON Metadata', 'Index Update', 'Slug Generation', 'Publish Gate'],
+          status: 'active' as const, icon: Send,
+          profileFile: 'content-publisher.agent.md',
+        },
+      ],
+    },
+    {
+      parentId: 'exam-content',
+      parentName: 'Curriculum Engineer',
+      parentColor: '#f59e0b',
+      agents: [
+        {
+          id: 'question-generator', name: 'Assessment Engineer', role: 'MCQ Generator',
+          tagline: 'Stem. Distractors. Rationale. Deduplicate.',
+          capabilities: ['MCQ Authoring', 'Distractors', 'Rationale', 'Domain Mapping'],
+          status: 'active' as const, icon: HelpCircle,
+          profileFile: 'question-generator.agent.md',
+        },
+        {
+          id: 'study-notes', name: 'Docs Engineer', role: 'Notes Author',
+          tagline: 'Structured notes in Markdown. Always cite the source.',
+          capabilities: ['Markdown Notes', 'Source Citation', 'Domain Structuring', 'Cross-refs'],
+          status: 'active' as const, icon: BookOpen,
+          profileFile: 'study-notes.agent.md',
+        },
+      ],
+    },
+    {
+      parentId: 'study-companion',
+      parentName: 'Pair Programmer',
+      parentColor: '#f43f5e',
+      agents: [
+        {
+          id: 'expert-teacher', name: 'Principal Mentor', role: 'Socratic Teacher',
+          tagline: 'Ask before telling. Guide, never hand-hold.',
+          capabilities: ['Socratic Method', 'Concept Depth', 'Exam Traps', 'Gap Analysis'],
+          status: 'active' as const, icon: Lightbulb,
+          profileFile: 'expert-teacher.agent.md',
+        },
+        {
+          id: 'student-simulator', name: 'Junior Dev', role: '101 → 301 Simulator',
+          tagline: 'Be the student. Force the teacher to think.',
+          capabilities: ['Teaching-back Sim', '101/201/301 Mode', 'Intentional Gaps', 'Feedback'],
+          status: 'standby' as const, icon: Bot,
+          profileFile: 'student-simulator.agent.md',
+        },
+      ],
+    },
+    {
+      parentId: 'security-governance',
+      parentName: 'AppSec Engineer',
+      parentColor: '#ef4444',
+      agents: [
+        {
+          id: 'ux-diagram-validator', name: 'QA Engineer', role: 'UX Audit Specialist',
+          tagline: 'Catch design-system drift before it ships.',
+          capabilities: ['Component Audit', 'Token Compliance', 'Accessibility Check', 'Diff Report'],
+          status: 'active' as const, icon: ShieldCheck,
+          profileFile: 'ux-diagram-validator.agent.md',
+        },
+      ],
+    },
+  ];
+
   return (
     <div className="relative min-h-screen">
       <style>{STYLES}</style>
@@ -526,23 +743,108 @@ export default function TeamV2() {
               background: i % 2 ? '#a78bfa' : '#38bdf8', animationDelay: dot.delay }} />
         ))}
 
-        <div className="relative z-10 px-6 py-10 sm:py-14">
-          <p className="page-eyebrow mb-2">Human + AI</p>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-3">
-            Meet the <span className="heading-gradient">Team</span>
-          </h1>
-          <p className="text-slate-400 max-w-xl text-sm leading-relaxed mb-6">
-            One human operator. Ten specialised AI agents. An architecture built on the principle that
-            great systems amplify human intent — they don't replace it.
-          </p>
+        <div className="relative z-10 px-6 py-10 sm:py-14 lg:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-10 xl:gap-16 items-start">
 
-          {/* Live stats bar */}
-          <div className="flex flex-wrap gap-3">
+            {/* ─ Left: headline + pipeline flow ─ */}
+            <div>
+              <p className="page-eyebrow mb-3">Human + AI</p>
+              <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
+                Meet the <span className="heading-gradient">Team</span>
+              </h1>
+              <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-1 font-medium">
+                One human. Twenty-one specialised AI agents.
+              </p>
+              <p className="text-slate-500 text-sm leading-relaxed mb-8">
+                Every feature on this platform ships through a gated, seven-step pipeline —
+                from a single intent to a version-tagged release.
+                Agent speed. Human control.
+              </p>
+
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600 mb-4">
+                How a request becomes a shipped feature
+              </p>
+              <div className="space-y-1">
+                {PIPELINE_STEPS.map(({ icon: I, label, sub, color }, idx) => (
+                  <div key={label} className="flex items-start gap-3">
+                    <div className="flex flex-col items-center shrink-0">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+                        style={{ background: `${color}18`, border: `1px solid ${color}35` }}>
+                        <I size={14} style={{ color }} />
+                      </div>
+                      {idx < PIPELINE_STEPS.length - 1 && (
+                        <div className="w-px h-3 mt-0.5"
+                          style={{ background: `linear-gradient(${color}50, transparent)` }} />
+                      )}
+                    </div>
+                    <div className="pt-1.5 pb-1 leading-snug">
+                      <span className="text-xs font-bold text-white">{label}</span>
+                      <span className="text-xs text-slate-500"> — {sub}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ─ Right: architecture card (hidden on mobile) ─ */}
+            <div className="hidden lg:block">
+              <div className="rounded-2xl overflow-hidden"
+                style={{
+                  background: 'linear-gradient(160deg, rgba(139,92,246,0.09) 0%, rgba(15,23,42,0.97) 100%)',
+                  border: '1px solid rgba(139,92,246,0.20)',
+                  boxShadow: '0 8px 40px -12px rgba(139,92,246,0.20)',
+                }}>
+                {/* Terminal chrome */}
+                <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-800/60 bg-slate-900/50">
+                  <div className="flex gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500/40" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/40" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/40" />
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-mono ml-1">team_architecture</span>
+                </div>
+                {/* Layers */}
+                <div className="p-4 space-y-2.5">
+                  {ARCH_LAYERS.map(layer => (
+                    <div key={layer.label} className="rounded-xl p-3"
+                      style={{ background: `${layer.color}0b`, border: `1px solid ${layer.color}22` }}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider"
+                          style={{ color: layer.color }}>
+                          {layer.label}
+                        </span>
+                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded"
+                          style={{ color: `${layer.color}aa`, background: `${layer.color}18` }}>
+                          {layer.count} agents
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {layer.agents.map(a => (
+                          <span key={a} className="text-[10px] text-slate-400 px-2 py-0.5 rounded-md
+                            bg-slate-800/60 border border-slate-700/30">
+                            {a}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Footer */}
+                <div className="px-4 py-2.5 border-t border-slate-800/40 flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-slate-600">total_agents</span>
+                  <span className="text-sm font-black font-mono" style={{ color: '#8b5cf6' }}>21</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats chips — full width below the grid */}
+          <div className="flex flex-wrap gap-3 mt-8">
             {[
-              { icon: Activity, label: '8 agents active', color: '#10b981' },
-              { icon: Radio, label: '2 standby',          color: '#64748b' },
-              { icon: Command, label: '3 orchestration layers', color: '#8b5cf6' },
-              { icon: Boxes, label: '100% client-side', color: '#38bdf8' },
+              { icon: Activity, label: '14 agents active',          color: '#10b981' },
+              { icon: Radio,    label: '7 standby',                  color: '#64748b' },
+              { icon: Command,  label: '3 orchestration layers',     color: '#8b5cf6' },
+              { icon: Boxes,    label: '21 total — all open-source', color: '#38bdf8' },
             ].map(({ icon: I, label, color }) => (
               <div key={label} className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium
                 bg-slate-800/60 border border-slate-700/40 text-slate-300">
@@ -604,8 +906,8 @@ export default function TeamV2() {
                         aria-label={link.label}
                         className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700/50 flex items-center justify-center
                           text-slate-500 hover:text-violet-400 hover:border-violet-500/40 transition-colors">
-                        {link.icon === 'github' && <Github size={13} />}
-                        {link.icon === 'linkedin' && <Linkedin size={13} />}
+                        {link.icon === 'github' && <GitFork size={13} />}
+                        {link.icon === 'linkedin' && <Globe2 size={13} />}
                         {link.icon === 'globe' && <Globe size={13} />}
                       </a>
                     ))}
@@ -722,57 +1024,256 @@ export default function TeamV2() {
       </section>
 
       {/* ════════════════════════════════════════════════════════════
-          L0 — Command Layer
+          How We Work — Collaboration Model
       ════════════════════════════════════════════════════════════ */}
-      <SectionDivider label="L0 — Command Layer" icon={Command} color="#8b5cf6" />
+      <SectionDivider label="How We Work" icon={Handshake} color="#8b5cf6" />
 
-      <div className="space-y-4">
-        {l0Agents.map((agent, i) => {
-          const { hex, cls } = allAgentColors[agent.id] ?? { hex: '#8b5cf6', cls: 'violet' };
-          return (
-            <div key={agent.id}
-              className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-              style={{ transitionDelay: `${i * 120}ms` }}>
-              <AgentCard {...agent} accentHex={hex} accentClass={cls} isLarge />
+      <section className={`transition-all duration-700 mb-10 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        {/* Intro */}
+        <div className="mb-8">
+          <p className="page-eyebrow mb-2">The Model</p>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-3">
+            One Team. <span className="heading-gradient">One Platform.</span>
+          </h2>
+          <p className="text-slate-400 text-sm leading-relaxed max-w-3xl">
+            This platform isn't built by AI doing its thing while a human watches.
+            It's not vibe coding. It's a genuine collaboration — both sides have defined roles,
+            clear accountability, and a shared goal. The human sets direction and approves every outcome.
+            The agents execute, validate, and surface every decision for review.
+            <span className="text-slate-300 font-medium"> Neither side ships anything alone.</span>
+          </p>
+        </div>
+
+        {/* Human + AI role split */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-stretch mb-8">
+          {/* Human role */}
+          <div className="rounded-2xl p-5 space-y-3"
+            style={{
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, rgba(15,23,42,0.95) 100%)',
+              border: '1px solid rgba(139,92,246,0.25)',
+            }}>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: '#8b5cf620', border: '1px solid #8b5cf640' }}>
+                <Users size={17} style={{ color: '#8b5cf6' }} />
+              </div>
+              <div>
+                <p className="text-xs font-black text-white uppercase tracking-wider">The Human</p>
+                <p className="text-[10px] text-slate-500">Ajeet Kumar Chouksey</p>
+              </div>
             </div>
-          );
-        })}
+            {[
+              { label: 'Intent & Vision',   sub: 'Decides what to build, why it matters, and what success looks like' },
+              { label: 'Judgment',          sub: 'Reviews every diff, every draft, every output before it ships' },
+              { label: 'Architecture',      sub: 'Sets structural decisions, design principles, and quality bars' },
+              { label: 'Final Approval',    sub: 'Owns the merge, the publish, the release — always explicit sign-off' },
+              { label: 'Accountability',    sub: 'Maintains the backlog, the roadmap, and the team standards' },
+            ].map(({ label, sub }) => (
+              <div key={label} className="flex items-start gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-violet-500 mt-1.5 shrink-0" />
+                <div>
+                  <span className="text-xs font-semibold text-slate-200">{label}</span>
+                  <span className="text-xs text-slate-500"> — {sub}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Plus connector */}
+          <div className="hidden md:flex flex-col items-center justify-center gap-2 px-2">
+            <div className="w-px flex-1 bg-gradient-to-b from-transparent via-slate-700 to-transparent" />
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-black text-slate-400
+              bg-slate-800 border border-slate-700/60 shrink-0">+</div>
+            <div className="w-px flex-1 bg-gradient-to-b from-transparent via-slate-700 to-transparent" />
+          </div>
+
+          {/* AI role */}
+          <div className="rounded-2xl p-5 space-y-3"
+            style={{
+              background: 'linear-gradient(135deg, rgba(56,189,248,0.08) 0%, rgba(15,23,42,0.95) 100%)',
+              border: '1px solid rgba(56,189,248,0.20)',
+            }}>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: '#38bdf820', border: '1px solid #38bdf840' }}>
+                <Bot size={17} style={{ color: '#38bdf8' }} />
+              </div>
+              <div>
+                <p className="text-xs font-black text-white uppercase tracking-wider">The Agents</p>
+                <p className="text-[10px] text-slate-500">21 specialised AI agents</p>
+              </div>
+            </div>
+            {[
+              { label: 'Speed & Consistency', sub: 'Executes at agent speed, follows conventions precisely every time' },
+              { label: 'Breadth',             sub: 'Handles code, content, security, docs, and social simultaneously' },
+              { label: 'Specialisation',      sub: 'Each agent owns one domain — no context-switching, no drift' },
+              { label: 'Auditability',        sub: 'Behaviour is version-controlled in .github/agents/ — fully reproducible' },
+              { label: 'Safety',              sub: 'Every write is gated; every output is surfaced for human review' },
+            ].map(({ label, sub }) => (
+              <div key={label} className="flex items-start gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-500 mt-1.5 shrink-0" />
+                <div>
+                  <span className="text-xs font-semibold text-slate-200">{label}</span>
+                  <span className="text-xs text-slate-500"> — {sub}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Collaboration patterns */}
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600 mb-4">
+          Collaboration Patterns
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
+          {[
+            {
+              icon: Terminal, color: '#8b5cf6', label: 'Pair Programmer',
+              who: 'Human + Staff Engineer → Domain Lead',
+              detail: 'Human writes the intent and acceptance criteria. AI implements and opens a PR. Human reviews every diff. Nothing merges without explicit approval.',
+            },
+            {
+              icon: PenTool, color: '#10b981', label: 'Co-Author',
+              who: 'Human + Content Lead → Tech Writer',
+              detail: 'Human defines the brief, audience, and tone. Tech Writer drafts. AppSec gates. Human edits for voice and judgment. Only then: publish.',
+            },
+            {
+              icon: Building2, color: '#3b82f6', label: 'Architect & Builders',
+              who: 'Human + Platform Architect → Specialists',
+              detail: 'Human sets architecture decisions and feature specs. Domain leads coordinate their sub-agents to build. Human approves the final output.',
+            },
+            {
+              icon: ShieldCheck, color: '#ef4444', label: 'Security Partners',
+              who: 'Human + AppSec Engineer + QA',
+              detail: 'AppSec runs a hard pre-flight before every write and a post-build audit after every change. Human reviews any BLOCK decision before retrying.',
+            },
+            {
+              icon: ListChecks, color: '#14b8a6', label: 'Sprint Partners',
+              who: 'Human + Product Manager + Delivery Manager',
+              detail: 'PM manages a RICE-scored backlog. Human approves sprint priorities. Delivery Manager tracks velocity. Human leads the retro — every cycle.',
+            },
+            {
+              icon: Brain, color: '#f43f5e', label: 'Teacher & Student',
+              who: 'Human ↔ Pair Programmer (both modes)',
+              detail: 'Principal Mentor uses Socratic questioning to deepen understanding. Junior Dev flips the dynamic — simulating a student so the human practises teaching-back.',
+            },
+          ].map(({ icon: I, color, label, who, detail }) => (
+            <div key={label} className="rounded-xl p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+              style={{ background: `${color}09`, border: `1px solid ${color}22` }}>
+              <div className="flex items-start gap-3 mb-2.5">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                  style={{ background: `${color}18`, border: `1px solid ${color}35` }}>
+                  <I size={14} style={{ color }} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">{label}</p>
+                  <p className="text-[9px] font-mono mt-0.5" style={{ color: `${color}99` }}>{who}</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">{detail}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Ground rules */}
+        <div className="rounded-2xl p-5"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.4) 100%)',
+            border: '1px solid rgba(100,116,139,0.20)',
+          }}>
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600 mb-3">
+            The Ground Rules
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {[
+              'Every file write triggers a two-pass security gate (pre-build + post-build)',
+              'No agent auto-publishes — human reviews all output before it ships',
+              'All work is traceable to a GitHub issue — no work without a ticket',
+              'Every decision point surfaces for explicit human review and approval',
+              'Agent behaviour is version-controlled in .github/agents/ and auditable',
+              'Humans set the quality bar — agents are held to it on every output',
+            ].map((rule, i) => (
+              <div key={i} className="flex items-start gap-2.5">
+                <span className="text-[10px] font-bold text-slate-600 mt-0.5 font-mono shrink-0">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <p className="text-xs text-slate-400 leading-relaxed">{rule}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════════════
+          Dispatch Layer — L0 Command (each lead + their delegates)
+      ════════════════════════════════════════════════════════════ */}
+      <SectionDivider label="Dispatch Layer" icon={Command} color="#8b5cf6" />
+      <div className="space-y-6">
+        {(() => {
+          const subMap = Object.fromEntries(subAgentGroups.map(g => [g.parentId, g.agents] as [string, SubAgentProps[]]));
+          return l0Agents.map((agent, i) => {
+            const { hex, cls } = allAgentColors[agent.id] ?? { hex: '#8b5cf6', cls: 'violet' };
+            return (
+              <AgentCluster
+                key={agent.id}
+                agent={agent}
+                subs={subMap[agent.id] ?? []}
+                accentHex={hex}
+                accentClass={cls}
+                delay={i * 140}
+                mounted={mounted}
+              />
+            );
+          });
+        })()}
       </div>
 
       {/* ════════════════════════════════════════════════════════════
-          L1 — Domain Leads
+          Domain Leads + their Specialists
       ════════════════════════════════════════════════════════════ */}
-      <SectionDivider label="L1 — Domain Leads" icon={GitBranch} color="#3b82f6" />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {l1Agents.map((agent, i) => {
-          const { hex, cls } = allAgentColors[agent.id] ?? { hex: '#3b82f6', cls: 'blue' };
-          return (
-            <div key={agent.id}
-              className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-              style={{ transitionDelay: `${200 + i * 100}ms` }}>
-              <AgentCard {...agent} accentHex={hex} accentClass={cls} />
-            </div>
-          );
-        })}
+      <SectionDivider label="Domain Leads & Specialists" icon={GitBranch} color="#3b82f6" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        {(() => {
+          const subMap = Object.fromEntries(subAgentGroups.map(g => [g.parentId, g.agents] as [string, SubAgentProps[]]));
+          return l1Agents.map((agent, i) => {
+            const { hex, cls } = allAgentColors[agent.id] ?? { hex: '#3b82f6', cls: 'blue' };
+            return (
+              <AgentCluster
+                key={agent.id}
+                agent={agent}
+                subs={subMap[agent.id] ?? []}
+                accentHex={hex}
+                accentClass={cls}
+                delay={200 + i * 100}
+                mounted={mounted}
+              />
+            );
+          });
+        })()}
       </div>
 
       {/* ════════════════════════════════════════════════════════════
-          Cross-Cutting / Ops
+          Platform Foundation — Cross-Cutting & Ops + their delegates
       ════════════════════════════════════════════════════════════ */}
-      <SectionDivider label="Cross-Cutting & Operations" icon={Sparkles} color="#f59e0b" />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-        {opsAgents.map((agent, i) => {
-          const { hex, cls } = allAgentColors[agent.id] ?? { hex: '#f59e0b', cls: 'amber' };
-          return (
-            <div key={agent.id}
-              className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-              style={{ transitionDelay: `${400 + i * 80}ms` }}>
-              <AgentCard {...agent} accentHex={hex} accentClass={cls} />
-            </div>
-          );
-        })}
+      <SectionDivider label="Platform Foundation" icon={Sparkles} color="#f59e0b" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start mb-12">
+        {(() => {
+          const subMap = Object.fromEntries(subAgentGroups.map(g => [g.parentId, g.agents] as [string, SubAgentProps[]]));
+          return opsAgents.map((agent, i) => {
+            const { hex, cls } = allAgentColors[agent.id] ?? { hex: '#f59e0b', cls: 'amber' };
+            return (
+              <AgentCluster
+                key={agent.id}
+                agent={agent}
+                subs={subMap[agent.id] ?? []}
+                accentHex={hex}
+                accentClass={cls}
+                delay={400 + i * 80}
+                mounted={mounted}
+              />
+            );
+          });
+        })()}
       </div>
 
       {/* ════════════════════════════════════════════════════════════
@@ -789,7 +1290,7 @@ export default function TeamV2() {
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold
               bg-slate-800 border border-slate-700/50 text-slate-300
               hover:border-violet-500/40 hover:text-violet-300 transition-colors duration-200">
-            <Github size={13} /> View agent specs on GitHub
+            <GitFork size={13} /> View agent specs on GitHub
           </a>
           <Link to="/team"
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold

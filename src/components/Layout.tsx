@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, ChevronRight, Users, LineChart, Hash, Eye, Server } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, ChevronRight, Users, LineChart, Hash, Eye, Server, Terminal, BookMarked } from 'lucide-react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -465,6 +465,18 @@ export default function Layout({ children }: { children: ReactNode }) {
                 <Link to="/tools/mcp-scaffold" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
                   <Server size={14} />
                   <span>MCP Scaffold</span>
+                </Link>
+                <Link to="/tools/rag-chunk-visualizer" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
+                  <Layers size={14} />
+                  <span>RAG Chunks</span>
+                </Link>
+                <Link to="/tools/prompt-tester" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
+                  <Terminal size={14} />
+                  <span>Prompt Tester</span>
+                </Link>
+                <Link to="/tools/prompt-library" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
+                  <BookMarked size={14} />
+                  <span>Prompt Library</span>
                 </Link>
               </nav>
             </div>

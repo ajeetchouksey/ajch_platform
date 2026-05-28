@@ -15,8 +15,9 @@ import ContextVisualizer from "./pages/ContextVisualizer";
 import McpScaffold from "./pages/McpScaffold";
 import SystemPromptBuilder from "./pages/SystemPromptBuilder";
 import ModelCostCalc from "./pages/ModelCostCalc";
-import ToolSchemaBuilder from "./pages/ToolSchemaBuilder";
-import Profile from "./pages/Profile";
+import ToolSchemaBuilder from "./pages/ToolSchemaBuilder";import RagChunkVisualizer from './pages/RagChunkVisualizer';
+import PromptTester from './pages/PromptTester';
+import PromptLibrary from './pages/PromptLibrary';import Profile from "./pages/Profile";
 import Maintainer from "./pages/Maintainer";
 import MaintainerDashboard from "./pages/MaintainerDashboard";
 import Team from "./pages/Team";
@@ -46,6 +47,9 @@ export default function App() {
             <Route path="/tools/system-prompt-builder" element={<SystemPromptBuilder />} />
             <Route path="/tools/model-cost-calc" element={<ModelCostCalc />} />
             <Route path="/tools/tool-schema-builder" element={<ToolSchemaBuilder />} />
+            <Route path="/tools/rag-chunk-visualizer" element={<RagChunkVisualizer />} />
+            <Route path="/tools/prompt-tester" element={<PromptTester />} />
+            <Route path="/tools/prompt-library" element={<PromptLibrary />} />
             <Route path="/maintainer" element={<Maintainer />} />
             <Route path="/maintainer/dashboard" element={<MaintainerDashboard />} />
             <Route path="/maintainer/team" element={<Team />} />
