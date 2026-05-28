@@ -205,74 +205,139 @@ export default function Blog() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="mb-5">
-        <p className="page-eyebrow">Field Notes</p>
-        <h1 className="text-2xl font-bold tracking-tight mb-1"><span className="heading-gradient">Blog</span></h1>
-        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-          <span>{posts.length} posts</span>
-          <span className="text-slate-700">·</span>
-          <span>{dateRange}</span>
-          <span className="text-slate-700">·</span>
-          <span>{allCategories.length} categories</span>
-          <span className="text-slate-700">·</span>
-          <span>{tagCounts.length} tags</span>
+      {/* ── Visual header ──────────────────────────────────────────────────── */}
+      <div className="relative rounded-2xl overflow-hidden mb-6 px-6 py-8"
+        style={{
+          background: 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.08) 50%, rgba(15,23,42,0.95) 100%)',
+          border: '1px solid rgba(139,92,246,0.20)',
+          boxShadow: '0 0 60px -20px rgba(139,92,246,0.30)',
+        }}>
+        {/* Decorative dots */}
+        <div className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(139,92,246,0.4) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }} />
+
+        <div className="relative z-10">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2"
+            style={{ color: '#a78bfa' }}>Field Notes</p>
+          <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight mb-3">
+            The <span style={{
+              background: 'linear-gradient(90deg, #a78bfa, #38bdf8)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}>Blog</span>
+          </h1>
+          <p className="text-sm text-slate-400 max-w-lg mb-5 leading-relaxed">
+            Architecture decisions, field notes, and patterns from building AI systems in production.
+            No padding. No filler.
+          </p>
+          {/* Stats row */}
+          <div className="flex flex-wrap items-center gap-4">
+            {[
+              { value: posts.length, label: 'articles', color: '#a78bfa' },
+              { value: dateRange,    label: 'years covered', color: '#38bdf8', isStr: true },
+              { value: allCategories.length, label: 'categories', color: '#10b981' },
+              { value: tagCounts.length,     label: 'tags', color: '#f59e0b' },
+            ].map(({ value, label, color, isStr }) => (
+              <div key={label} className="flex items-baseline gap-1.5">
+                <span className="text-xl font-black" style={{ color }}>{isStr ? value : value}</span>
+                <span className="text-xs text-slate-500">{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Search */}
+      {/* ── Search bar ─────────────────────────────────────────────────────── */}
       <div className="mb-4 relative">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-        <input type="text" placeholder="Search posts…" value={searchQuery}
+        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+        <input type="text" placeholder="Search posts, tags, topics…" value={searchQuery}
           onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-          className="w-full pl-9 pr-9 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition-all"
+          className="w-full pl-10 pr-9 py-2.5 rounded-xl text-sm text-white placeholder-slate-600 transition-all focus:outline-none"
+          style={{
+            background: 'rgba(15,23,42,0.95)',
+            border: '1px solid rgba(71,85,105,0.30)',
+          }}
+          onFocus={e => { (e.target as HTMLInputElement).style.borderColor = 'rgba(139,92,246,0.50)'; }}
+          onBlur={e => { (e.target as HTMLInputElement).style.borderColor = 'rgba(71,85,105,0.30)'; }}
         />
         {searchQuery && (
           <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"><X size={14} /></button>
         )}
       </div>
 
-      {/* Category pills + tag toggle + view toggle */}
+      {/* ── Category pills + tag toggle + view toggle ──────────────────────── */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        {allCategories.map((cat) => (
-          <button key={cat} onClick={() => { setSelectedCategory(selectedCategory === cat ? null : cat); setPage(1); }}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${selectedCategory === cat ? `${CAT_COLOR[cat] ?? 'text-slate-400 bg-slate-800'} scale-105` : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'}`}>
-            {cat}
-          </button>
-        ))}
+        {allCategories.map((cat) => {
+          const isActive = selectedCategory === cat;
+          const colorMap: Record<string, string> = {
+            Azure: '#3b82f6', DevOps: '#10b981', Cloud: '#06b6d4',
+            'AI Architecture': '#8b5cf6', Opinions: '#f59e0b',
+          };
+          const hex = colorMap[cat] ?? '#64748b';
+          return (
+            <button key={cat} onClick={() => { setSelectedCategory(selectedCategory === cat ? null : cat); setPage(1); }}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200"
+              style={isActive
+                ? { background: `${hex}22`, border: `1px solid ${hex}50`, color: hex }
+                : { background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(71,85,105,0.25)', color: '#64748b' }
+              }>
+              {cat}
+            </button>
+          );
+        })}
         <button onClick={() => setShowAllTags(!showAllTags)}
-          className={`px-3 py-1 rounded-full text-xs transition-all flex items-center gap-1 ${showAllTags || selectedTag ? 'bg-emerald-900/60 text-emerald-400 border border-emerald-700/50' : 'bg-slate-800/50 text-slate-500 hover:text-slate-300 hover:bg-slate-800'}`}>
+          className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+          style={showAllTags || selectedTag
+            ? { background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.30)', color: '#34d399' }
+            : { background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(71,85,105,0.25)', color: '#64748b' }}>
           <Tag size={11} />{selectedTag ? `#${selectedTag}` : 'Tags'}{showAllTags ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
         </button>
         {hasFilters && (
-          <button onClick={clearFilters} className="px-3 py-1 rounded-full text-xs text-rose-400 bg-rose-950/30 hover:bg-rose-900/40 transition-all">Clear all</button>
+          <button onClick={clearFilters}
+            className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+            style={{ background: 'rgba(244,63,94,0.12)', border: '1px solid rgba(244,63,94,0.25)', color: '#fb7185' }}>
+            Clear all
+          </button>
         )}
-        <div className="ml-auto flex items-center gap-0.5 bg-slate-800/60 rounded-lg p-0.5">
+        <div className="ml-auto flex items-center gap-0.5 rounded-xl p-0.5"
+          style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.25)' }}>
           <button onClick={() => setViewMode('timeline')} title="Timeline"
-            className={`p-1.5 rounded transition-all ${viewMode === 'timeline' ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white'}`}>
+            className="p-1.5 rounded-lg transition-all"
+            style={viewMode === 'timeline'
+              ? { background: '#7c3aed', color: 'white' }
+              : { color: '#475569' }}>
             <LayoutList size={14} />
           </button>
           <button onClick={() => setViewMode('category')} title="By category"
-            className={`p-1.5 rounded transition-all ${viewMode === 'category' ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white'}`}>
+            className="p-1.5 rounded-lg transition-all"
+            style={viewMode === 'category'
+              ? { background: '#7c3aed', color: 'white' }
+              : { color: '#475569' }}>
             <Layers size={14} />
           </button>
         </div>
       </div>
 
-      {/* Tag cloud — collapsed by default */}
+      {/* Tag cloud */}
       {showAllTags && (
         <div className="mb-5 flex flex-wrap gap-1.5 items-center">
           {tagCounts.map(([tag, count]) => (
             <button key={tag} onClick={() => handleTagClick(tag)}
-              className={`px-2 py-0.5 rounded-full text-[11px] transition-all duration-200 flex items-center gap-1 ${selectedTag === tag ? 'bg-emerald-600 text-white scale-105' : 'bg-slate-800/50 text-slate-500 hover:text-slate-300 hover:bg-slate-800'}`}>
-              #{tag}<span className={`text-[9px] font-bold ${selectedTag === tag ? 'opacity-80' : 'opacity-40'}`}>{count}</span>
+              className="px-2 py-0.5 rounded-lg text-[11px] transition-all duration-200 flex items-center gap-1"
+              style={selectedTag === tag
+                ? { background: 'rgba(16,185,129,0.20)', border: '1px solid rgba(16,185,129,0.40)', color: '#34d399' }
+                : { background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(71,85,105,0.20)', color: '#475569' }}>
+              #{tag}<span className="text-[9px] font-bold opacity-60">{count}</span>
             </button>
           ))}
         </div>
       )}
 
       {/* Result count */}
-      <div className="mb-4 text-xs text-slate-500">
+      <div className="mb-4 text-xs text-slate-600">
         {hasFilters
           ? `Showing ${filteredPosts.length} of ${posts.length} posts${searchQuery ? ` for "${searchQuery}"` : ''}`
           : `${posts.length} posts · showing ${Math.min(page * PAGE_SIZE + (heroPost ? 1 : 0), posts.length)}`}
@@ -292,7 +357,7 @@ export default function Blog() {
           {allYears.filter((y) => postsByYear[y]?.length).map((year) => (
             <div key={year}>
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-lg font-bold text-slate-300">{year}</span>
+                <span className="text-lg font-black text-slate-300">{year}</span>
                 <div className="flex-1 h-px bg-slate-800" />
                 <span className="text-xs text-slate-600">{postsByYear[year].length} posts</span>
               </div>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Wrench, Terminal, Hash, Eye, Server, FileText,
-  Calculator, Layers, FileJson, BookMarked,
+  Calculator, Layers, FileJson, BookMarked, ArrowRight, Zap,
 } from 'lucide-react';
 
 interface ToolDef {
@@ -91,11 +91,11 @@ const TOOLS: ToolDef[] = [
 
 const LIVE_TOOLS = TOOLS.filter(t => t.live && t.href);
 
-const CATEGORY_LABELS: Record<string, string> = {
-  prompting: 'Prompting',
-  tokens:    'Tokens',
-  mcp:       'MCP',
-  cost:      'Cost',
+const CATEGORY_META: Record<string, { label: string; color: string; border: string; bg: string }> = {
+  prompting: { label: 'Prompting',  color: '#a78bfa', border: 'rgba(139,92,246,0.35)', bg: 'rgba(139,92,246,0.10)' },
+  tokens:    { label: 'Tokens',     color: '#38bdf8', border: 'rgba(56,189,248,0.35)',  bg: 'rgba(56,189,248,0.08)'  },
+  mcp:       { label: 'MCP',        color: '#34d399', border: 'rgba(52,211,153,0.35)',  bg: 'rgba(52,211,153,0.08)'  },
+  cost:      { label: 'Cost',       color: '#fbbf24', border: 'rgba(251,191,36,0.35)',  bg: 'rgba(251,191,36,0.08)'  },
 };
 
 export default function Tools() {
@@ -106,115 +106,167 @@ export default function Tools() {
   }, []);
 
   const liveTools    = TOOLS.filter(t => t.live);
-  const plannedTools = TOOLS.filter(t => !t.live);
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
-      {/* Hero */}
-      <div className={`text-center py-6 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center mx-auto mb-4">
-          <Wrench size={28} className="text-violet-400" />
+
+      {/* ── Visual Hero ───────────────────────────────────────────────────── */}
+      <div className={`relative rounded-2xl overflow-hidden transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+        style={{
+          background: 'linear-gradient(135deg, rgba(16,185,129,0.10) 0%, rgba(15,23,42,0.98) 60%)',
+          border: '1px solid rgba(52,211,153,0.20)',
+          boxShadow: '0 0 60px -20px rgba(52,211,153,0.20)',
+        }}>
+        {/* Dot grid bg */}
+        <div className="absolute inset-0 pointer-events-none opacity-15"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(52,211,153,0.5) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }} />
+
+        <div className="relative z-10 p-6 sm:p-8">
+          <div className="flex items-start justify-between gap-6 flex-wrap">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: '#34d399' }}>
+                Developer Tools
+              </p>
+              <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight mb-3">
+                AI <span style={{
+                  background: 'linear-gradient(90deg, #34d399, #38bdf8)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>Tools</span>
+              </h1>
+              <p className="text-sm text-slate-400 max-w-lg leading-relaxed mb-5">
+                Client-side utilities for prompt engineering, token counting, MCP scaffolding, and model cost analysis.
+                <span className="font-medium text-slate-300"> Zero network requests</span> — everything runs in your browser.
+              </p>
+              {/* Tool count stats */}
+              <div className="flex flex-wrap gap-4">
+                {Object.entries(CATEGORY_META).map(([key, meta]) => {
+                  const count = liveTools.filter(t => t.category === key).length;
+                  if (!count) return null;
+                  return (
+                    <div key={key} className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full" style={{ background: meta.color }} />
+                      <span className="text-xs font-bold" style={{ color: meta.color }}>{count}</span>
+                      <span className="text-xs text-slate-500">{meta.label}</span>
+                    </div>
+                  );
+                })}
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-violet-400" />
+                  <span className="text-xs font-bold text-violet-400">{liveTools.length}</span>
+                  <span className="text-xs text-slate-500">total</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Terminal icon block */}
+            <div className="hidden sm:flex w-16 h-16 rounded-2xl items-center justify-center shrink-0"
+              style={{
+                background: 'rgba(52,211,153,0.12)',
+                border: '1px solid rgba(52,211,153,0.30)',
+                boxShadow: '0 0 30px -8px rgba(52,211,153,0.35)',
+              }}>
+              <Wrench size={28} style={{ color: '#34d399' }} />
+            </div>
+          </div>
         </div>
-        <p className="page-eyebrow">Developer Tools</p>
-        <h1 className="text-2xl font-bold tracking-tight mb-2">
-          AI <span className="heading-gradient">Tools</span>
-        </h1>
-        <p className="text-slate-400 max-w-md mx-auto text-sm">
-          Client-side utilities for prompt engineering, token counting, MCP scaffolding, and model cost analysis.
-          Zero network requests — everything runs in your browser.
-        </p>
       </div>
 
-      {/* ── Tools submenu nav ──────────────────────────────────────────────── */}
+      {/* ── Quick access nav ──────────────────────────────────────────────── */}
       <nav
         aria-label="Tools navigation"
         className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
         style={{ transitionDelay: '100ms' }}
       >
-        <div className="glass-card glass-edge rounded-xl p-3">
-          <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide px-1 mb-2">Quick access</p>
+        <div className="rounded-xl p-3" style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.25)' }}>
+          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-1 mb-2">Quick access</p>
           <div className="flex flex-wrap gap-2" role="list">
-            {LIVE_TOOLS.map(t => (
-              <Link
-                key={t.href}
-                to={t.href!}
-                role="listitem"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-slate-800/60 border border-slate-700/50 text-slate-300 hover:border-violet-500/50 hover:text-violet-300 hover:bg-violet-500/5 transition-colors whitespace-nowrap"
-              >
-                <t.icon size={12} aria-hidden="true" />
-                {t.label}
-                {t.category !== 'planned' && (
-                  <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 uppercase tracking-wide leading-none">
-                    {CATEGORY_LABELS[t.category] ?? ''}
-                  </span>
-                )}
-              </Link>
-            ))}
+            {LIVE_TOOLS.map(t => {
+              const meta = CATEGORY_META[t.category] ?? CATEGORY_META.prompting;
+              return (
+                <Link
+                  key={t.href}
+                  to={t.href!}
+                  role="listitem"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-xl font-medium transition-all"
+                  style={{
+                    background: meta.bg,
+                    border: `1px solid ${meta.border}`,
+                    color: meta.color,
+                  }}
+                >
+                  <t.icon size={12} aria-hidden="true" />
+                  {t.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </nav>
 
-      {/* ── Live tools grid ────────────────────────────────────────────────── */}
+      {/* ── Live tools grid ───────────────────────────────────────────────── */}
       <section aria-labelledby="live-tools-heading">
-        <h2
-          id="live-tools-heading"
-          className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3 px-1"
-        >
-          Live tools — {liveTools.length} available
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 id="live-tools-heading" className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            {liveTools.length} tools available
+          </h2>
+          <span className="flex items-center gap-1.5 text-[10px] text-emerald-500 font-mono font-bold">
+            <Zap size={10} />all client-side
+          </span>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {liveTools.map(({ icon: Icon, label, desc, href, category }, idx) => (
-            <Link
-              key={label}
-              to={href!}
-              className={`glass-card glass-edge rounded-xl p-5 hover:border-violet-500/40 hover:bg-violet-500/5 transition-all duration-500 ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              }`}
-              style={{ transitionDelay: `${200 + idx * 80}ms` }}
-            >
-              <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center mb-3">
-                <Icon size={16} className="text-violet-400" aria-hidden="true" />
-              </div>
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-sm font-medium text-slate-200">{label}</h3>
-                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 uppercase tracking-wide">
-                  {CATEGORY_LABELS[category] ?? 'Live'}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500">{desc}</p>
-            </Link>
-          ))}
+          {liveTools.map(({ icon: Icon, label, desc, href, category }, idx) => {
+            const meta = CATEGORY_META[category] ?? CATEGORY_META.prompting;
+            return (
+              <Link
+                key={label}
+                to={href!}
+                className={`group rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1.5 ${
+                  mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+                }`}
+                style={{
+                  background: 'rgba(15,23,42,0.95)',
+                  border: `1px solid rgba(71,85,105,0.25)`,
+                  transitionDelay: `${200 + idx * 60}ms`,
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.border = `1px solid ${meta.border}`;
+                  (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 32px -8px ${meta.color}25, 0 0 0 1px ${meta.border}`;
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.border = '1px solid rgba(71,85,105,0.25)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                }}
+              >
+                {/* Icon */}
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
+                  style={{ background: meta.bg, border: `1px solid ${meta.border}` }}>
+                  <Icon size={18} style={{ color: meta.color }} aria-hidden="true" />
+                </div>
+
+                {/* Label + category pill */}
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="text-sm font-bold text-white leading-snug">{label}</h3>
+                  <span className="text-[8px] font-black px-1.5 py-0.5 rounded-lg uppercase tracking-wider shrink-0"
+                    style={{ background: meta.bg, border: `1px solid ${meta.border}`, color: meta.color }}>
+                    {meta.label}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-500 leading-relaxed mb-3">{desc}</p>
+
+                <div className="flex items-center gap-1 text-xs font-semibold transition-all duration-200 group-hover:gap-2"
+                  style={{ color: meta.color }}>
+                  Open <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
-
-      {/* ── Planned tools ─────────────────────────────────────────────────── */}
-      {plannedTools.length > 0 && (
-        <section aria-labelledby="planned-tools-heading">
-          <h2
-            id="planned-tools-heading"
-            className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3 px-1"
-          >
-            Coming soon
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {plannedTools.map(({ icon: Icon, label, desc }, idx) => (
-              <div
-                key={label}
-                className={`glass-card glass-edge rounded-xl p-5 opacity-50 transition-all duration-500 ${
-                  mounted ? 'translate-y-0' : 'translate-y-6'
-                }`}
-                style={{ transitionDelay: `${600 + idx * 80}ms` }}
-              >
-                <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center mb-3">
-                  <Icon size={16} className="text-slate-500" aria-hidden="true" />
-                </div>
-                <h3 className="text-sm font-medium text-slate-400 mb-1">{label}</h3>
-                <p className="text-xs text-slate-600">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }

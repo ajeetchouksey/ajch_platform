@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   GraduationCap, Newspaper, Wrench, ArrowRight,
   GitBranch, Cpu, Users, BookOpen, ExternalLink,
-  GitCommit, Award, Calendar,
+  GitCommit, Award, Calendar, Zap, ShieldCheck, Terminal,
 } from 'lucide-react';
 import {
   GlassCard,
@@ -209,8 +209,8 @@ export default function HomeV2() {
       ══════════════════════════════════════════════════════════════════════ */}
       <div {...fadeIn(0)} className={`pt-6 pb-2 ${fadeIn(0).className}`}>
 
-        {/* Status badge */}
-        <div className="mb-6">
+        {/* Top eyebrow row */}
+        <div className="flex items-center gap-3 mb-6 flex-wrap">
           <Badge
             label="Open Source · Built by a Practitioner"
             variant="violet"
@@ -219,56 +219,146 @@ export default function HomeV2() {
           />
         </div>
 
-        {/* Headline */}
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight tracking-tight mb-4">
-          Built in the Field.{' '}
-          <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-            For the Field.
-          </span>
-        </h1>
+        {/* Two-column hero */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 items-start">
+          {/* Left — copy */}
+          <div>
+            {/* Headline */}
+            <h1 className="text-5xl sm:text-6xl font-black text-white leading-[1.05] tracking-tight mb-5">
+              Built in the Field.{' '}
+              <span className="block"
+                style={{
+                  background: 'linear-gradient(100deg, #a78bfa 0%, #f472b6 50%, #fb923c 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>
+                For the Field.
+              </span>
+            </h1>
 
-        {/* Sub-headline */}
-        <p className="text-xl font-semibold text-slate-300 mb-4">
-          AI skill building, field notes, and tools —{' '}
-          <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-            no theory tax.
-          </span>
-        </p>
+            {/* Brand tagline */}
+            <div className="flex items-center gap-3 mb-5 flex-wrap">
+              <span className="text-lg font-black tracking-tight"
+                style={{
+                  background: 'linear-gradient(90deg, #38bdf8, #60a5fa)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>
+                Agent speed.
+              </span>
+              <span className="text-slate-600 font-light text-lg">·</span>
+              <span className="text-lg font-black tracking-tight"
+                style={{
+                  background: 'linear-gradient(90deg, #a78bfa, #c084fc)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>
+                Human control.
+              </span>
+            </div>
 
-        {/* Personal origin story */}
-        <p className="text-base text-slate-400 max-w-2xl leading-relaxed mb-8">
-          I started this platform the way most things worth building get started —{' '}
-          <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent font-semibold">
-            out of necessity.
-          </span>{' '}
-          I'm an enterprise architect by trade — which means I can't help but build things to last.
-          Aarya started as a personal challenge: take the skills I use designing{' '}
-          <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent font-semibold">
-            enterprise-grade
-          </span>{' '}
-          cloud and AI systems, and apply them somewhere entirely my own.
-          It's a real project, not a polished product — built in the open, with all the iteration and rough edges that entails.
-          If you're learning, building, or just curious, I'd love for you to contribute, challenge the ideas, or simply follow along.
-        </p>
+            {/* Sub-headline */}
+            <p className="text-lg font-semibold text-slate-300 mb-4">
+              AI skill building, field notes, and tools —{' '}
+              <span style={{
+                background: 'linear-gradient(90deg, #a78bfa, #f472b6)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}>
+                no theory tax.
+              </span>
+            </p>
 
-        {/* CTAs */}
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            to="/exams"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-violet-600 hover:bg-violet-500 text-white font-medium rounded-lg border border-transparent transition-all duration-200 active:scale-95 hover:shadow-violet-500/25 hover:shadow-sm"
-          >
-            <GraduationCap size={15} />
-            Start Learning
-            <ArrowRight size={15} />
-          </Link>
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-transparent hover:bg-slate-800/70 text-slate-400 hover:text-white font-medium rounded-lg border border-transparent transition-all duration-200 active:scale-95"
-          >
-            <Newspaper size={15} />
-            Read the Blog
-          </Link>
-          <StarRepo />
+            {/* Origin story */}
+            <p className="text-sm text-slate-400 max-w-xl leading-relaxed mb-8">
+              Enterprise architect by trade — which means I build things to last.
+              Aarya started as a personal challenge: apply the skills I use designing{' '}
+              <span className="text-slate-200 font-medium">enterprise-grade</span>{' '}
+              cloud and AI systems to something entirely my own.
+              Real project, built in the open. If you're learning or building,{' '}
+              <span className="text-violet-400 font-medium">come along.</span>
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                to="/exams"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl text-white transition-all duration-200 active:scale-95 hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-0.5"
+                style={{
+                  background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                  border: '1px solid rgba(139,92,246,0.5)',
+                }}
+              >
+                <GraduationCap size={15} />
+                Start Learning
+                <ArrowRight size={15} />
+              </Link>
+              <Link
+                to="/blog"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl text-slate-300 hover:text-white transition-all duration-200 active:scale-95 hover:-translate-y-0.5"
+                style={{
+                  background: 'rgba(30,41,59,0.6)',
+                  border: '1px solid rgba(71,85,105,0.40)',
+                }}
+              >
+                <Newspaper size={15} />
+                Read the Blog
+              </Link>
+              <StarRepo />
+            </div>
+          </div>
+
+          {/* Right — terminal pipeline card */}
+          <div className="hidden lg:block">
+            <div className="rounded-2xl overflow-hidden"
+              style={{
+                background: 'rgba(8,14,28,0.95)',
+                border: '1px solid rgba(139,92,246,0.25)',
+                boxShadow: '0 0 60px -12px rgba(139,92,246,0.25)',
+              }}>
+              {/* Title bar */}
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-800/80">
+                <div className="flex gap-1.5">
+                  <span className="w-3 h-3 rounded-full bg-red-500/60" />
+                  <span className="w-3 h-3 rounded-full bg-yellow-500/60" />
+                  <span className="w-3 h-3 rounded-full bg-emerald-500/60" />
+                </div>
+                <span className="text-[10px] font-mono text-slate-500 ml-2">pipeline.log — live</span>
+                <span className="ml-auto flex items-center gap-1">
+                  <PulsingDot active color="bg-emerald-400" size="sm" />
+                  <span className="text-[9px] text-emerald-500 font-mono">running</span>
+                </span>
+              </div>
+              {/* Steps */}
+              <div className="p-4 space-y-2 font-mono text-xs">
+                {[
+                  { step: '01', label: 'Human intent', detail: 'Request received by Staff Engineer', color: '#8b5cf6', icon: Users },
+                  { step: '02', label: 'Issue Gate',    detail: 'Product Manager creates GitHub issue', color: '#14b8a6', icon: GitBranch },
+                  { step: '03', label: 'Security pre-flight', detail: 'AppSec Engineer — PASS ✓', color: '#ef4444', icon: ShieldCheck },
+                  { step: '04', label: 'Domain agent', detail: 'Platform / Blog / Curriculum', color: '#3b82f6', icon: Zap },
+                  { step: '05', label: 'Post-build audit', detail: 'AppSec + Design Systems review', color: '#f59e0b', icon: Terminal },
+                  { step: '06', label: 'Human approval', detail: 'Review → merge → ship', color: '#a78bfa', icon: ShieldCheck },
+                  { step: '07', label: 'SRE deploys', detail: 'Semver tag · changelog · release', color: '#10b981', icon: GitCommit },
+                ].map(({ step, label, detail, color, icon: I }) => (
+                  <div key={step} className="flex items-start gap-3 group">
+                    <span className="font-mono text-[9px] font-bold mt-0.5 shrink-0" style={{ color: `${color}80` }}>{step}</span>
+                    <div className="w-5 h-5 rounded flex items-center justify-center shrink-0"
+                      style={{ background: `${color}18`, border: `1px solid ${color}30` }}>
+                      <I size={10} style={{ color }} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold text-slate-200">{label}</p>
+                      <p className="text-[10px] text-slate-600">{detail}</p>
+                    </div>
+                  </div>
+                ))}
+                <div className="pt-2 mt-2 border-t border-slate-800/60 flex items-center gap-2">
+                  <span className="text-emerald-400 font-mono text-[10px]">✓ deployed</span>
+                  <span className="text-[9px] text-slate-600 font-mono ml-auto">v2.3.1 · main</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -312,58 +402,73 @@ export default function HomeV2() {
       >
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">What's on the platform</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {features.map(({ to, icon: Icon, badge, badgeVariant, accent, border, iconColor, title, subtitle, desc, specs, cta, available }, idx) => (
-            <div
-              key={to}
-              className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-              style={{ transitionDelay: `${350 + idx * 80}ms` }}
-            >
-              <GlassCard
-                accent={accent}
-                border={border}
-                className={`p-5 flex flex-col h-full group hover:shadow-xl transition-all duration-300 ${
-                  available ? 'hover:-translate-y-1' : 'opacity-60'
-                }`}
+          {features.map(({ to, icon: Icon, badge, badgeVariant, accent, border, title, subtitle, desc, specs, cta, available }, idx) => {
+            const glowColor = accent === 'violet' ? '#8b5cf6' : accent === 'blue' ? '#3b82f6' : '#10b981';
+            return (
+              <div
+                key={to}
+                className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: `${350 + idx * 80}ms` }}
               >
-                {/* Icon + badge row */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-slate-800/80 border border-slate-700/60 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Icon size={20} className={iconColor} />
+                <GlassCard
+                  accent={accent}
+                  border={border}
+                  className={`p-5 flex flex-col h-full group transition-all duration-300 ${
+                    available ? 'hover:-translate-y-1.5' : 'opacity-60'
+                  }`}
+                  style={{ '--glow': glowColor } as React.CSSProperties}
+                >
+                  {/* Icon + badge row */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                      style={{
+                        background: `${glowColor}18`,
+                        border: `1px solid ${glowColor}35`,
+                        boxShadow: `0 0 20px -4px ${glowColor}40`,
+                      }}>
+                      <Icon size={22} style={{ color: glowColor }} />
+                    </div>
+                    <Badge label={badge} variant={badgeVariant} uppercase />
                   </div>
-                  <Badge label={badge} variant={badgeVariant} uppercase />
-                </div>
 
-                {/* Title + subtitle */}
-                <h2 className="text-[15px] font-bold text-white mb-0.5">{title}</h2>
-                <p className={`text-[11px] font-semibold ${iconColor} opacity-80 mb-3`}>{subtitle}</p>
+                  {/* Title + subtitle */}
+                  <h2 className="text-base font-black text-white mb-0.5">{title}</h2>
+                  <p className="text-[11px] font-bold mb-3" style={{ color: `${glowColor}cc` }}>{subtitle}</p>
 
-                {/* Description */}
-                <p className="text-sm text-slate-400 leading-relaxed mb-4 flex-1">{desc}</p>
+                  {/* Description */}
+                  <p className="text-sm text-slate-400 leading-relaxed mb-4 flex-1">{desc}</p>
 
-                {/* Spec chips */}
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {specs.map(s => (
-                    <span key={s} className="text-[10px] px-2 py-0.5 rounded bg-slate-800/60 text-slate-500 border border-slate-700/40 font-mono">
-                      {s}
-                    </span>
-                  ))}
-                </div>
+                  {/* Spec chips */}
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {specs.map(s => (
+                      <span key={s} className="text-[10px] px-2 py-0.5 rounded-md font-mono"
+                        style={{
+                          background: `${glowColor}10`,
+                          border: `1px solid ${glowColor}25`,
+                          color: `${glowColor}bb`,
+                        }}>
+                        {s}
+                      </span>
+                    ))}
+                  </div>
 
-                {/* CTA link */}
-                {available ? (
-                  <Link
-                    to={to}
-                    className={`inline-flex items-center gap-1.5 text-sm font-semibold ${iconColor} group-hover:gap-2.5 transition-all duration-300`}
-                  >
-                    {cta}
-                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
-                  </Link>
-                ) : (
-                  <span className="text-sm font-semibold text-slate-600">{cta}</span>
-                )}
-              </GlassCard>
-            </div>
-          ))}
+                  {/* CTA link */}
+                  {available ? (
+                    <Link
+                      to={to}
+                      className="inline-flex items-center gap-1.5 text-sm font-bold group-hover:gap-2.5 transition-all duration-300"
+                      style={{ color: glowColor }}
+                    >
+                      {cta}
+                      <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  ) : (
+                    <span className="text-sm font-semibold text-slate-600">{cta}</span>
+                  )}
+                </GlassCard>
+              </div>
+            );
+          })}
         </div>
       </div>
 
