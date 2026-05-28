@@ -1,0 +1,120 @@
+name: GitHub Release
+# Owned by DevOps Agent. Triggered automatically on every vX.Y.Z tag push.
+# Creates a properly structured GitHub Release with:
+#   - Changelog section extracted from .github/CHANGELOG.md
+#   - Agent registry snapshot (name + version of every .agent.md file)
+# Pre-release tags (v*-alpha.*, v*-beta.*, v*-rc.*) are marked as pre-release.
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'        # stable:     v2.1.0
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'      # pre-release: v2.1.0-beta.1, v2.1.0-rc.1
+
+permissions:
+  contents: write   # required to create GitHub Releases
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout full history so the tag is fully resolved ──────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── 2. Parse tag → version string + pre-release flag ─────────────────
+      - name: Parse tag metadata
+        id: meta
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "tag=$TAG"         >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          if echo "$TAG" | grep -qE -- '-(alpha|beta|rc)'; then
+            echo "prerelease=true"  >> $GITHUB_OUTPUT
+          else
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ── 3. Extract the matching CHANGELOG section via Python ──────────────
+      - name: Extract CHANGELOG section
+        run: |
+          VERSION="${{ steps.meta.outputs.version }}"
+
+          cat > /tmp/extract_changelog.py << 'PYEOF'
+import re, sys
+
+version = sys.argv[1]
+path    = sys.argv[2]
+
+with open(path, 'r') as fh:
+    content = fh.read()
+
+# Try exact version section first
+pattern = rf'## \[{re.escape(version)}\][^\n]*\n(.*?)(?=\n## \[|\Z)'
+match = re.search(pattern, content, re.DOTALL)
+
+if match:
+    print(match.group(1).strip())
+else:
+    # Fall back to Unreleased section
+    pattern = r'## \[Unreleased\][^\n]*\n(.*?)(?=\n## \[|\Z)'
+    match = re.search(pattern, content, re.DOTALL)
+    if match:
+        print(match.group(1).strip())
+    else:
+        print("See .github/CHANGELOG.md for full details.")
+PYEOF
+
+          python3 /tmp/extract_changelog.py "$VERSION" .github/CHANGELOG.md \
+            > /tmp/release_body.md
+
+      # ── 4. Append agent registry snapshot ────────────────────────────────
+      - name: Append agent registry snapshot
+        run: |
+          TAG="${{ steps.meta.outputs.tag }}"
+
+          cat >> /tmp/release_body.md << 'SECTION'
+
+---
+
+## 🤖 Agent Registry
+SECTION
+
+          printf '\n| Agent | Version | File |\n' >> /tmp/release_body.md
+          printf '|-------|---------|------|\n'   >> /tmp/release_body.md
+
+          for f in $(ls .github/agents/*.agent.md 2>/dev/null | sort); do
+            name=$(grep '^name:'    "$f" | head -1 | sed 's/^name:[[:space:]]*//'    | tr -d '"')
+            ver=$( grep '^version:' "$f" | head -1 | sed 's/^version:[[:space:]]*//' | tr -d '"')
+            base=$(basename "$f")
+            if [ -n "$name" ] && [ -n "$ver" ]; then
+              printf '| %s | `%s` | `%s` |\n' "$name" "$ver" "$base" \
+                >> /tmp/release_body.md
+            fi
+          done
+
+          printf '\n> Snapshot taken at tag **%s**\n' "$TAG" >> /tmp/release_body.md
+
+      # ── 5. Create the GitHub Release ─────────────────────────────────────
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.meta.outputs.tag }}"
+          PRERELEASE="${{ steps.meta.outputs.prerelease }}"
+
+          if [ "$PRERELEASE" = "true" ]; then
+            gh release create "$TAG" \
+              --title "My AI Hub $TAG" \
+              --notes-file /tmp/release_body.md \
+              --prerelease
+          else
+            gh release create "$TAG" \
+              --title "My AI Hub $TAG" \
+              --notes-file /tmp/release_body.md
+          fi

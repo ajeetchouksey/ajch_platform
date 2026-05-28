@@ -11,6 +11,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 
 ## [Unreleased]
 
+---
+
+## [2.1.0] - 2026-05-29
+
 ### Added
 - Agent Profile Drawer redesigned as structured product card (no raw markdown)
 - DevOps Agent (`devops.agent.md`) — CI/CD, agent versioning, platform release management
@@ -18,21 +22,24 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 - Issue Gate (Module 0) in Product Owner Agent — mandatory before every build task
 - PO Agent: migrated issue creation from `GH_PO_TOKEN` REST to `gh` CLI (`gh issue create`)
 - CI workflow (`.github/workflows/ci.yml`) — PR build check on every PR to `main`
-- Agent version headers backfilled across all 16 `.agent.md` files (`version: 1.0.0`)
+- **`release.yml`** — automated GitHub Release workflow: CHANGELOG extraction + agent registry snapshot on every `v*` tag
+- Agent version headers backfilled across all 20 `.agent.md` files
 - DevOps Agent wired into Orchestrator Operations registry
-- [#5] Scrum Master Agent (`scrum-master.agent.md`) — sprint facilitation, retrospectives, velocity commentary, backlog refinement ceremonies; artefacts-only (no file writes)
-- [#5] AI Research Tool Agent (`ai-research-tool.agent.md`) — fetch + summarise AI papers/articles, model comparisons, trend synthesis, tool discovery; structured payloads only
-- [#5] Scrum Master + AI Research Tool agents registered in Orchestrator Operations routing table
+- Scrum Master Agent (`scrum-master.agent.md`) — sprint facilitation, retrospectives, velocity
+- AI Research Tool Agent (`ai-research-tool.agent.md`) — paper/article fetch + summarise, tooling radar
+- Standardised `Breadcrumb` UI component (`src/components/ui/Breadcrumb.tsx`) — single canonical breadcrumb with full route labelMap; removed 9 inline duplicates across tool pages
+- `HomeV2.tsx` full sales-quality redesign — animated orbs hero, proof bar, benefit-driven feature cards, creator authority section, bottom conversion CTA
+- `Blog.tsx` full rewrite — read tracking, category pills, 3-col grid, accented cards
+- `BlogPost.tsx` full rewrite — sticky TOC sidebar, circular reading progress, mobile TOC drawer
+- `Tools.tsx` creative redesign — category-coloured cards, terminal hero, hover glow
+- `TeamV2.tsx` promoted to main `/team` route (replaces legacy `Team.tsx`)
+- Three new tool pages: RAG Chunk Visualizer, Prompt Tester, Prompt Library
 
 ### Changed
-- `AgentProfileDrawer` replaced raw markdown fetch with in-memory structured card layout
-- Orchestrator Response Pattern expanded to 7 steps including post-build Security + UX gates
-- Security agent: dual invocation documented (pre-build + post-build)
-- UX agent: Post-build UX Audit added as Responsibility #4
-- [#5] Blog Agent — expert tech-writing voice uplift; legacy scaffolding section removed
-- [#5] Content Writer Agent — Human Sense rules added; guardrails and tone enforcement tightened
-- [#5] Exam Content Agent — delegation briefs updated to reflect new agent capabilities
-- [#5] Study Notes Agent — Human Angle format enforced; writing standard aligned with expert voice
+- `TeamV2` is now the canonical team page at `/team` and `/maintainer/team`
+- `/team/v2` alias removed (traffic now goes directly to `/team`)
+- DevOps Agent `devops.agent.md` updated to `v1.1.0`: improved release checklist, `last_modified:` field requirement for agent versioning, `release.yml` documented as release authority
+- `package.json` version field brought from `0.0.0` to `2.1.0`
 
 ---
 
