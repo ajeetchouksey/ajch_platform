@@ -11,7 +11,7 @@ interface Props {
   title: string;
   tagline: string;
   avatar: string;
-  company: string;
+  company?: string;
   location: string;
   bio: string;
   links: ProfileLink[];
@@ -38,10 +38,12 @@ export function ProfileCard({ name, title, tagline, avatar, company, location, b
           <p className="text-slate-400 text-sm italic mt-1">{tagline}</p>
 
           <div className="flex flex-wrap gap-3 mt-3 text-sm text-slate-400">
-            <span className="flex items-center gap-1">
-              <Building2 size={14} className="text-slate-500" />
-              {company}
-            </span>
+            {company && (
+              <span className="flex items-center gap-1">
+                <Building2 size={14} className="text-slate-500" />
+                {company}
+              </span>
+            )}
             <span className="flex items-center gap-1">
               <MapPin size={14} className="text-slate-500" />
               {location}

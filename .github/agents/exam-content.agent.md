@@ -46,7 +46,8 @@ Delegate to Question Generator skill:
 "Generate [N] questions for Domain [X]: [domain title].
 Concepts to cover: [list of extracted concepts]
 Ensure no overlap with existing IDs: [list existing IDs in that domain]
-Schema: { domain, id, scenario, question, options[4], correct, explanation, tags }"
+Schema: { domain, id, scenario, question, options[4], correct, explanation, tags }
+Scenario stems may include a brief real-world hook (1 sentence max) to make questions relatable — keep it professional and technically grounded."
 ```
 
 ### Notes Update → Study Notes Agent
@@ -56,7 +57,8 @@ Delegate to Study Notes Agent:
 Section: [H2 title]
 Concept: [extracted concept with detail]
 Mnemonic/trap if applicable: [text]
-Mermaid diagram if applicable: [diagram code]"
+Mermaid diagram if applicable: [diagram code]
+Human Angle: [Add one memorable analogy, real-world punch line, or proverb in the Overview that aids retention — max 1 sentence, clearly marked. Professionalism and accuracy take priority; if no natural fit exists, omit.]"
 ```
 
 ## Domain Classification

@@ -268,7 +268,58 @@ If `PROJECT_NUMBER` or `PROJECT_ID` is `~` (not yet set), prompt the user to run
 **Output**: Ranked backlog table + sprint recommendations.
 
 ---
+### 3b. Tooling Radar → RICE Scoring + Auto Issue Creation
 
+**Trigger**: Called by Platform Orchestrator (or Scrum Master Agent handoff) after receiving a filtered `ToolingRadarPayload[]` from Tooling Radar Triage.
+
+**Input**: `ToolingRadarPayload[]` where `effort ≤ M` (pre-filtered by Scrum Master Agent).
+
+**Steps**:
+
+1. **RICE score** each payload item using the formula:
+
+   $$\text{RICE} = \frac{\text{Reach} \times \text{Impact} \times \text{Confidence}}{\text{Effort}}$$
+
+   | Dimension | Mapping |
+   |-----------|---------|
+   | **Reach** | Use payload `reach` (1–10) directly |
+   | **Impact** | `interactive-demo`=3, `tools-page`=2, `api-integration`=2, `exam-content`=1.5 |
+   | **Confidence** | 80% (0.8) if rationale is 2+ sentences; 50% (0.5) if vague |
+   | **Effort** | XS=0.1, S=0.3, M=1 (T-shirt → numeric) |
+
+2. **Sort** by RICE score descending, take **top 3**
+
+3. **Duplicate check** for each top-3 item:
+   ```sh
+   gh issue list --repo ajeetchouksey/ajch_platform --state open --search "{suggestedIssueTitle}"
+   gh issue list --repo ajeetchouksey/ajch_platform --state closed --search "{suggestedIssueTitle}"
+   ```
+   If a similar issue exists (≥70% title match), skip creation — note the existing issue # instead.
+
+4. **Auto-create GitHub issues** for top-3 (or fewer, if duplicates found):
+   ```sh
+   gh issue create \
+     --repo ajeetchouksey/ajch_platform \
+     --title "{suggestedIssueTitle}" \
+     --body "## AI Tooling Radar — Auto-generated\n\n**Source**: {source}\n**Category**: {category}\n**RICE Score**: {score}\n\n**Rationale**\n{rationale}\n\n**Acceptance Criteria**\n- [ ] Feature implemented and builds cleanly\n- [ ] Security Gate post-build PASS\n- [ ] UX audit PASS (if .tsx files changed)" \
+     --label "type:feat,P2-medium,domain:platform"
+   ```
+
+5. **Output**:
+
+```markdown
+## Tooling Radar — RICE Scores & Issue Creation
+
+| # | Title | RICE | Category | Action |
+|---|-------|------|----------|--------|
+| 1 | {title} | {score} | {category} | ✅ Created #NN |
+| 2 | {title} | {score} | {category} | ⚠️ Duplicate — see #NN |
+| 3 | {title} | {score} | {category} | ✅ Created #NN |
+
+**Issues created**: {N}
+```
+
+---
 ### 4. Sprint Planner — Assign Work to Iterations
 
 **Trigger**: "plan the sprint", "create an iteration", "what's in the sprint", "assign sprint"

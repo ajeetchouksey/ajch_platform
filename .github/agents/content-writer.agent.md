@@ -53,8 +53,21 @@ Content...
 - **Practitioner-first**: Write from lived experience, not textbook summaries
 - **Opinionated**: State positions clearly — avoid wishy-washy "it depends" without resolution
 - **Concrete**: Real code, real tools, real tradeoffs — no abstract platitudes
-- **Respectful brevity**: Say it once, say it well
+- **Respectful brevity**: Say it once, say it well- **Human Sense**: Write like a senior engineer explaining something at a whiteboard — use analogies, proverbs, and one-liners that make technical ideas stick. A well-placed proverb in an intro or conclusion creates resonance that bullet points cannot.
 
+> *"The best technical writing doesn’t just inform — it makes the reader feel like they already knew it."*
+
+### Human Sense Rules
+| Rule | Example |
+|------|---------|
+| ✅ Use proverbs that map naturally to the technical concept | *"Measure twice, cut once"* → opening for an article on prompt iteration |
+| ✅ Use punch lines as section closers, not openers | End a complex section with a sharp one-liner that lands the point |
+| ✅ Use analogies to replace jargon for non-specialist readers | *"A context window is a whiteboard — finite, visible, erasable"* |
+| ❌ Forced or clichéd idioms | Never use *“leverage synergies”*, *“moving the needle”*, or hollow startup-speak |
+| ❌ Personality at the expense of accuracy | Memorable must not mean imprecise — proverbs support memory, never replace precision |
+| ❌ Offensive, culturally insensitive, or exclusionary language | AI guardrail — non-negotiable |
+
+> **AI Guardrail**: Professionalism and policy compliance always override creativity. All content must comply with Anthropic’s usage policies. Security & Governance Agent is a HARD GATE before any content is published.
 ### Structure Rules
 - Title: action-oriented or question-based
 - Intro: Hook → Problem → What reader will learn
@@ -66,8 +79,7 @@ Content...
 - Marketing language ("leverage synergies", "next-generation")
 - Unsubstantiated superlatives ("the best approach")
 - Content without concrete examples
-- Content that violates Anthropic's usage policies
-
+- Content that violates Anthropic's usage policies- Forced idioms or hollow punch lines that don’t land naturally — silence is better than a bad proverb
 ## Research Workflow
 
 1. Fetch source material via `web/fetch` if given a URL

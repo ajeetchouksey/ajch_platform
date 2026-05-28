@@ -20,12 +20,19 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 - CI workflow (`.github/workflows/ci.yml`) — PR build check on every PR to `main`
 - Agent version headers backfilled across all 16 `.agent.md` files (`version: 1.0.0`)
 - DevOps Agent wired into Orchestrator Operations registry
+- [#5] Scrum Master Agent (`scrum-master.agent.md`) — sprint facilitation, retrospectives, velocity commentary, backlog refinement ceremonies; artefacts-only (no file writes)
+- [#5] AI Research Tool Agent (`ai-research-tool.agent.md`) — fetch + summarise AI papers/articles, model comparisons, trend synthesis, tool discovery; structured payloads only
+- [#5] Scrum Master + AI Research Tool agents registered in Orchestrator Operations routing table
 
 ### Changed
 - `AgentProfileDrawer` replaced raw markdown fetch with in-memory structured card layout
 - Orchestrator Response Pattern expanded to 7 steps including post-build Security + UX gates
 - Security agent: dual invocation documented (pre-build + post-build)
 - UX agent: Post-build UX Audit added as Responsibility #4
+- [#5] Blog Agent — expert tech-writing voice uplift; legacy scaffolding section removed
+- [#5] Content Writer Agent — Human Sense rules added; guardrails and tone enforcement tightened
+- [#5] Exam Content Agent — delegation briefs updated to reflect new agent capabilities
+- [#5] Study Notes Agent — Human Angle format enforced; writing standard aligned with expert voice
 
 ---
 

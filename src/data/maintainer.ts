@@ -3,7 +3,7 @@ export interface MaintainerProfile {
   title: string;
   tagline: string;
   avatar: string;
-  company: string;
+  company?: string;
   location: string;
   bio: string;
   links: { label: string; url: string; icon: string }[];
@@ -19,7 +19,6 @@ export const maintainer: MaintainerProfile = {
   title: 'AI-Driven Cloud & DevOps Architect',
   tagline: 'Transforming software delivery through intelligent automation',
   avatar: 'https://avatars.githubusercontent.com/u/107052100?v=4',
-  company: 'Avanade',
   location: 'Frankfurt, Germany',
   bio: `Cloud Solution Architect and DevOps Engineer with 18+ years of experience specializing in building next-generation, AI-powered DevOps workflows. Creator of intelligent automation frameworks that combine Infrastructure as Code with autonomous AI agents to accelerate software delivery while ensuring security, compliance, and cost optimization.`,
   links: [
@@ -60,7 +59,7 @@ export const maintainer: MaintainerProfile = {
       tech: ['Python', 'Terraform', 'Azure OpenAI', 'GitHub Actions'],
     },
     {
-      name: 'My AI Hub',
+      name: 'Aarya — My AI Learning Hub',
       description: 'CCA-F exam prep platform with AI-powered study tools, interactive quizzes, and scenario-based learning.',
       url: 'https://github.com/ajeetchouksey/ajch_cluade_architect',
       tech: ['React', 'TypeScript', 'Vite', 'Tailwind CSS'],

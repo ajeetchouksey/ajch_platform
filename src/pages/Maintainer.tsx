@@ -26,7 +26,6 @@ export default function Maintainer() {
         title={maintainer.title}
         tagline={maintainer.tagline}
         avatar={maintainer.avatar}
-        company={maintainer.company}
         location={maintainer.location}
         bio={maintainer.bio}
         links={maintainer.links}

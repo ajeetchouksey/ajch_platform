@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ArrowLeft, Calendar, Clock, User, Tag, Share2, Check } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, User, Tag, Share2, Check, Maximize2, Minimize2 } from 'lucide-react';
 import { loadBlogPost, loadBlogManifest } from '../lib/content-loader';
 import type { BlogPostMeta } from '../types/content';
 
@@ -27,6 +27,45 @@ function ReadingProgress() {
         className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-150 ease-out"
         style={{ width: `${progress}%` }}
       />
+    </div>
+  );
+}
+
+// ─── ExpandablePre ────────────────────────────────────────────────────────────
+const MAX_CODE_HEIGHT = 320;
+
+function ExpandablePre({ children }: { children: React.ReactNode }) {
+  const preRef = useRef<HTMLPreElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [overflows, setOverflows] = useState(false);
+
+  useEffect(() => {
+    if (preRef.current) {
+      setOverflows(preRef.current.scrollHeight > MAX_CODE_HEIGHT);
+    }
+  }, []);
+
+  return (
+    <div className="relative group my-5">
+      <div className={!expanded && overflows ? 'max-h-80 overflow-hidden relative' : 'relative'}>
+        <pre
+          ref={preRef}
+          className="bg-slate-950/80 border border-slate-700/50 rounded-xl p-5 text-sm overflow-x-auto text-slate-200 leading-relaxed"
+        >
+          {children}
+        </pre>
+        {!expanded && overflows && (
+          <div className="absolute bottom-0 inset-x-0 h-14 bg-gradient-to-t from-slate-950/90 to-transparent rounded-b-xl pointer-events-none" />
+        )}
+      </div>
+      {overflows && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="absolute bottom-2 right-3 flex items-center gap-1 text-[10px] font-medium text-slate-400 hover:text-violet-300 bg-slate-800 border border-slate-700 rounded px-2 py-1 transition-colors z-10"
+        >
+          {expanded ? <><Minimize2 size={10} /> Collapse</> : <><Maximize2 size={10} /> Expand</>}
+        </button>
+      )}
     </div>
   );
 }
@@ -109,7 +148,7 @@ export default function BlogPost() {
   }
 
   return (
-    <div className={`transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+    <div className={`max-w-3xl mx-auto transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
       <ReadingProgress />
 
       <Link
@@ -167,21 +206,40 @@ export default function BlogPost() {
 
       <article
         ref={articleRef}
-        className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-headings:scroll-mt-20 prose-a:text-violet-400 prose-a:no-underline hover:prose-a:underline prose-code:text-violet-300 prose-pre:bg-slate-800 prose-pre:border prose-pre:border-slate-700 prose-blockquote:border-violet-500 prose-blockquote:text-slate-400 prose-blockquote:bg-slate-900/50 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-li:marker:text-violet-500 prose-hr:border-slate-700"
+        className="prose prose-invert prose-base max-w-none
+          prose-headings:text-white prose-headings:scroll-mt-20 prose-headings:font-bold
+          prose-p:text-slate-300 prose-p:leading-8
+          prose-a:text-violet-400 prose-a:no-underline hover:prose-a:underline
+          prose-code:text-violet-300 prose-code:bg-slate-800/70 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
+          prose-pre:bg-transparent prose-pre:p-0 prose-pre:border-0 prose-pre:shadow-none
+          prose-blockquote:border-violet-500 prose-blockquote:text-slate-400 prose-blockquote:bg-slate-900/50 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg
+          prose-li:marker:text-violet-500 prose-hr:border-slate-700
+          prose-strong:text-slate-100 prose-img:rounded-xl"
       >
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           children={content}
           components={{
-            code({ className, children, ...props }) {
-              const match = /language-mermaid/.exec(className || '');
-              if (match) {
+            pre({ children }) {
+              // Detect mermaid blocks and render without pre wrapper
+              const nodes = React.Children.toArray(children);
+              const mermaidNode = nodes.find(
+                (n): n is React.ReactElement =>
+                  React.isValidElement(n) &&
+                  typeof (n.props as { className?: string }).className === 'string' &&
+                  ((n.props as { className?: string }).className ?? '').includes('language-mermaid')
+              );
+              if (mermaidNode) {
+                const el = mermaidNode as React.ReactElement<{ children?: React.ReactNode }>;
                 return (
                   <Suspense fallback={<div className="text-slate-500 text-xs animate-pulse p-4 border border-slate-700 rounded">Loading diagram...</div>}>
-                    <MermaidDiagram chart={String(children)} />
+                    <MermaidDiagram chart={String(el.props.children ?? '')} />
                   </Suspense>
                 );
               }
+              return <ExpandablePre>{children}</ExpandablePre>;
+            },
+            code({ className, children, ...props }) {
               return (
                 <code className={className} {...props}>
                   {children}

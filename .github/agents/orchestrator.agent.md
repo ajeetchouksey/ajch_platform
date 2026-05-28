@@ -67,6 +67,8 @@ Read-only tasks (questions, explanations, searches) skip the security gate.
 | Agent | Trigger Keywords | Handles |
 |-------|-----------------|--------|
 | **DevOps Agent** | deploy, release, version, changelog, tag, CI, pipeline, semver, build, workflow, agent version, bump version, cut release | CI/CD ownership, agent-file versioning, platform semver releases, CHANGELOG, PR build-check workflow |
+| **Scrum Master Agent** | sprint, standup, retrospective, retro, backlog refinement, velocity, burndown, story points, ceremony, sprint plan, sprint review | Sprint facilitation, backlog grooming, velocity commentary, retro summaries — artefacts only, no file writes |
+| **AI Research Tool Agent** | research, paper, arxiv, model benchmark, model comparison, ai trend, hugging face, new model, summarise paper, literature review, tool discovery, state of AI, **tooling radar**, platform intelligence, what tools should we build, backlog intelligence | Fetch + summarise AI papers/articles, model comparisons, trend synthesis, tool discovery — structured payloads only. **Tooling Radar mode**: scans AI tooling landscape and emits `ToolingRadarPayload` objects consumed by Scrum Master + Product Owner agents to populate the backlog. |
 
 ## Decision Logic
 
@@ -151,6 +153,31 @@ User Request
 1. → **Product Owner Agent**: fetch open issues, compute RICE scores, recommend sprint
 2. User approves sprint plan
 3. → **Product Owner Agent**: update project board iterations
+
+### Tooling Radar → Backlog Intelligence Pipeline
+Triggered by: *"run tooling radar"*, *"what AI tools should we build?"*, *"find platform tooling opportunities"*, *"feed the backlog with research"*
+
+1. → **AI Research Tool Agent** (Tooling Radar mode):
+   - Scans arXiv, Hugging Face, GitHub trending, Anthropic/OpenAI release notes for emerging AI tooling
+   - For each opportunity, emits a `ToolingRadarPayload`:
+     ```json
+     {
+       "title": "[Tool/feature opportunity]",
+       "source": "[URL]",
+       "category": "tools-page | interactive-demo | api-integration | exam-content",
+       "effort": "S | M | L",
+       "reach": "[who benefits — practitioners / learners / maintainer]",
+       "rationale": "[1-2 sentences — why this fits My AI Hub]",
+       "suggestedIssueTitle": "[ready-to-use GitHub issue title]"
+     }
+     ```
+   - Returns array of payloads (max 10 per run) — no file writes
+
+2. → **Scrum Master Agent**: receives payload array, filters by `effort ≤ M` for current sprint candidate list, generates sprint candidate table
+
+3. → **Product Owner Agent**: receives filtered list + full payload array, applies RICE scoring, creates GitHub issues for top 3 opportunities, updates project board
+
+4. Report to user: radar findings, RICE-ranked shortlist, issue numbers created
 
 ## Response Pattern
 

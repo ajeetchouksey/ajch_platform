@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import Home from "./pages/Home";
+import HomeV2 from "./pages/HomeV2";
 import ExamCatalog from "./pages/ExamCatalog";
 import ExamHome from "./pages/ExamHome";
 import Quiz from "./pages/Quiz";
@@ -26,7 +26,7 @@ export default function App() {
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Layout>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<HomeV2 />} />
             <Route path="/exams" element={<ExamCatalog />} />
             <Route path="/exams/:examId" element={<ExamHome />} />
             <Route path="/exams/:examId/quiz" element={<Quiz />} />
