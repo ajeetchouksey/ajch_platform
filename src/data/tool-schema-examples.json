@@ -1,0 +1,32 @@
+[
+  {
+    "id": "file_reader",
+    "label": "File Reader",
+    "description": "Reads the contents of a file from the filesystem",
+    "parameters": [
+      { "name": "path", "type": "string", "description": "Absolute or relative path to the file to read", "required": true },
+      { "name": "encoding", "type": "string", "description": "Character encoding (default: utf-8)", "required": false }
+    ]
+  },
+  {
+    "id": "web_search",
+    "label": "Web Search",
+    "description": "Searches the web and returns the top N results with snippets",
+    "parameters": [
+      { "name": "query", "type": "string", "description": "The search query string", "required": true },
+      { "name": "num_results", "type": "number", "description": "Number of results to return (default: 5, max: 20)", "required": false },
+      { "name": "safe_search", "type": "boolean", "description": "Enable safe search filtering", "required": false }
+    ]
+  },
+  {
+    "id": "send_email",
+    "label": "Send Email",
+    "description": "Sends an email message via SMTP",
+    "parameters": [
+      { "name": "to", "type": "string", "description": "Recipient email address", "required": true },
+      { "name": "subject", "type": "string", "description": "Email subject line", "required": true },
+      { "name": "body", "type": "string", "description": "Email body content (plain text or HTML)", "required": true },
+      { "name": "cc", "type": "string", "description": "CC recipient email address", "required": false }
+    ]
+  }
+]

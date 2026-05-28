@@ -13,6 +13,9 @@ import Tools from "./pages/Tools";
 import TokenCounter from "./pages/TokenCounter";
 import ContextVisualizer from "./pages/ContextVisualizer";
 import McpScaffold from "./pages/McpScaffold";
+import SystemPromptBuilder from "./pages/SystemPromptBuilder";
+import ModelCostCalc from "./pages/ModelCostCalc";
+import ToolSchemaBuilder from "./pages/ToolSchemaBuilder";
 import Profile from "./pages/Profile";
 import Maintainer from "./pages/Maintainer";
 import MaintainerDashboard from "./pages/MaintainerDashboard";
@@ -39,6 +42,9 @@ export default function App() {
             <Route path="/tools/token-counter" element={<TokenCounter />} />
             <Route path="/tools/context-visualizer" element={<ContextVisualizer />} />
             <Route path="/tools/mcp-scaffold" element={<McpScaffold />} />
+            <Route path="/tools/system-prompt-builder" element={<SystemPromptBuilder />} />
+            <Route path="/tools/model-cost-calc" element={<ModelCostCalc />} />
+            <Route path="/tools/tool-schema-builder" element={<ToolSchemaBuilder />} />
             <Route path="/maintainer" element={<Maintainer />} />
             <Route path="/maintainer/dashboard" element={<MaintainerDashboard />} />
             <Route path="/maintainer/team" element={<Team />} />
