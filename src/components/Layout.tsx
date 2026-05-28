@@ -128,16 +128,18 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           </button>
 
-          <NavLink to="/" className="flex items-center gap-2.5 mr-4 group">
+          <NavLink to="/" className="flex items-center gap-2.5 sm:gap-3 mr-4 group">
             <div className="relative shrink-0">
-              <Cpu size={20} className="text-violet-400 transition-transform duration-300 group-hover:rotate-12" />
+              <Cpu size={20} className="sm:hidden text-violet-400 transition-transform duration-300 group-hover:rotate-12" />
+              <Cpu size={24} className="hidden sm:block lg:hidden text-violet-400 transition-transform duration-300 group-hover:rotate-12" />
+              <Cpu size={28} className="hidden lg:block text-violet-400 transition-transform duration-300 group-hover:rotate-12" />
               <div className="absolute inset-0 bg-violet-400/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
             <div className="flex flex-col leading-none select-none">
-              <span className="font-extrabold text-sm tracking-wide bg-gradient-to-r from-violet-300 to-violet-500 bg-clip-text text-transparent">
+              <span className="font-extrabold text-base sm:text-lg lg:text-xl tracking-wide bg-gradient-to-r from-violet-300 to-violet-500 bg-clip-text text-transparent">
                 Aarya
               </span>
-              <span className="hidden sm:block text-[9px] text-slate-500 font-medium tracking-[0.08em] mt-0.5">
+              <span className="text-[9px] sm:text-[10px] lg:text-xs text-slate-500 font-medium tracking-[0.08em] mt-0.5">
                 My AI Learning Hub
               </span>
             </div>
