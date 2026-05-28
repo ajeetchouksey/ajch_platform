@@ -1,4 +1,4 @@
----
+﻿---
 description: >
   Review existing content for accuracy, completeness, and alignment
   with current Anthropic documentation. Flag outdated information.
@@ -6,17 +6,17 @@ description: >
 
 # Audit Existing Content
 
-This prompt is handled by **Exam Content Agent** (Exam Commander).
+This prompt is handled by **Curriculum Engineer** (Exam Commander).
 
 ## Workflow (v2)
 
-1. Exam Content Agent reads all question files and notes for the specified domain
+1. Curriculum Engineer reads all question files and notes for the specified domain
 2. Checks facts against known Anthropic patterns (via web/fetch to docs if needed)
 3. Flags outdated or incorrect content with file path + line reference
 4. Suggests fixes → delegates corrections to:
-   - **Question Generator** (for question fixes)
-   - **Study Notes Agent** (for notes fixes)
-5. **Security & Governance Agent** validates before any write
+   - **Assessment Engineer** (for question fixes)
+   - **Docs Engineer** (for notes fixes)
+5. **AppSec Engineer** validates before any write
 
 ## Usage
 

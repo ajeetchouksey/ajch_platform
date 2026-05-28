@@ -1,4 +1,4 @@
----
+﻿---
 description: >
   Add content from a web URL to the CCA-F study app.
   Fetches the page, analyzes for exam-relevant content,
@@ -7,16 +7,16 @@ description: >
 
 # Add Content from URL
 
-This prompt is handled by **Exam Content Agent** (Exam Commander).
+This prompt is handled by **Curriculum Engineer** (Exam Commander).
 
 ## Workflow (v2 pipeline)
 
-1. **Exam Content Agent** fetches URL and extracts CCA-F concepts
+1. **Curriculum Engineer** fetches URL and extracts CCA-F concepts
 2. Deduplicates against existing `public/content/`
 3. Routes to sub-agents:
-   - MCQs → **Question Generator Agent** (`public/content/questions/`)
-   - Notes → **Study Notes Agent** (`public/content/notes/`)
-4. **Security & Governance Agent** validates schemas + file paths (hard gate)
+   - MCQs → **Assessment Engineer Agent** (`public/content/questions/`)
+   - Notes → **Docs Engineer** (`public/content/notes/`)
+4. **AppSec Engineer** validates schemas + file paths (hard gate)
 5. Sub-agents write their files on PASS ✓
 
 ## Usage
@@ -31,6 +31,6 @@ This prompt is handled by **Exam Content Agent** (Exam Commander).
 
 | Content type | Written by | Location |
 |-------------|-----------|----------|
-| MCQ questions | Question Generator | `public/content/questions/d{N}-questions.json` |
-| Domain notes | Study Notes Agent | `public/content/notes/d{N}-*.md` |
+| MCQ questions | Assessment Engineer | `public/content/questions/d{N}-questions.json` |
+| Domain notes | Docs Engineer | `public/content/notes/d{N}-*.md` |
 

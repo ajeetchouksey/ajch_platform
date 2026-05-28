@@ -1,4 +1,4 @@
----
+﻿---
 name: question-generator
 description: >
   Generate exam-quality MCQ questions from analyzed content.
@@ -6,7 +6,7 @@ description: >
   and proper domain/tag classification.
 ---
 
-# Question Generator Skill
+# Assessment Engineer Skill
 
 ## Purpose
 Transform analyzed concepts into high-quality exam questions that:

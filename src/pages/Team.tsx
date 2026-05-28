@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Bot, Cpu, PenTool, GraduationCap, BookOpen, GitBranch,
@@ -65,10 +65,10 @@ interface AgentData {
 ───────────────────────────────────────────────────────────── */
 const orchestrator: AgentData = {
   id: 'orchestrator',
-  name: 'Platform Orchestrator',
+  name: 'Staff Engineer',
   role: 'Chief Orchestrator',
   tagline: 'Classify. Gate. Route. Synthesize.',
-  description: 'Central brain. Classifies every request, triggers the Security Gate pre-flight for mutating tasks, routes to the correct domain lead. Never implements directly.',
+  description: 'Central brain. Classifies every request, triggers the AppSec Engineer pre-flight for mutating tasks, routes to the correct domain lead. Never implements directly.',
   glowColor: 'shadow-violet-500/30',
   borderColor: 'border-violet-500/40 hover:border-violet-400/70',
   bgGradient: 'from-violet-500/10 via-violet-500/5 to-transparent',
@@ -80,22 +80,22 @@ const orchestrator: AgentData = {
   capabilities: ['Intent Classification', 'Security Pre-flight', 'Agent Routing', 'Synthesis'],
   model: 'Claude Sonnet',
   tools: 14,
-  activeTask: 'Routing blog request → Blog Lead',
+  activeTask: 'Routing blog request → Content Lead',
   version: 'v2.0.0',
   profileFile: 'orchestrator.agent.md',
   deliveries: [
     { version: 'v1.0', label: 'Core routing engine + agent registry', type: 'major' },
     { version: 'v1.4', label: 'Security gate + sub-agent routing', type: 'minor' },
-    { version: 'v2.0', label: 'Mandatory Security pre-flight + Study Companion split + UX Framework wiring', type: 'major' },
+    { version: 'v2.0', label: 'Mandatory Security pre-flight + Pair Programmer split + Design Systems Engineer wiring', type: 'major' },
   ],
 };
 
 /* ─────────────────────────────────────────────────────────────
-   L0 — Product Owner (peer of Orchestrator)
+   L0 — Product Manager (peer of Orchestrator)
 ───────────────────────────────────────────────────────────── */
 const poAgent: AgentData = {
   id: 'product-owner',
-  name: 'Product Owner',
+  name: 'Product Manager',
   role: 'Product Lead',
   tagline: 'Roadmap. RICE. Sprints. Research.',
   description: 'Owns the "what and when". Manages GitHub Project board, RICE-scored backlog, sprint plans, content calendar, release notes, stakeholder updates, and competitive research & analysis. L0 peer of the Orchestrator.',
@@ -128,10 +128,10 @@ const poAgent: AgentData = {
 export const l1Agents: AgentData[] = [
   {
     id: 'platform-control',
-    name: 'Platform Control',
+    name: 'Platform Architect',
     role: 'Architect',
     tagline: 'Architecture decisions. Build config. Feature registration.',
-    description: 'Domain lead for platform concerns. Delegates routing changes to Routing Agent, component work to Component Builder, and UX primitives to UX Framework Agent. Handles build config and deploy settings directly.',
+    description: 'Domain lead for platform concerns. Delegates routing changes to Platform Engineer, component work to Frontend Engineer, and UX primitives to Design Systems Engineer. Handles build config and deploy settings directly.',
     glowColor: 'shadow-blue-500/25',
     borderColor: 'border-blue-500/40 hover:border-blue-400/70',
     bgGradient: 'from-blue-500/10 via-blue-500/5 to-transparent',
@@ -144,7 +144,7 @@ export const l1Agents: AgentData[] = [
     model: 'Claude Sonnet',
     tools: 8,
     humanFeedback: 'Human triggers features & approves deploys',
-    activeTask: 'Delegating Team page work → Component Builder',
+    activeTask: 'Delegating Team page work → Frontend Engineer',
     version: 'v3.0.0',
     profileFile: 'platform-control.agent.md',
     deliveries: [
@@ -155,7 +155,7 @@ export const l1Agents: AgentData[] = [
     subAgents: [
       {
         id: 'routing',
-        name: 'Routing Agent',
+        name: 'Platform Engineer',
         role: 'Route Specialist',
         description: 'Only touches App.tsx + Layout.tsx nav. No component edits ever.',
         owns: 'App.tsx · Layout.tsx nav',
@@ -166,7 +166,7 @@ export const l1Agents: AgentData[] = [
       },
       {
         id: 'builder',
-        name: 'Component Builder',
+        name: 'Frontend Engineer',
         role: 'UI Builder',
         description: 'Scaffolds React components using ui/ library only — no raw Tailwind classes.',
         owns: 'src/components/ · src/pages/',
@@ -179,10 +179,10 @@ export const l1Agents: AgentData[] = [
   },
   {
     id: 'blog',
-    name: 'Blog Lead',
+    name: 'Content Lead',
     role: 'Storyteller',
     tagline: 'Coordinate write → validate → publish.',
-    description: 'Domain lead for blog content. Orchestrates the full pipeline: Writer produces prose, Security Gate validates, Publisher commits to disk.',
+    description: 'Domain lead for blog content. Orchestrates the full pipeline: Writer produces prose, AppSec Engineer validates, Publisher commits to disk.',
     glowColor: 'shadow-emerald-500/25',
     borderColor: 'border-emerald-500/40 hover:border-emerald-400/70',
     bgGradient: 'from-emerald-500/10 via-emerald-500/5 to-transparent',
@@ -201,12 +201,12 @@ export const l1Agents: AgentData[] = [
     deliveries: [
       { version: 'v1.0', label: 'Blog post import pipeline + frontmatter', type: 'major' },
       { version: 'v1.5', label: 'Write → Validate → Publish sub-agent workflow', type: 'minor' },
-      { version: 'v2.0', label: 'Commander refactor: Content Writer + Security Gate + Content Publisher pipeline', type: 'major' },
+      { version: 'v2.0', label: 'Commander refactor: Tech Writer + AppSec Engineer + Release Engineer pipeline', type: 'major' },
     ],
     subAgents: [
       {
         id: 'writer',
-        name: 'Content Writer',
+        name: 'Tech Writer',
         role: 'Prose Specialist',
         description: 'Returns markdown string only. Never writes to disk. No terminal access.',
         owns: 'no disk write — string output only',
@@ -217,7 +217,7 @@ export const l1Agents: AgentData[] = [
       },
       {
         id: 'publisher',
-        name: 'Content Publisher',
+        name: 'Release Engineer',
         role: 'Publishing Specialist',
         description: 'Manages index.json manifest, frontmatter, slugs, SEO metadata only.',
         owns: 'public/content/blog/',
@@ -230,7 +230,7 @@ export const l1Agents: AgentData[] = [
   },
   {
     id: 'exam-content',
-    name: 'Exam Lead',
+    name: 'Curriculum Engineer',
     role: 'Curator',
     tagline: 'Research. Extract. Deduplicate. Delegate.',
     description: 'Domain lead for exam content. Handles web research and concept extraction directly, then delegates MCQ generation and notes writing to specialists.',
@@ -252,12 +252,12 @@ export const l1Agents: AgentData[] = [
     deliveries: [
       { version: 'v1.0', label: 'CCA-F question bank (50 questions)', type: 'major' },
       { version: 'v1.3', label: 'Deduplication engine + web research tools', type: 'minor' },
-      { version: 'v2.0', label: 'Commander refactor: Question Generator + Study Notes sub-agent pipeline', type: 'major' },
+      { version: 'v2.0', label: 'Commander refactor: Assessment Engineer + Study Notes sub-agent pipeline', type: 'major' },
     ],
     subAgents: [
       {
         id: 'qgen',
-        name: 'Question Generator',
+        name: 'Assessment Engineer',
         role: 'MCQ Specialist',
         description: 'Generates MCQ JSON only. Wraps existing question-generator.md skill. Schema-validated before write.',
         owns: 'public/content/questions/',
@@ -268,7 +268,7 @@ export const l1Agents: AgentData[] = [
       },
       {
         id: 'notes',
-        name: 'Study Notes Agent',
+        name: 'Docs Engineer',
         role: 'Notes Specialist',
         description: 'Writes domain .md files — Mermaid diagrams, cheat sheets, exam trap callouts.',
         owns: 'public/content/notes/',
@@ -281,10 +281,10 @@ export const l1Agents: AgentData[] = [
   },
   {
     id: 'study-companion',
-    name: 'Study Companion',
+    name: 'Pair Programmer',
     role: 'Teacher',
     tagline: '101 → 201 → 301. Meet you where you are.',
-    description: 'Teaching split into two focused sub-agents: Expert Teacher for Socratic instruction and grading; Student Simulator for teaching-back practice at 3 difficulty levels.',
+    description: 'Teaching split into two focused sub-agents: Principal Mentor for Socratic instruction and grading; Junior Dev for teaching-back practice at 3 difficulty levels.',
     glowColor: 'shadow-rose-500/25',
     borderColor: 'border-rose-500/40 hover:border-rose-400/70',
     bgGradient: 'from-rose-500/10 via-rose-500/5 to-transparent',
@@ -303,12 +303,12 @@ export const l1Agents: AgentData[] = [
     deliveries: [
       { version: 'v0.5', label: '101/201/301 persona framework', type: 'major' },
       { version: 'v0.9', label: 'Student simulation mode (beta)', type: 'minor' },
-      { version: 'v1.0', label: 'Split: Expert Teacher + Student Simulator sub-agents', type: 'major' },
+      { version: 'v1.0', label: 'Split: Principal Mentor + Junior Dev sub-agents', type: 'major' },
     ],
     subAgents: [
       {
         id: 'expert-teacher',
-        name: 'Expert Teacher',
+        name: 'Principal Mentor',
         role: 'Teaching Specialist',
         description: 'Socratic method, concept explanation, exam trap highlights, answer grading. Cross-domain connections.',
         owns: 'no disk write — conversational only',
@@ -319,7 +319,7 @@ export const l1Agents: AgentData[] = [
       },
       {
         id: 'student-simulator',
-        name: 'Student Simulator',
+        name: 'Junior Dev',
         role: 'Simulation Specialist',
         description: 'Plays 101/201/301 student to let user practice teaching-back. Escalates confusion, surfaces knowledge gaps.',
         owns: 'no disk write — conversational only',
@@ -337,7 +337,7 @@ export const l1Agents: AgentData[] = [
 ───────────────────────────────────────────────────────────── */
 const securityAgent: AgentData = {
   id: 'security-governance',
-  name: 'Security Gate',
+  name: 'AppSec Engineer',
   role: 'Governance Lead',
   tagline: 'Validate. Block. Never regret.',
   description: 'Hard pre-build and post-build gate. Inspects every planned write before code ships. Returns PASS ✓ or BLOCK ✗ — no partial passes, no exceptions.',
@@ -364,7 +364,7 @@ const securityAgent: AgentData = {
 
 const uxAgent: AgentData = {
   id: 'ux-framework',
-  name: 'UX Framework',
+  name: 'Design Systems Engineer',
   role: 'Design System Lead',
   tagline: 'One token. Every component.',
   description: 'Design system steward. Owns src/components/ui/ — the typed primitive library used by all agents. Zero raw Tailwind in components; all styling via design tokens.',
@@ -394,7 +394,7 @@ const uxAgent: AgentData = {
 ───────────────────────────────────────────────────────────── */
 const devopsAgent: AgentData = {
   id: 'devops',
-  name: 'DevOps Agent',
+  name: 'SRE',
   role: 'CI/CD Lead',
   tagline: 'Build. Tag. Deploy. Never skip the CHANGELOG.',
   description: 'Owns all GitHub Actions workflows, semver releases, and agent-file versioning. Every build passes through CI. Every ship gets a version bump and CHANGELOG entry.',
@@ -426,7 +426,7 @@ const devopsAgent: AgentData = {
 ───────────────────────────────────────────────────────────── */
 const socialMediaAgent: AgentData = {
   id: 'social-media',
-  name: 'Social Media Agent',
+  name: 'DevRel',
   role: 'Community Lead',
   tagline: 'Transform. Socialise. Never auto-post.',
   description: 'Community Commander. Transforms blog posts, tool releases, and CCA-F study milestones into polished LinkedIn posts, Twitter/X threads, and Dev.to drafts. All output is copy for human review — never auto-published.',
@@ -999,7 +999,7 @@ function OrchestratorCard({ agent, visible, onOpenProfile }: { agent: AgentData;
 }
 
 /* ─────────────────────────────────────────────────────────────
-   L0 — Product Owner card
+   L0 — Product Manager card
 ───────────────────────────────────────────────────────────── */
 function POAgentCard({ agent, visible, onOpenProfile }: { agent: AgentData; visible: boolean; onOpenProfile: (s: DrawerState) => void }) {
   const [hovered, setHovered] = useState(false);
@@ -1119,7 +1119,7 @@ function SecurityPillar({ visible }: { visible: boolean }) {
           <span
             className="text-[10px] font-black text-amber-400/20 uppercase tracking-[0.2em] whitespace-nowrap select-none"
             style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
-            Security Gate
+            AppSec Engineer
           </span>
         </div>
       </div>
@@ -1430,7 +1430,7 @@ export default function Team() {
           <StatGrid stats={[
             { icon: Bot,         value: totalAgents,    label: 'Total Agents',  color: 'text-violet-400',  accent: 'linear-gradient(90deg,#7c3aed,#a78bfa)' },
             { icon: Users,       value: totalSubAgents,  label: 'Sub-Agents',    color: 'text-blue-400',    accent: 'linear-gradient(90deg,#1d4ed8,#60a5fa)' },
-            { icon: ShieldCheck, value: 1,               label: 'Security Gate', color: 'text-amber-400',   accent: 'linear-gradient(90deg,#92400e,#fbbf24)' },
+            { icon: ShieldCheck, value: 1,               label: 'AppSec Engineer', color: 'text-amber-400',   accent: 'linear-gradient(90deg,#92400e,#fbbf24)' },
             { icon: Brain,       value: 'Claude',        label: 'Foundation',    color: 'text-emerald-400', accent: 'linear-gradient(90deg,#065f46,#34d399)' },
           ]} />
         </div>

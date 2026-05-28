@@ -1,14 +1,14 @@
----
+﻿---
 name: gh-project-config
 description: >
-  GitHub Projects v2 configuration for the AI Product Owner Agent.
+  GitHub Projects v2 configuration for the AI Product Manager.
   Stores board identifiers, label taxonomy, milestone structure, and
   platform personas for the ajch_platform repository.
 ---
 
 # GitHub Project Configuration
 
-> **Product Owner Agent** reads this file on every invocation.
+> **Product Manager** reads this file on every invocation.
 > Update the CONFIG block after the board is bootstrapped via the Setup module.
 
 ---
@@ -25,7 +25,7 @@ PROJECT_ID: PVT_kwHOBmF8RM4BY8v6  # GraphQL node ID for project board
 
 **First-time setup**: If you already have a GitHub Project, find its number from the URL
 (`https://github.com/users/ajeetchouksey/projects/N`) and paste it below.
-Otherwise invoke `Product Owner Agent → Setup` to create one.
+Otherwise invoke `Product Manager → Setup` to create one.
 
 **Token setup**: Create a **classic PAT** at https://github.com/settings/tokens
 → "Generate new token (classic)" with scopes `repo` + `project`, then paste it into

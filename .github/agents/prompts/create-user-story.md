@@ -1,7 +1,7 @@
----
+﻿---
 name: create-user-story
 description: >
-  Prompt template for the Product Owner Agent when creating structured
+  Prompt template for the Product Manager when creating structured
   GitHub Issues. Defines the mandatory fields, format rules, and validation
   checklist for platform user stories.
 ---
@@ -10,7 +10,7 @@ description: >
 
 ## Purpose
 
-This template defines the exact schema the Product Owner Agent must follow when
+This template defines the exact schema the Product Manager must follow when
 generating a GitHub Issue from a rough feature request, idea, or discussion.
 
 ---
