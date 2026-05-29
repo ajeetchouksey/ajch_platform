@@ -11,6 +11,20 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 
 ## [Unreleased]
 
+### Added
+- **`agents-validate.yml`** — CI gate on every `.github/agents/*.agent.md` change: validates `version:` + `last_modified:` fields, blocks PR merge if version was not bumped vs base branch, regenerates `registry.json` on push to main (items 16)
+- **`public/content/agents/registry.json`** — committed agent registry; single source of truth for all 21 agent versions, readable by the UI; auto-updated by `agents-validate.yml`, frozen per stable release by `release.yml` (item 17)
+- **`release.yml` deployment dispatch (step 11)** — stable releases auto-dispatch `deploy.yml` on `main` via `gh workflow run`; pre-releases are excluded; requires `actions: write` permission (item 14)
+- **`release.yml` rich job summary (step 12)** — structured table in `$GITHUB_STEP_SUMMARY` with release status, date, commit SHA, release URL, artifact size, agent count, and deployment status (item 14)
+- **`release.yml` registry freeze (step 9)** — on stable tag push, regenerates `registry.json` with `platform_version` set to the release tag and commits back to `main [skip ci]` (item 18)
+
+### Changed
+- **`release.yml`** upgraded from 5 → 12 steps: concurrency guard, build artifact + SHA256 checksum, release header, commit log since previous stable tag, duplicate release guard, `--latest` flag, deployment dispatch, rich job summary (items 13–15)
+- **`devops.agent.md`** bumped to `v1.2.0`: owns `agents-validate.yml`, `registry.json`, Hard Rules 8+9 (no bypass of agent gate, registry is automation-owned)
+- **`ux-diagram-validator.agent.md`** — added missing `version: 1.0.0` and `last_modified: 2026-05-29` fields (was blocking `agents-validate.yml` gate)
+- Platform renamed to **"Aarya — My AI Learning Hub"** across all agents, workflows, 404 page, CHANGELOG
+- Six page redesigns: `Notes.tsx`, `Progress.tsx`, `ExamHome.tsx`, `Scenarios.tsx`, `ExamCatalog.tsx`, `Quiz.tsx`
+
 ---
 
 ## [2.1.0] - 2026-05-29
