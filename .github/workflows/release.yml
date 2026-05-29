@@ -171,7 +171,65 @@ SECTION
 
           printf '\n> Snapshot taken at tag **%s**\n' "$TAG" >> /tmp/release_body.md
 
-      # ── 9. Create the GitHub Release ─────────────────────────────────────
+      # ── 9. Freeze registry.json with release platform version ────────────
+      # Only runs for stable releases (not pre-releases). Commits the updated
+      # registry.json back to main so the UI always reflects the release version.
+      - name: Freeze registry.json at release version
+        if: steps.check.outputs.exists == 'false' && steps.meta.outputs.prerelease == 'false'
+        run: |
+          VERSION="${{ steps.meta.outputs.version }}"
+          DATE="${{ steps.meta.outputs.date }}"
+
+          cat > /tmp/freeze_registry.py << 'PYEOF'
+import json, re, os, sys
+
+date, platform = sys.argv[1], sys.argv[2]
+
+def extract(content, field):
+    m = re.search(rf'^{field}:\s*(.+)', content, re.MULTILINE)
+    return m.group(1).strip().strip('"') if m else ''
+
+agents = []
+for fname in sorted(os.listdir('.github/agents')):
+    if not fname.endswith('.agent.md'):
+        continue
+    with open(f'.github/agents/{fname}') as fh:
+        content = fh.read()
+    agents.append({
+        'file':          fname,
+        'name':          extract(content, 'name'),
+        'version':       extract(content, 'version'),
+        'last_modified': extract(content, 'last_modified'),
+    })
+
+registry = {
+    'schema':           '1.0',
+    'platform_version': platform,
+    'generated':        date,
+    'note':             'Auto-updated by agents-validate.yml on push to main. Frozen into each GitHub Release by release.yml.',
+    'agents':           agents,
+}
+
+os.makedirs('public/content/agents', exist_ok=True)
+with open('public/content/agents/registry.json', 'w') as fh:
+    json.dump(registry, fh, indent=2)
+    fh.write('\n')
+
+print(f"Registry frozen: {len(agents)} agents, platform v{platform}")
+PYEOF
+
+          python3 /tmp/freeze_registry.py "$DATE" "$VERSION"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/content/agents/registry.json
+          if git diff --staged --quiet; then
+            echo "Registry unchanged — no commit needed."
+          else
+            git commit -m "chore(release): freeze registry.json at v$VERSION [skip ci]"
+            git push origin HEAD:main
+          fi
+
+      # ── 10. Create the GitHub Release ────────────────────────────────────
       - name: Create GitHub Release
         if: steps.check.outputs.exists == 'false'
         env:
@@ -196,7 +254,7 @@ SECTION
               "$ARTIFACT" "${ARTIFACT}.sha256"
           fi
 
-      # ── 10. Write job summary ─────────────────────────────────────────────
+      # ── 11. Write job summary ────────────────────────────────────────────
       - name: Write job summary
         if: steps.check.outputs.exists == 'false'
         run: |

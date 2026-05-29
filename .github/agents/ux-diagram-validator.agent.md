@@ -1,5 +1,7 @@
 ﻿---
 name: QA Engineer
+version: 1.0.0
+last_modified: 2026-05-29
 description: >
   Validates Mermaid diagrams in markdown and MDX files against Aarya platform
   readability standards. Returns PASS ✅ or a structured list of VIOLATIONS ✗

@@ -1,0 +1,162 @@
+name: Agent Version Gate
+# Owned by SRE (devops.agent.md).
+# Fires on every PR or push to main that touches .github/agents/*.agent.md.
+#
+# On PRs:
+#   - Validates each changed agent file has 'version:' + 'last_modified:' in frontmatter
+#   - Blocks merge if version was NOT bumped vs main
+#
+# On push to main:
+#   - Same validation (catches direct pushes)
+#   - Regenerates public/content/agents/registry.json and commits it [skip ci]
+#
+# Hard rules:
+#   - version: must be present and valid semver
+#   - last_modified: must be present
+#   - On PRs: version must differ from the base branch version (bump required)
+
+on:
+  pull_request:
+    paths:
+      - '.github/agents/*.agent.md'
+  push:
+    branches: [main]
+    paths:
+      - '.github/agents/*.agent.md'
+
+permissions:
+  contents: write   # needed to commit registry.json on push to main
+
+jobs:
+  validate:
+    name: Validate agent versions
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout full history (needed for version-bump comparison) ──────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── 2. Validate version + last_modified on every changed agent file ────
+      - name: Validate changed agent files
+        run: |
+          # Determine changed agent files
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            CHANGED=$(git diff --name-only "origin/$GITHUB_BASE_REF"...HEAD \
+              -- '.github/agents/*.agent.md' 2>/dev/null || echo "")
+          else
+            CHANGED=$(git diff --name-only HEAD~1 HEAD \
+              -- '.github/agents/*.agent.md' 2>/dev/null || echo "")
+          fi
+
+          if [ -z "$CHANGED" ]; then
+            echo "No agent files changed — nothing to validate."
+            exit 0
+          fi
+
+          ERRORS=0
+          for f in $CHANGED; do
+            [ -f "$f" ] || continue
+
+            VER=$(grep '^version:' "$f" | head -1 \
+              | sed 's/^version:[[:space:]]*//' | tr -d '"')
+            LM=$(grep '^last_modified:' "$f" | head -1 \
+              | sed 's/^last_modified:[[:space:]]*//' | tr -d '"')
+
+            # Must have version:
+            if [ -z "$VER" ]; then
+              echo "::error file=$f::Missing 'version:' field in YAML frontmatter."
+              ERRORS=$((ERRORS+1))
+              continue
+            fi
+
+            # Must have last_modified:
+            if [ -z "$LM" ]; then
+              echo "::error file=$f::Missing 'last_modified:' field in YAML frontmatter."
+              ERRORS=$((ERRORS+1))
+              continue
+            fi
+
+            # On PRs: version must be bumped vs base branch
+            if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+              BASE_VER=$(git show "origin/$GITHUB_BASE_REF:$f" 2>/dev/null \
+                | grep '^version:' | head -1 \
+                | sed 's/^version:[[:space:]]*//' | tr -d '"')
+              if [ -n "$BASE_VER" ] && [ "$VER" = "$BASE_VER" ]; then
+                echo "::error file=$f::version '$VER' matches base branch — bump version: and update last_modified: before merging."
+                ERRORS=$((ERRORS+1))
+                continue
+              fi
+            fi
+
+            echo "✓  $(basename $f) — version: $VER  last_modified: $LM"
+          done
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo ""
+            echo "$ERRORS error(s). Fix frontmatter before merging."
+            exit 1
+          fi
+          echo ""
+          echo "All changed agent files pass validation."
+
+      # ── 3. Regenerate registry.json (push to main only) ──────────────────
+      - name: Regenerate agent registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python3 - << 'PYEOF'
+import json, re, os, subprocess
+
+date     = subprocess.check_output(['date', '-u', '+%Y-%m-%d']).decode().strip()
+platform = subprocess.check_output(
+    ['node', '-p', "require('./package.json').version"]
+).decode().strip()
+
+def extract(content, field):
+    m = re.search(rf'^{field}:\s*(.+)', content, re.MULTILINE)
+    return m.group(1).strip().strip('"') if m else ''
+
+agents = []
+for fname in sorted(os.listdir('.github/agents')):
+    if not fname.endswith('.agent.md'):
+        continue
+    with open(f'.github/agents/{fname}') as fh:
+        content = fh.read()
+    agents.append({
+        'file':          fname,
+        'name':          extract(content, 'name'),
+        'version':       extract(content, 'version'),
+        'last_modified': extract(content, 'last_modified'),
+    })
+
+registry = {
+    'schema':           '1.0',
+    'platform_version': platform,
+    'generated':        date,
+    'note':             'Auto-updated by agents-validate.yml on push to main. Frozen into each GitHub Release by release.yml.',
+    'agents':           agents,
+}
+
+os.makedirs('public/content/agents', exist_ok=True)
+with open('public/content/agents/registry.json', 'w') as fh:
+    json.dump(registry, fh, indent=2)
+    fh.write('\n')
+
+print(f"Registry written: {len(agents)} agents, platform v{platform}")
+PYEOF
+
+      # ── 4. Commit registry.json if it changed ────────────────────────────
+      - name: Commit updated registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/content/agents/registry.json
+          if git diff --staged --quiet; then
+            echo "Registry unchanged — no commit needed."
+          else
+            git commit -m "chore(agents): auto-update registry.json [skip ci]"
+            git push
+          fi
