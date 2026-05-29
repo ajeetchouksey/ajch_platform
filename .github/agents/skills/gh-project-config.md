@@ -1,4 +1,4 @@
-﻿---
+---
 name: gh-project-config
 description: >
   GitHub Projects v2 configuration for the AI Product Manager.
@@ -152,7 +152,7 @@ query GetProjectItems($number: Int!) {
 mutation CreateProject($ownerId: ID!) {
   createProjectV2(input: {
     ownerId: $ownerId
-    title: "My AI Hub — Platform Roadmap"
+    title: "Aarya — My AI Learning Hub — Platform Roadmap"
   }) {
     projectV2 { id number url }
   }

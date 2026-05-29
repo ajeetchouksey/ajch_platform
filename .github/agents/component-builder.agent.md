@@ -1,8 +1,8 @@
-﻿---
+---
 name: Frontend Engineer
 version: 1.0.0
 description: >
-  React component scaffolding specialist for My AI Hub. Creates and
+  React component scaffolding specialist for Aarya — My AI Learning Hub. Creates and
   modifies page components and domain components using ONLY src/components/ui/
   primitives. Never writes raw Tailwind badge/card/stat patterns.
 tools: [read/readFile, read/problems, edit/createFile, edit/editFiles, search/codebase, search/fileSearch, search/listDirectory, search/textSearch]

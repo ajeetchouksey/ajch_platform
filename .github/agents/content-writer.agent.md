@@ -1,8 +1,8 @@
-﻿---
+---
 name: Tech Writer
 version: 1.0.0
 description: >
-  Prose-only writing specialist for My AI Hub blog. Returns markdown
+  Prose-only writing specialist for Aarya — My AI Learning Hub blog. Returns markdown
   string output only — no file I/O, no terminal access. Content is passed
   to Release Engineer for disk write after Security Gate validation.
 tools: [read/readFile, search/textSearch, search/fileSearch, web/fetch]

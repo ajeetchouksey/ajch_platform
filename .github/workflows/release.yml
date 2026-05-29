@@ -110,11 +110,11 @@ SECTION
 
           if [ "$PRERELEASE" = "true" ]; then
             gh release create "$TAG" \
-              --title "My AI Hub $TAG" \
+              --title "Aarya — My AI Learning Hub $TAG" \
               --notes-file /tmp/release_body.md \
               --prerelease
           else
             gh release create "$TAG" \
-              --title "My AI Hub $TAG" \
+              --title "Aarya — My AI Learning Hub $TAG" \
               --notes-file /tmp/release_body.md
           fi
