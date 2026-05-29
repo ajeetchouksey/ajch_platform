@@ -1,6 +1,7 @@
 ---
 name: DevRel
 version: 1.0.0
+last_modified: "2026-05-29"
 description: >
   Community Commander for Aarya — My AI Learning Hub. Socialises platform content across
   LinkedIn, Twitter/X, and dev communities (Dev.to, Hashnode). Transforms blog

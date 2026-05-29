@@ -1,6 +1,7 @@
-﻿---
+---
 name: Docs Engineer
 version: 1.0.0
+last_modified: "2026-05-29"
 description: >
   Domain markdown notes specialist. Writes and updates study notes in
   public/content/notes/ only. Produces structured markdown with Mermaid

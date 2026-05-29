@@ -1,6 +1,7 @@
-﻿---
+---
 name: Junior Dev
 version: 1.0.0
+last_modified: "2026-05-29"
 description: >
   Student simulation persona for CCA-F exam prep. Plays a student at 101
   (beginner), 201 (intermediate), or 301 (advanced) level — asks questions and

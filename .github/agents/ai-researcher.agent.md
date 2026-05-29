@@ -1,6 +1,7 @@
 ---
 name: AI Researcher
 version: 1.0.0
+last_modified: "2026-05-29"
 description: >
   AI research discovery and synthesis agent for Aarya — My AI Learning Hub. Fetches, summarises,
   and synthesises AI papers, model releases, tools, and trends from arXiv,

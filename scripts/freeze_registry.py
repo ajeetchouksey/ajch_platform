@@ -20,7 +20,7 @@ def build_registry(date: str, platform_version: str) -> dict:
     for fname in sorted(os.listdir(".github/agents")):
         if not fname.endswith(".agent.md"):
             continue
-        with open(f".github/agents/{fname}") as fh:
+        with open(f".github/agents/{fname}", encoding="utf-8") as fh:
             content = fh.read()
         agents.append(
             {

@@ -2,28 +2,133 @@
   "schema": "1.0",
   "platform_version": "2.1.0",
   "generated": "2026-05-29",
-  "note": "Auto-updated by agents-validate.yml on every push to main. Frozen into each GitHub Release by release.yml.",
+  "note": "Auto-updated by agents-validate.yml on push to main. Frozen into each GitHub Release by release.yml.",
   "agents": [
-    { "file": "ai-researcher.agent.md",         "name": "AI Researcher",           "version": "1.0.0", "last_modified": "" },
-    { "file": "appsec-engineer.agent.md",        "name": "AppSec Engineer",          "version": "1.1.0", "last_modified": "" },
-    { "file": "assessment-engineer.agent.md",    "name": "Assessment Engineer",      "version": "1.0.0", "last_modified": "" },
-    { "file": "content-lead.agent.md",           "name": "Content Lead",             "version": "1.0.0", "last_modified": "" },
-    { "file": "curriculum-engineer.agent.md",    "name": "Curriculum Engineer",      "version": "1.0.0", "last_modified": "" },
-    { "file": "delivery-manager.agent.md",       "name": "Delivery Manager",         "version": "1.0.0", "last_modified": "" },
-    { "file": "design-systems-engineer.agent.md","name": "Design Systems Engineer",  "version": "1.1.0", "last_modified": "" },
-    { "file": "devrel.agent.md",                 "name": "DevRel",                   "version": "1.0.0", "last_modified": "" },
-    { "file": "docs-engineer.agent.md",          "name": "Docs Engineer",            "version": "1.0.0", "last_modified": "" },
-    { "file": "frontend-engineer.agent.md",      "name": "Frontend Engineer",        "version": "1.0.0", "last_modified": "" },
-    { "file": "junior-dev.agent.md",             "name": "Junior Dev",               "version": "1.0.0", "last_modified": "" },
-    { "file": "pair-programmer.agent.md",        "name": "Pair Programmer",          "version": "1.0.0", "last_modified": "" },
-    { "file": "platform-architect.agent.md",     "name": "Platform Architect",       "version": "3.0.0", "last_modified": "" },
-    { "file": "platform-engineer.agent.md",      "name": "Platform Engineer",        "version": "1.0.0", "last_modified": "" },
-    { "file": "principal-mentor.agent.md",       "name": "Principal Mentor",         "version": "1.0.0", "last_modified": "" },
-    { "file": "product-manager.agent.md",        "name": "Product Manager",          "version": "1.1.0", "last_modified": "" },
-    { "file": "qa-engineer.agent.md",            "name": "QA Engineer",              "version": "1.0.0", "last_modified": "" },
-    { "file": "release-engineer.agent.md",       "name": "Release Engineer",         "version": "1.0.0", "last_modified": "" },
-    { "file": "sre.agent.md",                    "name": "SRE",                      "version": "1.2.0", "last_modified": "2026-05-29" },
-    { "file": "staff-engineer.agent.md",         "name": "Staff Engineer",           "version": "2.0.0", "last_modified": "" },
-    { "file": "tech-writer.agent.md",            "name": "Tech Writer",              "version": "1.0.0", "last_modified": "" }
+    {
+      "file": "ai-researcher.agent.md",
+      "name": "AI Researcher",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "appsec-engineer.agent.md",
+      "name": "AppSec Engineer",
+      "version": "1.1.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "assessment-engineer.agent.md",
+      "name": "Assessment Engineer",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "content-lead.agent.md",
+      "name": "Content Lead",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "curriculum-engineer.agent.md",
+      "name": "Curriculum Engineer",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "delivery-manager.agent.md",
+      "name": "Delivery Manager",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "design-systems-engineer.agent.md",
+      "name": "Design Systems Engineer",
+      "version": "1.1.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "devrel.agent.md",
+      "name": "DevRel",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "docs-engineer.agent.md",
+      "name": "Docs Engineer",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "frontend-engineer.agent.md",
+      "name": "Frontend Engineer",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "junior-dev.agent.md",
+      "name": "Junior Dev",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "pair-programmer.agent.md",
+      "name": "Pair Programmer",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "platform-architect.agent.md",
+      "name": "Platform Architect",
+      "version": "3.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "platform-engineer.agent.md",
+      "name": "Platform Engineer",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "principal-mentor.agent.md",
+      "name": "Principal Mentor",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "product-manager.agent.md",
+      "name": "Product Manager",
+      "version": "1.1.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "qa-engineer.agent.md",
+      "name": "QA Engineer",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "release-engineer.agent.md",
+      "name": "Release Engineer",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "sre.agent.md",
+      "name": "SRE",
+      "version": "1.2.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "staff-engineer.agent.md",
+      "name": "Staff Engineer",
+      "version": "2.1.0",
+      "last_modified": "2026-05-29"
+    },
+    {
+      "file": "tech-writer.agent.md",
+      "name": "Tech Writer",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    }
   ]
 }

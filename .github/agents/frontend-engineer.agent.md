@@ -1,6 +1,7 @@
 ---
 name: Frontend Engineer
 version: 1.0.0
+last_modified: "2026-05-29"
 description: >
   React component scaffolding specialist for Aarya — My AI Learning Hub. Creates and
   modifies page components and domain components using ONLY src/components/ui/

@@ -1,6 +1,7 @@
 ---
 name: Design Systems Engineer
 version: 1.1.0
+last_modified: "2026-05-29"
 description: >
   Design system steward for Aarya — My AI Learning Hub. Owns src/components/ui/ — the
   typed primitive library used by all other agents. Generates, updates, and

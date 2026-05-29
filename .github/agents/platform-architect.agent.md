@@ -1,6 +1,7 @@
 ---
 name: Platform Architect
 version: 3.0.0
+last_modified: "2026-05-29"
 description: >
   Platform architecture domain lead for Aarya — My AI Learning Hub. Acts as commander
   for platform concerns — delegates routing changes to Platform Engineer, component

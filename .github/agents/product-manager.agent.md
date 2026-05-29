@@ -1,6 +1,7 @@
 ---
 name: Product Manager
 version: 1.1.0
+last_modified: "2026-05-29"
 description: >
   AI Product Owner for Aarya — My AI Learning Hub. Drives platform and content roadmap,
   generates structured GitHub Issues, manages backlog prioritization with RICE

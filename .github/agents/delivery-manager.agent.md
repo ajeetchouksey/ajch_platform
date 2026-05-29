@@ -1,6 +1,7 @@
 ---
 name: Delivery Manager
 version: 1.0.0
+last_modified: "2026-05-29"
 description: >
   Servant-leader Scrum facilitator for Aarya — My AI Learning Hub. Runs sprint ceremonies,
   grooms the backlog, tracks velocity, and facilitates retrospectives.

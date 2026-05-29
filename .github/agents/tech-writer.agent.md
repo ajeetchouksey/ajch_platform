@@ -1,6 +1,7 @@
 ---
 name: Tech Writer
 version: 1.0.0
+last_modified: "2026-05-29"
 description: >
   Prose-only writing specialist for Aarya — My AI Learning Hub blog. Returns markdown
   string output only — no file I/O, no terminal access. Content is passed

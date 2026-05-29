@@ -1,6 +1,7 @@
 ---
 name: Curriculum Engineer
 version: 1.0.0
+last_modified: "2026-05-29"
 description: >
   Exam Commander for Aarya — My AI Learning Hub. Orchestrates exam content pipeline:
   handles web research and concept extraction directly, then delegates MCQ
