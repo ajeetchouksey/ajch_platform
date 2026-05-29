@@ -1,5 +1,5 @@
 const GIST_FILENAME = 'ccaf-progress.json';
-const GIST_DESCRIPTION = 'CCA-F Study App Progress';
+const GIST_DESCRIPTION = 'Aarya — AI Learning Hub Progress';
 
 interface ProgressData {
   quizHistory: Array<{ date: string; domain: string; score: number; total: number }>;

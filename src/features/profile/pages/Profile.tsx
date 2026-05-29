@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
+import { useProgressSync } from '@/lib/useProgressSync';
 import { getSessions, getScoreByDomain } from '@/lib/storage';
 import { loadBlogManifest, loadExamRegistry } from '@/lib/content-loader';
 import type { DomainConfig } from '@/types/content';
@@ -16,6 +17,7 @@ interface DomainStats {
 
 export default function Profile() {
   const { user, logout } = useAuth();
+  useProgressSync(); // auto-syncs from Gist on login; syncToGist exposed in Phase 1
   const [mounted, setMounted] = useState(false);
   const [blogCount, setBlogCount] = useState(0);
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
