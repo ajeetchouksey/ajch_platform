@@ -16,7 +16,8 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+-*'      # pre-release: v2.1.0-beta.1, v2.1.0-rc.1
 
 permissions:
-  contents: write   # required to create GitHub Releases
+  contents: write   # create GitHub Releases, push registry.json commit
+  actions:  write   # trigger deploy.yml workflow dispatch
 
 jobs:
   release:
@@ -254,10 +255,69 @@ PYEOF
               "$ARTIFACT" "${ARTIFACT}.sha256"
           fi
 
-      # ── 11. Write job summary ────────────────────────────────────────────
+      # ── 11. Trigger deployment workflow (stable releases only) ────────────
+      # Dispatches deploy.yml on the main branch so deployment is explicitly
+      # tracked as a child run in the Actions UI.
+      # Pre-releases are excluded — they never auto-deploy to production.
+      - name: Trigger deployment workflow
+        id: dispatch
+        if: steps.check.outputs.exists == 'false' && steps.meta.outputs.prerelease == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run deploy.yml --ref main
+          echo "triggered=true" >> $GITHUB_OUTPUT
+
+      # ── 12. Write job summary ────────────────────────────────────────────
       - name: Write job summary
         if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          echo "## 🚀 Released: ${{ steps.meta.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          cat /tmp/release_body.md >> $GITHUB_STEP_SUMMARY
+          TAG="${{ steps.meta.outputs.tag }}"
+          DATE="${{ steps.meta.outputs.date }}"
+          SHA="${{ steps.meta.outputs.sha }}"
+          PRERELEASE="${{ steps.meta.outputs.prerelease }}"
+          VERSION="${{ steps.meta.outputs.version }}"
+          ARTIFACT="aarya-${VERSION}.tar.gz"
+
+          # Get canonical release URL from gh API
+          RELEASE_URL=$(gh release view "$TAG" --json url -q '.url' 2>/dev/null || echo "")
+
+          # Artifact size (human-readable)
+          ARTIFACT_SIZE=$([ -f "$ARTIFACT" ] && du -sh "$ARTIFACT" | cut -f1 || echo "—")
+
+          # Count agent files
+          AGENT_COUNT=$(ls .github/agents/*.agent.md 2>/dev/null | wc -l | tr -d ' ')
+
+          # Deployment status label
+          if [ "$PRERELEASE" = "false" ]; then
+            DEPLOY_STATUS="✅ Dispatched \`deploy.yml\` on \`main\`"
+          else
+            DEPLOY_STATUS="⏭️ Skipped — pre-release tag"
+          fi
+
+          # Release status label
+          if [ "$PRERELEASE" = "true" ]; then
+            RELEASE_STATUS="⚠️ Pre-release (not latest)"
+          else
+            RELEASE_STATUS="✅ Stable · marked **latest**"
+          fi
+
+          {
+            echo "## 🚀 Release \`$TAG\`"
+            echo ""
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| **Status**     | $RELEASE_STATUS |"
+            echo "| **Date**       | $DATE |"
+            echo "| **Commit**     | \`$SHA\` |"
+            echo "| **Release**    | $RELEASE_URL |"
+            echo "| **Artifact**   | \`$ARTIFACT\` (${ARTIFACT_SIZE}) |"
+            echo "| **Agents**     | ${AGENT_COUNT} registered |"
+            echo "| **Deployment** | $DEPLOY_STATUS |"
+            echo ""
+            echo "---"
+            echo ""
+            cat /tmp/release_body.md
+          } >> $GITHUB_STEP_SUMMARY
