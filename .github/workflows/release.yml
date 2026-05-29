@@ -1,9 +1,13 @@
 name: GitHub Release
 # Owned by DevOps Agent. Triggered automatically on every vX.Y.Z tag push.
 # Creates a properly structured GitHub Release with:
+#   - Release header (date · tag · commit SHA)
 #   - Changelog section extracted from .github/CHANGELOG.md
+#   - Commit log since previous stable tag
 #   - Agent registry snapshot (name + version of every .agent.md file)
-# Pre-release tags (v*-alpha.*, v*-beta.*, v*-rc.*) are marked as pre-release.
+#   - Build artifact: aarya-{version}.tar.gz + SHA256 checksum
+# Pre-release tags (v*-alpha.*, v*-beta.*, v*-rc.*) are marked as pre-release
+# and never set as "latest". Stable releases always become "latest".
 
 on:
   push:
@@ -18,30 +22,81 @@ jobs:
   release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
+    concurrency:
+      group: release-${{ github.ref_name }}
+      cancel-in-progress: false          # never cancel a release in flight
 
     steps:
-      # ── 1. Checkout full history so the tag is fully resolved ──────────────
+      # ── 1. Checkout full history so tags and log are fully resolved ────────
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # ── 2. Parse tag → version string + pre-release flag ─────────────────
+      # ── 2. Parse tag → version, date, short SHA, pre-release flag ─────────
       - name: Parse tag metadata
         id: meta
         run: |
           TAG="${GITHUB_REF_NAME}"
           VERSION="${TAG#v}"
+          DATE=$(date -u +"%Y-%m-%d")
+          SHA="${GITHUB_SHA:0:8}"
           echo "tag=$TAG"         >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "date=$DATE"       >> $GITHUB_OUTPUT
+          echo "sha=$SHA"         >> $GITHUB_OUTPUT
           if echo "$TAG" | grep -qE -- '-(alpha|beta|rc)'; then
             echo "prerelease=true"  >> $GITHUB_OUTPUT
           else
             echo "prerelease=false" >> $GITHUB_OUTPUT
           fi
 
-      # ── 3. Extract the matching CHANGELOG section via Python ──────────────
+      # ── 3. Guard — skip everything if this release already exists ─────────
+      - name: Check for existing release
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ steps.meta.outputs.tag }}" > /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "::warning::Release ${{ steps.meta.outputs.tag }} already exists — skipping."
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ── 4. Set up Node.js and build the app ───────────────────────────────
+      - name: Set up Node.js
+        if: steps.check.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Build
+        if: steps.check.outputs.exists == 'false'
+        run: npm ci && npm run build
+
+      - name: Package dist artifact
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          ARTIFACT="aarya-${{ steps.meta.outputs.version }}.tar.gz"
+          tar -czf "$ARTIFACT" dist/
+          sha256sum "$ARTIFACT" > "${ARTIFACT}.sha256"
+          echo "artifact=$ARTIFACT" >> $GITHUB_ENV
+
+      # ── 5. Write release notes header ─────────────────────────────────────
+      - name: Write release notes header
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          TAG="${{ steps.meta.outputs.tag }}"
+          DATE="${{ steps.meta.outputs.date }}"
+          SHA="${{ steps.meta.outputs.sha }}"
+          printf '> 📅 Released: %s  ·  🔖 Tag: `%s`  ·  🔨 Commit: `%s`\n\n' \
+            "$DATE" "$TAG" "$SHA" > /tmp/release_body.md
+
+      # ── 6. Extract the matching CHANGELOG section via Python ──────────────
       - name: Extract CHANGELOG section
+        if: steps.check.outputs.exists == 'false'
         run: |
           VERSION="${{ steps.meta.outputs.version }}"
 
@@ -71,10 +126,26 @@ else:
 PYEOF
 
           python3 /tmp/extract_changelog.py "$VERSION" .github/CHANGELOG.md \
-            > /tmp/release_body.md
+            >> /tmp/release_body.md
 
-      # ── 4. Append agent registry snapshot ────────────────────────────────
+      # ── 7. Append commit log since previous stable tag ────────────────────
+      - name: Append commit log
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          PREV_TAG=$(git tag --sort=-creatordate \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sed -n '2p')
+          if [ -n "$PREV_TAG" ]; then
+            printf '\n---\n\n## 📦 Commits since `%s`\n\n```\n' "$PREV_TAG" \
+              >> /tmp/release_body.md
+            git log --oneline "${PREV_TAG}..${{ steps.meta.outputs.tag }}" \
+              >> /tmp/release_body.md
+            printf '```\n' >> /tmp/release_body.md
+          fi
+
+      # ── 8. Append agent registry snapshot ────────────────────────────────
       - name: Append agent registry snapshot
+        if: steps.check.outputs.exists == 'false'
         run: |
           TAG="${{ steps.meta.outputs.tag }}"
 
@@ -100,21 +171,35 @@ SECTION
 
           printf '\n> Snapshot taken at tag **%s**\n' "$TAG" >> /tmp/release_body.md
 
-      # ── 5. Create the GitHub Release ─────────────────────────────────────
+      # ── 9. Create the GitHub Release ─────────────────────────────────────
       - name: Create GitHub Release
+        if: steps.check.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="${{ steps.meta.outputs.tag }}"
           PRERELEASE="${{ steps.meta.outputs.prerelease }}"
+          ARTIFACT="aarya-${{ steps.meta.outputs.version }}.tar.gz"
 
           if [ "$PRERELEASE" = "true" ]; then
             gh release create "$TAG" \
               --title "Aarya — My AI Learning Hub $TAG" \
               --notes-file /tmp/release_body.md \
-              --prerelease
+              --prerelease \
+              --no-latest \
+              "$ARTIFACT" "${ARTIFACT}.sha256"
           else
             gh release create "$TAG" \
               --title "Aarya — My AI Learning Hub $TAG" \
-              --notes-file /tmp/release_body.md
+              --notes-file /tmp/release_body.md \
+              --latest \
+              "$ARTIFACT" "${ARTIFACT}.sha256"
           fi
+
+      # ── 10. Write job summary ─────────────────────────────────────────────
+      - name: Write job summary
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          echo "## 🚀 Released: ${{ steps.meta.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/release_body.md >> $GITHUB_STEP_SUMMARY
