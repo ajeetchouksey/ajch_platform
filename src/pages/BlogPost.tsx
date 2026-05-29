@@ -380,8 +380,16 @@ export default function BlogPost() {
   const pal = meta ? (CAT_PALETTE[meta.category] ?? { color: '#94a3b8', bg: 'rgba(30,41,59,0.5)', border: 'rgba(71,85,105,0.3)' }) : null;
 
   return (
-    <div className={`transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+    <div className={`relative transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
       <ReadingBar />
+
+      {/* Ambient background orbs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: -1 }}>
+        <div className="absolute -top-32 -left-32 w-[560px] h-[560px] rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 65%)' }} />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(56,189,248,0.04) 0%, transparent 70%)' }} />
+      </div>
 
       {/* ── Top nav bar ──────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-7">
@@ -406,7 +414,13 @@ export default function BlogPost() {
       <div className="flex items-start gap-8">
 
         {/* ───── Main article ──────────────────────────────────────────────── */}
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 rounded-2xl"
+          style={{
+            background: 'rgba(8,15,30,0.97)',
+            border: '1px solid rgba(71,85,105,0.18)',
+            padding: 'clamp(1.5rem, 3vw, 2.5rem)',
+          }}
+        >
 
           {/* Article header */}
           {meta && pal && (

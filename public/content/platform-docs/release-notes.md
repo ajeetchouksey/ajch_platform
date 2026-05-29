@@ -1,16 +1,27 @@
 # Release Notes
 
+## v2.3.0 — 2026-05-29
+
+### Platform
+
+- **Content freshness pipeline** — `scripts/sync-stats.py` regenerates `public/content/stats.json` from actual content counts after every agent write
+- **Dynamic home page stats** — proof bar and feature card bullets now read live counts from `stats.json` (55 posts · 158 questions · 9 tools); hardcoded fallbacks kept for resilience
+- **`/docs` route** — new Platform Documentation page with tab selector and Mermaid-capable Markdown renderer
+- **`public/content/platform-docs/`** — 4 initial documents: Platform Architecture, Agent Ecosystem, Content Schema, Release Notes
+- **Platform Docs agent** v1.0.0 — new specialist agent scoped to `public/content/platform-docs/`
+- **Staff Engineer v2.3.0** — content-sync step (STEP 3b) added to STANDARD FLOW; Platform Docs routing added to STEP 3
+
+---
+
 ## v2.2.0 — 2026-05-29
 
 ### Platform
 
-- **Multi-agent orchestration hardened** — Staff Engineer v2.2.0 with full legacy section removed, stale agent names corrected across all routing tables
-- **21 agent files renamed** to consistent kebab-case (`component-builder` → `frontend-engineer`, etc.)
-- **Agent registry regenerated** — all 21 agents with `last_modified: "2026-05-29"` and proper `version:` fields
-- **Platform Docs** — new `/docs` route with architecture guide, agent ecosystem reference, content schema, and release notes
-- **Dynamic home page stats** — proof bar now reads live counts from `public/content/stats.json` instead of hardcoded values
-- **`scripts/sync-stats.py`** — new maintenance script to regenerate stats after content writes
-- **`scripts/freeze_registry.py`** encoding fix — UTF-8 explicit open prevents cp1252 crash on Windows
+- **21 agent files renamed** to consistent kebab-case across `.github/agents/` (`component-builder` → `frontend-engineer`, `product-owner` → `product-manager`, etc.)
+- **Orchestration audit** — Staff Engineer v2.2.0: stale role names corrected, DevRel + QA Engineer wired into routing tables, legacy v1 duplicate section removed (320 lines → 209 lines)
+- **`last_modified` backfilled** across all 21 agent files
+- **`agents-validate.yml`** CI gate — validates frontmatter on every push; blocks merge if `version:` or `last_modified:` missing
+- **`scripts/freeze_registry.py`** UTF-8 fix — explicit `encoding="utf-8"` prevents cp1252 crash on Windows
 
 ### Content
 

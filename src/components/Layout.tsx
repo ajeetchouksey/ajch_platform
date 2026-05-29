@@ -11,8 +11,8 @@ import type { BlogPostMeta, ExamConfig } from '../types/content';
 
 const platformLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
-  { to: '/exams', label: 'Learn', icon: GraduationCap },
-  { to: '/blog', label: 'Blog', icon: Newspaper },
+  { to: '/exams', label: 'Skill Up', icon: GraduationCap },
+  { to: '/blog', label: 'Field Notes', icon: Newspaper },
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/docs', label: 'Docs', icon: BookOpen },
   { to: '/team', label: 'Team', icon: Users },
@@ -27,8 +27,8 @@ function Breadcrumbs() {
   // Full label map — URL segment → human label
   const labelMap: Record<string, string> = {
     // Platform sections
-    exams:      'Learn',
-    blog:       'Blog',
+    exams:      'Skill Up',
+    blog:       'Field Notes',
     tools:      'Tools',
     docs:       'Docs',
     team:       'Team',
@@ -530,13 +530,21 @@ export default function Layout({ children }: { children: ReactNode }) {
             <span>Aarya — My AI Learning Hub · by Ajeet Chouksey</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/exams" className="hover:text-violet-300 transition-colors">Exams</Link>
+            <Link to="/exams" className="hover:text-violet-300 transition-colors">Skill Up</Link>
             <span className="text-slate-700">·</span>
-            <Link to="/blog" className="hover:text-violet-300 transition-colors">Blog</Link>
+            <Link to="/blog" className="hover:text-violet-300 transition-colors">Field Notes</Link>
             <span className="text-slate-700">·</span>
             <Link to="/tools" className="hover:text-violet-300 transition-colors">Tools</Link>
+            <span className="text-slate-700">·</span>
+            <Link to="/docs" className="hover:text-violet-300 transition-colors">Docs</Link>
           </div>
-          <a href="https://github.com/ajeetchouksey/ajch_platform" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-violet-300 transition-colors">GitHub ↗</a>
+          <div className="flex items-center gap-3">
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold"
+              style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.22)' }}>
+              v2.3.0
+            </span>
+            <a href="https://github.com/ajeetchouksey/ajch_platform" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-violet-300 transition-colors">GitHub ↗</a>
+          </div>
         </div>
       </footer>
     </div>

@@ -110,67 +110,54 @@ export default function Tools() {
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
 
-      {/* ── Visual Hero ───────────────────────────────────────────────────── */}
-      <div className={`relative rounded-2xl overflow-hidden transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-        style={{
-          background: 'linear-gradient(135deg, rgba(16,185,129,0.10) 0%, rgba(15,23,42,0.98) 60%)',
-          border: '1px solid rgba(52,211,153,0.20)',
-          boxShadow: '0 0 60px -20px rgba(52,211,153,0.20)',
-        }}>
-        {/* Dot grid bg */}
-        <div className="absolute inset-0 pointer-events-none opacity-15"
-          style={{
-            backgroundImage: 'radial-gradient(rgba(52,211,153,0.5) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }} />
+      {/* ── Page header ── */}
+      <div
+        className={`relative pb-8 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+        style={{ borderBottom: '1px solid rgba(71,85,105,0.10)' }}
+      >
+        <div className="absolute -top-12 -left-20 w-96 h-96 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(52,211,153,0.05) 0%, transparent 70%)' }} />
 
-        <div className="relative z-10 p-6 sm:p-8">
-          <div className="flex items-start justify-between gap-6 flex-wrap">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: '#34d399' }}>
-                Developer Tools
-              </p>
-              <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight mb-3">
-                AI <span style={{
-                  background: 'linear-gradient(90deg, #34d399, #38bdf8)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}>Tools</span>
-              </h1>
-              <p className="text-sm text-slate-400 max-w-lg leading-relaxed mb-5">
-                Client-side utilities for prompt engineering, token counting, MCP scaffolding, and model cost analysis.
-                <span className="font-medium text-slate-300"> Zero network requests</span> — everything runs in your browser.
-              </p>
-              {/* Tool count stats */}
-              <div className="flex flex-wrap gap-4">
-                {Object.entries(CATEGORY_META).map(([key, meta]) => {
-                  const count = liveTools.filter(t => t.category === key).length;
-                  if (!count) return null;
-                  return (
-                    <div key={key} className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full" style={{ background: meta.color }} />
-                      <span className="text-xs font-bold" style={{ color: meta.color }}>{count}</span>
-                      <span className="text-xs text-slate-500">{meta.label}</span>
-                    </div>
-                  );
-                })}
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-violet-400" />
-                  <span className="text-xs font-bold text-violet-400">{liveTools.length}</span>
-                  <span className="text-xs text-slate-500">total</span>
+        <div className="relative z-10 lg:max-w-[75%]">
+          <span
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-4"
+            style={{ color: '#34d399', background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.25)' }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Developer Tools
+          </span>
+
+          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-[1.06] mb-4">
+            AI{' '}
+            <span style={{
+              background: 'linear-gradient(100deg, #34d399 0%, #38bdf8 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}>Tools</span>.
+          </h1>
+
+          <p className="text-sm text-slate-400 leading-relaxed mb-6">
+            Client-side utilities for prompt engineering, token counting, MCP scaffolding, and model cost analysis.
+            <span className="font-medium text-slate-300"> Zero network requests</span> — everything runs in your browser.
+          </p>
+
+          {/* Inline stats row */}
+          <div className="flex flex-wrap items-center text-xs">
+            {Object.entries(CATEGORY_META).reduce<React.ReactNode[]>((acc, [key, meta], i) => {
+              const count = liveTools.filter(t => t.category === key).length;
+              if (!count) return acc;
+              if (acc.length > 0) acc.push(<span key={`sep-${key}`} className="mx-3.5" style={{ color: 'rgba(71,85,105,0.40)' }}>|</span>);
+              acc.push(
+                <div key={key} className="flex items-center">
+                  <span className="font-black" style={{ color: meta.color }}>{count}</span>
+                  <span className="text-slate-600 ml-1.5">{meta.label}</span>
                 </div>
-              </div>
-            </div>
-
-            {/* Terminal icon block */}
-            <div className="hidden sm:flex w-16 h-16 rounded-2xl items-center justify-center shrink-0"
-              style={{
-                background: 'rgba(52,211,153,0.12)',
-                border: '1px solid rgba(52,211,153,0.30)',
-                boxShadow: '0 0 30px -8px rgba(52,211,153,0.35)',
-              }}>
-              <Wrench size={28} style={{ color: '#34d399' }} />
-            </div>
+              );
+              return acc;
+            }, [])}
+            <span className="mx-3.5" style={{ color: 'rgba(71,85,105,0.40)' }}>|</span>
+            <span className="font-black text-violet-400">{liveTools.length}</span>
+            <span className="text-slate-600 ml-1.5">total</span>
           </div>
         </div>
       </div>

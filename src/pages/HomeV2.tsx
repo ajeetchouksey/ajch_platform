@@ -330,7 +330,7 @@ export default function HomeV2() {
                   { step: '04', label: 'Domain agent',        detail: 'Platform Architect → implementation',   color: '#3b82f6', icon: Zap },
                   { step: '05', label: 'Post-build audit',    detail: 'AppSec + Design Systems review',       color: '#f59e0b', icon: Terminal },
                   { step: '06', label: 'Human approval',      detail: 'Review → merge → ship',               color: '#a78bfa', icon: ShieldCheck },
-                  { step: '07', label: 'SRE deploys',         detail: 'v2.4.0 · semver · changelog',         color: '#10b981', icon: GitCommit },
+                  { step: '07', label: 'SRE deploys',         detail: 'v2.3.0 · semver · changelog',         color: '#10b981', icon: GitCommit },
                 ].map(({ step, label, detail, color, icon: I }) => (
                   <div key={step} className="flex items-start gap-3 group">
                     <span className="font-mono text-[9px] font-bold mt-0.5 shrink-0 w-4" style={{ color: `${color}60` }}>{step}</span>
@@ -346,7 +346,7 @@ export default function HomeV2() {
                 ))}
                 <div className="pt-2.5 mt-1 flex items-center gap-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                   <span className="font-mono text-[10px] font-bold" style={{ color: '#10b981' }}>✓ deployed successfully</span>
-                  <span className="font-mono text-[9px] ml-auto" style={{ color: '#334155' }}>v2.4.0 · main</span>
+                  <span className="font-mono text-[9px] ml-auto" style={{ color: '#334155' }}>v2.3.0 · main</span>
                 </div>
               </div>
             </div>

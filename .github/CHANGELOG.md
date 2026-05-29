@@ -11,6 +11,26 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 
 ## [Unreleased]
 
+---
+
+## [2.3.0] - 2026-05-29
+
+### Added
+- **`scripts/sync-stats.py`** — content freshness pipeline; regenerates `public/content/stats.json` from actual file counts (blog posts, questions, exams, notes, scenarios, agents, tool routes in `App.tsx`)
+- **`public/content/stats.json`** — live platform statistics; loaded by home page on mount; auto-updated by `sync-stats.py` after every content write; updated in STANDARD FLOW step 3b
+- **`/docs` route** — new Platform Documentation page (`Docs.tsx`) with tab selector and Markdown renderer supporting Mermaid diagrams; 4 initial docs shipped
+- **`public/content/platform-docs/`** — architecture guide, agent ecosystem reference, content schema, release notes
+- **`platform-docs.agent.md`** v1.0.0 — new agent scoped to `public/content/platform-docs/`; wired into Staff Engineer STEP 3 routing
+
+### Changed
+- `HomeV2.tsx` — proof bar (`Articles`, `Practice Qs`, `Dev Tools`) and feature card bullets now driven dynamically by `stats.json`; hardcoded values used as fallback only
+- Staff Engineer v2.3.0 — content-sync step (3b) added to STANDARD FLOW; Platform Docs routing added to STEP 3; modeInstructions updated to match
+- `registry.json` — `platform_version` bumped to `2.3.0`; staff-engineer entry updated; platform-docs entry added
+
+---
+
+## [2.2.0] - 2026-05-29
+
 ### Added
 - **`agents-validate.yml`** — CI gate on every `.github/agents/*.agent.md` change: validates `version:` + `last_modified:` fields, blocks PR merge if version was not bumped vs base branch, regenerates `registry.json` on push to main (items 16)
 - **`public/content/agents/registry.json`** — committed agent registry; single source of truth for all 21 agent versions, readable by the UI; auto-updated by `agents-validate.yml`, frozen per stable release by `release.yml` (item 17)

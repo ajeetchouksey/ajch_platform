@@ -201,6 +201,7 @@ const PAGE_SIZE = 12;
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPostMeta[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [readSlugs, setReadSlugs] = useState<Set<string>>(new Set());
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -214,6 +215,7 @@ export default function Blog() {
     loadBlogManifest()
       .then((m) => { setPosts(m.posts.filter((p) => !p.draft)); setLoading(false); })
       .catch(() => setLoading(false));
+    requestAnimationFrame(() => setMounted(true));
   }, []);
 
   const allCategories = useMemo(() => [...new Set(posts.map((p) => p.category))], [posts]);
@@ -283,50 +285,60 @@ export default function Blog() {
   }
 
   return (
-    <div>
-      {/* ── Header banner ────────────────────────────────────────────────────── */}
-      <div className="relative rounded-2xl overflow-hidden mb-6 px-6 py-8"
-        style={{
-          background: 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.08) 50%, rgba(15,23,42,0.98) 100%)',
-          border: '1px solid rgba(139,92,246,0.20)',
-          boxShadow: '0 0 60px -20px rgba(139,92,246,0.25)',
-        }}>
-        <div className="absolute inset-0 pointer-events-none opacity-[0.14]"
-          style={{ backgroundImage: 'radial-gradient(rgba(139,92,246,0.5) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-        <div className="relative z-10">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: '#a78bfa' }}>
-            Field Notes
-          </p>
-          <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight mb-3">
-            The{' '}
-            <span style={{ background: 'linear-gradient(90deg, #a78bfa, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Blog
-            </span>
+    <div className="space-y-8">
+      {/* ── Page header ── */}
+      <div
+        className={`relative pb-8 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+        style={{ borderBottom: '1px solid rgba(71,85,105,0.10)' }}
+      >
+        <div className="absolute -top-12 -left-20 w-96 h-96 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)' }} />
+
+        <div className="relative z-10 lg:max-w-[75%]">
+          <span
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-4"
+            style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.10)', border: '1px solid rgba(139,92,246,0.25)' }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+            Practitioner Writing
+          </span>
+
+          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-[1.06] mb-4">
+            Field{' '}
+            <span style={{ background: 'linear-gradient(100deg, #a78bfa 0%, #38bdf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Notes
+            </span>.
           </h1>
-          <p className="text-sm text-slate-400 max-w-lg mb-5 leading-relaxed">
-            Architecture decisions, field notes, and patterns from building AI systems in production.
-            No padding. No filler.
+
+          <p className="text-sm text-slate-400 leading-relaxed mb-6">
+            Architecture decisions, field notes, and patterns from building AI systems in production. No padding. No filler.
           </p>
-          <div className="flex flex-wrap items-center gap-5">
-            {[
-              { value: posts.length,        label: 'articles',   color: '#a78bfa' },
-              { value: dateRange,            label: 'span',       color: '#38bdf8' },
-              { value: allCategories.length, label: 'categories', color: '#10b981' },
-              { value: tagCounts.length,     label: 'tags',       color: '#f59e0b' },
-            ].map(({ value, label, color }) => (
-              <div key={label} className="flex items-baseline gap-1.5">
-                <span className="text-xl font-black" style={{ color }}>{value}</span>
-                <span className="text-xs text-slate-500">{label}</span>
-              </div>
-            ))}
-            {readCount > 0 && (
-              <div className="ml-auto flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl"
-                style={{ color: '#34d399', background: 'rgba(16,185,129,0.10)', border: '1px solid rgba(16,185,129,0.20)' }}>
-                <BookOpen size={11} />
-                <span><span className="font-black">{readCount}</span> / {posts.length} read</span>
-              </div>
-            )}
-          </div>
+
+          {/* Inline stats row */}
+          {!loading && posts.length > 0 && (
+            <div className="flex flex-wrap items-center text-xs">
+              {[
+                { value: posts.length,        label: 'articles',   color: '#a78bfa' },
+                { value: dateRange,            label: 'span',       color: '#38bdf8' },
+                { value: allCategories.length, label: 'categories', color: '#10b981' },
+                { value: tagCounts.length,     label: 'tags',       color: '#f59e0b' },
+              ].map(({ value, label, color }, i) => (
+                <div key={label} className="flex items-center">
+                  {i > 0 && <span className="mx-3.5" style={{ color: 'rgba(71,85,105,0.40)' }}>|</span>}
+                  <span className="font-black" style={{ color }}>{value}</span>
+                  <span className="text-slate-600 ml-1.5">{label}</span>
+                </div>
+              ))}
+              {readCount > 0 && (
+                <div className="flex items-center">
+                  <span className="mx-3.5" style={{ color: 'rgba(71,85,105,0.40)' }}>|</span>
+                  <BookOpen size={10} style={{ color: '#34d399' }} className="mr-1" />
+                  <span className="font-black" style={{ color: '#34d399' }}>{readCount}</span>
+                  <span className="text-slate-600 ml-1.5">read</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

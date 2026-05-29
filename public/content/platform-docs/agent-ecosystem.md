@@ -25,7 +25,7 @@ graph TD
 
 | Agent | Version | Scope |
 |-------|---------|-------|
-| Staff Engineer | v2.2.0 | Orchestrator — routes all requests, enforces guardrails |
+| Staff Engineer | v2.3.0 | Orchestrator — routes all requests, enforces guardrails |
 | Product Manager | v1.0.0 | Issue Gate — GitHub issues as work units |
 | AppSec Engineer | v1.0.0 | Security Gate — OWASP/secret/schema validation |
 | Platform Architect | v1.0.0 | UI, routing, deployment architecture |
