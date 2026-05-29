@@ -5,8 +5,13 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { loadNoteForExam, loadExamRegistry } from '../lib/content-loader';
 import type { DomainConfig } from '../types/content';
+import { Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const MermaidDiagram = lazy(() => import('../components/MermaidDiagram'));
+
+function readingTime(md: string) {
+  return Math.max(1, Math.ceil(md.split(/\s+/).filter(Boolean).length / 200));
+}
 
 export default function Notes() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
@@ -33,6 +38,15 @@ export default function Notes() {
   }, [examId, domain]);
 
   const currentDomainConfig = examDomains.find((d) => d.id === domain);
+  const currentIdx = examDomains.findIndex((d) => d.id === domain);
+  const prevDomain = currentIdx > 0 ? examDomains[currentIdx - 1] : null;
+  const nextDomain = currentIdx < examDomains.length - 1 ? examDomains[currentIdx + 1] : null;
+  const minutes = content ? readingTime(content) : null;
+
+  function goTo(d: DomainConfig) {
+    setSearchParams({ d: String(d.id) });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   return (
     <div>
@@ -48,26 +62,37 @@ export default function Notes() {
             </p>
             <h2 className="text-base font-semibold text-white truncate">{currentDomainConfig.title}</h2>
           </div>
-          <span className="hidden sm:block text-xs font-mono text-slate-500 bg-slate-800/60 border border-slate-700/40 px-2.5 py-1 rounded-full">
-            {currentDomainConfig.weight}% of exam
-          </span>
+          <div className="hidden sm:flex items-center gap-2 shrink-0">
+            {minutes && (
+              <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                <Clock size={11} />
+                {minutes} min read
+              </span>
+            )}
+            <span className="text-xs font-mono text-slate-500 bg-slate-800/60 border border-slate-700/40 px-2.5 py-1 rounded-full">
+              {currentDomainConfig.weight}% of exam
+            </span>
+          </div>
         </div>
       )}
 
-      {/* Mobile-only domain tabs (sidebar handles desktop) */}
+      {/* Domain stepper — mobile only (desktop uses sidebar) */}
       <div className="flex flex-wrap gap-2 mb-6 lg:hidden">
         {examDomains.map((d) => (
           <button
             key={d.id}
-            onClick={() => setSearchParams({ d: String(d.id) })}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            onClick={() => goTo(d)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
               domain === d.id
                 ? 'bg-violet-700 text-white'
                 : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
             }`}
           >
-            <span className="font-mono text-xs mr-1">D{d.id}</span>
+            <span className="font-mono text-xs">D{d.id}</span>
             <span className="hidden sm:inline">{d.title}</span>
+            <span className={`text-[10px] font-mono ${domain === d.id ? 'text-violet-300' : 'text-slate-600'}`}>
+              {d.weight}%
+            </span>
           </button>
         ))}
       </div>
@@ -75,7 +100,11 @@ export default function Notes() {
       {/* Content */}
       <article className="min-w-0">
         {loading && (
-          <div className="text-slate-500 text-sm animate-pulse">Loading notes…</div>
+          <div className="space-y-3 animate-pulse">
+            {[80, 55, 90, 70, 40, 85, 60, 75, 50, 88].map((w, i) => (
+              <div key={i} className="h-3 bg-slate-800 rounded-full" style={{ width: `${w}%` }} />
+            ))}
+          </div>
         )}
         {error && (
           <div className="text-rose-400 text-sm">Failed to load: {error}</div>
@@ -95,7 +124,6 @@ export default function Notes() {
                       </Suspense>
                     );
                   }
-                  // Inline vs block code
                   const isBlock = className?.startsWith('language-');
                   if (isBlock) {
                     return (
@@ -113,6 +141,40 @@ export default function Notes() {
           </div>
         )}
       </article>
+
+      {/* Prev / Next domain navigation */}
+      {!loading && !error && content && (prevDomain || nextDomain) && (
+        <div className="flex items-stretch justify-between gap-3 mt-10 pt-6 border-t border-slate-800/70">
+          {prevDomain ? (
+            <button
+              onClick={() => goTo(prevDomain)}
+              className="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/40 hover:border-slate-600 hover:bg-slate-800 transition-all text-left group"
+            >
+              <ChevronLeft size={16} className="text-slate-500 shrink-0 transition-transform group-hover:-translate-x-0.5" />
+              <div>
+                <p className="text-[10px] text-slate-600 uppercase tracking-wide font-medium">Previous</p>
+                <p className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">
+                  D{prevDomain.id}: {prevDomain.title}
+                </p>
+              </div>
+            </button>
+          ) : <div />}
+          {nextDomain ? (
+            <button
+              onClick={() => goTo(nextDomain)}
+              className="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/40 hover:border-slate-600 hover:bg-slate-800 transition-all text-right group"
+            >
+              <div>
+                <p className="text-[10px] text-slate-600 uppercase tracking-wide font-medium">Next</p>
+                <p className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">
+                  D{nextDomain.id}: {nextDomain.title}
+                </p>
+              </div>
+              <ChevronRight size={16} className="text-slate-500 shrink-0 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          ) : <div />}
+        </div>
+      )}
     </div>
   );
 }
