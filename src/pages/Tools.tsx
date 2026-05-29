@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Wrench, Terminal, Hash, Eye, Server, FileText,
+  Terminal, Hash, Eye, Server, FileText,
   Calculator, Layers, FileJson, BookMarked, ArrowRight, Zap,
 } from 'lucide-react';
 
@@ -143,7 +143,7 @@ export default function Tools() {
 
           {/* Inline stats row */}
           <div className="flex flex-wrap items-center text-xs">
-            {Object.entries(CATEGORY_META).reduce<React.ReactNode[]>((acc, [key, meta], i) => {
+            {Object.entries(CATEGORY_META).reduce<React.ReactNode[]>((acc, [key, meta]) => {
               const count = liveTools.filter(t => t.category === key).length;
               if (!count) return acc;
               if (acc.length > 0) acc.push(<span key={`sep-${key}`} className="mx-3.5" style={{ color: 'rgba(71,85,105,0.40)' }}>|</span>);
