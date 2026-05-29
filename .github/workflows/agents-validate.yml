@@ -106,46 +106,9 @@ jobs:
       - name: Regenerate agent registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          python3 - << 'PYEOF'
-import json, re, os, subprocess
-
-date     = subprocess.check_output(['date', '-u', '+%Y-%m-%d']).decode().strip()
-platform = subprocess.check_output(
-    ['node', '-p', "require('./package.json').version"]
-).decode().strip()
-
-def extract(content, field):
-    m = re.search(rf'^{field}:\s*(.+)', content, re.MULTILINE)
-    return m.group(1).strip().strip('"') if m else ''
-
-agents = []
-for fname in sorted(os.listdir('.github/agents')):
-    if not fname.endswith('.agent.md'):
-        continue
-    with open(f'.github/agents/{fname}') as fh:
-        content = fh.read()
-    agents.append({
-        'file':          fname,
-        'name':          extract(content, 'name'),
-        'version':       extract(content, 'version'),
-        'last_modified': extract(content, 'last_modified'),
-    })
-
-registry = {
-    'schema':           '1.0',
-    'platform_version': platform,
-    'generated':        date,
-    'note':             'Auto-updated by agents-validate.yml on push to main. Frozen into each GitHub Release by release.yml.',
-    'agents':           agents,
-}
-
-os.makedirs('public/content/agents', exist_ok=True)
-with open('public/content/agents/registry.json', 'w') as fh:
-    json.dump(registry, fh, indent=2)
-    fh.write('\n')
-
-print(f"Registry written: {len(agents)} agents, platform v{platform}")
-PYEOF
+          DATE=$(date -u +"%Y-%m-%d")
+          PLATFORM=$(node -p "require('./package.json').version")
+          python3 scripts/freeze_registry.py "$DATE" "$PLATFORM"
 
       # ── 4. Commit registry.json if it changed ────────────────────────────
       - name: Commit updated registry

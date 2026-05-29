@@ -99,34 +99,9 @@ jobs:
       - name: Extract CHANGELOG section
         if: steps.check.outputs.exists == 'false'
         run: |
-          VERSION="${{ steps.meta.outputs.version }}"
-
-          cat > /tmp/extract_changelog.py << 'PYEOF'
-import re, sys
-
-version = sys.argv[1]
-path    = sys.argv[2]
-
-with open(path, 'r') as fh:
-    content = fh.read()
-
-# Try exact version section first
-pattern = rf'## \[{re.escape(version)}\][^\n]*\n(.*?)(?=\n## \[|\Z)'
-match = re.search(pattern, content, re.DOTALL)
-
-if match:
-    print(match.group(1).strip())
-else:
-    # Fall back to Unreleased section
-    pattern = r'## \[Unreleased\][^\n]*\n(.*?)(?=\n## \[|\Z)'
-    match = re.search(pattern, content, re.DOTALL)
-    if match:
-        print(match.group(1).strip())
-    else:
-        print("See .github/CHANGELOG.md for full details.")
-PYEOF
-
-          python3 /tmp/extract_changelog.py "$VERSION" .github/CHANGELOG.md \
+          python3 scripts/extract_changelog.py \
+            "${{ steps.meta.outputs.version }}" \
+            .github/CHANGELOG.md \
             >> /tmp/release_body.md
 
       # ── 7. Append commit log since previous stable tag ────────────────────
@@ -150,13 +125,7 @@ PYEOF
         run: |
           TAG="${{ steps.meta.outputs.tag }}"
 
-          cat >> /tmp/release_body.md << 'SECTION'
-
----
-
-## 🤖 Agent Registry
-SECTION
-
+          printf '\n---\n\n## \U0001f916 Agent Registry\n' >> /tmp/release_body.md
           printf '\n| Agent | Version | File |\n' >> /tmp/release_body.md
           printf '|-------|---------|------|\n'   >> /tmp/release_body.md
 
@@ -178,55 +147,16 @@ SECTION
       - name: Freeze registry.json at release version
         if: steps.check.outputs.exists == 'false' && steps.meta.outputs.prerelease == 'false'
         run: |
-          VERSION="${{ steps.meta.outputs.version }}"
-          DATE="${{ steps.meta.outputs.date }}"
-
-          cat > /tmp/freeze_registry.py << 'PYEOF'
-import json, re, os, sys
-
-date, platform = sys.argv[1], sys.argv[2]
-
-def extract(content, field):
-    m = re.search(rf'^{field}:\s*(.+)', content, re.MULTILINE)
-    return m.group(1).strip().strip('"') if m else ''
-
-agents = []
-for fname in sorted(os.listdir('.github/agents')):
-    if not fname.endswith('.agent.md'):
-        continue
-    with open(f'.github/agents/{fname}') as fh:
-        content = fh.read()
-    agents.append({
-        'file':          fname,
-        'name':          extract(content, 'name'),
-        'version':       extract(content, 'version'),
-        'last_modified': extract(content, 'last_modified'),
-    })
-
-registry = {
-    'schema':           '1.0',
-    'platform_version': platform,
-    'generated':        date,
-    'note':             'Auto-updated by agents-validate.yml on push to main. Frozen into each GitHub Release by release.yml.',
-    'agents':           agents,
-}
-
-os.makedirs('public/content/agents', exist_ok=True)
-with open('public/content/agents/registry.json', 'w') as fh:
-    json.dump(registry, fh, indent=2)
-    fh.write('\n')
-
-print(f"Registry frozen: {len(agents)} agents, platform v{platform}")
-PYEOF
-
-          python3 /tmp/freeze_registry.py "$DATE" "$VERSION"
+          python3 scripts/freeze_registry.py \
+            "${{ steps.meta.outputs.date }}" \
+            "${{ steps.meta.outputs.version }}"
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/content/agents/registry.json
           if git diff --staged --quiet; then
             echo "Registry unchanged — no commit needed."
           else
-            git commit -m "chore(release): freeze registry.json at v$VERSION [skip ci]"
+            git commit -m "chore(release): freeze registry.json at v${{ steps.meta.outputs.version }} [skip ci]"
             git push origin HEAD:main
           fi
 
