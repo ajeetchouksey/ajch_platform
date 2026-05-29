@@ -4,10 +4,10 @@ import { useState, useEffect, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
 import { Breadcrumb, type BreadcrumbItem } from './ui';
-import { loadBlogManifest, loadExamRegistry } from '../lib/content-loader';
-import { useAuth } from '../lib/auth';
-import { EXAM_SCHEMES } from '../types/content';
-import type { BlogPostMeta, ExamConfig } from '../types/content';
+import { loadBlogManifest, loadExamRegistry } from '@/lib/content-loader';
+import { useAuth } from '@/lib/auth';
+import { EXAM_SCHEMES } from '@/types/content';
+import type { BlogPostMeta, ExamConfig } from '@/types/content';
 
 const platformLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
