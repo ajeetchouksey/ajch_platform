@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Bot, Cpu, PenTool, GraduationCap, BookOpen, GitBranch,
@@ -82,7 +82,7 @@ const orchestrator: AgentData = {
   tools: 14,
   activeTask: 'Routing blog request → Content Lead',
   version: 'v2.0.0',
-  profileFile: 'orchestrator.agent.md',
+  profileFile: 'staff-engineer.agent.md',
   deliveries: [
     { version: 'v1.0', label: 'Core routing engine + agent registry', type: 'major' },
     { version: 'v1.4', label: 'Security gate + sub-agent routing', type: 'minor' },
@@ -115,7 +115,7 @@ const poAgent: AgentData = {
   isNew: true,
   noSubAgents: true,
   humanFeedback: 'Human approves sprint plan & priorities',
-  profileFile: 'product-owner.agent.md',
+  profileFile: 'product-manager.agent.md',
   deliveries: [
     { version: 'v1.0', label: 'Backlog engine, RICE scoring, sprint planner, content calendar, release notes, stakeholder updates', type: 'major' },
     { version: 'v1.1', label: 'Research & Analysis module — competitive, trends, gap analysis, user feedback, tech radar', type: 'minor' },
@@ -146,7 +146,7 @@ export const l1Agents: AgentData[] = [
     humanFeedback: 'Human triggers features & approves deploys',
     activeTask: 'Delegating Team page work → Frontend Engineer',
     version: 'v3.0.0',
-    profileFile: 'platform-control.agent.md',
+    profileFile: 'platform-architect.agent.md',
     deliveries: [
       { version: 'v1.0', label: 'App shell, routing, sidebar, layout', type: 'major' },
       { version: 'v2.0', label: 'Team page + org hierarchy design', type: 'major' },
@@ -162,7 +162,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, edit (2 files only)',
         icon: Share2,
         isNew: true,
-        profileFile: 'routing.agent.md',
+        profileFile: 'platform-engineer.agent.md',
       },
       {
         id: 'builder',
@@ -173,7 +173,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, edit, search',
         icon: Layers,
         isNew: true,
-        profileFile: 'component-builder.agent.md',
+        profileFile: 'frontend-engineer.agent.md',
       },
     ],
   },
@@ -197,7 +197,7 @@ export const l1Agents: AgentData[] = [
     humanFeedback: 'Human reviews draft before publish',
     activeTask: 'Drafting post on AI model optimization...',
     version: 'v2.0.0',
-    profileFile: 'blog.agent.md',
+    profileFile: 'content-lead.agent.md',
     deliveries: [
       { version: 'v1.0', label: 'Blog post import pipeline + frontmatter', type: 'major' },
       { version: 'v1.5', label: 'Write → Validate → Publish sub-agent workflow', type: 'minor' },
@@ -213,7 +213,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, web/fetch only',
         icon: FileText,
         isNew: true,
-        profileFile: 'content-writer.agent.md',
+        profileFile: 'tech-writer.agent.md',
       },
       {
         id: 'publisher',
@@ -224,7 +224,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, edit (blog/ only)',
         icon: Send,
         isNew: true,
-        profileFile: 'content-publisher.agent.md',
+        profileFile: 'release-engineer.agent.md',
       },
     ],
   },
@@ -248,7 +248,7 @@ export const l1Agents: AgentData[] = [
     humanFeedback: 'Human validates question quality',
     activeTask: 'Scanning Anthropic docs for new content...',
     version: 'v2.0.0',
-    profileFile: 'exam-content.agent.md',
+    profileFile: 'curriculum-engineer.agent.md',
     deliveries: [
       { version: 'v1.0', label: 'CCA-F question bank (50 questions)', type: 'major' },
       { version: 'v1.3', label: 'Deduplication engine + web research tools', type: 'minor' },
@@ -264,7 +264,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, edit (questions/ only)',
         icon: HelpCircle,
         isNew: false,
-        profileFile: 'question-generator.agent.md',
+        profileFile: 'assessment-engineer.agent.md',
       },
       {
         id: 'notes',
@@ -275,7 +275,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, edit (notes/ only)',
         icon: BookOpen,
         isNew: true,
-        profileFile: 'study-notes.agent.md',
+        profileFile: 'docs-engineer.agent.md',
       },
     ],
   },
@@ -299,7 +299,7 @@ export const l1Agents: AgentData[] = [
     humanFeedback: 'Human IS the loop — every reply counts',
     activeTask: 'Standby — awaiting study session',
     version: 'v1.0.0',
-    profileFile: 'study-companion.agent.md',
+    profileFile: 'pair-programmer.agent.md',
     deliveries: [
       { version: 'v0.5', label: '101/201/301 persona framework', type: 'major' },
       { version: 'v0.9', label: 'Student simulation mode (beta)', type: 'minor' },
@@ -315,7 +315,7 @@ export const l1Agents: AgentData[] = [
         tools: 'read, web/fetch, askQuestions',
         icon: GraduationCap,
         isNew: true,
-        profileFile: 'expert-teacher.agent.md',
+        profileFile: 'principal-mentor.agent.md',
       },
       {
         id: 'student-simulator',
@@ -326,7 +326,7 @@ export const l1Agents: AgentData[] = [
         tools: 'askQuestions only',
         icon: Users,
         isNew: true,
-        profileFile: 'student-simulator.agent.md',
+        profileFile: 'junior-dev.agent.md',
       },
     ],
   },
@@ -355,7 +355,7 @@ const securityAgent: AgentData = {
   noSubAgents: true,
   activeTask: 'Standing by — next write request incoming',
   version: 'v1.1.0',
-  profileFile: 'security-governance.agent.md',
+  profileFile: 'appsec-engineer.agent.md',
   deliveries: [
     { version: 'v1.0', label: 'Pre-build gate: path traversal, OWASP, content policy, schema checks', type: 'major' },
     { version: 'v1.1', label: 'Post-build audit: reads actual produced files, XSS + secrets re-check', type: 'minor' },
@@ -382,7 +382,7 @@ const uxAgent: AgentData = {
   noSubAgents: true,
   activeTask: 'Post-build UX audit of changed components',
   version: 'v1.1.0',
-  profileFile: 'ux-framework.agent.md',
+  profileFile: 'design-systems-engineer.agent.md',
   deliveries: [
     { version: 'v1.0', label: 'src/components/ui/ primitive library — Badge, Card, Stat, Timeline, PulsingDot', type: 'major' },
     { version: 'v1.1', label: 'Post-build UX audit: scans changed .tsx files for raw Tailwind pattern violations', type: 'minor' },
@@ -413,7 +413,7 @@ const devopsAgent: AgentData = {
   isNew: true,
   activeTask: 'Monitoring deploy.yml — last deploy: main branch',
   version: 'v1.0.0',
-  profileFile: 'devops.agent.md',
+  profileFile: 'sre.agent.md',
   deliveries: [
     { version: 'v1.0-a', label: 'ci.yml — PR build-check on every PR to main (TypeScript + build)', type: 'major' },
     { version: 'v1.0-b', label: 'Agent versioning: version: field across all 17 .agent.md files', type: 'major' },
@@ -447,7 +447,7 @@ const socialMediaAgent: AgentData = {
   humanFeedback: 'Human reviews & posts all social content',
   activeTask: 'Standby — awaiting content promotion request',
   version: 'v1.0.0',
-  profileFile: 'social-media.agent.md',
+  profileFile: 'devrel.agent.md',
   deliveries: [
     { version: 'v1.0', label: 'LinkedIn, Twitter/X, Dev.to, Hashnode copy generation — platform-specific templates + tone guide', type: 'major' },
   ],

@@ -108,7 +108,7 @@ Produce a structured retro summary from team input:
 
 **Trigger**: Called by Staff Engineer or Product Manager after AI Researcher returns a `ToolingRadarPayload[]`.
 
-**Input**: `ToolingRadarPayload[]` from AI Researcher (see `ai-research-tool.agent.md` Capability 5 for schema).
+**Input**: `ToolingRadarPayload[]` from AI Researcher (see `ai-researcher.agent.md` Capability 5 for schema).
 
 **Steps**:
 

@@ -20,8 +20,8 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 
 ### Changed
 - **`release.yml`** upgraded from 5 → 12 steps: concurrency guard, build artifact + SHA256 checksum, release header, commit log since previous stable tag, duplicate release guard, `--latest` flag, deployment dispatch, rich job summary (items 13–15)
-- **`devops.agent.md`** bumped to `v1.2.0`: owns `agents-validate.yml`, `registry.json`, Hard Rules 8+9 (no bypass of agent gate, registry is automation-owned)
-- **`ux-diagram-validator.agent.md`** — added missing `version: 1.0.0` and `last_modified: 2026-05-29` fields (was blocking `agents-validate.yml` gate)
+- **`sre.agent.md`** bumped to `v1.2.0`: owns `agents-validate.yml`, `registry.json`, Hard Rules 8+9 (no bypass of agent gate, registry is automation-owned)
+- **`qa-engineer.agent.md`** — added missing `version: 1.0.0` and `last_modified: 2026-05-29` fields (was blocking `agents-validate.yml` gate)
 - Platform renamed to **"Aarya — My AI Learning Hub"** across all agents, workflows, 404 page, CHANGELOG
 - Six page redesigns: `Notes.tsx`, `Progress.tsx`, `ExamHome.tsx`, `Scenarios.tsx`, `ExamCatalog.tsx`, `Quiz.tsx`
 
@@ -31,7 +31,7 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 
 ### Added
 - Agent Profile Drawer redesigned as structured product card (no raw markdown)
-- DevOps Agent (`devops.agent.md`) — CI/CD, agent versioning, platform release management
+- DevOps Agent (`sre.agent.md`) — CI/CD, agent versioning, platform release management
 - Post-build Security + UX validation gates in Orchestrator workflow
 - Issue Gate (Module 0) in Product Owner Agent — mandatory before every build task
 - PO Agent: migrated issue creation from `GH_PO_TOKEN` REST to `gh` CLI (`gh issue create`)
@@ -39,8 +39,8 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 - **`release.yml`** — automated GitHub Release workflow: CHANGELOG extraction + agent registry snapshot on every `v*` tag
 - Agent version headers backfilled across all 20 `.agent.md` files
 - DevOps Agent wired into Orchestrator Operations registry
-- Scrum Master Agent (`scrum-master.agent.md`) — sprint facilitation, retrospectives, velocity
-- AI Research Tool Agent (`ai-research-tool.agent.md`) — paper/article fetch + summarise, tooling radar
+- Scrum Master Agent (`delivery-manager.agent.md`) — sprint facilitation, retrospectives, velocity
+- AI Research Tool Agent (`ai-researcher.agent.md`) — paper/article fetch + summarise, tooling radar
 - Standardised `Breadcrumb` UI component (`src/components/ui/Breadcrumb.tsx`) — single canonical breadcrumb with full route labelMap; removed 9 inline duplicates across tool pages
 - `HomeV2.tsx` full sales-quality redesign — animated orbs hero, proof bar, benefit-driven feature cards, creator authority section, bottom conversion CTA
 - `Blog.tsx` full rewrite — read tracking, category pills, 3-col grid, accented cards
@@ -52,7 +52,7 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 ### Changed
 - `TeamV2` is now the canonical team page at `/team` and `/maintainer/team`
 - `/team/v2` alias removed (traffic now goes directly to `/team`)
-- DevOps Agent `devops.agent.md` updated to `v1.1.0`: improved release checklist, `last_modified:` field requirement for agent versioning, `release.yml` documented as release authority
+- DevOps Agent `sre.agent.md` updated to `v1.1.0`: improved release checklist, `last_modified:` field requirement for agent versioning, `release.yml` documented as release authority
 - `package.json` version field brought from `0.0.0` to `2.1.0`
 
 ---

@@ -1,5 +1,5 @@
 name: Agent Version Gate
-# Owned by SRE (devops.agent.md).
+# Owned by SRE (sre.agent.md).
 # Fires on every PR or push to main that touches .github/agents/*.agent.md.
 #
 # On PRs:
