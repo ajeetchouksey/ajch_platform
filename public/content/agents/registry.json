@@ -83,6 +83,12 @@
       "last_modified": "2026-05-29"
     },
     {
+      "file": "platform-docs.agent.md",
+      "name": "Platform Docs",
+      "version": "1.0.0",
+      "last_modified": "2026-05-29"
+    },
+    {
       "file": "platform-engineer.agent.md",
       "name": "Platform Engineer",
       "version": "1.0.0",
@@ -121,7 +127,7 @@
     {
       "file": "staff-engineer.agent.md",
       "name": "Staff Engineer",
-      "version": "2.2.0",
+      "version": "2.3.0",
       "last_modified": "2026-05-29"
     },
     {
