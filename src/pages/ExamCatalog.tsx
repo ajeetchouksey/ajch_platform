@@ -37,6 +37,19 @@ export default function ExamCatalog() {
         <p className="page-eyebrow">Learning</p>
         <h1 className="text-3xl font-bold tracking-tight">Learning <span className="heading-gradient">Hub</span></h1>
         <p className="text-slate-400 mt-2">Practice for AI certification exams with real-world scenarios.</p>
+        {exams.length > 0 && (
+          <div className="flex flex-wrap gap-5 mt-4 text-sm">
+            <span className="text-slate-500">
+              <span className="text-white font-semibold">{exams.filter((e) => e.available).length}</span> exams live
+            </span>
+            <span className="text-slate-500">
+              <span className="text-white font-semibold">{exams.reduce((a, e) => a + e.questions, 0)}</span> practice questions
+            </span>
+            <span className="text-slate-500">
+              <span className="text-white font-semibold">{exams.reduce((a, e) => a + e.domains.length, 0)}</span> domains covered
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">

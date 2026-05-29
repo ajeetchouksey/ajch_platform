@@ -32,8 +32,28 @@ export default function Notes() {
       .catch((e: unknown) => { setError(String(e)); setLoading(false); });
   }, [examId, domain]);
 
+  const currentDomainConfig = examDomains.find((d) => d.id === domain);
+
   return (
     <div>
+      {/* Domain identity header */}
+      {currentDomainConfig && (
+        <div className="flex items-center gap-3 pb-5 mb-5 border-b border-slate-800/70">
+          <div className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700/50 flex items-center justify-center shrink-0">
+            <span className="text-violet-400 font-mono font-bold text-sm">D{domain}</span>
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">
+              Domain {domain} of {examDomains.length}
+            </p>
+            <h2 className="text-base font-semibold text-white truncate">{currentDomainConfig.title}</h2>
+          </div>
+          <span className="hidden sm:block text-xs font-mono text-slate-500 bg-slate-800/60 border border-slate-700/40 px-2.5 py-1 rounded-full">
+            {currentDomainConfig.weight}% of exam
+          </span>
+        </div>
+      )}
+
       {/* Mobile-only domain tabs (sidebar handles desktop) */}
       <div className="flex flex-wrap gap-2 mb-6 lg:hidden">
         {examDomains.map((d) => (

@@ -110,6 +110,13 @@ export default function Quiz() {
         <p className="page-eyebrow">{examShortTitle} Exam</p>
         <h1 className="text-2xl font-bold tracking-tight">Practice <span className="heading-gradient">Quiz</span></h1>
 
+        {/* Exam meta strip */}
+        <div className="flex flex-wrap gap-4 text-sm text-slate-500">
+          <span><span className="text-slate-300 font-semibold">{domainFilter === null ? 60 : 15}</span> questions</span>
+          <span><span className="text-slate-300 font-semibold">{passThreshold}%</span> to pass</span>
+          <span>Scenario-based MCQ</span>
+        </div>
+
         <div className="glass-card rounded-xl p-5 space-y-4">
           <div className="flex items-center gap-2 text-slate-400 text-sm">
             <Filter size={14} />
@@ -164,6 +171,8 @@ export default function Quiz() {
       <div className="max-w-lg mx-auto space-y-6">
         <p className="page-eyebrow">{examShortTitle} Exam</p>
         <h1 className="text-2xl font-bold tracking-tight">Session <span className="heading-gradient">Complete</span></h1>
+
+        {/* Score card */}
         <div
           className={`rounded-xl p-6 text-center border ${
             passed ? 'border-emerald-600 bg-emerald-900/20' : 'border-rose-600 bg-rose-900/20'
@@ -179,6 +188,40 @@ export default function Quiz() {
             {passed ? `✓ Above ${passThreshold}% pass threshold` : `✗ Below ${passThreshold}% pass threshold`}
           </p>
         </div>
+
+        {/* Domain breakdown */}
+        {examDomains.length > 1 && (() => {
+          const breakdown = examDomains
+            .map((d) => {
+              const dqs = questions.filter((q) => q.domain === d.id);
+              if (dqs.length === 0) return null;
+              const correct = dqs.filter((q) => answers[q.id] === q.correct).length;
+              return { id: d.id, title: d.title, correct, total: dqs.length, pct: Math.round((correct / dqs.length) * 100) };
+            })
+            .filter(Boolean);
+          if (breakdown.length < 2) return null;
+          return (
+            <div className="glass-card rounded-xl p-4 space-y-3">
+              <h3 className="text-xs font-semibold uppercase text-slate-500 tracking-wide">By Domain</h3>
+              {breakdown.map((d) => d && (
+                <div key={d.id}>
+                  <div className="flex justify-between text-xs text-slate-400 mb-1">
+                    <span>D{d.id}: {d.title}</span>
+                    <span className={`font-mono font-semibold ${d.pct >= passThreshold ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {d.correct}/{d.total}
+                    </span>
+                  </div>
+                  <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${d.pct >= passThreshold ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                      style={{ width: `${d.pct}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
 
         <div className="space-y-3">
           {questions.map((q, i) => {

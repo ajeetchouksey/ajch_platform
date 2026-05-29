@@ -89,8 +89,15 @@ export default function ExamHome() {
             <span className="heading-gradient">{exam.title}</span>
           )}
         </h1>
-        <p className="text-slate-400 mt-2">
-          {exam.questions} scenario-based MCQs · {exam.duration} · {exam.passScore} pass score · {exam.domains.length} domains
+        <p className="text-slate-400 mt-2 text-sm leading-relaxed">{exam.description}</p>
+        <p className="text-slate-500 text-xs mt-2 flex flex-wrap gap-x-3 gap-y-1">
+          <span>{exam.questions} scenario-based MCQs</span>
+          <span>·</span>
+          <span>{exam.duration}</span>
+          <span>·</span>
+          <span>{exam.passScore} to pass</span>
+          <span>·</span>
+          <span>{exam.domains.length} domains</span>
         </p>
       </div>
 

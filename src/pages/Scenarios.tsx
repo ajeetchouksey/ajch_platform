@@ -33,7 +33,7 @@ export default function Scenarios() {
         <p className="page-eyebrow">{examShortTitle} Exam</p>
         <h1 className="text-2xl font-bold tracking-tight">Exam <span className="heading-gradient">Scenarios</span></h1>
         <p className="text-sm text-slate-400">
-          4 of these 6 scenarios are randomly assigned per sitting. Study all of them.
+          4 of these {scenarios.length} scenarios are randomly assigned per sitting. Study all of them.
         </p>
       </div>
 
@@ -41,13 +41,32 @@ export default function Scenarios() {
         <div key={s.id} className="glass-card rounded-xl overflow-hidden">
           <button
             onClick={() => setOpen(open === s.id ? null : s.id)}
-            className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-800/50 transition-colors"
+            className="w-full flex items-start justify-between px-5 py-4 text-left hover:bg-slate-800/50 transition-colors"
           >
-            <span className="font-semibold text-white">{s.title}</span>
+            <div className="min-w-0 flex-1 pr-3">
+              <span className="font-semibold text-white block">{s.title}</span>
+              {open !== s.id && s.key_patterns.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {s.key_patterns.slice(0, 3).map((p) => (
+                    <span
+                      key={p}
+                      className="text-[11px] bg-slate-800 text-slate-400 border border-slate-700/50 px-2 py-0.5 rounded-full"
+                    >
+                      {p}
+                    </span>
+                  ))}
+                  {s.key_patterns.length > 3 && (
+                    <span className="text-[11px] text-slate-600">
+                      +{s.key_patterns.length - 3} more
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
             {open === s.id ? (
-              <ChevronUp size={16} className="text-slate-400 shrink-0" />
+              <ChevronUp size={16} className="text-slate-400 shrink-0 mt-1" />
             ) : (
-              <ChevronDown size={16} className="text-slate-400 shrink-0" />
+              <ChevronDown size={16} className="text-slate-400 shrink-0 mt-1" />
             )}
           </button>
 

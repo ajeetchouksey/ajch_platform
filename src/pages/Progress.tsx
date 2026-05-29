@@ -11,6 +11,7 @@ export default function Progress() {
   const [domainScores, setDomainScores] = useState(() => getScoreByDomain());
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
+  const [passThreshold, setPassThreshold] = useState(72);
 
   useEffect(() => {
     loadExamRegistry().then((r) => {
@@ -18,6 +19,7 @@ export default function Progress() {
       if (exam) {
         setExamDomains(exam.domains);
         setExamShortTitle(exam.shortTitle);
+        setPassThreshold(exam.passThreshold);
       }
     }).catch(() => {});
   }, [examId]);
@@ -54,6 +56,26 @@ export default function Progress() {
         </button>
       </div>
 
+      {/* Summary stat cards */}
+      {(() => {
+        const best = Math.max(...sessions.map((s) => Math.round((s.score / s.total) * 100)));
+        const avg = Math.round(sessions.reduce((acc, s) => acc + (s.score / s.total), 0) / sessions.length * 100);
+        return (
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { label: 'Sessions', value: sessions.length, color: 'text-sky-400' },
+              { label: 'Best Score', value: `${best}%`, color: best >= passThreshold ? 'text-emerald-400' : 'text-rose-400' },
+              { label: 'Avg Score', value: `${avg}%`, color: avg >= passThreshold ? 'text-emerald-400' : 'text-amber-400' },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="glass-card rounded-xl p-4 text-center">
+                <div className={`text-2xl font-bold ${color}`}>{value}</div>
+                <div className="text-xs text-slate-500 mt-1">{label}</div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
+
       {/* Domain breakdown */}
       <div className="glass-card rounded-xl p-5">
         <div className="space-y-4">
@@ -70,7 +92,7 @@ export default function Progress() {
                     {pct !== null ? `${pct}%` : 'no data'}
                   </span>
                 </div>
-                <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-3.5 bg-slate-800 rounded-full overflow-hidden">
                   {pct !== null && (
                     <div
                       className={`h-full rounded-full ${pct >= 70 ? 'bg-emerald-500' : 'bg-rose-500'}`}
