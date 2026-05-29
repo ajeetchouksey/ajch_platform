@@ -22,6 +22,7 @@ import Maintainer from "./pages/Maintainer";
 import MaintainerDashboard from "./pages/MaintainerDashboard";
 import TeamV2 from "./pages/TeamV2";
 import Analytics from "./pages/Analytics";
+import Docs from "./pages/Docs";
 import { AuthProvider } from "./lib/auth";
 
 export default function App() {
@@ -55,6 +56,7 @@ export default function App() {
             <Route path="/team" element={<TeamV2 />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/docs" element={<Docs />} />
           </Routes>
         </Layout>
       </BrowserRouter>

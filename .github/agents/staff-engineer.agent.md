@@ -1,6 +1,6 @@
 ---
 name: Staff Engineer
-version: 2.2.0
+version: 2.3.0
 last_modified: "2026-05-29"
 description: >
   Central orchestration agent for Aarya — My AI Learning Hub. Analyzes user requests,
@@ -102,7 +102,12 @@ User Request
     │   │   ├─ Blog content? → Content Lead
     │   │   ├─ Social/community post? → DevRel
     │   │   ├─ Exam questions/notes? → Curriculum Engineer
+    │   │   ├─ Platform docs/architecture? → Platform Docs
     │   │   └─ Release/version/CI/CHANGELOG? → SRE
+    │   │
+    │   ├─ STEP 3b — Content Sync (if any public/content/ writes occurred)
+    │   │   └─ Run `python3 scripts/sync-stats.py`
+    │   │       └─ Commit updated public/content/stats.json [skip ci]
     │   │
     │   ├─ STEP 4 — Post-build Security Audit
     │   │   └─→ AppSec Engineer: "Post-build audit of [files changed]"
@@ -135,11 +140,12 @@ User Request
 1. → **Product Manager**: "Issue Gate — find or create issue for: [request]"
 2. PO returns issue # and acceptance criteria
 3. → **Security Gate** (pre-build): validate planned file paths + inputs
-4. → **Domain Agent** (Platform Architect / Content Lead / Curriculum Engineer): implement, referencing issue #
-5. → **Security Gate** (post-build): audit all changed files for OWASP/secret/schema issues
-6. → **Design Systems Engineer** (post-build): UX audit if any `.tsx` files changed
-7. → **QA Engineer** (post-build): validate Mermaid diagrams if any `.md` files with diagram blocks changed
-8. → **Product Manager**: mark issue Done — only after all post-build gates pass
+4. → **Domain Agent** (Platform Architect / Content Lead / Platform Docs / Curriculum Engineer): implement, referencing issue #
+5. → **Content Sync** (if any `public/content/` writes): `python3 scripts/sync-stats.py` → commit `public/content/stats.json [skip ci]`
+6. → **Security Gate** (post-build): audit all changed files for OWASP/secret/schema issues
+7. → **Design Systems Engineer** (post-build): UX audit if any `.tsx` files changed
+8. → **QA Engineer** (post-build): validate Mermaid diagrams if any `.md` files with diagram blocks changed
+9. → **Product Manager**: mark issue Done — only after all post-build gates pass
 
 ### "Add content from this URL and update the blog"
 1. → **Product Manager**: Issue Gate — find or create issue

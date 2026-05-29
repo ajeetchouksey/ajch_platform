@@ -14,6 +14,7 @@ const platformLinks = [
   { to: '/exams', label: 'Learn', icon: GraduationCap },
   { to: '/blog', label: 'Blog', icon: Newspaper },
   { to: '/tools', label: 'Tools', icon: Wrench },
+  { to: '/docs', label: 'Docs', icon: BookOpen },
   { to: '/team', label: 'Team', icon: Users },
   { to: '/analytics', label: 'Analytics', icon: LineChart },
 ];
@@ -29,6 +30,7 @@ function Breadcrumbs() {
     exams:      'Learn',
     blog:       'Blog',
     tools:      'Tools',
+    docs:       'Docs',
     team:       'Team',
     analytics:  'Analytics',
     maintainer: 'Maintainer',

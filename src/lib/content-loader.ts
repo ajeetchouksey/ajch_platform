@@ -60,3 +60,22 @@ export async function loadScenariosForExam(examId: string): Promise<Scenario[]> 
   if (!exam) throw new Error(`Exam "${examId}" not found in registry`);
   return Promise.all(exam.scenarioFiles.map((f) => fetchJSON<Scenario>(f)));
 }
+
+// ── Platform stats ─────────────────────────────────────────────────────────
+export interface PlatformStats {
+  schema: string;
+  generated: string;
+  platform: {
+    blog_posts: number;
+    questions: number;
+    exams: number;
+    notes: number;
+    scenarios: number;
+    agents: number;
+    tools: number;
+  };
+}
+
+export async function loadPlatformStats(): Promise<PlatformStats> {
+  return fetchJSON<PlatformStats>('content/stats.json');
+}

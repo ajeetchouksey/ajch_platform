@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   GraduationCap, Newspaper, Wrench, ArrowRight,
@@ -15,6 +15,7 @@ import {
   type GitHubUserStats, type GitHubRepoStats,
 } from '../lib/github-stats';
 import { fetchTotalHits, type TotalStats } from '../lib/analytics';
+import { loadPlatformStats, type PlatformStats } from '../lib/content-loader';
 
 // ── Platform feature cards ────────────────────────────────────────────────────
 const features = [
@@ -60,7 +61,7 @@ const features = [
     bullets: ['9 live tools — zero backend', 'Prompt library + tester', 'RAG chunk visualizer'],
     cta: 'Open Tools',
   },
-] as const;
+];
 
 // ── Why cards ─────────────────────────────────────────────────────────────────
 const whyItems = [
@@ -193,6 +194,33 @@ export default function HomeV2() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
+  const [pStats, setPStats] = useState<PlatformStats | null>(null);
+  useEffect(() => { loadPlatformStats().then(setPStats).catch(() => {}); }, []);
+
+  const dynamicProofStats = useMemo(() => proofStats.map((s) => {
+    if (!pStats) return s;
+    if (s.label === 'Articles')    return { ...s, value: `${pStats.platform.blog_posts}+` };
+    if (s.label === 'Practice Qs') return { ...s, value: `${pStats.platform.questions}` };
+    if (s.label === 'Dev Tools')   return { ...s, value: `${pStats.platform.tools}` };
+    return s;
+  }), [pStats]);
+
+  const dynamicFeatures = useMemo(() => {
+    if (!pStats) return features;
+    const { questions, blog_posts, tools } = pStats.platform;
+    return features.map((f, i) => ({
+      ...f,
+      ...(i === 0 ? {
+        desc: `${questions} scenario-based MCQs across 5 domains. Agentic patterns, prompt engineering, tool design, and context management.`,
+        bullets: [`${questions} exam-format questions`, 'Instant scoring + explanations', 'Track progress across domains'],
+      } : i === 1 ? {
+        bullets: [`${blog_posts}+ in-depth articles`, 'Azure, DevOps, AI Architecture', 'New posts every week'],
+      } : {
+        bullets: [`${tools} live tools — zero backend`, 'Prompt library + tester', 'RAG chunk visualizer'],
+      }),
+    }));
+  }, [pStats]);
+
   return (
     <div className="space-y-20">
 
@@ -299,7 +327,7 @@ export default function HomeV2() {
                   { step: '01', label: 'Human intent',        detail: 'Request received → Staff Engineer',    color: '#8b5cf6', icon: Users },
                   { step: '02', label: 'Issue Gate',          detail: 'Product Manager → GitHub issue #421',  color: '#14b8a6', icon: GitBranch },
                   { step: '03', label: 'Security pre-flight', detail: 'AppSec Engineer — PASS ✓',             color: '#ef4444', icon: ShieldCheck },
-                  { step: '04', label: 'Domain agent',        detail: 'Platform Control → implementation',    color: '#3b82f6', icon: Zap },
+                  { step: '04', label: 'Domain agent',        detail: 'Platform Architect → implementation',   color: '#3b82f6', icon: Zap },
                   { step: '05', label: 'Post-build audit',    detail: 'AppSec + Design Systems review',       color: '#f59e0b', icon: Terminal },
                   { step: '06', label: 'Human approval',      detail: 'Review → merge → ship',               color: '#a78bfa', icon: ShieldCheck },
                   { step: '07', label: 'SRE deploys',         detail: 'v2.4.0 · semver · changelog',         color: '#10b981', icon: GitCommit },
@@ -337,7 +365,7 @@ export default function HomeV2() {
             border: '1px solid rgba(139,92,246,0.15)',
           }}>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 sm:gap-0 sm:divide-x sm:divide-slate-800/80">
-            {proofStats.map(({ icon: Icon, value, label, color }) => (
+            {dynamicProofStats.map(({ icon: Icon, value, label, color }) => (
               <div key={label} className="flex flex-col items-center gap-1 py-1">
                 <Icon size={14} className={color} />
                 <span className={`text-xl font-black ${color}`}>{value}</span>
@@ -360,7 +388,7 @@ export default function HomeV2() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {features.map(({ to, icon: Icon, color, bg, border, badge, title, subtitle, desc, bullets, cta }, idx) => (
+          {dynamicFeatures.map(({ to, icon: Icon, color, bg, border, badge, title, subtitle, desc, bullets, cta }, idx) => (
             <div
               key={to}
               className={`group transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
