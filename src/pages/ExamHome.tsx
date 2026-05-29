@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight } from 'lucide-react';
+import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap } from 'lucide-react';
 import { loadExamRegistry } from '../lib/content-loader';
 import type { ExamConfig } from '../types/content';
 
@@ -67,10 +67,35 @@ export default function ExamHome() {
   }, [examId]);
 
   if (!exam) {
-    return <div className="text-slate-500 text-sm animate-pulse">Loading exam…</div>;
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div className="space-y-3">
+          <div className="h-5 w-36 bg-slate-800 rounded-full" />
+          <div className="h-9 w-3/4 bg-slate-800 rounded-lg" />
+          <div className="h-3.5 w-full bg-slate-800/70 rounded" />
+          <div className="h-3.5 w-2/3 bg-slate-800/50 rounded" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="glass-card rounded-xl p-5 space-y-3">
+              <div className="w-9 h-9 rounded-lg bg-slate-800" />
+              <div className="h-4 w-1/2 bg-slate-800 rounded" />
+              <div className="h-3 w-full bg-slate-800/70 rounded" />
+              <div className="h-3 w-3/4 bg-slate-800/50 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   const cards = examCards(examId!);
+
+  const BADGE: Record<string, string> = {
+    violet: 'bg-violet-900/50 text-violet-300 border border-violet-700/50',
+    blue:   'bg-blue-900/50 text-blue-300 border border-blue-700/50',
+  };
+  const badgeStyle = BADGE[exam.colorScheme] ?? 'bg-slate-800 text-slate-400 border border-slate-700';
 
   // Split title at last em-dash or final word for gradient span
   const titleParts = exam.title.split('–');
@@ -81,6 +106,10 @@ export default function ExamHome() {
     <div className="space-y-8">
       {/* Header */}
       <div className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-3 ${badgeStyle}`}>
+          <GraduationCap size={12} />
+          {exam.shortTitle} Certification Practice
+        </span>
         <p className="page-eyebrow">{exam.shortTitle} Exam</p>
         <h1 className="text-3xl font-bold tracking-tight">
           {titleAccent ? (
@@ -107,9 +136,15 @@ export default function ExamHome() {
           <Link
             key={to}
             to={to}
-            className={`glass-card glass-sheen card-accent-top rounded-xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+            className={`glass-card glass-sheen card-accent-top rounded-xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group ${idx === 0 ? 'ring-1 ring-inset ring-violet-600/30' : ''} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
             style={{ '--accent-color': exam.accentColor, transitionDelay: `${200 + idx * 100}ms` } as React.CSSProperties}
           >
+            {idx === 0 && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-violet-400 uppercase tracking-widest mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+                Start here
+              </span>
+            )}
             <div className="w-9 h-9 rounded-lg bg-slate-800/60 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
               <Icon size={18} className="text-slate-300" />
             </div>
