@@ -1,6 +1,6 @@
 import { Star } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth } from '../lib/auth';
+import { useAuth } from '@/lib/auth';
 
 const REPO = 'ajeetchouksey/ajch_platform';
 

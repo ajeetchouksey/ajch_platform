@@ -8,7 +8,7 @@ import {
   Layers, Palette, FileText, Send, HelpCircle, Share2, TrendingUp,
   X, Megaphone,
 } from 'lucide-react';
-import { maintainer } from '../data/maintainer';
+import { maintainer } from '@/data/maintainer';
 import { PulsingDot, VersionTag, NewBadge, Timeline, StatGrid } from '@/components/ui';
 
 /* ─────────────────────────────────────────────────────────────

@@ -5,9 +5,9 @@ import {
   GitBranch, Cpu, Users, BookOpen, ExternalLink,
   GitCommit, Award, Calendar,
 } from 'lucide-react';
-import { StarRepo } from '../components/StarRepo';
-import { fetchGitHubUser, fetchGitHubRepo, type GitHubUserStats, type GitHubRepoStats } from '../lib/github-stats';
-import { fetchTotalHits, type TotalStats } from '../lib/analytics';
+import { StarRepo } from '@/components/StarRepo';
+import { fetchGitHubUser, fetchGitHubRepo, type GitHubUserStats, type GitHubRepoStats } from '@/lib/github-stats';
+import { fetchTotalHits, type TotalStats } from '@/lib/analytics';
 
 /* ─── Feature data ──────────────────────────────────────────────────────────── */
 const features = [

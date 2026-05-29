@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { LogOut, Key, Copy, Check, ExternalLink } from 'lucide-react';
-import { useAuth, isOAuthConfigured } from '../lib/auth';
+import { useAuth, isOAuthConfigured } from '@/lib/auth';
 
 function GithubIcon({ size = 14 }: { size?: number }) {
   return (
