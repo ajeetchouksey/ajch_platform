@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { StarRepo } from '@/components/StarRepo';
 import { fetchGitHubUser, fetchGitHubRepo, type GitHubUserStats, type GitHubRepoStats } from '@/lib/github-stats';
-import { fetchTotalHits, type TotalStats } from '@/lib/analytics';
 
 /* ─── Feature data ──────────────────────────────────────────────────────────── */
 const features = [
@@ -141,16 +140,11 @@ function StatPill({ value, label, color = 'text-slate-300' }: { value: number; l
 function LivePlatformStats() {
   const [ghUser, setGhUser] = useState<GitHubUserStats | null>(null);
   const [ghRepo, setGhRepo] = useState<GitHubRepoStats | null>(null);
-  const [goat,   setGoat]   = useState<TotalStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([fetchGitHubUser(), fetchGitHubRepo(), fetchTotalHits()])
-      .then(([user, repo, hits]) => {
-        setGhUser(user);
-        setGhRepo(repo);
-        if (hits.total > 0) setGoat(hits);
-      })
+    Promise.all([fetchGitHubUser(), fetchGitHubRepo()])
+      .then(([user, repo]) => { setGhUser(user); setGhRepo(repo); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -169,9 +163,8 @@ function LivePlatformStats() {
     );
   }
 
-  const hasGH   = ghUser || ghRepo;
-  const hasGoat = goat && goat.total > 0;
-  if (!hasGH && !hasGoat) return null;
+  const hasGH = ghUser || ghRepo;
+  if (!hasGH) return null;
 
   return (
     <div className="glass-stats glass-edge rounded-xl px-6 py-5">
@@ -184,9 +177,6 @@ function LivePlatformStats() {
         {ghUser  && <StatPill value={ghUser.followers}    label="👥 Followers"  color="text-violet-400"  />}
         {ghUser  && <StatPill value={ghUser.publicRepos}  label="📦 Repos"      color="text-blue-400"    />}
         {ghRepo  && <StatPill value={ghRepo.forks}        label="🍴 Forks"      color="text-slate-300"   />}
-        {hasGoat && <StatPill value={goat!.total}         label="👀 Page Views" color="text-emerald-400" />}
-        {hasGoat && goat!.totalToday > 0 &&
-          <StatPill value={goat!.totalToday} label="📈 Today" color="text-teal-400" />}
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ import {
   fetchGitHubUser, fetchGitHubRepo,
   type GitHubUserStats, type GitHubRepoStats,
 } from '@/lib/github-stats';
-import { fetchTotalHits, type TotalStats } from '@/lib/analytics';
+
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
 
 // ── Platform feature cards ────────────────────────────────────────────────────
@@ -147,15 +147,11 @@ function LiveStatPill({ value, label, color }: { value: number; label: string; c
 function LiveBar() {
   const [ghUser, setGhUser] = useState<GitHubUserStats | null>(null);
   const [ghRepo, setGhRepo] = useState<GitHubRepoStats | null>(null);
-  const [goat,   setGoat]   = useState<TotalStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([fetchGitHubUser(), fetchGitHubRepo(), fetchTotalHits()])
-      .then(([user, repo, hits]) => {
-        setGhUser(user); setGhRepo(repo);
-        if (hits.total > 0) setGoat(hits);
-      })
+    Promise.all([fetchGitHubUser(), fetchGitHubRepo()])
+      .then(([user, repo]) => { setGhUser(user); setGhRepo(repo); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -167,8 +163,7 @@ function LiveBar() {
     </div>
   );
 
-  const has = ghUser || ghRepo;
-  if (!has && !goat) return null;
+  if (!ghUser && !ghRepo) return null;
 
   return (
     <div className="rounded-2xl px-6 py-4"
@@ -182,8 +177,6 @@ function LiveBar() {
         {ghUser  && <LiveStatPill value={ghUser.followers}   label="Followers"     color="text-violet-400" />}
         {ghUser  && <LiveStatPill value={ghUser.publicRepos} label="Repos"         color="text-blue-400" />}
         {ghRepo  && <LiveStatPill value={ghRepo.forks}       label="Forks"         color="text-slate-300" />}
-        {goat    && goat.total > 0 && <LiveStatPill value={goat.total}      label="Page Views" color="text-emerald-400" />}
-        {goat    && goat.totalToday > 0 && <LiveStatPill value={goat.totalToday} label="Today"   color="text-teal-400" />}
       </div>
     </div>
   );
