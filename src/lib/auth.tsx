@@ -20,7 +20,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   deviceFlow: DeviceFlowState | null;
-  login: () => void;
+  login: () => Promise<boolean>;
   loginWithToken: (token: string) => Promise<boolean>;
   cancelDeviceFlow: () => void;
   logout: () => void;
@@ -115,26 +115,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; if (pollTimer.current) clearTimeout(pollTimer.current); };
   }, [deviceFlow, fetchUser]);
 
-  const login = useCallback(() => {
-    if (!CLIENT_ID) return; // Falls through — GithubLogin shows token input
-    fetch('https://github.com/login/device/code', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ client_id: CLIENT_ID, scope: 'gist read:user' }),
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data.device_code) {
-          setDeviceFlow({
-            userCode: data.user_code,
-            verificationUri: data.verification_uri || 'https://github.com/login/device',
-            expiresAt: Date.now() + (data.expires_in ?? 900) * 1000,
-            deviceCode: data.device_code,
-            interval: data.interval ?? 5,
-          });
-        }
-      })
-      .catch(() => {}); // silent — user can use token input as fallback
+  const login = useCallback(async (): Promise<boolean> => {
+    if (!CLIENT_ID) return false;
+    try {
+      const r = await fetch('https://github.com/login/device/code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ client_id: CLIENT_ID, scope: 'gist read:user' }),
+      });
+      const data = await r.json();
+      if (data.device_code) {
+        setDeviceFlow({
+          userCode: data.user_code,
+          verificationUri: data.verification_uri || 'https://github.com/login/device',
+          expiresAt: Date.now() + (data.expires_in ?? 900) * 1000,
+          deviceCode: data.device_code,
+          interval: data.interval ?? 5,
+        });
+        return true;
+      }
+      return false;
+    } catch {
+      return false; // CORS or network error — caller falls back to token input
+    }
   }, []);
 
   const loginWithToken = useCallback(async (pat: string): Promise<boolean> => {

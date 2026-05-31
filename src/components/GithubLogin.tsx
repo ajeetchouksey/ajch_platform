@@ -114,9 +114,10 @@ export function GithubLogin() {
   return (
     <div className="flex items-center gap-1">
       <button
-        onClick={() => {
+        onClick={async () => {
           if (isOAuthConfigured()) {
-            login();
+            const started = await login();
+            if (!started) setShowTokenInput(true);
           } else {
             setShowTokenInput(true);
           }
