@@ -5,7 +5,6 @@ import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
 import { Breadcrumb, type BreadcrumbItem } from './ui';
 import { loadBlogManifest, loadExamRegistry } from '@/lib/content-loader';
-import { useAuth } from '@/lib/auth';
 import { EXAM_SCHEMES } from '@/types/content';
 import type { BlogPostMeta, ExamConfig } from '@/types/content';
 
@@ -81,7 +80,6 @@ export default function Layout({ children }: { children: ReactNode }) {
   const [blogPosts, setBlogPosts] = useState<BlogPostMeta[]>([]);
   const [pageKey, setPageKey] = useState(location.pathname + location.search);
   const [currentExam, setCurrentExam] = useState<ExamConfig | null>(null);
-  const { user } = useAuth();
 
   const examIdMatch = location.pathname.match(/^\/exams\/([^/]+)/);
   const currentExamId = examIdMatch ? examIdMatch[1] : null;
@@ -199,20 +197,6 @@ export default function Layout({ children }: { children: ReactNode }) {
           <div className="ml-auto flex items-center gap-2">
             <StarRepo />
             <GithubLogin />
-            {user && (
-              <Link
-                to="/profile"
-                className="relative group"
-                title="Profile"
-              >
-                <img
-                  src={user.avatar_url}
-                  alt={user.login}
-                  className="w-7 h-7 rounded-full ring-1 ring-slate-700 group-hover:ring-violet-500/50 transition-all duration-200"
-                />
-                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
-              </Link>
-            )}
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />

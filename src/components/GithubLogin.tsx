@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { LogOut, Key, Copy, Check, ExternalLink } from 'lucide-react';
 import { useAuth, isOAuthConfigured } from '@/lib/auth';
 
@@ -29,11 +30,14 @@ export function GithubLogin() {
   if (user) {
     return (
       <div className="flex items-center gap-2">
-        <a href={user.html_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:opacity-80">
-          <img src={user.avatar_url} alt={user.login} className="w-8 h-8 rounded-full border border-gray-600" />
-          <span className="text-sm text-gray-200 hidden sm:inline">{user.name || user.login}</span>
-        </a>
-        <button onClick={logout} className="p-1 text-gray-400 hover:text-red-400 transition-colors" title="Logout">
+        <Link to="/profile" className="flex items-center gap-2 hover:opacity-80 group" title="My Profile">
+          <div className="relative shrink-0">
+            <img src={user.avatar_url} alt={user.login} className="w-7 h-7 rounded-full ring-1 ring-slate-700 group-hover:ring-violet-500/50 transition-all duration-200" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
+          </div>
+          <span className="text-sm text-slate-200 hidden sm:inline">{user.name || user.login}</span>
+        </Link>
+        <button onClick={logout} className="p-1 text-slate-400 hover:text-red-400 transition-colors" title="Logout">
           <LogOut size={16} />
         </button>
       </div>
