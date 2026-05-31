@@ -36,7 +36,7 @@ jobs:
 
       - name: Build
         env:
-          VITE_REPO_BASE: /${{ github.event.repository.name }}/
+          VITE_REPO_BASE: /
           VITE_GOAT_TOKEN: ${{ secrets.VITE_GOAT_TOKEN }}
           VITE_GOAT_SITE: ${{ secrets.VITE_GOAT_SITE }}
           VITE_GH_CLIENT_ID: ${{ secrets.VITE_GH_CLIENT_ID }}
