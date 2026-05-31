@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { loadQuestionsForExam, loadQuestionsByDomainForExam, loadExamRegistry } from '@/lib/content-loader';
 import { saveSession } from '@/lib/storage';
+import { useAuth } from '@/lib/auth';
 import { type Question, type QuizSession, type DomainConfig } from '@/types/content';
 import { CheckCircle, XCircle, ChevronRight, RotateCcw, Filter } from 'lucide-react';
 
@@ -22,6 +23,7 @@ function shuffle<T>(arr: T[]): T[] {
 
 export default function Quiz() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
+  const { user } = useAuth();
   const [phase, setPhase] = useState<Phase>('setup');
   const [domainFilter, setDomainFilter] = useState<number | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -257,6 +259,21 @@ export default function Quiz() {
             );
           })}
         </div>
+
+        {!user && (
+          <div className="rounded-xl border border-violet-700/40 bg-violet-900/20 p-4 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-white mb-0.5">Save your progress</p>
+              <p className="text-xs text-slate-400">Sign in with GitHub to sync scores across devices.</p>
+            </div>
+            <Link
+              to="/profile"
+              className="shrink-0 text-xs font-semibold px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white transition-colors"
+            >
+              Sign in →
+            </Link>
+          </div>
+        )}
 
         <button
           onClick={() => setPhase('setup')}

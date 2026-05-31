@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useProgressSync } from '@/lib/useProgressSync';
@@ -7,7 +7,8 @@ import { loadBlogManifest, loadExamRegistry } from '@/lib/content-loader';
 import type { DomainConfig } from '@/types/content';
 import {
   User, Shield, BookOpen, Brain, BarChart2, Clock, Trophy,
-  Target, TrendingUp, Calendar, ExternalLink, LogOut, ArrowRight
+  Target, TrendingUp, Calendar, ExternalLink, LogOut, ArrowRight,
+  CloudUpload, CheckCircle2, AlertCircle, Loader2
 } from 'lucide-react';
 
 interface DomainStats {
@@ -17,7 +18,22 @@ interface DomainStats {
 
 export default function Profile() {
   const { user, logout } = useAuth();
-  useProgressSync(); // auto-syncs from Gist on login; syncToGist exposed in Phase 1
+  const { syncToGist } = useProgressSync();
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
+  const [lastSynced, setLastSynced] = useState<string | null>(null);
+
+  const handleSync = useCallback(async () => {
+    setSyncStatus('syncing');
+    const ok = await syncToGist();
+    if (ok) {
+      setSyncStatus('synced');
+      setLastSynced(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+      setTimeout(() => setSyncStatus('idle'), 3000);
+    } else {
+      setSyncStatus('error');
+      setTimeout(() => setSyncStatus('idle'), 3000);
+    }
+  }, [syncToGist]);
   const [mounted, setMounted] = useState(false);
   const [blogCount, setBlogCount] = useState(0);
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
@@ -108,6 +124,17 @@ export default function Profile() {
                 <ExternalLink size={12} />
                 GitHub Profile
               </a>
+              <button
+                onClick={handleSync}
+                disabled={syncStatus === 'syncing'}
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-violet-300 disabled:opacity-50 transition-colors"
+              >
+                {syncStatus === 'syncing' && <Loader2 size={12} className="animate-spin" />}
+                {syncStatus === 'synced' && <CheckCircle2 size={12} className="text-emerald-400" />}
+                {syncStatus === 'error' && <AlertCircle size={12} className="text-rose-400" />}
+                {syncStatus === 'idle' && <CloudUpload size={12} />}
+                {syncStatus === 'syncing' ? 'Syncing…' : syncStatus === 'synced' ? 'Synced' : syncStatus === 'error' ? 'Sync failed' : lastSynced ? `Synced ${lastSynced}` : 'Sync now'}
+              </button>
               <button
                 onClick={logout}
                 className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-rose-400 transition-colors"
