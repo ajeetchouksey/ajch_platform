@@ -213,7 +213,13 @@ export default function Blog() {
   useEffect(() => {
     setReadSlugs(getReadSlugs());
     loadBlogManifest()
-      .then((m) => { setPosts(m.posts.filter((p) => !p.draft)); setLoading(false); })
+      .then((m) => {
+        const sorted = m.posts
+          .filter((p) => !p.draft)
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setPosts(sorted);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
     requestAnimationFrame(() => setMounted(true));
   }, []);
