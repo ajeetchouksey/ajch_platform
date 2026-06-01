@@ -6,7 +6,7 @@
     <script>
       // GitHub Pages SPA redirect: converts path to query param
       // so index.html can pick it up and restore the route
-      var pathSegmentsToKeep = 1; // keep repo name segment
+      var pathSegmentsToKeep = 0; // custom root domain — no subdirectory prefix
       var l = window.location;
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
