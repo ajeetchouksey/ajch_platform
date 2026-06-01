@@ -8,7 +8,9 @@ category: "Cloud"
 readingTime: 3
 featured: false
 draft: false
----# Docker
+---
+
+# Docker
 
 What is Docker? The standard answer, I always got from audience is Docker is  a Container. If you think the same then you are in trap. 
 
@@ -16,33 +18,28 @@ What is Docker? The standard answer, I always got from audience is Docker is  a 
 
 Docker is an open-source project for automating the deployment of applications as portable, self-sufficient containers that can run on any cloud or on-premises. Docker is also a company promoting and evolving this technology with a tight collaboration with cloud, Linux and Windows vendors, like Microsoft.
 
-<!--more-->
-
-[Read more about container](http://www.azure365.co.in/azure/devops/Container)
-
-[Read more about container isolation](http://www.azure365.co.in/azure/devops/Container#container-isolation)
-
 Or in other words, Docker is a way to package up an app/service and push it out in a reliable and reproducible way. So, you can say that **Docker is a technology, but also a philosophy and a process**.
 
 Container also help on **Drift Management**. when using Docker, you won’t get the typical developer’s statement **“it works on my machine”**. But you can simply say **“it runs on Docker”** because the packaged Docker application can be executed on any supported Docker environment and it will run the way it was intended to do it on all the deployment targets (Dev/QA/Staging/Production, etc.).
 
 > ## High level Architecture
 
-
 ```mermaid
-block-beta
-    columns 1
-    block:Tools["Container Development & Management Tools"]:1
-        columns 5
-        A["Docker\nClient"]
-        B["Docker\nPowerShell"]
-        C["Docker\nCompose"]
-        D["Docker\nRegistry"]
-        E["Docker\nSwarm"]
-    end
-    F["Docker Universal Control Panel"]:1
-    G["Docker Engine"]:1
-    H["Operating System"]:1
+flowchart TD
+  subgraph TOOLS["Developer & Management Tools"]
+    direction LR
+    CLI["Docker Client"] 
+    PS["Docker PowerShell"]
+    COM["Docker Compose"]
+    REG["Docker Registry"]
+    SWM["Docker Swarm"]
+  end
+  TOOLS --> UCP["Docker Universal Control Plane\nEnterprise cluster management UI"]
+  UCP --> ENGINE["Docker Engine\ndockerd daemon"]
+  ENGINE --> OS["Host Operating System"]
+  ENGINE --> C1["Container 1"]
+  ENGINE --> C2["Container 2"]
+  ENGINE --> CN["Container N"]
 ```
 
 
@@ -77,14 +74,37 @@ Is the enterprise-grade cluster management solution from Docker. You install it 
 
 
 > ## Summary
+**Container vs VM — at a glance:**
 
+```mermaid
+flowchart LR
+  subgraph VM["Virtual Machine"]
+    direction TB
+    APP_VM["App"] --> OS_VM["Full Guest OS"]
+    OS_VM --> HV["Hypervisor"]
+    HV --> HOST_VM["Host OS + Hardware"]
+  end
+  subgraph CON["Container"]
+    direction TB
+    APP_C["App"] --> RUNTIME["Container Runtime"]
+    RUNTIME --> HOST_C["Host OS + Hardware"]
+  end
+```
+
+**Container lifecycle:**
+
+```mermaid
+flowchart LR
+  DF["Dockerfile"] -->|docker build| IMG["Image\nimmutable"]
+  IMG -->|docker run| CTR["Running Container\nprocess"]
+  CTR -->|docker stop| STOP["Stopped Container"]
+  STOP -->|docker start| CTR
+  STOP -->|docker rm| GONE["Removed"]
+  IMG -->|docker push| HUB["Registry\nDocker Hub / ACR"]
+  HUB -->|docker pull| IMG
+```
 *   Container based solutions provide important benefits of cost savings because containers are a solution to deployment problems cause by the lack of dependencies in production environments, therefore, improving DevOps and production operations significantly.
 
 *   Docker is becoming the “de facto” standard in the container industry, supported by the most significant vendors in the Linux and Windows ecosystems, including Microsoft. In the future Docker will be ubiquitous in any datacenter in the cloud or on-premises.
 
 *   A Docker container is becoming the standard unit of deployment for any server-based application or service.
-
----
-Please do let me know your thoughts/ suggestions/ question in ***disqus*** section.
-
----

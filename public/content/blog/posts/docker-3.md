@@ -8,7 +8,9 @@ category: "Cloud"
 readingTime: 4
 featured: false
 draft: false
----This post will walk you through, how I have built my first Docker container.
+---
+
+This post will walk you through, how I have built my first Docker container.
 
 # Prepare the environment 
 
@@ -156,17 +158,12 @@ Image="IIS"
 
 
 ``` docker
-docker build -t <<name>> .
+docker build -t demo .
 ```
 ### Step 2: BUILD
 
 *The docker build command builds Docker images from a Dockerfile and a “context”. A build’s context is the set of files located in the specified PATH or URL. The build process can refer to any of the files in the context. For example, your build can use a COPY instruction to reference a file in the context.*
 
-
-![Docker Build](/images/posts/container/docker-build1.JPG)
-
-
-![Docker Build](/images/posts/container/docker-build2.JPG)
 
 ```mermaid
 sequenceDiagram
@@ -176,37 +173,41 @@ sequenceDiagram
   Dev->>CLI: docker build -t demo .
   CLI->>DH: Pull base image microsoft/iis
   DH-->>CLI: Download image layers
-  CLI->>CLI: Apply Dockerfile instructions
-  CLI-->>Dev: Image 'demo' built successfully
+  CLI->>CLI: Apply Dockerfile instructions (LABEL, EXPOSE, CMD)
+  CLI-->>Dev: Successfully built image 'demo:latest'
+  Dev->>CLI: docker images
+  CLI-->>Dev: demo:latest | microsoft/iis:latest
 ```
 
 ```mermaid
 flowchart LR
-  IMG["docker images"] --> TABLE["REPOSITORY: demo | TAG: latest\nREPOSITORY: microsoft/iis | TAG: latest"]
-  PS["docker ps"] --> CONT["No running containers yet"]
+  BUILD["docker build -t demo ."] --> LAYERS["Layer 1: Windows Server Base\nLayer 2: IIS\nLayer 3: LABEL + EXPOSE + CMD"]
+  LAYERS --> CACHED["Each layer cached\nonly changed layers rebuilt"]
+  CACHED --> IMG["Image: demo:latest\nready to run"]
 ```
 
 ### Step 3: RUN
-### Step 3: RUN
 
 ```docker
-docker run -d demo <<>>
+docker run -d demo
 ```
 
 ```mermaid
 flowchart LR
-  CMD["docker run -d demo"] --> C1["Container starts detached\nReturns container ID"]
-  C1 --> PS["docker ps\nShows running container\nCONTAINER ID | IMAGE | STATUS: Up"]
+  RUN["docker run -d demo"] --> DETACH["Starts container in background\nReturns container ID"]
+  DETACH --> PS["docker ps\nCONTAINER ID | IMAGE: demo | STATUS: Up"]
+  PS --> BROWSE["Browse to localhost:80\nIIS default page"]
 ```
 
-Let's run the following command
-```docker
-docker run -it -p 80:80 demo
-```
-
-
+Or run interactively with port mapping and a shell:
 ```docker
 docker run -it -p 80:80 demo powershell
+```
+
+```mermaid
+flowchart LR
+  IT["docker run -it -p 80:80 demo powershell"] --> FLAGS["-it: interactive terminal\n-p 80:80: host:container port map"]
+  FLAGS --> SHELL["Opens PowerShell inside container\nFull control for debugging"]
 ```
 
 in next post, we will build and run the container and try to customize IIS site. We will also use the Azure Container Registry and Azure Container Instance to host and run the container.

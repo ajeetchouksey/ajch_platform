@@ -8,7 +8,9 @@ category: "Cloud"
 readingTime: 8
 featured: false
 draft: false
----# Docker Definitions and Taxonomy
+---
+
+# Docker Definitions and Taxonomy
 
 In this post I am going to talk about Docker Definitions and Taxonomy.  
 Some of the term, I will co-relate with VM, but please not that VM and Containers are not same.
@@ -28,16 +30,35 @@ Here VHD is Docker base image, once we have that image we can customize/ modifie
 
  Gallery can be considered as Docker Hub or registry from where you can download/ upload the images.
 
+**VM ↔ Docker concept mapping:**
+
+```mermaid
+flowchart LR
+  subgraph VM_WORLD["Virtual Machine World"]
+    VHD["VHD Gallery image"] --> VM["Virtual Machine"]
+    VM --> DSC["DSC / Config Management"]
+    GALLERY["Azure Gallery"] --> VHD
+  end
+  subgraph DOCKER_WORLD["Docker World"]
+    HUB["Docker Hub / Registry"] --> BIMG["Base Image"]
+    BIMG --> CONT["Container"]
+    BIMG --> DF["Dockerfile\ncustomise the image"]
+  end
+  VHD -.->|equivalent| BIMG
+  GALLERY -.->|equivalent| HUB
+  DSC -.->|equivalent| DF
+```
+
 Docker compose is used to support multi container environment. You can think about ARM master template where you define the service and call the nested child template.
 
 Again, please note that above explanation is just to help you to get familiar with some of the term for easy understanding.
 
 I will recommend going through the related post to get familiar with containers 
 
->*  [Container - It’s all about Application](http://www.azure365.co.in/azure/devops/Container)
->* [Docker Overview](http://www.azure365.co.in/cloud/devops/Docker-1)
->* [New IT](http://www.azure365.co.in/azure/devops/NewIT)
->* [Read more about Container v/s VM](http://www.azure365.co.in/azure/devops/Container#container-vs-vm)
+>*  [Container - It's all about Application](/blog/container)
+>* [Docker Overview](/blog/docker-1)
+>* [New IT](/blog/newit)
+>* [Read more about Container v/s VM](/blog/container#container-vs-vm)
 
 
 ## Definition
@@ -121,6 +142,21 @@ An orchestrator is responsible for running, distributing, scaling and healing wo
 
 ## Taxonomy
 
+**Ecosystem relationship — how Registry, Image, and Container relate:**
+
+```mermaid
+graph TD
+  REG["Registry\neg Docker Hub / ACR / DTR"] --> REPO_A["Repository: microsoft/iis"]
+  REG --> REPO_B["Repository: microsoft/nanoserver"]
+  REPO_A --> IMG1["Image: microsoft/iis:latest"]
+  REPO_A --> IMG2["Image: microsoft/iis:windowsservercore"]
+  IMG1 -->|docker run| C1["Container Instance 1\nprocess running"]
+  IMG1 -->|docker run| C2["Container Instance 2\nprocess running"]
+  IMG1 -->|docker run| C3["Container Instance N\nprocess running"]
+  DF["Dockerfile"] -->|docker build| CUSTOM["Custom Image\nbuilt on top of base"]
+  CUSTOM -->|docker push| PRIV["Private Registry\nACR / DTR"]
+```
+
 As mentioned in the definitions section, a container is one or more runtime instances of a Docker image that usually will contain a single app/service. The container is considered the live artifact being executed in a development machine or the cloud or server.
 
 An **image** is an ordered collection of root filesystem changes and the corresponding execution parameters for use within a container runtime. An image typically contains a union of layered filesystems (deltas) stacked on top of each other. An image does not have state and it never changes.
@@ -135,10 +171,3 @@ You should use a private registry (an example of use of Azure Container Registry
 * Fully own your images distribution pipeline
 * Integrate image storage and distribution tightly into your in-house development workflow
 
->Let's create [Docker Container](http://www.azure365.co.in/cloud/devops/Docker-3)
->***Do let me know your views/ queries under disqus section.***
-
----
-Please do let me know your thoughts/ suggestions/ question in ***disqus*** section.
-
----
