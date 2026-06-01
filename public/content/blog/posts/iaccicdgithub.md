@@ -17,84 +17,37 @@ In this post we will discuss, how to setup CD for IaC. IaC code is hosted in Git
 
 *   Go to Build and Release menu, click on Release  in sub menu. Choose the "+" icon to create a new release definition.Create release definition dialog, select the Empty Process.
 
-![j](/images/posts/iaccicd/crerls.JPG)
-
-Give Environment a name and specify who is the owner of it.
-
-![j](/images/posts/iaccicd/emptyprocess.JPG)
-
-Add another environment by 
-
-![j](/images/posts/iaccicd/envname.JPG)
-
-Add artifacts from github repo
-
-![j](/images/posts/iaccicd/addartifacts1.JPG)
-
-To add github repo, we need to create service endpoint.
-
-![j](/images/posts/iaccicd/serviceep.JPG)
-
-
-![j](/images/posts/iaccicd/auth.JPG)
-
-[Read More about service endpoint](https://go.microsoft.com/fwlink/?LinkId=615294)
-
-Select repo and branch
-![j](/images/posts/iaccicd/addfinal.JPG)
-
-We can schdule the trigger
-
-![j](/images/posts/iaccicd/sch.JPG)
+```mermaid
+flowchart TD
+  A["Build & Release → Release → +"] --> B["Create Release Definition\nSelect: Empty Process"]
+  B --> C["Environment Name: Dev / Prod\nSet owner"]
+  C --> D["Add Artifacts\nSource Type: GitHub"]
+  D --> E["Create GitHub Service Endpoint\nAuthorize with OAuth or PAT"]
+  E --> F["Select Repository and Branch\ne.g. IaCLab / master"]
+  F --> G["Configure Trigger\nScheduled or On every artifact change"]
+```
 
 Let's add deployment task, search for Azure Deployment.
 
-![j](/images/posts/iaccicd/task2.JPG)
-
-Provide Azure subscription (service endpoint) and resource group name.
-
-![j](/images/posts/iaccicd/task3.JPG)
-
-Create variables, if required in your template.
-
-![j](/images/posts/iaccicd/task4.JPG)
-
-Here, I am choosing URL of the file, as my templates are in github.
-
-![j](/images/posts/iaccicd/task5.JPG)
-
-Override template parameters: Provide values, which needs to be override, based on environments.
-
-![j](/images/posts/iaccicd/task6.JPG)
-
-Save the task
-
-![j](/images/posts/iaccicd/task7.JPG)
+```mermaid
+flowchart TD
+  T1["Add Task: Azure Resource Group Deployment"] --> T2["Azure Subscription: service endpoint\nAction: Create or update\nResource Group: RG-Name"]
+  T2 --> T3["Variables: adminPassword, vmName\nper-environment overrides"]
+  T3 --> T4["Template Source: URL\nhttps://raw.githubusercontent.com/.../azuredeploy.json"]
+  T4 --> T5["Override Parameters:\n-adminPassword \$(adminPassword)\n-vmName \$(vmName)"]
+  T5 --> T6["Deployment Mode: Incremental"]
+  T6 --> T7["Save Definition"]
+```
 
 Create release for deployment
 
-![j](/images/posts/iaccicd/task8.JPG)
-
-Select the environment, where you would like to have a deployment.  
-
-![j](/images/posts/iaccicd/task9.JPG)
-
-Click on create, this will create the Release.
-
-![j](/images/posts/iaccicd/task10.JPG)
-
-![j](/images/posts/iaccicd/task11.JPG)
-
-Click on deploy
-
-![j](/images/posts/iaccicd/task12.JPG)
-
-click on deploy.
-![j](/images/posts/iaccicd/task13.JPG)
-
-As, I am using hosted agent, it will wait for agent availablity. 
-![j](/images/posts/iaccicd/task14.JPG)
-
-Click on logs to see the step by stpe progress
-
-![j](/images/posts/iaccicd/task15.JPG)
+```mermaid
+flowchart TD
+  R["Create Release\nRelease-1"] --> ENV["Select Environments\nDev / Production"]
+  ENV --> CREATE["Click Create\nRelease queued"]
+  CREATE --> DEPLOY["Click Deploy\nStart deployment"]
+  DEPLOY --> AGENT["Waiting for hosted agent\nMicrosoft-hosted VS2017"]
+  AGENT --> EXEC["ARM template deployed\nto Azure Resource Group"]
+  EXEC --> LOGS["Click Logs\nStep-by-step progress:\nInitialize, Download, ARM deploy, Verify"]
+  LOGS --> DONE["Deployment succeeded\nResources created in Azure"]
+```

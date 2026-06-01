@@ -52,13 +52,22 @@ below command will pull image (Windows server with pre-installed  IIS) from Dock
 ```PowerShell
 docker pull microsoft/iis
 ```
-![](/images/posts/container/baseimage.JPG)
+```mermaid
+graph LR
+  BASE["Windows Server 2016\nBase Image"] -->|docker pull| IMG["Docker Image"]
+  IMG --> META["Metadata\nName, Creation date\nCommand to execute\nDependencies"]
+  IMG --> CONT["Contents\nFiles and Folders\nConfig files, Binaries"]
+```
 
 ### Container: 
 
 A container is a **runtime instance of a Docker image**. A Docker container consists of: A Docker image, an execution environment and a standard set of instructions. When scaling a service, you would instance multiple containers from the same image. Or, in a batch job, instance multiple containers from the same image, passing different parameters to each instance. ***A container “contains” something singular, a single process, like a service or web app. It is a 1:1 relationship***.
 
-![](/images/posts/container/containerimage.JPG)
+```mermaid
+graph TD
+  APP["Application Layer\nRegistry: HKLM-Software/mykey\nFiles: C:/Intpub/mysite.html"] --> IIS["IIS Layer\nRegistry: HKLM HKCU HKCR HKU\nFiles: Program Files, Perf logs, Licence.txt"]
+  IIS --> WIN["Windows Server Base Layer"]
+```
 
 ### Tag:
 

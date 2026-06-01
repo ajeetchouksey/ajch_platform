@@ -38,13 +38,21 @@ This extension can be used to run SoapUI script or to make SoapUI available for 
   - This will create an environment variable called SOAPUI_EXE that you can use in the following tasks.
 
 SOAP UI Task
-![](/images/posts/soapui/vssoapui.JPG)
 
-Test Result Task
-![](/images/posts/soapui/testresults.JPG)
+```mermaid
+flowchart TD
+  VSTS["VSTS Build Definition"] --> TASK["SoapUI Task\nProject: SOAPUI.xml\nArguments: -j -f reports/"]
+  TASK --> PUB["Publish Test Results Task\nFormat: JUnit\nFiles: reports/**/*.xml"]
+  PUB --> DASH["Build Dashboard\nTests: Passed / Failed / Total\nBuild: Succeeded / Partially Succeeded"]
+```
 
-Build Dashboard
-![](/images/posts/soapui/dashboard.JPG)
+```mermaid
+graph LR
+  SQ["SoapUI Extension Components"] --> CORE["soapui-runner\nfunctional test execution"]
+  SQ --> POI["poi.jar\nApache POI: consolidated report"]
+  SQ --> JXL["jxl.jar\nruntime data from XLS"]
+  SQ --> JDBC["sqljdbc42.jar\nAzure SQL DB validation"]
+```
 
 ## What is additional in this extension 
 - POI.jar (Apache POI to generate consolidated report),

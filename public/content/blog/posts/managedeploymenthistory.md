@@ -20,7 +20,14 @@ As per MS documentation, RG can only keep the history of the last 800 deployment
 
 
 **Error**
-![](../images/posts/iac/errordeploymenthistory.JPG)
+
+```mermaid
+graph TD
+  CD["CD Pipeline: Deploy to Dev"] --> FAIL["Deployment FAILED"]
+  FAIL --> ERR["Error: Cannot deploy\nDeployment history limit reached"]
+  ERR --> QUOTA["Azure limit: 800 deployments per Resource Group"]
+  QUOTA --> FIX["Fix: Remove old deployment history\nGet-AzureRmResourceGroupDeployment | Skip 100 | Remove"]
+```
 
 
 

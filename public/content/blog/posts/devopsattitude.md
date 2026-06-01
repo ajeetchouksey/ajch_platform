@@ -18,7 +18,19 @@ There are a lot of fundamental principals that need to consider while you are de
   
 <!--more-->
 
-![](/images/posts/azdo/attitude.JPG)
+```mermaid
+flowchart LR
+    subgraph DevOps["DevOps — Continuous Loop"]
+        Plan["📋 Plan\n(Backlog, Stories)"]
+        Build["🔨 Build\n(Code, Compile)"]
+        Test["🧪 Test\n(Automated Tests)"]
+        Release["🚀 Release\n(Deploy)"]
+        Deploy["☁️ Deploy\n(Production)"]
+        Monitor["📊 Monitor\n(Feedback)"]
+    end
+
+    Plan --> Build --> Test --> Release --> Deploy --> Monitor --> Plan
+```
 
 *image credit: [Microsoft](https://docs.microsoft.com/en-us/azure/devops/learn/what-is-devops-culture)*
 

@@ -50,72 +50,53 @@ By completing a few quick steps, now you have a DevOps Project which includes:
 
 *Search for DevOps Project and create project*
 
-![Create DevOps Project](/images/posts/devopsprj/createdp.JPG)
-
-*Select App Framework*
-
-![Select App Framework](/images/posts/devopsprj/app.JPG)
-
-
-*Bring your own code*
-
-
-![Bring your own code](/images/posts/devopsprj/owncode.JPG)
-
-*External Git*
-
-![External Git](/images/posts/devopsprj/extgit.JPG)
-
-*Select Framework*
-
-![Select Framework](/images/posts/devopsprj/framework.JPG)
-
-*Select Service*
-
-![Select Service](/images/posts/devopsprj/service.JPG)
-
-*Select/ Create VSTS account*
-
-![DRG](/images/posts/devopsprj/vsts.JPG)
+```mermaid
+flowchart TD
+  A["Azure Portal\nSearch: DevOps Project"] --> B["Create DevOps Project\nmicrosoft/devops-project"]
+  B --> C{"Select App Framework"}
+  C --> C1[".NET"] & C2["Java"] & C3["Node.js"] & C4["PHP"] & C5["Python"]
+  C1 & C2 & C3 & C4 & C5 --> D{"Source Code?"}
+  D --> D1["Sample Application\nQuick start"]
+  D --> D2["Bring your own code\nExternal Git / GitHub"]
+  D2 --> E["Authorize Repository\nURL + Branch + Credentials"]
+  D1 & E --> F["Select Framework\nASP.NET / Spring / Express"]
+  F --> G["Select Azure Service\nWeb App / AKS / Functions"]
+  G --> H["Create or Select VSTS Account\n+ Azure Subscription"]
+  H --> I["Provision DevOps Project"]
+```
 
 *Deployment and Resource groups*
 
-![DRG](/images/posts/devopsprj/depinprg.JPG)
-
-Resource group for Web App
-
-![RG1](/images/posts/devopsprj/rg1.JPG)
-
-Resource group for VSTS
-
-![RG2](/images/posts/devopsprj/rg2.JPG)
-
-
-![dprpeview](/images/posts/devopsprj/dprpeview.JPG)
-
+```mermaid
+graph TD
+  DP["DevOps Project Dashboard"] --> RG1["Resource Group: WebApp-RG\nAzure Web App\nApp Service Plan\nApplication Insights\nAzure Container Registry"]
+  DP --> RG2["Resource Group: VSTS-RG\nGit Repository\nCI Build Pipeline\nCD Release Pipeline"]
+  DP --> DASH["Project Overview\nCode commits, Build status\nDeployment history, App metrics"]
+```
 
 You can see the build and release progress
 
-![build1](/images/posts/devopsprj/build1.JPG)
+```mermaid
+flowchart LR
+  SRC["Get Sources\ndevops / master branch"] --> PH["Phase 1: Hosted VS2017"]
+  PH --> T1["NuGet Restore"] --> T2["Build Solution\n**/*.sln"] --> T3["Test Assemblies"]
+  T3 --> T4["Publish Symbols Path"] --> T5["Publish Artifact: drop"]
+  T5 --> CD["CD Release Pipeline\ndevopsprj-CD"]
+  CD --> ENV["Environment: Production\nDeploy Azure Web App"]
+  ENV --> DONE["Release Succeeded\nhttps://devopsprj.azurewebsites.net"]
+```
 
-![build2](/images/posts/devopsprj/build2.JPG)
+Once the deployment is completed, Web App and App insight data is available
 
-![res1](/images/posts/devopsprj/res1.JPG)
-
-![res22](/images/posts/devopsprj/res2.JPG)
-
-Once the deployment is completed, Web App and App insight data is available  
-![dp3](/images/posts/devopsprj/dp3.JPG)
-
-Web App
-
-![web](/images/posts/devopsprj/web.JPG)
-
-App Insight
-
-![appins1](/images/posts/devopsprj/appinsight1.JPG)
-
-![appins2](/images/posts/devopsprj/appin2.JPG)
+```mermaid
+graph TD
+  WA["Azure Web App\ndevopsprj.azurewebsites.net\nStatus: Running"] --> AI["Application Insights\ndevopsprj"]
+  AI --> M1["Failed requests: 0"]
+  AI --> M2["Server response time: less than 1s"]
+  AI --> M3["Server requests: Active"]
+  AI --> M4["Availability: 100%"]
+  AI --> INV["Investigate\nLive Metrics, Failures, Performance, Users"]
+```
 
 > Watch video for more details
 

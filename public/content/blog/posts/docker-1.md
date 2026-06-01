@@ -29,7 +29,21 @@ Container also help on **Drift Management**. when using Docker, you won’t get 
 > ## High level Architecture
 
 
-![](/images/posts/container/hla.JPG) 
+```mermaid
+block-beta
+    columns 1
+    block:Tools["Container Development & Management Tools"]:1
+        columns 5
+        A["Docker\nClient"]
+        B["Docker\nPowerShell"]
+        C["Docker\nCompose"]
+        D["Docker\nRegistry"]
+        E["Docker\nSwarm"]
+    end
+    F["Docker Universal Control Panel"]:1
+    G["Docker Engine"]:1
+    H["Operating System"]:1
+```
 
 
 

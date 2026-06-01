@@ -57,23 +57,21 @@ Variable groups are also used to store secrets and other values that might need 
 
 1. Create a Key Vault and add Secrets
 
-![Create KV Secrets](/images/posts/azdo/keyvault.JPG)
+```mermaid
+graph LR
+  KV["Azure Key Vault: kvpipeline"] --> K1["Secret: key1\nStatus: Enabled"]
+  KV --> K2["Secret: key2\nStatus: Enabled"]
+```
 
-2. Create a variable group and enable the Key Vault linking.
+2. Create a variable group and link the Key Vault (steps 2-5)
 
-![Create Variable Group](/images/posts/azdo/linkkv.JPG)
-
-3. Select Subscription and Key Vault: You need to authorize the subscription.
-
-![Link kv](/images/posts/azdo/kvpipeline3.JPG)
-
-4. You have to select and authorize the Key Vault. This action will create a service principal and add to Key Vault access policies with **'Get' and 'List' permissions only**.
-
-![authorize](/images/posts/azdo/selectkv.JPG)
-
-5. Select the keys that you wanted to be available for the pipeline as a variable.
-
-![filter](/images/posts/azdo/filter.JPG)
+```mermaid
+flowchart TD
+  LIB["Azure DevOps\nPipelines → Library → + Variable Group"] --> VG["Name: kv-pipelines\nLink secrets from Azure Key Vault: ON"]
+  VG --> SEL["Select Subscription → Authorize\nSelect Key Vault: kvpipeline → Authorize"]
+  SEL --> SP["Service Principal auto-created\nAdded to KV Access Policy\nPermissions: Get + List only"]
+  SP --> FILT["Select secrets to expose as variables:\nkey1, key2"]
+```
 
 6. Create Pipeline [*for this demo, I have chosen the default starter pipeline.*]
 
@@ -138,9 +136,11 @@ Once you define the keys, Azure DevOps will take care of getting them from respe
 
 #### Pipeline Output
 
-![VG Task1](/images/posts/azdo/kvoutput11.JPG)
-
-![VG Task2](/images/posts/azdo/kvoutput12.JPG)
+```mermaid
+flowchart LR
+  PIPE["Pipeline run\nvariables: - group: kv-pipelines"] --> TASK["Script task\necho Local Variable → Hello World\necho Key 1 $(key1) → ***\necho Key 2 $(key2) → ***"]
+  TASK --> MASKED["Secrets masked in logs\nnever exposed as plain text"]
+```
 
 ### Azure Key Vault Task
 
@@ -150,15 +150,14 @@ Unlike the previous approach, you are not creating a variable group and link Key
 
 a. Go to Azure DevOps Project Settings - Service Connection - Select Service Connection - Manage Service Principal
 
-![Service Princiapl](/images/posts/azdo/kvservicepri.JPG)
-
-b. Add Service principal to Key Vault access policy with List and Get permissions only. To get the Service principal to refer to the service connection name that you using in the pipeline.
-
-![Add Access](/images/posts/azdo/addaccess.JPG)
-
-![Access Policy](/images/posts/azdo/accesspol.JPG)
-
-![Post Add](/images/posts/azdo/postadd.JPG)
+```mermaid
+flowchart TD
+  SC["Project Settings → Service Connections\nSelect service connection\nManage Service Principal"] --> AAD["Azure AD App Registration\nNote Object ID of service principal"]
+  AAD --> KVP["b. Azure Key Vault: kvpipeline\nAccess Policies → + Add Access Policy"]
+  KVP --> PERMS["Secret permissions:\nGet ✓\nList ✓\nminimum required"]
+  PERMS --> PRIN["Select Principal:\nSearch by service principal name"]
+  PRIN --> SAVE["Add → Save\nService principal in Access Policies list"]
+```
 
 c. The following task will link the Azure Key Vault with the pipeline. The subsequent task can refer to the keys.
 
@@ -207,9 +206,13 @@ steps:
 
 #### Pipeline Output
 
-![KV Task1](/images/posts/azdo/kvoutput21.JPG)
-
-![KV Task2](/images/posts/azdo/kvoutput22.JPG)
+```mermaid
+flowchart LR
+  PIPE["Pipeline run\nAzureKeyVault@1 task executes"] --> FETCH["Fetches all secrets from kvpipeline\nSecretsFilter: *"]
+  FETCH --> VARS["Secrets available as pipeline variables\n$(key1), $(key2)"]
+  VARS --> TASK["Script task\necho $(key1) → ***\necho $(key2) → ***"]
+  TASK --> MASKED["Secrets masked in logs"]
+```
 
 I recommend the second approach as its part of the Pipeline code. It's very useful especially when you have to move the pipeline to other DevOps organizations or projects.
 

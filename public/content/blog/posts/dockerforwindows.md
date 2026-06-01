@@ -22,7 +22,13 @@ After installation Docker for Windows defaults to running Linux containers. Swit
 ```PowerShell
 & $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchDaemon
 ```
-![Switch Container](\images\posts\container\switchcontainer.JPG)
+```mermaid
+graph LR
+  DOCKER["Docker for Windows"] --> DEFAULT["Default: Linux containers\nRuns via Hyper-V Linux VM"]
+  DOCKER --> SWITCH["Switch to Windows containers\nDockerCli.exe -SwitchDaemon\nor Docker tray-menu"]
+  SWITCH --> WIN["Windows containers\nUses Windows kernel directly"]
+  DEFAULT --> LINUX["Linux containers\nHyper-V isolated"]
+```
 
 Following PS will give you the installed version
 ```PowerShell

@@ -17,7 +17,12 @@ $resources = Get-AzureRmResourceProvider -ProviderNamespace Microsoft.Compute
 $resources.ResourceTypes.Where{($_.ResourceTypeName -eq 'virtualMachines')}.Locations
 {% endhighlight %}
 
-![PS](/images/posts/resoursregionps/psresrg.JPG)
+```mermaid
+graph LR
+  SCRIPT["PowerShell"] --> CMD["Get-AzureRmResourceProvider\n-ProviderNamespace Microsoft.Compute"]
+  CMD --> FILTER[".ResourceTypes.Where ResourceTypeName -eq virtualMachines\n.Locations"]
+  FILTER --> REGIONS["Available Regions:\nEast Asia, Southeast Asia\nAustralia East, Australia Southeast\nBrazil South, Canada Central, Canada East\nNorth Europe, West Europe\nEast US, East US 2, West US, West US 2\nJapan East, Japan West\nIndia Central, India South, India West"]
+```
 
 ---
 Please do let me know your thoughts/ suggestions/ question in ***disqus*** section.

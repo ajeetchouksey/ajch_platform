@@ -60,11 +60,51 @@ Diagram clearly shows the difference; traditional script is seems more monolithi
 Whereas DSC modular approach help us to separate responsibilities. We are now more concern about the configuration intent. LCM engine (which is a OOB feature of Windows server 2012 R2 onwards) will take care of dependencies (use a keyword DependsOn), generate logs and handle errors, reboot resilience. Resource are technology specific, which is written by the Product experts, SMEs and communities. We can get these resources and customize based on our requirement, also we can create our own resources if required.
 
 
-![### Traditional script v/s DSC](/images/posts/PSDSC/trdscriptvsdsc.JPG)
+```mermaid
+flowchart LR
+    subgraph Traditional["Traditional Scripts (Monolithic)"]
+        direction TB
+        T1["Dependency Resolution"]
+        T2["Intent"]
+        T3["Logging & Error Handling"]
+        T4["Reboot Resiliency"]
+        T5["Repeatable Automation"]
+        T6["Technology Specific"]
+    end
+
+    subgraph DSC["PowerShell DSC (Modular)"]
+        direction TB
+        subgraph Config["Configuration"]
+            C1["Intent"]
+        end
+        subgraph Engine["DSC Engine"]
+            E1["Dependency Resolution"]
+            E2["Logging & Error Handling"]
+            E3["Reboot Resiliency"]
+            E4["Repeatable Automation"]
+        end
+        subgraph Resources["Resources"]
+            R1["Technology Specific"]
+        end
+    end
+
+    Traditional -->|"Evolve to"| DSC
+```
 
 >### DSC Components
 
-![DSC component](/images/posts/PSDSC/dsccomponent.JPG)
+```mermaid
+block-beta
+    columns 1
+    block:DSC["DSC"]:1
+        columns 2
+        A["DSC Resources"]:2
+        B["Local Configuration Manager"]
+        C["WinRM"]
+        D["PowerShell v5"]:2
+    end
+    E["OS"]:1
+```
 
 >## Local Configuration Management (LCM)
 

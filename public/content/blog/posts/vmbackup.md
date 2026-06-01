@@ -30,13 +30,25 @@ Azure VM backup provides following benefits using cloud-first approach to backup
 
 It's same experience the way you create VM. Go to settings, you will find backup option.
 
-![](/images/posts/backup/2.JPG)
+```mermaid
+flowchart TD
+  CREATE["Create Virtual Machine\nStep 3: Settings"] --> BACKUP["Backup section\nBackup: Enabled"]
+  BACKUP --> VAULT["Recovery Services Vault\nCreate new: vmbackup\nResource Group: VMBackup"]
+  VAULT --> POLICY["Backup policy\nnew DailyPolicy"]
+```
 
 **Select or create a vault in-line**: Customers have a choice for vault – select an existing one or create a new one to store backups. To support customer configurations where they want to store backups and VMs in different resource groups, we also support creating vault in a different resource group other than the VM.
 
 **Manage backup policy for the VM**: Customers can create a new backup policy and use this policy to configure backup on the virtual machine, all from the VM create experience. This policy also supports enterprise level GFS schema for flexible retention choices for backups.
 
-![](/images/posts/backup/3.JPG)
+```mermaid
+graph TD
+  POL["Backup Policy: DailyPolicy"] --> FREQ["Frequency: Daily\nTime: 9:30 AM UTC"]
+  POL --> DAILY["Daily retention\nAt: 9:30 AM | For: 180 Days"]
+  POL --> WEEKLY["Weekly retention: Not Configured"]
+  POL --> MONTHLY["Monthly retention: Not Configured"]
+  POL --> YEARLY["Yearly retention: Not Configured"]
+```
 
 
 [Learn more about Azure Backup](https://azure.microsoft.com/en-us/services/backup/)

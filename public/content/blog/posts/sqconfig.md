@@ -24,35 +24,41 @@ Post-deployment login into SonarQube using following default credentials for Son
 
 After login, go to the administration and select security - users
 
-![Change Admin Password](/images/posts/sq/chgpwd.JPG)
-
-Change Password
-
-![New Admin Password](/images/posts/sq/newadminpwd.JPG)
+```mermaid
+flowchart TD
+  LOGIN["Login\nuser: admin / password: admin"] --> ADMIN["Administration → Security → Users"]
+  ADMIN --> ICON["Click password icon for admin user"]
+  ICON --> DLG["Change Password\nOld password: admin\nNew password: strong password\nConfirm password: same"]
+  DLG --> SAVE["Save → Password changed"]
+```
 
 #### Force authentication
 
-![Force authentication](/images/posts/sq/forcesecurity.jpg)
+```mermaid
+graph LR
+  SEC["Administration → Configuration → Security"] --> FA["Force user authentication: ON\nUsers must be logged in to view any project"]
+```
 
 After enabling the force security option no one able to see the project's analysis summary without login.
 
 #### Configure Server base URL
 
-![Add user](/images/posts/sq/serverbaseurl.jpg)
+```mermaid
+graph LR
+  GEN["Administration → Configuration → General Settings"] --> URL["Server base URL\nhttps://yourserver:9000\nUsed for email notifications and webhooks"]
+```
 
 ### Create Project
 
 SonarQube provides 2 ways to create a project.
 
-![CreateProject](/images/posts/sq/crtprj.JPG)
-
-Provide Project Key (without space) and Display Name. 
-
-![Create Project Setup](/images/posts/sq/prjsetup.JPG)
-
-> **This key will require when you will configure the Sonarqube with Azure Pipelines.**
-
-![Create Project Setup](/images/posts/sq/project.jpg)
+```mermaid
+flowchart TD
+  HOME["SonarQube Projects Page"] --> BTN["Create new project"]
+  BTN --> KEY["Project Key: my-project-key\nno spaces, unique identifier\nrequired for CI/CD integration"]
+  KEY --> NAME["Display Name: My Project"]
+  NAME --> SETUP["Setup options:\nLocally or with CI/CD Azure DevOps"]
+```
 
 ### Configure Tokens
 
@@ -64,15 +70,15 @@ These tokens are used to create Service endpoint with Azure DevOps.
 
 Administrator - My Account - Security
 
-![Token](/images/posts/sq/demotoken.jpg)
-
-
-You can have 1 token across the projects or you can have individual tokens. 
-
-![Token1](/images/posts/sq/token1.jpg)
-
-
-![Token2](/images/posts/sq/token2.jpg)
+```mermaid
+flowchart TD
+  MYACC["My Account → Security → Generate Tokens"] --> GEN["Token Name: azure-devops-token"]
+  GEN --> TYPE{"Token type"}
+  TYPE --> U["User Token\nworks across all projects"]
+  TYPE --> P["Project Analysis Token\nsingle project scope"]
+  U & P --> VALUE["Token value shown once only\nCopy and store securely"]
+  VALUE --> USE["Used in Azure DevOps\nService Endpoint configuration"]
+```
 
 ### Create and Add Users
 
@@ -80,23 +86,15 @@ You can have 1 token across the projects or you can have individual tokens.
 
 SonarQube allows creating local users
 
-![Add user](/images/posts/sq/crtuser1.jpg)
-
-![Add user](/images/posts/sq/crtuser2.jpg)
-
-![Add user](/images/posts/sq/crtuser3.jpg)
-
-#### Add User to project
-
-![Add user to project](/images/posts/sq/adduser1.jpg)
-
-Add user to project with desired permissions by selecting the checkbox.
-
-![Add user to project](/images/posts/sq/adduser2.jpg)
-
-Let's assign this user *Execute Analysis Permission* and see the difference.
-
-![Add user to project](/images/posts/sq/adduser4.jpg)
+```mermaid
+flowchart TD
+  USERS["Administration → Security → Users"] --> CREATE["+ Create User\nLogin, Name, Email, Password"]
+  CREATE --> ACTIVE["User active in users list"]
+  ACTIVE --> PRJ["Project → Project Settings → Permissions"]
+  PRJ --> ADD["Add User → search by login"]
+  ADD --> PERMS["Assign permissions:\nBrowse\nExecute Analysis\nAdminister Project\nAdminister Issues"]
+  PERMS --> NOTE["Without Execute Analysis:\nlimited menu options visible"]
+```
 
 *Menu options are limited now*.
 

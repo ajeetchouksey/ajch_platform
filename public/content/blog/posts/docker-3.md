@@ -57,7 +57,13 @@ https://docs.docker.com/engine/reference/commandline/system_df/)
 
 To start with VS Code, Install Docker extension. In addition to this you can also install the PowerShell, Azure Resource Manager Tools extensions.
 
-![Docker Extension in VS Code](/images/posts/container/vscodedocext.JPG)
+```mermaid
+graph LR
+  VSC["VS Code"] --> EXT["Extensions Marketplace"]
+  EXT --> D["Docker Extension\nmicrosoft/vscode-docker\nSyntax highlighting, IntelliSense\ndocker-compose.yml support\nImage and container management"]
+  EXT --> PS["PowerShell Extension"]
+  EXT --> ARM["Azure Resource Manager\nTools Extension"]
+```
 
 ## Lab 1 - Objective
 
@@ -71,19 +77,28 @@ let's run some basic command
 docker images
 ```
 
-![](/images/posts/container/docker-images.JPG)
+```mermaid
+flowchart LR
+  CMD["docker images"] --> OUT["Lists all local images\nREPOSITORY | TAG | IMAGE ID | SIZE\nEmpty - no images pulled yet"]
+```
 
 ``` docker
 docker ps
 ```
 
-![](/images/posts/container/docker-ps.JPG)
+```mermaid
+flowchart LR
+  CMD2["docker ps"] --> OUT2["Lists running containers\nCONTAINER ID | IMAGE | COMMAND | STATUS | PORTS\nEmpty - no containers running"]
+```
 
 ``` docker
 docker ps -a
 ```
 
-![](/images/posts/container/docker-ps-a.JPG)
+```mermaid
+flowchart LR
+  CMD3["docker ps -a"] --> OUT3["Lists ALL containers\nincluding stopped/exited\nCONTAINER ID | IMAGE | STATUS"]
+```
 
 ### Step 1: Dockerfile
 
@@ -91,7 +106,12 @@ docker ps -a
 *   Open this folder in VS Code
 * Create a file without extension (file name - dockerfile) and save it.
 
-![Docker Extension in VS Code](/images/posts/container/dockerfilecreate.JPG)
+```mermaid
+graph TD
+  A["Create Demo/ folder"] --> B["Open in VS Code"]
+  B --> C["Create file: Dockerfile\nno extension"]
+  C --> D["Add instructions:\nFROM microsoft/iis\nLABEL Author, Image\nEXPOSE 80\nCMD ping localhost -t"]
+```
 
 ``` docker
 FROM microsoft/iis
@@ -148,27 +168,36 @@ docker build -t <<name>> .
 
 ![Docker Build](/images/posts/container/docker-build2.JPG)
 
+```mermaid
+sequenceDiagram
+  participant Dev as Developer
+  participant CLI as Docker CLI
+  participant DH as Docker Hub
+  Dev->>CLI: docker build -t demo .
+  CLI->>DH: Pull base image microsoft/iis
+  DH-->>CLI: Download image layers
+  CLI->>CLI: Apply Dockerfile instructions
+  CLI-->>Dev: Image 'demo' built successfully
+```
 
+```mermaid
+flowchart LR
+  IMG["docker images"] --> TABLE["REPOSITORY: demo | TAG: latest\nREPOSITORY: microsoft/iis | TAG: latest"]
+  PS["docker ps"] --> CONT["No running containers yet"]
+```
 
-
-
-![DockerImages](/images/posts/container/docker-images-2.JPG)
-
-
-
-
-![Docker PS](/images/posts/container/docker-ps.JPG)
-
-
-
+### Step 3: RUN
 ### Step 3: RUN
 
 ```docker
 docker run -d demo <<>>
 ```
 
-![Docker run -d](/images/posts/container/docker-run-d.JPG)
-
+```mermaid
+flowchart LR
+  CMD["docker run -d demo"] --> C1["Container starts detached\nReturns container ID"]
+  C1 --> PS["docker ps\nShows running container\nCONTAINER ID | IMAGE | STATUS: Up"]
+```
 
 Let's run the following command
 ```docker

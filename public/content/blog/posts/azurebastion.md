@@ -44,7 +44,35 @@ You can connect to remote VMs using the following method:
     The following diagram shows an example of the Azure Jump box.
 
 
-    ![](/images/posts/azure/jumpbox.jpg)
+```mermaid
+flowchart LR
+    subgraph OnPrem["On-premises Network (contoso.com)"]
+        Gateway1["Gateway"]
+        ADServers["AD Servers"]
+    end
+
+    Internet(("🌐 Internet\n(Public IP)"))
+
+    subgraph VNet["Virtual Network"]
+        subgraph GatewaySub["Gateway Subnet"]
+            Gateway2["Gateway"]
+        end
+        subgraph AppSub["Application Subnet (NSG)"]
+            VMs["Virtual Machines"]
+        end
+        subgraph MgmtSub["Management Subnet (NSG)"]
+            Jumpbox["Jumpbox VM"]
+        end
+        subgraph ADDSSub["AD DS Subnet (NSG)"]
+            ADDSServers["AD DS Servers"]
+        end
+    end
+
+    OnPrem <-->|"Site-to-Site VPN"| GatewaySub
+    Internet -->|"RDP / Public IP"| Jumpbox
+    Jumpbox -->|"Private IP RDP"| AppSub
+    AppSub <-->|"Authentication"| ADDSSub
+```
 
     *image credit [**Microsoft**](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/identity/adds-extend-domain)*
 
@@ -73,7 +101,7 @@ Azure bastion act as a broker. It establishes the remote session with the VM usi
 
 Demo to configure Azure Bastion
 
-[![Terraform Youtube Playlist](/images/others/azurebastionyt.jpg)](https://youtu.be/Usrv3r6NRSM)
+▶ [Watch Demo: Configuring Azure Bastion (YouTube)](https://youtu.be/Usrv3r6NRSM)
 
 *image credit: **Microsoft***
 

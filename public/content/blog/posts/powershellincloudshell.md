@@ -49,11 +49,17 @@ To persist files across sessions, Cloud Shell walks you through attaching an Azu
 Login to Azure portal and select CloudShell. In Cloud Shell drop down select PowerShell.
 If you are doing this first time, You need to create a storage account (which is standard storage account)
 
-![Create Storage](/images/posts/PSCloudShell/crtstr.JPG)
+```mermaid
+flowchart TD
+  PORTAL["Azure Portal → Cloud Shell button"] --> SHELL["Select Shell type: PowerShell"]
+  SHELL --> STORAGE{"First launch\nNo storage mounted"}
+  STORAGE --> SEL["Select Subscription\nCreate Azure File Share\nStandard storage account"]
+  SEL --> MOUNT["File share mounted as\n$HOME/clouddrive"]
+  MOUNT --> AUTH["Auto-authenticated\nvia Azure Active Directory"]
+  AUTH --> READY["PS Azure:/>\nCloud Shell ready"]
+```
 
 PowerShell in Cloud Shell securely and automatically authenticates account access for the Azure PowerShell.
-
-![Create Storage](/images/posts/PSCloudShell/login.JPG)
 
 After succesfull authentication you will see Azure as a drive  in your Shell prompt.
  {% highlight powershell %}
@@ -63,59 +69,58 @@ After succesfull authentication you will see Azure as a drive  in your Shell pro
 ### Azure Drive
 PowerShell has a concept of namespaces. Azure drive enables easy discovery and navigation of Azure resources such as Compute, Network, Storage etc. like filesystem navigation. You can continue to use the familiar Azure PowerShell cmdlets to manage these resources. Any changes made to the Azure resources, either made directly in Azure portal or through Azure PowerShell cmdlets, are instantly reflected in the Azure drive.
 
-dir: will list out all the subscription associated with logged in account.
-    ![dir](/images/posts/PSCloudShell/dir.JPG)
-
-cd to subscription: to set the subscription context
-     ![cd](/images/posts/PSCloudShell/cd1.JPG)
-
-High level view
-    ![High level view](/images/posts/PSCloudShell/subdir.JPG)
-
-Get-AzureRMVM: List all the VMs
-     ![Get-AzureRMVM](/images/posts/PSCloudShell/getazurermvm.JPG)
-
-Navigate to Storage: List all the Storage account
-     ![Get-AzureRMVM](/images/posts/PSCloudShell/dirstorage.JPG)
+```mermaid
+graph LR
+  DRIVE["PS Azure:/>"] --> DIR["dir\nLists all subscriptions"]
+  DIR --> CD["cd 'Subscription Name'\nSet subscription context"]
+  CD --> SUBDIR["dir\nAllResources\nResourceGroups\nStorageAccounts\nVirtualMachines\nWebApps"]
+  SUBDIR --> GETVM["Get-AzureRMVM\nList all VMs in subscription"]
+  SUBDIR --> STOR["cd StorageAccounts\ndir\nList all storage accounts"]
+```
 
 ### Use Git
 Clone git repo
 
-![Get-AzureRMVM](/images/posts/PSCloudShell/git.JPG)
-
-![Get-AzureRMVM](/images/posts/PSCloudShellgit1.JPG)
-
-![Get-AzureRMVM](/images/posts/PSCloudShell/git4.JPG)
-
-![Get-AzureRMVM](/images/posts/PSCloudShell/git5.JPG)
-
-![Get-AzureRMVM](/images/posts/PSCloudShell/git6.JPG)
+```mermaid
+flowchart LR
+  A["git clone https://github.com/user/repo.git"] --> B["Repo cloned\nto ~/clouddrive/repo"]
+  B --> C["cd repo"]
+  C --> D["git status / git log\nInspect repository"]
+  D --> E["Edit files\nvim script.ps1"]
+  E --> F["git add .\ngit commit -m 'message'\ngit push origin master"]
+```
 
 ### Cloud Drive
 
-![Get-AzureRMVM](/images/posts/PSCloudShell/clouddrive1.JPG)
+```mermaid
+graph LR
+  CD["~/clouddrive"] --> SHARE["Azure File Share\nauto-mounted each session"]
+  SHARE --> PERSIST["Files persist\nacross all sessions"]
+  PERSIST --> DUAL["Accessible from\nBash and PowerShell"]
+  CD --> LIMIT["Files outside ~/clouddrive\nnot persisted\ntemporary machine per session"]
+```
 
 ### Rich PowerShell script editing
 
-When you use VIM to edit PowerShell files (.ps1,.psm1,.psd1), you automatically get syntax highlighting and IntelliSense support. IntelliSense support is implemented via a vim-plugin that interacts with a local instance of 
+When you use VIM to edit PowerShell files (.ps1,.psm1,.psd1), you automatically get syntax highlighting and IntelliSense support. IntelliSense support is implemented via a vim-plugin that interacts with a local instance of
 
-![Get-AzureRMVM](/images/posts/PSCloudShell/vim.JPG)
-
-![Get-AzureRMVM](/images/posts/PSCloudShell/vim2.JPG)
-
-![Get-AzureRMVM](/images/posts/PSCloudShell/vim3.JPG)
+```mermaid
+graph LR
+  VIM["vim script.ps1"] --> SYN["Syntax highlighting\n.ps1 .psm1 .psd1 files"]
+  VIM --> INT["IntelliSense\nvia vim-plugin + local PowerShell"]
+  VIM --> CMDS["Key commands:\ni = insert mode\n:w = save\n:q! = quit without saving\n/pattern = search"]
+```
 
 ### Extensible model
 
 Using PowerShellGet, you can easily install (and update) custom modules and scripts from the PowerShell Gallery. After installation, your modules are automatically persisted across Cloud Shell sessions.
 
-![Get-AzureRMVM](/images/posts/PSCloudShell/findmod1.JPG)
-
-run Install-Module
-
-![Get-AzureRMVM](/images/posts/PSCloudShell/insmod1.JPG)
-
-![Get-AzureRMVM](/images/posts/PSCloudShell/getmodlist.JPG)
+```mermaid
+flowchart LR
+  A["Find-Module ModuleName\nSearch PowerShell Gallery"] --> B["Install-Module ModuleName\nInstall to Cloud Shell"]
+  B --> C["Get-Module -ListAvailable\nVerify module installed"]
+  C --> D["Module persisted\nacross sessions via ~/clouddrive"]
+```
 
 ### Pricing
 https://docs.microsoft.com/en-in/azure/cloud-shell/pricing

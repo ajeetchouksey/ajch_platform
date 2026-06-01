@@ -20,7 +20,15 @@ We all know that we can either use run books or use the option of Auto shutdown 
 
 But all this require a manual action to configure.  
 
-![autoshutdown](/images/posts/iac/autoshutdown.JPG)
+```mermaid
+graph LR
+  VM["Azure VM: devvm"] --> AS["Auto-Shutdown: Enabled ON"]
+  AS --> SCH["Scheduled: 10:00 PM daily"]
+  AS --> TZ["Time Zone: UTC+05:30 IST"]
+  AS --> NOTIF["Notification: 30 min before shutdown"]
+  NOTIF --> EMAIL["Email Address"]
+  NOTIF --> WH["Webhook URL"]
+```
 
  As said we can use **Microsoft.DevTestLab/schedules** resource to automate this during the provision of VM it self. Let's play
 

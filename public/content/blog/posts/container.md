@@ -29,7 +29,18 @@ Whenever team or project needs to deploy application on server they must raise S
 The second problem is the resource utilization. Soon we realize that we are not able to consume more the 20% - 25% of server resource as whole. This also means that business not able to utilize its CAPEX and OPEX cost at maximum. 
 Another common issue is time to reboot. It may take 5-10 minutes. Reboot time is another important factor in terms of service availability. e.g. if you deploy a newer or updated version of your solution which require reboot, in this case your downtime will be higher.
 
-![](/images/posts/container/deploym1.JPG)
+```mermaid
+graph TD
+  subgraph S1["Physical Server 1 ~10% utilization"]
+    A1[Applications] --> B1[OS] --> C1[Hardware]
+  end
+  subgraph S2["Physical Server 2 ~10% utilization"]
+    A2[Applications] --> B2[OS] --> C2[Hardware]
+  end
+  subgraph S3["Physical Server 3 ~10% utilization"]
+    A3[Applications] --> B3[OS] --> C3[Hardware]
+  end
+```
 
 ## Virtual server's environment (H/W virtualization)
 
@@ -38,7 +49,20 @@ Virtual Server's/ machines (VMs) are an abstraction of physical hardware turning
 
 This model helps us to quickly provision virtualized instance, whenever we need and can be thrown away if not required later. Also, we have much better resource utilization as a whole compare to physical server deployment model.
 
-![](/images/posts/container/deploym2.JPG)
+```mermaid
+graph TD
+  subgraph PS["Physical Server ~80% utilization"]
+    HW[Hardware] --> HOS[Host OS] --> HV[Hypervisor]
+    subgraph VM1["VM 1"]
+      G1[Guest OS] --> A1[Application]
+    end
+    subgraph VM2["VM 2"]
+      G2[Guest OS] --> A2[Application]
+    end
+    HV --> G1
+    HV --> G2
+  end
+```
 
 ## CONTAINERS (Nested virtualization or O/S virtualization)
 
@@ -47,21 +71,39 @@ One of the problem that we have with VM that it also has a fill blown O/S. It me
 
 Nested virtualization helps here. Containers are an abstraction at the app layer that packages code and dependencies together. Multiple containers can run on the same machine and share the OS kernel with other containers, each running as isolated processes in user space. Containers take up less space than VMs (container images are typically tens of MBs in size), and start almost instantly.
 
-
-![](/images/posts/container/deploym3.JPG)
-
-
-
+```mermaid
+graph TD
+  subgraph TVM["Traditional VM = H/W Virtualization"]
+    HW1[Hardware] --> OS1[Host OS] --> HYP[Hypervisor]
+    HYP --> VM1["VM 1: Guest OS + App"]
+    HYP --> VM2["VM 2: Guest OS + App"]
+  end
+  subgraph CON["Containers = O/S Virtualization"]
+    HW2[Hardware] --> OS2[Host OS] --> KRN[Shared OS Kernel]
+    KRN --> C1["Container: App 1"]
+    KRN --> C2["Container: App 2"]
+    KRN --> C3["Container: App 3"]
+  end
+```
 
 ## Container Isolation
 
-Containers isolate applications from each other on a shared operating system (OS). This approach standardizes application program delivery, allowing apps to run as Linux or Windows containers on top of the host OS (Linux or Windows). Because containers share the same OS kernel (Linux or Windows), they are significantly lighter than virtual machine (VM) images. 
+Containers isolate applications from each other on a shared operating system (OS). This approach standardizes application program delivery, allowing apps to run as Linux or Windows containers on top of the host OS (Linux or Windows). Because containers share the same OS kernel (Linux or Windows), they are significantly lighter than virtual machine (VM) images.
 
-
-
-![](/images/posts/container/containeriso1.JPG)
-
-
+```mermaid
+graph TD
+  subgraph WSC["Windows Server Container\nMax speed and density"]
+    K1[Shared Kernel]
+    K1 --> SC1[Container 1]
+    K1 --> SC2[Container 2]
+    K1 --> SC3[Container 3]
+  end
+  subgraph HVC["Hyper-V Containers\nIsolation plus performance"]
+    HC1["Container 1 + own Kernel"]
+    HC2["Container 2 + own Kernel"]
+    HC3["Container 3 + own Kernel"]
+  end
+```
 
 When running regular containers, the isolation is not as strong as when using plain VMs. If you need further isolation than the standard isolation provided in regular containers (like in regular Docker images), then, Microsoft offers and additional choice which is Hyper-V containers. In this case, each container runs inside of a special virtual machine. This provides kernel level isolation between each Hyper-V container and the container host. Therefore, Hyper-V containers provide better isolation, with a little more overhead. 
 However, Hyper-V containers are less lightweight than regular Docker containers. 
@@ -73,12 +115,35 @@ However, Hyper-V containers are less lightweight than regular Docker containers.
 ***Windows containers are not only supported by Azure but other cloud vendors like AWS, VMWare etc.
 Hyper-V container only supported in Azure, but one hidden advantage here is that we can use Hyper-V container in Win 10 machine. So as a developer we can easily use them.***
 
-
-
-
-![](/images/posts/container/wincon2.JPG)
-
-
+```mermaid
+graph TD
+  subgraph HH["Hyper-V Hypervisor"]
+    subgraph WSC_HOST["Windows Server Container"]
+      subgraph HUM["Host User Mode"]
+        SP1["System Process\nSession Manager, LSA"]
+        CM["Container Management\nDocker Engine, Compute"]
+      end
+      subgraph WSC_INNER["Windows Server Container"]
+        SPC[System Process]
+        APC[Application Process]
+      end
+      WK1[Windows Kernel]
+      SP1 --> WK1
+      CM --> WK1
+      SPC --> WK1
+      APC --> WK1
+    end
+    subgraph HVC["VM - Hyper-V Container"]
+      subgraph INNER_WSC["Windows Server Container"]
+        SP2[System Process]
+        AP2[Application Process]
+      end
+      WK2[Windows Kernel]
+      SP2 --> WK2
+      AP2 --> WK2
+    end
+  end
+```
 
 ## Container v/s VM
 

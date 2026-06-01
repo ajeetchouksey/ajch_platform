@@ -49,9 +49,26 @@ Extensions for Android Studio, Eclipse, IntelliJ, and all other JetBrains IDEs.
 ## Let's Start
 Let's create a project in VSTS or Team Service.
 
-![Go to Team Services](/images/posts/gitwithvsts/gitwithvsts1.JPG)
+```mermaid
+graph LR
+  VSTS["VSTS / Azure DevOps\nmycloudpath.visualstudio.com"] --> NAV["Navigation\nProjects | My favorites | My work items | Pull requests"]
+  NAV --> PROJ["Projects List\nRecent projects"]
+  PROJ --> NEW["+ New Project"]
+  PROJ --> FILTER["Filter projects and teams"]
+```
 
-![Create new project](/images/posts/gitwithvsts/gitwithvsts_createprj.JPG)
+```mermaid
+graph TD
+  NEW["Create New Project"] --> NAME["Project Name: gitdemo"]
+  NEW --> VC{"Version Control"}
+  VC --> GIT["Git (distributed)"]
+  VC --> TFVC["TFVC (centralized)"]
+  NEW --> WI{"Work Item Process"}
+  WI --> A["Agile"]
+  WI --> C["CMMI"]
+  WI --> S["Scrum"]
+  NAME & GIT & A --> CREATE["Create Project"]
+```
 
 Ensure that you choose git as version control. You have 3 option to choose work item process.
 
@@ -63,15 +80,33 @@ Ensure that you choose git as version control. You have 3 option to choose work 
 
 Once your project is created you will be able to see project default page. In this page you can  see lot option, which we are going to use soon.
 
-![Default page](/images/posts/gitwithvsts/defaultpage.JPG)
+```mermaid
+graph LR
+  PROJ["gitdemo Project"] --> NAV["Navigation\nDashboards | Code | Work | Build & Release | Test | Wiki"]
+  NAV --> CODE["Code section\nFiles | History | Branches | Tags | Pull Requests"]
+  CODE --> REPO["Default repository\nNo commits yet"]
+  REPO --> INIT["Initialize with README"]
+```
 
 Let's initialize the README file
 
-![README File](/images/posts/gitwithvsts/defaultpage2.JPG)
+```mermaid
+flowchart LR
+  A["Initialize this repository\nwith a README"] --> B["Select .gitignore template\noptional"]
+  B --> C["Click Initialize"]
+  C --> D["README.md created\nFirst commit pushed\nRepository ready"]
+```
 
 Once its done you can see the updated default page with README file and a nice dashboard displaying  members,  activity, build and releases and work.
 
-![Create new project](/images/posts/gitwithvsts/dashboard.JPG)
+```mermaid
+graph TD
+  DASH["Project Dashboard: gitdemo"] --> M["Members\nTeam roster"]
+  DASH --> A["Activity Feed\nRecent commits, PRs, builds"]
+  DASH --> B["Build\nCI pipeline status"]
+  DASH --> R["Release\nCD pipeline status"]
+  DASH --> W["Work\nSprint board, backlog"]
+```
 
 *See git related post for repos, workflow, branches, authentication and pull request.*
 

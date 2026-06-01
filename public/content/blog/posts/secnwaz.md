@@ -39,7 +39,29 @@ Design a Virtual network, where you have NSG rules which only allow communicatio
 
 Apply NSG policies at the Subnet level. This way you can better control the communication between your resources (e.g. Frontend subnet resources are not allowed to communicate to backend subnet resources directly and midtier subnets and backend subnet can not be accessed over the internet). 
 
-![](../images/azexams/subnetlevel.JPG)
+```mermaid
+graph TB
+    Internet((🌐 Internet))
+
+    subgraph VNET["Virtual Network — NSG at Subnet Level"]
+        subgraph FE["Frontend Subnet — 10.1/16"]
+            FEServer[Frontend Servers]
+        end
+        subgraph MT["Mid-tier Subnet — 10.2/16"]
+            MTServer[Mid-tier Servers]
+        end
+        subgraph BE["Backend Subnet — 10.3/16"]
+            BEServer[Backend Servers]
+        end
+    end
+
+    Internet -->|"✓ Allowed (80/443)"| FE
+    Internet -. "✗ Blocked" .-> MT
+    Internet -. "✗ Blocked" .-> BE
+    FE -->|"✓ Allowed"| MT
+    MT -->|"✓ Allowed"| BE
+    FE -. "✗ Blocked" .-> BE
+```
 
 
 Also, create a VNET endpoint for the web app. Add your web app inside the VNET endpoint. 
@@ -57,7 +79,27 @@ This provides enhanced DDoS mitigation capabilities for your application and res
 > DDoS Protection Standard utilizes dedicated monitoring and machine learning to configure DDoS protection policies tuned to your virtual network traffic profiles. 
 
 
-![](../images/azexams/ddos.jpg)
+```mermaid
+flowchart LR
+    Attacker["🔴 Attacker"]
+    Customers["👥 Customers"]
+    Backbone["Azure Backbone\n(Traffic Scrubbing)"]
+    DDoS["Azure DDoS\nProtection"]
+    
+    subgraph VNet["Virtual Network"]
+        AppGW["Application Gateway"]
+        LB["Azure Load Balancer"]
+        VPN["VPN Gateway"]
+        WebApp["Web App"]
+        AppSvc["App Service"]
+        SF["Service Fabric"]
+    end
+
+    Attacker -->|"Malicious traffic\nfiltered"| Backbone
+    Customers -->|"Legitimate traffic\nallowed"| Backbone
+    Backbone --> DDoS
+    DDoS --> VNet
+```
 
  
  Attack telemetry is available through Azure Monitor, enabling alerting when your application is under attack. 
@@ -66,7 +108,27 @@ This provides enhanced DDoS mitigation capabilities for your application and res
 
 To enhance network layer security always integrated Layer 7 application protection which can be provided by Application Gateway Web Application Firewall (WAF) or Azure Front door services. Consider this as.
 
-![](../images/azexams/appgateway.jpg)
+```mermaid
+flowchart LR
+    Users["👥 Users"]
+    
+    subgraph AG["Application Gateway"]
+        WAF["WAF\n(OWASP Rules)"]
+        LB["L7 Load Balancer"]
+    end
+    
+    Site1["Site 1\n(Backend Pool)"]
+    Site2["Site 2\n(Backend Pool)"]
+
+    Users -- "XSS Attack" --> WAF
+    WAF -. "✗ Blocked" .-> Users
+    Users -- "SQL Injection" --> WAF
+    WAF -. "✗ Blocked" .-> Users
+    Users -- "✓ Valid Request" --> WAF
+    WAF --> LB
+    LB --> Site1
+    LB --> Site2
+```
 
 
 > **Application Gateway** is a Layer 7 load balancer that also includes a web application firewall (WAF) to provide advanced security for your HTTP-based services. The WAF is based on rules from the OWASP 3.0 or 2.2.9 core rule sets and provides protection from commonly-known vulnerabilities such as cross-site scripting and SQL injection.
@@ -113,7 +175,24 @@ A Point-to-Site (P2S) VPN gateway connection lets you create a secure connection
 
 Point-to-Site connections do not require a VPN device or a public-facing IP address. P2S creates the VPN connection over either SSTP (Secure Socket Tunneling Protocol) or IKEv2.
 
-   ![](../images/azexams/vpn.jpg)
+```mermaid
+flowchart LR
+    subgraph Azure["Azure — VNet1 (East US)\nASN 65010 | 10.10.0.0/16, 10.11.0.0/16"]
+        AzureVPN["Azure VPN Gateway"]
+    end
+
+    subgraph OnPrem["On-Premises\n10.51.0.0/16, 10.52.0.0/16"]
+        OnPremVPN["OnPrem VPN Gateway"]
+        RADIUS["RADIUS Server"]
+        ADDS["AD Domain Services"]
+        RADIUS <--> ADDS
+    end
+
+    P2SClient["VPN Client\n192.168.0.11\n(Point-to-Site)"]
+
+    AzureVPN <-->|"IPsec/IKE S2S\nVPN Tunnel"| OnPremVPN
+    AzureVPN <-->|"P2S VPN Tunnel\n(SSTP / IKEv2)"| P2SClient
+```
 
 ### ExpressRoute - A private dedicated network connection
 
@@ -125,7 +204,35 @@ ExpressRoute is a premium service and available across the geographical regions.
 
 ExpressRoute provides built-in redundancy in every peering location to ensure higher reliability. 
 
-![](../images/azexams/expressroute.jpg)
+```mermaid
+flowchart LR
+    Customer["Customer's Network"]
+    PartnerEdge["Partner Edge"]
+    
+    subgraph ER["ExpressRoute Circuit"]
+        Primary["Primary Connection"]
+        Secondary["Secondary Connection"]
+    end
+
+    MSEdge["Microsoft Edge"]
+    
+    subgraph MSPublic["Microsoft Peering\n(Public IPs)"]
+        O365["Office 365 / Dynamics 365"]
+        AzurePublic["Azure Public Services"]
+    end
+    
+    subgraph AzurePrivate["Azure Private Peering"]
+        VNet["Virtual Networks"]
+    end
+
+    Customer --> PartnerEdge
+    PartnerEdge --> Primary
+    PartnerEdge --> Secondary
+    Primary --> MSEdge
+    Secondary --> MSEdge
+    MSEdge -->|"Microsoft Peering"| MSPublic
+    MSEdge -->|"Private Peering"| AzurePrivate
+```
 
  
 ## **How to secure non-HTTP bases services**?

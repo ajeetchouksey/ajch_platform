@@ -23,7 +23,16 @@ Code quality management is a topic that has seen a tremendous increase of attent
 # SonarQube - Code Quality
 
 SonarQube helps you in
-![](/images/posts/sq/features.JPG)
+
+```mermaid
+graph LR
+  SQ["SonarQube"] --> BUG["Detect Bugs\nreal or potential failures"]
+  SQ --> SMELL["Code Smells\nmaintainability issues"]
+  SQ --> VULN["Vulnerabilities\nsecurity holes"]
+  SQ --> DUP["Duplications\ncopy-paste code"]
+  SQ --> COV["Test Coverage\nline + branch coverage"]
+  SQ --> COMP["Complexity\ncyclomatic complexity"]
+```
 
 ## SonarQube Architecture
 
@@ -43,7 +52,15 @@ SonarQube has 3 main components
 
 ## Quality Model
 
-![](/images/posts/sq/dashb.jpg)
+```mermaid
+graph TD
+  QM["SonarQube Quality Model"] --> BUG["Bug\nwrong code, will break"]
+  QM --> SMELL["Code Smell\nmaintainability issue"]
+  QM --> VULN["Vulnerability\nsecurity backdoor"]
+  BUG --> SEV["Severity: Blocker / Critical / Major / Minor / Info"]
+  SMELL --> SEV
+  VULN --> SEV
+```
 
 **Bug:**
 
@@ -80,7 +97,14 @@ Coding Rule: A good coding practice. Not complying to coding rules leads to qual
 
 ## Severity
 
-![](/images/posts/sq/serv.JPG)
+```mermaid
+graph LR
+  SEV["Issue Severity"] --> BLK["Blocker\nMakes app unstable in production\neg: unclosed socket"]
+  SEV --> CRIT["Critical\nUnexpected behavior in production\neg: NullPointerException"]
+  SEV --> MAJ["Major\nImpacts productivity\neg: too complex methods"]
+  SEV --> MIN["Minor\nMinor productivity impact\neg: naming conventions"]
+  SEV --> INFO["Info\nUnknown risk"]
+```
 
 **Critical**: Operational/security risk: This issue might lead to an unexpected behavior in production without impacting the integrity of the whole application. Ex: NullPointerException, badly caught exceptions, lack of unit tests, etc.
 
@@ -94,7 +118,13 @@ Coding Rule: A good coding practice. Not complying to coding rules leads to qual
 
 ## Maintainability
 
-![](/images/posts/sq/main.jpg)
+```mermaid
+graph TD
+  MAINT["Maintainability"] --> CS["Code Smells + New Code Smells"]
+  MAINT --> DEBT["Technical Debt\nRemediation cost / Development cost"]
+  DEBT --> RATE["Rating: A=0-5% B=6-10% C=11-20% D=21-50% E=51%+"]
+  MAINT --> TDR["Tech Debt Ratio\nRemediation cost / 0.06 days x LOC"]
+```
 -   Code Smells
 -   New Code Smells
 -   Technical Debt
@@ -123,7 +153,15 @@ The Maintainability Rating scale can be alternately stated by saying that if t
 - anything over 50% is an **E**
 
 ## Reliability
-![](/images/posts/sq/reliability.jpg)
+
+```mermaid
+graph LR
+  REL["Reliability Rating"] --> A["A = 0 Bugs"]
+  REL --> B["B = at least 1 Minor Bug"]
+  REL --> C["C = at least 1 Major Bug"]
+  REL --> D["D = at least 1 Critical Bug"]
+  REL --> E["E = at least 1 Blocker Bug"]
+```
 
 -   Bug
 -   New Bug
@@ -144,7 +182,15 @@ The Maintainability Rating scale can be alternately stated by saying that if t
 Effort to fix all bug issues. The measure is stored in minutes in the DB. *An 8-hour day is assumed when values are shown in days*.
 
 ## Security
-![](/images/posts/sq/security.jpg)
+
+```mermaid
+graph LR
+  SEC["Security Rating"] --> A["A = 0 Vulnerabilities"]
+  SEC --> B["B = at least 1 Minor Vulnerability"]
+  SEC --> C["C = at least 1 Major Vulnerability"]
+  SEC --> D["D = at least 1 Critical Vulnerability"]
+  SEC --> E["E = at least 1 Blocker Vulnerability"]
+```
 
 -   Vulnerabilities
 -   New Vulnerabilities
@@ -165,7 +211,16 @@ Effort to fix all bug issues. The measure is stored in minutes in the DB. *An 8-
 Effort to fix all vulnerability issues. The measure is stored in minutes in the DB. *An 8-hour day is assumed when values are shown in days*.
 
 ## Test Coverage
-![](/images/posts/sq/tcc.jpg)
+
+```mermaid
+graph TD
+  COV["Coverage = CT+CF+LC / 2B+EL"] --> CC["Condition Coverage\nCT+CF / 2B"]
+  COV --> LC["Line Coverage\nLC / EL"]
+  CC --> CT["CT = conditions evaluated true"]
+  CC --> CF["CF = conditions evaluated false"]
+  LC --> LCV["LC = covered lines"]
+  LC --> EL["EL = executable lines"]
+```
 
 **Tests Condition coverage**
 
@@ -196,7 +251,15 @@ where
 
 ## Issues
 
-![](/images/posts/sq/issues.jpg)
+```mermaid
+graph LR
+  ISS["Issues"] --> OPEN["Open"]
+  ISS --> CONF["Confirmed"]
+  ISS --> REOPEN["Reopened"]
+  ISS --> FP["False Positive"]
+  ISS --> NEW["New Issues"]
+  OPEN & CONF & REOPEN --> TYPES["Type: Bug / Code Smell / Vulnerability"]
+```
 -   Issue
 -   New Issues
 -   False positive issues
