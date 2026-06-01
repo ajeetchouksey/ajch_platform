@@ -245,12 +245,12 @@ export default function HomeV2() {
             <h1 className="text-5xl sm:text-6xl font-black text-white leading-[1.04] tracking-tight mb-5">
               Master AI{' '}
               <span style={{
-                background: 'linear-gradient(100deg, #a78bfa 0%, #f472b6 55%, #fb923c 100%)',
+                background: 'linear-gradient(100deg, #7c3aed 0%, #a78bfa 45%, #fb923c 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}>Architecture.</span>
               <br />
-              <span className="text-4xl sm:text-5xl text-slate-400 font-black">Build Systems That Ship.</span>
+              <span className="text-4xl sm:text-5xl text-white font-black">Build Systems That Ship.</span>
             </h1>
 
             {/* Brand tagline */}
