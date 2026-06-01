@@ -17,8 +17,8 @@ What is Docker? The standard answer, I always got from audience is Docker is  a 
 ***Docker is not a container. Docker provide tools and techniques to build the container.***
 
 Docker is an open-source project for automating the deployment of applications as portable, self-sufficient containers that can run on any cloud or on-premises. Docker is also a company promoting and evolving this technology with a tight collaboration with cloud, Linux and Windows vendors, like Microsoft.
+141
 
-Or in other words, Docker is a way to package up an app/service and push it out in a reliable and reproducible way. So, you can say that **Docker is a technology, but also a philosophy and a process**.
 
 Container also help on **Drift Management**. when using Docker, you won’t get the typical developer’s statement **“it works on my machine”**. But you can simply say **“it runs on Docker”** because the packaged Docker application can be executed on any supported Docker environment and it will run the way it was intended to do it on all the deployment targets (Dev/QA/Staging/Production, etc.).
 

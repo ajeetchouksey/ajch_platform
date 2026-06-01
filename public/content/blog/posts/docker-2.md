@@ -17,7 +17,6 @@ Some of the term, I will co-relate with VM, but please not that VM and Container
 They have significant differences. 
 I hope this will help you to easily understand, especially if you are new to Docker.
 
-<!--more-->
 
 Docker image is the very first thing that you need. The first question comes in mind what is the image, who provide it and can we create our base image.
 

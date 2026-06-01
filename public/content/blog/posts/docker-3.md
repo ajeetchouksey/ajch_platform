@@ -19,7 +19,7 @@ If you already have Windows 10 or Windows server 2016 machine. [Download code](h
 If you would like to have a new VM 
 [Get the code from here](https://github.com/AjeetChouksey/IaCLab/tree/master/201-VM-Docker-VSCode). This will create Windows server 2016 VM with Docker, VS Code, git and chrome.
 
-<!--more-->
+
 ## Let's discuss some basic docker commands, before we start
 
 *   **docker version**:
