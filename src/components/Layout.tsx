@@ -491,7 +491,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
         {/* Main content */}
         <main
-          className="flex-1 overflow-y-auto p-4 lg:p-8"
+          className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-4 lg:p-8"
           style={{
             background: 'radial-gradient(ellipse 120% 45% at 50% 0%, rgba(139,92,246,0.10) 0%, transparent 55%)',
             backgroundAttachment: 'fixed',

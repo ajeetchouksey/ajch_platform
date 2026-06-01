@@ -112,7 +112,7 @@ function TocSidebar({
 }) {
   const pal = CAT_PALETTE[meta.category] ?? { color: '#94a3b8', bg: 'rgba(30,41,59,0.5)', border: 'rgba(71,85,105,0.3)' };
   return (
-    <aside className="hidden lg:flex flex-col w-[240px] xl:w-[264px] shrink-0">
+    <aside className="hidden xl:flex flex-col w-[220px] 2xl:w-[240px] shrink-0">
       <div className="sticky top-6 flex flex-col gap-3 max-h-[calc(100vh-6rem)] overflow-y-auto pb-4"
         style={{ scrollbarWidth: 'none' }}>
 
@@ -247,7 +247,7 @@ function ExpandablePre({ children }: { children: React.ReactNode }) {
     <div className="relative group my-5">
       <div className={!expanded && overflows ? 'max-h-80 overflow-hidden relative' : ''}>
         <pre ref={preRef}
-          className="rounded-xl p-5 text-sm overflow-x-auto leading-relaxed font-mono"
+          className="rounded-xl p-3 sm:p-5 text-xs sm:text-sm overflow-x-auto leading-relaxed font-mono"
           style={{ background: 'rgba(2,6,23,0.98)', border: '1px solid rgba(71,85,105,0.28)', color: '#e2e8f0' }}>
           {children}
         </pre>
@@ -380,7 +380,7 @@ export default function BlogPost() {
   const pal = meta ? (CAT_PALETTE[meta.category] ?? { color: '#94a3b8', bg: 'rgba(30,41,59,0.5)', border: 'rgba(71,85,105,0.3)' }) : null;
 
   return (
-    <div className={`relative transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+    <div className={`relative min-w-0 transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
       <ReadingBar />
 
       {/* Ambient background orbs */}
@@ -400,10 +400,10 @@ export default function BlogPost() {
           onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}>
           <ArrowLeft size={14} /> All posts
         </Link>
-        {/* Mobile TOC button */}
+        {/* Mobile TOC button — show below xl since sidebar only appears at xl */}
         {headings.length > 0 && (
           <button onClick={() => setShowToc(true)}
-            className="lg:hidden flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl"
+            className="xl:hidden flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl"
             style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', color: '#a78bfa' }}>
             <List size={12} /> Contents
           </button>
@@ -411,14 +411,14 @@ export default function BlogPost() {
       </div>
 
       {/* ── 2-column layout: article + sidebar ───────────────────────────────── */}
-      <div className="flex items-start gap-8">
+      <div className="flex items-start gap-4 xl:gap-8">
 
         {/* ───── Main article ──────────────────────────────────────────────── */}
         <div className="min-w-0 flex-1 rounded-2xl"
           style={{
             background: 'rgba(8,15,30,0.97)',
             border: '1px solid rgba(71,85,105,0.18)',
-            padding: 'clamp(1.5rem, 3vw, 2.5rem)',
+            padding: 'clamp(1rem, 4vw, 2.5rem)',
           }}
         >
 
@@ -438,32 +438,32 @@ export default function BlogPost() {
                 )}
               </div>
 
-              <h1 className="text-2xl lg:text-4xl font-black text-white leading-tight tracking-tight mb-4">
+              <h1 className="text-xl sm:text-2xl md:text-3xl xl:text-4xl font-black text-white leading-tight tracking-tight mb-4">
                 {meta.title}
               </h1>
 
-              <p className="text-slate-400 text-base lg:text-lg leading-relaxed mb-5">{meta.excerpt}</p>
+              <p className="text-slate-400 text-sm sm:text-base xl:text-lg leading-relaxed mb-5">{meta.excerpt}</p>
 
               {/* Meta row */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 pb-5"
+              <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-500 pb-5"
                 style={{ borderBottom: '1px solid rgba(71,85,105,0.20)' }}>
-                <span className="flex items-center gap-1.5"><User size={13} /> {meta.author}</span>
+                <span className="flex items-center gap-1.5"><User size={12} /> {meta.author}</span>
                 <span className="flex items-center gap-1.5">
-                  <Calendar size={13} />
-                  {new Date(meta.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  <Calendar size={12} />
+                  {new Date(meta.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </span>
-                <span className="flex items-center gap-1.5"><Clock size={13} /> {meta.readingTime} min read</span>
-                {/* Mobile share */}
+                <span className="flex items-center gap-1.5"><Clock size={12} /> {meta.readingTime} min read</span>
+                {/* Share — hide when sidebar (xl+) shows its own share button */}
                 <button onClick={handleShare}
-                  className="ml-auto flex items-center gap-1.5 text-xs transition-colors lg:hidden"
+                  className="ml-auto flex items-center gap-1.5 text-xs transition-colors xl:hidden"
                   style={{ color: copied ? '#34d399' : '#64748b' }}>
                   {copied ? <Check size={13} /> : <Share2 size={13} />}
                   {copied ? 'Copied!' : 'Share'}
                 </button>
               </div>
 
-              {/* Mobile reading progress */}
-              <div className="lg:hidden mt-4">
+              {/* Reading progress bar — hide when sidebar (xl+) shows circular progress */}
+              <div className="xl:hidden mt-4">
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-1 rounded-full" style={{ background: 'rgba(71,85,105,0.25)' }}>
                     <div className="h-full rounded-full transition-[width] duration-300"
@@ -480,26 +480,27 @@ export default function BlogPost() {
           {/* ── Article body ─────────────────────────────────────────────── */}
           <article ref={articleRef}
             className="
-              prose prose-invert prose-base max-w-none
+              prose prose-invert prose-sm sm:prose-base max-w-none
               prose-headings:font-black prose-headings:tracking-tight prose-headings:text-white prose-headings:scroll-mt-24
-              prose-h1:text-3xl
-              prose-h2:text-[1.5rem] prose-h2:mt-14 prose-h2:mb-5
-              prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-              prose-p:text-slate-300 prose-p:leading-[1.9] prose-p:text-[15px]
+              prose-h1:text-2xl sm:prose-h1:text-3xl
+              prose-h2:text-xl sm:prose-h2:text-[1.5rem] prose-h2:mt-10 sm:prose-h2:mt-14 prose-h2:mb-4
+              prose-h3:text-lg sm:prose-h3:text-xl prose-h3:mt-6 sm:prose-h3:mt-8 prose-h3:mb-3
+              prose-p:text-slate-300 prose-p:leading-[1.85]
               prose-a:text-violet-400 prose-a:no-underline hover:prose-a:underline prose-a:font-medium
               prose-code:text-violet-300 prose-code:bg-slate-900/80 prose-code:px-1.5 prose-code:py-0.5
-                prose-code:rounded-md prose-code:text-[13px] prose-code:before:content-none prose-code:after:content-none
+                prose-code:rounded-md prose-code:text-[12px] sm:prose-code:text-[13px] prose-code:before:content-none prose-code:after:content-none
               prose-pre:bg-transparent prose-pre:p-0 prose-pre:border-0 prose-pre:shadow-none
               prose-blockquote:border-l-[3px] prose-blockquote:border-violet-500/70 prose-blockquote:text-slate-400
-                prose-blockquote:bg-violet-950/20 prose-blockquote:py-3 prose-blockquote:px-5
-                prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:my-6
-              prose-li:text-slate-300 prose-li:leading-[1.85] prose-li:marker:text-violet-400/60
-              prose-ul:my-5 prose-ol:my-5
-              prose-hr:border-slate-800/60 prose-hr:my-10
+                prose-blockquote:bg-violet-950/20 prose-blockquote:py-2 sm:prose-blockquote:py-3 prose-blockquote:px-4 sm:prose-blockquote:px-5
+                prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:my-5
+              prose-li:text-slate-300 prose-li:leading-[1.8] prose-li:marker:text-violet-400/60
+              prose-ul:my-4 prose-ol:my-4
+              prose-hr:border-slate-800/60 prose-hr:my-8
               prose-strong:text-slate-100 prose-strong:font-bold
-              prose-img:rounded-2xl prose-img:shadow-2xl
-              prose-table:text-sm prose-th:text-slate-300 prose-td:text-slate-400
+              prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-xl
+              prose-table:text-xs sm:prose-table:text-sm prose-th:text-slate-300 prose-td:text-slate-400
                 prose-td:border-slate-800 prose-th:border-slate-700
+              [&_table]:block [&_table]:overflow-x-auto [&_table]:max-w-full
             ">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
