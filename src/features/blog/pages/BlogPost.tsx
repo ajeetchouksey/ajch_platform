@@ -51,12 +51,16 @@ function markAsRead(slug: string) {
 function ReadingBar() {
   const [pct, setPct] = useState(0);
   useEffect(() => {
+    const mainEl = document.querySelector('main') as HTMLElement | null;
     const fn = () => {
-      const h = document.documentElement.scrollHeight - window.innerHeight;
-      setPct(h > 0 ? Math.min((window.scrollY / h) * 100, 100) : 0);
+      const el = mainEl;
+      if (!el) return;
+      const h = el.scrollHeight - el.clientHeight;
+      setPct(h > 0 ? Math.min((el.scrollTop / h) * 100, 100) : 0);
     };
-    window.addEventListener('scroll', fn, { passive: true });
-    return () => window.removeEventListener('scroll', fn);
+    const target: HTMLElement | Window = mainEl ?? window;
+    target.addEventListener('scroll', fn, { passive: true });
+    return () => target.removeEventListener('scroll', fn);
   }, []);
   return (
     <div className="fixed top-0 left-0 right-0 z-50 h-[2px]" style={{ background: 'rgba(15,23,42,0.5)' }}>
@@ -297,35 +301,40 @@ export default function BlogPost() {
         setTimeout(() => setVisible(true), 50);
       })
       .catch(e => { setError(String(e)); setLoading(false); });
-    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    const mainEl = document.querySelector('main') as HTMLElement | null;
+    if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   }, [slug]);
 
   // Track reading progress relative to article element
   useEffect(() => {
+    const mainEl = document.querySelector('main') as HTMLElement | null;
     const fn = () => {
       const el = articleRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      const total = el.offsetHeight - window.innerHeight;
+      const viewportH = mainEl ? mainEl.clientHeight : window.innerHeight;
+      const total = el.offsetHeight - viewportH;
       const scrolled = Math.max(0, -rect.top);
       const pct = total > 0 ? Math.min((scrolled / total) * 100, 100) : 0;
       setReadPct(pct);
       if (pct > 90 && slug) markAsRead(slug);
     };
-    window.addEventListener('scroll', fn, { passive: true });
-    return () => window.removeEventListener('scroll', fn);
+    const target: HTMLElement | Window = mainEl ?? window;
+    target.addEventListener('scroll', fn, { passive: true });
+    return () => target.removeEventListener('scroll', fn);
   }, [slug, content]);
 
   // Active heading tracking via IntersectionObserver
   useEffect(() => {
     if (!headings.length) return;
+    const mainEl = document.querySelector('main') as HTMLElement | null;
     const observers: IntersectionObserver[] = [];
     headings.forEach(({ id }) => {
       const el = document.getElementById(id);
       if (!el) return;
       const obs = new IntersectionObserver(([entry]) => {
         if (entry.isIntersecting) setActiveId(id);
-      }, { threshold: 0, rootMargin: '-80px 0px -60% 0px' });
+      }, { root: mainEl, threshold: 0, rootMargin: '-60px 0px -55% 0px' });
       obs.observe(el);
       observers.push(obs);
     });
@@ -542,24 +551,7 @@ export default function BlogPost() {
             />
           </article>
 
-          {/* ── Footer ──────────────────────────────────────────────────── */}
-          <footer className="mt-16 pt-6" style={{ borderTop: '1px solid rgba(71,85,105,0.18)' }}>
-            <div className="flex items-center justify-between">
-              <Link to="/blog"
-                className="text-sm font-medium transition-all hover:-translate-x-0.5 flex items-center gap-1.5"
-                style={{ color: '#64748b' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#a78bfa')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}>
-                <ArrowLeft size={14} /> All posts
-              </Link>
-              <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="text-sm transition-colors" style={{ color: '#475569' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#e2e8f0')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#475569')}>
-                Back to top ↑
-              </button>
-            </div>
-          </footer>
+
 
           {/* ── Comments ──────────────────────────────────────────────────── */}
           <GiscusComments slug={slug ?? ''} context="field-notes" />
