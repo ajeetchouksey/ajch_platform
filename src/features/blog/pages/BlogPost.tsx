@@ -354,20 +354,22 @@ export default function BlogPost() {
     return () => target.removeEventListener('scroll', fn);
   }, [slug, content]);
 
-  // Active heading tracking via IntersectionObserver
+  // Active heading tracking via scroll listener (IntersectionObserver unreliable for inner scroll containers)
   useEffect(() => {
     if (!headings.length) return;
-    const observers: IntersectionObserver[] = [];
-    headings.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const obs = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting) setActiveId(id);
-      }, { threshold: 0, rootMargin: '-60px 0px -55% 0px' });
-      obs.observe(el);
-      observers.push(obs);
-    });
-    return () => observers.forEach(o => o.disconnect());
+    const mainEl = document.querySelector('main') as HTMLElement | null;
+    const THRESHOLD = 120; // px from viewport top — just below the sticky header
+    const fn = () => {
+      const passed = headings
+        .map(({ id }) => ({ id, top: document.getElementById(id)?.getBoundingClientRect().top ?? Infinity }))
+        .filter(({ top }) => top < THRESHOLD)
+        .sort((a, b) => b.top - a.top); // most recently passed = highest (least negative) top
+      if (passed.length) setActiveId(passed[0].id);
+    };
+    const target: HTMLElement | Window = mainEl ?? window;
+    target.addEventListener('scroll', fn, { passive: true });
+    fn(); // run once on mount to set initial active state
+    return () => target.removeEventListener('scroll', fn);
   }, [headings]);
 
   const handleShare = async () => {
