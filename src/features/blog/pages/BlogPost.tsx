@@ -114,8 +114,8 @@ function TocSidebar({
 }) {
   const pal = CAT_PALETTE[meta.category] ?? { color: '#94a3b8', bg: 'rgba(30,41,59,0.5)', border: 'rgba(71,85,105,0.3)' };
   return (
-    <aside className="hidden xl:flex flex-col w-[220px] 2xl:w-[240px] shrink-0">
-      <div className="sticky top-6 flex flex-col gap-3 max-h-[calc(100vh-6rem)] overflow-y-auto pb-4"
+    <aside className="hidden xl:flex flex-col w-[220px] 2xl:w-[240px] shrink-0 sticky top-6 self-start max-h-[calc(100vh-3rem)]">
+      <div className="flex flex-col gap-3 overflow-y-auto pb-4"
         style={{ scrollbarWidth: 'none' }}>
 
         {/* Progress */}
