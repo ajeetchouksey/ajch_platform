@@ -602,10 +602,10 @@ function QuestionTabForm({ authorName }: { authorName: string }) {
   const domains = EXAM_DOMAINS[form.examId]?.domains ?? [];
   const canSubmit =
     form.text.trim().length >= 10 &&
-    form.optionA.trim() &&
-    form.optionB.trim() &&
-    form.optionC.trim() &&
-    form.optionD.trim() &&
+    form.optionA.trim().length > 0 &&
+    form.optionB.trim().length > 0 &&
+    form.optionC.trim().length > 0 &&
+    form.optionD.trim().length > 0 &&
     form.answer !== '' &&
     form.explanation.trim().length >= 10;
 
