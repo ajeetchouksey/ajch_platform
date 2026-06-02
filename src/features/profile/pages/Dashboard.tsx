@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BookMarked, Flame, CheckCircle2, TrendingUp, Clock, ArrowRight } from 'lucide-react';
+import { BookMarked, Flame, CheckCircle2, TrendingUp, Clock, ArrowRight, CalendarCheck, GraduationCap } from 'lucide-react';
 import { getSessions } from '@/lib/storage';
 import { getBookmarks } from '@/lib/bookmarks';
 import { createEmptyProgress } from '@/lib/progress-schema';
+import { computeSchedule, getDueDomains } from '@/lib/scheduler';
+import type { ExamDomainRef, ScheduleEntry } from '@/lib/scheduler';
+import { loadExamRegistry } from '@/lib/content-loader';
 import type { QuizSession } from '@/types/content';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -48,10 +51,38 @@ function fmtDate(iso: string): string {
 export default function Dashboard() {
   const [sessions, setSessions] = useState<QuizSession[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [dueDomains, setDueDomains] = useState<ScheduleEntry[]>([]);
 
   useEffect(() => {
-    setSessions(getSessions().filter((s) => s.finishedAt));
+    const localSessions = getSessions().filter((s) => s.finishedAt);
+    setSessions(localSessions);
     setTimeout(() => setMounted(true), 0);
+
+    // Build scheduler from manifest whitelist + local sessions
+    loadExamRegistry().then((registry) => {
+      const refs: ExamDomainRef[] = registry.exams.flatMap((exam) =>
+        exam.domains.map((d) => ({
+          examId: exam.id,
+          domainId: d.id,
+          examTitle: exam.shortTitle,
+          domainTitle: d.title,
+        }))
+      );
+      // Sessions mapped to scheduler format (domain-filtered only)
+      const schedulerSessions = localSessions
+        .filter((s) => s.domainFilter !== null)
+        .map((s) => ({
+          id: s.id,
+          examId: s.examId ?? 'ccaf',
+          domain: s.domainFilter,
+          startedAt: s.startedAt ?? s.finishedAt ?? '',
+          finishedAt: s.finishedAt ?? null,
+          score: s.score,
+          total: s.total,
+        }));
+      const schedule = computeSchedule(schedulerSessions, refs);
+      setDueDomains(getDueDomains(schedule));
+    }).catch(() => {});
   }, []);
 
   // Bookmarks come from ProgressV2; use empty until Gist sync is wired (Sprint 4+)
@@ -162,6 +193,61 @@ export default function Dashboard() {
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+      </section>
+
+      {/* Due for Review */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CalendarCheck size={14} className="text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-300">Due for Review</h2>
+            {dueDomains.length > 0 && (
+              <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ background: '#fb923c22', color: '#fb923c' }}>
+                {dueDomains.length}
+              </span>
+            )}
+          </div>
+          <Link to="/exams" className="flex items-center gap-1 text-xs text-slate-500 hover:text-violet-400 transition-colors">
+            All exams <ArrowRight size={12} />
+          </Link>
+        </div>
+
+        {dueDomains.length === 0 ? (
+          <p className="text-slate-500 text-sm">
+            All caught up! Complete a domain quiz to start spaced repetition tracking.
+          </p>
+        ) : (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {dueDomains.slice(0, 6).map((entry) => {
+              const overdueDays = Math.round(
+                (new Date().getTime() - new Date(entry.dueDate).getTime()) / 86_400_000
+              );
+              return (
+                <Link
+                  key={`${entry.examId}-${entry.domainId}`}
+                  to={`/exams/${entry.examId}/quiz?domain=${entry.domainId}`}
+                  className="flex items-start gap-3 rounded-xl p-3 transition-colors"
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(167,139,250,0.3)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
+                >
+                  <GraduationCap size={14} className="mt-0.5 shrink-0" style={{ color: '#34d399' }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-slate-400">{entry.examTitle}</p>
+                    <p className="text-sm text-slate-200 truncate">{entry.domainTitle}</p>
+                    <p className="text-xs mt-0.5" style={{ color: overdueDays > 0 ? '#fb923c' : '#34d399' }}>
+                      {overdueDays > 0 ? `${overdueDays}d overdue` : 'Due today'}
+                    </p>
+                  </div>
+                  <ArrowRight size={12} className="mt-1 shrink-0 text-slate-600" />
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>
