@@ -17,6 +17,12 @@ import {
 
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
 
+// ── Blog post meta ────────────────────────────────────────────────────────────
+interface BlogMeta {
+  slug: string; title: string; excerpt: string;
+  category: string; readingTime: number; tags: string[]; draft?: boolean;
+}
+
 // ── Platform feature cards ────────────────────────────────────────────────────
 const features = [
   {
@@ -61,7 +67,31 @@ const features = [
     bullets: ['9 live tools — zero backend', 'Prompt library + tester', 'RAG chunk visualizer'],
     cta: 'Open Tools',
   },
+  {
+    to: '/notes',
+    icon: BookOpen,
+    color: '#e879f9',
+    bg: 'rgba(232,121,249,0.10)',
+    border: 'rgba(232,121,249,0.28)',
+    badge: 'NEW',
+    badgeColor: '#e879f9',
+    title: 'Architecture & Notes',
+    subtitle: 'System Design · Study Notes · Docs',
+    desc: 'Deep technical notes on AI architecture — agentic system design, enterprise governance, and platform engineering patterns.',
+    bullets: ['5+ domain study guides', 'Architecture decision records', 'Platform docs & runbooks'],
+    cta: 'Explore Notes',
+  },
 ];
+
+// ── Architecture topic clusters ───────────────────────────────────────────────
+const archTopics = [
+  { label: 'Agentic Systems', color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', topics: ['Tool Use', 'Planning', 'Memory', 'Multi-agent'], href: '/blog' },
+  { label: 'RAG & Retrieval', color: '#38bdf8', bg: 'rgba(56,189,248,0.08)', topics: ['Chunking', 'Embeddings', 'Hybrid Search', 'Reranking'], href: '/blog' },
+  { label: 'MCP Protocol',    color: '#2dd4bf', bg: 'rgba(45,212,191,0.08)', topics: ['Servers', 'Clients', 'Tool Schema', 'Security'],    href: '/docs' },
+  { label: 'Azure AI',        color: '#60a5fa', bg: 'rgba(96,165,250,0.08)', topics: ['AI Foundry', 'OpenAI Svc', 'MLOps', 'Cognitive'],   href: '/blog' },
+  { label: 'LLM Engineering', color: '#34d399', bg: 'rgba(52,211,153,0.08)', topics: ['Context Mgmt', 'Prompt Chain', 'Evals', 'Cost'],    href: '/tools' },
+  { label: 'AI Governance',   color: '#fb923c', bg: 'rgba(251,146,60,0.08)', topics: ['Safety', 'Observability', 'Compliance', 'Audit'],   href: '/docs' },
+] as const;
 
 // ── Why cards ─────────────────────────────────────────────────────────────────
 const whyItems = [
@@ -224,6 +254,14 @@ export default function HomeV2() {
   const [pStats, setPStats] = useState<PlatformStats | null>(null);
   useEffect(() => { loadPlatformStats().then(setPStats).catch(() => {}); }, []);
 
+  const [featuredPosts, setFeaturedPosts] = useState<BlogMeta[]>([]);
+  useEffect(() => {
+    fetch('/content/blog/index.json')
+      .then(r => r.json())
+      .then((d: { posts: BlogMeta[] }) => setFeaturedPosts(d.posts.filter(p => !p.draft).slice(0, 3)))
+      .catch(() => {});
+  }, []);
+
   const dynamicProofStats = useMemo(() => proofStats.map((s) => {
     if (!pStats) return s;
     if (s.label === 'Articles')    return { ...s, value: `${pStats.platform.blog_posts}+` };
@@ -242,9 +280,9 @@ export default function HomeV2() {
         bullets: [`${questions} exam-format questions`, 'Instant scoring + explanations', 'Track progress across domains'],
       } : i === 1 ? {
         bullets: [`${blog_posts}+ in-depth articles`, 'Azure, DevOps, AI Architecture', 'New posts every week'],
-      } : {
+      } : i === 2 ? {
         bullets: [`${tools} live tools — zero backend`, 'Prompt library + tester', 'RAG chunk visualizer'],
-      }),
+      } : {}),
     }));
   }, [pStats]);
 
@@ -411,10 +449,10 @@ export default function HomeV2() {
         <div className="mb-6">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Platform</p>
           <h2 className="text-2xl font-black text-white">What's on the platform</h2>
-          <p className="text-sm text-slate-500 mt-1">Three tools. One mission: accelerate your AI career.</p>
+          <p className="text-sm text-slate-500 mt-1">Four pillars. One mission: accelerate your AI career.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
           {dynamicFeatures.map(({ to, icon: Icon, color, bg, border, badge, title, subtitle, desc, bullets, cta }, idx) => (
             <div
               key={to}
@@ -620,6 +658,176 @@ export default function HomeV2() {
               <p className="text-sm text-slate-500 leading-relaxed">{body}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          § FEATURED POSTS — latest thinking
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
+      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        style={{ transitionDelay: '280ms' }}>
+        <div className="mb-6">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>From the blog</p>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-black text-white">Latest thinking</h2>
+            <Link to="/blog" className="flex items-center gap-1 text-xs font-black text-slate-500 hover:text-slate-300 transition-colors">
+              All articles <ArrowRight size={12} />
+            </Link>
+          </div>
+        </div>
+
+        {featuredPosts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {featuredPosts.map((post) => (
+              <Link key={post.slug} to={`/blog/${post.slug}`}
+                className="group rounded-2xl p-5 block transition-all duration-200 hover:-translate-y-1"
+                style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(96,165,250,0.40)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 30px -10px rgba(96,165,250,0.20)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(71,85,105,0.20)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                }}>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full"
+                    style={{ color: '#60a5fa', background: 'rgba(96,165,250,0.10)', border: '1px solid rgba(96,165,250,0.20)' }}>
+                    {post.category}
+                  </span>
+                  <span className="text-[10px] text-slate-600">{post.readingTime} min</span>
+                </div>
+                <h3 className="text-sm font-black text-white leading-snug mb-2 group-hover:text-violet-300 transition-colors" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  {post.title}
+                </h3>
+                <p className="text-[12px] text-slate-500 leading-relaxed mb-4" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  {post.excerpt}
+                </p>
+                <div className="flex items-center gap-1 text-[11px] font-black text-slate-600 group-hover:text-blue-400 transition-colors">
+                  Read article <ArrowRight size={11} className="transition-transform group-hover:translate-x-0.5" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="rounded-2xl p-5 animate-pulse"
+                style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.15)' }}>
+                <div className="h-3 bg-slate-800 rounded w-16 mb-3" />
+                <div className="h-4 bg-slate-800 rounded w-full mb-1.5" />
+                <div className="h-4 bg-slate-800 rounded w-3/4 mb-3" />
+                <div className="h-3 bg-slate-800 rounded w-full mb-1" />
+                <div className="h-3 bg-slate-800 rounded w-5/6" />
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          § ARCHITECTURE TOPICS — domain depth
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
+      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        style={{ transitionDelay: '300ms' }}>
+        <div className="mb-6">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Deep dives</p>
+          <h2 className="text-2xl font-black text-white">Architecture domains</h2>
+          <p className="text-sm text-slate-500 mt-1">Every topic backed by production experience and real systems.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {archTopics.map(({ label, color, bg, topics, href }) => (
+            <Link key={label} to={href}
+              className="group rounded-xl p-4 block transition-all duration-200 hover:-translate-y-0.5"
+              style={{ background: bg, border: `1px solid ${color}25` }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = `${color}55`; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = `${color}25`; }}>
+              <p className="text-sm font-black mb-2" style={{ color }}>{label}</p>
+              <div className="flex flex-wrap gap-1 mb-3">
+                {topics.map(t => (
+                  <span key={t} className="text-[10px] px-2 py-0.5 rounded-full"
+                    style={{ color: `${color}cc`, background: 'rgba(0,0,0,0.25)', border: `1px solid ${color}20` }}>
+                    {t}
+                  </span>
+                ))}
+              </div>
+              <div className="flex items-center gap-1 text-[10px] font-black transition-all duration-200 group-hover:gap-1.5"
+                style={{ color: `${color}80` }}>
+                Explore <ArrowRight size={10} className="transition-transform group-hover:translate-x-0.5" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          § COMMUNITY — open source
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
+      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        style={{ transitionDelay: '320ms' }}>
+        <div className="rounded-2xl overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(16,185,129,0.07) 0%, rgba(15,23,42,0.98) 100%)',
+            border: '1px solid rgba(16,185,129,0.18)',
+          }}>
+          <div className="p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row items-start gap-6">
+              {/* Left: messaging */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: '#64748b' }}>Open Source</p>
+                <h2 className="text-xl font-black text-white mb-2">Built in public. Owned by the community.</h2>
+                <p className="text-sm text-slate-400 leading-relaxed mb-5 max-w-xl">
+                  Every line of code is open. Fork it, adapt it, contribute to it.
+                  The best platforms grow when their community shapes them.
+                </p>
+                {/* Tech stack chips */}
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {([
+                    { label: 'MIT License', color: '#34d399' },
+                    { label: 'React 19', color: '#38bdf8' },
+                    { label: 'TypeScript', color: '#60a5fa' },
+                    { label: 'Zero backend', color: '#a78bfa' },
+                    { label: 'GitHub Pages', color: '#fb923c' },
+                  ] as const).map(({ label, color }) => (
+                    <span key={label} className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                      style={{ color, background: `${color}12`, border: `1px solid ${color}28` }}>
+                      {label}
+                    </span>
+                  ))}
+                </div>
+                {/* Actions */}
+                <div className="flex flex-wrap gap-2">
+                  <a href="https://github.com/ajeetchouksey/ajch_platform" target="_blank" rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-black rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+                    style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.28)', color: '#34d399' }}>
+                    <GitBranch size={12} /> Fork on GitHub
+                  </a>
+                  <StarRepo />
+                  <a href="https://github.com/ajeetchouksey/ajch_platform/issues" target="_blank" rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-black rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+                    style={{ background: 'rgba(71,85,105,0.12)', border: '1px solid rgba(71,85,105,0.28)', color: '#94a3b8' }}>
+                    <ExternalLink size={12} /> Open an Issue
+                  </a>
+                </div>
+              </div>
+              {/* Right: open-source stats */}
+              <div className="shrink-0 grid grid-cols-2 gap-2.5">
+                {([
+                  { value: '100%', label: 'Open source', color: '#34d399' },
+                  { value: 'MIT', label: 'License', color: '#38bdf8' },
+                  { value: 'Free', label: 'Forever', color: '#a78bfa' },
+                  { value: '0', label: 'Paywalls', color: '#fb923c' },
+                ] as const).map(({ value, label, color }) => (
+                  <div key={label} className="rounded-xl px-4 py-3 text-center"
+                    style={{ background: `${color}0a`, border: `1px solid ${color}20` }}>
+                    <div className="text-lg font-black" style={{ color }}>{value}</div>
+                    <div className="text-[10px] text-slate-600 mt-0.5">{label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
