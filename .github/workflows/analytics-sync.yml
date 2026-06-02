@@ -1,0 +1,46 @@
+name: Sync Analytics Stats
+# Fetches GA4 user metrics every 2 hours and commits updated stats.json.
+# Requires GitHub secrets: GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_KEY.
+# Uses [skip ci] to avoid triggering the deploy workflow.
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'   # every 2 hours
+  workflow_dispatch:         # manual trigger for testing
+
+permissions:
+  contents: write            # needed to commit stats.json
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install GA4 client deps
+        run: pip install --quiet google-auth google-auth-httplib2 requests
+
+      - name: Fetch GA4 metrics
+        env:
+          GA4_PROPERTY_ID:         ${{ secrets.GA4_PROPERTY_ID }}
+          GA4_SERVICE_ACCOUNT_KEY: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
+        run: python3 .github/scripts/fetch-ga4.py
+
+      - name: Commit updated stats.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/content/stats.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: sync analytics stats [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi

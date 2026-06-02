@@ -74,6 +74,11 @@ export interface PlatformStats {
     agents: number;
     tools: number;
   };
+  audience?: {
+    users_today: number | null;
+    users_28d:   number | null;
+    synced_at:   string | null;
+  };
 }
 
 export async function loadPlatformStats(): Promise<PlatformStats> {

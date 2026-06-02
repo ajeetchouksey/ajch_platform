@@ -92,7 +92,7 @@ const proofStats: StatItem[] = [
   { icon: Wrench,        value: '9',    label: 'Dev Tools',         color: 'text-emerald-400', accent: 'emerald' },
   { icon: Calendar,      value: '18+',  label: 'Yrs Experience',   color: 'text-amber-400',   accent: 'amber'   },
   { icon: Award,         value: '5+',   label: 'Certs Active',     color: 'text-rose-400',    accent: 'rose'    },
-  { icon: Users,         value: '100%', label: 'Free Forever',     color: 'text-teal-400',    accent: 'teal'    },
+  { icon: Users,         value: '...',  label: 'Users Today',      color: 'text-teal-400',    accent: 'teal'    },
 ];
 
 // ── Creator credentials ───────────────────────────────────────────────────────
@@ -151,6 +151,10 @@ export default function HomeV2() {
     if (s.label === 'Articles')    return { ...s, value: `${pStats.platform.blog_posts}+` };
     if (s.label === 'Scenarios')   return { ...s, value: `${pStats.platform.questions}` };
     if (s.label === 'Dev Tools')   return { ...s, value: `${pStats.platform.tools}` };
+    if (s.label === 'Users Today') {
+      const n = pStats.audience?.users_today;
+      return { ...s, value: n != null ? `${n.toLocaleString()}` : 'Open' };
+    }
     return s;
   }), [pStats]);
 

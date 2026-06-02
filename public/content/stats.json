@@ -10,5 +10,10 @@
     "scenarios": 9,
     "agents": 23,
     "tools": 9
+  },
+  "audience": {
+    "users_today": null,
+    "users_28d": null,
+    "synced_at": null
   }
 }
