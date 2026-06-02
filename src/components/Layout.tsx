@@ -531,23 +531,24 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </main>
-        <footer className="shrink-0 px-4 lg:px-6 py-2 flex items-center justify-between gap-4 flex-wrap"
-          style={{ borderTop: '1px solid rgba(71,85,105,0.12)', background: 'rgba(6,12,24,0.7)' }}>
-          <span className="text-[10px] text-slate-700">
-            © 2026 Aarya ·{' '}
-            <a href="https://github.com/ajeetchouksey/ajch_platform" target="_blank" rel="noreferrer"
-              className="hover:text-slate-500 transition-colors">MIT License</a>
-            {' '}· Built in public
-          </span>
-          <div className="flex items-center gap-4">
-            <Link to="/learn" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Learn</Link>
-            <Link to="/blog" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Blog</Link>
-            <Link to="/exams" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Exams</Link>
-            <Link to="/tools" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Tools</Link>
-            <Link to="/contribute" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Contribute</Link>
-          </div>
-        </footer>
       </div>
+
+      <footer className="shrink-0 px-4 lg:px-6 py-2 flex items-center justify-between gap-4 flex-wrap"
+        style={{ borderTop: '1px solid rgba(71,85,105,0.12)', background: 'rgba(6,12,24,0.7)' }}>
+        <span className="text-[10px] text-slate-700">
+          © 2026 Aarya ·{' '}
+          <a href="https://github.com/ajeetchouksey/ajch_platform" target="_blank" rel="noreferrer"
+            className="hover:text-slate-500 transition-colors">MIT License</a>
+          {' '}· Built in public
+        </span>
+        <div className="flex items-center gap-4">
+          <Link to="/learn" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Learn</Link>
+          <Link to="/blog" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Blog</Link>
+          <Link to="/exams" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Exams</Link>
+          <Link to="/tools" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Tools</Link>
+          <Link to="/contribute" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Contribute</Link>
+        </div>
+      </footer>
 
     </div>
   );
