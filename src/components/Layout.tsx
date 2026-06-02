@@ -141,7 +141,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   }, [handleSearchKey]);
 
   return (
-    <div className="min-h-screen flex flex-col text-slate-100">
+    <div className="h-screen overflow-hidden flex flex-col text-slate-100">
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
       {/* Navigation progress bar — restarts on every route change */}
       <div key={`np-${pageKey}`} className="nav-progress" aria-hidden="true" />
