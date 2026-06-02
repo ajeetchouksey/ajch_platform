@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
-  ArrowLeft, Calendar, Clock, User, Tag, Share2, Check,
+  Calendar, Clock, User, Tag, Share2, Check,
   Maximize2, Minimize2, List, X, BookOpen,
 } from 'lucide-react';
 import { loadBlogPost, loadBlogManifest } from '@/lib/content-loader';
@@ -122,7 +122,6 @@ function TocSidebar({
   onShare: () => void;
   copied: boolean;
 }) {
-  const navigate = useNavigate();
   const pal = CAT_PALETTE[meta.category] ?? { color: '#94a3b8', bg: 'rgba(30,41,59,0.5)', border: 'rgba(71,85,105,0.3)' };
   const activeIdx = headings.findIndex(h => h.id === activeId);
   const authorHref = AUTHOR_PORTAL[meta.author];
@@ -433,24 +432,16 @@ export default function BlogPost() {
           style={{ background: 'radial-gradient(circle, rgba(56,189,248,0.04) 0%, transparent 70%)' }} />
       </div>
 
-      {/* ── Top nav bar ──────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between mb-7">
-        <Link to="/blog"
-          className="inline-flex items-center gap-1.5 text-sm font-medium transition-all hover:-translate-x-0.5"
-          style={{ color: '#64748b' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#a78bfa')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}>
-          <ArrowLeft size={14} /> All posts
-        </Link>
-        {/* Mobile TOC button — show below xl since sidebar only appears at xl */}
-        {headings.length > 0 && (
+      {/* Mobile TOC button — sits above card, only visible below xl */}
+      {headings.length > 0 && (
+        <div className="xl:hidden flex justify-end mb-3">
           <button onClick={() => setShowToc(true)}
-            className="xl:hidden flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl"
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl"
             style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', color: '#a78bfa' }}>
             <List size={12} /> Contents
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ── 2-column layout: article + sidebar ───────────────────────────────── */}
       <div className="flex items-start gap-4 xl:gap-8">
@@ -480,7 +471,8 @@ export default function BlogPost() {
                 )}
               </div>
 
-              <h1 className="text-xl sm:text-2xl md:text-3xl xl:text-4xl font-black text-white leading-tight tracking-tight mb-4">
+              <h1 className="text-xl sm:text-2xl md:text-3xl xl:text-4xl font-black leading-tight tracking-tight mb-4"
+                style={{ background: 'linear-gradient(135deg, #ffffff 0%, #c4b5fd 45%, #38bdf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 {meta.title}
               </h1>
 
