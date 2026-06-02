@@ -4,7 +4,9 @@ import {
   GraduationCap, Newspaper, Wrench, ArrowRight,
   GitBranch, Users, BookOpen, ExternalLink,
   GitCommit, Award, Calendar, Zap, ShieldCheck, Terminal,
-  CheckCircle2, Brain, Globe,
+  CheckCircle2,
+  AlertTriangle, XCircle, MapPin,
+  FileSearch, MessageSquare, Bot, Server, GitPullRequest,
 } from 'lucide-react';
 import {
   Badge, Button, Avatar, PulsingDot, type StatItem,
@@ -17,12 +19,6 @@ import {
 
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
 import { getSessions } from '@/lib/storage';
-
-// ── Blog post meta ────────────────────────────────────────────────────────────
-interface BlogMeta {
-  slug: string; title: string; excerpt: string;
-  category: string; readingTime: number; tags: string[]; draft?: boolean;
-}
 
 // ── Platform feature cards ────────────────────────────────────────────────────
 const features = [
@@ -84,36 +80,42 @@ const features = [
   },
 ];
 
-// ── Architecture topic clusters ───────────────────────────────────────────────
-const archTopics = [
-  { label: 'Agentic Systems', color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', topics: ['Tool Use', 'Planning', 'Memory', 'Multi-agent'], href: '/blog' },
-  { label: 'RAG & Retrieval', color: '#38bdf8', bg: 'rgba(56,189,248,0.08)', topics: ['Chunking', 'Embeddings', 'Hybrid Search', 'Reranking'], href: '/blog' },
-  { label: 'MCP Protocol',    color: '#2dd4bf', bg: 'rgba(45,212,191,0.08)', topics: ['Servers', 'Clients', 'Tool Schema', 'Security'],    href: '/docs' },
-  { label: 'Azure AI',        color: '#60a5fa', bg: 'rgba(96,165,250,0.08)', topics: ['AI Foundry', 'OpenAI Svc', 'MLOps', 'Cognitive'],   href: '/blog' },
-  { label: 'LLM Engineering', color: '#34d399', bg: 'rgba(52,211,153,0.08)', topics: ['Context Mgmt', 'Prompt Chain', 'Evals', 'Cost'],    href: '/tools' },
-  { label: 'AI Governance',   color: '#fb923c', bg: 'rgba(251,146,60,0.08)', topics: ['Safety', 'Observability', 'Compliance', 'Audit'],   href: '/docs' },
+// ── Quick Proof — 3 project preview cards ────────────────────────────────────
+const quickProof = [
+  {
+    title: 'Document AI Pipeline',
+    desc: 'Extract, classify, and summarize any document',
+    color: '#a78bfa',
+    mockLines: ['→ PDF ingested (4.2 MB)', '→ Entities extracted: 47', '→ Summary: 3 paragraphs', '✓ Output JSON ready'],
+  },
+  {
+    title: 'Retrieval QA System',
+    desc: 'Answer questions from your own knowledge base',
+    color: '#38bdf8',
+    mockLines: ['→ 1,240 chunks indexed', '→ Query: "What is RAG?"', '→ Top-3 retrieved (0.92)', '✓ Answer generated'],
+  },
+  {
+    title: 'Autonomous Agent Workflow',
+    desc: 'Chain tools into self-directed task pipelines',
+    color: '#2dd4bf',
+    mockLines: ['→ Goal: research + summarize', '→ Tool: web_search × 3', '→ Tool: summarize × 1', '✓ Report delivered'],
+  },
 ] as const;
 
-// ── Why cards ─────────────────────────────────────────────────────────────────
-const whyItems = [
-  {
-    icon: Brain,
-    color: '#a78bfa',
-    title: 'Practitioner-built',
-    body: '18+ years designing AI and cloud systems in production. Every resource here fills a gap I hit on a real project — not a syllabus checkbox.',
-  },
-  {
-    icon: BookOpen,
-    color: '#38bdf8',
-    title: 'Zero theory tax',
-    body: 'No fluff. Every article, question, and tool maps directly to something you\'ll face building real systems with real APIs.',
-  },
-  {
-    icon: Globe,
-    color: '#34d399',
-    title: 'Free & open source',
-    body: 'Forever free. MIT licensed. Fork it, star it, contribute. Built in public because the best platforms grow with their community.',
-  },
+// ── Pain points ───────────────────────────────────────────────────────────────
+const painPoints = [
+  { icon: AlertTriangle, color: '#f87171', title: 'Too much theory',            body: 'Endless courses with no real systems to show for it.' },
+  { icon: XCircle,       color: '#fb923c', title: "Tutorials don't translate",   body: 'Hello-world demos that fall apart on real projects.' },
+  { icon: MapPin,        color: '#fbbf24', title: 'No clear path',              body: 'From beginner to engineer — nobody shows you the road.' },
+] as const;
+
+// ── What you'll build ─────────────────────────────────────────────────────────
+const buildProjects = [
+  { icon: FileSearch,    color: '#a78bfa', title: 'AI Document Processing System',   desc: 'OCR, entity extraction, and summarization on any document format.' },
+  { icon: MessageSquare, color: '#38bdf8', title: 'Retrieval Knowledge Assistant',    desc: 'Vector search + LLM answer generation from your own data.' },
+  { icon: GitBranch,     color: '#2dd4bf', title: 'Multi-Step AI Pipelines',          desc: 'Chain validation, transformation, and enrichment steps end-to-end.' },
+  { icon: Bot,           color: '#fb923c', title: 'Autonomous Agents & Workflows',    desc: 'Tool-using agents that plan, act, and iterate toward a goal.' },
+  { icon: Server,        color: '#34d399', title: 'Production-Ready AI Services',     desc: 'Deployed, observable, and scalable APIs serving real traffic.' },
 ] as const;
 
 // ── Proof bar stats ───────────────────────────────────────────────────────────
@@ -137,6 +139,7 @@ const journeySteps = [
   {
     level: '101', tag: 'Fundamentals',
     title: 'AI Basics & Prompting',
+    output: '"Prompt a document AI pipeline"',
     color: '#38bdf8', bg: 'rgba(56,189,248,0.08)', border: 'rgba(56,189,248,0.20)',
     topics: ['Prompt Engineering', 'GenAI Concepts', 'Responsible AI'],
     icon: BookOpen, href: '/notes', cta: 'Start Here',
@@ -145,6 +148,7 @@ const journeySteps = [
   {
     level: '201', tag: 'Practitioner',
     title: 'Workflows & Agents',
+    output: '"Build a retrieval QA chatbot"',
     color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.20)',
     topics: ['Agentic AI', 'Tool Design', 'Copilot Patterns'],
     icon: Zap, href: '/exams', cta: 'Practice Now',
@@ -153,6 +157,7 @@ const journeySteps = [
   {
     level: '301', tag: 'Architect',
     title: 'Architecture & Systems',
+    output: '"Design a multi-step agent workflow"',
     color: '#2dd4bf', bg: 'rgba(45,212,191,0.08)', border: 'rgba(45,212,191,0.20)',
     topics: ['RAG Systems', 'MCP Protocol', 'Orchestration'],
     icon: Terminal, href: '/blog', cta: 'Go Deep',
@@ -161,6 +166,7 @@ const journeySteps = [
   {
     level: '310', tag: 'Enterprise',
     title: 'Governance & Scale',
+    output: '"Architect a production AI platform"',
     color: '#fb923c', bg: 'rgba(251,146,60,0.08)', border: 'rgba(251,146,60,0.20)',
     topics: ['AI Governance', 'Observability', 'Secure AI'],
     icon: ShieldCheck, href: '/docs', cta: 'Architect It',
@@ -255,14 +261,6 @@ export default function HomeV2() {
   const [pStats, setPStats] = useState<PlatformStats | null>(null);
   useEffect(() => { loadPlatformStats().then(setPStats).catch(() => {}); }, []);
 
-  const [featuredPosts, setFeaturedPosts] = useState<BlogMeta[]>([]);
-  useEffect(() => {
-    fetch('/content/blog/index.json')
-      .then(r => r.json())
-      .then((d: { posts: BlogMeta[] }) => setFeaturedPosts(d.posts.filter(p => !p.draft).slice(0, 3)))
-      .catch(() => {});
-  }, []);
-
   const [sessions, setSessions] = useState<ReturnType<typeof getSessions>>([]);
   useEffect(() => { setSessions(getSessions().filter(s => !!s.finishedAt)); }, []);
 
@@ -313,56 +311,45 @@ export default function HomeV2() {
               <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full"
                 style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.10)', border: '1px solid rgba(139,92,246,0.25)' }}>
                 <PulsingDot active color="bg-violet-400" size="sm" />
-                Open Source · Built by a Practitioner
+                Build · Deploy · Learn
               </span>
             </div>
 
             {/* Headline */}
             <h1 className="text-5xl sm:text-6xl font-black text-white leading-[1.04] tracking-tight mb-5">
-              Master AI{' '}
+              Build Real-World{' '}
               <span style={{
                 background: 'linear-gradient(100deg, #7c3aed 0%, #a78bfa 45%, #fb923c 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-              }}>Architecture.</span>
+              }}>AI Systems.</span>
               <br />
-              <span className="text-4xl sm:text-5xl text-white font-black">Build Systems That Ship.</span>
+              <span className="text-4xl sm:text-5xl text-white font-black">Not Just Learn Concepts.</span>
             </h1>
-
-            {/* Brand tagline */}
-            <div className="flex items-center gap-3 mb-5 flex-wrap">
-              <span className="text-base font-black tracking-tight"
-                style={{ background: 'linear-gradient(90deg, #38bdf8, #60a5fa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Agent speed.
-              </span>
-              <span className="text-slate-700">·</span>
-              <span className="text-base font-black tracking-tight"
-                style={{ background: 'linear-gradient(90deg, #a78bfa, #c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Human control.
-              </span>
-            </div>
 
             {/* Value prop */}
             <p className="text-base text-slate-300 max-w-xl leading-relaxed mb-4">
-              The AI skills platform built by an enterprise architect — <span className="text-white font-semibold">no theory tax</span>, no paywalls.
-              Certification prep, field-tested articles, and dev tools that actually help you ship.
+              Go from AI basics to production-grade systems (101 → 310) through{' '}
+              <span className="text-white font-semibold">hands-on projects</span>,
+              structured learning, and real engineering workflows.
             </p>
             <p className="text-sm text-slate-500 max-w-xl leading-relaxed mb-8">
-              18+ years designing production AI and cloud systems. Every resource here solves a real problem I hit on a real project. Free forever. Built in the open.
+              No fluff. No theory dumps. Build → Deploy → Learn. Free forever. Built in the open.
             </p>
 
             {/* CTAs */}
             <div className="flex flex-wrap items-center gap-3 mb-8">
-              <Link to="/exams"
+              <Link to="/learn"
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-black rounded-2xl text-white transition-all duration-200 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5 active:scale-95"
                 style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.6)' }}>
-                <GraduationCap size={15} /> Start Learning Free <ArrowRight size={15} />
+                <Zap size={15} /> Start Building AI Projects <ArrowRight size={15} />
               </Link>
-              <Link to="/blog"
+              <button
+                onClick={() => document.getElementById('learning-path')?.scrollIntoView({ behavior: 'smooth' })}
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold rounded-2xl text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
                 style={{ background: 'rgba(30,41,59,0.6)', border: '1px solid rgba(71,85,105,0.35)' }}>
-                <Newspaper size={15} /> Read the Blog
-              </Link>
+                <BookOpen size={15} /> View Learning Path
+              </button>
               <StarRepo />
             </div>
 
@@ -446,14 +433,71 @@ export default function HomeV2() {
       </section>
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          § QUICK PROOF — 3 project preview cards (#28)
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
+      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        style={{ transitionDelay: '120ms' }}>
+        <div className="mb-6">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Examples</p>
+          <h2 className="text-2xl font-black text-white">Build AI Like This</h2>
+          <p className="text-sm text-slate-500 mt-1">Real systems. Real outputs. No filler projects.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {quickProof.map(({ title, desc, color, mockLines }) => (
+            <div key={title} className="rounded-2xl overflow-hidden"
+              style={{ background: 'rgba(6,12,24,0.98)', border: `1px solid ${color}25`, borderLeft: `3px solid ${color}` }}>
+              <div className="p-5">
+                <h3 className="text-sm font-black text-white mb-1">{title}</h3>
+                <p className="text-[11px] text-slate-500 mb-4">{desc}</p>
+                <div className="rounded-xl p-3 font-mono space-y-1.5"
+                  style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(71,85,105,0.15)' }}>
+                  {mockLines.map((line, i) => (
+                    <p key={i} className="text-[10px] leading-relaxed"
+                      style={{ color: line.startsWith('✓') ? color : '#475569' }}>
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          § PROBLEM — AI learning is broken (#29)
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
+      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        style={{ transitionDelay: '140ms' }}>
+        <div className="max-w-2xl mx-auto text-center mb-8">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: '#64748b' }}>The Problem</p>
+          <h2 className="text-2xl font-black text-white mb-3">AI Learning Today Is Broken</h2>
+          <p className="text-sm text-slate-500">You invest months in courses and still can't build a real system.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {painPoints.map(({ icon: Icon, color, title, body }) => (
+            <div key={title} className="rounded-2xl p-5 text-center"
+              style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid ${color}20` }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 mx-auto"
+                style={{ background: `${color}12`, border: `1px solid ${color}28` }}>
+                <Icon size={18} style={{ color }} />
+              </div>
+              <h3 className="text-sm font-black text-white mb-2">{title}</h3>
+              <p className="text-[12px] text-slate-500 leading-relaxed">{body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § FEATURES — what's on the platform
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         style={{ transitionDelay: '160ms' }}>
         <div className="mb-6">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Platform</p>
-          <h2 className="text-2xl font-black text-white">What's on the platform</h2>
-          <p className="text-sm text-slate-500 mt-1">Four pillars. One mission: accelerate your AI career.</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Approach</p>
+          <h2 className="text-2xl font-black text-white">A Better Way to Learn AI</h2>
+          <p className="text-sm text-slate-500 mt-1">Four pillars. One mission: build real systems, not finish fake exercises.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
@@ -571,15 +615,15 @@ export default function HomeV2() {
       )}
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § LEARNING JOURNEY — AI 101 → 310
+          § LEARNING JOURNEY — AI 101 → 310 (#32)
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+      <section id="learning-path" className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         style={{ transitionDelay: '240ms' }}>
 
         {/* Section header */}
         <div className="mb-8">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Learning Path</p>
-          <h2 className="text-2xl font-black text-white">Your AI Learning Journey</h2>
+          <h2 className="text-2xl font-black text-white">Your AI Engineering Journey</h2>
           <p className="text-sm text-slate-500 mt-1">From fundamentals to enterprise architecture — structured, hands-on, free.</p>
         </div>
 
@@ -624,7 +668,9 @@ export default function HomeV2() {
                         <span className="text-[9px] font-black uppercase tracking-[0.15em]" style={{ color: step.color }}>{step.tag}</span>
                       </div>
                       {/* Title */}
-                      <h3 className="text-sm font-black text-white mb-2 leading-snug">{step.title}</h3>
+                      <h3 className="text-sm font-black text-white mb-1 leading-snug">{step.title}</h3>
+                      {/* Example output */}
+                      <p className="text-[9px] font-mono mb-2" style={{ color: `${step.color}b0` }}>{step.output}</p>
                       {/* Topic chips */}
                       <div className="flex flex-wrap gap-1 mb-3">
                         {step.topics.map(t => (
@@ -690,131 +736,26 @@ export default function HomeV2() {
       </section>
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § WHY — three values
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-        style={{ transitionDelay: '260ms' }}>
-        <div className="mb-6">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Philosophy</p>
-          <h2 className="text-2xl font-black text-white">Why this exists</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {whyItems.map(({ icon: Icon, color, title, body }, idx) => (
-            <div key={title}
-              className={`rounded-2xl p-5 transition-all duration-700 hover:-translate-y-1 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-              style={{
-                background: 'rgba(15,23,42,0.95)',
-                border: '1px solid rgba(71,85,105,0.20)',
-                transitionDelay: `${300 + idx * 60}ms`,
-              }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                style={{ background: `${color}15`, border: `1px solid ${color}30` }}>
-                <Icon size={18} style={{ color }} />
-              </div>
-              <h3 className="text-sm font-black text-white mb-2">{title}</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">{body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § FEATURED POSTS — latest thinking
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-        style={{ transitionDelay: '280ms' }}>
-        <div className="mb-6">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>From the blog</p>
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-black text-white">Latest thinking</h2>
-            <Link to="/blog" className="flex items-center gap-1 text-xs font-black text-slate-500 hover:text-slate-300 transition-colors">
-              All articles <ArrowRight size={12} />
-            </Link>
-          </div>
-        </div>
-
-        {featuredPosts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {featuredPosts.map((post) => (
-              <Link key={post.slug} to={`/blog/${post.slug}`}
-                className="group rounded-2xl p-5 block transition-all duration-200 hover:-translate-y-1"
-                style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(96,165,250,0.40)';
-                  (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 30px -10px rgba(96,165,250,0.20)';
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(71,85,105,0.20)';
-                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                }}>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full"
-                    style={{ color: '#60a5fa', background: 'rgba(96,165,250,0.10)', border: '1px solid rgba(96,165,250,0.20)' }}>
-                    {post.category}
-                  </span>
-                  <span className="text-[10px] text-slate-600">{post.readingTime} min</span>
-                </div>
-                <h3 className="text-sm font-black text-white leading-snug mb-2 group-hover:text-violet-300 transition-colors" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                  {post.title}
-                </h3>
-                <p className="text-[12px] text-slate-500 leading-relaxed mb-4" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                  {post.excerpt}
-                </p>
-                <div className="flex items-center gap-1 text-[11px] font-black text-slate-600 group-hover:text-blue-400 transition-colors">
-                  Read article <ArrowRight size={11} className="transition-transform group-hover:translate-x-0.5" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[0, 1, 2].map(i => (
-              <div key={i} className="rounded-2xl p-5 animate-pulse"
-                style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.15)' }}>
-                <div className="h-3 bg-slate-800 rounded w-16 mb-3" />
-                <div className="h-4 bg-slate-800 rounded w-full mb-1.5" />
-                <div className="h-4 bg-slate-800 rounded w-3/4 mb-3" />
-                <div className="h-3 bg-slate-800 rounded w-full mb-1" />
-                <div className="h-3 bg-slate-800 rounded w-5/6" />
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § ARCHITECTURE TOPICS — domain depth
+          § WHAT YOU WILL BUILD (#31)
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         style={{ transitionDelay: '300ms' }}>
         <div className="mb-6">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Deep dives</p>
-          <h2 className="text-2xl font-black text-white">Architecture domains</h2>
-          <p className="text-sm text-slate-500 mt-1">Every topic backed by production experience and real systems.</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Projects</p>
+          <h2 className="text-2xl font-black text-white">What You Will Actually Build</h2>
+          <p className="text-sm text-slate-500 mt-1">Production-grade systems, not toy examples.</p>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {archTopics.map(({ label, color, bg, topics, href }) => (
-            <Link key={label} to={href}
-              className="group rounded-xl p-4 block transition-all duration-200 hover:-translate-y-0.5"
-              style={{ background: bg, border: `1px solid ${color}25` }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = `${color}55`; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = `${color}25`; }}>
-              <p className="text-sm font-black mb-2" style={{ color }}>{label}</p>
-              <div className="flex flex-wrap gap-1 mb-3">
-                {topics.map(t => (
-                  <span key={t} className="text-[10px] px-2 py-0.5 rounded-full"
-                    style={{ color: `${color}cc`, background: 'rgba(0,0,0,0.25)', border: `1px solid ${color}20` }}>
-                    {t}
-                  </span>
-                ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {buildProjects.map(({ icon: Icon, color, title, desc }) => (
+            <div key={title} className="rounded-2xl p-5 transition-all duration-200 hover:-translate-y-1"
+              style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)', borderLeft: `3px solid ${color}` }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                style={{ background: `${color}12`, border: `1px solid ${color}28` }}>
+                <Icon size={18} style={{ color }} />
               </div>
-              <div className="flex items-center gap-1 text-[10px] font-black transition-all duration-200 group-hover:gap-1.5"
-                style={{ color: `${color}80` }}>
-                Explore <ArrowRight size={10} className="transition-transform group-hover:translate-x-0.5" />
-              </div>
-            </Link>
+              <h3 className="text-sm font-black text-white mb-2">{title}</h3>
+              <p className="text-[12px] text-slate-500 leading-relaxed">{desc}</p>
+            </div>
           ))}
         </div>
       </section>
@@ -834,11 +775,31 @@ export default function HomeV2() {
               {/* Left: messaging */}
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: '#64748b' }}>Open Source</p>
-                <h2 className="text-xl font-black text-white mb-2">Built in public. Owned by the community.</h2>
-                <p className="text-sm text-slate-400 leading-relaxed mb-5 max-w-xl">
-                  Every line of code is open. Fork it, adapt it, contribute to it.
+                <h2 className="text-xl font-black text-white mb-2">Built With Builders, Not Alone.</h2>
+                <p className="text-sm text-slate-400 leading-relaxed mb-4 max-w-xl">
+                  Contribute real AI projects, learn from real implementations, and collaborate with other builders.
                   The best platforms grow when their community shapes them.
                 </p>
+                {/* Early signal */}
+                <div className="flex flex-wrap items-center gap-2 mb-5">
+                  <span className="text-[10px] px-2.5 py-1 rounded-full font-bold"
+                    style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.25)' }}>
+                    Early builders joining
+                  </span>
+                </div>
+                {/* Community points */}
+                <div className="flex flex-wrap gap-3 mb-5">
+                  {([
+                    { icon: GitPullRequest, color: '#a78bfa', label: 'Contribute real AI projects' },
+                    { icon: BookOpen,       color: '#38bdf8', label: 'Learn from real implementations' },
+                    { icon: Users,          color: '#2dd4bf', label: 'Collaborate with other builders' },
+                  ] as const).map(({ icon: Icon, color, label }) => (
+                    <div key={label} className="flex items-center gap-1.5">
+                      <Icon size={12} style={{ color }} />
+                      <span className="text-[11px] text-slate-400">{label}</span>
+                    </div>
+                  ))}
+                </div>
                 {/* Tech stack chips */}
                 <div className="flex flex-wrap gap-2 mb-5">
                   {([
@@ -886,67 +847,6 @@ export default function HomeV2() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § HOW IT WORKS — platform lifecycle
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-        style={{ transitionDelay: '340ms' }}>
-        <div className="mb-7">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Behind the platform</p>
-          <h2 className="text-2xl font-black text-white">How Aarya works</h2>
-          <p className="text-sm text-slate-500 mt-1">Field experience → AI synthesis → structured content → community-shaped.</p>
-        </div>
-
-        <div className="relative hidden md:block">
-          {/* Connecting track */}
-          <div className="absolute top-[27px] left-[12.5%] right-[12.5%] h-[2px] pointer-events-none rounded-full"
-            style={{ background: 'linear-gradient(90deg, #a78bfa 0%, #38bdf8 33%, #2dd4bf 66%, #fb923c 100%)', opacity: 0.5 }} />
-          <div className="grid grid-cols-4 gap-3">
-            {([
-              { step: '01', icon: Brain,     color: '#a78bfa', title: 'Field experience',    desc: 'Every topic starts with a real problem — no invented theory, no syllabus padding.' },
-              { step: '02', icon: Terminal,  color: '#38bdf8', title: 'AI-assisted synthesis', desc: 'Specialized agents research, structure, and cross-check content before it publishes.' },
-              { step: '03', icon: BookOpen,  color: '#2dd4bf', title: 'Structured publishing', desc: 'Notes, MCQs, and tools reviewed for accuracy and real-world applicability.' },
-              { step: '04', icon: Users,     color: '#fb923c', title: 'Community shapes it',  desc: 'Issues, PRs, and feedback decide what gets built next. You drive the roadmap.' },
-            ] as const).map(({ step, icon: Icon, color, title, desc }) => (
-              <div key={step} className="flex flex-col items-center">
-                <div className="relative z-10 w-14 h-14 rounded-full flex flex-col items-center justify-center mb-4"
-                  style={{ background: `${color}12`, border: `2px solid ${color}`, boxShadow: `0 0 20px -8px ${color}50` }}>
-                  <span className="text-[8px] font-black uppercase" style={{ color: `${color}80` }}>{step}</span>
-                  <Icon size={16} style={{ color }} />
-                </div>
-                <div className="w-full rounded-xl p-4 text-center"
-                  style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid ${color}20` }}>
-                  <p className="text-sm font-black text-white mb-1.5">{title}</p>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">{desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Mobile: 2x2 grid */}
-        <div className="md:hidden grid grid-cols-2 gap-3">
-          {([
-            { step: '01', icon: Brain,     color: '#a78bfa', title: 'Field experience' },
-            { step: '02', icon: Terminal,  color: '#38bdf8', title: 'AI synthesis' },
-            { step: '03', icon: BookOpen,  color: '#2dd4bf', title: 'Structured content' },
-            { step: '04', icon: Users,     color: '#fb923c', title: 'Community-driven' },
-          ] as const).map(({ step, icon: Icon, color, title }) => (
-            <div key={step} className="rounded-xl p-4 flex items-center gap-3"
-              style={{ background: `${color}08`, border: `1px solid ${color}25` }}>
-              <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                style={{ background: `${color}15`, border: `1px solid ${color}` }}>
-                <Icon size={14} style={{ color }} />
-              </div>
-              <div>
-                <p className="text-[9px] font-black uppercase" style={{ color: `${color}80` }}>{step}</p>
-                <p className="text-[11px] font-black text-white">{title}</p>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -1045,34 +945,28 @@ export default function HomeV2() {
 
           <div className="relative z-10">
             <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight tracking-tight mb-3">
-              Ready to level up{' '}
+              Start Your AI Building{' '}
               <span style={{
                 background: 'linear-gradient(90deg, #a78bfa, #f472b6)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-              }}>your AI skills?</span>
+              }}>Journey Today</span>
             </h2>
 
             <p className="text-slate-400 text-base max-w-lg mx-auto mb-8 leading-relaxed">
-              Start with the certification prep, explore the blog, or pick up a tool.
-              Everything is free. Everything works right now.
+              Be part of the first wave of AI builders. Free forever. No account required.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link to="/exams"
+              <Link to="/learn"
                 className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-black rounded-2xl text-white transition-all duration-200 hover:shadow-2xl hover:shadow-violet-500/30 hover:-translate-y-0.5 active:scale-95"
                 style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.6)' }}>
-                <GraduationCap size={16} /> Start Practicing <ArrowRight size={16} />
+                <Zap size={16} /> Join Early Access <ArrowRight size={16} />
               </Link>
               <Link to="/blog"
                 className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-bold rounded-2xl text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
                 style={{ background: 'rgba(30,41,59,0.7)', border: '1px solid rgba(71,85,105,0.35)' }}>
                 <Newspaper size={16} /> Browse Articles
-              </Link>
-              <Link to="/tools"
-                className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-bold rounded-2xl transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
-                style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.30)', color: '#34d399' }}>
-                <Wrench size={16} /> Explore Tools
               </Link>
             </div>
 
