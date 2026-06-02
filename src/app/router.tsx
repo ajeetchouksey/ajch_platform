@@ -37,8 +37,7 @@ import MaintainerDashboard from '@/features/analytics/pages/MaintainerDashboard'
 
 // ── Profile / Team ────────────────────────────────────────────────────────────
 import Profile from '@/features/profile/pages/Profile';
-import TeamV2 from '@/features/profile/pages/TeamV2';
-
+import TeamV2 from '@/features/profile/pages/TeamV2';import Dashboard from '@/features/profile/pages/Dashboard';
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function AppRoutes() {
@@ -79,9 +78,10 @@ export default function AppRoutes() {
       <Route path="/maintainer/dashboard" element={<MaintainerDashboard />} />
       <Route path="/maintainer/team" element={<TeamV2 />} />
 
-      {/* Profile / Team */}
+      {/* Profile / Team / Dashboard */}
       <Route path="/profile" element={<Profile />} />
       <Route path="/team" element={<TeamV2 />} />
+      <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   );
 }

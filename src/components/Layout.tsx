@@ -1,8 +1,9 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, Users, LineChart, Hash, Eye, Server, Terminal, BookMarked } from 'lucide-react';
-import { useState, useEffect, type ReactNode } from 'react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, Users, LineChart, Hash, Eye, Server, Terminal, BookMarked, Search } from 'lucide-react';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
+import SearchModal from './SearchModal';
 import { Breadcrumb, type BreadcrumbItem } from './ui';
 import { loadBlogManifest, loadExamRegistry } from '@/lib/content-loader';
 import { EXAM_SCHEMES } from '@/types/content';
@@ -14,6 +15,7 @@ const platformLinks = [
   { to: '/blog', label: 'Field Notes', icon: Newspaper },
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/docs', label: 'Docs', icon: BookOpen },
+  { to: '/dashboard', label: 'Dashboard', icon: BarChart2 },
   { to: '/team', label: 'Team', icon: Users },
   { to: '/analytics', label: 'Analytics', icon: LineChart },
 ];
@@ -34,6 +36,7 @@ function Breadcrumbs() {
     analytics:  'Analytics',
     maintainer: 'Maintainer',
     profile:    'Profile',
+    dashboard:  'Dashboard',
     progress:   'Progress',
     // Exam IDs
     ccaf:       'CCA-F',
@@ -75,6 +78,7 @@ function Breadcrumbs() {
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [blogPosts, setBlogPosts] = useState<BlogPostMeta[]>([]);
@@ -122,8 +126,21 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   const blogCategories = [...new Set(blogPosts.map((p) => p.category))];
 
+  const handleSearchKey = useCallback((e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      setSearchOpen((o) => !o);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleSearchKey);
+    return () => document.removeEventListener('keydown', handleSearchKey);
+  }, [handleSearchKey]);
+
   return (
     <div className="min-h-screen flex flex-col text-slate-100">
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
       {/* Navigation progress bar — restarts on every route change */}
       <div key={`np-${pageKey}`} className="nav-progress" aria-hidden="true" />
       {/* Header */}
@@ -195,6 +212,15 @@ export default function Layout({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all text-xs"
+              aria-label="Search"
+            >
+              <Search size={14} />
+              <span className="hidden sm:block">Search</span>
+              <kbd className="hidden sm:block text-[10px] border border-slate-700 rounded px-1 py-0.5 text-slate-500">⌘K</kbd>
+            </button>
             <StarRepo />
             <GithubLogin />
           </div>
