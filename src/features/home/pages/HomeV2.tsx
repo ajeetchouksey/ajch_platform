@@ -16,6 +16,7 @@ import {
 } from '@/lib/github-stats';
 
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
+import { getSessions } from '@/lib/storage';
 
 // ── Blog post meta ────────────────────────────────────────────────────────────
 interface BlogMeta {
@@ -261,6 +262,9 @@ export default function HomeV2() {
       .then((d: { posts: BlogMeta[] }) => setFeaturedPosts(d.posts.filter(p => !p.draft).slice(0, 3)))
       .catch(() => {});
   }, []);
+
+  const [sessions, setSessions] = useState<ReturnType<typeof getSessions>>([]);
+  useEffect(() => { setSessions(getSessions().filter(s => !!s.finishedAt)); }, []);
 
   const dynamicProofStats = useMemo(() => proofStats.map((s) => {
     if (!pStats) return s;
@@ -511,6 +515,60 @@ export default function HomeV2() {
           ))}
         </div>
       </section>
+
+      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          § PROGRESS TEASER — returning user nudge
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
+      {sessions.length > 0 && (
+        <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+          style={{ transitionDelay: '175ms' }}>
+          <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5"
+            style={{
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(15,23,42,0.98) 100%)',
+              border: '1px solid rgba(139,92,246,0.28)',
+            }}>
+            {/* Left: welcome back */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1" style={{ color: '#a78bfa' }}>Welcome back</p>
+              <p className="text-base font-black text-white mb-0.5">Continue your CCA-F prep</p>
+              <p className="text-xs text-slate-400">
+                {sessions.length} session{sessions.length !== 1 ? 's' : ''} completed
+                {sessions.at(-1) && (
+                  <> · Last score:{' '}
+                    <span className="font-bold" style={{ color: '#a78bfa' }}>
+                      {Math.round((sessions.at(-1)!.score / sessions.at(-1)!.total) * 100)}%
+                    </span>
+                  </>
+                )}
+              </p>
+            </div>
+            {/* Middle: best score bar */}
+            {(() => {
+              const best = Math.max(...sessions.map(s => Math.round((s.score / s.total) * 100)));
+              const passing = best >= 72;
+              return (
+                <div className="w-full sm:w-44 shrink-0">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] text-slate-500">Best score</span>
+                    <span className="text-sm font-black" style={{ color: passing ? '#10b981' : '#a78bfa' }}>{best}%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${best}%`, background: passing ? '#10b981' : 'linear-gradient(90deg,#7c3aed,#a78bfa)' }} />
+                  </div>
+                  <p className="text-[9px] text-slate-700 mt-1">Pass threshold: 72% {passing ? '✓ Ready' : '· Keep going'}</p>
+                </div>
+              );
+            })()}
+            {/* Right: CTA */}
+            <Link to="/exams/ccaf/quiz"
+              className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black rounded-xl text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.55)' }}>
+              Continue <ArrowRight size={14} />
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § LEARNING JOURNEY — AI 101 → 310
@@ -828,6 +886,67 @@ export default function HomeV2() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          § HOW IT WORKS — platform lifecycle
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
+      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        style={{ transitionDelay: '340ms' }}>
+        <div className="mb-7">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Behind the platform</p>
+          <h2 className="text-2xl font-black text-white">How Aarya works</h2>
+          <p className="text-sm text-slate-500 mt-1">Field experience → AI synthesis → structured content → community-shaped.</p>
+        </div>
+
+        <div className="relative hidden md:block">
+          {/* Connecting track */}
+          <div className="absolute top-[27px] left-[12.5%] right-[12.5%] h-[2px] pointer-events-none rounded-full"
+            style={{ background: 'linear-gradient(90deg, #a78bfa 0%, #38bdf8 33%, #2dd4bf 66%, #fb923c 100%)', opacity: 0.5 }} />
+          <div className="grid grid-cols-4 gap-3">
+            {([
+              { step: '01', icon: Brain,     color: '#a78bfa', title: 'Field experience',    desc: 'Every topic starts with a real problem — no invented theory, no syllabus padding.' },
+              { step: '02', icon: Terminal,  color: '#38bdf8', title: 'AI-assisted synthesis', desc: 'Specialized agents research, structure, and cross-check content before it publishes.' },
+              { step: '03', icon: BookOpen,  color: '#2dd4bf', title: 'Structured publishing', desc: 'Notes, MCQs, and tools reviewed for accuracy and real-world applicability.' },
+              { step: '04', icon: Users,     color: '#fb923c', title: 'Community shapes it',  desc: 'Issues, PRs, and feedback decide what gets built next. You drive the roadmap.' },
+            ] as const).map(({ step, icon: Icon, color, title, desc }) => (
+              <div key={step} className="flex flex-col items-center">
+                <div className="relative z-10 w-14 h-14 rounded-full flex flex-col items-center justify-center mb-4"
+                  style={{ background: `${color}12`, border: `2px solid ${color}`, boxShadow: `0 0 20px -8px ${color}50` }}>
+                  <span className="text-[8px] font-black uppercase" style={{ color: `${color}80` }}>{step}</span>
+                  <Icon size={16} style={{ color }} />
+                </div>
+                <div className="w-full rounded-xl p-4 text-center"
+                  style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid ${color}20` }}>
+                  <p className="text-sm font-black text-white mb-1.5">{title}</p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile: 2x2 grid */}
+        <div className="md:hidden grid grid-cols-2 gap-3">
+          {([
+            { step: '01', icon: Brain,     color: '#a78bfa', title: 'Field experience' },
+            { step: '02', icon: Terminal,  color: '#38bdf8', title: 'AI synthesis' },
+            { step: '03', icon: BookOpen,  color: '#2dd4bf', title: 'Structured content' },
+            { step: '04', icon: Users,     color: '#fb923c', title: 'Community-driven' },
+          ] as const).map(({ step, icon: Icon, color, title }) => (
+            <div key={step} className="rounded-xl p-4 flex items-center gap-3"
+              style={{ background: `${color}08`, border: `1px solid ${color}25` }}>
+              <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                style={{ background: `${color}15`, border: `1px solid ${color}` }}>
+                <Icon size={14} style={{ color }} />
+              </div>
+              <div>
+                <p className="text-[9px] font-black uppercase" style={{ color: `${color}80` }}>{step}</p>
+                <p className="text-[11px] font-black text-white">{title}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
