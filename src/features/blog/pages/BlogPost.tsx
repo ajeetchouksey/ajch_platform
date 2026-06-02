@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
@@ -12,6 +12,12 @@ import GiscusComments from '@/components/GiscusComments';
 import type { BlogPostMeta } from '@/types/content';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
+
+// Known portal authors → internal profile route; others fall back to GitHub search
+const AUTHOR_PORTAL: Record<string, string> = {
+  'Ajeet Chouksey': '/profile',
+  'Ajeet Kumar Chouksey': '/profile',
+};
 
 // ── Utilities ────────────────────────────────────────────────────────────────
 function slugify(text: string): string {
@@ -116,7 +122,10 @@ function TocSidebar({
   onShare: () => void;
   copied: boolean;
 }) {
+  const navigate = useNavigate();
   const pal = CAT_PALETTE[meta.category] ?? { color: '#94a3b8', bg: 'rgba(30,41,59,0.5)', border: 'rgba(71,85,105,0.3)' };
+  const activeIdx = headings.findIndex(h => h.id === activeId);
+  const authorHref = AUTHOR_PORTAL[meta.author];
   return (
     <aside className="hidden xl:flex flex-col w-[220px] 2xl:w-[240px] shrink-0 sticky top-4 self-start max-h-[calc(100vh-5rem)]">
       <div className="flex flex-col gap-3 overflow-y-auto pb-4"
@@ -133,8 +142,9 @@ function TocSidebar({
               <List size={9} /> In this article
             </p>
             <nav className="space-y-0.5">
-              {headings.map(({ id, text, level }) => {
+              {headings.map(({ id, text, level }, idx) => {
                 const isActive = activeId === id;
+                const isPast = activeIdx >= 0 && idx < activeIdx;
                 return (
                   <a key={id} href={`#${id}`}
                     onClick={e => {
@@ -144,9 +154,10 @@ function TocSidebar({
                     className="block text-[11px] leading-snug py-1 rounded-r-lg transition-all duration-200"
                     style={{
                       paddingLeft: level === 3 ? '16px' : '6px',
-                      color: isActive ? '#a78bfa' : '#64748b',
+                      color: isActive ? '#a78bfa' : isPast ? '#34d399' : '#64748b',
                       fontWeight: isActive ? 700 : 400,
-                      borderLeft: `2px solid ${isActive ? '#a78bfa' : 'transparent'}`,
+                      borderLeft: `2px solid ${isActive ? '#a78bfa' : isPast ? 'rgba(52,211,153,0.45)' : 'transparent'}`,
+                      opacity: isPast ? 0.7 : 1,
                     }}>
                     {text}
                   </a>
@@ -165,8 +176,26 @@ function TocSidebar({
               {meta.category}
             </span>
           )}
-          <div className="flex items-center gap-2 text-slate-500">
-            <User size={10} className="shrink-0" />{meta.author}
+          <div className="flex items-center gap-2">
+            <User size={10} className="shrink-0 text-slate-500" />
+            {authorHref ? (
+              <Link to={authorHref}
+                className="text-[11px] transition-colors"
+                style={{ color: '#94a3b8' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#a78bfa')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#94a3b8')}>
+                {meta.author}
+              </Link>
+            ) : (
+              <a href={`https://github.com/search?q=${encodeURIComponent(meta.author)}&type=users`}
+                target="_blank" rel="noopener noreferrer"
+                className="text-[11px] transition-colors"
+                style={{ color: '#94a3b8' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#38bdf8')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#94a3b8')}>
+                {meta.author}
+              </a>
+            )}
           </div>
           <div className="flex items-center gap-2 text-slate-500">
             <Calendar size={10} className="shrink-0" />
@@ -192,9 +221,11 @@ function TocSidebar({
             </p>
             <div className="flex flex-wrap gap-1.5">
               {meta.tags.map(tag => (
-                <Link key={tag} to={`/blog?tag=${tag}`}
-                  className="text-[10px] px-2 py-0.5 rounded-lg transition-colors"
-                  style={{ background: 'rgba(30,41,59,0.8)', color: '#64748b', border: '1px solid rgba(71,85,105,0.20)' }}>
+                <Link key={tag} to={`/blog?tag=${encodeURIComponent(tag)}`}
+                  className="text-[10px] px-2 py-0.5 rounded-lg transition-all"
+                  style={{ background: 'rgba(30,41,59,0.8)', color: '#64748b', border: '1px solid rgba(71,85,105,0.20)' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#a78bfa'; e.currentTarget.style.borderColor = 'rgba(139,92,246,0.45)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = 'rgba(71,85,105,0.20)'; }}>
                   #{tag}
                 </Link>
               ))}

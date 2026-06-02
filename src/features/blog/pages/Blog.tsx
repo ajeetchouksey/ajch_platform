@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Calendar, Clock, Tag, Search, X, ChevronDown, ChevronUp,
   ArrowRight, LayoutList, Layers, CheckCircle2, BookOpen,
@@ -203,7 +203,8 @@ export default function Blog() {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [readSlugs, setReadSlugs] = useState<Set<string>>(new Set());
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const [selectedTag, setSelectedTag] = useState<string | null>(() => searchParams.get('tag'));
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('timeline');
