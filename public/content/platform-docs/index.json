@@ -1,6 +1,6 @@
 {
   "schema": "1.0",
-  "generated": "2026-05-29",
+  "generated": "2026-06-02",
   "docs": [
     {
       "id": "architecture",
@@ -33,6 +33,14 @@
       "file": "content/platform-docs/release-notes.md",
       "icon": "Tag",
       "category": "releases"
+    },
+    {
+      "id": "gap-map",
+      "title": "Vision vs Reality — Gap Map",
+      "description": "8-gap implementation plan: what the platform vision requires vs what exists today, sprint assignments, and agent ownership",
+      "file": "content/platform-docs/gap-map.md",
+      "icon": "Map",
+      "category": "planning"
     }
   ]
 }

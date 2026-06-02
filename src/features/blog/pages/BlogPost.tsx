@@ -7,6 +7,8 @@ import {
   Maximize2, Minimize2, List, X, BookOpen,
 } from 'lucide-react';
 import { loadBlogPost, loadBlogManifest } from '@/lib/content-loader';
+import { sharePost } from '@/lib/share';
+import GiscusComments from '@/components/GiscusComments';
 import type { BlogPostMeta } from '@/types/content';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
@@ -331,8 +333,8 @@ export default function BlogPost() {
   }, [headings]);
 
   const handleShare = async () => {
-    try { await navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2200); }
-    catch { /* ignore */ }
+    const result = await sharePost({ title: meta?.title ?? document.title, url: window.location.href });
+    if (result === 'shared' || result === 'copied') { setCopied(true); setTimeout(() => setCopied(false), 2200); }
   };
 
   // ── Loading skeleton ──────────────────────────────────────────────────────
@@ -558,6 +560,9 @@ export default function BlogPost() {
               </button>
             </div>
           </footer>
+
+          {/* ── Comments ──────────────────────────────────────────────────── */}
+          <GiscusComments slug={slug ?? ''} context="field-notes" />
         </div>
 
         {/* ───── Sticky sidebar ─────────────────────────────────────────── */}
