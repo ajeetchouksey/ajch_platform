@@ -38,6 +38,7 @@ import MaintainerDashboard from '@/features/analytics/pages/MaintainerDashboard'
 // ── Profile / Team ────────────────────────────────────────────────────────────
 import Profile from '@/features/profile/pages/Profile';
 import TeamV2 from '@/features/profile/pages/TeamV2';import Dashboard from '@/features/profile/pages/Dashboard';
+import Contribute from '@/features/community/pages/Contribute';
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function AppRoutes() {
@@ -82,6 +83,7 @@ export default function AppRoutes() {
       <Route path="/profile" element={<Profile />} />
       <Route path="/team" element={<TeamV2 />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/contribute" element={<Contribute />} />
     </Routes>
   );
 }

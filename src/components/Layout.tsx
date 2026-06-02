@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, Users, LineChart, Hash, Eye, Server, Terminal, BookMarked, Search } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, Users, LineChart, Hash, Eye, Server, Terminal, BookMarked, Search, GitPullRequest } from 'lucide-react';
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -16,6 +16,7 @@ const platformLinks = [
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/docs', label: 'Docs', icon: BookOpen },
   { to: '/dashboard', label: 'Dashboard', icon: BarChart2 },
+  { to: '/contribute', label: 'Contribute', icon: GitPullRequest },
   { to: '/team', label: 'Team', icon: Users },
   { to: '/analytics', label: 'Analytics', icon: LineChart },
 ];
@@ -37,6 +38,7 @@ function Breadcrumbs() {
     maintainer: 'Maintainer',
     profile:    'Profile',
     dashboard:  'Dashboard',
+    contribute: 'Contribute',
     progress:   'Progress',
     // Exam IDs
     ccaf:       'CCA-F',
