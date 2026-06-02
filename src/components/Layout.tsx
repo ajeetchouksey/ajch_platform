@@ -15,10 +15,10 @@ const platformLinks = [
   { to: '/blog', label: 'Field Notes', icon: Newspaper },
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/docs', label: 'Docs', icon: BookOpen },
-  { to: '/dashboard', label: 'Dashboard', icon: BarChart2 },
-  { to: '/contribute', label: 'Contribute', icon: GitPullRequest },
-  { to: '/team', label: 'Team', icon: Users },
-  { to: '/analytics', label: 'Analytics', icon: LineChart },
+  { to: '/dashboard', label: 'Dashboard', icon: BarChart2, sidebarOnly: true },
+  { to: '/contribute', label: 'Contribute', icon: GitPullRequest, sidebarOnly: true },
+  { to: '/team', label: 'Team', icon: Users, sidebarOnly: true },
+  { to: '/analytics', label: 'Analytics', icon: LineChart, sidebarOnly: true },
 ];
 
 function Breadcrumbs() {
@@ -187,7 +187,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </NavLink>
 
           <nav className="hidden lg:flex items-center gap-0.5">
-            {platformLinks.map(({ to, label, icon: Icon, end }) => (
+            {platformLinks.filter((l) => !l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -553,7 +553,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-3">
             <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold"
               style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.22)' }}>
-              v2.3.0
+              v2.4.0
             </span>
             <a href="https://github.com/ajeetchouksey/ajch_platform" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-violet-300 transition-colors">GitHub ↗</a>
           </div>
