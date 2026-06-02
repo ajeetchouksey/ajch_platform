@@ -15,8 +15,8 @@ const platformLinks = [
   { to: '/blog', label: 'Field Notes', icon: Newspaper },
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/docs', label: 'Docs', icon: BookOpen },
+  { to: '/contribute', label: 'Contribute', icon: GitPullRequest },
   { to: '/dashboard', label: 'Dashboard', icon: BarChart2, sidebarOnly: true },
-  { to: '/contribute', label: 'Contribute', icon: GitPullRequest, sidebarOnly: true },
   { to: '/team', label: 'Team', icon: Users, sidebarOnly: true },
   { to: '/analytics', label: 'Analytics', icon: LineChart, sidebarOnly: true },
 ];
@@ -390,7 +390,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           {isInTeam && (
             <div className="px-4 pb-4">
               <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">The Team</h3>
-              <nav className="space-y-0.5">
+              <nav className="space-y-0.5 mb-3">
                 <NavLink
                   to="/team"
                   end
@@ -404,48 +404,38 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <span>Overview</span>
                 </NavLink>
               </nav>
-              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mt-4 mb-2">L0 Orchestrator</h3>
-              <div className="space-y-0.5 mb-3">
-                {[{ label: 'Platform Orchestrator', color: 'bg-violet-400' }].map(({ label, color }) => (
-                  <div key={label} className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
-                    <span className={`w-1.5 h-1.5 rounded-full ${color}`} /><span>{label}</span>
-                  </div>
-                ))}
-              </div>
-              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">🛡️ Security Gate</h3>
-              <div className="space-y-0.5 mb-3">
-                <div className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /><span>Security &amp; Governance</span>
-                </div>
-              </div>
-              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">🎨 UX Foundation</h3>
-              <div className="space-y-0.5 mb-3">
-                <div className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400" /><span>UX Foundation</span>
-                </div>
-              </div>
-              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">L1 Domain Leads</h3>
+
+              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">L0 Dispatch</h3>
               <div className="space-y-0.5 mb-3">
                 {[
-                  { label: 'Platform Control', color: 'bg-blue-400' },
-                  { label: 'Blog Lead', color: 'bg-emerald-400' },
-                  { label: 'Exam Lead', color: 'bg-amber-400' },
-                  { label: 'Study Companion', color: 'bg-rose-400' },
+                  { label: 'Staff Engineer', color: 'bg-violet-400' },
+                  { label: 'Product Manager', color: 'bg-teal-400' },
                 ].map(({ label, color }) => (
                   <div key={label} className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
                     <span className={`w-1.5 h-1.5 rounded-full ${color}`} /><span>{label}</span>
                   </div>
                 ))}
               </div>
-              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">L2 Specialists</h3>
+              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">L1 Domain Leads</h3>
+              <div className="space-y-0.5 mb-3">
+                {[
+                  { label: 'Platform Architect', color: 'bg-blue-400' },
+                  { label: 'Content Lead', color: 'bg-emerald-400' },
+                  { label: 'Curriculum Engineer', color: 'bg-amber-400' },
+                  { label: 'Pair Programmer', color: 'bg-rose-400' },
+                ].map(({ label, color }) => (
+                  <div key={label} className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
+                    <span className={`w-1.5 h-1.5 rounded-full ${color}`} /><span>{label}</span>
+                  </div>
+                ))}
+              </div>
+              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">Platform Foundation</h3>
               <div className="space-y-0.5">
                 {[
-                  { label: 'Routing Agent', color: 'bg-blue-500/50' },
-                  { label: 'Component Builder', color: 'bg-blue-500/50' },
-                  { label: 'Content Writer', color: 'bg-emerald-500/50' },
-                  { label: 'Content Publisher', color: 'bg-emerald-500/50' },
-                  { label: 'Question Generator', color: 'bg-amber-500/50' },
-                  { label: 'Study Notes Agent', color: 'bg-amber-500/50' },
+                  { label: 'AppSec Engineer', color: 'bg-red-500/60' },
+                  { label: 'Design Systems', color: 'bg-purple-500/60' },
+                  { label: 'SRE', color: 'bg-orange-500/60' },
+                  { label: 'DevRel', color: 'bg-pink-500/60' },
                 ].map(({ label, color }) => (
                   <div key={label} className="flex items-center gap-2.5 px-3 py-1 text-[11px] text-slate-600">
                     <span className={`w-1 h-1 rounded-full ${color}`} /><span>{label}</span>
@@ -502,6 +492,14 @@ export default function Layout({ children }: { children: ReactNode }) {
                 <Link to="/tools/prompt-library" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
                   <BookMarked size={14} />
                   <span>Prompt Library</span>
+                </Link>
+                <Link to="/dashboard" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
+                  <BarChart2 size={16} />
+                  <span>Dashboard</span>
+                </Link>
+                <Link to="/team" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
+                  <Users size={16} />
+                  <span>Team</span>
                 </Link>
               </nav>
             </div>
