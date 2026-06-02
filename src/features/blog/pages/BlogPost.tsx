@@ -357,14 +357,13 @@ export default function BlogPost() {
   // Active heading tracking via IntersectionObserver
   useEffect(() => {
     if (!headings.length) return;
-    const mainEl = document.querySelector('main') as HTMLElement | null;
     const observers: IntersectionObserver[] = [];
     headings.forEach(({ id }) => {
       const el = document.getElementById(id);
       if (!el) return;
       const obs = new IntersectionObserver(([entry]) => {
         if (entry.isIntersecting) setActiveId(id);
-      }, { root: mainEl, threshold: 0, rootMargin: '-60px 0px -55% 0px' });
+      }, { threshold: 0, rootMargin: '-60px 0px -55% 0px' });
       obs.observe(el);
       observers.push(obs);
     });
