@@ -1,21 +1,17 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   GraduationCap, Newspaper, Wrench, ArrowRight,
   GitBranch, Users, BookOpen, ExternalLink,
-  GitCommit, Award, Calendar, Zap, ShieldCheck, Terminal,
+  Award, Calendar, Zap, ShieldCheck, Terminal,
   CheckCircle2,
-  AlertTriangle, XCircle, MapPin,
   FileSearch, MessageSquare, Bot, Server, GitPullRequest,
 } from 'lucide-react';
 import {
-  Badge, Button, Avatar, PulsingDot, type StatItem,
+  PulsingDot, type StatItem,
 } from '@/components/ui';
 import { StarRepo } from '@/components/StarRepo';
-import {
-  fetchGitHubUser, fetchGitHubRepo,
-  type GitHubUserStats, type GitHubRepoStats,
-} from '@/lib/github-stats';
+
 
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
 import { getSessions } from '@/lib/storage';
@@ -30,11 +26,11 @@ const features = [
     border: 'rgba(139,92,246,0.30)',
     badge: 'LIVE',
     badgeColor: '#8b5cf6',
-    title: 'Certification Prep',
-    subtitle: 'Claude Certified Architect · Foundations',
-    desc: '68 scenario-based MCQs across 5 domains. Agentic patterns, prompt engineering, tool design, and context management.',
-    bullets: ['68 exam-format questions', 'Instant scoring + explanations', 'Track progress across domains'],
-    cta: 'Start Practicing Free',
+    title: 'Practice Real Scenarios',
+    subtitle: '68 Scenarios · 5 AI Domains',
+    desc: 'Practitioner-grade scenarios across 5 AI domains. Agentic patterns, MCP tool design, context management — the kind of problems you face in production.',
+    bullets: ['68 production-grade scenarios', 'Instant scoring + explanations', 'Track progress across domains'],
+    cta: 'Start Practicing',
   },
   {
     to: '/blog',
@@ -80,35 +76,6 @@ const features = [
   },
 ];
 
-// ── Quick Proof — 3 project preview cards ────────────────────────────────────
-const quickProof = [
-  {
-    title: 'Document AI Pipeline',
-    desc: 'Extract, classify, and summarize any document',
-    color: '#a78bfa',
-    mockLines: ['→ PDF ingested (4.2 MB)', '→ Entities extracted: 47', '→ Summary: 3 paragraphs', '✓ Output JSON ready'],
-  },
-  {
-    title: 'Retrieval QA System',
-    desc: 'Answer questions from your own knowledge base',
-    color: '#38bdf8',
-    mockLines: ['→ 1,240 chunks indexed', '→ Query: "What is RAG?"', '→ Top-3 retrieved (0.92)', '✓ Answer generated'],
-  },
-  {
-    title: 'Autonomous Agent Workflow',
-    desc: 'Chain tools into self-directed task pipelines',
-    color: '#2dd4bf',
-    mockLines: ['→ Goal: research + summarize', '→ Tool: web_search × 3', '→ Tool: summarize × 1', '✓ Report delivered'],
-  },
-] as const;
-
-// ── Pain points ───────────────────────────────────────────────────────────────
-const painPoints = [
-  { icon: AlertTriangle, color: '#f87171', title: 'Too much theory',            body: 'Endless courses with no real systems to show for it.' },
-  { icon: XCircle,       color: '#fb923c', title: "Tutorials don't translate",   body: 'Hello-world demos that fall apart on real projects.' },
-  { icon: MapPin,        color: '#fbbf24', title: 'No clear path',              body: 'From beginner to engineer — nobody shows you the road.' },
-] as const;
-
 // ── What you'll build ─────────────────────────────────────────────────────────
 const buildProjects = [
   { icon: FileSearch,    color: '#a78bfa', title: 'AI Document Processing System',   desc: 'OCR, entity extraction, and summarization on any document format.' },
@@ -121,7 +88,7 @@ const buildProjects = [
 // ── Proof bar stats ───────────────────────────────────────────────────────────
 const proofStats: StatItem[] = [
   { icon: Newspaper,     value: '60+',  label: 'Articles',         color: 'text-blue-400',    accent: 'blue'    },
-  { icon: GraduationCap, value: '68',   label: 'Practice Qs',      color: 'text-violet-400',  accent: 'violet'  },
+  { icon: GraduationCap, value: '68',   label: 'Scenarios',        color: 'text-violet-400',  accent: 'violet'  },
   { icon: Wrench,        value: '9',    label: 'Dev Tools',         color: 'text-emerald-400', accent: 'emerald' },
   { icon: Calendar,      value: '18+',  label: 'Yrs Experience',   color: 'text-amber-400',   accent: 'amber'   },
   { icon: Award,         value: '5+',   label: 'Certs Active',     color: 'text-rose-400',    accent: 'rose'    },
@@ -129,11 +96,6 @@ const proofStats: StatItem[] = [
 ];
 
 // ── Creator credentials ───────────────────────────────────────────────────────
-const creds = [
-  { icon: Calendar,  value: '18+',   label: 'Years in the field' },
-  { icon: GitCommit, value: '2,044', label: 'Contributions (2025)' },
-  { icon: Award,     value: '5+',    label: 'Active certifications' },
-];
 // ── AI Learning Journey ───────────────────────────────────────────────────────
 const journeySteps = [
   {
@@ -173,86 +135,6 @@ const journeySteps = [
     audience: 'Leaders & principals',
   },
 ] as const;
-// ── Count-up hook ─────────────────────────────────────────────────────────────
-function useCountUp(target: number, duration = 1200) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const started = useRef(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !started.current) {
-        started.current = true;
-        let start = 0;
-        const steps = 40;
-        const inc = target / steps;
-        const interval = duration / steps;
-        const t = setInterval(() => {
-          start += inc;
-          if (start >= target) { setCount(target); clearInterval(t); }
-          else setCount(Math.floor(start));
-        }, interval);
-      }
-    }, { threshold: 0.1 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [target, duration]);
-
-  return { count, ref };
-}
-
-// ── Live stat pill ────────────────────────────────────────────────────────────
-function LiveStatPill({ value, label, color }: { value: number; label: string; color?: string }) {
-  const { count, ref } = useCountUp(value);
-  return (
-    <div ref={ref} className="flex flex-col items-center gap-0.5">
-      <span className={`text-xl font-black ${color ?? 'text-slate-200'}`}>{count.toLocaleString()}</span>
-      <span className="text-[10px] text-slate-500 uppercase tracking-wider whitespace-nowrap">{label}</span>
-    </div>
-  );
-}
-
-// ── Live activity bar ────────────────────────────────────────────────────────
-function LiveBar() {
-  const [ghUser, setGhUser] = useState<GitHubUserStats | null>(null);
-  const [ghRepo, setGhRepo] = useState<GitHubRepoStats | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([fetchGitHubUser(), fetchGitHubRepo()])
-      .then(([user, repo]) => { setGhUser(user); setGhRepo(repo); })
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return (
-    <div className="rounded-2xl px-6 py-4 animate-pulse"
-      style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(71,85,105,0.20)' }}>
-      <div className="flex gap-8">{[0,1,2,3].map(i => <div key={i} className="flex flex-col items-center gap-1.5">
-        <div className="h-6 w-10 bg-slate-800 rounded" /><div className="h-2.5 w-14 bg-slate-800 rounded" /></div>)}</div>
-    </div>
-  );
-
-  if (!ghUser && !ghRepo) return null;
-
-  return (
-    <div className="rounded-2xl px-6 py-4"
-      style={{ background: 'rgba(15,23,42,0.80)', border: '1px solid rgba(71,85,105,0.20)' }}>
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-        <div className="flex items-center gap-1.5 shrink-0">
-          <PulsingDot active color="bg-emerald-400" size="sm" />
-          <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Live GitHub</span>
-        </div>
-        {ghRepo  && <LiveStatPill value={ghRepo.stars}       label="⭐ Stars"      color="text-amber-400" />}
-        {ghUser  && <LiveStatPill value={ghUser.followers}   label="Followers"     color="text-violet-400" />}
-        {ghUser  && <LiveStatPill value={ghUser.publicRepos} label="Repos"         color="text-blue-400" />}
-        {ghRepo  && <LiveStatPill value={ghRepo.forks}       label="Forks"         color="text-slate-300" />}
-      </div>
-    </div>
-  );
-}
-
 // ── Main page ────────────────────────────────────────────────────────────────
 export default function HomeV2() {
   const [mounted, setMounted] = useState(false);
@@ -267,7 +149,7 @@ export default function HomeV2() {
   const dynamicProofStats = useMemo(() => proofStats.map((s) => {
     if (!pStats) return s;
     if (s.label === 'Articles')    return { ...s, value: `${pStats.platform.blog_posts}+` };
-    if (s.label === 'Practice Qs') return { ...s, value: `${pStats.platform.questions}` };
+    if (s.label === 'Scenarios')   return { ...s, value: `${pStats.platform.questions}` };
     if (s.label === 'Dev Tools')   return { ...s, value: `${pStats.platform.tools}` };
     return s;
   }), [pStats]);
@@ -278,8 +160,8 @@ export default function HomeV2() {
     return features.map((f, i) => ({
       ...f,
       ...(i === 0 ? {
-        desc: `${questions} scenario-based MCQs across 5 domains. Agentic patterns, prompt engineering, tool design, and context management.`,
-        bullets: [`${questions} exam-format questions`, 'Instant scoring + explanations', 'Track progress across domains'],
+        desc: `${questions} practitioner-grade scenarios across 5 AI domains. Agentic patterns, MCP tool design, context management — the kind of problems you face in production.`,
+        bullets: [`${questions} production-grade scenarios`, 'Instant scoring + explanations', 'Track progress across domains'],
       } : i === 1 ? {
         bullets: [`${blog_posts}+ in-depth articles`, 'Azure, DevOps, AI Architecture', 'New posts every week'],
       } : i === 2 ? {
@@ -311,7 +193,7 @@ export default function HomeV2() {
               <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full"
                 style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.10)', border: '1px solid rgba(139,92,246,0.25)' }}>
                 <PulsingDot active color="bg-violet-400" size="sm" />
-                Build · Deploy · Learn
+                Engineer · Architect · Ship AI Systems
               </span>
             </div>
 
@@ -327,28 +209,66 @@ export default function HomeV2() {
               <span className="text-4xl sm:text-5xl text-white font-black">Not Just Learn Concepts.</span>
             </h1>
 
+            {/* Platform identity tagline */}
+            <p className="text-sm font-semibold tracking-wide leading-snug mb-4" style={{ color: '#94a3b8' }}>
+              Structured paths from{' '}
+              <span className="font-black" style={{ color: '#a78bfa' }}>→</span>{' '}
+              <span className="text-slate-300">AI-curious</span>{' '}
+              <span className="font-black" style={{ color: '#a78bfa' }}>→</span>{' '}
+              <span className="text-slate-300">AI-engineer</span>{' '}
+              <span className="font-black" style={{ color: '#fb923c' }}>→</span>{' '}
+              <span className="text-slate-300">systems that actually ship</span>
+            </p>
+
             {/* Value prop */}
-            <p className="text-base text-slate-300 max-w-xl leading-relaxed mb-4">
+            <p className="text-base text-slate-300 max-w-xl leading-relaxed mb-3">
               Go from AI basics to production-grade systems (101 → 310) through{' '}
               <span className="text-white font-semibold">hands-on projects</span>,
               structured learning, and real engineering workflows.
             </p>
-            <p className="text-sm text-slate-500 max-w-xl leading-relaxed mb-8">
+            <p className="text-sm text-slate-500 max-w-xl leading-relaxed mb-5">
               No fluff. No theory dumps. Build → Deploy → Learn. Free forever. Built in the open.
             </p>
+
+            {/* Intent fork */}
+            <div className="flex flex-col lg:flex-row gap-2 mb-6">
+              {([
+                { icon: BookOpen,      color: '#38bdf8', hoverBorder: 'rgba(56,189,248,0.45)',   label: 'AI Curious',             desc: 'Go from zero to your first shipped AI system.',   href: '/learn' },
+                { icon: Terminal,      color: '#10b981', hoverBorder: 'rgba(16,185,129,0.45)',   label: 'Already an Engineer',    desc: 'Add AI depth to systems you already build.',     href: '/tools' },
+                { icon: GitPullRequest,color: '#fb923c', hoverBorder: 'rgba(251,146,60,0.45)',   label: 'Open Source Builder',    desc: 'Contribute real work, build a visible reputation.', href: 'https://github.com/ajeetchouksey/ajch_platform' },
+              ] as const).map(({ icon: ForkIcon, color, hoverBorder, label, desc, href }) => (
+                <Link
+                  key={label}
+                  to={href.startsWith('http') ? href : href}
+                  {...(href.startsWith('http') ? { target: '_blank', rel: 'noreferrer' } : {})}
+                  className="flex-1 flex items-start gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                  style={{ background: 'rgba(15,23,42,0.60)', border: '1px solid rgba(71,85,105,0.30)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = hoverBorder; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(71,85,105,0.30)'; }}>
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 mt-0.5"
+                    style={{ background: `${color}18`, border: `1px solid ${color}28` }}>
+                    <ForkIcon size={14} style={{ color, opacity: 0.7 }} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-200 leading-tight">{label}</p>
+                    <p className="text-[10px] text-slate-500 leading-tight mt-0.5">{desc}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
 
             {/* CTAs */}
             <div className="flex flex-wrap items-center gap-3 mb-8">
               <Link to="/learn"
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-black rounded-2xl text-white transition-all duration-200 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5 active:scale-95"
                 style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.6)' }}>
-                <Zap size={15} /> Start Building AI Projects <ArrowRight size={15} />
+                <Zap size={15} /> Start with AI 101 — Free, 10 min <ArrowRight size={15} />
               </Link>
               <button
                 onClick={() => document.getElementById('learning-path')?.scrollIntoView({ behavior: 'smooth' })}
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold rounded-2xl text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
                 style={{ background: 'rgba(30,41,59,0.6)', border: '1px solid rgba(71,85,105,0.35)' }}>
-                <BookOpen size={15} /> View Learning Path
+                <BookOpen size={15} /> See the Builder Roadmap
               </button>
               <StarRepo />
             </div>
@@ -371,22 +291,22 @@ export default function HomeV2() {
                   <span className="w-3 h-3 rounded-full" style={{ background: '#eab308', opacity: 0.7 }} />
                   <span className="w-3 h-3 rounded-full" style={{ background: '#22c55e', opacity: 0.7 }} />
                 </div>
-                <span className="text-[10px] font-mono text-slate-600 ml-2 flex-1">pipeline.log</span>
+                <span className="text-[10px] font-mono text-slate-600 ml-2 flex-1">rag-assistant.build</span>
                 <div className="flex items-center gap-1.5">
-                  <PulsingDot active color="bg-emerald-400" size="sm" />
-                  <span className="text-[9px] text-emerald-500 font-mono font-bold">RUNNING</span>
+                  <PulsingDot active color="bg-sky-400" size="sm" />
+                  <span className="text-[9px] text-sky-500 font-mono font-bold">BUILDING</span>
                 </div>
               </div>
               {/* Steps */}
               <div className="p-4 space-y-2.5">
                 {[
-                  { step: '01', label: 'Human intent',        detail: 'Request received → Staff Engineer',    color: '#8b5cf6', icon: Users },
-                  { step: '02', label: 'Issue Gate',          detail: 'Product Manager → GitHub issue #421',  color: '#14b8a6', icon: GitBranch },
-                  { step: '03', label: 'Security pre-flight', detail: 'AppSec Engineer — PASS ✓',             color: '#ef4444', icon: ShieldCheck },
-                  { step: '04', label: 'Domain agent',        detail: 'Platform Architect → implementation',   color: '#3b82f6', icon: Zap },
-                  { step: '05', label: 'Post-build audit',    detail: 'AppSec + Design Systems review',       color: '#f59e0b', icon: Terminal },
-                  { step: '06', label: 'Human approval',      detail: 'Review → merge → ship',               color: '#a78bfa', icon: ShieldCheck },
-                  { step: '07', label: 'SRE deploys',         detail: 'v2.3.0 · semver · changelog',         color: '#10b981', icon: GitCommit },
+                  { step: '01', label: 'Chunk documents',      detail: '42 chunks · avg 480 tokens · overlap 64',          color: '#8b5cf6', icon: FileSearch },
+                  { step: '02', label: 'Generate embeddings',   detail: 'text-embedding-3-small · 42 vectors',              color: '#38bdf8', icon: Zap },
+                  { step: '03', label: 'Index to vector store', detail: 'HNSW · cosine similarity · stored ✓',             color: '#14b8a6', icon: Server },
+                  { step: '04', label: 'Receive user query',    detail: '"How do I add tool use to Claude?"',               color: '#a78bfa', icon: MessageSquare },
+                  { step: '05', label: 'Semantic search',       detail: 'top-3 retrieved · scores: 0.93, 0.91, 0.87',      color: '#3b82f6', icon: GitBranch },
+                  { step: '06', label: 'Construct prompt',      detail: 'system + 3 context chunks · 1,840 tokens',          color: '#f59e0b', icon: Terminal },
+                  { step: '07', label: 'LLM call → answer',    detail: 'claude-3-5-haiku · 312 tokens · 1.2 s',            color: '#10b981', icon: Bot },
                 ].map(({ step, label, detail, color, icon: I }) => (
                   <div key={step} className="flex items-start gap-3 group">
                     <span className="font-mono text-[9px] font-bold mt-0.5 shrink-0 w-4" style={{ color: `${color}60` }}>{step}</span>
@@ -401,8 +321,8 @@ export default function HomeV2() {
                   </div>
                 ))}
                 <div className="pt-2.5 mt-1 flex items-center gap-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                  <span className="font-mono text-[10px] font-bold" style={{ color: '#10b981' }}>✓ deployed successfully</span>
-                  <span className="font-mono text-[9px] ml-auto" style={{ color: '#334155' }}>v2.3.0 · main</span>
+                  <span className="font-mono text-[10px] font-bold" style={{ color: '#10b981' }}>✓ assistant ready · 3 sources · 0.91 confidence</span>
+                  <span className="font-mono text-[9px] ml-auto" style={{ color: '#334155' }}>v0.1.0 · rag</span>
                 </div>
               </div>
             </div>
@@ -429,63 +349,6 @@ export default function HomeV2() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § QUICK PROOF — 3 project preview cards (#28)
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-        style={{ transitionDelay: '120ms' }}>
-        <div className="mb-6">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Examples</p>
-          <h2 className="text-2xl font-black text-white">Build AI Like This</h2>
-          <p className="text-sm text-slate-500 mt-1">Real systems. Real outputs. No filler projects.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {quickProof.map(({ title, desc, color, mockLines }) => (
-            <div key={title} className="rounded-2xl overflow-hidden"
-              style={{ background: 'rgba(6,12,24,0.98)', border: `1px solid ${color}25`, borderLeft: `3px solid ${color}` }}>
-              <div className="p-5">
-                <h3 className="text-sm font-black text-white mb-1">{title}</h3>
-                <p className="text-[11px] text-slate-500 mb-4">{desc}</p>
-                <div className="rounded-xl p-3 font-mono space-y-1.5"
-                  style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(71,85,105,0.15)' }}>
-                  {mockLines.map((line, i) => (
-                    <p key={i} className="text-[10px] leading-relaxed"
-                      style={{ color: line.startsWith('✓') ? color : '#475569' }}>
-                      {line}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § PROBLEM — AI learning is broken (#29)
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-        style={{ transitionDelay: '140ms' }}>
-        <div className="max-w-2xl mx-auto text-center mb-8">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: '#64748b' }}>The Problem</p>
-          <h2 className="text-2xl font-black text-white mb-3">AI Learning Today Is Broken</h2>
-          <p className="text-sm text-slate-500">You invest months in courses and still can't build a real system.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {painPoints.map(({ icon: Icon, color, title, body }) => (
-            <div key={title} className="rounded-2xl p-5 text-center"
-              style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid ${color}20` }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 mx-auto"
-                style={{ background: `${color}12`, border: `1px solid ${color}28` }}>
-                <Icon size={18} style={{ color }} />
-              </div>
-              <h3 className="text-sm font-black text-white mb-2">{title}</h3>
-              <p className="text-[12px] text-slate-500 leading-relaxed">{body}</p>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -775,9 +638,9 @@ export default function HomeV2() {
               {/* Left: messaging */}
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: '#64748b' }}>Open Source</p>
-                <h2 className="text-xl font-black text-white mb-2">Built With Builders, Not Alone.</h2>
+                <h2 className="text-xl font-black text-white mb-2">Ship Real Work. Build Real Reputation.</h2>
                 <p className="text-sm text-slate-400 leading-relaxed mb-4 max-w-xl">
-                  Contribute real AI projects, learn from real implementations, and collaborate with other builders.
+                  Every contribution goes into production AI systems — that’s a portfolio entry, not a participation badge.
                   The best platforms grow when their community shapes them.
                 </p>
                 {/* Early signal */}
@@ -851,84 +714,6 @@ export default function HomeV2() {
       </section>
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § CREATOR — authority + trust
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-        style={{ transitionDelay: '360ms' }}>
-        <div className="rounded-2xl overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(15,23,42,0.98) 60%)',
-            border: '1px solid rgba(139,92,246,0.18)',
-          }}>
-          <div className="p-6 sm:p-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-5" style={{ color: '#64748b' }}>
-              From the creator
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-start gap-6">
-              {/* Avatar */}
-              <div className="shrink-0">
-                <Avatar
-                  src="https://avatars.githubusercontent.com/u/107052100?v=4"
-                  alt="Ajeet Kumar Chouksey"
-                  size="lg"
-                  online
-                  ringColor="ring-violet-500/40"
-                />
-              </div>
-
-              {/* Bio */}
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mb-1">
-                  <span className="text-base font-black text-white">Ajeet Kumar Chouksey</span>
-                  <Badge label="AI Architect · Frankfurt" variant="slate" size="xs" />
-                </div>
-                <p className="text-xs text-slate-500 mb-4">Enterprise AI · Azure Cloud · Agentic Systems</p>
-
-                <blockquote className="text-[15px] text-slate-300 leading-[1.75] mb-5 max-w-2xl pl-4 border-l-2 border-violet-500/50 italic">
-                  "I've spent my career designing systems that have to work at scale, under pressure, with real consequences.
-                  This platform is where I apply those same instincts to my own learning —
-                  and build in the open, with anyone who wants to come along."
-                </blockquote>
-
-                {/* Credential chips */}
-                <div className="flex flex-wrap gap-5 mb-5">
-                  {creds.map(({ icon: Icon, value, label }) => (
-                    <div key={label} className="flex items-center gap-1.5">
-                      <Icon size={12} className="text-slate-600 shrink-0" />
-                      <span className="text-sm font-black text-slate-200">{value}</span>
-                      <span className="text-xs text-slate-500">{label}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Links */}
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm" icon={GitBranch} href="https://github.com/ajeetchouksey" target="_blank" rel="noreferrer">
-                    GitHub
-                  </Button>
-                  <Button variant="outline" size="sm" icon={ExternalLink} href="https://theaiops.blog/" target="_blank" rel="noreferrer">
-                    theaiops.blog
-                  </Button>
-                  <Button variant="outline" size="sm" icon={ExternalLink} href="https://www.linkedin.com/in/ajeet-chouksey-bb365138/" target="_blank" rel="noreferrer">
-                    LinkedIn
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § LIVE ACTIVITY — GitHub stats
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-        style={{ transitionDelay: '420ms' }}>
-        <LiveBar />
-      </section>
-
-      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § CTA — bottom conversion
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
@@ -945,16 +730,17 @@ export default function HomeV2() {
 
           <div className="relative z-10">
             <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight tracking-tight mb-3">
-              Start Your AI Building{' '}
+              Be the Engineer{' '}
               <span style={{
                 background: 'linear-gradient(90deg, #a78bfa, #f472b6)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-              }}>Journey Today</span>
+              }}>Who Ships AI.</span>
             </h2>
 
             <p className="text-slate-400 text-base max-w-lg mx-auto mb-8 leading-relaxed">
-              Be part of the first wave of AI builders. Free forever. No account required.
+              The gap between AI-curious and production-ready is a structured path.
+              This is that path — free, forever, open source.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4">
