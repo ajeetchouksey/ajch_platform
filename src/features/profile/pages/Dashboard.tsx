@@ -15,7 +15,7 @@ function calcStreak(sessions: QuizSession[]): number {
   const days = new Set(
     sessions
       .filter((s) => s.finishedAt)
-      .map((s) => s.finishedAt!.slice(0, 10))
+      .map((s) => new Date(s.finishedAt!).toISOString().slice(0, 10))
   );
   if (days.size === 0) return 0;
 
@@ -42,8 +42,8 @@ function avgPct(sessions: QuizSession[]): number {
   return Math.round(done.reduce((sum, s) => sum + (s.score / s.total) * 100, 0) / done.length);
 }
 
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+function fmtDate(ts: number | string): string {
+  return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -69,14 +69,15 @@ export default function Dashboard() {
         }))
       );
       // Sessions mapped to scheduler format (domain-filtered only)
+      // QuizSession timestamps are Unix ms numbers — convert to ISO8601 strings for Session type
       const schedulerSessions = localSessions
         .filter((s) => s.domainFilter !== null)
         .map((s) => ({
           id: s.id,
-          examId: s.examId ?? 'ccaf',
+          examId: 'ccaf',
           domain: s.domainFilter,
-          startedAt: s.startedAt ?? s.finishedAt ?? '',
-          finishedAt: s.finishedAt ?? null,
+          startedAt: new Date(s.startedAt).toISOString(),
+          finishedAt: s.finishedAt ? new Date(s.finishedAt).toISOString() : null,
           score: s.score,
           total: s.total,
         }));
@@ -177,7 +178,7 @@ export default function Dashboard() {
                       style={{ borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : undefined }}
                     >
                       <td className="px-4 py-2.5 text-slate-300 capitalize">
-                        {s.domainFilter !== null ? `Domain ${s.domainFilter}` : (s.examId ?? 'Mixed')}
+                        {s.domainFilter !== null ? `Domain ${s.domainFilter}` : 'Mixed'}
                       </td>
                       <td className="px-4 py-2.5 text-slate-500">
                         {fmtDate(s.finishedAt!)}
