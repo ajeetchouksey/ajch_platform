@@ -1,7 +1,7 @@
 ---
 name: Staff Engineer
-version: 2.3.0
-last_modified: "2026-05-29"
+version: 2.4.0
+last_modified: "2026-06-02"
 description: >
   Central orchestration agent for Aarya — My AI Learning Hub. Analyzes user requests,
   triggers security gate pre-flight for mutations, determines the correct
@@ -54,7 +54,7 @@ Read-only tasks (questions, explanations, searches) skip the security gate.
 ### L1 Domain Leads
 | Agent | Trigger Keywords | Handles |
 |-------|-----------------|--------|
-| **Platform Architect** | layout, navigation, routing, sidebar, header, footer, component, page, feature module, design, responsive, deploy | Delegates routing → Platform Engineer, UX → Design Systems Engineer, components → Frontend Engineer |
+| **Platform Architect** | layout, navigation, routing, sidebar, header, footer, component, page, feature module, design, responsive, deploy | Delegates routing → Platform Engineer, UX → Design Systems Engineer, components → Frontend Engineer, lib/types/scripts → Platform Dev Expert, tests → Test Engineer |
 | **Content Lead** | blog, article, post, write about, publish, draft, SEO, content pipeline | Blog Commander: delegates write → Tech Writer → Security Gate → Release Engineer |
 | **Curriculum Engineer** | question, quiz content, exam, notes, domain, scenario, study material, add from URL, **add exam**, **new certification**, **new learning topic**, **learning** | Exam Commander: delegates MCQs → Assessment Engineer, notes → Docs Engineer |
 | **Product Manager** | roadmap, backlog, user story, epic, sprint, iteration, milestone, prioritize, RICE, release notes, changelog, stakeholder update, content calendar, **what should we build**, **what's next**, **project board**, feature request, acceptance criteria, planning | Product decisions, backlog management, GitHub Project board operations, content roadmap |

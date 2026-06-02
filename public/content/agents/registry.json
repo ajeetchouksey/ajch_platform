@@ -79,8 +79,20 @@
     {
       "file": "platform-architect.agent.md",
       "name": "Platform Architect",
-      "version": "3.0.0",
-      "last_modified": "2026-05-29"
+      "version": "3.2.0",
+      "last_modified": "2026-06-02"
+    },
+    {
+      "file": "test-engineer.agent.md",
+      "name": "Test Engineer",
+      "version": "1.0.0",
+      "last_modified": "2026-06-02"
+    },
+    {
+      "file": "platform-dev-expert.agent.md",
+      "name": "Platform Dev Expert",
+      "version": "1.0.1",
+      "last_modified": "2026-06-02"
     },
     {
       "file": "platform-docs.agent.md",
@@ -127,8 +139,8 @@
     {
       "file": "staff-engineer.agent.md",
       "name": "Staff Engineer",
-      "version": "2.3.0",
-      "last_modified": "2026-05-29"
+      "version": "2.4.0",
+      "last_modified": "2026-06-02"
     },
     {
       "file": "tech-writer.agent.md",

@@ -424,7 +424,7 @@ const ARCH_LAYERS = [
   { label: 'Dispatch Layer',      color: '#8b5cf6', agents: ['Staff Engineer', 'Product Manager'],                          count: 2  },
   { label: 'Domain Leads',        color: '#3b82f6', agents: ['Platform Architect', 'Content Lead', 'Curriculum Eng', 'Pair Programmer'], count: 4 },
   { label: 'Platform Foundation', color: '#f59e0b', agents: ['AppSec Engineer', 'Design Systems', 'SRE', 'DevRel'],         count: 4  },
-  { label: 'Specialists',         color: '#10b981', agents: ['11 sub-agents across all domain leads'],                      count: 11 },
+  { label: 'Specialists',         color: '#10b981', agents: ['13 sub-agents across all domain leads'],                      count: 13 },
 ];
 
 /* ─── Main page ──────────────────────────────────────────────────────────────── */
@@ -478,11 +478,11 @@ export default function TeamV2() {
       name: 'Platform Architect',
       role: 'Architect',
       tagline: 'Architecture decisions. Build config. Feature registration.',
-      description: 'Domain lead for platform concerns. Delegates routing to Platform Engineer, UI work to Frontend Engineer, UX to Design Systems Engineer.',
+      description: 'Domain lead for platform concerns. Delegates routing to Platform Engineer, UI work to Frontend Engineer, UX to Design Systems Engineer, lib/types/scripts to Platform Dev Expert, and tests to Test Engineer.',
       capabilities: ['Architecture', 'Build Config', 'Deploy', 'Feature Registration'],
       status: 'active' as const,
       activeTask: 'Scaffolding new tools route → Platform Engineer',
-      model: 'Claude Sonnet', tools: 8, version: 'v3.0.0',
+      model: 'Claude Sonnet', tools: 8, version: 'v3.2.0',
       icon: GitBranch, isNew: false, isLarge: false,
       profileFile: 'platform-architect.agent.md',
     },
@@ -630,6 +630,20 @@ export default function TeamV2() {
           capabilities: ['React Components', 'TypeScript', 'Design Tokens', 'Accessibility'],
           status: 'active' as const, icon: Layers,
           profileFile: 'frontend-engineer.agent.md',
+        },
+        {
+          id: 'platform-dev-expert', name: 'Platform Dev Expert', role: 'Library & Build Tooling',
+          tagline: 'src/lib · types · scripts. The logic beneath the UI.',
+          capabilities: ['TypeScript Libs', 'Data Flow', 'Build Scripts', 'Algorithms'],
+          status: 'active' as const, icon: Terminal,
+          profileFile: 'platform-dev-expert.agent.md',
+        },
+        {
+          id: 'test-engineer', name: 'Test Engineer', role: 'Quality Gate',
+          tagline: 'Unit · Integration · E2E. Coverage or it did not happen.',
+          capabilities: ['Vitest', 'Playwright E2E', 'Coverage Thresholds', 'CI Gate'],
+          status: 'standby' as const, icon: ListChecks,
+          profileFile: 'test-engineer.agent.md',
         },
       ],
     },
@@ -842,7 +856,7 @@ export default function TeamV2() {
                 {/* Footer */}
                 <div className="px-4 py-2.5 border-t border-slate-800/40 flex items-center justify-between">
                   <span className="text-[10px] font-mono text-slate-600">total_agents</span>
-                  <span className="text-sm font-black font-mono" style={{ color: '#8b5cf6' }}>21</span>
+                  <span className="text-sm font-black font-mono" style={{ color: '#8b5cf6' }}>23</span>
                 </div>
               </div>
             </div>
@@ -854,7 +868,7 @@ export default function TeamV2() {
               { icon: Activity, label: '14 agents active',          color: '#10b981' },
               { icon: Radio,    label: '7 standby',                  color: '#64748b' },
               { icon: Command,  label: '3 orchestration layers',     color: '#8b5cf6' },
-              { icon: Boxes,    label: '21 total — all open-source', color: '#38bdf8' },
+              { icon: Boxes,    label: '23 total — all open-source', color: '#38bdf8' },
             ].map(({ icon: I, label, color }) => (
               <div key={label} className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium
                 bg-slate-800/60 border border-slate-700/40 text-slate-300">
@@ -1110,7 +1124,7 @@ export default function TeamV2() {
               </div>
               <div>
                 <p className="text-xs font-black text-white uppercase tracking-wider">The Agents</p>
-                <p className="text-[10px] text-slate-500">21 specialised AI agents</p>
+                <p className="text-[10px] text-slate-500">23 specialised AI agents</p>
               </div>
             </div>
             {[

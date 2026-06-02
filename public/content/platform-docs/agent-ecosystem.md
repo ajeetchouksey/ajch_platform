@@ -19,6 +19,8 @@ graph TD
     PA --> FE["Frontend Engineer\nComponent work"]
     PA --> DSE["Design Systems Engineer\nUX audit"]
     PA --> PE["Platform Engineer\nInfra / tooling"]
+    PA --> PDE["Platform Dev Expert\nsrc/lib · types · scripts"]
+    PA --> TE["Test Engineer\nunit · integration · E2E"]
 ```
 
 ## Agent Roles
@@ -32,6 +34,8 @@ graph TD
 | Frontend Engineer | v1.0.0 | React components, Tailwind, accessibility |
 | Design Systems Engineer | v1.0.0 | Brand consistency, UX audit |
 | Platform Engineer | v1.0.0 | Infra, CI/CD tooling, scripts |
+| Platform Dev Expert | v1.0.1 | `src/lib/`, `src/types/`, build scripts, data-flow logic |
+| Test Engineer | v1.0.0 | Unit tests, integration tests, E2E (Playwright), coverage config |
 | SRE | v1.0.0 | Releases, versioning, CHANGELOG, monitoring |
 | Content Lead | v1.0.0 | Blog pipeline orchestrator |
 | Tech Writer | v1.0.0 | Drafts blog posts and articles |
