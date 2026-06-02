@@ -532,31 +532,6 @@ export default function Layout({ children }: { children: ReactNode }) {
         </main>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-slate-900/30 backdrop-blur-xl border-t border-slate-700/20 py-4 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <Cpu size={14} className="text-violet-400" />
-            <span>Aarya — My AI Learning Hub · by Ajeet Chouksey</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link to="/exams" className="hover:text-violet-300 transition-colors">Skill Up</Link>
-            <span className="text-slate-700">·</span>
-            <Link to="/blog" className="hover:text-violet-300 transition-colors">Field Notes</Link>
-            <span className="text-slate-700">·</span>
-            <Link to="/tools" className="hover:text-violet-300 transition-colors">Tools</Link>
-            <span className="text-slate-700">·</span>
-            <Link to="/docs" className="hover:text-violet-300 transition-colors">Docs</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold"
-              style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.22)' }}>
-              v2.4.0
-            </span>
-            <a href="https://github.com/ajeetchouksey/ajch_platform" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-violet-300 transition-colors">GitHub ↗</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
