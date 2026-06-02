@@ -316,23 +316,28 @@ export default function BlogPost() {
   const [readPct, setReadPct] = useState(0);
   const [showToc, setShowToc] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
+  const hasLoadedOnceRef = useRef(false); // skip skeleton on re-navigation
 
   const headings = useMemo(() => extractHeadings(content), [content]);
 
   // Load post
   useEffect(() => {
     if (!slug) return;
-    setLoading(true); setError(null); setVisible(false); setContent(''); setActiveId(''); setReadPct(0);
+    setError(null); setActiveId(''); setReadPct(0);
+    // Only show skeleton on the very first load; subsequent navigations just fade
+    if (!hasLoadedOnceRef.current) setLoading(true);
+    setVisible(false);
+    const mainEl = document.querySelector('main') as HTMLElement | null;
+    if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     Promise.all([loadBlogPost(slug), loadBlogManifest()])
       .then(([md, manifest]) => {
         setContent(md.replace(/^---[\s\S]*?---\n*/, ''));
         setMeta(manifest.posts.find(p => p.slug === slug) ?? null);
         setLoading(false);
-        setTimeout(() => setVisible(true), 50);
+        hasLoadedOnceRef.current = true;
+        setTimeout(() => setVisible(true), 30);
       })
       .catch(e => { setError(String(e)); setLoading(false); });
-    const mainEl = document.querySelector('main') as HTMLElement | null;
-    if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   }, [slug]);
 
   // Track reading progress relative to article element
@@ -346,8 +351,11 @@ export default function BlogPost() {
       const total = el.offsetHeight - viewportH;
       const scrolled = Math.max(0, -rect.top);
       const pct = total > 0 ? Math.min((scrolled / total) * 100, 100) : 0;
-      setReadPct(pct);
-      if (pct > 90 && slug) markAsRead(slug);
+      setReadPct(prev => {
+        if (Math.abs(prev - pct) < 0.5) return prev; // skip micro-updates
+        if (pct > 90 && slug) markAsRead(slug);
+        return pct;
+      });
     };
     const target: HTMLElement | Window = mainEl ?? window;
     target.addEventListener('scroll', fn, { passive: true });
@@ -364,7 +372,7 @@ export default function BlogPost() {
         .map(({ id }) => ({ id, top: document.getElementById(id)?.getBoundingClientRect().top ?? Infinity }))
         .filter(({ top }) => top < THRESHOLD)
         .sort((a, b) => b.top - a.top); // most recently passed = highest (least negative) top
-      if (passed.length) setActiveId(passed[0].id);
+      if (passed.length) setActiveId(prev => prev === passed[0].id ? prev : passed[0].id);
     };
     const target: HTMLElement | Window = mainEl ?? window;
     target.addEventListener('scroll', fn, { passive: true });
@@ -422,7 +430,7 @@ export default function BlogPost() {
   const pal = meta ? (CAT_PALETTE[meta.category] ?? { color: '#94a3b8', bg: 'rgba(30,41,59,0.5)', border: 'rgba(71,85,105,0.3)' }) : null;
 
   return (
-    <div className={`relative min-w-0 transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+    <div className={`relative min-w-0 transition-all duration-200 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
       <ReadingBar />
 
       {/* Ambient background orbs */}

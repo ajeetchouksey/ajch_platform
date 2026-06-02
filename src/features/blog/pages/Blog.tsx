@@ -135,7 +135,7 @@ function PostCard({
       ref={cardRef}
       to={`/blog/${post.slug}`}
       className={`group relative block rounded-2xl overflow-hidden transition-all duration-300 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-      style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)', transitionDelay: `${idx * 35}ms` }}
+      style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)', transitionDelay: `${Math.min(idx, 10) * 20}ms` }}
       onMouseEnter={e => {
         (e.currentTarget as HTMLElement).style.borderColor = pal.border;
         (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)';
@@ -295,7 +295,7 @@ export default function Blog() {
     <div className="space-y-8">
       {/* ── Page header ── */}
       <div
-        className={`relative pb-8 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+        className={`relative pb-8 transition-all duration-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
       >
         <div className="absolute -top-12 -left-20 w-96 h-96 rounded-full pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)' }} />
