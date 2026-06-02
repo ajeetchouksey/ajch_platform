@@ -498,8 +498,8 @@ export default function Layout({ children }: { children: ReactNode }) {
           }}
         >
           <div className="max-w-5xl mx-auto">
-            <Breadcrumbs />
             <div key={pageKey} className="animate-[fadeIn_0.38s_cubic-bezier(0.22,1,0.36,1)_both]">
+              <Breadcrumbs />
               {children}
             </div>
           </div>

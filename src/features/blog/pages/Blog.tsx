@@ -221,7 +221,7 @@ export default function Blog() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-    requestAnimationFrame(() => setMounted(true));
+    setTimeout(() => setMounted(true), 0);
   }, []);
 
   const allCategories = useMemo(() => [...new Set(posts.map((p) => p.category))], [posts]);
@@ -295,7 +295,6 @@ export default function Blog() {
       {/* ── Page header ── */}
       <div
         className={`relative pb-8 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-        style={{ borderBottom: '1px solid rgba(71,85,105,0.10)' }}
       >
         <div className="absolute -top-12 -left-20 w-96 h-96 rounded-full pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)' }} />

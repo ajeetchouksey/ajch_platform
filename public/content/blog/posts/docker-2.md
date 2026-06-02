@@ -1,6 +1,6 @@
 ---
 title: "Docker Definitions and Taxonomy"
-excerpt: "Docker Terminology"
+excerpt: "A precise reference for Docker terminology — images, containers, registries, repositories, and how they relate. Built for people coming from a VM background."
 author: "Ajeet Chouksey"
 date: "2017-12-27"
 tags: ["container", "docker"]
@@ -12,22 +12,17 @@ draft: false
 
 # Docker Definitions and Taxonomy
 
-In this post I am going to talk about Docker Definitions and Taxonomy.  
-Some of the term, I will co-relate with VM, but please not that VM and Containers are not same.
-They have significant differences. 
-I hope this will help you to easily understand, especially if you are new to Docker.
+Terminology is where Docker trips people up early. Words like *image*, *container*, *registry*, and *repository* sound interchangeable until you realise they have precise, distinct meanings — and conflating them causes real confusion when you’re debugging or designing systems.
 
+This post is a reference. Read it once end-to-end, then bookmark it.
 
-Docker image is the very first thing that you need. The first question comes in mind what is the image, who provide it and can we create our base image.
+If you’re new to containers, read [Container - It’s all about Application](/blog/container) and [Docker Overview](/blog/docker-1) first — this post assumes you know what a container is.
 
-Docker images or here we called base images are provide by the vendors. We cannot create the base OS images. We use these base images and modified it to create/ build containers.
+---
 
-These base images are publicly available in Docker Hub.
+## The VM Analogy (Useful, but Don’t Overstretch It)
 
-If you think about VM, in Azure we create VM from VHD files (which is pre-imaged file) from gallery. Once we have VM ready we can install and configure the software and other stuffs.
-Here VHD is Docker base image, once we have that image we can customize/ modified it with the help of Docker file (we can assume it like configuration management DSC).
-
- Gallery can be considered as Docker Hub or registry from where you can download/ upload the images.
+If you come from a VM background, these mappings help you get oriented quickly. Just don’t take the analogies too literally — containers and VMs have fundamentally different isolation models.
 
 **VM ↔ Docker concept mapping:**
 
@@ -48,26 +43,20 @@ flowchart LR
   DSC -.->|equivalent| DF
 ```
 
-Docker compose is used to support multi container environment. You can think about ARM master template where you define the service and call the nested child template.
+With that map in mind, here are the terms — in the order you’ll encounter them.
 
-Again, please note that above explanation is just to help you to get familiar with some of the term for easy understanding.
+---
 
-I will recommend going through the related post to get familiar with containers 
+## Core Concepts
 
->*  [Container - It's all about Application](/blog/container)
->* [Docker Overview](/blog/docker-1)
->* [New IT](/blog/newit)
->* [Read more about Container v/s VM](/blog/container#container-vs-vm)
+### Docker Image
 
 
-## Definition
-### Docker image: 
+An image is the foundation everything else is built on. Formally: **an ordered collection of root filesystem changes and the corresponding execution parameters for use within a container runtime.**
 
-Docker images are the basis of containers. **An Image is an ordered collection of root filesystem changes and the corresponding execution parameters for use within a container runtime. ***An image typically contains a union of layered file systems*** stacked on top of each other**. An image does not have state and it never changes as it’s deployed to various environments.
+In practice: it’s the packaged, immutable snapshot of your application and all its dependencies. It has no state. It never changes once built. You can run a thousand containers from the same image, on a thousand different hosts, and they all start identically.
 
-In Windows these image layers are available inside *C:\ProgramData\docker\containers*.
-
-below command will pull image (Windows server with pre-installed  IIS) from Docker hub. 
+Images are built in layers — each `Dockerfile` instruction adds a layer on top of the previous one. On Windows, layers live under `C:\ProgramData\docker\containers`. To pull an image from Docker Hub:
 
 ```PowerShell
 docker pull microsoft/iis
@@ -79,9 +68,13 @@ graph LR
   IMG --> CONT["Contents\nFiles and Folders\nConfig files, Binaries"]
 ```
 
-### Container: 
+### Container
 
-A container is a **runtime instance of a Docker image**. A Docker container consists of: A Docker image, an execution environment and a standard set of instructions. When scaling a service, you would instance multiple containers from the same image. Or, in a batch job, instance multiple containers from the same image, passing different parameters to each instance. ***A container “contains” something singular, a single process, like a service or web app. It is a 1:1 relationship***.
+A container is a **runtime instance of a Docker image**. The same image can spawn multiple containers simultaneously, each running as an isolated process with its own filesystem, networking, and process tree.
+
+> **One container contains one thing** — a single process like a service or web app. It’s a 1:1 relationship between a container and a concern.
+
+Scale a service by spinning up more containers from the same image. Run a batch job with different parameters? Multiple containers, same image, different environment variables.
 
 ```mermaid
 graph TD
@@ -89,59 +82,29 @@ graph TD
   IIS --> WIN["Windows Server Base Layer"]
 ```
 
-### Tag:
+### Tag
 
- A tag is a label applied to a Docker image in a repository. Tags are how various images in a repository are distinguished from each other. They are commonly used to distinguish between multiple versions of the same image.
-Dockerfile: A Dockerfile is a text document that contains instructions to build a Docker image.
+A label applied to an image in a repository to distinguish versions. `microsoft/iis:latest` and `microsoft/iis:windowsservercore` are the same repository, different tags. Tags are how you version and differentiate image variants.
 
-### Build: 
+### Dockerfile
 
-Build is the process of building Docker images using a Dockerfile. The build uses a Dockerfile and a “context”. The context is the set of files in the directory in which the image is built. Builds can be done with commands like “docker build” or “docker-compose” which incorporates additional information such as the image name and tag.
+A plain-text file containing instructions to build a Docker image. Each instruction adds a layer. The Dockerfile is your repeatable, version-controlled recipe for building an environment:
 
 ```PowerShell
-Docker build -t <<image tag>> <<dockerfile path>>
+docker build -t <image-tag> <dockerfile-path>
 ```
-### Repository: 
 
-A collection of related images, differentiated by a tag that would differentiate the historical version of a specific image. Some repos contain multiple variations of a specific image, such as the SDK, runtime/fat, thin tags. As Windows containers become more prevalent, a single repo can contain platform variants, such as a Linux and Windows image.
+### Build
 
-### Registry: 
+The process of executing a Dockerfile to produce an image. `docker build` takes the Dockerfile and a build context (the directory containing files the build references), pulls the base image if needed, applies each instruction as a new layer, and tags the result.
+---
 
-A Registry is a hosted service containing repositories of images which responds to the Registry API. The default registry (from Docker as an organization) can be accessed using a browser at Docker Hub or using the Docker search command. Therefore, a Registry usually contains many Repositories from multiple teams. As companies will want to keep their images private, and network close to their deployment infrastructure, companies will instance private registries in their environment to maintain their apps and control over their base images.
+## Registry, Repository, and Hub
 
-### Docker Hub: 
-The Docker Hub is a centralized public resource for working with Docker and its components. It provides the following services: Docker image hosting, User authentication, Automated image builds plus work-flow tools such as build triggers and web hooks, Integration with GitHub and Bitbucket. Docker Hub is the public instance of a registry. Equivalent to the public GitHub compared to GitHub enterprise where customers store their code in their own environment.
+These three are consistently confused. Here's how they nest:
 
-[Docker Hub](https://hub.docker.com/)
 
-### Azure Container Registry:
 
- Centralized public resource for working with Docker Images and its components in Azure, a registry network-close to your deployments with control over access, making possible to use your Azure Active Directory groups and permissions.
-
-### Docker Trusted Registry: 
-
-Docker Trusted Registry (DTR) is the enterprise-grade image storage solution from Docker. You install it behind your firewall so that you can securely store and manage the Docker images you use in your applications. Docker Trusted Registry is a sub-product included as part of the Docker Datacenter product.
-
-### Docker for Windows and Mac: 
-
-The local development tools for building, running and testing containers locally. **Docker for x**, indicates the target developer machine. Docker for Windows provides both Windows and Linux container development environments.
-“Docker for Windows and Mac” deprecates “Docker Toolbox” which was based on Oracle VirtualBox. Docker for Windows is now based on Hyper-V VMs (Linux or Windows). Docker for Mac is based on Apple Hypervisor framework and xhyve hypervisor which provides a Docker-ready virtual machine on Mac OS X.
-
-### Compose: 
-Compose is a tool for defining and running multi container applications. With compose, you define a multi-container application in a single file, then spin your application up in a single command which does everything that needs to be done to get it running. Docker-compose.yml files are used to build and run multi container applications, defining the build information as well the environment information for interconnecting the collection of containers.
-
-### Cluster: 
-
-A Docker cluster pools together multiple Docker hosts and exposes them as a single virtual Docker host so it is able to scale-up to many hosts very easily. Examples of Docker clusters can be created with Docker Swarm, Mesosphere DC/OS, Google Kubernetes and Azure Service Fabric. If using Docker Swarm you typically call that “a swarm” instead of “a cluster”.
-
-### Orchestrator: 
-
-A Docker Orchestrator simplifies management of clusters and Docker hosts. These Orchestrators enable users to manage their images, containers and hosts through a user interface, either a CLI or UI. This interface allows users to administer container networking, configurations, load balancing, service discovery, High Availability, Docker host management and a much more.
-An orchestrator is responsible for running, distributing, scaling and healing workloads across a collection of nodes. Typically, Orchestrator products are the same products providing the cluster infrastructure like Mesosphere DC/OS, Kubernetes, Docker Swarm and Azure Service Fabric.
-
-## Taxonomy
-
-**Ecosystem relationship — how Registry, Image, and Container relate:**
 
 ```mermaid
 graph TD
@@ -156,17 +119,82 @@ graph TD
   CUSTOM -->|docker push| PRIV["Private Registry\nACR / DTR"]
 ```
 
-As mentioned in the definitions section, a container is one or more runtime instances of a Docker image that usually will contain a single app/service. The container is considered the live artifact being executed in a development machine or the cloud or server.
+### Repository
 
-An **image** is an ordered collection of root filesystem changes and the corresponding execution parameters for use within a container runtime. An image typically contains a union of layered filesystems (deltas) stacked on top of each other. An image does not have state and it never changes.
+A collection of related images — all variations of a single thing, differentiated by tag. `microsoft/iis` is a repository. `microsoft/iis:latest`, `microsoft/iis:windowsservercore`, and `microsoft/iis:nanoserver` are the images within it.
 
-A **registry** is a service containing repositories of images from one or more development teams. Multiple development teams may also instance multiple registries. The default registry for Docker is the public "Docker Hub" but you will likely have your own private registry network close to your orchestrator to manage and secure your images, and reduce network latency when deploying images.
+### Registry
 
-The beauty of the images and the registry **resides on the possibility for you to store static and immutable application bits including all their dependencies at OS and frameworks level so they can be versioned and deployed in multiple environments providing a consistent deployment unit**.
+A hosted service that contains one or many repositories and exposes the Registry API. The default public registry is Docker Hub. Organisations run private registries for access control, network proximity, and compliance requirements.
 
-You should use a private registry (an example of use of Azure Container Registry) if you want to:
-* Tightly control where your images are being stored
-* Reduce network latency between the registry and the deployment nodes
-* Fully own your images distribution pipeline
-* Integrate image storage and distribution tightly into your in-house development workflow
+### Docker Hub
+
+Docker’s public registry — [hub.docker.com](https://hub.docker.com). The GitHub equivalent for container images. It provides public and private image hosting, automated builds from GitHub and Bitbucket, webhooks, build triggers, and official vendor-maintained base images.
+
+### Azure Container Registry (ACR)
+
+A private registry, network-close to your Azure deployments, integrated with Azure Active Directory for access control. Use ACR when you need tight control over image distribution and reduced pull latency into AKS, ACI, or App Service.
+
+### Docker Trusted Registry (DTR)
+
+Docker’s enterprise-grade on-premises image storage — part of Docker Datacenter. Install it behind your firewall for maximum security and auditability in air-gapped or regulated environments.
+
+---
+
+## Orchestration and Clustering
+
+### Compose
+
+A tool for defining and running multi-container applications. You describe the entire stack in a `docker-compose.yml` file — services, networks, volumes — and bring it up or tear it down with a single command. Compose is to containers what an ARM master template is to Azure resources.
+
+### Cluster
+
+A pool of Docker hosts exposed as a single virtual Docker host, enabling scale-out across many machines. Docker Swarm, Kubernetes, Mesosphere DC/OS, and Azure Service Fabric are all cluster implementations. If you’re using Swarm specifically, call it *a swarm* rather than *a cluster*.
+
+### Orchestrator
+
+A layer above the cluster that manages images, containers, and hosts at scale. Responsibilities include running, distributing, scaling, and healing workloads across nodes, plus networking, load balancing, service discovery, and high availability. Kubernetes, Docker Swarm, and Azure Service Fabric are all orchestrators.
+
+---
+
+## Developer Tooling
+
+### Docker for Windows and Mac
+
+The local development environment for building and running containers on developer machines. Docker for Windows provides both Windows and Linux container environments (via Hyper-V). Docker for Mac uses Apple’s Hypervisor framework and `xhyve`. Both replaced the older Docker Toolbox, which relied on Oracle VirtualBox.
+
+### Docker PowerShell Module
+
+For Windows Server environments, the Docker PowerShell module provides cmdlets for managing images, containers, and registries — useful when scripting infrastructure or working in environments where PowerShell is the primary management interface.
+
+---
+
+## Why Image Immutability Matters
+
+The design principle underpinning all of this is **immutability**. An image never changes once built. You can version it, tag it, push it to a registry, pull it anywhere, and know with certainty what you’re running.
+
+> The power of images and registries is the ability to store static, immutable application bits — including all OS and framework dependencies — so they can be versioned and deployed in multiple environments as a consistent, reproducible unit.
+
+Good reasons to run a private registry:
+
+- Tight control over where images are stored and who can pull them
+- Reduced network latency between registry and deployment nodes
+- Full ownership of your image distribution pipeline
+- Integration with your internal development and release workflows
+
+---
+
+## Key Takeaways
+
+- **Image** = immutable snapshot of your app and its dependencies, built in layers
+- **Container** = running instance of an image — ephemeral, isolated, one concern per container
+- **Repository** = collection of image variants (same app, different tags)
+- **Registry** = hosts one or many repositories; Docker Hub is the public default
+- **ACR** = private Azure registry, integrated with AAD, network-close to your deployments
+- **Compose** = multi-container stack definition; **Swarm / Kubernetes** = cluster + orchestration
+- **Immutability** is the design principle that makes the whole model reliable and reproducible
+
+---
+
+*Next in this series: [My First Docker Container](/blog/docker-3) — put this terminology to work and build a real Windows container step by step.*
 
