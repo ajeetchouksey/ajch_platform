@@ -13,6 +13,19 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 
 ---
 
+## [2.4.0] - 2026-06-02
+
+### Added
+- **Community Contributions page** (`/contribute`) — 4-tab form gated behind GitHub login; tabs: Exam Question (MCQ submission, credited `@username`), Blog Post (full in-browser Markdown editor with live preview, word count, reading time, `.md` download + review issue), Tool Idea (tool suggestion), New Course (propose a new exam/certification with cert body, official URL, rationale, domain outline)
+- **GA4 analytics** (Issue #14) — `initGA()`, `trackPageView()`, `trackEvent()` in `src/lib/analytics.ts`; cookieless mode (`storage: none`, `client_storage: none`); `VITE_GA_MEASUREMENT_ID` env var; script injected dynamically from `main.tsx`; route-change tracking via `GATracker` component in `App.tsx`; added to `deploy.yml` as GitHub Actions Variable
+
+### Changed
+- `src/App.tsx` — added `GATracker` component (wraps `useLocation()` → `trackPageView()` on route change)
+- `src/main.tsx` — calls `initGA()` before React renders to prime the `dataLayer` queue
+- `.github/workflows/deploy.yml` — build env now includes `VITE_GA_MEASUREMENT_ID` from `vars.VITE_GA_MEASUREMENT_ID`
+
+---
+
 ## [2.3.0] - 2026-05-29
 
 ### Added
