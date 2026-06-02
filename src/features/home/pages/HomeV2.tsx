@@ -101,7 +101,41 @@ const creds = [
   { icon: GitCommit, value: '2,044', label: 'Contributions (2025)' },
   { icon: Award,     value: '5+',    label: 'Active certifications' },
 ];
-
+// ── AI Learning Journey ───────────────────────────────────────────────────────
+const journeySteps = [
+  {
+    level: '101', tag: 'Fundamentals',
+    title: 'AI Basics & Prompting',
+    color: '#38bdf8', bg: 'rgba(56,189,248,0.08)', border: 'rgba(56,189,248,0.20)',
+    topics: ['Prompt Engineering', 'GenAI Concepts', 'Responsible AI'],
+    icon: BookOpen, href: '/notes', cta: 'Start Here',
+    audience: 'Beginners & students',
+  },
+  {
+    level: '201', tag: 'Practitioner',
+    title: 'Workflows & Agents',
+    color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.20)',
+    topics: ['Agentic AI', 'Tool Design', 'Copilot Patterns'],
+    icon: Zap, href: '/exams', cta: 'Practice Now',
+    audience: 'Developers & practitioners',
+  },
+  {
+    level: '301', tag: 'Architect',
+    title: 'Architecture & Systems',
+    color: '#2dd4bf', bg: 'rgba(45,212,191,0.08)', border: 'rgba(45,212,191,0.20)',
+    topics: ['RAG Systems', 'MCP Protocol', 'Orchestration'],
+    icon: Terminal, href: '/blog', cta: 'Go Deep',
+    audience: 'Engineers & architects',
+  },
+  {
+    level: '310', tag: 'Enterprise',
+    title: 'Governance & Scale',
+    color: '#fb923c', bg: 'rgba(251,146,60,0.08)', border: 'rgba(251,146,60,0.20)',
+    topics: ['AI Governance', 'Observability', 'Secure AI'],
+    icon: ShieldCheck, href: '/docs', cta: 'Architect It',
+    audience: 'Leaders & principals',
+  },
+] as const;
 // ── Count-up hook ─────────────────────────────────────────────────────────────
 function useCountUp(target: number, duration = 1200) {
   const [count, setCount] = useState(0);
@@ -437,6 +471,125 @@ export default function HomeV2() {
               </Link>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          § LEARNING JOURNEY — AI 101 → 310
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
+      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        style={{ transitionDelay: '240ms' }}>
+
+        {/* Section header */}
+        <div className="mb-8">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Learning Path</p>
+          <h2 className="text-2xl font-black text-white">Your AI Learning Journey</h2>
+          <p className="text-sm text-slate-500 mt-1">From fundamentals to enterprise architecture — structured, hands-on, free.</p>
+        </div>
+
+        {/* ── DESKTOP: horizontal gradient track ─────────────────────────── */}
+        <div className="hidden md:block">
+          <div className="relative">
+            {/* Gradient connecting track between step circles */}
+            <div className="absolute top-[27px] left-[12.5%] right-[12.5%] h-[2px] pointer-events-none rounded-full"
+              style={{ background: 'linear-gradient(90deg, #38bdf8 0%, #a78bfa 33%, #2dd4bf 66%, #fb923c 100%)', opacity: 0.6 }} />
+
+            <div className="grid grid-cols-4 gap-3">
+              {journeySteps.map((step) => {
+                const StepIcon = step.icon;
+                return (
+                  <div key={step.level} className="flex flex-col items-center">
+                    {/* Step circle */}
+                    <div className="relative z-10 w-14 h-14 rounded-full flex flex-col items-center justify-center mb-4 transition-transform duration-200 hover:scale-110"
+                      style={{
+                        background: `radial-gradient(circle, ${step.bg} 0%, rgba(6,12,24,0.95) 100%)`,
+                        border: `2px solid ${step.color}`,
+                        boxShadow: `0 0 24px -6px ${step.color}60`,
+                      }}>
+                      <span className="text-[8px] font-black uppercase tracking-wide" style={{ color: `${step.color}90` }}>{step.tag.slice(0,4)}</span>
+                      <span className="text-sm font-black leading-none" style={{ color: step.color }}>{step.level}</span>
+                    </div>
+
+                    {/* Step card */}
+                    <Link to={step.href}
+                      className="w-full rounded-2xl p-4 block transition-all duration-200 hover:-translate-y-1.5 group"
+                      style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid ${step.border}` }}
+                      onMouseEnter={e => {
+                        (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 30px -10px ${step.color}35`;
+                        (e.currentTarget as HTMLElement).style.borderColor = step.color + '50';
+                      }}
+                      onMouseLeave={e => {
+                        (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                        (e.currentTarget as HTMLElement).style.borderColor = step.border;
+                      }}>
+                      {/* Tag + icon */}
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <StepIcon size={12} style={{ color: step.color }} />
+                        <span className="text-[9px] font-black uppercase tracking-[0.15em]" style={{ color: step.color }}>{step.tag}</span>
+                      </div>
+                      {/* Title */}
+                      <h3 className="text-sm font-black text-white mb-2 leading-snug">{step.title}</h3>
+                      {/* Topic chips */}
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {step.topics.map(t => (
+                          <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold"
+                            style={{ color: step.color, background: step.bg, border: `1px solid ${step.border}` }}>
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                      {/* Audience */}
+                      <p className="text-[10px] text-slate-600 mb-3">{step.audience}</p>
+                      {/* CTA */}
+                      <div className="flex items-center gap-1 text-[11px] font-black transition-all duration-200 group-hover:gap-2"
+                        style={{ color: step.color }}>
+                        {step.cta} <ArrowRight size={11} className="transition-transform group-hover:translate-x-0.5" />
+                      </div>
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* ── MOBILE: vertical left-border stack ─────────────────────────── */}
+        <div className="md:hidden space-y-3">
+          {journeySteps.map((step) => {
+            const StepIcon = step.icon;
+            return (
+              <Link key={step.level} to={step.href}
+                className="flex items-start gap-3 rounded-2xl p-4 block transition-all duration-200 active:scale-[0.98]"
+                style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid ${step.border}`, borderLeft: `3px solid ${step.color}` }}>
+                {/* Badge */}
+                <div className="shrink-0 w-10 h-10 rounded-xl flex flex-col items-center justify-center font-black"
+                  style={{ background: step.bg, border: `1px solid ${step.border}` }}>
+                  <span className="text-[8px]" style={{ color: `${step.color}80` }}>{step.level.slice(0,2)}</span>
+                  <span className="text-xs font-black" style={{ color: step.color }}>{step.level.slice(2)}</span>
+                </div>
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <StepIcon size={11} style={{ color: step.color }} />
+                    <span className="text-[9px] font-black uppercase tracking-wider" style={{ color: step.color }}>{step.tag}</span>
+                  </div>
+                  <p className="text-sm font-black text-white mb-1">{step.title}</p>
+                  <p className="text-[10px] text-slate-500">{step.topics.join(' · ')}</p>
+                </div>
+                <ArrowRight size={14} className="shrink-0 mt-1" style={{ color: `${step.color}70` }} />
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="mt-7 flex items-center justify-between flex-wrap gap-4">
+          <p className="text-xs text-slate-600">All content is free · No account required to start</p>
+          <Link to="/exams"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black rounded-2xl text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-violet-500/20 active:scale-95"
+            style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(56,189,248,0.15))', border: '1px solid rgba(139,92,246,0.35)' }}>
+            Start Your AI Journey <ArrowRight size={14} />
+          </Link>
         </div>
       </section>
 
