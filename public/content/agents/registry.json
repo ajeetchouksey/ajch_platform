@@ -1,7 +1,7 @@
 {
   "schema": "1.0",
-  "platform_version": "2.3.0",
-  "generated": "2026-05-29",
+  "platform_version": "2.1.0",
+  "generated": "2026-06-02",
   "note": "Auto-updated by agents-validate.yml on push to main. Frozen into each GitHub Release by release.yml.",
   "agents": [
     {
@@ -83,15 +83,9 @@
       "last_modified": "2026-06-02"
     },
     {
-      "file": "test-engineer.agent.md",
-      "name": "Test Engineer",
-      "version": "1.0.0",
-      "last_modified": "2026-06-02"
-    },
-    {
       "file": "platform-dev-expert.agent.md",
       "name": "Platform Dev Expert",
-      "version": "1.0.1",
+      "version": "1.0.0",
       "last_modified": "2026-06-02"
     },
     {
@@ -147,6 +141,12 @@
       "name": "Tech Writer",
       "version": "1.0.0",
       "last_modified": "2026-05-29"
+    },
+    {
+      "file": "test-engineer.agent.md",
+      "name": "Test Engineer",
+      "version": "1.0.0",
+      "last_modified": "2026-06-02"
     }
   ]
 }
