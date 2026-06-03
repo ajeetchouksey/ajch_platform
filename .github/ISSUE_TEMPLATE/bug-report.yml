@@ -1,0 +1,81 @@
+name: "Bug Report"
+description: "Report a bug or broken behaviour on the platform."
+title: "[Bug]: "
+labels: ["type:bug", "P2-medium"]
+assignees: ["ajeetchouksey"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill in as much detail as you can — it helps us fix it faster.
+
+  - type: input
+    id: url
+    attributes:
+      label: "Page / URL"
+      description: "Which page does this occur on?"
+      placeholder: "e.g. https://aaryaai.dev/skillup/ccaf/notes or http://localhost:5173/blog/my-post"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "What happened?"
+      description: "A clear description of the bug."
+      placeholder: "Describe what you saw..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "What did you expect to happen?"
+      placeholder: "Describe what you expected..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to reproduce"
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: "Browser"
+      options:
+        - Chrome / Chromium
+        - Firefox
+        - Safari
+        - Edge
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Severity"
+      options:
+        - "Critical — platform is unusable"
+        - "High — major feature is broken"
+        - "Medium — visible issue, workaround exists"
+        - "Low — cosmetic / minor annoyance"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Additional context"
+      description: "Console errors, screenshots, OS/device info — anything else that might help."
+      placeholder: "Paste any relevant console errors here..."
+    validations:
+      required: false

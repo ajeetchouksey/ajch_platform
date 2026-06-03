@@ -1,0 +1,30 @@
+name: Dependency Review
+# Blocks PRs that introduce dependencies with known high/critical CVEs.
+# Uses the GitHub Advisory Database (GHSA).
+# Docs: https://github.com/actions/dependency-review-action
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          # Block PRs with high or critical severity vulnerabilities
+          fail-on-severity: high
+          # Post a summary comment on the PR
+          comment-summary-in-pr: on-failure
+          # Warn on GPL/LGPL licences — platform is MIT
+          deny-licenses: GPL-2.0, GPL-3.0, LGPL-2.0, LGPL-2.1, LGPL-3.0

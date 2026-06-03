@@ -7,6 +7,11 @@ on:
   push:
     branches-ignore: [main]   # also run on feature branches (not main — deploy.yml handles that)
 
+# Cancel redundant runs on the same branch — saves Actions minutes
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

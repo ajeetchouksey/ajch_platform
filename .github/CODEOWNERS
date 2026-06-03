@@ -1,0 +1,35 @@
+# CODEOWNERS — required reviewer assignments per path
+# Every PR must be approved by the owner(s) listed for the changed files.
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ── Default: catch-all ────────────────────────────────────────────────────
+*                                   @ajeetchouksey
+
+# ── Platform source code ─────────────────────────────────────────────────
+/src/                               @ajeetchouksey
+/vite.config.ts                     @ajeetchouksey
+/tsconfig*.json                     @ajeetchouksey
+/index.html                         @ajeetchouksey
+
+# ── Package manifest — dependency changes always need owner sign-off ──────
+/package.json                       @ajeetchouksey
+/package-lock.json                  @ajeetchouksey
+
+# ── CI/CD and security — highest protection ───────────────────────────────
+/.github/workflows/                 @ajeetchouksey
+/.github/CODEOWNERS                 @ajeetchouksey
+/.github/SECURITY.md                @ajeetchouksey
+/.github/dependabot.yml             @ajeetchouksey
+
+# ── Agent files — version gate enforced by agents-validate.yml ───────────
+/.github/agents/                    @ajeetchouksey
+
+# ── Content — community can contribute; maintainer must review ────────────
+# Questions: Curriculum Engineer validates schema; owner approves merge
+/public/content/questions/          @ajeetchouksey
+# Blog: Content Lead pipeline; owner approves publication
+/public/content/blog/               @ajeetchouksey
+# SkillUp skill definitions and catalog
+/public/content/skillup/            @ajeetchouksey
+# Stats file is auto-generated — still requires owner review if touched by humans
+/public/content/stats.json          @ajeetchouksey
