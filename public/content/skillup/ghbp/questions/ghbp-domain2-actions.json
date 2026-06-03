@@ -1,0 +1,152 @@
+[
+  {
+    "domain": 2,
+    "id": "ghbp-d2-001",
+    "scenario": "A team's CI workflow runs `npm install` on every PR. With 30 PRs per day, the job takes 4 minutes each time. A DevOps engineer wants to reduce this to under 30 seconds.",
+    "question": "What is the correct caching strategy to achieve this?",
+    "options": [
+      "Cache the entire node_modules/ directory using the branch name as the cache key",
+      "Cache the npm global cache directory (~/.npm) using a key that hashes the package-lock.json file",
+      "Cache node_modules/ using the workflow run ID as the key",
+      "Use actions/setup-node with node-version as the cache key"
+    ],
+    "correct": 1,
+    "explanation": "Caching ~/.npm (the npm global cache) with a key based on a hash of package-lock.json is the correct approach. When dependencies don't change, the cache restores in ~5 seconds instead of downloading. The key MUST include a hash of the lock file — if you cache by branch name (A) or run ID (C), the cache either never invalidates (serving stale packages) or never hits (new key every run). Caching node_modules/ directly (A) is fragile across OS environments. actions/setup-node with node-version (D) doesn't cache package content.",
+    "tags": ["caching", "npm", "performance", "github-actions"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-002",
+    "scenario": "A workflow uses `uses: third-party-org/dangerous-action@v2`. A supply chain attack modifies the `v2` tag to point to malicious code. The next time any PR triggers the workflow, the malicious action runs with access to all repository secrets.",
+    "question": "What is the CORRECT way to reference third-party actions to prevent this attack vector?",
+    "options": [
+      "Use @latest instead of @v2 to always get the newest, most secure version",
+      "Pin to the full commit SHA of the action: `third-party-org/dangerous-action@abc1234...` with the tag as a comment",
+      "Only use actions from verified publishers",
+      "Copy the action's source code into your repository and reference it locally"
+    ],
+    "correct": 1,
+    "explanation": "SHA pinning is the only immutable reference — a git tag like @v2 can be moved to point to different (malicious) code. A full commit SHA is permanent and cannot be reassigned. The correct pattern is: `uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2` — SHA as the reference, version as a comment for human readability. @latest (A) is even more dangerous — any update immediately takes effect. Verified publishers (C) reduces risk but doesn't prevent tag mutation. Copying source (D) solves the problem but creates maintenance burden.",
+    "tags": ["supply-chain", "action-pinning", "SHA", "security"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-003",
+    "scenario": "A workflow file contains: `permissions: write-all`. The team uses this workflow on a public repository. A security auditor flags this as a Critical finding.",
+    "question": "Why is `permissions: write-all` a Critical risk specifically on public repositories?",
+    "options": [
+      "It allows the workflow to write to other organization repositories",
+      "A pull_request event from a forked public repository can trigger the workflow, giving untrusted code access to a highly permissive GITHUB_TOKEN that can modify the repository",
+      "It grants the workflow permanent admin access beyond the workflow run",
+      "It prevents Dependabot from running automated updates"
+    ],
+    "correct": 1,
+    "explanation": "On public repositories, anyone can open a pull request from a fork. If a workflow triggered by pull_request has write-all permissions, a malicious contributor can craft a PR that modifies the workflow itself or exploits the broad GITHUB_TOKEN to push code, modify releases, or delete branches. The principle of least privilege applies strictly: use read permissions by default and grant only what each specific job needs. GITHUB_TOKEN (C) expires at the end of the workflow run — it doesn't create permanent access.",
+    "tags": ["permissions", "GITHUB_TOKEN", "public-repo", "fork", "supply-chain"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-004",
+    "scenario": "A repository has no .github/dependabot.yml file. The team discovers their production service is running with a dependency that has a critical CVE published 8 months ago. The dependency is still at the vulnerable version because no one knew it needed updating.",
+    "question": "What does a correctly configured dependabot.yml provide that manual dependency management cannot reliably provide?",
+    "options": [
+      "Automatic merging of all dependency updates without human review",
+      "Continuous monitoring of all configured package ecosystems and automatic PR creation when vulnerabilities are detected or new versions are available",
+      "Blocking deployments when vulnerable dependencies are detected in production",
+      "Enforcing semantic versioning across all dependencies"
+    ],
+    "correct": 1,
+    "explanation": "Dependabot monitors configured ecosystems (npm, pip, docker, github-actions, etc.) continuously. When a vulnerability is found or a new version is published, it opens a PR automatically — bringing the update to the team's attention without anyone having to manually check. It does NOT auto-merge by default (A) — the team reviews and merges. It doesn't block production deployments (C) or enforce versioning standards (D).",
+    "tags": ["Dependabot", "dependency-management", "CVE", "automation"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-005",
+    "scenario": "A team has 5 repositories, each with their own copy of a 200-line 'test and deploy' workflow. When a security vulnerability is found in the shared deployment step, all 5 files need to be updated separately. Two repositories get updated, three are missed, and the vulnerability persists.",
+    "question": "What GitHub Actions pattern eliminates this maintenance and security problem?",
+    "options": [
+      "Copy the workflow into a shared Gist and reference it with curl in each workflow",
+      "Create a reusable workflow (on: workflow_call) in a shared repository and call it from each consumer repository",
+      "Use GitHub Actions Environments to share configuration across repositories",
+      "Create an organization-level workflow template that each repository copies on setup"
+    ],
+    "correct": 1,
+    "explanation": "Reusable workflows (triggered by workflow_call) allow you to define a workflow once and call it from any repository: `uses: your-org/shared-workflows/.github/workflows/deploy.yml@main`. When you fix the vulnerability in the shared workflow, all calling repositories automatically get the fix on their next run. Templates (D) solve the initial creation problem but still result in copies — fixing one doesn't fix others. Environments (C) share secrets/vars, not workflow logic. Gist references (A) have no versioning, access control, or security guarantees.",
+    "tags": ["reusable-workflows", "DRY", "maintenance", "shared-workflows"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-006",
+    "scenario": "A team deploys to AWS from GitHub Actions by storing AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY as repository secrets. A security review recommends eliminating these long-lived credentials entirely.",
+    "question": "What is the modern, recommended approach for authenticating GitHub Actions to AWS without storing long-lived credentials?",
+    "options": [
+      "Use shorter-expiry AWS credentials and rotate them every 30 days",
+      "Store credentials in GitHub Environments instead of repository secrets",
+      "Configure OpenID Connect (OIDC) federation between GitHub Actions and AWS IAM, allowing the workflow to exchange a short-lived GitHub token for temporary AWS credentials",
+      "Use a self-hosted runner inside the AWS network with an attached IAM role"
+    ],
+    "correct": 2,
+    "explanation": "OIDC federation is the gold standard for cloud authentication from CI/CD. The workflow requests a short-lived JWT from GitHub's OIDC provider, presents it to AWS STS, and receives temporary credentials scoped to the specific IAM role. There are no secrets to store, rotate, or accidentally leak. The credentials expire when the workflow run ends. Short-rotation (A) reduces exposure window but still has secrets. Environment secrets (B) improve scoping but still use long-lived keys. Self-hosted runners with IAM roles (D) work but add infrastructure complexity.",
+    "tags": ["OIDC", "AWS", "cloud-authentication", "no-long-lived-secrets"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-007",
+    "scenario": "A workflow deploys to production automatically on every push to main. A bad deployment goes out on Friday at 5pm. The on-call engineer needs to stop further deployments immediately without disabling the entire workflow.",
+    "question": "What GitHub-native mechanism allows production deployments to require human approval before proceeding?",
+    "options": [
+      "Add an if: condition to the deploy job checking for a repository variable",
+      "Configure an environment with required reviewers in GitHub Settings → Environments, and reference that environment in the deploy job",
+      "Add a manual approval step using a separate workflow with workflow_dispatch trigger",
+      "Configure branch protection to require deployment status checks before merging"
+    ],
+    "correct": 1,
+    "explanation": "GitHub Environments support required reviewers — one or more specified users must approve before a job referencing that environment can run. When the deploy job declares `environment: production`, GitHub pauses execution and sends approval requests to the configured reviewers. This is the native gate for deployment approval. The if: condition (A) can be bypassed by modifying the variable. A separate workflow_dispatch (C) requires extra steps and doesn't integrate with the main pipeline. Branch protection deployment checks (D) apply to merging, not to the deployment itself.",
+    "tags": ["environments", "deployment-approval", "production-gate", "required-reviewers"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-008",
+    "scenario": "A CodeQL scan is configured as a workflow, but the team notices that PRs with new SQL injection vulnerabilities are still being merged. Investigation reveals the CodeQL workflow runs but its result is not blocking merges.",
+    "question": "What additional configuration is required to make CodeQL scan results block PR merges?",
+    "options": [
+      "Increase the CodeQL scan severity threshold to 'critical'",
+      "Add the CodeQL workflow check name as a required status check in the branch protection settings for main",
+      "Configure CodeQL to run in blocking mode using the block: true parameter",
+      "Enable GitHub Advanced Security on the repository"
+    ],
+    "correct": 1,
+    "explanation": "Running a workflow and blocking a merge are two separate configurations. The workflow produces a check result, but branch protection must be configured to require that check to pass before merging. In Settings → Branches → main → Required status checks, add the CodeQL job name. Without this, the check runs and reports findings but doesn't block merging. There is no `block: true` parameter in CodeQL (C). Advanced Security (D) unlocks code scanning features but doesn't automatically make them required gates.",
+    "tags": ["CodeQL", "required-status-checks", "branch-protection", "security-scanning"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-009",
+    "scenario": "A team's CI workflow has three sequential jobs: build → test → deploy-staging. Each job takes 5 minutes. Total pipeline time is 15 minutes. Analysis shows that 'lint' and 'security-scan' could run independently of 'test' since they don't share outputs.",
+    "question": "What GitHub Actions configuration reduces pipeline time by running independent jobs in parallel?",
+    "options": [
+      "Set `runs-on: ubuntu-latest` for all jobs to use the same runner pool",
+      "Remove the `needs:` declarations from lint and security-scan so they run without waiting for dependencies",
+      "Use a matrix strategy with all job names to run them simultaneously",
+      "Split the workflow file into separate files — one per job"
+    ],
+    "correct": 1,
+    "explanation": "Jobs without `needs:` dependencies run in parallel automatically on GitHub Actions. Removing `needs: [build]` from lint and security-scan allows them to start immediately when the workflow triggers, instead of waiting for build to complete. The runner pool (A) affects resource allocation, not job scheduling. Matrix strategy (C) is for running the same job with multiple configurations, not different jobs in parallel. Separate workflow files (D) create separate workflow runs, not parallelism within one pipeline.",
+    "tags": ["parallelization", "job-dependencies", "pipeline-optimization", "needs"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-010",
+    "scenario": "A team wants to add a status badge to their README showing the current state of their main branch CI workflow. The badge should turn red when the build breaks and green when it passes.",
+    "question": "What is the correct URL pattern for a GitHub Actions workflow status badge?",
+    "options": [
+      "https://shields.io/github/workflow/status/{owner}/{repo}/{workflow-name}",
+      "https://github.com/{owner}/{repo}/actions/workflows/{workflow-file}.yml/badge.svg",
+      "https://github.com/{owner}/{repo}/workflows/{workflow-name}/badge.svg?branch=main",
+      "https://api.github.com/repos/{owner}/{repo}/actions/runs/latest/badge"
+    ],
+    "correct": 1,
+    "explanation": "GitHub's native badge URL format is: `https://github.com/{owner}/{repo}/actions/workflows/{workflow-filename}.yml/badge.svg`. This renders a badge showing the last run status for that workflow file. You can append `?branch=main` to show the status specifically for the main branch. Shields.io (A) is a third-party service — functional but an external dependency. The `/workflows/` path format (C) is outdated and uses workflow name, not file. The API endpoint (D) doesn't return a badge image.",
+    "tags": ["status-badges", "README", "workflow-visibility", "documentation"]
+  }
+]

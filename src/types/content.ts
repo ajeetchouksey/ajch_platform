@@ -12,11 +12,15 @@ export interface ExamResource {
   url: string;
 }
 
+export type ContentLevel = '101' | '201' | '301' | '401';
+
 export interface ExamConfig {
   id: string;
   title: string;
   shortTitle: string;
   description: string;
+  contentLevel?: ContentLevel; // skill difficulty level
+  schemaVersion?: string;
   questions: number;
   duration: string;
   passScore: string;
@@ -83,6 +87,7 @@ export interface Scenario {
 
 export interface QuizSession {
   id: string;
+  skillId: string;         // which skill this session belongs to
   startedAt: number;
   finishedAt?: number;
   domainFilter: number | null; // null = all domains

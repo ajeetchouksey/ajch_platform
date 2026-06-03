@@ -143,7 +143,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-300">Recent Sessions</h2>
           <Link
-            to="/exams"
+            to="/skillup"
             className="flex items-center gap-1 text-xs text-slate-500 hover:text-violet-400 transition-colors"
           >
             Start quiz <ArrowRight size={12} />
@@ -153,7 +153,7 @@ export default function Dashboard() {
         {recent.length === 0 ? (
           <p className="text-slate-500 text-sm">
             No sessions yet.{' '}
-            <Link to="/exams" className="text-violet-400 hover:underline">Take a quiz</Link> to start.
+            <Link to="/skillup" className="text-violet-400 hover:underline">Take a quiz</Link> to start.
           </p>
         ) : (
           <div
@@ -210,7 +210,7 @@ export default function Dashboard() {
               </span>
             )}
           </div>
-          <Link to="/exams" className="flex items-center gap-1 text-xs text-slate-500 hover:text-violet-400 transition-colors">
+          <Link to="/skillup" className="flex items-center gap-1 text-xs text-slate-500 hover:text-violet-400 transition-colors">
             All exams <ArrowRight size={12} />
           </Link>
         </div>
@@ -228,7 +228,7 @@ export default function Dashboard() {
               return (
                 <Link
                   key={`${entry.examId}-${entry.domainId}`}
-                  to={`/exams/${entry.examId}/quiz?domain=${entry.domainId}`}
+                  to={`/skillup/${entry.examId}/quiz?domain=${entry.domainId}`}
                   className="flex items-start gap-3 rounded-xl p-3 transition-colors"
                   style={{
                     background: 'rgba(255,255,255,0.03)',

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0",
+  "id": "ghbp",
+  "title": "GitHub Engineering Best Practices",
+  "shortTitle": "GH-BP",
+  "contentLevel": "101",
+  "description": "Build expertise in GitHub repository governance, branch protection, GitHub Actions security, CI/CD best practices, and team collaboration workflows.",
+  "questions": 30,
+  "duration": "60 min",
+  "passScore": "75%",
+  "passThreshold": 75,
+  "available": true,
+  "accentColor": "#16a34a",
+  "colorScheme": "blue",
+  "domains": [
+    { "id": 1, "title": "Branch Management & Protection", "weight": 33, "color": "bg-emerald-600", "notesFile": "content/skillup/ghbp/notes/ghbp-d1-branch-management.md" },
+    { "id": 2, "title": "GitHub Actions & CI/CD", "weight": 33, "color": "bg-sky-600", "notesFile": "content/skillup/ghbp/notes/ghbp-d2-actions-cicd.md" },
+    { "id": 3, "title": "Repository Security & Governance", "weight": 34, "color": "bg-violet-600", "notesFile": "content/skillup/ghbp/notes/ghbp-d3-repo-governance.md" }
+  ],
+  "questionFiles": [
+    "content/skillup/ghbp/questions/ghbp-domain1-branch.json",
+    "content/skillup/ghbp/questions/ghbp-domain2-actions.json",
+    "content/skillup/ghbp/questions/ghbp-domain3-repo.json"
+  ],
+  "scenarioFiles": [],
+  "resources": [
+    { "label": "GitHub Docs: Branch Protection", "url": "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches" },
+    { "label": "GitHub Actions Security Hardening", "url": "https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions" },
+    { "label": "Conventional Commits", "url": "https://www.conventionalcommits.org" }
+  ]
+}

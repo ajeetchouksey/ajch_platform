@@ -60,7 +60,7 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
   return (
     <div
       ref={ref}
-      onClick={() => { if (exam.available) navigate(`/exams/${exam.id}`); }}
+      onClick={() => { if (exam.available) navigate(`/skillup/${exam.id}`); }}
       className={`group relative rounded-2xl overflow-hidden transition-all duration-500 ${
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       } ${exam.available ? 'cursor-pointer' : 'opacity-55 cursor-not-allowed'}`}
@@ -125,6 +125,12 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
           <span className="ml-auto text-[11px] font-bold" style={{ color: '#475569' }}>
             {exam.passScore} to pass
           </span>
+          {exam.contentLevel && (
+            <span className="text-[10px] font-black px-2 py-0.5 rounded-full border"
+              style={{ color: '#a78bfa', borderColor: 'rgba(167,139,250,0.35)', background: 'rgba(124,58,237,0.12)' }}>
+              L{exam.contentLevel}
+            </span>
+          )}
         </div>
 
         {/* Title + description */}
@@ -171,7 +177,7 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
         {exam.available ? (
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              to={`/exams/${exam.id}`}
+              to={`/skillup/${exam.id}`}
               onClick={e => e.stopPropagation()}
               className="inline-flex items-center gap-2 px-5 py-2.5 text-white text-sm font-black rounded-xl transition-all duration-200 group-hover:shadow-lg group-hover:-translate-y-0.5 active:scale-95"
               style={{ background: pal.btn, boxShadow: `0 0 0 1px ${pal.border}` }}
@@ -181,7 +187,7 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
               <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
-              to={`/exams/${exam.id}/notes`}
+              to={`/skillup/${exam.id}/notes`}
               onClick={e => e.stopPropagation()}
               className="flex items-center gap-1.5 text-xs font-bold transition-colors hover:text-slate-300"
               style={{ color: '#475569' }}

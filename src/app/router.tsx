@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 
 // ── Home ──────────────────────────────────────────────────────────────────────
 import HomeV2 from '@/features/home/pages/HomeV2';
@@ -42,19 +42,37 @@ import TeamV2 from '@/features/profile/pages/TeamV2';import Dashboard from '@/fe
 import Contribute from '@/features/community/pages/Contribute';
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Backward-compat redirect helpers for /exams/:examId/* → /skillup/:examId/*
+function ExamIdRedirect() {
+  const { examId } = useParams<{ examId: string }>();
+  return <Navigate to={`/skillup/${examId}`} replace />;
+}
+function ExamSubRedirect({ sub }: { sub: string }) {
+  const { examId } = useParams<{ examId: string }>();
+  return <Navigate to={`/skillup/${examId}/${sub}`} replace />;
+}
+
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomeV2 />} />
       <Route path="/learn" element={<Learn />} />
 
-      {/* Skill Up */}
-      <Route path="/exams" element={<ExamCatalog />} />
-      <Route path="/exams/:examId" element={<ExamHome />} />
-      <Route path="/exams/:examId/quiz" element={<Quiz />} />
-      <Route path="/exams/:examId/notes" element={<Notes />} />
-      <Route path="/exams/:examId/scenarios" element={<Scenarios />} />
-      <Route path="/exams/:examId/progress" element={<Progress />} />
+      {/* Skill Up — primary routes */}
+      <Route path="/skillup" element={<ExamCatalog />} />
+      <Route path="/skillup/:examId" element={<ExamHome />} />
+      <Route path="/skillup/:examId/quiz" element={<Quiz />} />
+      <Route path="/skillup/:examId/notes" element={<Notes />} />
+      <Route path="/skillup/:examId/scenarios" element={<Scenarios />} />
+      <Route path="/skillup/:examId/progress" element={<Progress />} />
+
+      {/* /exams → /skillup backward-compat redirects */}
+      <Route path="/exams" element={<Navigate to="/skillup" replace />} />
+      <Route path="/exams/:examId" element={<ExamIdRedirect />} />
+      <Route path="/exams/:examId/quiz" element={<ExamSubRedirect sub="quiz" />} />
+      <Route path="/exams/:examId/notes" element={<ExamSubRedirect sub="notes" />} />
+      <Route path="/exams/:examId/scenarios" element={<ExamSubRedirect sub="scenarios" />} />
+      <Route path="/exams/:examId/progress" element={<ExamSubRedirect sub="progress" />} />
 
       {/* Field Notes */}
       <Route path="/blog" element={<Blog />} />

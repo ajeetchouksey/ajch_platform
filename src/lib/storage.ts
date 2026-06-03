@@ -1,6 +1,6 @@
 import type { QuizSession } from '../types/content';
 
-const SESSIONS_KEY = 'cca_sessions';
+const SESSIONS_KEY = 'aarya_quiz_sessions'; // RC-4: was 'cca_sessions' — now skill-agnostic
 
 export function getSessions(): QuizSession[] {
   try {

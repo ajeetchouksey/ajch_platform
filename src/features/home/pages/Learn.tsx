@@ -17,7 +17,7 @@ const levels = [
     topics: ['What is GenAI?', 'Prompt Engineering Basics', 'Responsible AI', 'LLM Fundamentals', 'Use-case identification'],
     resources: [
       { label: 'Study Notes', href: '/notes', icon: FileText },
-      { label: 'Start Exam Prep', href: '/exams', icon: GraduationCap },
+      { label: 'Start Exam Prep', href: '/skillup', icon: GraduationCap },
     ],
   },
   {
@@ -27,7 +27,7 @@ const levels = [
     objective: 'Design and implement agentic workflows using modern AI toolchains.',
     topics: ['Agentic patterns', 'Tool use & function calling', 'Copilot architectures', 'Multi-agent coordination', 'State & memory'],
     resources: [
-      { label: 'Practice Exam', href: '/exams/ccaf', icon: GraduationCap },
+      { label: 'Practice Exam', href: '/skillup/ccaf', icon: GraduationCap },
       { label: 'AI Tools', href: '/tools', icon: Wrench },
     ],
   },
@@ -106,7 +106,7 @@ export default function Learn() {
               </div>
               <p className="text-[9px] text-slate-600 mt-1">{bestScore >= 72 ? '✓ Ready to certify' : `${72 - bestScore}% more to pass threshold`}</p>
             </div>
-            <Link to="/exams/ccaf/quiz"
+            <Link to="/skillup/ccaf/quiz"
               className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black rounded-xl text-white transition-all hover:-translate-y-0.5"
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', border: '1px solid rgba(139,92,246,0.5)' }}>
               Continue <ArrowRight size={14} />
@@ -206,7 +206,7 @@ export default function Learn() {
               : 'Begin with fundamentals. The certification prep adapts to your level.'}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link to="/exams/ccaf"
+            <Link to="/skillup/ccaf"
               className="inline-flex items-center gap-2 px-7 py-3 text-sm font-black rounded-2xl text-white transition-all hover:shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5"
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', border: '1px solid rgba(139,92,246,0.55)' }}>
               <GraduationCap size={15} /> Start Exam Prep <ArrowRight size={15} />

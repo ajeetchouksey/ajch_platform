@@ -29,7 +29,8 @@ export async function loadBlogPost(slug: string): Promise<string> {
 
 export async function loadExamRegistry(): Promise<ExamRegistry> {
   if (_registryCache) return _registryCache;
-  _registryCache = await fetchJSON<ExamRegistry>('content/exams/index.json');
+  // RC-4: read from auto-generated skillup/catalog.json (replaces exams/index.json)
+  _registryCache = await fetchJSON<ExamRegistry>('content/skillup/catalog.json');
   return _registryCache;
 }
 

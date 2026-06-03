@@ -1,0 +1,15 @@
+{
+  "id": "code-gen-claude-code",
+  "title": "Code Generation with Claude Code",
+  "description": "Configure Claude Code for a large TypeScript monorepo with frontend (React), backend (Node.js/Express), and infrastructure (Terraform) directories. Different teams have different coding standards. The setup must enforce ESLint rules for frontend, strict error handling for backend, and Terraform naming conventions for infra — all automatically, not as suggestions.",
+  "architecture_notes": "Use the 3-level CLAUDE.md hierarchy: global ~/.claude/CLAUDE.md for universal preferences, project CLAUDE.md for shared conventions, and .claude/rules/ scoped files with path globs for per-directory standards. Use PostToolUse hooks to automatically run the relevant linter after each file write (ESLint for .tsx files, custom validation for .tf files). Configure MCP servers in .claude/settings.json for database access during development. Define slash commands for common workflows: /review, /test, /commit.",
+  "key_patterns": [
+    "3-level CLAUDE.md hierarchy",
+    "scoped rules with path: glob frontmatter",
+    "PostToolUse hook for automatic linting",
+    "skills for schema/context, tools for actions",
+    "MCP server with stdio transport",
+    "slash commands for repeated workflows"
+  ],
+  "questionIds": ["d2-001", "d2-002", "d2-005", "d2-006"]
+}

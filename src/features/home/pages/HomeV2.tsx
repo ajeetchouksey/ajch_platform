@@ -19,7 +19,7 @@ import { getSessions } from '@/lib/storage';
 // ── Platform feature cards ────────────────────────────────────────────────────
 const features = [
   {
-    to: '/exams/ccaf',
+    to: '/skillup/ccaf',
     icon: GraduationCap,
     color: '#8b5cf6',
     bg: 'rgba(139,92,246,0.10)',
@@ -113,7 +113,7 @@ const journeySteps = [
     output: '"Build a retrieval QA chatbot"',
     color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.20)',
     topics: ['Agentic AI', 'Tool Design', 'Copilot Patterns'],
-    icon: Zap, href: '/exams', cta: 'Practice Now',
+    icon: Zap, href: '/skillup', cta: 'Practice Now',
     audience: 'Developers & practitioners',
   },
   {
@@ -472,7 +472,7 @@ export default function HomeV2() {
               );
             })()}
             {/* Right: CTA */}
-            <Link to="/exams/ccaf/quiz"
+            <Link to="/skillup/ccaf/quiz"
               className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black rounded-xl text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
               style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.55)' }}>
               Continue <ArrowRight size={14} />
@@ -594,7 +594,7 @@ export default function HomeV2() {
         {/* Bottom CTA */}
         <div className="mt-7 flex items-center justify-between flex-wrap gap-4">
           <p className="text-xs text-slate-600">All content is free · No account required to start</p>
-          <Link to="/exams"
+          <Link to="/skillup"
             className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black rounded-2xl text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-violet-500/20 active:scale-95"
             style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(56,189,248,0.15))', border: '1px solid rgba(139,92,246,0.35)' }}>
             Start Your AI Journey <ArrowRight size={14} />

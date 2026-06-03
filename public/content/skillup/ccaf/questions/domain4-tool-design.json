@@ -1,0 +1,227 @@
+[
+  {
+    "domain": 4,
+    "id": "d4-001",
+    "scenario": "You are writing a tool description for a send_email tool that can both draft and send emails. Claude keeps using it to send emails when users only want to draft them.",
+    "question": "What is missing from this tool description?",
+    "options": [
+      "The tool needs a more creative name",
+      "The tool description must include WHAT it does, WHEN to use it, and explicitly WHEN NOT to use it (e.g., 'Do not use this tool to send an email if the user only asked to draft or preview it')",
+      "The tool needs more parameters so Claude can infer intent better",
+      "The tool_choice should be set to 'auto' to give Claude full discretion"
+    ],
+    "correct": 1,
+    "explanation": "A complete tool description must include: (1) WHAT the tool does mechanically, (2) WHEN to use it (triggering conditions), and (3) WHEN NOT to use it (exclusion conditions). The third element is most commonly omitted and causes exactly the described problem — Claude uses a capable tool when it shouldn't. Adding an explicit 'Do not call this tool when the user only wants to draft or preview' rule eliminates the ambiguity. More parameters (C) and tool_choice auto (D) won't help if the description doesn't establish the boundary.",
+    "tags": ["tool-description", "when-not-to-use", "tool-design"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-002",
+    "scenario": "You have an agent that must always call at least one tool before responding. You want to prevent Claude from responding with plain text without making a tool call.",
+    "question": "Which tool_choice setting enforces this?",
+    "options": [
+      "tool_choice: { type: 'auto' } — Claude decides whether to use a tool",
+      "tool_choice: { type: 'any' } — Claude must call one of the available tools",
+      "tool_choice: { type: 'tool', name: 'specific_tool' } — forces a specific tool call",
+      "Remove tool_choice from the request — Claude will always use tools if available"
+    ],
+    "correct": 1,
+    "explanation": "tool_choice: { type: 'any' } forces Claude to call at least one tool from the available set, but gives it freedom to choose which one. tool_choice: auto (A) is the default — Claude may respond with plain text if it judges no tool is needed. Forcing a specific tool (C) would work only if there's exactly one appropriate tool. Omitting tool_choice (D) defaults to auto. The three modes: auto (Claude decides), any (must call a tool, Claude picks), specific tool (must call that exact tool).",
+    "tags": ["tool_choice", "any", "auto", "tool-design"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-003",
+    "scenario": "You have built a customer service agent with 25 tools covering account management, billing, shipping, returns, and technical support. You notice Claude is frequently calling the wrong tool.",
+    "question": "What architectural change will most improve tool selection accuracy?",
+    "options": [
+      "Improve the tool descriptions with more detailed parameter explanations",
+      "Increase the system prompt size to explain each tool more thoroughly",
+      "Split the 25 tools across multiple specialized MCP servers (5-8 tools each), and use a coordinator that delegates to the appropriate server",
+      "Switch to a higher-temperature setting to encourage Claude to explore more tool options"
+    ],
+    "correct": 2,
+    "explanation": "Tool selection accuracy degrades significantly beyond ~18 tools in context. With 25 tools, you're well past the degradation cliff. The architectural fix is MCP server segmentation: create specialized servers (billing-server, shipping-server, returns-server, etc.) each with 5-8 focused tools. A coordinator routes to the right server, which then has a much smaller and focused tool set. Better descriptions (A, B) help marginally but don't address the fundamental cognitive load issue. Temperature (D) doesn't improve selection accuracy.",
+    "tags": ["18-tool-cliff", "MCP-segmentation", "tool-degradation", "architecture"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-004",
+    "scenario": "A tool call to your external API fails with a 503 Service Unavailable error. Your tool needs to return a result to Claude.",
+    "question": "What is the correct tool_result structure for this failure?",
+    "options": [
+      "Return an empty tool_result and let Claude infer something went wrong",
+      "Throw an exception in the tool handler to abort the conversation",
+      "Return a tool_result with is_error: true and a structured content block containing the error type, message, and retryable: true",
+      "Return a tool_result with the error as plain text: '503 error occurred'"
+    ],
+    "correct": 2,
+    "explanation": "The correct pattern is a structured tool_result with is_error: true and a content block that includes: error type (503/service_unavailable), human-readable message, and a retryable flag. The retryable: true field is critical — it tells Claude (and the coordinator) that this is a transient failure that can be retried, not a permanent one. An empty result (A) causes Claude to proceed with bad assumptions. Exceptions (B) crash the loop. Plain text errors (D) require Claude to parse the error, which is fragile.",
+    "tags": ["tool-failure", "tool_result", "is_error", "structured-errors", "graceful-failure"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-005",
+    "scenario": "You are designing an MCP server for a file management system. Some operations need to be performed (write_file, delete_file) while others are informational (list_files, get_file_metadata).",
+    "question": "How should you differentiate these in MCP server design?",
+    "options": [
+      "Implement all of them as tools — tools are the universal MCP primitive",
+      "Implement write_file and delete_file as tools (actions that change state), and list_files / get_file_metadata as resources (read-only data access)",
+      "Implement all as resources with a read_only: true flag on informational ones",
+      "Use prompts for list_files and tools for write_file and delete_file"
+    ],
+    "correct": 1,
+    "explanation": "MCP has three primitives with distinct purposes: Tools = actions that execute code and change state (write, delete, send); Resources = read-only data access (metadata, catalogs, listings); Prompts = reusable prompt templates. Using resources for reads and tools for writes is the correct semantic split. It also enables clients to understand that resource calls are safe/read-only while tool calls may have side effects. Implementing everything as tools (A) works but loses semantic clarity and safety guarantees.",
+    "tags": ["MCP-primitives", "tools-vs-resources", "MCP-design"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-006",
+    "scenario": "You need Claude to query two independent data sources in one turn: one to get customer data and another to get order history. These queries have no dependency on each other.",
+    "question": "What is the most efficient implementation?",
+    "options": [
+      "Sequential: query customer data first, then query order history in the next turn",
+      "Submit both tool calls in the same assistant turn as parallel tool calls, then collect both results in one user turn",
+      "Combine both queries into a single tool that accepts both IDs",
+      "Use streaming to interleave the two queries"
+    ],
+    "correct": 1,
+    "explanation": "Parallel tool calls — submitting multiple tool_use blocks in a single assistant turn — is exactly designed for independent operations. Claude sends both requests simultaneously, you execute them in parallel, and return both tool_results in a single user turn. This halves the round-trip latency vs. sequential. A combined tool (C) is a valid approach but tightly couples two concerns and is less flexible. Streaming (D) reduces time-to-first-token but doesn't parallelize execution. Sequential (A) wastes time when there's no dependency.",
+    "tags": ["parallel-tool-calls", "parallel-tools", "tool-design", "performance"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-007",
+    "scenario": "You are defining the JSON Schema for a tool parameter 'status' that can be: 'pending', 'active', 'suspended', or occasionally a custom string value the system doesn't yet know about.",
+    "question": "How should you define this parameter in the schema?",
+    "options": [
+      "type: 'string' with no constraints — accept anything",
+      "enum: ['pending', 'active', 'suspended'] — strict enum, reject unknowns",
+      "enum: ['pending', 'active', 'suspended', 'other'] with an additional 'custom_status' string field for when 'other' is selected",
+      "type: 'integer' mapping statuses to numbers for efficiency"
+    ],
+    "correct": 2,
+    "explanation": "The 'other' escape pattern is the correct schema design for enums that may need to accommodate unknown values. Define the known values as enum entries, add 'other' as an escape hatch, and provide a companion string field for the custom value. This preserves type safety for known values while gracefully handling the long tail. Unconstrained string (A) loses all type safety. Strict enum without 'other' (B) breaks for unexpected values — and unknown values will occur. Integer mappings (D) are opaque and maintenance-heavy.",
+    "tags": ["JSON-schema", "enum-design", "other-escape", "schema-design"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-008",
+    "scenario": "You are building an MCP server with a tools catalog. When Claude needs to browse available operations before deciding which one to call, what MCP primitive is best suited for exposing the catalog?",
+    "question": "Which MCP primitive should expose the operations catalog?",
+    "options": [
+      "A tool called list_available_operations",
+      "A resource — resources are designed for metadata and catalog reads before actions are taken",
+      "A prompt template that lists all operations",
+      "Embed the catalog in every tool description"
+    ],
+    "correct": 1,
+    "explanation": "MCP Resources are specifically designed for read-only data that informs decision-making — exactly what a catalog is. Claude can read the resource to understand what's available before deciding which tool to call. This is the 'resources for metadata reads before actions' pattern. A tool (A) would work but is semantically wrong — tools are for actions with side effects. Prompt templates (C) are for reusable prompt patterns, not dynamic catalogs. Embedding in every description (D) bloats the tool context unnecessarily.",
+    "tags": ["MCP-resources", "MCP-primitives", "catalog-pattern"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-009",
+    "scenario": "You need to ensure that whenever Claude calls a tool, the input always includes required fields and never includes unexpected fields.",
+    "question": "What JSON Schema configuration enforces this?",
+    "options": [
+      "Mark all fields as optional and validate server-side",
+      "Set strict: true in the tool schema and define all required fields in the 'required' array",
+      "Add descriptions to each field explaining they are required",
+      "Validate inputs in a PreToolUse hook and return an error if invalid"
+    ],
+    "correct": 1,
+    "explanation": "strict: true in the tool schema does two things: (1) enforces that all 'required' fields are present, and (2) disallows additional properties not defined in the schema. This is the API-level enforcement mechanism. Descriptions (C) are guidance for Claude, not constraints. PreToolUse hooks (D) can catch this but it's the wrong layer — the schema should prevent invalid calls before they happen. Making fields optional (A) defeats the purpose. Always define your required fields in the 'required' array AND set strict: true.",
+    "tags": ["JSON-schema", "strict-mode", "required-fields", "tool-design"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-010",
+    "scenario": "An MCP server has grown to 22 tools over time. You notice Claude is making incorrect tool selections in 30% of cases. You cannot reduce the number of features.",
+    "question": "What is the correct architectural fix?",
+    "options": [
+      "Rewrite all tool descriptions to be shorter and more concise",
+      "Increase the system prompt token budget to explain each tool more thoroughly",
+      "Split the 22 tools into 3-4 focused MCP servers (5-8 tools each), and route to the appropriate server based on the request domain",
+      "Use tool_choice: auto and trust Claude to improve with a better system prompt"
+    ],
+    "correct": 2,
+    "explanation": "This is a direct manifestation of the 18-tool degradation cliff. When tool count exceeds ~18, selection accuracy drops sharply regardless of description quality. The fix is architectural: split into focused MCP servers. Each server has 5-8 tools in a specific domain, so Claude's effective tool count per request is well below the threshold. Conciseness (A) and larger system prompts (B) marginally help but don't address the fundamental issue. tool_choice: auto (D) with a better prompt cannot overcome the underlying cognitive load problem.",
+    "tags": ["18-tool-cliff", "MCP-segmentation", "tool-degradation", "architecture"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-011",
+    "scenario": "Your agent has 25 tools available. During testing, you notice Claude frequently selects the wrong tool or fails to use tools when it should, especially for similar-sounding tools.",
+    "question": "What is the primary cause and recommended fix according to Anthropic's best practices?",
+    "options": [
+      "Claude has a bug with large tool sets — file a support ticket and wait for a fix",
+      "Beyond ~18 tools, Claude's tool selection accuracy degrades significantly; reduce the active tool set by grouping related tools or dynamically loading only relevant tools per turn",
+      "Add 'IMPORTANT: always use tools when available' to the system prompt to force usage",
+      "Increase max_tokens to give Claude more space to reason about tool selection"
+    ],
+    "correct": 1,
+    "explanation": "Anthropic documents that tool selection degrades beyond ~18 tools. The fix is architectural: reduce the active set through grouping, dynamic loading, or hierarchical tool organization (coordinator-subagent). It's not a bug — it's an attention-dilution effect. Forcing tool use creates false positives. max_tokens controls output length, not reasoning about tool selection.",
+    "tags": ["18-tool-limit", "tool-selection", "tool-design", "best-practices"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-012",
+    "scenario": "You want Claude to ALWAYS call your 'log_interaction' tool after every response, regardless of conversation content. Claude should not decide whether to call it.",
+    "question": "Which tool_choice configuration enforces mandatory tool invocation of a specific tool?",
+    "options": [
+      "tool_choice: {type: 'auto'} with a system prompt saying 'always use log_interaction'",
+      "tool_choice: {type: 'tool', name: 'log_interaction'} which forces Claude to call that specific tool",
+      "tool_choice: {type: 'any'} which forces Claude to call at least one tool but not necessarily log_interaction",
+      "tool_choice: {type: 'none'} to disable all other tools so only log_interaction remains"
+    ],
+    "correct": 1,
+    "explanation": "tool_choice with type 'tool' and a specific name forces Claude to call exactly that tool. 'auto' lets Claude decide (unreliable for mandatory calls even with prompting). 'any' forces SOME tool but not a specific one — Claude picks whichever seems relevant. 'none' disables all tool use entirely, including the desired tool.",
+    "tags": ["tool-choice", "forced-tool", "API-parameter", "tool-design"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-013",
+    "scenario": "You're designing a tool that queries a flaky external API. Sometimes the API returns timeout errors. You want Claude to handle this gracefully without stopping the conversation.",
+    "question": "What is the recommended pattern for returning tool execution failures to Claude?",
+    "options": [
+      "Return an error message to the user and ask them to retry the entire conversation",
+      "Return a tool_result with is_error: true and a descriptive error message, allowing Claude to adapt its approach",
+      "Catch the error silently and return an empty result so Claude doesn't worry about it",
+      "Throw an unhandled exception to terminate the agentic loop immediately"
+    ],
+    "correct": 1,
+    "explanation": "Returning is_error: true with a descriptive message lets Claude reason about the failure and decide next steps (retry, use alternative, or inform user gracefully). Asking users to retry breaks flow entirely. Silent empty results mislead Claude into thinking the tool returned nothing. Throwing exceptions prevents graceful degradation.",
+    "tags": ["graceful-failure", "error-handling", "tool-result", "resilience"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-014",
+    "scenario": "You need to expose a local SQLite database and a file system to Claude via MCP. You want to understand the protocol's capability model.",
+    "question": "What are the three core MCP primitives that a server can expose to clients?",
+    "options": [
+      "Functions, Variables, and Events",
+      "Tools (model-initiated actions), Resources (app-loaded read-only data), and Prompts (user-selected templates)",
+      "Endpoints, Schemas, and Hooks",
+      "Commands, Queries, and Subscriptions"
+    ],
+    "correct": 1,
+    "explanation": "MCP defines three primitives: Tools (callable functions the model decides to invoke), Resources (read-only data the application loads into context), and Prompts (reusable templates the user explicitly selects). The other options use terminology from other protocols — GraphQL (subscriptions), REST (endpoints), event systems — that don't apply to MCP's design.",
+    "tags": ["MCP-primitives", "tools", "resources", "prompts"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-015",
+    "scenario": "You want to quickly prototype an MCP server in Python that exposes a 'get_weather' tool. You need the simplest possible implementation with minimal boilerplate.",
+    "question": "Which framework provides the most concise way to create an MCP server with tool registration?",
+    "options": [
+      "Write a raw JSON-RPC server from scratch with socket handling and protocol implementation",
+      "Use FastMCP which provides decorator-based tool registration like @mcp.tool() for rapid MCP server development",
+      "Use Flask with a custom MCP middleware adapter layer",
+      "Use the anthropic Python SDK's built-in MCP server class"
+    ],
+    "correct": 1,
+    "explanation": "FastMCP provides a high-level Python framework with decorator-based tool registration (@mcp.tool()), making MCP server creation as simple as writing a decorated function. Raw JSON-RPC requires implementing the full protocol manually. Flask isn't MCP-aware. The anthropic SDK is an API client library for calling Claude, not an MCP server framework.",
+    "tags": ["FastMCP", "MCP-server", "Python", "rapid-prototyping"]
+  }
+]

@@ -11,7 +11,7 @@ import type { BlogPostMeta, ExamConfig } from '@/types/content';
 
 const platformLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
-  { to: '/exams', label: 'Skill Up', icon: GraduationCap },
+  { to: '/skillup', label: 'Skill Up', icon: GraduationCap },
   { to: '/blog', label: 'Field Notes', icon: Newspaper },
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/docs', label: 'Docs', icon: BookOpen },
@@ -30,6 +30,7 @@ function Breadcrumbs() {
   const labelMap: Record<string, string> = {
     // Platform sections
     exams:      'Skill Up',
+    skillup:    'Skill Up',
     blog:       'Field Notes',
     tools:      'Tools',
     docs:       'Docs',
@@ -88,7 +89,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const [pageKey, setPageKey] = useState(location.pathname + location.search);
   const [currentExam, setCurrentExam] = useState<ExamConfig | null>(null);
 
-  const examIdMatch = location.pathname.match(/^\/exams\/([^/]+)/);
+  const examIdMatch = location.pathname.match(/^\/(?:exams|skillup)\/([^/]+)/);
   const currentExamId = examIdMatch ? examIdMatch[1] : null;
   const isInExam = Boolean(currentExamId);
   const isInBlog = location.pathname.startsWith('/blog');
@@ -272,11 +273,11 @@ export default function Layout({ children }: { children: ReactNode }) {
           {isInExam && currentExam && (() => {
             const scheme = EXAM_SCHEMES[currentExam.colorScheme] ?? EXAM_SCHEMES['violet'];
             const examLinks = [
-              { to: `/exams/${currentExam.id}`, label: 'Overview', icon: GraduationCap, end: true },
-              { to: `/exams/${currentExam.id}/quiz`, label: 'Quiz', icon: Brain },
-              { to: `/exams/${currentExam.id}/notes`, label: 'Study Notes', icon: BookOpen },
-              { to: `/exams/${currentExam.id}/scenarios`, label: 'Scenarios', icon: Layers },
-              { to: `/exams/${currentExam.id}/progress`, label: 'Progress', icon: BarChart2 },
+              { to: `/skillup/${currentExam.id}`, label: 'Overview', icon: GraduationCap, end: true },
+              { to: `/skillup/${currentExam.id}/quiz`, label: 'Quiz', icon: Brain },
+              { to: `/skillup/${currentExam.id}/notes`, label: 'Study Notes', icon: BookOpen },
+              { to: `/skillup/${currentExam.id}/scenarios`, label: 'Scenarios', icon: Layers },
+              { to: `/skillup/${currentExam.id}/progress`, label: 'Progress', icon: BarChart2 },
             ];
             return (
               <>
@@ -311,11 +312,11 @@ export default function Layout({ children }: { children: ReactNode }) {
                   </h3>
                   <div className="space-y-0.5">
                     {currentExam.domains.map((domain) => {
-                      const isActive = location.pathname === `/exams/${currentExam.id}/notes` && searchParams.get('d') === String(domain.id);
+                      const isActive = location.pathname === `/skillup/${currentExam.id}/notes` && searchParams.get('d') === String(domain.id);
                       return (
                         <Link
                           key={domain.id}
-                          to={`/exams/${currentExam.id}/notes?d=${domain.id}`}
+                          to={`/skillup/${currentExam.id}/notes?d=${domain.id}`}
                           className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-all duration-200 ${
                             isActive
                               ? 'bg-slate-800/80 text-white scale-[1.02] shadow-sm'
@@ -453,7 +454,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 Features
               </h3>
               <nav className="space-y-0.5">
-                <Link to="/exams" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
+                <Link to="/skillup" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
                   <GraduationCap size={16} />
                   <span>Certification Exams</span>
                   <span className="ml-auto text-[10px] bg-violet-900/40 text-violet-300 px-1.5 py-0.5 rounded-full">1</span>
@@ -544,7 +545,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-4">
           <Link to="/learn" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Learn</Link>
           <Link to="/blog" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Blog</Link>
-          <Link to="/exams" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Exams</Link>
+          <Link to="/skillup" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Skill Up</Link>
           <Link to="/tools" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Tools</Link>
           <Link to="/contribute" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Contribute</Link>
         </div>

@@ -245,7 +245,7 @@ export default function Profile() {
             </div>
           )}
           <Link
-            to="/exams/ccaf/progress"
+            to="/skillup/ccaf/progress"
             className="inline-flex items-center gap-1.5 mt-4 text-xs text-violet-400 hover:text-violet-300 transition-colors group"
           >
             View full history
@@ -284,10 +284,10 @@ export default function Profile() {
 
           {/* Quick links */}
           <div className="mt-5 pt-4 border-t border-slate-800/50 space-y-2">
-            <Link to="/exams/ccaf/quiz" className="flex items-center gap-2 text-xs text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all">
+            <Link to="/skillup/ccaf/quiz" className="flex items-center gap-2 text-xs text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all">
               <Brain size={12} /> Start a quiz session
             </Link>
-            <Link to="/exams/ccaf/notes" className="flex items-center gap-2 text-xs text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all">
+            <Link to="/skillup/ccaf/notes" className="flex items-center gap-2 text-xs text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all">
               <BookOpen size={12} /> Review study notes
             </Link>
             <Link to="/blog" className="flex items-center gap-2 text-xs text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all">

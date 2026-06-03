@@ -56,6 +56,7 @@ export default function Quiz() {
     const picked = shuffle(qs).slice(0, Math.min(qs.length, domainFilter ? 15 : 60));
     const newSession: QuizSession = {
       id: randomId(),
+      skillId: examId,  // RC-4: scope session to this skill
       startedAt: Date.now(),
       domainFilter,
       answers: {},

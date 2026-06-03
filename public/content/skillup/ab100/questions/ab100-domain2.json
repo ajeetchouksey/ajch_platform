@@ -1,0 +1,227 @@
+[
+  {
+    "domain": 2,
+    "id": "ab100-d2-001",
+    "scenario": "A research firm wants to build an AI system that autonomously researches topics by browsing the web, reading and analyzing PDFs, writing Python scripts to process data, and producing a structured report. The tasks are unstructured and the system must decide its own sequence of operations.",
+    "question": "Which Microsoft multi-agent architecture is specifically designed for this type of open-ended task?",
+    "options": [
+      "Azure AI Agent Service with sequential tool calling",
+      "Copilot Studio with Power Automate actions",
+      "Magentic-One with WebSurfer, FileSurfer, Coder, and Executor agents",
+      "A hierarchical coordinator with three domain-specialist subagents"
+    ],
+    "correct": 2,
+    "explanation": "Magentic-One (C) is Microsoft's specific architecture for open-ended, multi-modal research tasks requiring web browsing (WebSurfer), file operations (FileSurfer), code writing (Coder), and code execution (Executor). It's designed for tasks where the agent must dynamically decide its own tool sequence. Azure AI Agent Service with sequential tools (A) handles simpler, predefined tool flows. Copilot Studio (B) is for structured business workflows, not autonomous research. Hierarchical coordinator (D) is for domain-specialist delegation with predefined routing, not open-ended research.",
+    "tags": ["Magentic-One", "multi-agent", "autonomous-agents", "orchestration"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-002",
+    "scenario": "An Azure AI Agent Service implementation uses threads to manage conversation history. A customer service agent handles 10,000 concurrent users, with an average conversation lasting 20 turns. The team is concerned about performance when agents need to access historical context from earlier in long conversations.",
+    "question": "What is the most important architectural consideration for managing thread history at this scale?",
+    "options": [
+      "Increase the model's context window by using GPT-4o with 128K tokens",
+      "Store full thread history in Azure Blob Storage and load it entirely on each request",
+      "Implement a summarization strategy — summarize older turns and keep only recent full turns plus the summary in context",
+      "Use a separate Redis cache to store all conversation turns and inject them into each request"
+    ],
+    "correct": 2,
+    "explanation": "Summarization of older turns (C) is the correct pattern for long-running conversations. It compresses historical context into a condensed summary while keeping recent turns in full detail — balancing context preservation with token budget. Relying on the 128K context window (A) is expensive and introduces lost-in-middle degradation for early context. Loading full history from Blob Storage (B) defeats the purpose — you still consume the full token budget. Redis caching (D) improves retrieval speed but doesn't solve the fundamental problem of too many tokens from full turn history.",
+    "tags": ["thread-management", "context-management", "summarization", "agent-service"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-003",
+    "scenario": "A Copilot Studio bot is deployed in Microsoft Teams for employee HR inquiries. When a user asks 'What is the parental leave policy?', the bot returns a generic answer rather than the specific policy from the company's SharePoint HR documents.",
+    "question": "What is the most likely cause and solution?",
+    "options": [
+      "The model lacks knowledge of HR topics — fine-tune GPT-4o on HR documents",
+      "The SharePoint site is not configured as a knowledge source in Copilot Studio — add it as a knowledge source in the Copilot settings",
+      "Topics are blocking generative answers — delete all topics to enable pure generative mode",
+      "The bot needs to be deployed directly in SharePoint, not Teams"
+    ],
+    "correct": 1,
+    "explanation": "Adding the SharePoint site as a knowledge source (B) is the correct fix. Copilot Studio's generative answers feature searches configured knowledge sources (SharePoint, websites, Dataverse) to provide grounded responses. Without the SharePoint source configured, the bot uses the LLM's generic training knowledge. Fine-tuning (A) is not how Copilot Studio works — it uses RAG over knowledge sources, not fine-tuning. Deleting topics (C) would disable structured conversation flows and is counterproductive. Deployment channel (D) doesn't affect knowledge source access.",
+    "tags": ["copilot-studio", "knowledge-source", "SharePoint", "generative-answers"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-004",
+    "scenario": "A development team is building a multi-agent system using the Microsoft Agent Framework (AutoGen). They have a ResearchAgent and a WritingAgent. The WritingAgent should only speak after the ResearchAgent has provided findings, and the task should end when the WritingAgent outputs 'REPORT_COMPLETE'.",
+    "question": "Which configuration implements these requirements correctly?",
+    "options": [
+      "RoundRobinGroupChat with MaxMessageTermination(10)",
+      "SelectorGroupChat with an LLM selector and MaxMessageTermination(20)",
+      "RoundRobinGroupChat([research_agent, writing_agent], termination=TextMentionTermination('REPORT_COMPLETE'))",
+      "SwarmGroupChat with agents calling each other directly via handoff tools"
+    ],
+    "correct": 2,
+    "explanation": "RoundRobinGroupChat with TextMentionTermination (C) is correct: the fixed rotation ensures ResearchAgent always speaks first (it's listed first), then WritingAgent, and the task terminates when WritingAgent outputs 'REPORT_COMPLETE'. MaxMessageTermination alone (A) doesn't implement completion detection. SelectorGroupChat (B) uses LLM-based routing which could allow WritingAgent to speak before Research finishes. SwarmGroupChat (D) uses agent-to-agent handoffs — appropriate for distributed work, but the structured sequential dependency here is better served by RoundRobin.",
+    "tags": ["AutoGen", "RoundRobinGroupChat", "termination", "multi-agent"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-005",
+    "scenario": "A retail company's AI agent needs to answer questions about current inventory levels. The inventory database is updated in real-time and contains 2 million SKUs. The agent must return accurate, up-to-date inventory data.",
+    "question": "What is the correct architecture for this requirement?",
+    "options": [
+      "Load all 2 million SKU records into the agent's vector store for semantic search",
+      "Fine-tune GPT-4o on a snapshot of the inventory database",
+      "Use function calling — implement an Azure Function that queries the inventory database with the SKU or product name provided by the agent",
+      "Embed inventory updates in the system prompt using Azure Event Grid to keep it current"
+    ],
+    "correct": 2,
+    "explanation": "Function calling with an Azure Function (C) is correct for real-time structured data retrieval. The agent extracts the query parameters (SKU, product name) and calls the function, which queries the live database. Loading 2M SKUs into a vector store (A) is impractical — vector stores are for semantic/document search, not exact structured data lookups at this scale. Fine-tuning (B) bakes in a static snapshot — any inventory change makes the model stale. System prompt injection via Event Grid (D) would require constantly updating a massive prompt — impractical and costly.",
+    "tags": ["function-calling", "real-time-data", "tool-design", "azure-functions"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-006",
+    "scenario": "An enterprise is building a RAG pipeline in Azure AI Foundry to enable their legal team to query 50,000 internal legal documents. Initial testing shows the agent correctly retrieves documents on simple keyword queries but fails to find semantically similar content when users use different terminology.",
+    "question": "What retrieval configuration will best address this problem?",
+    "options": [
+      "Increase the number of retrieved documents from top-3 to top-20",
+      "Switch from vector search to keyword (BM25) search only",
+      "Enable hybrid search (vector + BM25) with semantic reranking in Azure AI Search",
+      "Re-embed all documents using a larger embedding model"
+    ],
+    "correct": 2,
+    "explanation": "Hybrid search + semantic reranking (C) solves both problems: vector search captures semantic similarity (finds content with different terminology), BM25 ensures exact terminology matches aren't missed, and the semantic reranker re-scores the combined results for the most relevant passages. Increasing top-K (A) retrieves more results but doesn't improve relevance and increases latency/cost. Keyword-only (B) would make the problem worse — it would fail on semantic queries. Re-embedding with a larger model (D) might help marginally but doesn't address the fundamental issue of having keyword-only retrieval.",
+    "tags": ["RAG", "hybrid-search", "semantic-reranking", "Azure-AI-Search"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-007",
+    "scenario": "A financial institution is building a multi-agent system where a coordinator agent routes tasks to a TaxAgent, a ComplianceAgent, and a ReportingAgent. The coordinator must decide which specialist to call based on the content of the user's request, and multiple specialists may need to collaborate on a single request.",
+    "question": "Which team configuration in Microsoft Agent Framework best supports this routing pattern?",
+    "options": [
+      "RoundRobinGroupChat — cycles through all three specialists on every request",
+      "SelectorGroupChat with an LLM-based selector that reads the user's request to choose the next speaker",
+      "Three independent AgentChat instances, one per specialist, with results merged at the application layer",
+      "SwarmGroupChat where the coordinator hands off directly to agents via tool calls"
+    ],
+    "correct": 1,
+    "explanation": "SelectorGroupChat with LLM-based selection (B) is designed exactly for this: the selector model reads the conversation state and routes to the most appropriate agent. Multiple specialists can collaborate because the selector can route back and forth between them in a single run. RoundRobin (A) always cycles through all agents regardless of relevance — wasteful and incorrect for routing. Three independent instances (C) loses the shared conversation context needed for multi-specialist collaboration. SwarmGroupChat (D) uses agent-to-agent handoffs which works but requires each agent to know about other agents — LLM selector centralizes routing logic more cleanly.",
+    "tags": ["SelectorGroupChat", "multi-agent", "routing", "Agent-Framework"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-008",
+    "scenario": "An AI agent built with Azure AI Agent Service needs to analyze uploaded Excel files, run statistical calculations, and generate charts. The files are user-uploaded at request time and are not stored long-term.",
+    "question": "Which built-in Azure AI Agent Service tool should handle this requirement?",
+    "options": [
+      "File Search — index the Excel files in a vector store for retrieval",
+      "Function calling — write a custom Azure Function that processes Excel files",
+      "Code Interpreter — executes Python code to read, process, and visualize the Excel data",
+      "Bing Search — find relevant statistical methods online to apply to the data"
+    ],
+    "correct": 2,
+    "explanation": "Code Interpreter (C) is the correct tool: it accepts file uploads, runs Python code in a secure sandbox (pandas, matplotlib, numpy are available), performs statistical calculations, and generates charts — all without custom code. File Search (A) is for semantic document retrieval, not data computation on structured files. A custom Azure Function (B) would work but is unnecessary — Code Interpreter provides this capability built-in. Bing Search (D) retrieves web information, not internal data processing.",
+    "tags": ["code-interpreter", "agent-service", "file-processing", "built-in-tools"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-009",
+    "scenario": "A software company builds a Copilot Studio bot for customer technical support. When users report software bugs, the bot should automatically create a Jira ticket with the issue details. The team wants to implement this with minimal custom code.",
+    "question": "What is the correct Copilot Studio implementation?",
+    "options": [
+      "Create a Topic that calls an Azure Function via HTTP connector to create the Jira ticket",
+      "Create a Topic that uses a Power Automate flow with the Jira connector to create the ticket",
+      "Configure Jira as a knowledge source in Copilot Studio",
+      "Use Copilot Studio's built-in CRM integration to sync with Jira"
+    ],
+    "correct": 1,
+    "explanation": "Power Automate flow with Jira connector (B) is the correct low-code pattern. Copilot Studio natively integrates with Power Automate, which has a pre-built Jira connector — no custom code required. This aligns with the 'minimal custom code' requirement. HTTP connector to Azure Function (A) requires writing and maintaining custom code — contradicts the requirement. Jira as a knowledge source (C) would let the bot answer questions about Jira content, not create tickets. Copilot Studio has no built-in CRM integration with Jira (D).",
+    "tags": ["copilot-studio", "power-automate", "actions", "low-code"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-010",
+    "scenario": "A customer service agent needs to remember a customer's preferences (preferred language, communication style, product interests) across multiple separate sessions over months. The preferences change slowly and must persist even if the agent is redeployed.",
+    "question": "Which memory tier is most appropriate for storing customer preferences?",
+    "options": [
+      "Context window — inject preferences into the system prompt on each session",
+      "Azure Cache for Redis — store preferences with a 24-hour TTL",
+      "Azure Cosmos DB — persist preferences as a user profile document with no TTL",
+      "Azure AI Search vector store — embed preferences as semantic documents"
+    ],
+    "correct": 2,
+    "explanation": "Azure Cosmos DB (C) is correct for long-lived user preferences. It provides durable, structured storage with no TTL constraint, fast point-reads by user ID, and survives agent redeployments. Context window injection (A) requires retrieving preferences first — the question is WHERE to retrieve them from. Redis (B) with 24-hour TTL would lose preferences between sessions. AI Search vector store (D) is designed for semantic document search, not structured user profile lookups — using it for preferences adds unnecessary complexity and latency.",
+    "tags": ["memory-architecture", "Cosmos-DB", "long-term-memory", "user-preferences"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-011",
+    "scenario": "A Prompt Flow pipeline in Azure AI Foundry is processing insurance claims. The pipeline extracts claim details (LLM node), validates the policy number against a database (Python node), and generates a decision letter (LLM node). After deployment, the team needs to iterate on the decision letter prompt without changing the extraction or validation logic.",
+    "question": "What is the correct approach to update only the decision letter prompt?",
+    "options": [
+      "Update the system prompt in the AI Foundry deployment configuration and redeploy the entire flow",
+      "Modify the Jinja2 prompt template in the decision letter LLM node, run evaluation on the golden dataset, and redeploy only that flow version",
+      "Create an entirely new Prompt Flow with the updated prompt and retire the old one",
+      "Edit the prompt directly in the production deployment endpoint without versioning"
+    ],
+    "correct": 1,
+    "explanation": "Modifying the specific LLM node's Jinja2 template, evaluating against the golden dataset, and versioning the updated flow (B) is correct MLOps practice. Prompt Flow treats prompts as versioned code — changes are tracked in source control. Redeploying the entire flow config (A) is close but lacks the critical evaluation step before deployment. Creating a new flow (C) is unnecessary overhead and loses flow history. Direct production edits (D) bypass version control and evaluation gates — a critical governance violation.",
+    "tags": ["prompt-flow", "MLOps", "LLM-node", "versioning"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-012",
+    "scenario": "An agent is tasked with sending marketing emails to customers. The agent can draft emails (low risk) and schedule campaigns (medium risk), but the team wants humans to review and approve before any email is actually sent to customers.",
+    "question": "Where in the agentic pipeline should the human approval gate be placed?",
+    "options": [
+      "Before the agent drafts the email — have humans write initial drafts for the agent to refine",
+      "Between the draft/schedule steps and the send step — agent prepares content, human approves before execution",
+      "After the email is sent — review sent emails and provide feedback to the agent",
+      "The agent should be configured to ask for approval in its system prompt for every action"
+    ],
+    "correct": 1,
+    "explanation": "The approval gate belongs between preparation and execution (B) — after the agent has done the productive work (drafting, scheduling) and before the irreversible action (sending). This is the standard HITL pattern for irreversible high-impact actions. Gating before drafting (A) defeats the purpose of the agent — you want the agent to do the work and humans to approve results. Post-send review (C) is too late for an irreversible action. System prompt instructions (D) for every action are too broad and rely on the LLM to consistently enforce approval — a code-enforced gate is required.",
+    "tags": ["human-in-the-loop", "approval-gate", "HITL", "irreversible-actions"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-013",
+    "scenario": "A company has 10 TB of PDF documents stored in Azure Blob Storage that need to be searchable by their AI agent. The documents contain technical manuals, contracts, and research papers with complex tables and figures.",
+    "question": "What is the correct pipeline to make these documents searchable in Azure AI Foundry?",
+    "options": [
+      "Upload all PDFs directly to the AI Agent Service file store — it automatically indexes them",
+      "Use Azure AI Document Intelligence to extract text, chunk with semantic boundaries, embed with text-embedding-3-large, and index in Azure AI Search with hybrid search enabled",
+      "Fine-tune GPT-4o on all the documents so they become part of the model's knowledge",
+      "Use Azure AI Search's built-in PDF parser to directly index Blob Storage without preprocessing"
+    ],
+    "correct": 1,
+    "explanation": "The correct RAG pipeline (B) handles the complexity of technical documents: Azure AI Document Intelligence extracts text from PDFs including tables (critical for technical manuals and contracts), semantic chunking preserves meaning at topic boundaries, text-embedding-3-large produces high-quality embeddings, and hybrid search in AI Search combines vector and keyword matching. Direct file store upload (A) is limited to the Agent Service's file search built-in tool — less scalable for 10 TB. Fine-tuning (C) bakes in static knowledge that becomes stale and is extremely expensive at this scale. Azure AI Search's built-in parser (D) handles simple text but struggles with complex tables and figures in technical documents.",
+    "tags": ["RAG-pipeline", "Azure-AI-Search", "document-intelligence", "chunking"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-014",
+    "scenario": "A developer is implementing an Azure AI Foundry Agent that needs to call an external weather API to answer questions. The weather API requires an API key. The developer is deciding where to store the API key.",
+    "question": "What is the correct approach?",
+    "options": [
+      "Hardcode the API key in the Azure Function code that calls the weather API",
+      "Store the API key in the agent's system prompt so it can be passed to tool calls",
+      "Store the API key in Azure Key Vault and reference it via the AI Foundry Hub connection or environment variable in the Azure Function",
+      "Store the API key in the agent's thread metadata so it persists across conversations"
+    ],
+    "correct": 2,
+    "explanation": "Azure Key Vault (C) is the correct secret management approach. The AI Foundry Hub connects to Key Vault for shared secrets, and Azure Functions can reference Key Vault secrets via environment variables or managed identity. Hardcoding (A) is a critical security vulnerability — the key is exposed in source code and version history. System prompt storage (B) exposes the key in AI Foundry logs and to the LLM — it could be extracted via prompt injection. Thread metadata (D) is persisted per-conversation and would require the key to be passed in user requests — a massive exposure risk.",
+    "tags": ["security", "Key-Vault", "secret-management", "Azure-Functions"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-015",
+    "scenario": "A team is designing an AI agent for a bank's mortgage application process. The agent guides applicants through document submission, runs eligibility checks, and prepares the loan recommendation. Regulations require that a human loan officer reviews and signs off on every final recommendation before it's sent to the customer.",
+    "question": "Which design pattern implements the regulatory requirement?",
+    "options": [
+      "Configure the agent's system prompt to say 'always request approval from a loan officer'",
+      "Implement an approval gate in Power Automate that intercepts the recommendation step, routes to a loan officer for review, and only allows the agent to proceed after explicit approval",
+      "Add a 'confirmation' topic in Copilot Studio that asks the customer to confirm before submission",
+      "Log all recommendations to Azure Monitor for periodic human review"
+    ],
+    "correct": 1,
+    "explanation": "Power Automate approval gate (B) provides a code-enforced, auditable human checkpoint. The agent cannot send the recommendation without going through the approval workflow — the approval token is required to proceed. This is a hard stop, not a soft guideline. System prompt instruction (A) is probabilistic — the LLM might skip it under certain conditions. Customer confirmation (C) is not a loan officer review — it asks the wrong person. Periodic log review (D) is after-the-fact — the regulation requires sign-off BEFORE the recommendation is sent.",
+    "tags": ["HITL", "approval-gate", "compliance", "Power-Automate"]
+  }
+]

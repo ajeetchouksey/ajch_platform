@@ -23,28 +23,28 @@ function AnimatedBar({ width, color, delay }: { width: number; color: string; de
 function examCards(examId: string) {
   return [
     {
-      to: `/exams/${examId}/quiz`,
+      to: `/skillup/${examId}/quiz`,
       icon: Brain,
       title: 'Practice Quiz',
       desc: 'Mock exams or domain-focused drills — same scenario-based MCQ format as the real exam.',
       cta: 'Start Quiz',
     },
     {
-      to: `/exams/${examId}/notes`,
+      to: `/skillup/${examId}/notes`,
       icon: BookOpen,
       title: 'Study Notes',
       desc: 'Structured reference notes for all exam domains. Key rules, mental models, and exam traps.',
       cta: 'Open Notes',
     },
     {
-      to: `/exams/${examId}/scenarios`,
+      to: `/skillup/${examId}/scenarios`,
       icon: Layers,
       title: 'Scenario Practice',
       desc: 'Walk through exam scenarios: architecture patterns, decision points, and anti-patterns.',
       cta: 'Browse Scenarios',
     },
     {
-      to: `/exams/${examId}/progress`,
+      to: `/skillup/${examId}/progress`,
       icon: BarChart2,
       title: 'Progress',
       desc: 'Track your scores by domain, spot weak areas, and see improvement over time.',

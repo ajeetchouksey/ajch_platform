@@ -1,0 +1,197 @@
+[
+  {
+    "domain": 1,
+    "id": "d1-001",
+    "scenario": "You are building a coordinator agent that manages subagents for a customer support system. One subagent can issue refunds. You must ensure refunds over $500 are never issued without human approval.",
+    "question": "Which implementation best enforces this constraint?",
+    "options": [
+      "Add to the system prompt: 'Never issue refunds over $500 without human approval'",
+      "Use a PreToolUse hook that inspects the refund amount and blocks the tool call if it exceeds $500",
+      "Use few-shot examples showing the agent refusing large refunds",
+      "Set tool_choice to 'auto' so Claude uses its judgment on refund amounts"
+    ],
+    "correct": 1,
+    "explanation": "Hooks are code-enforced guarantees that run before tool execution regardless of what Claude decides. A PreToolUse hook is the only option here that CANNOT be overridden by user input or a clever prompt. System prompt instructions (A) and few-shot examples (C) are probabilistic — a sufficiently persistent user might override them. tool_choice: auto (D) gives Claude discretion, which is exactly what you're trying to remove. Core principle: 'When something MUST happen, use code. When something SHOULD happen, use prompts.'",
+    "tags": ["hooks", "PreToolUse", "human-in-the-loop", "coordinator-subagent"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-002",
+    "scenario": "Your multi-agent research system has a coordinator and three subagents: web_searcher, data_analyzer, and report_writer. The data_analyzer fails with an unrecoverable error because the dataset is corrupted.",
+    "question": "How should the data_analyzer subagent return this error to the coordinator?",
+    "options": [
+      "Return a plain string: 'Error: dataset corrupted'",
+      "Raise an exception and let the coordinator catch it",
+      "Return a structured JSON object with error type, message, retryable: false, and suggested action",
+      "Return an empty result and log the error to console"
+    ],
+    "correct": 2,
+    "explanation": "Structured error returns give the coordinator actionable information to route around the failure. A plain string (A) requires string parsing and is fragile. Unhandled exceptions (B) crash the agentic loop. Silent empty returns (D) cause the coordinator to proceed with bad data. The retryable field is critical — it tells the coordinator whether to retry or escalate to a human, enabling graceful degradation in multi-agent systems.",
+    "tags": ["error-propagation", "multi-agent", "structured-errors", "coordinator-subagent"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-003",
+    "scenario": "You need to build a workflow where Claude must: (1) search the web, (2) analyze findings, and (3) generate a report — in strict order with each step depending on the previous.",
+    "question": "Which execution pattern is correct for this workflow?",
+    "options": [
+      "Parallel execution — submit all three tool calls in one turn for speed",
+      "Sequential execution — each step is a separate turn, passing the output of one as input to the next",
+      "Single-turn execution — put all instructions in one system prompt and let Claude handle ordering",
+      "Fire-and-forget — start all three tasks simultaneously and collect results when done"
+    ],
+    "correct": 1,
+    "explanation": "This workflow has hard data dependencies: you cannot analyze until you have search results; you cannot write a report until analysis is done. Parallel execution (A, D) is only appropriate for independent operations. Single-turn (C) works for simple chains but loses explicit state control and makes error recovery nearly impossible. Sequential multi-turn execution gives you checkpoints, allows injecting intermediate validation, and makes the agentic loop inspectable.",
+    "tags": ["sequential-execution", "workflow-patterns", "agentic-loop"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-004",
+    "scenario": "A PostToolUse hook has been implemented to log all tool calls to an audit database. The database is temporarily unavailable.",
+    "question": "What is the correct behavior for this hook?",
+    "options": [
+      "Silently swallow the error and let the agent continue",
+      "Raise an error to stop the entire agentic session immediately",
+      "Return a structured error response with retryable: true so the coordinator can decide",
+      "Skip the audit log and proceed — logging is not critical path"
+    ],
+    "correct": 2,
+    "explanation": "Hooks should return structured, typed error responses rather than either silently failing or crashing the session. Silent failure (A, D) breaks the audit requirement — a compliance-critical operation. Crashing the entire session (B) is overly destructive for a transient infrastructure issue. Returning retryable: true with context lets the coordinator implement retry logic or escalate to a human with full context, preserving both reliability and the audit requirement.",
+    "tags": ["hooks", "PostToolUse", "error-handling", "structured-errors"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-005",
+    "scenario": "You are designing a long-running code review agent that processes hundreds of pull requests. Sessions can last hours. The agent must be resumable if interrupted.",
+    "question": "What is the most important architectural requirement for this agent?",
+    "options": [
+      "Use streaming responses to reduce latency",
+      "Persist agent state (current task, completed items, pending queue) to external storage after each significant action",
+      "Use a single very long context window to hold all PRs",
+      "Set a high max_tokens value to prevent truncation"
+    ],
+    "correct": 1,
+    "explanation": "Long-running agents must be designed for resumability. Persisting state externally after each significant action means if the process is interrupted (network failure, timeout, crash), you can restart from the last checkpoint rather than from scratch. A single massive context window (C) hits the 'lost in the middle' problem and will exhaust the context limit for hundreds of PRs. Streaming (A) and max_tokens (D) are performance/output concerns, not resumability concerns.",
+    "tags": ["long-running-tasks", "state-persistence", "resumability", "agentic-loop"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-006",
+    "scenario": "Your coordinator agent sends tasks to subagents. You want to run three independent data enrichment tasks simultaneously to reduce total latency.",
+    "question": "How should you implement this parallel execution?",
+    "options": [
+      "Send all three tool calls in a single turn as a parallel tool call batch",
+      "Start three separate agentic sessions and poll for results",
+      "Chain the tasks sequentially to avoid race conditions",
+      "Use a single tool call with all three tasks embedded in the input"
+    ],
+    "correct": 0,
+    "explanation": "When tasks are independent (no data dependencies between them), Claude supports parallel tool calls — submitting multiple tool_use blocks in one assistant turn. The tool results are then returned in a single user turn. This is the correct and efficient pattern. Separate sessions (B) adds overhead and complexity. Sequential chaining (C) wastes time when there's no dependency. Embedding everything in one tool call (D) is poor tool design and loses parallelism benefits.",
+    "tags": ["parallel-execution", "tool-calls", "coordinator-subagent"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-007",
+    "scenario": "A user asks your agent to delete all records from a production database. The agent has a delete_records tool available.",
+    "question": "Where should the human-in-the-loop gate be implemented?",
+    "options": [
+      "In the system prompt: 'Always ask the user to confirm destructive operations'",
+      "As a PreToolUse hook that intercepts the delete_records call and requires explicit confirmation before proceeding",
+      "In the tool description: 'This tool deletes records — use with caution'",
+      "By removing delete_records from the available tools when in production mode"
+    ],
+    "correct": 1,
+    "explanation": "A PreToolUse hook is code-enforced and cannot be bypassed by prompt manipulation. The system prompt instruction (A) is probabilistic — a convincing user could override it. The tool description (C) is guidance for Claude, not a hard gate. Removing the tool entirely (D) may be the right choice in some contexts but doesn't allow for supervised use. For irreversible actions (deletions, sends, charges), use hooks as hard gates, not prompts as soft suggestions.",
+    "tags": ["human-in-the-loop", "hooks", "PreToolUse", "irreversible-actions"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-008",
+    "scenario": "You are debugging a multi-agent system where the coordinator gets an unexpected result. You need to trace which subagent produced it and what tool calls were made.",
+    "question": "What is the most effective observability approach?",
+    "options": [
+      "Add print statements to each subagent",
+      "Implement structured tracing with a unique trace_id propagated through all subagent calls, logging tool inputs and outputs at each step",
+      "Ask the coordinator to explain its reasoning in the final response",
+      "Review the final output and infer which subagent caused the issue"
+    ],
+    "correct": 1,
+    "explanation": "Structured tracing with a propagated trace_id is the only approach that gives you a complete causal chain. A single trace_id lets you correlate all events (tool calls, errors, responses) across every subagent in the tree. Print statements (A) don't correlate across agents. Asking the coordinator to explain (C) is retrospective and unreliable — Claude may not accurately report its reasoning. Inferring from output (D) is unscalable and error-prone in complex systems.",
+    "tags": ["observability", "tracing", "debugging", "multi-agent"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-009",
+    "scenario": "Your agentic loop receives a tool_result with stop_reason: 'end_turn' after a tool call completes.",
+    "question": "What does this indicate and what should you do?",
+    "options": [
+      "An error occurred — restart the loop",
+      "Claude has finished its response and is waiting for the next user message",
+      "The tool call timed out and should be retried",
+      "Claude needs more context to continue — inject additional system information"
+    ],
+    "correct": 1,
+    "explanation": "stop_reason: 'end_turn' means Claude has completed its current turn naturally — it has no more tool calls to make and its response is complete. This is the normal exit condition for an agentic loop iteration. The loop should surface the final response to the user or trigger the next phase of the workflow. stop_reason: 'tool_use' would indicate Claude wants to make another tool call. Mishandling stop reasons is a common source of infinite loops or premature termination in agentic systems.",
+    "tags": ["agentic-loop", "stop-reason", "tool-calls", "lifecycle"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-010",
+    "scenario": "You are building a customer support coordinator that delegates to a refund_agent, a shipping_agent, and a technical_support_agent. Each subagent has access to 12 tools.",
+    "question": "What is the primary architectural benefit of this coordinator-subagent pattern over a single agent with all 36 tools?",
+    "options": [
+      "Reduced API costs because fewer tokens are sent per request",
+      "Better tool selection accuracy — each subagent has a focused tool set below the ~18-tool degradation threshold",
+      "Faster response times because subagents run in parallel by default",
+      "Simpler code because you only need to write one system prompt"
+    ],
+    "correct": 1,
+    "explanation": "Tool selection accuracy degrades significantly beyond ~18 tools in the context. By splitting 36 tools across 3 specialized subagents (12 each), each subagent operates well within the effective range, dramatically improving accuracy. This is a direct application of the 18-tool degradation cliff principle. Cost (A) is not necessarily reduced — you may pay more in total tokens across subagents. Parallel execution (C) is possible but not automatic. Code complexity (D) is typically higher with multi-agent architectures, not lower.",
+    "tags": ["coordinator-subagent", "tool-degradation", "18-tool-cliff", "architecture"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-011",
+    "scenario": "You are building an agentic coding assistant that modifies production files. The system must pause before any destructive operation like deleting files or overwriting configs.",
+    "question": "Which pattern should you implement to ensure human oversight before destructive actions?",
+    "options": [
+      "Add a try-catch block around all file operations to log errors after they execute",
+      "Implement a Human-in-the-Loop (HITL) gate that requires explicit user approval before destructive tool calls execute",
+      "Run all operations in a sandbox and replay them later if the user agrees",
+      "Use a coordinator agent that automatically approves all subagent actions to reduce latency"
+    ],
+    "correct": 1,
+    "explanation": "HITL gates pause the agentic loop before high-risk operations, presenting the planned action to the user for approval. Try-catch only handles errors after execution (too late for prevention). Sandboxing adds complexity without direct oversight and may miss side effects. Auto-approving coordinators defeat the purpose of human oversight entirely.",
+    "tags": ["HITL", "agentic-loop", "safety", "human-oversight"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-012",
+    "scenario": "Your multi-step agent processes a 50-step workflow. At step 35, the API returns a rate limit error. The agent needs to resume from where it left off without re-executing completed steps.",
+    "question": "What architecture pattern enables efficient recovery from mid-workflow failures?",
+    "options": [
+      "Restart the entire workflow from step 1 with exponential backoff applied globally",
+      "Implement checkpointing that persists completed step results, allowing the agent to resume from the last successful checkpoint",
+      "Cache all API responses in memory so they survive transient network issues",
+      "Use parallel execution of all 50 steps simultaneously to avoid sequential failures"
+    ],
+    "correct": 1,
+    "explanation": "Checkpointing persists intermediate state to external storage so agents can resume from the last successful step after failures. Restarting wastes all completed work. In-memory caching is lost on process crashes or restarts. Parallel execution of dependent steps produces incorrect results and doesn't solve rate limiting.",
+    "tags": ["checkpointing", "error-recovery", "agentic-loop", "resilience"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-013",
+    "scenario": "You need to build an agent that can both search documentation and write code. When it encounters a coding task, it must stop and wait for user confirmation before writing to disk.",
+    "question": "In Claude Code's hook system, which hook type fires before a tool executes to enable blocking approval?",
+    "options": [
+      "PostToolUse hook that validates output after the tool has already run",
+      "PreToolUse hook (stop hook) that intercepts the tool call and blocks execution until approved",
+      "SystemPrompt hook that modifies the system instructions before each turn starts",
+      "OnError hook that catches tool failures and prompts for a retry decision"
+    ],
+    "correct": 1,
+    "explanation": "PreToolUse (stop) hooks fire before a tool runs, enabling HITL approval gates. They can inspect the tool name and arguments, then block or allow. PostToolUse fires too late—the action already happened. There is no SystemPrompt hook or OnError hook in Claude Code's hook system—the available hooks are PreToolUse and PostToolUse.",
+    "tags": ["stop-hook", "hooks", "HITL", "tool-execution"]
+  }
+]

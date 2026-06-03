@@ -6,7 +6,7 @@ import { loadExamRegistry } from '@/lib/content-loader';
 
 const cards = [
   {
-    to: '/exams/ccaf/quiz',
+    to: '/skillup/ccaf/quiz',
     icon: Brain,
     title: 'Practice Quiz',
     desc: '60-question mock exams or domain-focused drills \u2014 same scenario-based MCQ format as the real exam.',
@@ -16,7 +16,7 @@ const cards = [
     accentColor: 'linear-gradient(90deg, #7c3aed, #a78bfa)',
   },
   {
-    to: '/exams/ccaf/notes',
+    to: '/skillup/ccaf/notes',
     icon: BookOpen,
     title: 'Study Notes',
     desc: 'Structured reference notes for all 5 exam domains. Key rules, mental models, and distractor traps.',
@@ -26,7 +26,7 @@ const cards = [
     accentColor: 'linear-gradient(90deg, #1d4ed8, #60a5fa)',
   },
   {
-    to: '/exams/ccaf/scenarios',
+    to: '/skillup/ccaf/scenarios',
     icon: Layers,
     title: 'Scenario Practice',
     desc: 'Walk through exam scenarios: architecture patterns, decision points, and key anti-patterns.',
@@ -36,7 +36,7 @@ const cards = [
     accentColor: 'linear-gradient(90deg, #065f46, #34d399)',
   },
   {
-    to: '/exams/ccaf/progress',
+    to: '/skillup/ccaf/progress',
     icon: BarChart2,
     title: 'Progress',
     desc: 'Track your scores by domain, spot weak areas, and see improvement over time.',

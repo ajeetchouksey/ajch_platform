@@ -1,0 +1,17 @@
+{
+  "id": "ab100-compliance-monitoring",
+  "title": "Regulatory Compliance Monitoring Agent",
+  "description": "A financial services firm must monitor all customer-facing communications (emails, chat transcripts, social media responses) for compliance with SEC regulations, FINRA rules, and internal communication policies. The current process involves a team of 8 compliance analysts manually reviewing a 5% sample. The firm wants to automate monitoring to achieve 100% coverage, automatically flag violations with their regulatory citation, escalate high-severity violations to analysts within 5 minutes, and generate a daily compliance report for the Chief Compliance Officer. The solution must not block communications — it operates as a post-send review layer.",
+  "architecture_notes": "Ingestion: All customer communications are published to Azure Service Bus after send. ComplianceMonitorAgent (Azure AI Agent Service) subscribes to the topic and processes each message. Analysis: The agent retrieves relevant regulatory rules from Azure AI Search (a policy knowledge base indexed from SEC/FINRA rulebooks and internal policy documents — updated weekly). The agent uses GPT-4o to analyze the communication against retrieved policy context, generating: (1) violation flag (yes/no), (2) severity (low/medium/high), (3) regulatory citation, (4) suggested remediation. Safety layer: Azure AI Content Safety scans the generated compliance analysis output to prevent hallucinated regulatory citations from reaching analysts. Escalation: High-severity violations trigger a Power Automate flow that creates a Teams notification + case in the compliance ticketing system with a 5-minute SLA. Monitoring: Azure Monitor alert rules fire when high-severity violation rate exceeds 2% of daily volume (anomaly detection). Daily report: Azure Logic Apps trigger a ReportAgent at 9am that aggregates Cosmos DB compliance records and generates an executive summary via GPT-4o, then emails via Microsoft Graph API. Governance: All flagged communications, agent reasoning, and analyst decisions are written to Azure Blob Storage with WORM policy for 7-year retention.",
+  "key_patterns": [
+    "Azure Service Bus for async communication ingestion at scale",
+    "Azure AI Search over policy knowledge base for regulatory RAG",
+    "GPT-4o analysis with retrieved regulatory context for structured violation classification",
+    "Azure AI Content Safety on agent output to prevent hallucinated citations",
+    "Power Automate HITL escalation for high-severity violations with 5-minute SLA",
+    "Azure Monitor anomaly alerts on violation rate trends",
+    "WORM-protected Blob Storage for 7-year immutable audit trail",
+    "Scheduled ReportAgent with Logic Apps trigger for daily CCO summary"
+  ],
+  "questionIds": ["ab100-d3-004", "ab100-d3-007", "ab100-d3-011", "ab100-d4-007", "ab100-d4-009", "ab100-d4-012"]
+}
