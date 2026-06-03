@@ -5,6 +5,7 @@ import { saveSession } from '@/lib/storage';
 import { useAuth } from '@/lib/auth';
 import { type Question, type QuizSession, type DomainConfig } from '@/types/content';
 import { CheckCircle, XCircle, ChevronRight, RotateCcw, Filter } from 'lucide-react';
+import QuizShareCard from '@/components/QuizShareCard';
 
 type Phase = 'setup' | 'quiz' | 'review';
 
@@ -71,6 +72,7 @@ export default function Quiz() {
     setSession(newSession);
     setPhase('quiz');
     setLoading(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [domainFilter]);
 
   useEffect(() => {
@@ -78,6 +80,7 @@ export default function Quiz() {
       const score = questions.filter((q) => answers[q.id] === q.correct).length;
       const finished: QuizSession = { ...session, finishedAt: Date.now(), answers, score };
       saveSession(finished);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSession(finished);
     }
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -191,6 +194,16 @@ export default function Quiz() {
             {passed ? `✓ Above ${passThreshold}% pass threshold` : `✗ Below ${passThreshold}% pass threshold`}
           </p>
         </div>
+
+        {/* Share card + email capture */}
+        <QuizShareCard
+          score={score}
+          total={questions.length}
+          pct={pct}
+          examShortTitle={examShortTitle}
+          examId={examId}
+          passed={passed}
+        />
 
         {/* Domain breakdown */}
         {examDomains.length > 1 && (() => {

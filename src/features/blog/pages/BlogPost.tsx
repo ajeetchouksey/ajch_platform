@@ -9,6 +9,7 @@ import {
 import { loadBlogPost, loadBlogManifest } from '@/lib/content-loader';
 import { sharePost } from '@/lib/share';
 import GiscusComments from '@/components/GiscusComments';
+import RelatedContent from '@/components/RelatedContent';
 import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
 
@@ -327,12 +328,6 @@ export default function BlogPost() {
     canonicalUrl: `https://aaryaai.dev/blog/${slug}`,
   });
 
-  useMeta({
-    title: meta?.title,
-    description: meta?.excerpt ?? meta?.title,
-    canonicalUrl: `https://aaryaai.dev/blog/${slug}`,
-  });
-
   // Load post
   useEffect(() => {
     if (!slug) return;
@@ -601,6 +596,15 @@ export default function BlogPost() {
 
           {/* ── Comments ──────────────────────────────────────────────────── */}
           <GiscusComments slug={slug ?? ''} context="field-notes" />
+
+          {/* ── Related resources ─────────────────────────────────────────── */}
+          {meta && (
+            <RelatedContent
+              tags={meta.tags ?? []}
+              currentPath={`/blog/${slug}`}
+              heading="Related Resources"
+            />
+          )}
         </div>
 
         {/* ───── Sticky sidebar ─────────────────────────────────────────── */}
