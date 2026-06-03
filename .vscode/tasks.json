@@ -37,6 +37,13 @@
       "group": "none"
     },
     {
+      "label": "create-subscribe-issue",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; gh issue create --repo ajeetchouksey/ajch_platform --title 'feat: newsletter subscribe feature — CTA in footer + subscribe page' --label 'enhancement' --body '## Goal\nSurface ConvertKit email subscription from multiple touchpoints.\n\n## Acceptance Criteria\n- [ ] Reusable SubscribeForm component (VITE_CONVERTKIT_FORM_ID)\n- [ ] Subscribe CTA in site footer (all pages)\n- [ ] /subscribe route with full page\n- [ ] Success / error / already-subscribed states\n- [ ] Graceful degradation when env var unset (hides UI)\n- [ ] Mobile responsive\n\n## Endpoint\nPOST https://app.convertkit.com/forms/{FORM_ID}/subscriptions\nBody: email + first_name\n\n## Files\n- src/components/SubscribeForm.tsx (new)\n- src/components/Layout.tsx — footer CTA\n- src/pages/Subscribe.tsx (new)\n- src/app/router.tsx — add /subscribe\n- .env.example — document VITE_CONVERTKIT_FORM_ID' 2>&1\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
       "label": "check-branch-protection",
       "type": "shell",
       "command": "pwsh -NoProfile -Command \"gh api repos/ajeetchouksey/ajch_platform/branches/main/protection 2>&1 | Out-File '${workspaceFolder}\\branch-protection-log.txt' -Encoding utf8\"",
@@ -340,6 +347,24 @@
       "options": { "cwd": "${workspaceFolder}" },
       "group": "none",
       "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-commit-subscribe",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout main; git pull origin main; git checkout -b feat/subscribe 2>&1; git add src/components/SubscribeForm.tsx src/pages/Subscribe.tsx src/app/router.tsx src/components/Layout.tsx; git commit -m 'feat: newsletter subscribe form + /subscribe page (closes #69)'; git push -u origin feat/subscribe; git --no-pager log --oneline -3; Write-Host 'BRANCH:' (git branch --show-current)\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" },
+      "problemMatcher": []
+    },
+    {
+      "label": "push-subscribe-branch",
+      "type": "shell",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/push-subscribe-branch.ps1",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new", "focus": true },
       "problemMatcher": []
     }
   ]

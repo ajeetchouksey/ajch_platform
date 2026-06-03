@@ -4,10 +4,11 @@ import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
 import SearchModal from './SearchModal';
-import { Breadcrumb, type BreadcrumbItem } from './ui';
+import { Breadcrumb, Badge, VersionTag, type BreadcrumbItem } from './ui';
 import { loadBlogManifest, loadExamRegistry } from '@/lib/content-loader';
 import { EXAM_SCHEMES } from '@/types/content';
 import type { BlogPostMeta, ExamConfig } from '@/types/content';
+import { SubscribeForm } from './SubscribeForm';
 
 const platformLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
@@ -96,6 +97,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const isInTeam = location.pathname.startsWith('/team') || location.pathname.startsWith('/maintainer/team');
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSidebarOpen(false);
     setPageKey(location.pathname + location.search);
     const mainEl = document.querySelector('main');
@@ -118,6 +120,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         setCurrentExam(r.exams.find((e) => e.id === currentExamId) ?? null);
       }).catch(() => setCurrentExam(null));
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentExam(null);
     }
   }, [currentExamId, isInExam]);
@@ -519,37 +522,65 @@ export default function Layout({ children }: { children: ReactNode }) {
 
         {/* Main content */}
         <main
-          className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-4 lg:p-8"
+          className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden flex flex-col"
           style={{
             background: 'radial-gradient(ellipse 120% 45% at 50% 0%, rgba(139,92,246,0.10) 0%, transparent 55%)',
             backgroundAttachment: 'fixed',
           }}
         >
-          <div className="max-w-5xl mx-auto">
-            <div key={pageKey} className="animate-[fadeIn_0.38s_cubic-bezier(0.22,1,0.36,1)_both]">
-              <Breadcrumbs />
-              {children}
+          <div className="flex-1 p-4 lg:p-8">
+            <div className="max-w-5xl mx-auto">
+              <div key={pageKey} className="animate-[fadeIn_0.38s_cubic-bezier(0.22,1,0.36,1)_both]">
+                <Breadcrumbs />
+                {children}
+              </div>
             </div>
           </div>
+
+          <footer className="px-4 lg:px-8 pb-8 pt-2">
+            {/* Gradient separator — matches nav active-underline style */}
+            <div className="h-px bg-gradient-to-r from-transparent via-violet-500/25 to-transparent mb-8" />
+
+            <div className="max-w-5xl mx-auto space-y-6">
+              {/* Newsletter CTA — glass card matching page design language */}
+              <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.04] backdrop-blur-sm p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white mb-0.5">Ship faster. Learn deeper.</p>
+                  <p className="text-xs text-slate-500 leading-relaxed">Exam guides, AI tools &amp; engineering updates — straight to your inbox.</p>
+                </div>
+                <div className="shrink-0 w-full sm:w-auto">
+                  <SubscribeForm compact />
+                </div>
+              </div>
+
+              {/* Brand + nav row */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <Cpu size={15} className="text-violet-400" />
+                  <span className="text-sm font-extrabold tracking-wide bg-gradient-to-r from-violet-300 to-violet-500 bg-clip-text text-transparent">Aarya</span>
+                  <Badge label="AI Hub" variant="violet" size="xs" />
+                  <VersionTag version={__APP_VERSION__} highlight />
+                </div>
+                <nav className="flex flex-wrap gap-x-4 gap-y-1">
+                  {platformLinks.filter((l) => !l.sidebarOnly).map(({ to, label }) => (
+                    <Link key={to} to={to} className="text-xs text-slate-500 hover:text-slate-300 transition-colors duration-200">{label}</Link>
+                  ))}
+                </nav>
+              </div>
+
+              {/* Copyright */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-1">
+                <p className="text-[10px] text-slate-700">© 2026 Aarya · MIT License · Built in public</p>
+                <a href="https://github.com/ajeetchouksey/ajch_platform" target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[10px] text-slate-700 hover:text-slate-400 transition-colors duration-200">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                  View on GitHub
+                </a>
+              </div>
+            </div>
+          </footer>
         </main>
       </div>
-
-      <footer className="shrink-0 px-4 lg:px-6 py-2 flex items-center justify-between gap-4 flex-wrap"
-        style={{ borderTop: '1px solid rgba(71,85,105,0.12)', background: 'rgba(6,12,24,0.7)' }}>
-        <span className="text-[10px] text-slate-700">
-          © 2026 Aarya ·{' '}
-          <a href="https://github.com/ajeetchouksey/ajch_platform" target="_blank" rel="noreferrer"
-            className="hover:text-slate-500 transition-colors">MIT License</a>
-          {' '}· Built in public
-        </span>
-        <div className="flex items-center gap-4">
-          <Link to="/learn" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Learn</Link>
-          <Link to="/blog" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Blog</Link>
-          <Link to="/skillup" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Skill Up</Link>
-          <Link to="/tools" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Tools</Link>
-          <Link to="/contribute" className="text-[10px] text-slate-700 hover:text-slate-400 transition-colors">Contribute</Link>
-        </div>
-      </footer>
 
     </div>
   );
