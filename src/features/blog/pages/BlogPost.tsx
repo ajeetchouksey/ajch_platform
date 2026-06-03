@@ -9,6 +9,7 @@ import {
 import { loadBlogPost, loadBlogManifest } from '@/lib/content-loader';
 import { sharePost } from '@/lib/share';
 import GiscusComments from '@/components/GiscusComments';
+import RelatedContent from '@/components/RelatedContent';
 import type { BlogPostMeta } from '@/types/content';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
@@ -320,9 +321,22 @@ export default function BlogPost() {
 
   const headings = useMemo(() => extractHeadings(content), [content]);
 
+  useMeta({
+    title: meta?.title,
+    description: meta?.excerpt ?? meta?.title,
+    canonicalUrl: `https://aaryaai.dev/blog/${slug}`,
+  });
+
+  useMeta({
+    title: meta?.title,
+    description: meta?.excerpt ?? meta?.title,
+    canonicalUrl: `https://aaryaai.dev/blog/${slug}`,
+  });
+
   // Load post
   useEffect(() => {
     if (!slug) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setError(null); setActiveId(''); setReadPct(0);
     // Only show skeleton on the very first load; subsequent navigations just fade
     if (!hasLoadedOnceRef.current) setLoading(true);
@@ -587,6 +601,15 @@ export default function BlogPost() {
 
           {/* ── Comments ──────────────────────────────────────────────────── */}
           <GiscusComments slug={slug ?? ''} context="field-notes" />
+
+          {/* ── Related resources ─────────────────────────────────────────── */}
+          {meta && (
+            <RelatedContent
+              tags={meta.tags ?? []}
+              currentPath={`/blog/${slug}`}
+              heading="Related Resources"
+            />
+          )}
         </div>
 
         {/* ───── Sticky sidebar ─────────────────────────────────────────── */}
