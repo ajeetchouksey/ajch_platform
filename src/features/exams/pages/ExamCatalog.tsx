@@ -5,6 +5,7 @@ import {
   Lock, Brain, BarChart2, Zap, BookOpen,
 } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
+import { useMeta } from '@/lib/useMeta';
 import type { ExamConfig } from '@/types/content';
 
 // ── Color palette ─────────────────────────────────────────────────────────────
@@ -235,6 +236,10 @@ function SkeletonCard() {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function ExamCatalog() {
+  useMeta({
+    title: 'SkillUp — AI & Platform Engineering Certifications',
+    description: 'Practice exams for Claude (CCA-F), GitHub Best Practices (GH-BP), and Agentic AI (AB-100). Scenario-based MCQs with instant scoring.',
+  });
   const [exams, setExams] = useState<ExamConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);

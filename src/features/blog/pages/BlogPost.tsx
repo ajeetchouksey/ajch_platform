@@ -321,6 +321,18 @@ export default function BlogPost() {
 
   const headings = useMemo(() => extractHeadings(content), [content]);
 
+  useMeta({
+    title: meta?.title,
+    description: meta?.excerpt ?? meta?.title,
+    canonicalUrl: `https://aaryaai.dev/blog/${slug}`,
+  });
+
+  useMeta({
+    title: meta?.title,
+    description: meta?.excerpt ?? meta?.title,
+    canonicalUrl: `https://aaryaai.dev/blog/${slug}`,
+  });
+
   // Load post
   useEffect(() => {
     if (!slug) return;

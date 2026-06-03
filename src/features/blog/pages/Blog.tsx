@@ -5,6 +5,7 @@ import {
   ArrowRight, LayoutList, Layers, CheckCircle2, BookOpen,
 } from 'lucide-react';
 import { loadBlogManifest } from '@/lib/content-loader';
+import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
 
 // ── Category palette ─────────────────────────────────────────────────────────
@@ -199,7 +200,11 @@ type ViewMode = 'timeline' | 'category';
 const PAGE_SIZE = 12;
 
 export default function Blog() {
-  const [posts, setPosts] = useState<BlogPostMeta[]>([]);
+  useMeta({
+    title: 'Field Notes — AI & Platform Engineering',
+    description: 'In-depth articles on Azure, DevOps, AI Architecture, and responsible AI for practitioners.',
+  });
+  const [posts, setPosts] = useState<BlogPostMeta[]>([]);;
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [readSlugs, setReadSlugs] = useState<Set<string>>(new Set());
@@ -212,6 +217,7 @@ export default function Blog() {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReadSlugs(getReadSlugs());
     loadBlogManifest()
       .then((m) => {
