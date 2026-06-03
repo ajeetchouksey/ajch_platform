@@ -2,9 +2,107 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "create-growth-issues",
+      "type": "shell",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/create-content-growth-issues.ps1 2>&1 | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "setup-feature-branches",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git fetch origin; $branches = @('feat/61-seo-meta-system','feat/62-quiz-share-card','feat/63-related-content-crosslinks'); foreach ($b in $branches) { $exists = git branch -r --list \"origin/$b\" 2>$null; if ($exists) { Write-Host \"$b already exists on remote\" } else { git checkout -b $b origin/main; git push origin $b; git checkout main; Write-Host \"Created and pushed: $b\" } }; git checkout feat/61-seo-meta-system; git branch -v | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
       "label": "git-commit-gitignore-scripts-tasks",
       "type": "shell",
-      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .gitignore .vscode/tasks.json scripts/close-rc3-gh.ps1 scripts/close-rc4-issues.ps1 scripts/create-rc2-issues.ps1 scripts/create-rc3-issues.ps1 scripts/create-issues-temp.ps1 scripts/create-gap2-gap7-issues.ps1 scripts/create-rc1-issues.ps1 scripts/setup-branch-protection.ps1 scripts/setup-rc3-milestone.ps1 scripts/setup-rc4-milestone.ps1 scripts/migrate-to-skillup.ps1 scripts/test-gh-auth.ps1 2>$null; git commit -m 'chore: track tasks.json and utility scripts; gitignore log output files'; git push origin main\"",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .gitignore .vscode/tasks.json scripts/ 2>$null; git commit -m 'chore: track tasks.json and utility scripts; gitignore log output files'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "chore-pr-scripts-tasks",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .gitignore .vscode/tasks.json src/features/blog/pages/BlogPost.tsx scripts/close-rc3-gh.ps1 scripts/close-rc4-issues.ps1 scripts/create-rc2-issues.ps1 scripts/create-rc3-issues.ps1 scripts/setup-rc3-milestone.ps1 scripts/test-gh-auth.ps1 scripts/create-content-growth-issues.ps1; git commit -m 'chore: track utility scripts, tasks.json, gitignore result.json; fix BlogPost useMeta import'; git push origin chore/track-scripts-and-tasks; gh pr create --repo ajeetchouksey/ajch_platform --base main --head chore/track-scripts-and-tasks --title 'chore: track utility scripts, tasks.json, fix BlogPost useMeta import' --body '## Summary\nBundles uncommitted housekeeping items and fixes a post-merge TypeScript regression.\n\n## Changes\n- `src/features/blog/pages/BlogPost.tsx` — add missing `useMeta` import + remove duplicate call (caused by feat/61 and feat/63 both touching the file)\n- `.gitignore` — add `*-result.json` pattern\n- `.vscode/tasks.json` — sprint session tasks (open-prs, git-hotfix-husky-ci, switch-to-*, git-commit-*)\n- `scripts/close-rc3-gh.ps1`, `close-rc4-issues.ps1`, `create-rc2-issues.ps1`, `create-rc3-issues.ps1`, `setup-rc3-milestone.ps1`, `test-gh-auth.ps1`, `create-content-growth-issues.ps1`' 2>&1 | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8; Get-Content '${workspaceFolder}\\validate-test.txt'\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "open-prs-61-62-63",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; $out63 = gh pr create --repo ajeetchouksey/ajch_platform --base main --head feat/63-related-content-crosslinks --title 'feat: related content cross-links blog/SkillUp/Tools (closes #63)' --body '## Summary\nSurfaces related SkillUp tracks and AI Tools on BlogPost, ExamHome, and Tools catalog using tag/keyword matching at render time -- no network calls.\n\n## Changes\n- New ``src/components/RelatedContent.tsx``\n- ``BlogPost.tsx`` -- RelatedContent after comments\n- ``ExamHome.tsx`` -- RelatedContent after Official Resources\n- ``Tools.tsx`` -- Sharpen Your Skills SkillUp cross-links\n\nCloses #63' 2>&1; Write-Host $out63; $out62 = gh pr create --repo ajeetchouksey/ajch_platform --base main --head feat/62-quiz-share-card --title 'feat: post-quiz score share card + ConvertKit email capture (closes #62)' --body '## Summary\nAdds a share card to the quiz review phase with LinkedIn/X share buttons and a ConvertKit public form email subscribe.\n\n## Changes\n- New ``src/components/QuizShareCard.tsx``\n- ``Quiz.tsx`` -- card injected between score block and domain breakdown\n- ``.env.example`` -- VITE_CONVERTKIT_FORM_ID documented (public numeric ID, no secret)\n\nCloses #62' 2>&1; Write-Host $out62; $out61 = gh pr create --repo ajeetchouksey/ajch_platform --base main --head feat/61-seo-meta-system --title 'feat: per-route SEO meta via useMeta hook (closes #61)' --body '## Summary\nCustom useMeta hook using native DOM APIs -- no react-helmet-async dependency. Sets title, description, og:*, twitter:* on each route.\n\n## Changes\n- New ``src/lib/useMeta.ts``\n- Applied to: HomeV2, Blog, BlogPost (dynamic), ExamCatalog, ExamHome (dynamic)\n\nCloses #61' 2>&1; Write-Host $out61; @($out63, $out62, $out61) | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-commit-63",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/components/RelatedContent.tsx src/features/blog/pages/BlogPost.tsx src/features/exams/pages/ExamHome.tsx src/pages/Tools.tsx; git commit -m 'feat: related content cross-links blog/skillup/tools closes #63'; git push origin feat/63-related-content-crosslinks\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "switch-to-63",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout feat/63-related-content-crosslinks\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-commit-62",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/components/QuizShareCard.tsx src/features/exams/pages/Quiz.tsx .env.example; git commit -m 'feat: post-quiz score share card + email capture closes #62'; git push origin feat/62-quiz-share-card\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "switch-to-62",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout feat/62-quiz-share-card\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-commit-61",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/lib/useMeta.ts src/features/home/pages/HomeV2.tsx src/features/blog/pages/Blog.tsx src/features/blog/pages/BlogPost.tsx src/features/exams/pages/ExamCatalog.tsx src/features/exams/pages/ExamHome.tsx; git commit -m 'feat: per-route SEO meta via useMeta hook closes #61'; git push origin feat/61-seo-meta-system\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "switch-to-61",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout feat/61-seo-meta-system\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-log-check",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; gh api repos/ajeetchouksey/ajch_platform/commits?per_page=5 --jq '.[].commit.message | split(\\\"\\\\n\\\")[0]' 2>&1 | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-hotfix-husky-ci",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git fetch origin; $sha = (git log origin/fix/husky-ci-skip --oneline -1).Split(' ')[0]; Write-Host \"Hotfix SHA: $sha\"; foreach ($b in @('feat/63-related-content-crosslinks','feat/62-quiz-share-card','feat/61-seo-meta-system')) { git checkout $b; git pull origin $b; git cherry-pick $sha; git push origin $b; Write-Host \"Cherry-picked onto $b\" }; git checkout main\" 2>&1 | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8; Get-Content '${workspaceFolder}\\validate-test.txt'",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-push-main",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git push origin main 2>&1 | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-branch-push-pr",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout -b chore/precommit-hooks-and-scripts 2>&1; git push origin chore/precommit-hooks-and-scripts 2>&1; gh pr create --repo ajeetchouksey/ajch_platform --base main --head chore/precommit-hooks-and-scripts --title 'chore: pre-commit hooks, utility scripts, gitignore cleanup' --body '## Summary\nAdds husky + lint-staged pre-commit quality gates and tracks utility scripts.\n\n## Changes\n- `package.json`: husky 9.1.7 + lint-staged 15.5.2, prepare script, lint-staged config\n- `.husky/pre-commit`: runs lint-staged then tsc --noEmit\n- `scripts/validate-content.mjs`: content quality gate (MCQ schema, blog index, scenarios, MD frontmatter)\n- `.gitignore`: track `.vscode/tasks.json`; ignore runtime log/result files\n- `.vscode/tasks.json`: cleaned up duplicate entries, added new tasks\n- `scripts/*.ps1`: utility scripts now tracked in version control\n\n## Pre-commit checks on every commit\n- ESLint --fix on staged .ts/.tsx\n- tsc -b --noEmit (whole project)\n- JSON schema validation on staged public/content/** files\n- MD frontmatter/empty check on staged .md files\n\nFixes #49' 2>&1 | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8\"",
       "options": { "cwd": "${workspaceFolder}" },
       "group": "none"
     },
@@ -32,7 +130,7 @@
     {
       "label": "git-status-log",
       "type": "shell",
-      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git log --oneline -5 | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append; Write-Output '---STATUS---' | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append; git status --short | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append\"",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git log --oneline -5 | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append; git status --short | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append\"",
       "options": { "cwd": "${workspaceFolder}" },
       "group": "none"
     },

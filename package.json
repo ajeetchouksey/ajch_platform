@@ -9,10 +9,11 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepare": "husky",
+    "prepare": "husky || true",
     "validate-content": "node scripts/validate-content.mjs",
     "cli": "tsx cli/index.ts",
     "curator": "tsx cli/curator.ts",
+
     "curator:stats": "tsx cli/curator.ts stats",
     "curator:validate": "tsx cli/curator.ts validate",
     "curator:coverage": "tsx cli/curator.ts coverage"

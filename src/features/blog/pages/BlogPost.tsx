@@ -10,6 +10,7 @@ import { loadBlogPost, loadBlogManifest } from '@/lib/content-loader';
 import { sharePost } from '@/lib/share';
 import GiscusComments from '@/components/GiscusComments';
 import RelatedContent from '@/components/RelatedContent';
+import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
@@ -320,12 +321,6 @@ export default function BlogPost() {
   const hasLoadedOnceRef = useRef(false); // skip skeleton on re-navigation
 
   const headings = useMemo(() => extractHeadings(content), [content]);
-
-  useMeta({
-    title: meta?.title,
-    description: meta?.excerpt ?? meta?.title,
-    canonicalUrl: `https://aaryaai.dev/blog/${slug}`,
-  });
 
   useMeta({
     title: meta?.title,
