@@ -22,6 +22,15 @@ const platformLinks = [
   { to: '/analytics', label: 'Analytics', icon: LineChart, sidebarOnly: true },
 ];
 
+const footerLinks = [
+  { href: '/dashboard', label: 'Dashboard', external: false },
+  { href: '/subscribe', label: 'Subscribe', external: false },
+  { href: 'https://github.com/ajeetchouksey/ajch_platform', label: 'GitHub', external: true },
+  { href: 'https://github.com/ajeetchouksey/ajch_platform/discussions', label: 'Discussions', external: true },
+  { href: 'https://github.com/ajeetchouksey/ajch_platform/issues', label: 'Issues', external: true },
+  { href: 'https://github.com/ajeetchouksey/ajch_platform/blob/main/LICENSE', label: 'License', external: true },
+];
+
 function Breadcrumbs() {
   const location = useLocation();
   const segments = location.pathname.split('/').filter(Boolean);
@@ -562,9 +571,15 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <VersionTag version={__APP_VERSION__} highlight />
                 </div>
                 <nav className="flex flex-wrap gap-x-4 gap-y-1">
-                  {platformLinks.filter((l) => !l.sidebarOnly).map(({ to, label }) => (
-                    <Link key={to} to={to} className="text-xs text-slate-500 hover:text-slate-300 transition-colors duration-200">{label}</Link>
-                  ))}
+                  {footerLinks.map(({ href, label, external }) =>
+                    external ? (
+                      <a key={href} href={href} target="_blank" rel="noreferrer"
+                        className="text-xs text-slate-500 hover:text-slate-300 transition-colors duration-200">{label}</a>
+                    ) : (
+                      <Link key={href} to={href}
+                        className="text-xs text-slate-500 hover:text-slate-300 transition-colors duration-200">{label}</Link>
+                    )
+                  )}
                 </nav>
               </div>
 
