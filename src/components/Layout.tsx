@@ -22,6 +22,15 @@ const platformLinks = [
   { to: '/analytics', label: 'Analytics', icon: LineChart, sidebarOnly: true },
 ];
 
+const footerLinks = [
+  { href: '/subscribe', label: 'Subscribe', external: false },
+  { href: '/dashboard', label: 'Dashboard', external: false },
+  { href: 'https://github.com/ajeetchouksey/ajch_platform', label: 'GitHub', external: true },
+  { href: 'https://github.com/ajeetchouksey/ajch_platform/discussions', label: 'Discussions', external: true },
+  { href: 'https://github.com/ajeetchouksey/ajch_platform/issues', label: 'Issues', external: true },
+  { href: 'https://github.com/ajeetchouksey/ajch_platform/blob/main/LICENSE', label: 'License', external: true },
+];
+
 function Breadcrumbs() {
   const location = useLocation();
   const segments = location.pathname.split('/').filter(Boolean);
@@ -549,7 +558,17 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <p className="text-xs text-slate-500 leading-relaxed">Exam guides, AI tools &amp; engineering updates — straight to your inbox.</p>
                 </div>
                 <div className="shrink-0 w-full sm:w-auto">
-                  <SubscribeForm compact />
+                  {import.meta.env.VITE_CONVERTKIT_FORM_ID
+                    ? <SubscribeForm compact />
+                    : (
+                      <Link
+                        to="/subscribe"
+                        className="inline-flex items-center gap-2 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-500 px-4 py-2 rounded-lg transition-colors duration-200 whitespace-nowrap"
+                      >
+                        Subscribe →
+                      </Link>
+                    )
+                  }
                 </div>
               </div>
 
@@ -562,9 +581,15 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <VersionTag version={__APP_VERSION__} highlight />
                 </div>
                 <nav className="flex flex-wrap gap-x-4 gap-y-1">
-                  {platformLinks.filter((l) => !l.sidebarOnly).map(({ to, label }) => (
-                    <Link key={to} to={to} className="text-xs text-slate-500 hover:text-slate-300 transition-colors duration-200">{label}</Link>
-                  ))}
+                  {footerLinks.map(({ href, label, external }) =>
+                    external ? (
+                      <a key={href} href={href} target="_blank" rel="noreferrer"
+                        className="text-xs text-slate-500 hover:text-slate-300 transition-colors duration-200">{label}</a>
+                    ) : (
+                      <Link key={href} to={href}
+                        className="text-xs text-slate-500 hover:text-slate-300 transition-colors duration-200">{label}</Link>
+                    )
+                  )}
                 </nav>
               </div>
 
