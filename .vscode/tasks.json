@@ -2,6 +2,13 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "commit-push-pr-subscribe-footer",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout feat/69-subscribe-footer 2>$null; git add src/components/SubscribeForm.tsx src/pages/Subscribe.tsx src/app/router.tsx src/components/Layout.tsx vite.config.ts src/vite-env.d.ts .env.example; git commit -m 'feat: subscribe form + footer redesign + version display (Issue #69)'; git push origin feat/69-subscribe-footer; gh pr create --base main --head feat/69-subscribe-footer --title 'feat: subscribe form, footer redesign, version display (Issue #69)' --body '## Summary\nShips the feature code for v2.5.0 — subscribe form, footer redesign, version display.\n\n## Changes\n- SubscribeForm component (Kit/ConvertKit integration)\n- /subscribe page\n- Router: /subscribe route added\n- Layout: new glass-card footer with CTA + brand row + VersionTag v2.5.0, footer now scrollable\n- vite.config.ts: __APP_VERSION__ define from package.json\n- src/vite-env.d.ts: TypeScript global declaration\n- .env.example: VITE_CONVERTKIT_FORM_ID placeholder\n\nCloses #69' 2>&1\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
       "label": "create-growth-issues",
       "type": "shell",
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/create-content-growth-issues.ps1 2>&1 | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8",
@@ -9,9 +16,24 @@
       "group": "none"
     },
     {
-      "label": "setup-feature-branches",
+      "label": "fix-husky-ci",
       "type": "shell",
-      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git fetch origin; $branches = @('feat/61-seo-meta-system','feat/62-quiz-share-card','feat/63-related-content-crosslinks'); foreach ($b in $branches) { $exists = git branch -r --list \"origin/$b\" 2>$null; if ($exists) { Write-Host \"$b already exists on remote\" } else { git checkout -b $b origin/main; git push origin $b; git checkout main; Write-Host \"Created and pushed: $b\" } }; git checkout feat/61-seo-meta-system; git branch -v | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8\"",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout feat/69-subscribe-footer; git add package.json .github/workflows/release.yml; git commit -m 'fix: husky not found in CI — prepare script || true, HUSKY=0 in release.yml'; git push origin feat/69-subscribe-footer\" 2>&1",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-status-log",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; Write-Host '=== BRANCH ==='; git branch --show-current; Write-Host '=== STATUS ==='; git status --short; Write-Host '=== LOG ==='; git log --oneline -6\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "fix-push-pr-v2.5.0",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout chore/track-scripts-and-tasks; git push origin chore/track-scripts-and-tasks; gh pr create --base main --head chore/track-scripts-and-tasks --title 'chore(release): v2.5.0 — subscribe, footer redesign, version display' --body '## Summary\nRelease v2.5.0 — all changes from this sprint.\n\n### Added\n- Newsletter subscribe feature (Issue #69) — SubscribeForm + /subscribe page + Kit integration\n- Footer redesign — seamless glass-card footer with newsletter CTA, brand row, version badge\n- Version display — `__APP_VERSION__` from `package.json` via `vite.config.ts define`\n\n### Fixed\n- Footer was pinned to viewport; now scrolls naturally inside `<main>`\n\n### Chore\n- `package.json` bumped 2.4.0 → 2.5.0\n- CHANGELOG.md `[2.5.0]` entry added\n- `staff-engineer.agent.md` v2.5.0 + Hard Ownership Boundaries table added\n- `vite.config.ts` — reads version from package.json at build time\n- `src/vite-env.d.ts` — declares `__APP_VERSION__` global\n\n## Tag\nTag `v2.5.0` already pushed to remote. `release.yml` should have fired.' 2>&1\"",
       "options": { "cwd": "${workspaceFolder}" },
       "group": "none"
     },
@@ -128,16 +150,25 @@
       "group": "none"
     },
     {
+      "label": "git-commit-tasks-gitignore",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .env.example .vscode/tasks.json; git commit -m 'chore: resolve merge conflicts — combined ConvertKit comments, keep feature tasks'; git push origin feat/69-subscribe-footer\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
       "label": "create-precommit-issue",
       "type": "shell",
       "command": "pwsh -NoProfile -Command \"gh issue create --repo ajeetchouksey/ajch_platform --title 'feat: pre-commit hooks for code quality and content quality checks' --label 'enhancement' --body '## Summary\nAdd pre-commit hooks to enforce quality gates before every commit lands.\n\n## Scope\n### Code Quality\n- ESLint on staged .ts/.tsx files\n- TypeScript type-check on staged files\n\n### Content Quality\n- JSON schema validation on staged public/content/**/*.json files\n- Markdown frontmatter validation for staged public/content/**/*.md files\n\n## Implementation\n- Install husky + lint-staged\n- Configure .husky/pre-commit hook\n- Add lint-staged config to package.json\n- Add content validation script scripts/validate-content.mjs\n\n## Acceptance Criteria\n- [ ] git commit runs ESLint + TS check on staged .ts/.tsx files only\n- [ ] git commit validates any staged content JSON/MD files\n- [ ] Bad commits are blocked with clear error messages\n- [ ] Clean commits pass in < 30 seconds\n- [ ] Existing CI remains unchanged' 2>&1\"",
       "options": { "cwd": "${workspaceFolder}" },
       "group": "none"
     },
+
     {
-      "label": "git-status-log",
+      "label": "create-subscribe-issue",
       "type": "shell",
-      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git log --oneline -5 | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append; git status --short | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append\"",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; gh issue create --repo ajeetchouksey/ajch_platform --title 'feat: newsletter subscribe feature — CTA in footer + subscribe page' --label 'enhancement' --body '## Goal\nSurface ConvertKit email subscription from multiple touchpoints.\n\n## Acceptance Criteria\n- [ ] Reusable SubscribeForm component (VITE_CONVERTKIT_FORM_ID)\n- [ ] Subscribe CTA in site footer (all pages)\n- [ ] /subscribe route with full page\n- [ ] Success / error / already-subscribed states\n- [ ] Graceful degradation when env var unset (hides UI)\n- [ ] Mobile responsive\n\n## Endpoint\nPOST https://app.convertkit.com/forms/{FORM_ID}/subscriptions\nBody: email + first_name\n\n## Files\n- src/components/SubscribeForm.tsx (new)\n- src/components/Layout.tsx — footer CTA\n- src/pages/Subscribe.tsx (new)\n- src/app/router.tsx — add /subscribe\n- .env.example — document VITE_CONVERTKIT_FORM_ID' 2>&1\"",
       "options": { "cwd": "${workspaceFolder}" },
       "group": "none"
     },
@@ -447,6 +478,24 @@
       "options": { "cwd": "${workspaceFolder}" },
       "group": "none",
       "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-commit-subscribe",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout main; git pull origin main; git checkout -b feat/subscribe 2>&1; git add src/components/SubscribeForm.tsx src/pages/Subscribe.tsx src/app/router.tsx src/components/Layout.tsx; git commit -m 'feat: newsletter subscribe form + /subscribe page (closes #69)'; git push -u origin feat/subscribe; git --no-pager log --oneline -3; Write-Host 'BRANCH:' (git branch --show-current)\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" },
+      "problemMatcher": []
+    },
+    {
+      "label": "push-subscribe-branch",
+      "type": "shell",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/push-subscribe-branch.ps1",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new", "focus": true },
       "problemMatcher": []
     }
   ]

@@ -40,6 +40,7 @@ import MaintainerDashboard from '@/features/analytics/pages/MaintainerDashboard'
 import Profile from '@/features/profile/pages/Profile';
 import TeamV2 from '@/features/profile/pages/TeamV2';import Dashboard from '@/features/profile/pages/Dashboard';
 import Contribute from '@/features/community/pages/Contribute';
+import Subscribe from '@/pages/Subscribe';
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Backward-compat redirect helpers for /exams/:examId/* → /skillup/:examId/*
@@ -104,6 +105,7 @@ export default function AppRoutes() {
       <Route path="/team" element={<TeamV2 />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/contribute" element={<Contribute />} />
+      <Route path="/subscribe" element={<Subscribe />} />
     </Routes>
   );
 }

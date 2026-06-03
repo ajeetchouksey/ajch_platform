@@ -76,6 +76,9 @@ jobs:
       - name: Build
         if: steps.check.outputs.exists == 'false'
         run: npm ci && npm run build
+        env:
+          HUSKY: '0'
+          VITE_REPO_BASE: /
 
       - name: Package dist artifact
         if: steps.check.outputs.exists == 'false'

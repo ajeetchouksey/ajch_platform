@@ -13,6 +13,18 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 
 ---
 
+## [2.5.0] - 2026-06-03
+
+### Added
+- **Newsletter subscribe feature** (Issue #69) — `SubscribeForm` component with Kit (ConvertKit) integration; compact + full layout modes; `/subscribe` page with GlassCard; `VITE_CONVERTKIT_FORM_ID` env var
+- **Footer redesign** — seamlessly integrated glass-card footer with newsletter CTA, brand row, nav links, version badge; replaces the old pinned block footer
+- **Version display** — `__APP_VERSION__` injected at build time from `package.json` via `vite.config.ts define`; `VersionTag` rendered in footer brand row; `src/vite-env.d.ts` type declaration
+
+### Fixed
+- Footer was pinned to viewport (`shrink-0` outside `<main>`); moved inside `<main>` scroll container — now scrolls naturally with page content
+
+---
+
 ## [2.4.0] - 2026-06-02
 
 ### Added
