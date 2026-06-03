@@ -4,6 +4,7 @@ import {
   Terminal, Hash, Eye, Server, FileText,
   Calculator, Layers, FileJson, BookMarked, ArrowRight, Zap,
 } from 'lucide-react';
+import RelatedContent from '@/components/RelatedContent';
 
 interface ToolDef {
   icon: React.ElementType;
@@ -254,6 +255,15 @@ export default function Tools() {
           })}
         </div>
       </section>
+
+      {/* ── Related SkillUp tracks ─────────────────────────────────────── */}
+      <RelatedContent
+        tags={['ai', 'llm', 'prompt-engineering', 'mcp', 'claude', 'azure-ai', 'github', 'context', 'tokens']}
+        currentPath="/tools"
+        heading="Sharpen Your Skills"
+        maxSkills={3}
+        maxTools={0}
+      />
     </div>
   );
 }
