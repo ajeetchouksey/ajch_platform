@@ -20,6 +20,7 @@ gh_po_token.env
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/tasks.json
 .idea
 .DS_Store
 *.suo
@@ -27,3 +28,10 @@ gh_po_token.env
 *.njsproj
 *.sln
 *.sw?
+
+# Local task output logs — generated at runtime, not source
+*-log.txt
+*-result.txt
+git-status.txt
+validate-test.txt
+branch-protection-log.txt

@@ -1,0 +1,346 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "git-commit-gitignore-scripts-tasks",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .gitignore .vscode/tasks.json scripts/close-rc3-gh.ps1 scripts/close-rc4-issues.ps1 scripts/create-rc2-issues.ps1 scripts/create-rc3-issues.ps1 scripts/create-issues-temp.ps1 scripts/create-gap2-gap7-issues.ps1 scripts/create-rc1-issues.ps1 scripts/setup-branch-protection.ps1 scripts/setup-rc3-milestone.ps1 scripts/setup-rc4-milestone.ps1 scripts/migrate-to-skillup.ps1 scripts/test-gh-auth.ps1 2>$null; git commit -m 'chore: track tasks.json and utility scripts; gitignore log output files'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "test-validate-content",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; node scripts/validate-content.mjs public/content/blog/index.json public/content/skillup/ab100/questions/ab100-domain1.json 2>&1 | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8; Write-Host 'done'\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "install-precommit-deps",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; npm install; npx husky 2>&1\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "create-precommit-issue",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"gh issue create --repo ajeetchouksey/ajch_platform --title 'feat: pre-commit hooks for code quality and content quality checks' --label 'enhancement' --body '## Summary\nAdd pre-commit hooks to enforce quality gates before every commit lands.\n\n## Scope\n### Code Quality\n- ESLint on staged .ts/.tsx files\n- TypeScript type-check on staged files\n\n### Content Quality\n- JSON schema validation on staged public/content/**/*.json files\n- Markdown frontmatter validation for staged public/content/**/*.md files\n\n## Implementation\n- Install husky + lint-staged\n- Configure .husky/pre-commit hook\n- Add lint-staged config to package.json\n- Add content validation script scripts/validate-content.mjs\n\n## Acceptance Criteria\n- [ ] git commit runs ESLint + TS check on staged .ts/.tsx files only\n- [ ] git commit validates any staged content JSON/MD files\n- [ ] Bad commits are blocked with clear error messages\n- [ ] Clean commits pass in < 30 seconds\n- [ ] Existing CI remains unchanged' 2>&1\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-status-log",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git log --oneline -5 | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append; Write-Output '---STATUS---' | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append; git status --short | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "check-branch-protection",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"gh api repos/ajeetchouksey/ajch_platform/branches/main/protection 2>&1 | Out-File '${workspaceFolder}\\branch-protection-log.txt' -Encoding utf8\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "setup-branch-protection",
+      "type": "shell",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/setup-branch-protection.ps1 | Tee-Object -FilePath branch-protection-log.txt",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "git-commit-codeowners-update",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .github/CODEOWNERS; git commit -m 'chore: add @ajchava as co-owner in CODEOWNERS'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-commit-gh-hardening",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .github/SECURITY.md .github/dependabot.yml .github/CODEOWNERS .github/CODE_OF_CONDUCT.md .github/PULL_REQUEST_TEMPLATE.md .github/ISSUE_TEMPLATE/bug-report.yml .github/workflows/dependency-review.yml .github/workflows/codeql.yml .github/workflows/stale.yml .github/FUNDING.yml .github/workflows/ci.yml; git commit -m 'chore: GitHub repo hardening — SECURITY, CODEOWNERS, CoC, PR template, bug-report, dependabot, CodeQL, dep-review, stale bot, FUNDING, ci concurrency'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-commit-mermaid-fix",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/components/MermaidDiagram.tsx; git commit -m 'fix: patchSvgFluid corrupted stroke-width — negative lookbehind prevents stroke-width:Npx becoming stroke-width:100%'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "close-rc4-issues",
+      "type": "shell",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/close-rc4-issues.ps1",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "git-commit-skillup-rc4",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add public/content/skillup/ scripts/migrate-to-skillup.ps1 scripts/setup-rc4-milestone.ps1 scripts/sync-stats.py src/types/content.ts src/lib/content-loader.ts src/lib/storage.ts src/features/exams/pages/Quiz.tsx src/features/exams/pages/ExamCatalog.tsx src/features/exams/pages/CcafHome.tsx src/features/exams/pages/ExamHome.tsx src/app/router.tsx src/components/Layout.tsx src/features/home/pages/HomeV2.tsx src/features/home/pages/Learn.tsx src/features/profile/pages/Dashboard.tsx src/features/profile/pages/Profile.tsx .vscode/tasks.json; git commit -m 'feat: RC-4 SkillUp restructure — skillup/ content tree, contentLevel, /skillup routing, catalog.json auto-discovery, scoped sessions closes #43 #44 #45 #46 #47 #48'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "setup-rc4-milestone",
+      "type": "shell",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/setup-rc4-milestone.ps1",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "migrate-to-skillup",
+      "type": "shell",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/migrate-to-skillup.ps1",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "setup-rc3-milestone",
+      "type": "shell",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/setup-rc3-milestone.ps1",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared", "focus": true }
+    },
+    {
+      "label": "phase2-migrate",
+      "type": "shell",
+      "command": "node scripts/migrate-phase2.mjs",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "build",
+      "isBackground": true,
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": {
+        "pattern": { "regexp": "^$" },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE",
+          "endsPattern": "ready in"
+        }
+      }
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "npm run build",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "git-commit-blogpost-title-nav",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/features/blog/pages/BlogPost.tsx; git commit -m 'style: remove All posts link, fix dark gap, gradient title branding'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-commit-toc-author-tags",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/features/blog/pages/BlogPost.tsx src/features/blog/pages/Blog.tsx; git commit -m 'feat: TOC progress states, author profile link, clickable tags with URL filter'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-commit-blogpost-progress-fix",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/features/blog/pages/BlogPost.tsx; git commit -m 'fix: bind readPct+ReadingBar to main scroll container, remove article footer bar'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-commit-dedup-avatar",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/components/GithubLogin.tsx src/components/Layout.tsx; git commit -m 'fix: remove duplicate avatar in header, profile link on avatar'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-commit-login-fix",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/lib/auth.tsx src/components/GithubLogin.tsx; git commit -m 'fix: fallback to token input when device flow CORS fails'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-commit-phase1",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/features/profile/pages/Profile.tsx src/features/exams/pages/Quiz.tsx; git commit -m 'feat: sync button on Profile + post-quiz login nudge (closes #13 Phase 1)'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-commit-remove-goatcounter",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/lib/analytics.ts src/pages/Home.tsx src/features/home/pages/HomeV2.tsx src/features/analytics/pages/MaintainerDashboard.tsx src/features/analytics/pages/Analytics.tsx index.html .github/workflows/deploy.yml .env.example; git commit -m 'chore: remove GoatCounter from Analytics page, stub for GA4 (Issue #14 prep)'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    }
+,
+    {
+      "label": "git-commit-hero-colors",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/features/home/pages/HomeV2.tsx; git commit -m 'style: hero heading purple→orange gradient, subtitle white'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-commit-blog-sort",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/features/blog/pages/Blog.tsx; git commit -m 'fix: sort blog posts by date descending on load'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-commit-v2.4.0",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add package.json .github/CHANGELOG.md src/features/community/pages/Contribute.tsx src/lib/analytics.ts src/main.tsx src/App.tsx .github/workflows/deploy.yml; git commit -m 'feat: Contribute v2 (4-tab auth-gated) + GA4 analytics closes #14 v2.4.0'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-fix-version-badge",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/components/Layout.tsx; git commit -m 'fix: version badge v2.3.0 → v2.4.0 in Layout.tsx'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-fix-canSubmit-type",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/features/community/pages/Contribute.tsx; git commit -m 'fix: canSubmit string|boolean narrowed to boolean (TS2322)'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-fix-nav-sidebar",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/components/Layout.tsx; git commit -m 'feat: Contribute in top nav; Dashboard+Team in sidebar; update Team sidebar agents'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "run-close-rc3",
+      "type": "shell",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/close-rc3-gh.ps1",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+      "type": "shell",
+      "command": "gh issue close 36 37 38 39 40 41 --repo ajeetchouksey/ajch_platform --comment \"Shipped in ab86936 RC-3 homepage redesign\" && gh issue create --repo ajeetchouksey/ajch_platform --title \"RC-3: GA4 live analytics users-today proof bar\" --milestone 6 --body \"Shipped in 78ed83d. Blocked: service account needs GA4 Viewer access.\"",
+      "options": { "cwd": "${workspaceFolder}", "shell": { "executable": "C:\\Program Files\\Git\\bin\\bash.exe", "args": ["-c"] } },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "git-fix-team-topnav",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/components/Layout.tsx; git commit -m 'fix: add Team to top nav'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-fix-blog-flicker",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/features/blog/pages/BlogPost.tsx src/features/blog/pages/Blog.tsx; git commit -m 'fix: eliminate blog flicker — skip skeleton on re-nav, guard state updates, speed up transitions'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "create-rc2-issues",
+      "type": "shell",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/create-rc2-issues.ps1",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-fix-footer-layout",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/components/Layout.tsx; git commit -m 'fix: move footer outside flex row so it spans full width below content'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-log-recent",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; $env:GIT_PAGER='cat'; git --no-pager log --oneline -5; git --no-pager status --short\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-status-check",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git --no-pager status --short; git --no-pager log --oneline -5\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git-rc1-final",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add src/features/home/pages/HomeV2.tsx src/features/home/pages/Learn.tsx src/app/router.tsx src/components/Layout.tsx; git commit -m 'feat: progress teaser, how it works, footer, /learn page (closes #21, closes #24, closes #25, closes #26)'; git push origin main\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    }
+  ]
+}
