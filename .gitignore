@@ -32,6 +32,7 @@ gh_po_token.env
 # Local task output logs — generated at runtime, not source
 *-log.txt
 *-result.txt
+*-result.json
 git-status.txt
 validate-test.txt
 branch-protection-log.txt
