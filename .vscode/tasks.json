@@ -23,6 +23,13 @@
       "group": "none"
     },
     {
+      "label": "git-fix-husky-prepare",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout chore/track-scripts-and-tasks; git pull origin chore/track-scripts-and-tasks; git add .vscode/tasks.json; git diff --cached --quiet && echo 'nothing to commit' || git commit -m 'fix: repair tasks.json broken entries (missing opening braces)'; git push origin chore/track-scripts-and-tasks\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
       "label": "chore-pr-scripts-tasks",
       "type": "shell",
       "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .gitignore .vscode/tasks.json src/features/blog/pages/BlogPost.tsx scripts/close-rc3-gh.ps1 scripts/close-rc4-issues.ps1 scripts/create-rc2-issues.ps1 scripts/create-rc3-issues.ps1 scripts/setup-rc3-milestone.ps1 scripts/test-gh-auth.ps1 scripts/create-content-growth-issues.ps1; git commit -m 'chore: track utility scripts, tasks.json, gitignore result.json; fix BlogPost useMeta import'; git push origin chore/track-scripts-and-tasks; gh pr create --repo ajeetchouksey/ajch_platform --base main --head chore/track-scripts-and-tasks --title 'chore: track utility scripts, tasks.json, fix BlogPost useMeta import' --body '## Summary\nBundles uncommitted housekeeping items and fixes a post-merge TypeScript regression.\n\n## Changes\n- `src/features/blog/pages/BlogPost.tsx` — add missing `useMeta` import + remove duplicate call (caused by feat/61 and feat/63 both touching the file)\n- `.gitignore` — add `*-result.json` pattern\n- `.vscode/tasks.json` — sprint session tasks (open-prs, git-hotfix-husky-ci, switch-to-*, git-commit-*)\n- `scripts/close-rc3-gh.ps1`, `close-rc4-issues.ps1`, `create-rc2-issues.ps1`, `create-rc3-issues.ps1`, `setup-rc3-milestone.ps1`, `test-gh-auth.ps1`, `create-content-growth-issues.ps1`' 2>&1 | Out-File '${workspaceFolder}\\validate-test.txt' -Encoding utf8; Get-Content '${workspaceFolder}\\validate-test.txt'\"",
@@ -371,6 +378,8 @@
       "group": "none",
       "presentation": { "reveal": "always", "panel": "new" }
     },
+    {
+      "label": "close-rc3-gh-issues",
       "type": "shell",
       "command": "gh issue close 36 37 38 39 40 41 --repo ajeetchouksey/ajch_platform --comment \"Shipped in ab86936 RC-3 homepage redesign\" && gh issue create --repo ajeetchouksey/ajch_platform --title \"RC-3: GA4 live analytics users-today proof bar\" --milestone 6 --body \"Shipped in 78ed83d. Blocked: service account needs GA4 Viewer access.\"",
       "options": { "cwd": "${workspaceFolder}", "shell": { "executable": "C:\\Program Files\\Git\\bin\\bash.exe", "args": ["-c"] } },
