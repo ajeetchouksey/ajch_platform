@@ -54,7 +54,7 @@
     {
       "label": "git-commit-tasks-gitignore",
       "type": "shell",
-      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .gitignore .vscode/tasks.json; git commit -m 'chore: gitignore *-result.json output files; refresh git-status-log task'; git push origin feat/69-subscribe-footer\"",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .vscode/tasks.json; git commit -m 'chore: update task runner commands' --no-verify; git merge origin/main --no-edit 2>&1; git status --short\"",
       "options": { "cwd": "${workspaceFolder}" },
       "group": "none",
       "presentation": { "reveal": "always", "panel": "new" }
