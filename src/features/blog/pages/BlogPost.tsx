@@ -9,7 +9,7 @@ import {
 import { loadBlogPost, loadBlogManifest } from '@/lib/content-loader';
 import { sharePost } from '@/lib/share';
 import GiscusComments from '@/components/GiscusComments';
-import { useMeta } from '@/lib/useMeta';
+import RelatedContent from '@/components/RelatedContent';
 import type { BlogPostMeta } from '@/types/content';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
@@ -601,6 +601,15 @@ export default function BlogPost() {
 
           {/* ── Comments ──────────────────────────────────────────────────── */}
           <GiscusComments slug={slug ?? ''} context="field-notes" />
+
+          {/* ── Related resources ─────────────────────────────────────────── */}
+          {meta && (
+            <RelatedContent
+              tags={meta.tags ?? []}
+              currentPath={`/blog/${slug}`}
+              heading="Related Resources"
+            />
+          )}
         </div>
 
         {/* ───── Sticky sidebar ─────────────────────────────────────────── */}

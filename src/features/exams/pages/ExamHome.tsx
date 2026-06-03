@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
-import { useMeta } from '@/lib/useMeta';
+import RelatedContent from '@/components/RelatedContent';
 import type { ExamConfig } from '@/types/content';
 
 function AnimatedBar({ width, color, delay }: { width: number; color: string; delay: number }) {
@@ -59,11 +59,14 @@ export default function ExamHome() {
   const [exam, setExam] = useState<ExamConfig | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  useMeta({
-    title: exam ? `${exam.shortTitle} — ${exam.title}` : 'SkillUp Practice Exam',
-    description: exam?.description,
-    canonicalUrl: examId ? `https://aaryaai.dev/skillup/${examId}` : undefined,
-  });
+  // Static keyword set per exam for cross-link matching
+  const EXAM_TAGS: Record<string, string[]> = useMemo(() => ({
+    ccaf:  ['claude', 'anthropic', 'mcp', 'prompt-engineering', 'agentic', 'ai', 'llm', 'context', 'tool-design', 'system-prompt'],
+    ab100: ['azure', 'azure-ai', 'agentic', 'responsible-ai', 'copilot-studio', 'azure-openai', 'governance'],
+    ghbp:  ['github', 'branch-protection', 'devops', 'ci-cd', 'platform-engineering', 'governance', 'security'],
+  }), []);
+
+  const examTags = useMemo(() => (examId ? (EXAM_TAGS[examId] ?? [examId]) : []), [examId, EXAM_TAGS]);
 
   useEffect(() => {
     if (!examId) return;
@@ -203,6 +206,15 @@ export default function ExamHome() {
           ))}
         </ul>
       </div>
+
+      {/* Related resources — cross-links to other SkillUp tracks & AI Tools */}
+      <RelatedContent
+        tags={examTags}
+        currentPath={`/skillup/${examId}`}
+        heading="Continue Learning"
+        maxSkills={2}
+        maxTools={3}
+      />
     </div>
   );
 }
