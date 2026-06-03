@@ -15,6 +15,7 @@ import { StarRepo } from '@/components/StarRepo';
 
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
 import { getSessions } from '@/lib/storage';
+import { useMeta } from '@/lib/useMeta';
 
 // ── Platform feature cards ────────────────────────────────────────────────────
 const features = [
@@ -137,6 +138,10 @@ const journeySteps = [
 ] as const;
 // ── Main page ────────────────────────────────────────────────────────────────
 export default function HomeV2() {
+  useMeta({
+    title: 'AI Learning Hub for Engineers',
+    description: 'Practice exams, study notes, and AI tools for Claude, GitHub, and Azure certifications. Build real AI skills on Aarya — My AI Learning Hub.',
+  });
   const [mounted, setMounted] = useState(false);
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
@@ -144,6 +149,7 @@ export default function HomeV2() {
   useEffect(() => { loadPlatformStats().then(setPStats).catch(() => {}); }, []);
 
   const [sessions, setSessions] = useState<ReturnType<typeof getSessions>>([]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setSessions(getSessions().filter(s => !!s.finishedAt)); }, []);
 
   const dynamicProofStats = useMemo(() => proofStats.map((s) => {

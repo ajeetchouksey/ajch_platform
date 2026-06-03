@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
+import { useMeta } from '@/lib/useMeta';
 import type { ExamConfig } from '@/types/content';
 
 function AnimatedBar({ width, color, delay }: { width: number; color: string; delay: number }) {
@@ -57,6 +58,12 @@ export default function ExamHome() {
   const { examId } = useParams<{ examId: string }>();
   const [exam, setExam] = useState<ExamConfig | null>(null);
   const [mounted, setMounted] = useState(false);
+
+  useMeta({
+    title: exam ? `${exam.shortTitle} — ${exam.title}` : 'SkillUp Practice Exam',
+    description: exam?.description,
+    canonicalUrl: examId ? `https://aaryaai.dev/skillup/${examId}` : undefined,
+  });
 
   useEffect(() => {
     if (!examId) return;
