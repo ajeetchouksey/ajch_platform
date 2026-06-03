@@ -34,7 +34,8 @@ function patchSvgFluid(raw: string): string {
     .replace(/(<svg\b[^>]*?)\s+width="[^"]*"/, '$1 width="100%"')
     .replace(/(<svg\b[^>]*?)\s+height="[^"]*"/, '$1')
     .replace(/\bmax-width\s*:\s*[\d.]+px/g, 'max-width:100%')
-    .replace(/\bwidth\s*:\s*[\d.]+px/g, 'width:100%');
+    // Only replace standalone `width:Npx` — NOT `stroke-width:Npx` or `max-width:Npx`
+    .replace(/(?<![a-zA-Z-])width\s*:\s*[\d.]+px/g, 'width:100%');
 }
 
 export default function MermaidDiagram({ chart }: { chart: string }) {
