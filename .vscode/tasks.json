@@ -2,6 +2,13 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "git-commit-push-main-fix",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .vscode/tasks.json; git commit -m 'chore: update git-commit-push-main-fix task'; git push origin fix/footer-subscribe-env; git --no-pager log --oneline -3\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
       "label": "commit-push-pr-subscribe-footer",
       "type": "shell",
       "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout feat/69-subscribe-footer 2>$null; git add src/components/SubscribeForm.tsx src/pages/Subscribe.tsx src/app/router.tsx src/components/Layout.tsx vite.config.ts src/vite-env.d.ts .env.example; git commit -m 'feat: subscribe form + footer redesign + version display (Issue #69)'; git push origin feat/69-subscribe-footer; gh pr create --base main --head feat/69-subscribe-footer --title 'feat: subscribe form, footer redesign, version display (Issue #69)' --body '## Summary\nShips the feature code for v2.5.0 — subscribe form, footer redesign, version display.\n\n## Changes\n- SubscribeForm component (Kit/ConvertKit integration)\n- /subscribe page\n- Router: /subscribe route added\n- Layout: new glass-card footer with CTA + brand row + VersionTag v2.5.0, footer now scrollable\n- vite.config.ts: __APP_VERSION__ define from package.json\n- src/vite-env.d.ts: TypeScript global declaration\n- .env.example: VITE_CONVERTKIT_FORM_ID placeholder\n\nCloses #69' 2>&1\"",
