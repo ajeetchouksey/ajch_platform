@@ -9,11 +9,24 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "prepare": "husky",
+    "validate-content": "node scripts/validate-content.mjs",
     "cli": "tsx cli/index.ts",
     "curator": "tsx cli/curator.ts",
     "curator:stats": "tsx cli/curator.ts stats",
     "curator:validate": "tsx cli/curator.ts validate",
     "curator:coverage": "tsx cli/curator.ts coverage"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix --max-warnings=0"
+    ],
+    "public/content/**/*.json": [
+      "node scripts/validate-content.mjs"
+    ],
+    "public/content/**/*.md": [
+      "node scripts/validate-content.mjs"
+    ]
   },
   "dependencies": {
     "@types/react-syntax-highlighter": "^15.5.13",
@@ -36,6 +49,8 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "husky": "9.1.7",
+    "lint-staged": "15.5.2",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
