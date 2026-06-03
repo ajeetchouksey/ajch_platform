@@ -3,33 +3,33 @@
 # Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
 # ── Default: catch-all ────────────────────────────────────────────────────
-*                                   @ajeetchouksey
+*                                   @ajeetchouksey @ajchava
 
 # ── Platform source code ─────────────────────────────────────────────────
-/src/                               @ajeetchouksey
-/vite.config.ts                     @ajeetchouksey
-/tsconfig*.json                     @ajeetchouksey
-/index.html                         @ajeetchouksey
+/src/                               @ajeetchouksey @ajchava
+/vite.config.ts                     @ajeetchouksey @ajchava
+/tsconfig*.json                     @ajeetchouksey @ajchava
+/index.html                         @ajeetchouksey @ajchava
 
 # ── Package manifest — dependency changes always need owner sign-off ──────
-/package.json                       @ajeetchouksey
-/package-lock.json                  @ajeetchouksey
+/package.json                       @ajeetchouksey @ajchava
+/package-lock.json                  @ajeetchouksey @ajchava
 
 # ── CI/CD and security — highest protection ───────────────────────────────
-/.github/workflows/                 @ajeetchouksey
-/.github/CODEOWNERS                 @ajeetchouksey
-/.github/SECURITY.md                @ajeetchouksey
-/.github/dependabot.yml             @ajeetchouksey
+/.github/workflows/                 @ajeetchouksey @ajchava
+/.github/CODEOWNERS                 @ajeetchouksey @ajchava
+/.github/SECURITY.md                @ajeetchouksey @ajchava
+/.github/dependabot.yml             @ajeetchouksey @ajchava
 
 # ── Agent files — version gate enforced by agents-validate.yml ───────────
-/.github/agents/                    @ajeetchouksey
+/.github/agents/                    @ajeetchouksey @ajchava
 
 # ── Content — community can contribute; maintainer must review ────────────
 # Questions: Curriculum Engineer validates schema; owner approves merge
-/public/content/questions/          @ajeetchouksey
+/public/content/questions/          @ajeetchouksey @ajchava
 # Blog: Content Lead pipeline; owner approves publication
-/public/content/blog/               @ajeetchouksey
+/public/content/blog/               @ajeetchouksey @ajchava
 # SkillUp skill definitions and catalog
-/public/content/skillup/            @ajeetchouksey
+/public/content/skillup/            @ajeetchouksey @ajchava
 # Stats file is auto-generated — still requires owner review if touched by humans
-/public/content/stats.json          @ajeetchouksey
+/public/content/stats.json          @ajeetchouksey @ajchava
