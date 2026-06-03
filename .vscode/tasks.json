@@ -2,6 +2,35 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "commit-push-pr-subscribe-footer",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout feat/69-subscribe-footer 2>$null; git add src/components/SubscribeForm.tsx src/pages/Subscribe.tsx src/app/router.tsx src/components/Layout.tsx vite.config.ts src/vite-env.d.ts .env.example; git commit -m 'feat: subscribe form + footer redesign + version display (Issue #69)'; git push origin feat/69-subscribe-footer; gh pr create --base main --head feat/69-subscribe-footer --title 'feat: subscribe form, footer redesign, version display (Issue #69)' --body '## Summary\nShips the feature code for v2.5.0 — subscribe form, footer redesign, version display.\n\n## Changes\n- SubscribeForm component (Kit/ConvertKit integration)\n- /subscribe page\n- Router: /subscribe route added\n- Layout: new glass-card footer with CTA + brand row + VersionTag v2.5.0, footer now scrollable\n- vite.config.ts: __APP_VERSION__ define from package.json\n- src/vite-env.d.ts: TypeScript global declaration\n- .env.example: VITE_CONVERTKIT_FORM_ID placeholder\n\nCloses #69' 2>&1\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "fix-husky-ci",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout feat/69-subscribe-footer; git add package.json .github/workflows/release.yml; git commit -m 'fix: husky not found in CI — prepare script || true, HUSKY=0 in release.yml'; git push origin feat/69-subscribe-footer\" 2>&1",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
+      "label": "git-status-log",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; Write-Host '=== BRANCH ==='; git branch --show-current; Write-Host '=== STATUS ==='; git status --short; Write-Host '=== LOG ==='; git log --oneline -6\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "fix-push-pr-v2.5.0",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git checkout chore/track-scripts-and-tasks; git push origin chore/track-scripts-and-tasks; gh pr create --base main --head chore/track-scripts-and-tasks --title 'chore(release): v2.5.0 — subscribe, footer redesign, version display' --body '## Summary\nRelease v2.5.0 — all changes from this sprint.\n\n### Added\n- Newsletter subscribe feature (Issue #69) — SubscribeForm + /subscribe page + Kit integration\n- Footer redesign — seamless glass-card footer with newsletter CTA, brand row, version badge\n- Version display — `__APP_VERSION__` from `package.json` via `vite.config.ts define`\n\n### Fixed\n- Footer was pinned to viewport; now scrolls naturally inside `<main>`\n\n### Chore\n- `package.json` bumped 2.4.0 → 2.5.0\n- CHANGELOG.md `[2.5.0]` entry added\n- `staff-engineer.agent.md` v2.5.0 + Hard Ownership Boundaries table added\n- `vite.config.ts` — reads version from package.json at build time\n- `src/vite-env.d.ts` — declares `__APP_VERSION__` global\n\n## Tag\nTag `v2.5.0` already pushed to remote. `release.yml` should have fired.' 2>&1\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none"
+    },
+    {
       "label": "git-commit-gitignore-scripts-tasks",
       "type": "shell",
       "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .gitignore .vscode/tasks.json scripts/close-rc3-gh.ps1 scripts/close-rc4-issues.ps1 scripts/create-rc2-issues.ps1 scripts/create-rc3-issues.ps1 scripts/create-issues-temp.ps1 scripts/create-gap2-gap7-issues.ps1 scripts/create-rc1-issues.ps1 scripts/setup-branch-protection.ps1 scripts/setup-rc3-milestone.ps1 scripts/setup-rc4-milestone.ps1 scripts/migrate-to-skillup.ps1 scripts/test-gh-auth.ps1 2>$null; git commit -m 'chore: track tasks.json and utility scripts; gitignore log output files'; git push origin main\"",
@@ -23,19 +52,21 @@
       "group": "none"
     },
     {
+      "label": "git-commit-tasks-gitignore",
+      "type": "shell",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .gitignore .vscode/tasks.json; git commit -m 'chore: gitignore *-result.json output files; refresh git-status-log task'; git push origin feat/69-subscribe-footer\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
       "label": "create-precommit-issue",
       "type": "shell",
       "command": "pwsh -NoProfile -Command \"gh issue create --repo ajeetchouksey/ajch_platform --title 'feat: pre-commit hooks for code quality and content quality checks' --label 'enhancement' --body '## Summary\nAdd pre-commit hooks to enforce quality gates before every commit lands.\n\n## Scope\n### Code Quality\n- ESLint on staged .ts/.tsx files\n- TypeScript type-check on staged files\n\n### Content Quality\n- JSON schema validation on staged public/content/**/*.json files\n- Markdown frontmatter validation for staged public/content/**/*.md files\n\n## Implementation\n- Install husky + lint-staged\n- Configure .husky/pre-commit hook\n- Add lint-staged config to package.json\n- Add content validation script scripts/validate-content.mjs\n\n## Acceptance Criteria\n- [ ] git commit runs ESLint + TS check on staged .ts/.tsx files only\n- [ ] git commit validates any staged content JSON/MD files\n- [ ] Bad commits are blocked with clear error messages\n- [ ] Clean commits pass in < 30 seconds\n- [ ] Existing CI remains unchanged' 2>&1\"",
       "options": { "cwd": "${workspaceFolder}" },
       "group": "none"
     },
-    {
-      "label": "git-status-log",
-      "type": "shell",
-      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git log --oneline -5 | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append; Write-Output '---STATUS---' | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append; git status --short | Out-File -FilePath '${workspaceFolder}\\git-status.txt' -Encoding utf8 -Append\"",
-      "options": { "cwd": "${workspaceFolder}" },
-      "group": "none"
-    },
+
     {
       "label": "create-subscribe-issue",
       "type": "shell",
