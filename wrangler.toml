@@ -1,0 +1,42 @@
+name            = "aarya-subscribe"
+main            = "workers/subscribe.ts"
+compatibility_date = "2026-06-05"
+
+# ── KV namespace — per-IP rate limiting (5 req / 15 min) ─────────────────────
+# One-time setup:
+#   1. wrangler kv namespace create RATE_LIMITER
+#   2. Copy the returned `id` value and paste it below.
+[[kv_namespaces]]
+binding = "RATE_LIMITER"
+id      = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# ── Secrets — set via CLI, never commit values ────────────────────────────────
+# Run each of the following (you will be prompted to paste the value):
+#
+#   wrangler secret put GIST_TOKEN
+#     → paste the fine-grained PAT (aarya-subscribe-gist-pat, Gists R/W)
+#
+#   wrangler secret put SUBSCRIBER_GIST_ID
+#     → <REPLACE_WITH_SUBSCRIBER_GIST_ID>
+#
+#   wrangler secret put PUBLIC_STATS_GIST_ID
+#     → <REPLACE_WITH_PUBLIC_STATS_GIST_ID>
+#
+#   wrangler secret put GH_APP_ID
+#     → <REPLACE_WITH_GH_APP_ID>
+#
+#   wrangler secret put GH_APP_PRIVATE_KEY
+#     → paste the full .pem file contents (multi-line is fine)
+#
+#   wrangler secret put GH_APP_INSTALLATION_ID
+#     → <REPLACE_WITH_GH_APP_INSTALLATION_ID>
+#
+# ── Deploy ────────────────────────────────────────────────────────────────────
+# After secrets are set:
+#   wrangler deploy
+#
+# Copy the deployed URL (https://aarya-subscribe.<subdomain>.workers.dev)
+# and set it in Vite:
+#   VITE_SUBSCRIBE_WORKER_URL=https://aarya-subscribe.<subdomain>.workers.dev
+#
+# Set VITE_STATS_GIST_ID=<REPLACE_WITH_PUBLIC_STATS_GIST_ID> in Vite env as well.
