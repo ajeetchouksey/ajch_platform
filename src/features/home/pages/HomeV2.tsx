@@ -14,6 +14,7 @@ import { StarRepo } from '@/components/StarRepo';
 
 
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
+import { fetchGitHubRepo, type GitHubRepoStats } from '@/lib/github-stats';
 import { getSessions } from '@/lib/storage';
 import { useMeta } from '@/lib/useMeta';
 
@@ -137,6 +138,9 @@ export default function HomeV2() {
 
   const [pStats, setPStats] = useState<PlatformStats | null>(null);
   useEffect(() => { loadPlatformStats().then(setPStats).catch(() => {}); }, []);
+
+  const [ghRepo, setGhRepo] = useState<GitHubRepoStats | null>(null);
+  useEffect(() => { fetchGitHubRepo().then(setGhRepo).catch(() => {}); }, []);
 
   const [sessions, setSessions] = useState<ReturnType<typeof getSessions>>([]);
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -342,6 +346,26 @@ export default function HomeV2() {
                 <Users size={13} className="text-violet-400" />
                 <span className="text-white font-bold">{pStats.audience.subscribers.toLocaleString()}</span>
                 &nbsp;subscribers
+              </span>
+            </>
+          )}
+          {ghRepo != null && ghRepo.stars > 0 && (
+            <>
+              <span className="text-slate-600 text-[12px]">·</span>
+              <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+                <span style={{ color: '#fbbf24' }}>⭐</span>
+                <span className="text-white font-bold">{ghRepo.stars.toLocaleString()}</span>
+                &nbsp;stars
+              </span>
+            </>
+          )}
+          {ghRepo != null && ghRepo.watchers > 0 && (
+            <>
+              <span className="text-slate-600 text-[12px]">·</span>
+              <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+                <span style={{ color: '#38bdf8' }}>👀</span>
+                <span className="text-white font-bold">{ghRepo.watchers.toLocaleString()}</span>
+                &nbsp;watching
               </span>
             </>
           )}
@@ -683,6 +707,11 @@ export default function HomeV2() {
                     <GitBranch size={12} /> Fork on GitHub
                   </a>
                   <StarRepo />
+                  <a href="https://github.com/ajeetchouksey/ajch_platform/subscription" target="_blank" rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-black rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+                    style={{ background: 'rgba(56,189,248,0.10)', border: '1px solid rgba(56,189,248,0.25)', color: '#38bdf8' }}>
+                    <Eye size={12} /> Watch on GitHub
+                  </a>
                   <a href="https://github.com/ajeetchouksey/ajch_platform/issues" target="_blank" rel="noreferrer"
                     className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-black rounded-xl transition-all duration-200 hover:-translate-y-0.5"
                     style={{ background: 'rgba(71,85,105,0.12)', border: '1px solid rgba(71,85,105,0.28)', color: '#94a3b8' }}>
