@@ -76,9 +76,10 @@ export interface PlatformStats {
     tools: number;
   };
   audience?: {
-    users_today: number | null;
-    users_28d:   number | null;
-    synced_at:   string | null;
+    users_today:  number | null;
+    users_28d:    number | null;
+    subscribers:  number | null;
+    synced_at:    string | null;
   };
   pageViews?: {
     dateFrom:                  string;
