@@ -14,8 +14,8 @@
   "audience": {
     "users_today": null,
     "users_28d": null,
-    "subscribers": null,
-    "synced_at": null
+    "subscribers": 1,
+    "synced_at": "2026-06-05"
   },
   "pageViews": {
     "dateFrom": "2026-05-01",
