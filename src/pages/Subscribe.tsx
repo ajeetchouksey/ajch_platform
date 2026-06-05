@@ -3,7 +3,7 @@ import { GlassCard, SectionHeader } from '@/components/ui';
 import { SubscribeForm } from '@/components/SubscribeForm';
 
 export default function Subscribe() {
-  const hasForm = !!import.meta.env.VITE_CONVERTKIT_FORM_ID;
+  const hasForm = !!import.meta.env.VITE_SUBSCRIBE_WORKER_URL;
 
   return (
     <div className="max-w-lg mx-auto py-12 px-4">
