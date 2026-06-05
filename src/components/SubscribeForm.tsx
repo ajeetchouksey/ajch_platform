@@ -23,7 +23,7 @@ export function SubscribeForm({ compact = false, className = '' }: SubscribeForm
       const params = new URLSearchParams({ email });
       if (firstName) params.set('first_name', firstName);
       const res = await fetch(
-        `https://app.convertkit.com/forms/${formId}/subscriptions`,
+        `https://app.kit.com/forms/${formId}/subscriptions`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
