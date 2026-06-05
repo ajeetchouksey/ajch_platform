@@ -1,7 +1,7 @@
 name: Sync Analytics Stats
 # Fetches GA4 user metrics every 2 hours and commits updated stats.json.
-# Requires GitHub secrets: GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_KEY.
-# Uses [skip ci] to avoid triggering the deploy workflow.
+# Requires GitHub secrets: GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_KEY, KIT_API_SECRET, STATS_PAT.
+# Uses STATS_PAT (admin PAT) to bypass branch protection on direct push.
 
 on:
   schedule:
@@ -31,6 +31,7 @@ jobs:
         env:
           GA4_PROPERTY_ID:         ${{ secrets.GA4_PROPERTY_ID }}
           GA4_SERVICE_ACCOUNT_KEY: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
+          KIT_API_SECRET:          ${{ secrets.KIT_API_SECRET }}
         run: python3 .github/scripts/fetch-ga4.py
 
       - name: Commit updated stats.json
@@ -40,7 +41,7 @@ jobs:
           git add public/content/stats.json
           if ! git diff --cached --quiet; then
             git commit -m "chore: sync analytics stats [skip ci]"
-            git push
+            git push https://x-access-token:${{ secrets.STATS_PAT }}@github.com/ajeetchouksey/ajch_platform.git HEAD:main
           else
             echo "No changes to commit."
           fi
