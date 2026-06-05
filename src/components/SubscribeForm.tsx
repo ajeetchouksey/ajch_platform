@@ -1,7 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Mail, GitBranch } from 'lucide-react';
 import { Button } from '@/components/ui';
 
+type Channel = 'email' | 'gh';
 type SubscribeState = 'idle' | 'loading' | 'success' | 'error' | 'already_subscribed';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const GH_RE = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
+
+interface GistStats { email_count: number; gh_count: number }
 
 interface SubscribeFormProps {
   compact?: boolean;
@@ -9,32 +16,48 @@ interface SubscribeFormProps {
 }
 
 export function SubscribeForm({ compact = false, className = '' }: SubscribeFormProps) {
-  const formId = import.meta.env.VITE_CONVERTKIT_FORM_ID as string | undefined;
-  const [email, setEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [state, setState] = useState<SubscribeState>('idle');
+  const workerUrl = import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined;
+  const statsGistId = import.meta.env.VITE_STATS_GIST_ID as string | undefined;
 
-  if (!formId) return null;
+  const [channel, setChannel] = useState<Channel>('email');
+  const [value, setValue] = useState('');
+  const [state, setState] = useState<SubscribeState>('idle');
+  const [liveCount, setLiveCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!statsGistId) return;
+    fetch(
+      `https://gist.githubusercontent.com/ajeetchouksey/${statsGistId}/raw/aarya-stats.json`,
+      { cache: 'no-store' }
+    )
+      .then(r => r.json() as Promise<GistStats>)
+      .then(d => setLiveCount((d.email_count ?? 0) + (d.gh_count ?? 0)))
+      .catch(() => {});
+  }, [statsGistId]);
+
+  if (!workerUrl) return null;
+
+  function validate(): boolean {
+    if (channel === 'email') return EMAIL_RE.test(value.trim());
+    return GH_RE.test(value.trim().replace(/^@/, ''));
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!validate()) return;
     setState('loading');
+    const sanitized = channel === 'gh' ? value.trim().replace(/^@/, '') : value.trim();
     try {
-      const params = new URLSearchParams({ email });
-      if (firstName) params.set('first_name', firstName);
-      const res = await fetch(
-        `https://app.kit.com/forms/${formId}/subscriptions`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: params,
-        }
-      );
-      if (res.ok) {
+      const res = await fetch(workerUrl!, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: channel, value: sanitized }),
+      });
+      if (res.status === 201) {
         setState('success');
-        setEmail('');
-        setFirstName('');
-      } else if (res.status === 422) {
+        setValue('');
+        setLiveCount(c => (c ?? 0) + 1);
+      } else if (res.status === 200) {
         setState('already_subscribed');
       } else {
         setState('error');
@@ -44,10 +67,18 @@ export function SubscribeForm({ compact = false, className = '' }: SubscribeForm
     }
   }
 
+  function switchChannel(c: Channel) {
+    setChannel(c);
+    setValue('');
+    setState('idle');
+  }
+
   if (state === 'success') {
     return (
       <p className={`text-emerald-400 text-xs ${className}`}>
-        You&rsquo;re subscribed! Check your inbox.
+        {channel === 'email'
+          ? "You\u2019re subscribed! Check your inbox."
+          : "You\u2019re on the list! You\u2019ll receive a GitHub collaborator invite."}
       </p>
     );
   }
@@ -55,7 +86,7 @@ export function SubscribeForm({ compact = false, className = '' }: SubscribeForm
   if (state === 'already_subscribed') {
     return (
       <p className={`text-violet-300 text-xs ${className}`}>
-        You&rsquo;re already subscribed &mdash; thanks!
+        Already subscribed \u2014 thanks!
       </p>
     );
   }
@@ -65,46 +96,58 @@ export function SubscribeForm({ compact = false, className = '' }: SubscribeForm
     'placeholder-slate-500 text-sm focus:outline-none focus:border-violet-500/60 ' +
     'focus:ring-1 focus:ring-violet-500/30 transition-colors';
 
+  const tabBase =
+    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150';
+  const tabActive = 'text-white';
+  const tabInactive = 'text-slate-500 hover:text-slate-300';
+
+  const tabs = (
+    <div className="flex items-center gap-1 mb-3 p-1 rounded-xl w-fit"
+      style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(71,85,105,0.25)' }}>
+      <button type="button" onClick={() => switchChannel('email')}
+        className={`${tabBase} ${channel === 'email' ? tabActive : tabInactive}`}
+        style={channel === 'email' ? { background: 'rgba(139,92,246,0.18)', border: '1px solid rgba(139,92,246,0.30)' } : {}}>
+        <Mail size={11} /> Email
+      </button>
+      <button type="button" onClick={() => switchChannel('gh')}
+        className={`${tabBase} ${channel === 'gh' ? tabActive : tabInactive}`}
+        style={channel === 'gh' ? { background: 'rgba(139,92,246,0.18)', border: '1px solid rgba(139,92,246,0.30)' } : {}}>
+        <GitBranch size={11} /> GitHub
+      </button>
+    </div>
+  );
+
   return (
     <form onSubmit={handleSubmit} className={className}>
+      {!compact && tabs}
       {state === 'error' && (
         <p className="text-red-400 text-xs mb-2">Something went wrong. Please try again.</p>
       )}
       {compact ? (
         <div className="flex flex-wrap items-center gap-2">
+          {tabs}
           <input
-            type="email"
+            type={channel === 'email' ? 'email' : 'text'}
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="your@email.com"
+            value={value}
+            onChange={e => setValue(e.target.value)}
+            placeholder={channel === 'email' ? 'your@email.com' : '@githubhandle'}
+            maxLength={channel === 'email' ? 254 : 39}
             className={`${inputCls} px-3 py-1.5 w-44 min-w-0`}
           />
-          <Button
-            type="submit"
-            variant="primary"
-            size="sm"
-            disabled={state === 'loading'}
-          >
+          <Button type="submit" variant="primary" size="sm" disabled={state === 'loading'}>
             {state === 'loading' ? 'Subscribing\u2026' : 'Subscribe'}
           </Button>
         </div>
       ) : (
         <div className="space-y-3">
           <input
-            type="email"
+            type={channel === 'email' ? 'email' : 'text'}
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="your@email.com"
-            className={`${inputCls} px-4 py-2.5 w-full`}
-          />
-          <input
-            type="text"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            placeholder="First name (optional)"
-            maxLength={80}
+            value={value}
+            onChange={e => setValue(e.target.value)}
+            placeholder={channel === 'email' ? 'your@email.com' : '@githubhandle'}
+            maxLength={channel === 'email' ? 254 : 39}
             className={`${inputCls} px-4 py-2.5 w-full`}
           />
           <Button
@@ -116,6 +159,11 @@ export function SubscribeForm({ compact = false, className = '' }: SubscribeForm
           >
             {state === 'loading' ? 'Subscribing\u2026' : 'Subscribe'}
           </Button>
+          {liveCount !== null && liveCount > 0 && (
+            <p className="text-[11px] text-slate-500 text-center">
+              Join <span className="text-violet-400 font-bold">{liveCount.toLocaleString()}</span> subscribers
+            </p>
+          )}
         </div>
       )}
     </form>
