@@ -112,38 +112,14 @@ def _run_page_views_report(
     return {"total": total_views, "avgEngagementDurationSecs": avg_secs, "byPath": by_path}
 
 
-def _fetch_kit_subscribers(api_secret: str) -> int | None:
-    """Call Kit v3 API to get total subscriber count.
-
-    AppSec: api_secret is a GitHub Secret — never log str(exc) as the
-    URL contains api_secret as a query param (CWE-598).
-    Returns an integer count, or None on any failure.
-    """
-    url = (
-        f"https://api.convertkit.com/v3/subscribers"
-        f"?api_secret={api_secret}&per_page=1"
-    )
-    req = urllib.request.Request(url, headers={"Accept": "application/json"})
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read())
-        count = data.get("total_subscribers")
-        return int(count) if isinstance(count, (int, float)) and count >= 0 else None
-    except Exception as exc:  # noqa: BLE001
-        # AppSec: do NOT print str(exc) — URL contains api_secret
-        print(f"⚠ Kit API call failed (non-fatal): {type(exc).__name__}")
-        return None
-
-
 # ── main ───────────────────────────────────────────────────────────────────────
 
 def main() -> None:
     # 1. Read env vars
     property_id  = os.environ.get("GA4_PROPERTY_ID", "").strip()
     key_json_str = os.environ.get("GA4_SERVICE_ACCOUNT_KEY", "").strip()
-    kit_secret   = os.environ.get("KIT_API_SECRET", "").strip()
 
-    if not property_id and not key_json_str and not kit_secret:
+    if not property_id and not key_json_str:
         print("⚠ No analytics secrets configured — skipping.")
         sys.exit(0)
 
@@ -159,7 +135,7 @@ def main() -> None:
     existing_audience = stats.get("audience", {})
     synced_at = datetime.now(timezone.utc).isoformat()
 
-    # ── GA4 section (non-fatal — Kit runs regardless) ──────────────────────
+    # ── GA4 section ──────────────────────
     ga4_ok = False
     users_today: int | None = None
     users_28d:   int | None = None
@@ -191,24 +167,10 @@ def main() -> None:
     else:
         print("⚠ GA4 env vars absent — skipping GA4.")
 
-    # ── Kit subscriber count (runs independently of GA4) ───────────────────
-    subscribers: int | None = existing_audience.get("subscribers")  # keep existing by default
-
-    if kit_secret:
-        fetched = _fetch_kit_subscribers(kit_secret)
-        if fetched is not None:
-            subscribers = fetched
-            print(f"✓ Kit subscribers: {subscribers}")
-        else:
-            print("⚠ Kit fetch failed — keeping previous subscriber count.")
-    else:
-        print("⚠ KIT_API_SECRET not set — skipping subscriber count.")
-
     # ── Write stats.json ───────────────────────────────────────────────────
     stats["audience"] = {
         "users_today": users_today if ga4_ok else existing_audience.get("users_today"),
         "users_28d":   users_28d   if ga4_ok else existing_audience.get("users_28d"),
-        "subscribers": subscribers,
         "synced_at":   synced_at,
     }
     # Only overwrite pageViews if GA4 succeeded (preserve seeded data otherwise)
