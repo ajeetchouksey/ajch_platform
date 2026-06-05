@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
+import PageViewsBadge from '@/components/PageViewsBadge';
 import type { ExamConfig } from '@/types/content';
 
 // ── Color palette ─────────────────────────────────────────────────────────────
@@ -158,6 +159,7 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
             <BarChart2 size={12} style={{ color: pal.color }} />
             {exam.passThreshold}% pass threshold
           </span>
+          <PageViewsBadge path={`/skillup/${exam.id}`} />
         </div>
 
         {/* Domain pills */}

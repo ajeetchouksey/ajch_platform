@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
 import RelatedContent from '@/components/RelatedContent';
+import PageViewsBadge from '@/components/PageViewsBadge';
 import type { ExamConfig } from '@/types/content';
 
 function AnimatedBar({ width, color, delay }: { width: number; color: string; delay: number }) {
@@ -138,6 +139,7 @@ export default function ExamHome() {
           <span>·</span>
           <span>{exam.domains.length} domains</span>
         </p>
+        <PageViewsBadge path={`/skillup/${examId}`} className="mt-1" />
       </div>
 
       {/* Nav cards */}

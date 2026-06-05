@@ -18,9 +18,20 @@
   },
   "pageViews": {
     "dateFrom": "2026-05-01",
-    "total": null,
-    "avgEngagementDurationSecs": null,
-    "byPath": {},
-    "synced_at": null
+    "total": 1070,
+    "avgEngagementDurationSecs": 5820,
+    "byPath": {
+      "/": 344,
+      "/skillup/ccaf/notes": 178,
+      "/blog": 126,
+      "/skillup": 103,
+      "/blog/github-governance-best-practices": 82,
+      "/blog/3pdevops-4": 62,
+      "/blog/agents-are-a-new-execution-layer": 44,
+      "/learn": 28,
+      "/skillup/ccaf": 16,
+      "/blog/guardrails-are-not-constraints": 13
+    },
+    "synced_at": "2026-06-05"
   }
 }
