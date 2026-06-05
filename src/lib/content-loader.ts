@@ -80,6 +80,13 @@ export interface PlatformStats {
     users_28d:   number | null;
     synced_at:   string | null;
   };
+  pageViews?: {
+    dateFrom:                  string;
+    total:                     number | null;
+    avgEngagementDurationSecs: number | null;
+    byPath:                    Record<string, number>;
+    synced_at:                 string | null;
+  };
 }
 
 export async function loadPlatformStats(): Promise<PlatformStats> {

@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import {
   GraduationCap, Newspaper, Wrench, ArrowRight,
   GitBranch, Users, BookOpen, ExternalLink,
-  Award, Calendar, Zap, ShieldCheck, Terminal,
+  Zap, ShieldCheck, Terminal,
   CheckCircle2,
-  FileSearch, MessageSquare, Bot, Server, GitPullRequest,
+  FileSearch, MessageSquare, Bot, Server, GitPullRequest, Eye,
 } from 'lucide-react';
 import {
-  PulsingDot, type StatItem,
+  PulsingDot,
 } from '@/components/ui';
 import { StarRepo } from '@/components/StarRepo';
 
@@ -86,17 +86,6 @@ const buildProjects = [
   { icon: Server,        color: '#34d399', title: 'Production-Ready AI Services',     desc: 'Deployed, observable, and scalable APIs serving real traffic.' },
 ] as const;
 
-// ── Proof bar stats ───────────────────────────────────────────────────────────
-const proofStats: StatItem[] = [
-  { icon: Newspaper,     value: '60+',  label: 'Articles',         color: 'text-blue-400',    accent: 'blue'    },
-  { icon: GraduationCap, value: '68',   label: 'Scenarios',        color: 'text-violet-400',  accent: 'violet'  },
-  { icon: Wrench,        value: '9',    label: 'Dev Tools',         color: 'text-emerald-400', accent: 'emerald' },
-  { icon: Calendar,      value: '18+',  label: 'Yrs Experience',   color: 'text-amber-400',   accent: 'amber'   },
-  { icon: Award,         value: '5+',   label: 'Certs Active',     color: 'text-rose-400',    accent: 'rose'    },
-  { icon: Users,         value: '...',  label: 'Users Today',      color: 'text-teal-400',    accent: 'teal'    },
-];
-
-// ── Creator credentials ───────────────────────────────────────────────────────
 // ── AI Learning Journey ───────────────────────────────────────────────────────
 const journeySteps = [
   {
@@ -136,6 +125,7 @@ const journeySteps = [
     audience: 'Leaders & principals',
   },
 ] as const;
+
 // ── Main page ────────────────────────────────────────────────────────────────
 export default function HomeV2() {
   useMeta({
@@ -151,18 +141,6 @@ export default function HomeV2() {
   const [sessions, setSessions] = useState<ReturnType<typeof getSessions>>([]);
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setSessions(getSessions().filter(s => !!s.finishedAt)); }, []);
-
-  const dynamicProofStats = useMemo(() => proofStats.map((s) => {
-    if (!pStats) return s;
-    if (s.label === 'Articles')    return { ...s, value: `${pStats.platform.blog_posts}+` };
-    if (s.label === 'Scenarios')   return { ...s, value: `${pStats.platform.questions}` };
-    if (s.label === 'Dev Tools')   return { ...s, value: `${pStats.platform.tools}` };
-    if (s.label === 'Users Today') {
-      const n = pStats.audience?.users_today;
-      return { ...s, value: n != null ? `${n.toLocaleString()}` : 'Open' };
-    }
-    return s;
-  }), [pStats]);
 
   const dynamicFeatures = useMemo(() => {
     if (!pStats) return features;
@@ -341,26 +319,25 @@ export default function HomeV2() {
       </section>
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § PROOF BAR — animated platform stats
+          § PAGE VIEWS — GA4 activity strip
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
+      {pStats?.pageViews?.total != null && pStats.pageViews.total > 0 && (
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
         style={{ transitionDelay: '80ms' }}>
-        <div className="rounded-2xl px-6 py-5"
+        <div className="rounded-2xl px-6 py-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
           style={{
             background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(15,23,42,0.95) 100%)',
             border: '1px solid rgba(139,92,246,0.15)',
           }}>
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 sm:gap-0 sm:divide-x sm:divide-slate-800/80">
-            {dynamicProofStats.map(({ icon: Icon, value, label, color }) => (
-              <div key={label} className="flex flex-col items-center gap-1 py-1">
-                <Icon size={14} className={color} />
-                <span className={`text-xl font-black ${color}`}>{value}</span>
-                <span className="text-[10px] text-slate-600 text-center leading-tight">{label}</span>
-              </div>
-            ))}
-          </div>
+          {/* Page views since May 1 */}
+          <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+            <Eye size={13} className="text-violet-400" />
+            <span className="text-white font-bold">{pStats.pageViews.total.toLocaleString()}</span>
+            &nbsp;page views
+          </span>
         </div>
       </section>
+      )}
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § FEATURES — what's on the platform

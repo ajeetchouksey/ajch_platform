@@ -18,6 +18,9 @@ import urllib.request
 from datetime import datetime, timezone
 
 
+# AppSec: allowlist for GA4-sourced path keys written to stats.json
+PATH_PATTERN = re.compile(r"^\/[a-zA-Z0-9\-._~/]*$")
+
 # ── helpers ────────────────────────────────────────────────────────────────────
 
 def _get_access_token(key_info: dict) -> str:
@@ -56,6 +59,59 @@ def _run_report(token: str, property_id: str, start_date: str, end_date: str) ->
     return int(rows[0]["metricValues"][0]["value"]) if rows else 0
 
 
+def _run_page_views_report(
+    token: str,
+    property_id: str,
+    start_date: str,
+    end_date: str,
+    max_pages: int = 50,
+) -> dict:
+    """Fetch per-page screenPageViews + weighted avg engagement duration.
+
+    Returns {"total": int, "avgEngagementDurationSecs": int, "byPath": {...}}.
+    AppSec: path keys are allowlist-filtered via PATH_PATTERN before write.
+    """
+    url = (
+        f"https://analyticsdata.googleapis.com/v1beta/"
+        f"properties/{property_id}:runReport"
+    )
+    payload = json.dumps(
+        {
+            "dateRanges": [{"startDate": start_date, "endDate": end_date}],
+            "dimensions": [{"name": "pagePath"}],
+            "metrics": [
+                {"name": "screenPageViews"},
+                {"name": "averageSessionDuration"},
+            ],
+            "limit": max_pages,
+            "orderBys": [{"metric": {"metricName": "screenPageViews"}, "desc": True}],
+        }
+    ).encode()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    req = urllib.request.Request(url, data=payload, headers=headers)
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        data = json.loads(resp.read())
+    rows = data.get("rows", [])
+    by_path: dict[str, int] = {}
+    total_views = 0
+    weighted_duration = 0.0
+    for row in rows:
+        path = row["dimensionValues"][0]["value"]
+        views = int(row["metricValues"][0]["value"])
+        duration = float(row["metricValues"][1]["value"])
+        # AppSec: skip path keys that don't match the safe allowlist
+        if not PATH_PATTERN.match(path):
+            continue
+        by_path[path] = views
+        total_views += views
+        weighted_duration += duration * views
+    avg_secs = int(weighted_duration / total_views) if total_views > 0 else 0
+    return {"total": total_views, "avgEngagementDurationSecs": avg_secs, "byPath": by_path}
+
+
 # ── main ───────────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -85,8 +141,12 @@ def main() -> None:
         today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         users_today = _run_report(token, property_id, today_str, today_str)
         users_28d   = _run_report(token, property_id, "28daysAgo", "today")
+        page_views  = _run_page_views_report(token, property_id, "2026-05-01", today_str)
         synced_at   = datetime.now(timezone.utc).isoformat()
-        print(f"✓ GA4 fetched — users today: {users_today} · last 28 d: {users_28d}")
+        print(
+            f"✓ GA4 fetched — users today: {users_today} · last 28 d: {users_28d}"
+            f" · page views (May→today): {page_views['total']}"
+        )
     except Exception as exc:  # noqa: BLE001
         print(f"✗ GA4 API call failed (non-fatal): {type(exc).__name__}: {exc}")
         sys.exit(0)  # do not fail CI; leave stats.json unchanged
@@ -105,12 +165,19 @@ def main() -> None:
         "users_28d":   users_28d,
         "synced_at":   synced_at,
     }
+    stats["pageViews"] = {
+        "dateFrom":                  "2026-05-01",
+        "total":                     page_views["total"],
+        "avgEngagementDurationSecs": page_views["avgEngagementDurationSecs"],
+        "byPath":                    page_views["byPath"],
+        "synced_at":                 synced_at,
+    }
 
     with open(stats_path, "w", encoding="utf-8") as f:
         json.dump(stats, f, indent=2)
         f.write("\n")
 
-    print(f"✓ {stats_path} updated with audience data.")
+    print(f"✓ {stats_path} updated with audience + pageViews data.")
 
 
 if __name__ == "__main__":
