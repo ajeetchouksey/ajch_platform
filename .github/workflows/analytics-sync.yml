@@ -31,6 +31,7 @@ jobs:
         env:
           GA4_PROPERTY_ID:         ${{ secrets.GA4_PROPERTY_ID }}
           GA4_SERVICE_ACCOUNT_KEY: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
+          KIT_API_SECRET:          ${{ secrets.KIT_API_SECRET }}
         run: python3 .github/scripts/fetch-ga4.py
 
       - name: Commit updated stats.json
