@@ -1,7 +1,7 @@
 name: Sync Analytics Stats
 # Fetches GA4 user metrics every 2 hours and commits updated stats.json.
-# Requires GitHub secrets: GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_KEY, KIT_API_SECRET, STATS_PAT.
-# Uses STATS_PAT (admin PAT) to bypass branch protection on direct push.
+# Requires GitHub secrets: GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_KEY, GH_APP_ID, GH_APP_PRIVATE_KEY.
+# Uses GitHub App token (aarya-platform-bot) to bypass branch protection on direct push.
 
 on:
   schedule:
@@ -16,8 +16,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e  # v1.11.7
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -31,17 +40,16 @@ jobs:
         env:
           GA4_PROPERTY_ID:         ${{ secrets.GA4_PROPERTY_ID }}
           GA4_SERVICE_ACCOUNT_KEY: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
-          KIT_API_SECRET:          ${{ secrets.KIT_API_SECRET }}
         run: python3 .github/scripts/fetch-ga4.py
 
       - name: Commit updated stats.json
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "aarya-platform-bot[bot]"
+          git config user.email "aarya-platform-bot[bot]@users.noreply.github.com"
           git add public/content/stats.json
           if ! git diff --cached --quiet; then
             git commit -m "chore: sync analytics stats [skip ci]"
-            git push https://x-access-token:${{ secrets.STATS_PAT }}@github.com/ajeetchouksey/ajch_platform.git HEAD:main
+            git push https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/ajeetchouksey/ajch_platform.git HEAD:main
           else
             echo "No changes to commit."
           fi
