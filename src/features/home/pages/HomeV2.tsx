@@ -335,6 +335,16 @@ export default function HomeV2() {
             <span className="text-white font-bold">{pStats.pageViews.total.toLocaleString()}</span>
             &nbsp;page views
           </span>
+          {pStats?.audience?.subscribers != null && pStats.audience.subscribers > 0 && (
+            <>
+              <span className="text-slate-600 text-[12px]">·</span>
+              <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+                <Users size={13} className="text-violet-400" />
+                <span className="text-white font-bold">{pStats.audience.subscribers.toLocaleString()}</span>
+                &nbsp;subscribers
+              </span>
+            </>
+          )}
         </div>
       </section>
       )}

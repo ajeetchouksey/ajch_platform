@@ -112,6 +112,29 @@ def _run_page_views_report(
     return {"total": total_views, "avgEngagementDurationSecs": avg_secs, "byPath": by_path}
 
 
+def _fetch_kit_subscribers(api_secret: str) -> int | None:
+    """Call Kit v3 API to get total subscriber count.
+
+    AppSec: api_secret is a GitHub Secret — never log str(exc) as the
+    URL contains api_secret as a query param (CWE-598).
+    Returns an integer count, or None on any failure.
+    """
+    url = (
+        f"https://api.convertkit.com/v3/subscribers"
+        f"?api_secret={api_secret}&per_page=1"
+    )
+    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read())
+        count = data.get("total_subscribers")
+        return int(count) if isinstance(count, (int, float)) and count >= 0 else None
+    except Exception as exc:  # noqa: BLE001
+        # AppSec: do NOT print str(exc) — URL contains api_secret
+        print(f"⚠ Kit API call failed (non-fatal): {type(exc).__name__}")
+        return None
+
+
 # ── main ───────────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -160,9 +183,21 @@ def main() -> None:
     with open(stats_path, encoding="utf-8") as f:
         stats = json.load(f)
 
+    # Optionally fetch Kit subscriber count (non-fatal if KIT_API_SECRET absent)
+    kit_secret = os.environ.get("KIT_API_SECRET", "").strip()
+    subscribers: int | None = None
+    if kit_secret:
+        subscribers = _fetch_kit_subscribers(kit_secret)
+        if subscribers is not None:
+            print(f"✓ Kit subscribers: {subscribers}")
+        else:
+            print("⚠ Kit subscriber count unavailable — leaving previous value.")
+
+    prev_subscribers = stats.get("audience", {}).get("subscribers") if not kit_secret else None
     stats["audience"] = {
         "users_today": users_today,
         "users_28d":   users_28d,
+        "subscribers": subscribers if kit_secret else prev_subscribers,
         "synced_at":   synced_at,
     }
     stats["pageViews"] = {
