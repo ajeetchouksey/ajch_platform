@@ -1,6 +1,7 @@
 name            = "aarya-subscribe"
 main            = "workers/subscribe.ts"
 compatibility_date = "2026-06-05"
+workers_dev     = true
 
 # ── KV namespace — per-IP rate limiting (5 req / 15 min) ─────────────────────
 # One-time setup:
@@ -8,7 +9,7 @@ compatibility_date = "2026-06-05"
 #   2. Copy the returned `id` value and paste it below.
 [[kv_namespaces]]
 binding = "RATE_LIMITER"
-id      = "REPLACE_WITH_KV_NAMESPACE_ID"
+id      = "11f07ef9b0c5432bb9a232390d3ec672"
 
 # ── Secrets — set via CLI, never commit values ────────────────────────────────
 # Run each of the following (you will be prompted to paste the value):
