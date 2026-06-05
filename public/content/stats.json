@@ -15,5 +15,12 @@
     "users_today": null,
     "users_28d": null,
     "synced_at": null
+  },
+  "pageViews": {
+    "dateFrom": "2026-05-01",
+    "total": null,
+    "avgEngagementDurationSecs": null,
+    "byPath": {},
+    "synced_at": null
   }
 }
