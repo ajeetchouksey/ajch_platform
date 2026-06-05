@@ -138,43 +138,16 @@ def _fetch_kit_subscribers(api_secret: str) -> int | None:
 # ── main ───────────────────────────────────────────────────────────────────────
 
 def main() -> None:
-    # 1. Read and validate env vars
-    property_id = os.environ.get("GA4_PROPERTY_ID", "").strip()
+    # 1. Read env vars
+    property_id  = os.environ.get("GA4_PROPERTY_ID", "").strip()
     key_json_str = os.environ.get("GA4_SERVICE_ACCOUNT_KEY", "").strip()
+    kit_secret   = os.environ.get("KIT_API_SECRET", "").strip()
 
-    if not property_id or not key_json_str:
-        print("⚠ GA4_PROPERTY_ID or GA4_SERVICE_ACCOUNT_KEY not set — skipping.")
+    if not property_id and not key_json_str and not kit_secret:
+        print("⚠ No analytics secrets configured — skipping.")
         sys.exit(0)
 
-    # AppSec advisory: strip() before match, and require digits-only (no newline tricks)
-    if not re.match(r"^\d+$", property_id):
-        print(f"✗ GA4_PROPERTY_ID is not a numeric string: '{property_id[:8]}…' — aborting.")
-        sys.exit(1)
-
-    # 2. Parse service-account key — in-memory only, never logged
-    try:
-        key_info = json.loads(key_json_str)
-    except json.JSONDecodeError as exc:
-        print(f"✗ GA4_SERVICE_ACCOUNT_KEY is not valid JSON: {exc}")
-        sys.exit(1)
-
-    # 3. Fetch metrics
-    try:
-        token = _get_access_token(key_info)
-        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        users_today = _run_report(token, property_id, today_str, today_str)
-        users_28d   = _run_report(token, property_id, "28daysAgo", "today")
-        page_views  = _run_page_views_report(token, property_id, "2026-05-01", today_str)
-        synced_at   = datetime.now(timezone.utc).isoformat()
-        print(
-            f"✓ GA4 fetched — users today: {users_today} · last 28 d: {users_28d}"
-            f" · page views (May→today): {page_views['total']}"
-        )
-    except Exception as exc:  # noqa: BLE001
-        print(f"✗ GA4 API call failed (non-fatal): {type(exc).__name__}: {exc}")
-        sys.exit(0)  # do not fail CI; leave stats.json unchanged
-
-    # 4. Merge into existing stats.json
+    # 2. Load existing stats.json first (needed for fallback values)
     stats_path = "public/content/stats.json"
     if not os.path.exists(stats_path):
         print(f"✗ {stats_path} not found — run scripts/sync-stats.py first.")
@@ -183,36 +156,76 @@ def main() -> None:
     with open(stats_path, encoding="utf-8") as f:
         stats = json.load(f)
 
-    # Optionally fetch Kit subscriber count (non-fatal if KIT_API_SECRET absent)
-    kit_secret = os.environ.get("KIT_API_SECRET", "").strip()
-    subscribers: int | None = None
+    existing_audience = stats.get("audience", {})
+    synced_at = datetime.now(timezone.utc).isoformat()
+
+    # ── GA4 section (non-fatal — Kit runs regardless) ──────────────────────
+    ga4_ok = False
+    users_today: int | None = None
+    users_28d:   int | None = None
+    page_views:  dict | None = None
+
+    if property_id and key_json_str:
+        if not re.match(r"^\d+$", property_id):
+            print(f"✗ GA4_PROPERTY_ID is not numeric: '{property_id[:8]}…' — skipping GA4.")
+        else:
+            try:
+                key_info = json.loads(key_json_str)
+            except json.JSONDecodeError as exc:
+                print(f"✗ GA4_SERVICE_ACCOUNT_KEY invalid JSON: {exc} — skipping GA4.")
+                key_info = None
+            if key_info:
+                try:
+                    token = _get_access_token(key_info)
+                    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                    users_today = _run_report(token, property_id, today_str, today_str)
+                    users_28d   = _run_report(token, property_id, "28daysAgo", "today")
+                    page_views  = _run_page_views_report(token, property_id, "2026-05-01", today_str)
+                    ga4_ok = True
+                    print(
+                        f"✓ GA4 — users today: {users_today} · 28d: {users_28d}"
+                        f" · page views: {page_views['total']}"
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    print(f"✗ GA4 API call failed (non-fatal): {type(exc).__name__}")
+    else:
+        print("⚠ GA4 env vars absent — skipping GA4.")
+
+    # ── Kit subscriber count (runs independently of GA4) ───────────────────
+    subscribers: int | None = existing_audience.get("subscribers")  # keep existing by default
+
     if kit_secret:
-        subscribers = _fetch_kit_subscribers(kit_secret)
-        if subscribers is not None:
+        fetched = _fetch_kit_subscribers(kit_secret)
+        if fetched is not None:
+            subscribers = fetched
             print(f"✓ Kit subscribers: {subscribers}")
         else:
-            print("⚠ Kit subscriber count unavailable — leaving previous value.")
+            print("⚠ Kit fetch failed — keeping previous subscriber count.")
+    else:
+        print("⚠ KIT_API_SECRET not set — skipping subscriber count.")
 
-    prev_subscribers = stats.get("audience", {}).get("subscribers") if not kit_secret else None
+    # ── Write stats.json ───────────────────────────────────────────────────
     stats["audience"] = {
-        "users_today": users_today,
-        "users_28d":   users_28d,
-        "subscribers": subscribers if kit_secret else prev_subscribers,
+        "users_today": users_today if ga4_ok else existing_audience.get("users_today"),
+        "users_28d":   users_28d   if ga4_ok else existing_audience.get("users_28d"),
+        "subscribers": subscribers,
         "synced_at":   synced_at,
     }
-    stats["pageViews"] = {
-        "dateFrom":                  "2026-05-01",
-        "total":                     page_views["total"],
-        "avgEngagementDurationSecs": page_views["avgEngagementDurationSecs"],
-        "byPath":                    page_views["byPath"],
-        "synced_at":                 synced_at,
-    }
+    # Only overwrite pageViews if GA4 succeeded (preserve seeded data otherwise)
+    if ga4_ok and page_views:
+        stats["pageViews"] = {
+            "dateFrom":                  "2026-05-01",
+            "total":                     page_views["total"],
+            "avgEngagementDurationSecs": page_views["avgEngagementDurationSecs"],
+            "byPath":                    page_views["byPath"],
+            "synced_at":                 synced_at,
+        }
 
     with open(stats_path, "w", encoding="utf-8") as f:
         json.dump(stats, f, indent=2)
         f.write("\n")
 
-    print(f"✓ {stats_path} updated with audience + pageViews data.")
+    print(f"✓ {stats_path} updated.")
 
 
 if __name__ == "__main__":
