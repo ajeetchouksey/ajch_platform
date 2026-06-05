@@ -10,6 +10,7 @@ import { loadBlogPost, loadBlogManifest } from '@/lib/content-loader';
 import { sharePost } from '@/lib/share';
 import GiscusComments from '@/components/GiscusComments';
 import RelatedContent from '@/components/RelatedContent';
+import PageViewsBadge from '@/components/PageViewsBadge';
 import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
 
@@ -505,6 +506,7 @@ export default function BlogPost() {
                   {new Date(meta.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </span>
                 <span className="flex items-center gap-1.5"><Clock size={12} /> {meta.readingTime} min read</span>
+                <PageViewsBadge path={`/blog/${slug}`} />
                 {/* Share — hide when sidebar (xl+) shows its own share button */}
                 <button onClick={handleShare}
                   className="ml-auto flex items-center gap-1.5 text-xs transition-colors xl:hidden"
