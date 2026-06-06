@@ -1,11 +1,11 @@
 name: Sync Analytics Stats
-# Fetches GA4 user metrics every 2 hours and commits updated stats.json.
+# Fetches GA4 user metrics every 3 hours and commits updated stats.json.
 # Requires GitHub secrets: GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_KEY, GH_APP_ID, GH_APP_PRIVATE_KEY.
 # Uses GitHub App token (aarya-platform-bot) to bypass branch protection on direct push.
 
 on:
   schedule:
-    - cron: '0 */2 * * *'   # every 2 hours
+    - cron: '0 */3 * * *'   # every 3 hours
   workflow_dispatch:         # manual trigger for testing
 
 permissions:
