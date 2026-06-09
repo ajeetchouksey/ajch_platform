@@ -167,27 +167,84 @@ def main() -> None:
     else:
         print("⚠ GA4 env vars absent — skipping GA4.")
 
-    # ── Write stats.json ───────────────────────────────────────────────────
-    stats["audience"] = {
-        "users_today": users_today if ga4_ok else existing_audience.get("users_today"),
-        "users_28d":   users_28d   if ga4_ok else existing_audience.get("users_28d"),
-        "synced_at":   synced_at,
-    }
-    # Only overwrite pageViews if GA4 succeeded (preserve seeded data otherwise)
-    if ga4_ok and page_views:
-        stats["pageViews"] = {
-            "dateFrom":                  "2026-05-01",
-            "total":                     page_views["total"],
-            "avgEngagementDurationSecs": page_views["avgEngagementDurationSecs"],
-            "byPath":                    page_views["byPath"],
-            "synced_at":                 synced_at,
+    # ── Write to public stats gist ────────────────────────────────────────
+    gist_token = os.environ.get("GIST_TOKEN", "").strip()
+    gist_id    = os.environ.get("PUBLIC_STATS_GIST_ID", "").strip()
+
+    if not gist_token or not gist_id:
+        print("⚠ GIST_TOKEN or PUBLIC_STATS_GIST_ID not set — falling back to stats.json write.")
+        # Fallback: write to stats.json (local dev)
+        stats["audience"] = {
+            "users_today": users_today if ga4_ok else existing_audience.get("users_today"),
+            "users_28d":   users_28d   if ga4_ok else existing_audience.get("users_28d"),
+            "synced_at":   synced_at,
         }
+        if ga4_ok and page_views:
+            stats["pageViews"] = {
+                "dateFrom":                  "2026-05-01",
+                "total":                     page_views["total"],
+                "avgEngagementDurationSecs": page_views["avgEngagementDurationSecs"],
+                "byPath":                    page_views["byPath"],
+                "synced_at":                 synced_at,
+            }
+        with open(stats_path, "w", encoding="utf-8") as f:
+            json.dump(stats, f, indent=2)
+            f.write("\n")
+        print(f"✓ {stats_path} updated (local fallback).")
+        return
 
-    with open(stats_path, "w", encoding="utf-8") as f:
-        json.dump(stats, f, indent=2)
-        f.write("\n")
+    # Read existing gist to preserve subscriber counts
+    gist_url = f"https://api.github.com/gists/{gist_id}"
+    gist_headers = {
+        "Authorization": f"Bearer {gist_token}",
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "aarya-analytics-sync/1.0",
+    }
+    try:
+        req = urllib.request.Request(gist_url, headers=gist_headers)
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            gist_data = json.loads(resp.read())
+        existing_content = json.loads(
+            gist_data["files"]["aarya-stats.json"]["content"]
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"✗ Failed to read gist: {type(exc).__name__} — aborting.")
+        sys.exit(1)
 
-    print(f"✓ {stats_path} updated.")
+    # Merge GA4 data into gist content (preserve email_count, gh_count)
+    existing_content["users_today"] = users_today if ga4_ok else existing_content.get("users_today")
+    existing_content["users_28d"]   = users_28d   if ga4_ok else existing_content.get("users_28d")
+    if ga4_ok and page_views:
+        existing_content["page_views"] = {
+            "date_from":            "2026-05-01",
+            "total":                page_views["total"],
+            "avg_engagement_secs": page_views["avgEngagementDurationSecs"],
+            "by_path":              page_views["byPath"],
+        }
+    existing_content["synced_at"] = synced_at
+
+    # Write back to gist
+    patch_payload = json.dumps({
+        "files": {
+            "aarya-stats.json": {
+                "content": json.dumps(existing_content, indent=2)
+            }
+        }
+    }).encode()
+    patch_req = urllib.request.Request(
+        gist_url, data=patch_payload, headers={**gist_headers, "Content-Type": "application/json"},
+        method="PATCH",
+    )
+    try:
+        with urllib.request.urlopen(patch_req, timeout=15) as resp:
+            if resp.status == 200:
+                print(f"✓ Gist {gist_id} updated with GA4 stats.")
+            else:
+                print(f"✗ Gist update returned HTTP {resp.status}")
+                sys.exit(1)
+    except Exception as exc:  # noqa: BLE001
+        print(f"✗ Failed to write gist: {type(exc).__name__}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
