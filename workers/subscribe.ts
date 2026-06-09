@@ -16,7 +16,7 @@
  *   GH_APP_INSTALLATION_ID GitHub App installation ID on ajch_platform repo
  */
 
-const ALLOWED_ORIGIN = 'https://ajeetchouksey.github.io';
+const ALLOWED_ORIGIN = 'https://aaryaai.dev';
 const REPO_OWNER = 'ajeetchouksey';
 const REPO_NAME = 'ajch_platform';
 const GH_API = 'https://api.github.com';
