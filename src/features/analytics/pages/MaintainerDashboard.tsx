@@ -11,7 +11,19 @@ import {
 
 const OWNER_LOGIN = 'ajeetchouksey';
 
-interface GistStats { email_count: number; gh_count: number }
+interface GistStats {
+  email_count: number
+  gh_count: number
+  users_today?: number | null
+  users_28d?: number | null
+  page_views?: {
+    total: number
+    avg_engagement_secs: number
+    date_from: string
+    by_path: Record<string, number>
+  }
+  synced_at?: string
+}
 
 function StatCard({
   icon: Icon,
@@ -78,7 +90,12 @@ export default function MaintainerDashboard() {
     return <Navigate to="/maintainer" replace />;
   }
 
-  const topPages = stats?.pageViews?.byPath
+  const topPages = gistStats?.page_views?.by_path
+    ? Object.entries(gistStats.page_views.by_path)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8)
+        .map(([label, value]) => ({ label, value }))
+    : stats?.pageViews?.byPath
     ? Object.entries(stats.pageViews.byPath)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 8)
@@ -120,27 +137,27 @@ export default function MaintainerDashboard() {
               <StatCard
                 icon={Users}
                 label="Users Today"
-                value={stats.audience?.users_today ?? '—'}
-                sub={stats.audience?.synced_at ?? undefined}
+                value={gistStats?.users_today ?? stats?.audience?.users_today ?? '—'}
+                sub={gistStats?.synced_at?.slice(0, 10) ?? stats?.audience?.synced_at ?? undefined}
                 accent="#34d399"
               />
               <StatCard
                 icon={Users}
                 label="Users 28d"
-                value={stats.audience?.users_28d ?? '—'}
+                value={gistStats?.users_28d ?? stats?.audience?.users_28d ?? '—'}
                 accent="#34d399"
               />
               <StatCard
                 icon={Eye}
                 label="Page Views"
-                value={stats.pageViews?.total?.toLocaleString() ?? '—'}
-                sub={`since ${stats.pageViews?.dateFrom}`}
+                value={(gistStats?.page_views?.total ?? stats?.pageViews?.total)?.toLocaleString() ?? '—'}
+                sub={`since ${gistStats?.page_views?.date_from ?? stats?.pageViews?.dateFrom}`}
                 accent="#60a5fa"
               />
               <StatCard
                 icon={Clock}
                 label="Avg Engagement"
-                value={fmtDuration(stats.pageViews?.avgEngagementDurationSecs ?? null)}
+                value={fmtDuration(gistStats?.page_views?.avg_engagement_secs ?? stats?.pageViews?.avgEngagementDurationSecs ?? null)}
                 accent="#60a5fa"
               />
             </div>
