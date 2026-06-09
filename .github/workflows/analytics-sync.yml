@@ -1,7 +1,7 @@
 name: Sync Analytics Stats
 # Fetches GA4 user metrics every 3 hours and commits updated stats.json.
-# Requires GitHub secrets: GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_KEY.
-# Uses GITHUB_TOKEN with "GitHub Actions" ruleset bypass for direct push to main.
+# Requires GitHub secrets: GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_KEY, STATS_PAT.
+# STATS_PAT = classic PAT (public_repo scope) from ajeetchouksey — repo admin bypass.
 
 on:
   schedule:
@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.STATS_PAT }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -37,8 +37,8 @@ jobs:
 
       - name: Commit updated stats.json
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "ajeetchouksey"
+          git config user.email "ajeetchouksey@users.noreply.github.com"
           git add public/content/stats.json
           if ! git diff --cached --quiet; then
             git commit -m "chore: sync analytics stats [skip ci]"
