@@ -51,7 +51,7 @@ export function SubscribeForm({ compact = false, className = '' }: SubscribeForm
       const res = await fetch(workerUrl!, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: channel, value: sanitized }),
+        body: JSON.stringify({ type: channel === 'gh' ? 'github' : 'email', value: sanitized }),
       });
       if (res.status === 201) {
         setState('success');

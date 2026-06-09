@@ -344,6 +344,6 @@ export default {
       void inviteCollaborator(trimmed, env);
     }
 
-    return json({ status: 'subscribed' }, 200);
+    return json({ status: 'subscribed' }, 201);
   },
 };
