@@ -42,7 +42,7 @@ jobs:
           git add public/content/stats.json
           if ! git diff --cached --quiet; then
             git commit -m "chore: sync analytics stats [skip ci]"
-            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/ajeetchouksey/ajch_platform.git HEAD:main
+            git push origin HEAD:main
           else
             echo "No changes to commit."
           fi
