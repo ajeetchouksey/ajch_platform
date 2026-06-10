@@ -1,11 +1,11 @@
 import { useReducer, useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { loadNoteForExam, loadExamRegistry } from '@/lib/content-loader';
-import type { DomainConfig } from '@/types/content';
-import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp } from 'lucide-react';
+import type { DomainConfig, ExamConfig } from '@/types/content';
+import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle } from 'lucide-react';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -64,6 +64,7 @@ export default function Notes() {
   const domain = Number(searchParams.get('d')) || 1;
   const [{ loading, content, error }, dispatch] = useReducer(contentReducer, { loading: false, content: '', error: null });
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
+  const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
   const [activeId, setActiveId] = useState<string>('');
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -72,7 +73,7 @@ export default function Notes() {
   useEffect(() => {
     loadExamRegistry().then((r) => {
       const exam = r.exams.find((e) => e.id === examId);
-      if (exam) setExamDomains(exam.domains);
+      if (exam) { setExamDomains(exam.domains); setExamConfig(exam); }
     }).catch(() => {});
   }, [examId]);
 
@@ -125,6 +126,11 @@ export default function Notes() {
   const prevDomain = currentIdx > 0 ? examDomains[currentIdx - 1] : null;
   const nextDomain = currentIdx < examDomains.length - 1 ? examDomains[currentIdx + 1] : null;
   const minutes = content ? readingTime(content) : null;
+  const trapCount = content ? (content.match(/class="note-trap"/g) ?? []).length : 0;
+  const trapItems = toc.filter((item) => item.level === 3 && item.text.includes('Exam Trap'));
+  const domainQCount = examConfig && currentDomainConfig
+    ? Math.round((examConfig.questions * currentDomainConfig.weight) / 100)
+    : 0;
 
   function goTo(d: DomainConfig) {
     setSearchParams({ d: String(d.id) });
@@ -161,6 +167,24 @@ export default function Notes() {
             <span className="text-xs font-mono text-slate-500 bg-slate-800/60 border border-slate-700/40 px-2.5 py-1 rounded-full">
               {currentDomainConfig.weight}% of exam
             </span>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Facts — shown when content is loaded */}
+      {!loading && !error && content && currentDomainConfig && (
+        <div className="flex gap-2 mb-5 p-3 rounded-xl bg-violet-950/20 border border-violet-800/20">
+          <div className="flex-1 text-center py-2 bg-slate-950/60 rounded-lg border border-slate-800/60">
+            <p className="text-base font-bold font-mono text-rose-400">{trapCount}</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Exam traps</p>
+          </div>
+          <div className="flex-1 text-center py-2 bg-slate-950/60 rounded-lg border border-slate-800/60">
+            <p className="text-base font-bold font-mono text-violet-400">{currentDomainConfig.weight}%</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Domain weight</p>
+          </div>
+          <div className="flex-1 text-center py-2 bg-slate-950/60 rounded-lg border border-slate-800/60">
+            <p className="text-base font-bold font-mono text-blue-400">{domainQCount}</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Quiz questions</p>
           </div>
         </div>
       )}
@@ -302,6 +326,24 @@ export default function Notes() {
                 </button>
               ))}
             </nav>
+            {trapItems.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-slate-800/60">
+                <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 mb-2">
+                  <AlertTriangle size={10} className="text-rose-500" />Traps ({trapItems.length})
+                </p>
+                <div className="flex flex-col gap-1">
+                  {trapItems.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => scrollToHeading(item.id)}
+                      className="text-left text-[10px] text-rose-400/70 hover:text-rose-300 bg-rose-950/20 border border-rose-900/30 rounded px-2 py-1 leading-tight transition-colors"
+                    >
+                      {item.text.replace(/^[^A-Za-z]*Exam Trap[:\s"]+/i, '').replace(/["+]+$/, '')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="mt-4 flex items-center gap-1.5 text-[11px] text-slate-600 hover:text-slate-400 transition-colors pt-3 border-t border-slate-800/60 w-full"
@@ -313,6 +355,19 @@ export default function Notes() {
       )}
 
       </div>{/* end two-column grid */}
+
+      {/* Quiz this domain CTA */}
+      {!loading && !error && content && (
+        <div className="mt-8">
+          <Link
+            to={`/skillup/${examId}/quiz`}
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-violet-900/30 border border-violet-700/40 hover:bg-violet-900/50 hover:border-violet-600/60 text-violet-300 font-semibold text-sm transition-all group"
+          >
+            <Zap size={14} className="group-hover:scale-110 transition-transform" />
+            Quiz this domain{domainQCount > 0 ? ` (~${domainQCount} questions)` : ''}
+          </Link>
+        </div>
+      )}
 
       {/* Prev / Next domain navigation */}
       {!loading && !error && content && (prevDomain || nextDomain) && (
