@@ -1,11 +1,11 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useReducer, useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { loadNoteForExam, loadExamRegistry } from '@/lib/content-loader';
 import type { DomainConfig } from '@/types/content';
-import { Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp } from 'lucide-react';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -13,14 +13,61 @@ function readingTime(md: string) {
   return Math.max(1, Math.ceil(md.split(/\s+/).filter(Boolean).length / 200));
 }
 
+// ── TOC helpers ────────────────────────────────────────────────────────────────
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/[\s_]+/g, '-');
+}
+
+interface TocItem {
+  id: string;
+  text: string;
+  level: 2 | 3;
+}
+
+function extractToc(markdown: string): TocItem[] {
+  const items: TocItem[] = [];
+  const seen = new Map<string, number>();
+  for (const match of markdown.matchAll(/^(#{2,3})\s+(.+)$/gm)) {
+    const level = match[1].length as 2 | 3;
+    const raw = match[2].replace(/`[^`]*`/g, '').trim();
+    const base = slugify(raw);
+    const count = seen.get(base) ?? 0;
+    seen.set(base, count + 1);
+    items.push({ id: count === 0 ? base : `${base}-${count}`, text: raw, level });
+  }
+  return items;
+}
+
+// ── Content fetch reducer ──────────────────────────────────────────────────────
+
+type ContentState = { loading: boolean; content: string; error: string | null };
+type ContentAction =
+  | { type: 'fetch' }
+  | { type: 'success'; content: string }
+  | { type: 'error'; error: string };
+
+function contentReducer(_: ContentState, action: ContentAction): ContentState {
+  if (action.type === 'fetch')   return { loading: true,  content: '',               error: null          };
+  if (action.type === 'success') return { loading: false, content: action.content,   error: null          };
+  if (action.type === 'error')   return { loading: false, content: '',               error: action.error  };
+  return _;
+}
+
 export default function Notes() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const domain = Number(searchParams.get('d')) || 1;
-  const [content, setContent] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [{ loading, content, error }, dispatch] = useReducer(contentReducer, { loading: false, content: '', error: null });
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
+  const [activeId, setActiveId] = useState<string>('');
+  const [mobileTocOpen, setMobileTocOpen] = useState(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const toc = content ? extractToc(content) : [];
 
   useEffect(() => {
     loadExamRegistry().then((r) => {
@@ -30,12 +77,48 @@ export default function Notes() {
   }, [examId]);
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
+    let cancelled = false;
+    dispatch({ type: 'fetch' });
     loadNoteForExam(examId, domain)
-      .then((md) => { setContent(md); setLoading(false); })
-      .catch((e: unknown) => { setError(String(e)); setLoading(false); });
+      .then((md) => { if (!cancelled) { dispatch({ type: 'success', content: md }); setActiveId(''); setMobileTocOpen(false); } })
+      .catch((e: unknown) => { if (!cancelled) dispatch({ type: 'error', error: String(e) }); });
+    return () => { cancelled = true; };
   }, [examId, domain]);
+
+  // Scrollspy — observe all heading anchors once content renders
+  const articleRef = useRef<HTMLElement>(null);
+  const setupObserver = useCallback(() => {
+    if (!articleRef.current) return;
+    observerRef.current?.disconnect();
+    const headings = articleRef.current.querySelectorAll<HTMLElement>('h2[id], h3[id]');
+    if (!headings.length) return;
+    const visible = new Map<string, number>();
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          visible.set(e.target.id, e.intersectionRatio);
+        });
+        let best = '';
+        let bestRatio = -1;
+        visible.forEach((ratio, id) => {
+          if (ratio > bestRatio) { bestRatio = ratio; best = id; }
+        });
+        if (best) setActiveId(best);
+      },
+      { rootMargin: '-10% 0px -75% 0px', threshold: [0, 0.25, 0.5, 1] },
+    );
+    headings.forEach((h) => observerRef.current!.observe(h));
+  }, []);
+
+  useEffect(() => {
+    if (!loading && content) {
+      // Wait one tick for DOM paint
+      const t = setTimeout(setupObserver, 80);
+      return () => clearTimeout(t);
+    }
+  }, [loading, content, setupObserver]);
+
+  useEffect(() => () => observerRef.current?.disconnect(), []);
 
   const currentDomainConfig = examDomains.find((d) => d.id === domain);
   const currentIdx = examDomains.findIndex((d) => d.id === domain);
@@ -46,6 +129,12 @@ export default function Notes() {
   function goTo(d: DomainConfig) {
     setSearchParams({ d: String(d.id) });
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function scrollToHeading(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setActiveId(id);
+    setMobileTocOpen(false);
   }
 
   return (
@@ -97,8 +186,43 @@ export default function Notes() {
         ))}
       </div>
 
+      {/* Mobile TOC — collapsible strip */}
+      {!loading && !error && toc.length > 0 && (
+        <div className="xl:hidden mb-5 rounded-xl border border-slate-700/50 overflow-hidden">
+          <button
+            onClick={() => setMobileTocOpen((o) => !o)}
+            className="w-full flex items-center justify-between px-4 py-2.5 bg-slate-900/70 text-left"
+          >
+            <span className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+              <List size={13} />
+              On this page
+              <span className="text-[10px] font-mono text-slate-600">({toc.length})</span>
+            </span>
+            {mobileTocOpen ? <ChevronUp size={14} className="text-slate-500" /> : <ChevronDown size={14} className="text-slate-500" />}
+          </button>
+          {mobileTocOpen && (
+            <div className="px-4 py-3 bg-slate-950/60 border-t border-slate-800/60 flex flex-col gap-1">
+              {toc.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToHeading(item.id)}
+                  className={`text-left text-xs py-1 transition-colors ${
+                    item.level === 3 ? 'pl-4 text-slate-600 hover:text-slate-400' : 'text-slate-500 hover:text-slate-300'
+                  } ${activeId === item.id ? 'text-violet-400 font-medium' : ''}`}
+                >
+                  {item.text}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Content — two-column on xl: article + sticky TOC */}
+      <div className="xl:grid xl:grid-cols-[1fr_200px] xl:gap-10 xl:items-start">
+
       {/* Content */}
-      <article className="min-w-0">
+      <article ref={articleRef} className="min-w-0">
         {loading && (
           <div className="space-y-3 animate-pulse">
             {[80, 55, 90, 70, 40, 85, 60, 75, 50, 88].map((w, i) => (
@@ -115,6 +239,16 @@ export default function Notes() {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
               components={{
+                h2({ children }) {
+                  const text = String(children);
+                  const id = slugify(text.replace(/`[^`]*`/g, ''));
+                  return <h2 id={id}>{children}</h2>;
+                },
+                h3({ children }) {
+                  const text = String(children);
+                  const id = slugify(text.replace(/`[^`]*`/g, ''));
+                  return <h3 id={id}>{children}</h3>;
+                },
                 code({ className, children, ...props }) {
                   const match = /language-mermaid/.exec(className || '');
                   if (match) {
@@ -141,6 +275,44 @@ export default function Notes() {
           </div>
         )}
       </article>
+
+      {/* Sticky in-page TOC — desktop xl+ only */}
+      {toc.length > 0 && (
+        <aside className="hidden xl:block">
+          <div className="sticky top-24">
+            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 mb-3">
+              <List size={11} />On this page
+            </p>
+            <nav className="border-l-2 border-slate-800 pl-3.5 flex flex-col gap-0.5">
+              {toc.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToHeading(item.id)}
+                  className={`text-left transition-colors leading-snug ${
+                    item.level === 3 ? 'pl-3 text-[11px]' : 'text-xs'
+                  } ${
+                    activeId === item.id
+                      ? 'text-violet-400 font-semibold'
+                      : item.level === 3
+                        ? 'text-slate-600 hover:text-slate-400'
+                        : 'text-slate-500 hover:text-slate-300'
+                  } py-1`}
+                >
+                  {item.text}
+                </button>
+              ))}
+            </nav>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="mt-4 flex items-center gap-1.5 text-[11px] text-slate-600 hover:text-slate-400 transition-colors pt-3 border-t border-slate-800/60 w-full"
+            >
+              <ArrowUp size={11} />Back to top
+            </button>
+          </div>
+        </aside>
+      )}
+
+      </div>{/* end two-column grid */}
 
       {/* Prev / Next domain navigation */}
       {!loading && !error && content && (prevDomain || nextDomain) && (
