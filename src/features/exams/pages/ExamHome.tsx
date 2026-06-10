@@ -1,10 +1,60 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap } from 'lucide-react';
+import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
+import { useAuth } from '@/lib/auth';
+import { getSessions } from '@/lib/storage';
 import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
-import type { ExamConfig } from '@/types/content';
+import type { ExamConfig, DomainConfig, QuizSession } from '@/types/content';
+
+// ── Readiness helpers ─────────────────────────────────────────────────────────
+
+type DomainStatus = 'strong' | 'progress' | 'new';
+
+interface DomainReadiness { pct: number; total: number; status: DomainStatus }
+
+function computeReadiness(
+  sessions: QuizSession[],
+  examId: string,
+  domains: DomainConfig[],
+): {
+  byDomain: Record<number, DomainReadiness>;
+  overall: number;
+  domainsStarted: number;
+  recommendedDomainId: number | null;
+} {
+  const scores: Record<number, { correct: number; total: number }> = {};
+  for (const d of domains) scores[d.id] = { correct: 0, total: 0 };
+  for (const s of sessions) {
+    if (!s.finishedAt || s.skillId !== examId || s.domainFilter === null) continue;
+    const sc = scores[s.domainFilter];
+    if (sc) { sc.correct += s.score; sc.total += s.total; }
+  }
+  let weightedPctSum = 0;
+  let domainsStarted = 0;
+  const byDomain: Record<number, DomainReadiness> = {};
+  for (const d of domains) {
+    const sc = scores[d.id];
+    const pct = sc.total > 0 ? Math.round((sc.correct / sc.total) * 100) : 0;
+    const status: DomainStatus = pct >= 70 ? 'strong' : sc.total > 0 ? 'progress' : 'new';
+    if (sc.total > 0) domainsStarted++;
+    byDomain[d.id] = { pct, total: sc.total, status };
+    weightedPctSum += pct * d.weight;
+  }
+  const overall = Math.round(weightedPctSum / 100);
+  const recommendedDomainId = domains.find((d) => byDomain[d.id]?.status !== 'strong')?.id ?? null;
+  return { byDomain, overall, domainsStarted, recommendedDomainId };
+}
+
+const STATUS_CHIP: Record<DomainStatus, string> = {
+  strong:   'bg-emerald-950 text-emerald-400 border border-emerald-800',
+  progress: 'bg-amber-950  text-amber-400  border border-amber-800',
+  new:      'bg-slate-800  text-slate-500  border border-slate-700',
+};
+const STATUS_LABEL: Record<DomainStatus, string> = {
+  strong: 'Strong', progress: 'In progress', new: 'Not started',
+};
 
 function AnimatedBar({ width, color, delay }: { width: number; color: string; delay: number }) {
   const [animated, setAnimated] = useState(false);
@@ -59,6 +109,12 @@ export default function ExamHome() {
   const { examId } = useParams<{ examId: string }>();
   const [exam, setExam] = useState<ExamConfig | null>(null);
   const [mounted, setMounted] = useState(false);
+  const { user, isLoading: authLoading, login } = useAuth();
+  const sessions = useMemo(() => getSessions(), []);
+  const readiness = useMemo(
+    () => exam ? computeReadiness(sessions, examId ?? '', exam.domains) : null,
+    [sessions, examId, exam],
+  );
 
   // Static keyword set per exam for cross-link matching
   const EXAM_TAGS: Record<string, string[]> = useMemo(() => ({
@@ -142,6 +198,146 @@ export default function ExamHome() {
         <PageViewsBadge path={`/skillup/${examId}`} className="mt-1" />
       </div>
 
+      {/* ── Readiness Panel ─────────────────────────────────────────── */}
+      {authLoading ? (
+        <div className="glass-card rounded-xl p-5 animate-pulse space-y-3">
+          <div className="h-3 w-28 bg-slate-800 rounded-full" />
+          <div className="flex gap-3">
+            <div className="w-14 h-14 rounded-full bg-slate-800 shrink-0" />
+            <div className="flex-1 space-y-2 pt-1">
+              {[80, 60, 70, 50, 65].map((w, i) => <div key={i} className="h-2 bg-slate-800 rounded-full" style={{ width: `${w}%` }} />)}
+            </div>
+          </div>
+        </div>
+      ) : !user ? (
+        // ── Locked teaser (logged-out) ──────────────────────────────────
+        <div
+          className={`glass-card glass-edge rounded-xl overflow-hidden relative transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+          style={{ transitionDelay: '150ms' }}
+        >
+          {/* blurred preview */}
+          <div className="p-5 blur-[3px] pointer-events-none select-none" aria-hidden="true">
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 mb-3">Your Readiness</p>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-14 h-14 rounded-full bg-violet-900/40 border-4 border-violet-800/30 flex items-center justify-center">
+                <span className="text-sm font-bold text-violet-600">–%</span>
+              </div>
+              <div className="space-y-1">
+                <div className="text-xs text-slate-600">0 of {exam?.domains.length} domains started</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {exam?.domains.map((d) => (
+                <div key={d.id} className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono text-slate-700 w-5">D{d.id}</span>
+                  <div className="flex-1 h-1 bg-slate-800 rounded-full" />
+                  <span className="text-[9px] text-slate-700 w-16">Not started</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* lock overlay */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950/75 backdrop-blur-[2px]">
+            <Lock size={18} className="text-violet-400" />
+            <div className="text-center px-4">
+              <p className="text-sm font-semibold text-white">Track your readiness</p>
+              <p className="text-xs text-slate-400 mt-1">Sign in to save quiz scores and see your domain progress</p>
+            </div>
+            <button
+              onClick={() => void login()}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600/60 rounded-lg text-sm font-medium text-white transition-colors"
+            >
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" /></svg>
+              Sign in with GitHub
+            </button>
+          </div>
+        </div>
+      ) : readiness && readiness.domainsStarted === 0 ? (
+        // ── Logged in but no quiz data yet ─────────────────────────────
+        <div
+          className={`glass-card rounded-xl p-5 flex items-center gap-4 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+          style={{ transitionDelay: '150ms' }}
+        >
+          <div className="w-10 h-10 rounded-lg bg-violet-900/40 border border-violet-800/40 flex items-center justify-center shrink-0">
+            <Zap size={16} className="text-violet-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white">Start tracking your readiness</p>
+            <p className="text-xs text-slate-400 mt-0.5">Take a domain quiz to see your scores here — logged in as <span className="text-violet-400">{user.login}</span></p>
+          </div>
+          <Link
+            to={`/skillup/${examId}/quiz`}
+            className="shrink-0 px-3 py-1.5 bg-violet-800/60 hover:bg-violet-700/70 border border-violet-700/40 rounded-lg text-xs font-semibold text-violet-300 transition-colors"
+          >
+            Take quiz →
+          </Link>
+        </div>
+      ) : readiness ? (
+        // ── Full readiness panel ────────────────────────────────────────
+        <div
+          className={`glass-card glass-edge card-accent-top rounded-xl p-5 space-y-4 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+          style={{ '--accent-color': exam?.accentColor, transitionDelay: '150ms' } as React.CSSProperties}
+        >
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500">Your Readiness</p>
+
+          {/* Ring + domain bars */}
+          <div className="flex items-start gap-4">
+            {/* Readiness ring */}
+            <div className="shrink-0 relative w-[52px] h-[52px]">
+              <div
+                className="w-full h-full rounded-full"
+                style={{ background: `conic-gradient(#7c3aed 0% ${readiness.overall}%, #1e293b ${readiness.overall}% 100%)` }}
+              />
+              <div className="absolute inset-[6px] rounded-full bg-[#0d1117] flex items-center justify-center">
+                <span className="text-[11px] font-bold text-violet-400">{readiness.overall}%</span>
+              </div>
+            </div>
+            {/* Stats */}
+            <div className="flex-1 min-w-0">
+              <p className="text-lg font-bold text-white leading-tight">{readiness.overall}% ready</p>
+              <p className="text-xs text-slate-500">{readiness.domainsStarted} of {exam?.domains.length} domains started · need {exam?.passThreshold}% to pass</p>
+              {/* Per-domain mini bars */}
+              <div className="mt-2.5 space-y-1.5">
+                {exam?.domains.map((d) => {
+                  const dr = readiness.byDomain[d.id];
+                  return (
+                    <div key={d.id} className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono text-slate-600 w-5">D{d.id}</span>
+                      <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full bg-violet-600 transition-all duration-700" style={{ width: `${dr?.pct ?? 0}%` }} />
+                      </div>
+                      <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${STATUS_CHIP[dr?.status ?? 'new']}`}>
+                        {STATUS_LABEL[dr?.status ?? 'new']}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Recommended next step */}
+          {readiness.recommendedDomainId !== null && (() => {
+            const rec = exam?.domains.find((d) => d.id === readiness.recommendedDomainId);
+            return rec ? (
+              <div className="flex items-center gap-3 pt-1 border-t border-slate-800/60">
+                <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600 shrink-0">Recommended</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-slate-300 truncate">D{rec.id}: {rec.title}</p>
+                  <p className="text-[10px] text-slate-600">{rec.weight}% of exam · {readiness.byDomain[rec.id]?.status === 'progress' ? 'Resume' : 'Not started yet'}</p>
+                </div>
+                <Link
+                  to={`/skillup/${examId}/notes?d=${rec.id}`}
+                  className="shrink-0 text-[11px] font-semibold text-violet-400 hover:text-violet-300 transition-colors flex items-center gap-1"
+                >
+                  Study <ArrowRight size={11} />
+                </Link>
+              </div>
+            ) : null;
+          })()}
+        </div>
+      ) : null}
+
       {/* Nav cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {cards.map(({ to, icon: Icon, title, desc, cta }, idx) => (
@@ -177,15 +373,25 @@ export default function ExamHome() {
       >
         <h2 className="section-heading mb-4">Exam Domain Weights</h2>
         <div className="space-y-3">
-          {exam.domains.map((domain, idx) => (
-            <div key={domain.id} className="group cursor-default">
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-slate-300 group-hover:text-white transition-colors">D{domain.id}: {domain.title}</span>
-                <span className="text-slate-400 font-mono group-hover:text-white transition-colors">{domain.weight}%</span>
+          {exam.domains.map((domain, idx) => {
+            const dr = readiness?.byDomain[domain.id];
+            return (
+              <div key={domain.id} className="group cursor-default">
+                <div className="flex justify-between items-center text-sm mb-1">
+                  <span className="text-slate-300 group-hover:text-white transition-colors">D{domain.id}: {domain.title}</span>
+                  <div className="flex items-center gap-2">
+                    {dr && dr.total > 0 && (
+                      <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${STATUS_CHIP[dr.status]}`}>
+                        {STATUS_LABEL[dr.status]}
+                      </span>
+                    )}
+                    <span className="text-slate-400 font-mono group-hover:text-white transition-colors">{domain.weight}%</span>
+                  </div>
+                </div>
+                <AnimatedBar width={domain.weight} color={domain.color} delay={700 + idx * 150} />
               </div>
-              <AnimatedBar width={domain.weight} color={domain.color} delay={700 + idx * 150} />
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
