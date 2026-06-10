@@ -163,7 +163,14 @@ def main() -> None:
                         f" · page views: {page_views['total']}"
                     )
                 except Exception as exc:  # noqa: BLE001
-                    print(f"✗ GA4 API call failed (non-fatal): {type(exc).__name__}")
+                    import urllib.error
+                    detail = ""
+                    if isinstance(exc, urllib.error.HTTPError):
+                        try:
+                            detail = f" HTTP {exc.code}: {exc.read().decode()[:500]}"
+                        except Exception:  # noqa: BLE001
+                            detail = f" HTTP {exc.code}"
+                    print(f"✗ GA4 API call failed (non-fatal): {type(exc).__name__}{detail}")
     else:
         print("⚠ GA4 env vars absent — skipping GA4.")
 
