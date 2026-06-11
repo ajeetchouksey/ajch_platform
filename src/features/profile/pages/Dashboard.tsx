@@ -49,13 +49,11 @@ function fmtDate(ts: number | string): string {
 // ── Component ──────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
-  const [sessions, setSessions] = useState<QuizSession[]>([]);
+  const [sessions] = useState<QuizSession[]>(() => getSessions().filter((s) => s.finishedAt));
   const [mounted, setMounted] = useState(false);
   const [dueDomains, setDueDomains] = useState<ScheduleEntry[]>([]);
 
   useEffect(() => {
-    const localSessions = getSessions().filter((s) => s.finishedAt);
-    setSessions(localSessions);
     setTimeout(() => setMounted(true), 0);
 
     // Build scheduler from manifest whitelist + local sessions
@@ -70,11 +68,11 @@ export default function Dashboard() {
       );
       // Sessions mapped to scheduler format (domain-filtered only)
       // QuizSession timestamps are Unix ms numbers — convert to ISO8601 strings for Session type
-      const schedulerSessions = localSessions
+      const schedulerSessions = sessions
         .filter((s) => s.domainFilter !== null)
         .map((s) => ({
           id: s.id,
-          examId: 'ccaf',
+          examId: s.skillId,   // use actual exam id, not hardcoded 'ccaf'
           domain: s.domainFilter,
           startedAt: new Date(s.startedAt).toISOString(),
           finishedAt: s.finishedAt ? new Date(s.finishedAt).toISOString() : null,
@@ -84,6 +82,7 @@ export default function Dashboard() {
       const schedule = computeSchedule(schedulerSessions, refs);
       setDueDomains(getDueDomains(schedule));
     }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Bookmarks come from ProgressV2; use empty until Gist sync is wired (Sprint 4+)
@@ -177,8 +176,10 @@ export default function Dashboard() {
                       key={s.id}
                       style={{ borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : undefined }}
                     >
-                      <td className="px-4 py-2.5 text-slate-300 capitalize">
-                        {s.domainFilter !== null ? `Domain ${s.domainFilter}` : 'Mixed'}
+                      <td className="px-4 py-2.5">
+                        <span className="font-mono text-xs font-semibold text-violet-400 uppercase">{s.skillId}</span>
+                        <span className="text-slate-600 mx-1">·</span>
+                        <span className="text-slate-300 text-xs">{s.domainFilter !== null ? `D${s.domainFilter}` : 'Full'}</span>
                       </td>
                       <td className="px-4 py-2.5 text-slate-500">
                         {fmtDate(s.finishedAt!)}

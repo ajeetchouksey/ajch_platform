@@ -97,9 +97,9 @@ export function computeSchedule(
   const todayStr = today();
 
   return examDomains.map((ref) => {
-    // Find sessions for this specific domain (from the whitelist, not session.examId)
+    // Find sessions for this specific exam+domain (from the whitelist, not raw session input)
     const domainSessions = sessions.filter(
-      (s) => s.domain === ref.domainId && s.finishedAt && s.total > 0
+      (s) => s.examId === ref.examId && s.domain === ref.domainId && s.finishedAt && s.total > 0
     );
 
     if (domainSessions.length === 0) {
