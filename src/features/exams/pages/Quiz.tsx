@@ -97,7 +97,7 @@ export default function Quiz() {
       const finished: QuizSession = { ...session, finishedAt: Date.now(), answers, score };
       saveSession(finished);
       // Keep ccaf_progress in sync for Gist cloud backup
-      addQuizResult(String(finished.domainFilter ?? 'all'), finished.score, finished.total);
+      addQuizResult(examId, String(finished.domainFilter ?? 'all'), finished.score, finished.total);
       void syncToGist(); // push to GitHub Gist if logged in (fire-and-forget)
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSession(finished);
