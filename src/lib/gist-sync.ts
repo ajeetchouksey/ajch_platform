@@ -2,7 +2,7 @@ const GIST_FILENAME = 'ccaf-progress.json';
 const GIST_DESCRIPTION = 'Aarya — AI Learning Hub Progress';
 
 interface ProgressData {
-  quizHistory: Array<{ date: string; domain: string; score: number; total: number }>;
+  quizHistory: Array<{ date: string; skillId?: string; domain: string; score: number; total: number }>;
   domainProgress: Record<string, { correct: number; total: number }>;
   lastSync: string;
 }

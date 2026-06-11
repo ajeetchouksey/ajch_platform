@@ -52,7 +52,7 @@ export default function Profile() {
   }, []);
 
   const sessions = getSessions().filter((s) => s.finishedAt);
-  const domainScores = getScoreByDomain();
+  const domainScores = getScoreByDomain('ccaf');
 
   // Derived stats
   const totalQuestions = sessions.reduce((acc, s) => acc + s.total, 0);

@@ -2,11 +2,13 @@ import { useEffect, useCallback } from 'react';
 import { useAuth } from './auth';
 import { loadProgress, saveProgress } from './gist-sync';
 
-const LOCAL_PROGRESS_KEY = 'ccaf_progress';
+const LOCAL_PROGRESS_KEY = 'aarya_progress';
+const LEGACY_PROGRESS_KEY = 'ccaf_progress';
 
 interface ProgressEntry {
   date: string;
-  domain: string;
+  skillId?: string;  // exam id e.g. "ccaf", "ab100" — optional for legacy entries
+  domain: string;    // "${examId}:${domainId}" e.g. "ccaf:1"
   score: number;
   total: number;
 }
@@ -21,6 +23,14 @@ export function getLocalProgress(): ProgressData {
   try {
     const raw = localStorage.getItem(LOCAL_PROGRESS_KEY);
     if (raw) return JSON.parse(raw);
+    // Migrate data from legacy ccaf_progress key
+    const legacy = localStorage.getItem(LEGACY_PROGRESS_KEY);
+    if (legacy) {
+      const data = JSON.parse(legacy) as ProgressData;
+      localStorage.setItem(LOCAL_PROGRESS_KEY, legacy);
+      localStorage.removeItem(LEGACY_PROGRESS_KEY);
+      return data;
+    }
   } catch { /* ignore */ }
   return { quizHistory: [], domainProgress: {}, lastSync: '' };
 }
@@ -29,13 +39,14 @@ export function setLocalProgress(data: ProgressData) {
   localStorage.setItem(LOCAL_PROGRESS_KEY, JSON.stringify(data));
 }
 
-export function addQuizResult(domain: string, score: number, total: number) {
+export function addQuizResult(examId: string, domain: string, score: number, total: number) {
   const progress = getLocalProgress();
-  progress.quizHistory.push({ date: new Date().toISOString(), domain, score, total });
-  const dp = progress.domainProgress[domain] || { correct: 0, total: 0 };
+  const domainKey = `${examId}:${domain}`;
+  progress.quizHistory.push({ date: new Date().toISOString(), skillId: examId, domain: domainKey, score, total });
+  const dp = progress.domainProgress[domainKey] || { correct: 0, total: 0 };
   dp.correct += score;
   dp.total += total;
-  progress.domainProgress[domain] = dp;
+  progress.domainProgress[domainKey] = dp;
   setLocalProgress(progress);
   return progress;
 }

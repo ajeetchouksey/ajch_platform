@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { loadNoteForExam, loadExamRegistry } from '@/lib/content-loader';
+import { markNotesSeen } from '@/lib/storage';
 import type { DomainConfig, ExamConfig } from '@/types/content';
 import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle } from 'lucide-react';
 
@@ -81,7 +82,7 @@ export default function Notes() {
     let cancelled = false;
     dispatch({ type: 'fetch' });
     loadNoteForExam(examId, domain)
-      .then((md) => { if (!cancelled) { dispatch({ type: 'success', content: md }); setActiveId(''); setMobileTocOpen(false); } })
+      .then((md) => { if (!cancelled) { dispatch({ type: 'success', content: md }); setActiveId(''); setMobileTocOpen(false); markNotesSeen(examId, domain); } })
       .catch((e: unknown) => { if (!cancelled) dispatch({ type: 'error', error: String(e) }); });
     return () => { cancelled = true; };
   }, [examId, domain]);

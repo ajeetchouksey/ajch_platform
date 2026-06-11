@@ -6,6 +6,7 @@ import { StarRepo } from './StarRepo';
 import SearchModal from './SearchModal';
 import { Breadcrumb, Badge, VersionTag, type BreadcrumbItem } from './ui';
 import { loadBlogManifest, loadExamRegistry } from '@/lib/content-loader';
+import { getNotesSeen } from '@/lib/storage';
 import { EXAM_SCHEMES } from '@/types/content';
 import type { BlogPostMeta, ExamConfig } from '@/types/content';
 import { SubscribeForm } from './SubscribeForm';
@@ -327,6 +328,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <div className="space-y-0.5">
                     {currentExam.domains.map((domain) => {
                       const isActive = location.pathname === `/skillup/${currentExam.id}/notes` && searchParams.get('d') === String(domain.id);
+                      const seen = !!getNotesSeen()[`${currentExam.id}:${domain.id}`];
                       return (
                         <Link
                           key={domain.id}
@@ -337,8 +339,9 @@ export default function Layout({ children }: { children: ReactNode }) {
                               : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:translate-x-0.5'
                           }`}
                         >
-                          <span className={`w-2 h-2 rounded-full ${domain.color} ${isActive ? 'ring-2 ring-offset-1 ring-offset-slate-900' : ''} transition-all`} />
+                          <span className={`w-2 h-2 rounded-full ${seen ? 'bg-emerald-500' : domain.color} ${isActive ? 'ring-2 ring-offset-1 ring-offset-slate-900' : ''} transition-all`} />
                           <span>D{domain.id}: {domain.title}</span>
+                          {seen && !isActive && <span className="ml-auto text-[9px] text-emerald-600 font-mono">✓</span>}
                         </Link>
                       );
                     })}

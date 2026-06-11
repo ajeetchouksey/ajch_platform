@@ -7,8 +7,8 @@ import { Trash2, RotateCcw, TrendingUp, TrendingDown, Minus } from 'lucide-react
 
 export default function Progress() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
-  const [sessions, setSessions] = useState(() => getSessions().filter((s) => s.finishedAt));
-  const [domainScores, setDomainScores] = useState(() => getScoreByDomain());
+  const [sessions, setSessions] = useState(() => getSessions().filter((s) => s.finishedAt && s.skillId === examId));
+  const [domainScores, setDomainScores] = useState(() => getScoreByDomain(examId));
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
   const [passThreshold, setPassThreshold] = useState(72);
@@ -28,7 +28,7 @@ export default function Progress() {
     if (!window.confirm('Clear all session history? This cannot be undone.')) return;
     clearSessions();
     setSessions([]);
-    setDomainScores(getScoreByDomain());
+    setDomainScores(getScoreByDomain(examId));
   }
 
   if (sessions.length === 0) {
