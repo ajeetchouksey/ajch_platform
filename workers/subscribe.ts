@@ -258,7 +258,9 @@ function json(body: unknown, status: number, origin = ALLOWED_ORIGIN): Response 
 
 /** Strip HTML tags and limit string length to prevent injection in AI prompts. */
 function stripHtml(s: string, maxLen = 500): string {
-  return s.replace(/<[^>]*>/g, '').replace(/[<>"']/g, '').substring(0, maxLen).trim();
+  // Remove < and > individually first — prevents any partial or complete tag injection.
+  // A second pass removes quotes before truncation.
+  return s.replace(/[<>]/g, '').replace(/["']/g, '').substring(0, maxLen).trim();
 }
 
 // ── Anthropic API proxy ───────────────────────────────────────────────────────

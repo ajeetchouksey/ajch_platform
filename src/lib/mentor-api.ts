@@ -29,7 +29,9 @@ export interface MentorPlanResponse {
 // ── Sanitize helper ────────────────────────────────────────────────────────────
 
 function sanitizeInput(s: string, maxLen: number): string {
-  return s.replace(/<[^>]*>/g, '').replace(/[<>"']/g, '').substring(0, maxLen).trim();
+  // Remove < and > individually first — prevents any partial or complete tag injection.
+  // A second pass removes quotes before truncation.
+  return s.replace(/[<>]/g, '').replace(/["']/g, '').substring(0, maxLen).trim();
 }
 
 // ── API calls ─────────────────────────────────────────────────────────────────
