@@ -5,6 +5,7 @@ import AppRoutes from '@/app/router';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { trackPageView } from '@/lib/analytics';
 import { mergeAnonymousProgress } from '@/lib/storage';
+import { useProgressSync } from '@/lib/useProgressSync';
 
 function GATracker() {
   const location = useLocation();
@@ -14,10 +15,12 @@ function GATracker() {
   return null;
 }
 
-// On first login, promote anonymous quiz sessions to the newly authenticated user.
+// On first login, promote anonymous quiz sessions to the newly authenticated user
+// and immediately trigger a Gist pull so progress from other devices is restored.
 function AuthMerger() {
   const { user } = useAuth();
   const prevLogin = useRef<string | null>(null);
+  useProgressSync(); // fires Gist pull whenever token appears (global — not profile-only)
   useEffect(() => {
     if (user && prevLogin.current === null) {
       mergeAnonymousProgress(user.login);

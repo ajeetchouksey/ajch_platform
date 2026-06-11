@@ -23,6 +23,7 @@
 const ALLOWED_ORIGINS = new Set([
   'https://aaryaai.dev',
   'http://localhost:5173',
+  'http://localhost:5174',
   'http://localhost:4173',
 ]);
 // Keep scalar for backward-compatible default in json() helper
@@ -359,6 +360,47 @@ interface MentorSessionRaw {
   mentorNote?: unknown;
 }
 
+// ── GitHub OAuth Device Flow proxy ───────────────────────────────────────────
+// Proxies browser → Worker → GitHub to bypass browser CORS restrictions.
+// No client secret is transmitted — Device Flow only needs client_id.
+async function handleOAuthDeviceCode(request: Request, origin: string): Promise<Response> {
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json() as Record<string, unknown>;
+  } catch {
+    return new Response(JSON.stringify({ error: 'invalid_request' }), { status: 400, headers: corsHeadersFor(origin) });
+  }
+  const ghRes = await fetch('https://github.com/login/device/code', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await ghRes.text();
+  return new Response(data, {
+    status: ghRes.status,
+    headers: { ...corsHeadersFor(origin), 'Content-Type': 'application/json' },
+  });
+}
+
+async function handleOAuthToken(request: Request, origin: string): Promise<Response> {
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json() as Record<string, unknown>;
+  } catch {
+    return new Response(JSON.stringify({ error: 'invalid_request' }), { status: 400, headers: corsHeadersFor(origin) });
+  }
+  const ghRes = await fetch('https://github.com/login/oauth/access_token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await ghRes.text();
+  return new Response(data, {
+    status: ghRes.status,
+    headers: { ...corsHeadersFor(origin), 'Content-Type': 'application/json' },
+  });
+}
+
 async function handleMentorPlan(request: Request, env: Env, origin: string): Promise<Response> {
   if (!env.ANTHROPIC_API_KEY) {
     return json({ error: 'mentor_unavailable' }, 503, origin);
@@ -515,6 +557,8 @@ export default {
     const { pathname } = new URL(request.url);
     if (pathname === '/mentor/plan') return handleMentorPlan(request, env, origin);
     if (pathname === '/mentor/chat') return handleMentorChat(request, env, origin);
+    if (pathname === '/oauth/device-code') return handleOAuthDeviceCode(request, origin);
+    if (pathname === '/oauth/token') return handleOAuthToken(request, origin);
     if (pathname !== '/subscribe') return new Response('Not Found', { status: 404 });
 
     // Per-IP rate limiting (5 req / 15 min)

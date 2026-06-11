@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { getSessions, getScoreByDomain, clearSessions } from '@/lib/storage';
 import { loadExamRegistry } from '@/lib/content-loader';
 import type { DomainConfig } from '@/types/content';
-import { Trash2 } from 'lucide-react';
+import { Trash2, RotateCcw, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 export default function Progress() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
@@ -81,28 +81,31 @@ export default function Progress() {
         <div className="space-y-4">
           {examDomains.map((domain) => {
             const stats = domainScores[domain.id];
-            const pct = stats?.total > 0 ? Math.round((stats.correct / stats.total) * 100) : null;
+            const attempted = (stats?.total ?? 0) > 0;
+            const pct = attempted ? Math.round((stats.correct / stats.total) * 100) : null;
+            // colour: green ≥ threshold, amber = attempted-but-0, red = below threshold
+            const barColor = pct === null ? '' : pct >= passThreshold ? 'bg-emerald-500' : pct === 0 ? 'bg-amber-500/60' : 'bg-rose-500';
+            const pctLabel = pct !== null ? `${pct}%` : 'not started';
+            const labelColor = pct === null ? 'text-slate-600' : pct >= passThreshold ? 'text-emerald-400' : pct === 0 ? 'text-amber-500' : 'text-rose-400';
             return (
               <div key={domain.id}>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-slate-300">
-                    D{domain.id}: {domain.title}
-                  </span>
-                  <span className="text-slate-400 font-mono">
-                    {pct !== null ? `${pct}%` : 'no data'}
-                  </span>
+                  <span className="text-slate-300">D{domain.id}: {domain.title}</span>
+                  <span className={`font-mono text-xs ${labelColor}`}>{pctLabel}</span>
                 </div>
-                <div className="h-3.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                  {/* Always render a bar track; for attempted-but-0 show a 2px pill */}
                   {pct !== null && (
                     <div
-                      className={`h-full rounded-full ${pct >= 70 ? 'bg-emerald-500' : 'bg-rose-500'}`}
-                      style={{ width: `${pct}%` }}
+                      className={`h-full rounded-full transition-all ${barColor}`}
+                      style={{ width: pct === 0 ? '2px' : `${pct}%` }}
                     />
                   )}
                 </div>
-                {stats?.total > 0 && (
+                {attempted && (
                   <p className="text-xs text-slate-600 mt-0.5">
                     {stats.correct}/{stats.total} correct
+                    {pct === 0 && <span className="text-amber-600/70 ml-1">· attempted</span>}
                   </p>
                 )}
               </div>
@@ -115,31 +118,55 @@ export default function Progress() {
       <div className="glass-card rounded-xl p-5">
         <h2 className="section-heading mb-4">Session History</h2>
         <div className="space-y-2">
-          {[...sessions].reverse().map((s) => {
-            const pct = Math.round((s.score / s.total) * 100);
-            const passed = pct >= 72;
-            const date = new Date(s.finishedAt!).toLocaleDateString();
-            return (
-              <div
-                key={s.id}
-                className="flex items-center justify-between text-sm bg-slate-800/40 rounded-lg px-4 py-3"
-              >
-                <div>
-                  <span className="text-slate-300">
-                    {s.domainFilter !== null
-                      ? `D${s.domainFilter}: ${examDomains.find((d) => d.id === s.domainFilter)?.title ?? 'Domain'}`
-                      : 'Full Mock Exam'}
-                  </span>
-                  <span className="text-slate-600 ml-2 text-xs">{date}</span>
-                </div>
-                <span
-                  className={`font-mono font-semibold ${passed ? 'text-emerald-400' : 'text-rose-400'}`}
+          {(() => {
+            const reversed = [...sessions].reverse();
+            // Build per-domain score history to compute trend
+            const domainHistory: Record<string, number[]> = {};
+            for (const s of sessions) {
+              const key = s.domainFilter !== null ? String(s.domainFilter) : 'full';
+              domainHistory[key] = [...(domainHistory[key] ?? []), Math.round((s.score / s.total) * 100)];
+            }
+            const seenCount: Record<string, number> = {};
+            return reversed.map((s) => {
+              const pct = Math.round((s.score / s.total) * 100);
+              const passed = pct >= passThreshold;
+              const date = new Date(s.finishedAt!).toLocaleDateString();
+              const domainLabel = s.domainFilter !== null
+                ? `D${s.domainFilter}: ${examDomains.find((d) => d.id === s.domainFilter)?.title ?? 'Domain'}`
+                : 'Full Mock Exam';
+              const key = s.domainFilter !== null ? String(s.domainFilter) : 'full';
+              const history = domainHistory[key] ?? [];
+              seenCount[key] = (seenCount[key] ?? 0) + 1;
+              const seenIdx = history.length - seenCount[key]; // index from start (oldest = 0)
+              const prevPct = seenIdx > 0 ? history[seenIdx - 1] : null;
+              const TrendIcon = prevPct === null ? null : pct > prevPct ? TrendingUp : pct < prevPct ? TrendingDown : Minus;
+              const trendColor = prevPct === null ? '' : pct > prevPct ? 'text-emerald-400' : pct < prevPct ? 'text-rose-400' : 'text-slate-500';
+              return (
+                <div
+                  key={s.id}
+                  className="flex items-center justify-between text-sm bg-slate-800/40 rounded-lg px-4 py-3"
                 >
-                  {pct}%
-                </span>
-              </div>
-            );
-          })}
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-slate-300">{domainLabel}</span>
+                    <span className="text-slate-600 text-xs">{date}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {TrendIcon && <TrendIcon size={13} className={trendColor} />}
+                    <span className={`font-mono font-semibold ${passed ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {pct}%
+                    </span>
+                    <Link
+                      to={`/skillup/${examId}/quiz`}
+                      className="text-xs text-slate-600 hover:text-violet-400 transition-colors flex items-center gap-1"
+                      title="Retry this domain"
+                    >
+                      <RotateCcw size={11} />
+                    </Link>
+                  </div>
+                </div>
+              );
+            });
+          })()}
         </div>
       </div>
     </div>

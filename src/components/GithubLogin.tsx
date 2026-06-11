@@ -1,7 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, Key, Copy, Check, ExternalLink } from 'lucide-react';
+import { LogOut, Key, Copy, Check, ExternalLink, X, ShieldCheck } from 'lucide-react';
 import { useAuth, isOAuthConfigured } from '@/lib/auth';
+
+/** Compact trust / privacy assurance shown in both sign-in panels. */
+function TrustBadge() {
+  return (
+    <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/30">
+      <ShieldCheck size={13} className="text-emerald-400 shrink-0 mt-0.5" />
+      <div className="text-[10px] leading-relaxed text-slate-400 space-y-0.5">
+        <p><span className="text-emerald-400 font-medium">We will:</span> read your public name &amp; avatar, save quiz scores to a private Gist you own.</p>
+        <p><span className="text-slate-500 font-medium">We will not:</span> access code, repos, emails, or DMs — and your token never leaves your browser.</p>
+      </div>
+    </div>
+  );
+}
 
 function GithubIcon({ size = 14 }: { size?: number }) {
   return (
@@ -14,9 +27,30 @@ function GithubIcon({ size = 14 }: { size?: number }) {
 export function GithubLogin() {
   const { user, isLoading, login, loginWithToken, logout, deviceFlow, cancelDeviceFlow } = useAuth();
   const [showTokenInput, setShowTokenInput] = useState(false);
+  const [showDevicePanel, setShowDevicePanel] = useState(false);
   const [tokenValue, setTokenValue] = useState('');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+
+  // Sync panel visibility with device flow state
+  useEffect(() => {
+    if (deviceFlow) {
+      setShowDevicePanel(true); // eslint-disable-line react-hooks/set-state-in-effect
+    } else {
+      setShowDevicePanel(false);
+    }
+  }, [deviceFlow]);
+
+  // Live countdown — ticks every second while device flow is active
+  useEffect(() => {
+    if (!deviceFlow) return;
+    const tick = () =>
+      setSecondsLeft(Math.max(0, Math.round((deviceFlow.expiresAt - Date.now()) / 1000)));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [deviceFlow]);
 
   const copyCode = () => {
     navigator.clipboard?.writeText(deviceFlow?.userCode ?? '').then(() => {
@@ -24,6 +58,8 @@ export function GithubLogin() {
       setTimeout(() => setCopied(false), 2000);
     });
   };
+
+  const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
   if (isLoading) return <div className="w-8 h-8 rounded-full bg-gray-700 animate-pulse" />;
 
@@ -44,77 +80,189 @@ export function GithubLogin() {
     );
   }
 
-  // Device flow in progress — show code + spinner
+  // ── Device flow in progress ────────────────────────────────────────────────
   if (deviceFlow) {
-    const secondsLeft = Math.max(0, Math.round((deviceFlow.expiresAt - Date.now()) / 1000));
     return (
-      <div className="flex items-center gap-1.5 bg-gray-800/90 border border-violet-500/40 rounded-lg px-2.5 py-1.5">
-        {/* Step hint */}
-        <span className="text-[10px] text-gray-400 hidden sm:inline whitespace-nowrap">
-          <a href={deviceFlow.verificationUri} target="_blank" rel="noopener noreferrer"
-            className="text-violet-400 hover:underline">github.com/login/device</a> →
-        </span>
-        {/* Code */}
+      <div className="relative">
+        {/* Compact navbar pill — clicking re-opens the guided panel */}
         <button
-          onClick={copyCode}
-          className="flex items-center gap-1 font-mono font-bold text-white text-sm bg-gray-700 hover:bg-gray-600 px-2 py-0.5 rounded transition-colors"
-          title="Click to copy"
+          onClick={() => setShowDevicePanel((v) => !v)}
+          className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-violet-950/60 border border-violet-500/40 text-violet-300 rounded-lg hover:bg-violet-900/60 transition-colors"
+          title="Click to see your sign-in instructions"
         >
-          {deviceFlow.userCode}
-          {copied ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} className="text-gray-400" />}
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse shrink-0" />
+          <span className="hidden sm:inline font-medium">Signing in…</span>
         </button>
-        {/* Open GitHub */}
-        <a
-          href={deviceFlow.verificationUri}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-1 text-gray-400 hover:text-violet-300 transition-colors"
-          title="Open GitHub device activation"
-        >
-          <ExternalLink size={13} />
-        </a>
-        {/* Spinner + expiry */}
-        <span className="flex items-center gap-1 text-[10px] text-gray-500">
-          <span className="w-2.5 h-2.5 border-2 border-violet-400 border-t-transparent rounded-full animate-spin inline-block" />
-          {secondsLeft}s
-        </span>
-        {/* Cancel */}
-        <button onClick={cancelDeviceFlow} className="text-gray-500 hover:text-gray-300 text-xs leading-none" title="Cancel">
-          ✕
-        </button>
+
+        {/* Centered modal with backdrop */}
+        {showDevicePanel && (
+          <>
+            {/* Backdrop — click to dismiss panel (flow continues) */}
+            <div
+              className="fixed inset-0 z-[199] bg-black/60 backdrop-blur-sm"
+              onClick={() => setShowDevicePanel(false)}
+              aria-hidden="true"
+            />
+            {/* Centered panel — anchored below the navbar */}
+            <div className="fixed left-1/2 top-16 -translate-x-1/2 z-[200] w-[22rem] max-h-[calc(100vh-5rem)] overflow-y-auto bg-slate-900 border border-slate-700/60 rounded-2xl shadow-2xl shadow-black/80">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+              <div className="flex items-center gap-2 text-white">
+                <GithubIcon size={15} />
+                <span className="text-sm font-semibold">Authorize with GitHub</span>
+              </div>
+              <button
+                onClick={() => setShowDevicePanel(false)}
+                className="text-slate-500 hover:text-slate-300 transition-colors"
+                aria-label="Dismiss panel"
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            <div className="px-5 py-4 space-y-4">
+              {/* Step 1 — copy code */}
+              <div>
+                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
+                  Step 1 — Copy your code
+                </p>
+                <button
+                  onClick={copyCode}
+                  className="w-full flex items-center justify-between font-mono font-bold text-2xl tracking-[0.25em] text-white bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded-xl transition-colors group"
+                  title="Click to copy code"
+                >
+                  {deviceFlow.userCode}
+                  <span className="text-xs font-normal font-sans tracking-normal text-slate-500 group-hover:text-slate-300 flex items-center gap-1 ml-2">
+                    {copied
+                      ? <><Check size={13} className="text-emerald-400" />Copied!</>
+                      : <><Copy size={13} />Copy</>}
+                  </span>
+                </button>
+              </div>
+
+              {/* Step 2 — open GitHub */}
+              <div>
+                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
+                  Step 2 — Paste it on GitHub
+                </p>
+                <a
+                  href={deviceFlow.verificationUri}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold rounded-xl transition-colors"
+                >
+                  <ExternalLink size={14} />
+                  Open github.com/login/device
+                </a>
+              </div>
+
+              {/* Trust assurance */}
+              <TrustBadge />
+
+              {/* Step 3 — waiting */}
+              <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50">
+                <span className="w-4 h-4 border-2 border-violet-400 border-t-transparent rounded-full animate-spin shrink-0" />
+                <div>
+                  <p className="text-xs text-slate-300">Waiting for you to authorize…</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Code expires in {fmt(secondsLeft)}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer cancel */}
+            <div className="px-5 pb-4">
+              <button
+                onClick={cancelDeviceFlow}
+                className="w-full text-[11px] text-slate-600 hover:text-red-400 transition-colors py-1"
+              >
+                Cancel sign-in
+              </button>
+            </div>
+            </div>
+          </>
+        )}
       </div>
     );
   }
 
+  // ── PAT token input ────────────────────────────────────────────────────────
   if (showTokenInput) {
     return (
-      <div className="flex items-center gap-1">
-        <input
-          type="password"
-          value={tokenValue}
-          onChange={(e) => { setTokenValue(e.target.value); setError(''); }}
-          placeholder="ghp_... (gist + read:user)"
-          className="w-40 sm:w-56 px-2 py-1 text-xs bg-gray-800 border border-gray-600 rounded text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+      <>
+        {/* Backdrop */}
+        <div
+          className="fixed inset-0 z-[199] bg-black/60 backdrop-blur-sm"
+          onClick={() => { setShowTokenInput(false); setError(''); setTokenValue(''); }}
+          aria-hidden="true"
         />
-        <button
-          onClick={async () => {
-            if (!tokenValue.trim()) return;
-            const ok = await loginWithToken(tokenValue.trim());
-            if (!ok) setError('Invalid token');
-            else { setTokenValue(''); setShowTokenInput(false); }
-          }}
-          className="px-2 py-1 text-xs bg-green-700 hover:bg-green-600 text-white rounded transition-colors"
-        >
-          Go
-        </button>
-        <button onClick={() => { setShowTokenInput(false); setError(''); }} className="px-1 py-1 text-xs text-gray-400 hover:text-gray-200">
-          ✕
-        </button>
-        {error && <span className="text-xs text-red-400">{error}</span>}
-      </div>
+        {/* Centered panel */}
+        <div className="fixed left-1/2 top-16 -translate-x-1/2 z-[200] w-[22rem] max-h-[calc(100vh-5rem)] overflow-y-auto bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl shadow-black/80">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+            <span className="text-sm font-semibold text-white flex items-center gap-2">
+              <GithubIcon size={14} /> Sign in with GitHub
+            </span>
+            <button
+              onClick={() => { setShowTokenInput(false); setError(''); setTokenValue(''); }}
+              className="text-slate-500 hover:text-slate-300 transition-colors"
+              aria-label="Close"
+            >
+              <X size={14} />
+            </button>
+          </div>
+          <div className="px-5 py-4 space-y-4">
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Save your quiz scores across devices with a free GitHub token.
+            </p>
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-violet-950/40 border border-violet-800/30">
+              <span className="shrink-0 w-4 h-4 rounded-full bg-violet-700 text-white text-[9px] font-bold flex items-center justify-center mt-0.5">1</span>
+              <div>
+                <p className="text-[11px] text-slate-300 font-medium mb-0.5">Create a GitHub token</p>
+                <a
+                  href="https://github.com/settings/tokens/new?scopes=gist,read:user&description=Aarya+Learning+Hub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] text-violet-400 hover:text-violet-300 transition-colors"
+                >
+                  <ExternalLink size={10} /> Open GitHub → create token
+                </a>
+                <p className="text-[10px] text-slate-500 mt-0.5">Scopes pre-filled: gist, read:user</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="shrink-0 w-4 h-4 rounded-full bg-slate-700 text-slate-300 text-[9px] font-bold flex items-center justify-center mt-1">2</span>
+              <div className="flex-1">
+                <p className="text-[11px] text-slate-300 font-medium mb-1">Paste token here</p>
+                <input
+                  type="password"
+                  value={tokenValue}
+                  onChange={(e) => { setTokenValue(e.target.value); setError(''); }}
+                  placeholder="ghp_xxxxxxxxxxxx"
+                  className="w-full px-2.5 py-1.5 text-xs bg-slate-800 border border-slate-600 rounded-lg text-slate-200 placeholder-slate-600 focus:border-violet-500 focus:outline-none"
+                />
+              </div>
+            </div>
+            {/* Trust assurance */}
+            <TrustBadge />
+
+            <button
+              onClick={async () => {
+                if (!tokenValue.trim()) return;
+                const ok = await loginWithToken(tokenValue.trim());
+                if (!ok) setError('Invalid token — check the token and scopes');
+                else { setTokenValue(''); setShowTokenInput(false); }
+              }}
+              className="w-full px-3 py-2 text-xs bg-violet-600 hover:bg-violet-500 text-white rounded-xl transition-colors font-semibold"
+            >
+              Sign in
+            </button>
+            {error && <p className="text-[11px] text-red-400">{error}</p>}
+          </div>
+        </div>
+      </>
     );
   }
 
+  // ── Default: idle login buttons ────────────────────────────────────────────
   return (
     <div className="flex items-center gap-1">
       <button

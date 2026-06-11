@@ -30,6 +30,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const STORAGE_KEY = 'ccaf_gh_token';
 const CLIENT_ID = import.meta.env.VITE_GH_CLIENT_ID || '';
+const PROXY_URL = (import.meta.env.VITE_GH_OAUTH_PROXY as string | undefined) || '';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<GitHubUser | null>(null);
@@ -52,15 +53,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = sessionStorage.getItem(STORAGE_KEY);
     if (stored) {
       fetchUser(stored).then((u) => {
         if (u) { setUser(u); setToken(stored); }
-        else { localStorage.removeItem(STORAGE_KEY); }
+        else { sessionStorage.removeItem(STORAGE_KEY); }
         setIsLoading(false);
       });
     } else {
-      setIsLoading(false);
+      setIsLoading(false); // eslint-disable-line react-hooks/set-state-in-effect
     }
   }, [fetchUser]);
 
@@ -79,7 +80,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (Date.now() >= deviceFlow.expiresAt) { setDeviceFlow(null); return; }
 
       try {
-        const res = await fetch('https://github.com/login/oauth/access_token', {
+        const tokenUrl = PROXY_URL
+          ? `${PROXY_URL}/oauth/token`
+          : 'https://github.com/login/oauth/access_token';
+        const res = await fetch(tokenUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
@@ -95,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (u && !cancelled) {
             setUser(u);
             setToken(data.access_token);
-            localStorage.setItem(STORAGE_KEY, data.access_token);
+            sessionStorage.setItem(STORAGE_KEY, data.access_token);
             setDeviceFlow(null);
           }
         } else if (data.error === 'slow_down') {
@@ -117,8 +121,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (): Promise<boolean> => {
     if (!CLIENT_ID) return false;
+    const deviceCodeUrl = PROXY_URL
+      ? `${PROXY_URL}/oauth/device-code`
+      : 'https://github.com/login/device/code';
     try {
-      const r = await fetch('https://github.com/login/device/code', {
+      const r = await fetch(deviceCodeUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ client_id: CLIENT_ID, scope: 'gist read:user' }),
@@ -145,7 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (u) {
       setUser(u);
       setToken(pat);
-      localStorage.setItem(STORAGE_KEY, pat);
+      sessionStorage.setItem(STORAGE_KEY, pat);
       return true;
     }
     return false;
@@ -154,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_KEY);
     cancelDeviceFlow();
   }, [cancelDeviceFlow]);
 
@@ -165,6 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
@@ -172,6 +180,7 @@ export function useAuth() {
 }
 
 // Device flow only needs a client_id — no proxy, no secret
+// eslint-disable-next-line react-refresh/only-export-components
 export function isOAuthConfigured(): boolean {
   return !!CLIENT_ID;
 }

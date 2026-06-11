@@ -57,11 +57,13 @@ export function useProgressSync() {
     });
   }, [token]);
 
-  // Push local to Gist
+  // Push local to Gist; on success, stamp lastSync locally so the UI reflects it
   const syncToGist = useCallback(async () => {
     if (!token) return false;
     const local = getLocalProgress();
-    return saveProgress(token, local);
+    const ok = await saveProgress(token, local);
+    if (ok) setLocalProgress({ ...local, lastSync: new Date().toISOString() });
+    return ok;
   }, [token]);
 
   return { syncToGist };
