@@ -18,6 +18,18 @@ export function saveSession(session: QuizSession): void {
   localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
 }
 
+/**
+ * On successful GitHub login, tag all anonymous sessions with the user's ID.
+ * This promotes local-only sessions to "owned" sessions visible in the readiness panel.
+ */
+export function mergeAnonymousProgress(userId: string): void {
+  const sessions = getSessions();
+  const updated = sessions.map((s) =>
+    s.userId ? s : { ...s, userId }
+  );
+  localStorage.setItem(SESSIONS_KEY, JSON.stringify(updated));
+}
+
 export function getScoreByDomain(): Record<number, { correct: number; total: number }> {
   const sessions = getSessions().filter((s) => s.finishedAt);
   const result: Record<number, { correct: number; total: number }> = {

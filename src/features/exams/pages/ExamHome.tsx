@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, CalendarDays, Clock } from 'lucide-react';
+import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, CalendarDays, Clock, X } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { useAuth } from '@/lib/auth';
 import { getSessions } from '@/lib/storage';
@@ -173,6 +173,19 @@ export default function ExamHome() {
     () => exam ? computeReadiness(sessions, examId ?? '', exam.domains) : null,
     [sessions, examId, exam],
   );
+  // Guest mode banner dismissal (persists across page refreshes)
+  const [bannerDismissed, setBannerDismissed] = useState(() => {
+    try { return !!localStorage.getItem('guest_banner_dismissed'); }
+     
+    catch { return false; }
+  });
+
+  const dismissBanner = useCallback(() => {
+    try { localStorage.setItem('guest_banner_dismissed', '1'); }
+     
+    catch { /* storage unavailable — banner stays for this session only */ }
+    setBannerDismissed(true);
+  }, []);
 
   // Static keyword set per exam for cross-link matching
   const EXAM_TAGS: Record<string, string[]> = useMemo(() => ({
@@ -229,6 +242,27 @@ export default function ExamHome() {
 
   return (
     <div className="space-y-8">
+      {/* Guest mode banner */}
+      {!user && !authLoading && !bannerDismissed && (
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-slate-800/70 border border-slate-700/60 rounded-xl text-sm">
+          <span className="text-slate-400">You’re in guest mode — your progress is saved locally only</span>
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              onClick={() => { void login(); }}
+              className="text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors"
+            >
+              Sign in to sync
+            </button>
+            <button
+              onClick={dismissBanner}
+              className="text-slate-500 hover:text-white transition-colors"
+              aria-label="Dismiss guest banner"
+            >
+              <X size={13} />
+            </button>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-3 ${badgeStyle}`}>
@@ -441,11 +475,18 @@ export default function ExamHome() {
                 <div className="flex justify-between items-center text-sm mb-1">
                   <span className="text-slate-300 group-hover:text-white transition-colors">D{domain.id}: {domain.title}</span>
                   <div className="flex items-center gap-2">
-                    {dr && dr.total > 0 && (
+                    {!user && !authLoading ? (
+                      <button
+                        onClick={() => { void login(); }}
+                        className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-800 text-violet-400 border border-violet-800 hover:bg-violet-900/40 transition-colors"
+                      >
+                        Sign in to track →
+                      </button>
+                    ) : (dr && dr.total > 0 && (
                       <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${STATUS_CHIP[dr.status]}`}>
                         {STATUS_LABEL[dr.status]}
                       </span>
-                    )}
+                    ))}
                     <span className="text-slate-400 font-mono group-hover:text-white transition-colors">{domain.weight}%</span>
                   </div>
                 </div>

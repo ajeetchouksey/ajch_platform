@@ -94,6 +94,7 @@ export interface QuizSession {
   answers: Record<string, number>; // questionId → chosen index
   score: number;
   total: number;
+  userId?: string;         // GitHub user ID — set on login, undefined for anonymous
 }
 
 export interface BlogPostMeta {
