@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { loadQuestionsForExam, loadQuestionsByDomainForExam, loadExamRegistry } from '@/lib/content-loader';
 import { saveSession } from '@/lib/storage';
 import { useAuth } from '@/lib/auth';
 import { type Question, type QuizSession, type DomainConfig } from '@/types/content';
-import { CheckCircle, XCircle, ChevronRight, RotateCcw, Filter } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronRight, RotateCcw, Filter, X } from 'lucide-react';
 import QuizShareCard from '@/components/QuizShareCard';
 
 type Phase = 'setup' | 'quiz' | 'review';
@@ -24,7 +24,7 @@ function shuffle<T>(arr: T[]): T[] {
 
 export default function Quiz() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const [phase, setPhase] = useState<Phase>('setup');
   const [domainFilter, setDomainFilter] = useState<number | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -37,6 +37,19 @@ export default function Quiz() {
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [passThreshold, setPassThreshold] = useState(72);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
+  // One-time-per-session nudge dismissal
+  const [nudgeDismissed, setNudgeDismissed] = useState(() => {
+    try { return !!sessionStorage.getItem(`nudge_dismissed_${examId}`); }
+     
+    catch { return false; }
+  });
+
+  const dismissNudge = useCallback(() => {
+    try { sessionStorage.setItem(`nudge_dismissed_${examId}`, '1'); }
+     
+    catch { /* storage unavailable */ }
+    setNudgeDismissed(true);
+  }, [examId]);
 
   useEffect(() => {
     loadExamRegistry().then((r) => {
@@ -274,18 +287,25 @@ export default function Quiz() {
           })}
         </div>
 
-        {!user && (
-          <div className="rounded-xl border border-violet-700/40 bg-violet-900/20 p-4 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-white mb-0.5">Save your progress</p>
-              <p className="text-xs text-slate-400">Sign in with GitHub to sync scores across devices.</p>
+        {!user && !nudgeDismissed && (
+          <div className="rounded-xl border border-violet-700/50 bg-violet-900/20 p-4 flex items-start gap-3">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-white mb-0.5">Your score has been saved locally</p>
+              <p className="text-xs text-slate-400">Sign in with GitHub to keep it across devices.</p>
             </div>
-            <Link
-              to="/profile"
+            <button
+              onClick={() => { void login(); }}
               className="shrink-0 text-xs font-semibold px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white transition-colors"
             >
-              Sign in →
-            </Link>
+              Sign in
+            </button>
+            <button
+              onClick={dismissNudge}
+              className="shrink-0 text-slate-500 hover:text-white transition-colors mt-0.5"
+              aria-label="Dismiss"
+            >
+              <X size={14} />
+            </button>
           </div>
         )}
 
