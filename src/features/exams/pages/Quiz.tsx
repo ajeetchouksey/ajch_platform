@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { loadQuestionsForExam, loadQuestionsByDomainForExam, loadExamRegistry } from '@/lib/content-loader';
 import { saveSession } from '@/lib/storage';
+import { addQuizResult, useProgressSync } from '@/lib/useProgressSync';
 import { useAuth } from '@/lib/auth';
 import { type Question, type QuizSession, type DomainConfig } from '@/types/content';
 import { CheckCircle, XCircle, ChevronRight, RotateCcw, Filter, X } from 'lucide-react';
@@ -25,6 +26,7 @@ function shuffle<T>(arr: T[]): T[] {
 export default function Quiz() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
   const { user, login } = useAuth();
+  const { syncToGist } = useProgressSync();
   const [phase, setPhase] = useState<Phase>('setup');
   const [domainFilter, setDomainFilter] = useState<number | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -76,6 +78,7 @@ export default function Quiz() {
       answers: {},
       score: 0,
       total: picked.length,
+      ...(user?.login ? { userId: user.login } : {}),
     };
     setQuestions(picked);
     setCurrent(0);
@@ -93,6 +96,9 @@ export default function Quiz() {
       const score = questions.filter((q) => answers[q.id] === q.correct).length;
       const finished: QuizSession = { ...session, finishedAt: Date.now(), answers, score };
       saveSession(finished);
+      // Keep ccaf_progress in sync for Gist cloud backup
+      addQuizResult(String(finished.domainFilter ?? 'all'), finished.score, finished.total);
+      void syncToGist(); // push to GitHub Gist if logged in (fire-and-forget)
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSession(finished);
     }
@@ -287,10 +293,20 @@ export default function Quiz() {
           })}
         </div>
 
-        {!user && !nudgeDismissed && (
+        {user ? (
+          /* Logged-in: confirm score was synced to GitHub */
+          <div className="rounded-xl border border-emerald-700/50 bg-emerald-900/20 p-3 flex items-center gap-2.5">
+            <CheckCircle size={15} className="text-emerald-400 shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-emerald-300">Score saved to your GitHub account</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">Progress is synced — check <span className="text-slate-400">Your Readiness</span> on the overview page.</p>
+            </div>
+          </div>
+        ) : !nudgeDismissed && (
+          /* Guest: nudge to sign in */
           <div className="rounded-xl border border-violet-700/50 bg-violet-900/20 p-4 flex items-start gap-3">
             <div className="flex-1">
-              <p className="text-sm font-semibold text-white mb-0.5">Your score has been saved locally</p>
+              <p className="text-sm font-semibold text-white mb-0.5">Score saved locally</p>
               <p className="text-xs text-slate-400">Sign in with GitHub to keep it across devices.</p>
             </div>
             <button

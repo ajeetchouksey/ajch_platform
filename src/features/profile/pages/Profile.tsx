@@ -74,78 +74,77 @@ export default function Profile() {
     ([, stats]: [string, DomainStats]) => stats.total > 0 && Math.round((stats.correct / stats.total) * 100) >= 72
   ).length;
 
-  if (!user) {
-    return (
-      <div className={`space-y-8 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-        <div className="text-center py-16">
-          <div className="w-20 h-20 rounded-full bg-slate-800 mx-auto mb-4 flex items-center justify-center">
-            <User size={36} className="text-slate-600" />
-          </div>
-          <p className="page-eyebrow">My Account</p>
-          <h1 className="text-2xl font-bold tracking-tight mb-2"><span className="heading-gradient">Profile</span></h1>
-          <p className="text-slate-400 text-sm mb-6">Sign in with GitHub to view your profile and sync progress.</p>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-500 transition-colors"
-          >
-            Go to Home
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
-      {/* Profile Header */}
-      <div className={`glass-card glass-edge rounded-xl p-6 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-        <div className="flex items-start gap-5">
-          <img
-            src={user.avatar_url}
-            alt={user.login}
-            className="w-16 h-16 rounded-full ring-2 ring-violet-500/40 ring-offset-2 ring-offset-slate-900"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-xl font-bold text-white truncate">{user.name || user.login}</h1>
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-violet-900/50 text-violet-300 border border-violet-700/30">
-                <Shield size={10} />
-                Maintainer
-              </span>
-            </div>
-            <p className="text-sm text-slate-400 mb-3">@{user.login}</p>
-            <div className="flex flex-wrap items-center gap-3">
-              <a
-                href={user.html_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-violet-300 transition-colors"
-              >
-                <ExternalLink size={12} />
-                GitHub Profile
-              </a>
-              <button
-                onClick={handleSync}
-                disabled={syncStatus === 'syncing'}
-                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-violet-300 disabled:opacity-50 transition-colors"
-              >
-                {syncStatus === 'syncing' && <Loader2 size={12} className="animate-spin" />}
-                {syncStatus === 'synced' && <CheckCircle2 size={12} className="text-emerald-400" />}
-                {syncStatus === 'error' && <AlertCircle size={12} className="text-rose-400" />}
-                {syncStatus === 'idle' && <CloudUpload size={12} />}
-                {syncStatus === 'syncing' ? 'Syncing…' : syncStatus === 'synced' ? 'Synced' : syncStatus === 'error' ? 'Sync failed' : lastSynced ? `Synced ${lastSynced}` : 'Sync now'}
-              </button>
-              <button
-                onClick={logout}
-                className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-rose-400 transition-colors"
-              >
-                <LogOut size={12} />
-                Sign out
-              </button>
+      {/* Profile Header — GitHub user card OR guest sign-in banner */}
+      {user ? (
+        <div className={`glass-card glass-edge rounded-xl p-6 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+          <div className="flex items-start gap-5">
+            <img
+              src={user.avatar_url}
+              alt={user.login}
+              className="w-16 h-16 rounded-full ring-2 ring-violet-500/40 ring-offset-2 ring-offset-slate-900"
+            />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h1 className="text-xl font-bold text-white truncate">{user.name || user.login}</h1>
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-violet-900/50 text-violet-300 border border-violet-700/30">
+                  <Shield size={10} />
+                  Maintainer
+                </span>
+              </div>
+              <p className="text-sm text-slate-400 mb-3">@{user.login}</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <a
+                  href={user.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-violet-300 transition-colors"
+                >
+                  <ExternalLink size={12} />
+                  GitHub Profile
+                </a>
+                <button
+                  onClick={handleSync}
+                  disabled={syncStatus === 'syncing'}
+                  className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-violet-300 disabled:opacity-50 transition-colors"
+                >
+                  {syncStatus === 'syncing' && <Loader2 size={12} className="animate-spin" />}
+                  {syncStatus === 'synced' && <CheckCircle2 size={12} className="text-emerald-400" />}
+                  {syncStatus === 'error' && <AlertCircle size={12} className="text-rose-400" />}
+                  {syncStatus === 'idle' && <CloudUpload size={12} />}
+                  {syncStatus === 'syncing' ? 'Syncing…' : syncStatus === 'synced' ? 'Synced' : syncStatus === 'error' ? 'Sync failed' : lastSynced ? `Synced ${lastSynced}` : 'Sync now'}
+                </button>
+                <button
+                  onClick={logout}
+                  className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-rose-400 transition-colors"
+                >
+                  <LogOut size={12} />
+                  Sign out
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className={`glass-card glass-edge rounded-xl p-5 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
+              <User size={22} className="text-slate-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white">Guest — stats saved locally</p>
+              <p className="text-xs text-slate-400 mt-0.5">Sign in with GitHub to back up your progress to a private Gist and sync across devices.</p>
+            </div>
+            <Link
+              to="/"
+              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition-colors"
+            >
+              Sign in
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Quick Stats Grid */}
       <div className={`grid grid-cols-2 sm:grid-cols-4 gap-3 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`} style={{ transitionDelay: '150ms' }}>

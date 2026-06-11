@@ -161,7 +161,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <div key={`np-${pageKey}`} className="nav-progress" aria-hidden="true" />
       {/* Header */}
       <header className="bg-slate-800/75 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50 relative">
-        <div className="flex items-center h-14 px-6 w-full">
+        <div className="flex items-center h-14 px-6 w-full overflow-x-clip">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="lg:hidden mr-3 p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200 active:scale-95"
@@ -200,14 +200,15 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           </NavLink>
 
-          <nav className="hidden lg:flex items-center gap-0.5">
+          <nav className="hidden lg:flex flex-1 min-w-0 overflow-hidden items-center gap-0.5">
             {platformLinks.filter((l) => !l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
                 to={to}
                 end={end}
+                title={label}
                 className={({ isActive }) =>
-                  `relative flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  `relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? 'text-white'
                       : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
@@ -217,7 +218,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 {({ isActive }) => (
                   <>
                     <Icon size={15} className={isActive ? 'text-violet-400' : ''} />
-                    <span>{label}</span>
+                    <span className="hidden xl:inline">{label}</span>
                     {isActive && (
                       <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-gradient-to-r from-violet-400 to-fuchsia-400 rounded-full" />
                     )}
@@ -227,7 +228,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2 shrink-0">
             <button
               onClick={() => setSearchOpen(true)}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all text-xs"

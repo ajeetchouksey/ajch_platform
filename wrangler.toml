@@ -32,6 +32,9 @@ id      = "11f07ef9b0c5432bb9a232390d3ec672"
 #   wrangler secret put GH_APP_INSTALLATION_ID
 #     → <REPLACE_WITH_GH_APP_INSTALLATION_ID>
 #
+#   wrangler secret put ANTHROPIC_API_KEY
+#     → paste your Anthropic API key (powers /mentor/* endpoints)
+#
 # ── Deploy ────────────────────────────────────────────────────────────────────
 # After secrets are set:
 #   wrangler deploy
