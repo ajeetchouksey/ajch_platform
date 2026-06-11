@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useProgressSync } from '@/lib/useProgressSync';
-import { getSessions, getScoreByDomain } from '@/lib/storage';
+import { getSessions, getScoreByDomain, getNotesSeen } from '@/lib/storage';
 import { loadBlogManifest, loadExamRegistry } from '@/lib/content-loader';
-import type { DomainConfig } from '@/types/content';
+import type { ExamConfig } from '@/types/content';
 import {
   User, Shield, BookOpen, Brain, BarChart2, Clock, Trophy,
   Target, TrendingUp, Calendar, ExternalLink, LogOut, ArrowRight,
@@ -36,7 +36,7 @@ export default function Profile() {
   }, [syncToGist]);
   const [mounted, setMounted] = useState(false);
   const [blogCount, setBlogCount] = useState(0);
-  const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
+  const [allExams, setAllExams] = useState<ExamConfig[]>([]);
 
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
@@ -44,15 +44,23 @@ export default function Profile() {
       .then((m) => setBlogCount(m.posts.filter((p) => !p.draft).length))
       .catch(() => {});
     loadExamRegistry()
-      .then((r) => {
-        const ccaf = r.exams.find((e) => e.id === 'ccaf');
-        if (ccaf) setExamDomains(ccaf.domains);
-      })
+      .then((r) => setAllExams(r.exams))
       .catch(() => {});
   }, []);
 
   const sessions = getSessions().filter((s) => s.finishedAt);
-  const domainScores = getScoreByDomain('ccaf');
+
+  // Active exams = exams the user has at least one finished session for
+  const activeExams = allExams.filter((exam) => sessions.some((s) => s.skillId === exam.id));
+
+  // Most recently studied exam
+  const lastExamId = sessions.length > 0
+    ? [...sessions].sort((a, b) => (b.finishedAt ?? 0) - (a.finishedAt ?? 0))[0].skillId ?? 'ccaf'
+    : 'ccaf';
+  const lastExam = allExams.find((e) => e.id === lastExamId) ?? allExams[0];
+
+  // Notes read count across all exams
+  const notesSeenCount = Object.keys(getNotesSeen()).length;
 
   // Derived stats
   const totalQuestions = sessions.reduce((acc, s) => acc + s.total, 0);
@@ -64,15 +72,23 @@ export default function Profile() {
   const latestDate = sessions.length > 0
     ? new Date(sessions[sessions.length - 1].finishedAt!).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : null;
-  const passCount = sessions.filter((s) => Math.round((s.score / s.total) * 100) >= 72).length;
+  const passCount = sessions.filter((s) => {
+    const exam = allExams.find((e) => e.id === s.skillId);
+    const threshold = exam?.passThreshold ?? 72;
+    return Math.round((s.score / s.total) * 100) >= threshold;
+  }).length;
 
   // Streak: consecutive days with sessions
   const uniqueDays = [...new Set(sessions.map((s) => new Date(s.finishedAt!).toDateString()))];
   const streak = uniqueDays.length;
 
-  const masteredDomains = Object.entries(domainScores).filter(
-    ([, stats]: [string, DomainStats]) => stats.total > 0 && Math.round((stats.correct / stats.total) * 100) >= 72
-  ).length;
+  const masteredDomains = activeExams.reduce((acc, exam) => {
+    const scores = getScoreByDomain(exam.id);
+    return acc + Object.values(scores).filter(
+      (s: DomainStats) => s.total > 0 && Math.round((s.correct / s.total) * 100) >= exam.passThreshold
+    ).length;
+  }, 0);
+  const totalDomains = activeExams.reduce((acc, exam) => acc + exam.domains.length, 0);
 
   return (
     <div className="space-y-8">
@@ -176,38 +192,55 @@ export default function Profile() {
             Domain Mastery
           </h2>
           <span className="text-xs text-slate-500">
-            {masteredDomains}/{examDomains.length || 5} domains mastered (72%+ threshold)
+            {masteredDomains}/{totalDomains || 5} domains mastered (72%+ threshold)
           </span>
         </div>
-        <div className="space-y-4">
-          {examDomains.map((domain) => {
-            const stats: DomainStats = domainScores[domain.id];
-            const pct = stats?.total > 0 ? Math.round((stats.correct / stats.total) * 100) : null;
-            const passed = pct !== null && pct >= 72;
-            return (
-              <div key={domain.id} className="group">
-                <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-slate-300 group-hover:text-white transition-colors flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${domain.color}`} />
-                    D{domain.id}: {domain.title}
-                  </span>
-                  <span className={`font-mono text-xs ${passed ? 'text-emerald-400' : pct !== null ? 'text-rose-400' : 'text-slate-600'}`}>
-                    {pct !== null ? `${pct}%` : 'not started'}
-                    {stats?.total > 0 && <span className="text-slate-600 ml-1.5">({stats.correct}/{stats.total})</span>}
-                  </span>
+        {activeExams.length === 0 ? (
+          <p className="text-sm text-slate-500">Take a quiz to start tracking domain mastery.</p>
+        ) : (
+          <div className="space-y-6">
+            {activeExams.map((exam) => {
+              const scores = getScoreByDomain(exam.id);
+              return (
+                <div key={exam.id}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700/50 uppercase">{exam.shortTitle}</span>
+                    <span className="text-xs text-slate-500 truncate">{exam.title}</span>
+                  </div>
+                  <div className="space-y-4">
+                    {exam.domains.map((domain) => {
+                      const stats: DomainStats = scores[domain.id];
+                      const pct = stats?.total > 0 ? Math.round((stats.correct / stats.total) * 100) : null;
+                      const passed = pct !== null && pct >= exam.passThreshold;
+                      return (
+                        <div key={domain.id} className="group">
+                          <div className="flex justify-between text-sm mb-1.5">
+                            <span className="text-slate-300 group-hover:text-white transition-colors flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full ${domain.color}`} />
+                              D{domain.id}: {domain.title}
+                            </span>
+                            <span className={`font-mono text-xs ${passed ? 'text-emerald-400' : pct !== null ? 'text-rose-400' : 'text-slate-600'}`}>
+                              {pct !== null ? `${pct}%` : 'not started'}
+                              {stats?.total > 0 && <span className="text-slate-600 ml-1.5">({stats.correct}/{stats.total})</span>}
+                            </span>
+                          </div>
+                          <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                            {pct !== null && (
+                              <div
+                                className={`h-full rounded-full transition-all duration-700 ${passed ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                  {pct !== null && (
-                    <div
-                      className={`h-full rounded-full transition-all duration-700 ${passed ? 'bg-emerald-500' : 'bg-rose-500'}`}
-                      style={{ width: `${pct}%` }}
-                    />
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Activity + Platform */}
@@ -231,7 +264,9 @@ export default function Profile() {
                     <div className="flex items-center gap-2">
                       <span className={`w-1.5 h-1.5 rounded-full ${passed ? 'bg-emerald-400' : 'bg-rose-400'}`} />
                       <span className="text-slate-300 text-xs">
-                        {s.domainFilter !== null ? `D${s.domainFilter}` : 'Full Exam'}
+                          <span className="font-mono text-violet-400 uppercase">{s.skillId ?? 'exam'}</span>
+                          {' · '}
+                          {s.domainFilter !== null ? `D${s.domainFilter}` : 'Full'}
                       </span>
                       <span className="text-slate-600 text-xs">{date}</span>
                     </div>
@@ -244,7 +279,7 @@ export default function Profile() {
             </div>
           )}
           <Link
-            to="/skillup/ccaf/progress"
+            to="/dashboard"
             className="inline-flex items-center gap-1.5 mt-4 text-xs text-violet-400 hover:text-violet-300 transition-colors group"
           >
             View full history
@@ -272,21 +307,25 @@ export default function Profile() {
               <span className="text-white font-mono">{blogCount}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-400">Notes Read</span>
+              <span className="text-white font-mono">{notesSeenCount}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
               <span className="text-slate-400">Last Session</span>
               <span className="text-white text-xs">{latestDate || 'None'}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-400">Exam Target</span>
-              <span className="text-amber-400 font-mono">CCA-F</span>
+              <span className="text-slate-400">Active Exams</span>
+              <span className="text-amber-400 font-mono text-xs">{activeExams.length > 0 ? activeExams.map(e => e.shortTitle).join(', ') : lastExam?.shortTitle ?? 'CCA-F'}</span>
             </div>
           </div>
 
           {/* Quick links */}
           <div className="mt-5 pt-4 border-t border-slate-800/50 space-y-2">
-            <Link to="/skillup/ccaf/quiz" className="flex items-center gap-2 text-xs text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all">
+            <Link to={`/skillup/${lastExam?.id ?? 'ccaf'}/quiz`} className="flex items-center gap-2 text-xs text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all">
               <Brain size={12} /> Start a quiz session
             </Link>
-            <Link to="/skillup/ccaf/notes" className="flex items-center gap-2 text-xs text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all">
+            <Link to={`/skillup/${lastExam?.id ?? 'ccaf'}/notes`} className="flex items-center gap-2 text-xs text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all">
               <BookOpen size={12} /> Review study notes
             </Link>
             <Link to="/blog" className="flex items-center gap-2 text-xs text-slate-400 hover:text-violet-300 hover:translate-x-0.5 transition-all">
