@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, Users, LineChart, Hash, Eye, Server, Terminal, BookMarked, Search, GitPullRequest } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, Users, LineChart, Hash, Eye, Server, Terminal, BookMarked, Search, GitPullRequest, CalendarDays } from 'lucide-react';
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -290,6 +290,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               { to: `/skillup/${currentExam.id}/notes`, label: 'Study Notes', icon: BookOpen },
               { to: `/skillup/${currentExam.id}/scenarios`, label: 'Scenarios', icon: Layers },
               { to: `/skillup/${currentExam.id}/progress`, label: 'Progress', icon: BarChart2 },
+              { to: `/skillup/${currentExam.id}/plan`, label: 'Study Plan', icon: CalendarDays },
             ];
             return (
               <>
