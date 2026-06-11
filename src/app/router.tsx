@@ -11,6 +11,7 @@ import Quiz from '@/features/exams/pages/Quiz';
 import Notes from '@/features/exams/pages/Notes';
 import Scenarios from '@/features/exams/pages/Scenarios';
 import Progress from '@/features/exams/pages/Progress';
+import StudyPlan from '@/features/exams/pages/StudyPlan';
 
 // ── Field Notes (Blog) ────────────────────────────────────────────────────────
 import Blog from '@/features/blog/pages/Blog';
@@ -66,6 +67,7 @@ export default function AppRoutes() {
       <Route path="/skillup/:examId/notes" element={<Notes />} />
       <Route path="/skillup/:examId/scenarios" element={<Scenarios />} />
       <Route path="/skillup/:examId/progress" element={<Progress />} />
+      <Route path="/skillup/:examId/plan" element={<StudyPlan />} />
 
       {/* /exams → /skillup backward-compat redirects */}
       <Route path="/exams" element={<Navigate to="/skillup" replace />} />

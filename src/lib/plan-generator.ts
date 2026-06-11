@@ -1,0 +1,204 @@
+// ── Study Plan types + generator ──────────────────────────────────────────────
+// localStorage key: study_plan_{examId}
+// Plan generation is pure (no AI API call in P1) — smart defaults from quiz scores.
+
+import type { DomainConfig, QuizSession } from '@/types/content';
+
+// ── Security: examId allowlist ─────────────────────────────────────────────
+/** Only allow lowercase alphanumeric + hyphens to prevent key injection. */
+const VALID_EXAM_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export function isValidExamId(id: unknown): id is string {
+  return typeof id === 'string' && VALID_EXAM_ID.test(id);
+}
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+export interface Activity {
+  type: 'notes' | 'quiz' | 'review';
+  label: string;
+  link: string;
+  estimatedMinutes: number;
+  completed: boolean;
+}
+
+export interface StudySession {
+  day: number;
+  domainId: number;
+  domainTitle: string;
+  activities: Activity[];
+  completed: boolean;
+  estimatedMinutes: number;
+}
+
+export interface StudyPlan {
+  examId: string;
+  targetDate: string;   // YYYY-MM-DD
+  generatedAt: string;  // ISO timestamp
+  sessions: StudySession[];
+}
+
+// ── localStorage helpers ───────────────────────────────────────────────────────
+
+function planKey(examId: string): string {
+  return `study_plan_${examId}`;
+}
+
+export function loadPlan(examId: string): StudyPlan | null {
+  if (!isValidExamId(examId)) return null;
+  try {
+    const raw = localStorage.getItem(planKey(examId));
+    return raw ? (JSON.parse(raw) as StudyPlan) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function savePlan(plan: StudyPlan): void {
+  if (!isValidExamId(plan.examId)) return;
+  localStorage.setItem(planKey(plan.examId), JSON.stringify(plan));
+}
+
+export function deletePlan(examId: string): void {
+  if (!isValidExamId(examId)) return;
+  localStorage.removeItem(planKey(examId));
+}
+
+export function toggleActivity(
+  examId: string,
+  sessionDay: number,
+  activityIdx: number,
+): StudyPlan | null {
+  const plan = loadPlan(examId);
+  if (!plan) return null;
+  const session = plan.sessions.find((s) => s.day === sessionDay);
+  if (!session || !session.activities[activityIdx]) return plan;
+  session.activities[activityIdx] = {
+    ...session.activities[activityIdx],
+    completed: !session.activities[activityIdx].completed,
+  };
+  session.completed = session.activities.every((a) => a.completed);
+  savePlan(plan);
+  return { ...plan };
+}
+
+// ── Plan generation ────────────────────────────────────────────────────────────
+
+type SessionType = 'review' | 'reinforce' | 'full';
+
+function sessionType(pct: number, total: number): SessionType {
+  if (total === 0) return 'full';
+  if (pct >= 70) return 'review';
+  return 'reinforce';
+}
+
+function buildActivities(
+  type: SessionType,
+  examId: string,
+  domain: DomainConfig,
+): Activity[] {
+  const n = domain.id;
+  const notesLink = `/skillup/${examId}/notes?d=${n}`;
+  const quizLink  = `/skillup/${examId}/quiz?domain=${n}`;
+  const trapsLink = `/skillup/${examId}/notes?d=${n}#traps`;
+
+  if (type === 'review') {
+    return [
+      { type: 'notes',  label: `Read D${n} cheat-sheet`,  link: notesLink, estimatedMinutes: 10, completed: false },
+      { type: 'quiz',   label: 'Quick quiz — 5 Qs',        link: quizLink,  estimatedMinutes: 5,  completed: false },
+    ];
+  }
+  if (type === 'reinforce') {
+    return [
+      { type: 'notes',  label: `Read D${n} Notes`,        link: notesLink, estimatedMinutes: 15, completed: false },
+      { type: 'quiz',   label: 'Domain quiz — 15 Qs',     link: quizLink,  estimatedMinutes: 10, completed: false },
+      { type: 'review', label: 'Review Exam Traps',        link: trapsLink, estimatedMinutes: 5,  completed: false },
+    ];
+  }
+  // full
+  return [
+    { type: 'notes',  label: `Read D${n} Notes`,        link: notesLink, estimatedMinutes: 25, completed: false },
+    { type: 'quiz',   label: 'Domain quiz — 15 Qs',     link: quizLink,  estimatedMinutes: 15, completed: false },
+    { type: 'review', label: 'Review Exam Traps',        link: trapsLink, estimatedMinutes: 5,  completed: false },
+  ];
+}
+
+export interface GeneratePlanOptions {
+  examId: string;
+  domains: DomainConfig[];
+  sessions: QuizSession[];
+  targetDate: string; // YYYY-MM-DD
+}
+
+export function generatePlan({
+  examId,
+  domains,
+  sessions,
+  targetDate,
+}: GeneratePlanOptions): StudyPlan | null {
+  if (!isValidExamId(examId)) return null;
+
+  // Domain score map
+  const scores: Record<number, { correct: number; total: number }> = {};
+  for (const d of domains) scores[d.id] = { correct: 0, total: 0 };
+  for (const s of sessions) {
+    if (!s.finishedAt || s.skillId !== examId || s.domainFilter === null) continue;
+    const sc = scores[s.domainFilter];
+    if (sc) { sc.correct += s.score; sc.total += s.total; }
+  }
+
+  // Sort domains by weight descending — highest weight domain = Day 1
+  const sorted = [...domains].sort((a, b) => b.weight - a.weight);
+
+  // Days from today to targetDate (min 1)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(targetDate);
+  target.setHours(0, 0, 0, 0);
+  const daysAvailable = Math.max(1, Math.round((target.getTime() - today.getTime()) / 86_400_000));
+
+  const sessionsNeeded = sorted.length;
+  const compress = daysAvailable < sessionsNeeded;
+
+  const studySessions: StudySession[] = sorted.map((domain, idx) => {
+    const sc = scores[domain.id];
+    const pct = sc.total > 0 ? Math.round((sc.correct / sc.total) * 100) : 0;
+    const type = sessionType(pct, sc.total);
+    const activities = buildActivities(type, examId, domain);
+    const estimatedMinutes = activities.reduce((sum, a) => sum + a.estimatedMinutes, 0);
+    // compressed → 2 sessions/day; normal → one session per day starting Day 1
+    const day = compress ? Math.ceil((idx + 1) / 2) : idx + 1;
+    return {
+      day,
+      domainId: domain.id,
+      domainTitle: `D${domain.id}: ${domain.title}`,
+      activities,
+      completed: false,
+      estimatedMinutes,
+    };
+  });
+
+  return {
+    examId,
+    targetDate,
+    generatedAt: new Date().toISOString(),
+    sessions: studySessions,
+  };
+}
+
+/** Returns true when sessions were compressed (2/day) due to a tight target date. */
+export function isPlanCompressed(plan: StudyPlan): boolean {
+  const uniqueDays = new Set(plan.sessions.map((s) => s.day)).size;
+  return uniqueDays < plan.sessions.length;
+}
+
+/** First session that has at least one incomplete activity. */
+export function nextIncompleteSession(plan: StudyPlan): StudySession | null {
+  return plan.sessions.find((s) => !s.completed) ?? null;
+}
+
+/** Default target date: 4 weeks from today, YYYY-MM-DD. */
+export function defaultTargetDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 28);
+  return d.toISOString().split('T')[0];
+}

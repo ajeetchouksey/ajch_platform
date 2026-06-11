@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap } from 'lucide-react';
+import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, CalendarDays, Clock } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { useAuth } from '@/lib/auth';
 import { getSessions } from '@/lib/storage';
+import { loadPlan, nextIncompleteSession } from '@/lib/plan-generator';
 import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import type { ExamConfig, DomainConfig, QuizSession } from '@/types/content';
@@ -68,6 +69,63 @@ function AnimatedBar({ width, color, delay }: { width: number; color: string; de
         className={`h-full ${color} rounded-full transition-all duration-1000 ease-out`}
         style={{ width: animated ? `${width}%` : '0%', boxShadow: animated ? '0 0 8px 0 currentColor' : 'none' }}
       />
+    </div>
+  );
+}
+
+// ── Today's Task widget ────────────────────────────────────────────────────────
+
+function TodaysTask({ examId, mounted }: { examId: string; mounted: boolean }) {
+  const plan = useMemo(() => loadPlan(examId), [examId]);
+  const next = plan ? nextIncompleteSession(plan) : null;
+
+  return (
+    <div
+      className={`glass-card glass-edge rounded-xl p-4 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+      style={{ transitionDelay: '520ms' }}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <CalendarDays size={14} className="text-violet-400" />
+        <h2 className="section-heading">Today's Task</h2>
+      </div>
+
+      {!plan ? (
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-sm text-slate-400">No study plan yet. Generate one to get a personalised daily schedule.</p>
+          <Link
+            to={`/skillup/${examId}/plan`}
+            className="inline-flex items-center gap-1.5 shrink-0 text-sm font-medium text-violet-400 hover:text-violet-300 transition-colors"
+          >
+            Create plan <ArrowRight size={13} />
+          </Link>
+        </div>
+      ) : !next ? (
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-sm text-emerald-400 font-medium">All sessions complete — you're ready! 🎉</p>
+          <Link
+            to={`/skillup/${examId}/plan`}
+            className="inline-flex items-center gap-1.5 shrink-0 text-sm text-slate-400 hover:text-white transition-colors"
+          >
+            View plan <ArrowRight size={13} />
+          </Link>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="min-w-0">
+            <p className="text-xs text-slate-500 mb-0.5">Day {next.day} · {next.domainTitle}</p>
+            <p className="text-sm font-semibold text-white flex items-center gap-1.5">
+              <Clock size={12} className="text-slate-500" />
+              {next.estimatedMinutes} min · {next.activities.length} activities
+            </p>
+          </div>
+          <Link
+            to={`/skillup/${examId}/plan`}
+            className="inline-flex items-center gap-1.5 shrink-0 text-sm font-medium text-violet-400 hover:text-violet-300 transition-colors"
+          >
+            Continue plan <ArrowRight size={13} />
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
@@ -365,6 +423,9 @@ export default function ExamHome() {
           </Link>
         ))}
       </div>
+
+      {/* ── Today's Task ──────────────────────────────────────────────── */}
+      <TodaysTask examId={examId!} mounted={mounted} />
 
       {/* Domain weights */}
       <div
