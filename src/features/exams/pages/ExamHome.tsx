@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, CalendarDays, Clock, X } from 'lucide-react';
+import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, CalendarDays, Clock, X, MessageSquare } from 'lucide-react';
+import GiscusComments from '@/components/GiscusComments';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { useAuth } from '@/lib/auth';
 import { getSessions } from '@/lib/storage';
@@ -525,6 +526,18 @@ export default function ExamHome() {
         maxSkills={2}
         maxTools={3}
       />
+
+      {/* ── Community discussion ───────────────────────────────────────── */}
+      <div className="mt-12 pt-8 border-t border-slate-800/60">
+        <div className="flex items-center gap-2 mb-6">
+          <MessageSquare size={16} className="text-violet-400" />
+          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Community Discussion</h2>
+        </div>
+        <GiscusComments
+          slug={`exam-${examId}`}
+          context="skill-up"
+        />
+      </div>
     </div>
   );
 }
