@@ -270,9 +270,9 @@ export default function Layout({ children }: { children: ReactNode }) {
             transform transition-all duration-300 ease-out
             ${sidebarOpen ? 'translate-x-0 shadow-2xl shadow-black/50' : '-translate-x-full shadow-none'}
             ${hasSidebar ? 'lg:translate-x-0 lg:shadow-none lg:block' : 'lg:hidden'}
-            top-14 pt-4 overflow-y-auto
+            top-14 pt-4 overflow-y-auto hide-scrollbar
           `}
-          style={{ scrollbarWidth: 'none' }}
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {/* Mobile: platform nav */}
           <div className="px-4 pb-4 lg:hidden">

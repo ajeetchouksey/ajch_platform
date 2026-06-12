@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Aarya — My AI Learning Hub</title>
+    <link>https://aaryaai.dev</link>
+    <description>AI learning resources, exam prep, and engineering insights</description>
+    <language>en-gb</language>
+    <lastBuildDate>Fri, 22 May 2026 00:00:00 GMT</lastBuildDate>
+    <atom:link href="https://aaryaai.dev/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Guardrails Are Not Constraints — They Are the Operating Model</title>
+      <link>https://aaryaai.dev/blog/guardrails-are-not-constraints</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/guardrails-are-not-constraints</guid>
+      <description>Most AI failures don&apos;t start with bad models. They start with good intentions and no guardrails. Here&apos;s why accountability is your real operating model.</description>
+      <pubDate>Fri, 22 May 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Opinions</category>
+    </item>
+    <item>
+      <title>Agents Aren&apos;t a Feature — They&apos;re a New Execution Layer</title>
+      <link>https://aaryaai.dev/blog/agents-are-a-new-execution-layer</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/agents-are-a-new-execution-layer</guid>
+      <description>Most software waits. Agents break that contract. Here&apos;s why treating agents as a feature instead of a new execution layer is the most common architectural mistake.</description>
+      <pubDate>Fri, 22 May 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>AI Architecture</category>
+    </item>
+    <item>
+      <title>GitHub Governance Isn&apos;t a Settings Page — It&apos;s a System</title>
+      <link>https://aaryaai.dev/blog/github-governance-best-practices</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/github-governance-best-practices</guid>
+      <description>Most teams treat GitHub governance as a settings page. The teams that ship safely treat it as a system — versioned, automated, and audited.</description>
+      <pubDate>Mon, 07 Jul 2025 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>Deploy and Configure SonarQube</title>
+      <link>https://aaryaai.dev/blog/sqconfig</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/sqconfig</guid>
+      <description>Deploy and Configure Sonarqube</description>
+      <pubDate>Wed, 15 Jul 2020 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Azure Bastion</title>
+      <link>https://aaryaai.dev/blog/azurebastion</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/azurebastion</guid>
+      <description>Private and fully managed remote access to your virtual machines</description>
+      <pubDate>Thu, 21 May 2020 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>DevOps Attitude</title>
+      <link>https://aaryaai.dev/blog/devopsattitude</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/devopsattitude</guid>
+      <description>Concepts and Principal that helps to lay the foundation for success</description>
+      <pubDate>Wed, 20 May 2020 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>Secure Secrets in Azure DevOps Pipelines</title>
+      <link>https://aaryaai.dev/blog/secazdopipelines</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/secazdopipelines</guid>
+      <description>Securing Azure DevOps Pipelines using Key Vault</description>
+      <pubDate>Mon, 27 Apr 2020 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Securing Azure Network - 101</title>
+      <link>https://aaryaai.dev/blog/secnwaz</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/secnwaz</guid>
+      <description>Azure Network Security Design Fundamentals</description>
+      <pubDate>Mon, 02 Dec 2019 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Learn Terraform - 1</title>
+      <link>https://aaryaai.dev/blog/terrafaform1</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/terrafaform1</guid>
+      <description>Terraform Learning Notes</description>
+      <pubDate>Wed, 27 Nov 2019 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>Manage Azure DevOps Pipelines Variables</title>
+      <link>https://aaryaai.dev/blog/azdovar</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/azdovar</guid>
+      <description>Manage your Azure DevOps pipelines Variables</description>
+      <pubDate>Fri, 05 Jul 2019 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>Resource Group Deployment History</title>
+      <link>https://aaryaai.dev/blog/managedeploymenthistory</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/managedeploymenthistory</guid>
+      <description>Manage Azure Resource Group Deployment History</description>
+      <pubDate>Mon, 15 Apr 2019 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Enable CI against all Branches</title>
+      <link>https://aaryaai.dev/blog/cibranch</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/cibranch</guid>
+      <description>Enable CI against all Branches</description>
+      <pubDate>Sat, 29 Dec 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>Deploy SonarQube as Azure Web App Container</title>
+      <link>https://aaryaai.dev/blog/sqasazurewebapps</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/sqasazurewebapps</guid>
+      <description>Deploy SonarQube as Azure Web App Container</description>
+      <pubDate>Tue, 13 Nov 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>VSTS Extension - SOAP UI Test</title>
+      <link>https://aaryaai.dev/blog/vstsextensionsoapui</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/vstsextensionsoapui</guid>
+      <description>VSTS Extension - SOAP UI Test</description>
+      <pubDate>Thu, 31 May 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Design VM Scale Sets - 1</title>
+      <link>https://aaryaai.dev/blog/designscomputeinfra-3</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/designscomputeinfra-3</guid>
+      <description>Design Compute Infrastructure-   Design solutions using virtual machines - design VM Scale Sets</description>
+      <pubDate>Sun, 22 Apr 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Pester Tests in VSTS Build</title>
+      <link>https://aaryaai.dev/blog/pestertestinvstsci</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/pestertestinvstsci</guid>
+      <description>IaC Unit Test using Pester Test</description>
+      <pubDate>Thu, 29 Mar 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>Azure VM Design - 1</title>
+      <link>https://aaryaai.dev/blog/designscomputeinfra-1</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/designscomputeinfra-1</guid>
+      <description>Design Compute Infrastructure-   Design solutions using virtual machines</description>
+      <pubDate>Wed, 28 Mar 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Azure VM Design - 2</title>
+      <link>https://aaryaai.dev/blog/designscomputeinfra-2</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/designscomputeinfra-2</guid>
+      <description>Design Compute Infrastructure-   Design solutions using virtual machine</description>
+      <pubDate>Wed, 28 Mar 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>IaC Unit Test using Pester Test</title>
+      <link>https://aaryaai.dev/blog/iacunittestpester</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/iacunittestpester</guid>
+      <description>IaC Unit Test using Pester Test</description>
+      <pubDate>Mon, 26 Mar 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>DevOps SonarQube Assessment - 2</title>
+      <link>https://aaryaai.dev/blog/3pdevops-5</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/3pdevops-5</guid>
+      <description>DevOps - Have a look -5</description>
+      <pubDate>Tue, 20 Mar 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>DevOps SonarQube Assessment - 1</title>
+      <link>https://aaryaai.dev/blog/3pdevops-4</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/3pdevops-4</guid>
+      <description>DevOps - SonarQube Tool Assessment- 1</description>
+      <pubDate>Mon, 19 Mar 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>VSTS Build and Release Agents</title>
+      <link>https://aaryaai.dev/blog/vstsbuildrel</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/vstsbuildrel</guid>
+      <description>VSTS Build and Release Agents</description>
+      <pubDate>Mon, 05 Mar 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Cloud</category>
+    </item>
+    <item>
+      <title>DevOps: Build &amp; Release</title>
+      <link>https://aaryaai.dev/blog/3pdevops-3</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/3pdevops-3</guid>
+      <description>DevOps - Have a look -1</description>
+      <pubDate>Fri, 23 Feb 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Cloud</category>
+    </item>
+    <item>
+      <title>IaC Deployment using VSTS Release and GitRepo</title>
+      <link>https://aaryaai.dev/blog/iaccicdgithub</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/iaccicdgithub</guid>
+      <description>IaC Deployment using VSTS Release and GitRepo</description>
+      <pubDate>Mon, 19 Feb 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Cloud</category>
+    </item>
+    <item>
+      <title>DevOps Principles - 2</title>
+      <link>https://aaryaai.dev/blog/3pdevops-2</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/3pdevops-2</guid>
+      <description>People, Process, Product  - DevOps</description>
+      <pubDate>Wed, 31 Jan 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>DevOps Principles - 1</title>
+      <link>https://aaryaai.dev/blog/3pdevops-1</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/3pdevops-1</guid>
+      <description>People, Process, Product  - DevOps</description>
+      <pubDate>Mon, 29 Jan 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>Integration of Azure Backup into VM create experience</title>
+      <link>https://aaryaai.dev/blog/vmbackup</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/vmbackup</guid>
+      <description>Integration of Azure Backup into VM create experience</description>
+      <pubDate>Thu, 25 Jan 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Cloud</category>
+    </item>
+    <item>
+      <title>Azure Archive Storage</title>
+      <link>https://aaryaai.dev/blog/azurearchivestoragega</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/azurearchivestoragega</guid>
+      <description>Archive Storage General Availability</description>
+      <pubDate>Fri, 19 Jan 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Cloud</category>
+    </item>
+    <item>
+      <title>My First Docker Container</title>
+      <link>https://aaryaai.dev/blog/docker-3</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/docker-3</guid>
+      <description>My First Docker Container</description>
+      <pubDate>Thu, 18 Jan 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Cloud</category>
+    </item>
+    <item>
+      <title>Manage Azure Virtual Machine in VS Code</title>
+      <link>https://aaryaai.dev/blog/vscode-tips</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/vscode-tips</guid>
+      <description>Virtual Machine in VS Code</description>
+      <pubDate>Fri, 05 Jan 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Cloud</category>
+    </item>
+    <item>
+      <title>Auto-shutdown RM VM</title>
+      <link>https://aaryaai.dev/blog/autoshutdownarmvm</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/autoshutdownarmvm</guid>
+      <description>Auto-shutdown RM VM</description>
+      <pubDate>Thu, 04 Jan 2018 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Cloud</category>
+    </item>
+    <item>
+      <title>Docker Definitions and Taxonomy</title>
+      <link>https://aaryaai.dev/blog/docker-2</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/docker-2</guid>
+      <description>Docker Terminology</description>
+      <pubDate>Wed, 27 Dec 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Cloud</category>
+    </item>
+    <item>
+      <title>Docker Overview</title>
+      <link>https://aaryaai.dev/blog/docker-1</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/docker-1</guid>
+      <description>My First Docker Container</description>
+      <pubDate>Fri, 22 Dec 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Cloud</category>
+    </item>
+    <item>
+      <title>Setting up Docker on Windows environment</title>
+      <link>https://aaryaai.dev/blog/dockerforwindows</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/dockerforwindows</guid>
+      <description>Docker for Windows</description>
+      <pubDate>Fri, 22 Dec 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>NewIT</title>
+      <link>https://aaryaai.dev/blog/newit</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/newit</guid>
+      <description>NewIT</description>
+      <pubDate>Wed, 20 Dec 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Container - It’s all about Application</title>
+      <link>https://aaryaai.dev/blog/container</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/container</guid>
+      <description>Container - It’s all about Application</description>
+      <pubDate>Wed, 20 Dec 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>DevOps Project in Azure (Public Preview)</title>
+      <link>https://aaryaai.dev/blog/devopsproject</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/devopsproject</guid>
+      <description>DevOps Project in Azure (Public Preview)</description>
+      <pubDate>Fri, 08 Dec 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>IaC: ARM Template Deployment</title>
+      <link>https://aaryaai.dev/blog/iac101-3</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/iac101-3</guid>
+      <description>IaC - ARM Template Deployment</description>
+      <pubDate>Mon, 04 Dec 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>New Azure Free Account</title>
+      <link>https://aaryaai.dev/blog/newazurefreeaccount</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/newazurefreeaccount</guid>
+      <description>New Azure Free Account</description>
+      <pubDate>Sat, 02 Dec 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>IaC: Deploy-AzureResourceGroup.ps1</title>
+      <link>https://aaryaai.dev/blog/iac101-2</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/iac101-2</guid>
+      <description>IaC - Deploy-AzureResourceGroup.ps1</description>
+      <pubDate>Thu, 02 Nov 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>IaC: Understanding ARM Templates</title>
+      <link>https://aaryaai.dev/blog/iac101-1</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/iac101-1</guid>
+      <description>IaC - Understand ARM Template</description>
+      <pubDate>Tue, 17 Oct 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>PowerShell in CloudShell</title>
+      <link>https://aaryaai.dev/blog/powershellincloudshell</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/powershellincloudshell</guid>
+      <description>PowerShell in CloudShell</description>
+      <pubDate>Thu, 31 Aug 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Git v/s TFVC</title>
+      <link>https://aaryaai.dev/blog/gitvstfvc</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/gitvstfvc</guid>
+      <description>Git</description>
+      <pubDate>Fri, 04 Aug 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>Git with VSTS - Part 2- Git Repo</title>
+      <link>https://aaryaai.dev/blog/gitwithvsts-1</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/gitwithvsts-1</guid>
+      <description>Git and VSTS</description>
+      <pubDate>Wed, 02 Aug 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>PowerShell to find service availability across the regions</title>
+      <link>https://aaryaai.dev/blog/psserviceregion</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/psserviceregion</guid>
+      <description>PowerShell to find service availability across the regions</description>
+      <pubDate>Sun, 30 Jul 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Git with VSTS - Part 1</title>
+      <link>https://aaryaai.dev/blog/gitwithvsts</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/gitwithvsts</guid>
+      <description>Git and VSTS</description>
+      <pubDate>Thu, 27 Jul 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>IaC: ARM Templates Fundamentals</title>
+      <link>https://aaryaai.dev/blog/armtemplates101</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/armtemplates101</guid>
+      <description>IaC - ARM Templates Fundamentals</description>
+      <pubDate>Wed, 12 Jul 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Azure VNET provisioning using CLI</title>
+      <link>https://aaryaai.dev/blog/azurevnetusingcli</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/azurevnetusingcli</guid>
+      <description>Azure VNET provisioning using CLI</description>
+      <pubDate>Tue, 04 Jul 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Azure SQL provisionig using CLI</title>
+      <link>https://aaryaai.dev/blog/azuresqlusingcli</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/azuresqlusingcli</guid>
+      <description>Azure SQL provisionig using CLI</description>
+      <pubDate>Tue, 04 Jul 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>Guidance Concerning Petya Ransomware</title>
+      <link>https://aaryaai.dev/blog/petyaransomware</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/petyaransomware</guid>
+      <description>Guidance Concerning Petya Ransomware</description>
+      <pubDate>Mon, 03 Jul 2017 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>PowerShell DSC - Part 2</title>
+      <link>https://aaryaai.dev/blog/dscconfiguration101</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/dscconfiguration101</guid>
+      <description>DSC Configuration 101</description>
+      <pubDate>Thu, 01 Dec 2016 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>VSTS 101</title>
+      <link>https://aaryaai.dev/blog/vsts101</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/vsts101</guid>
+      <description>VSTS 101</description>
+      <pubDate>Thu, 01 Dec 2016 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>Azure API Versions</title>
+      <link>https://aaryaai.dev/blog/azureapiversions</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/azureapiversions</guid>
+      <description>Azure API Versions</description>
+      <pubDate>Thu, 01 Dec 2016 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>IaC - 101 - VNET</title>
+      <link>https://aaryaai.dev/blog/iac-vnet</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/iac-vnet</guid>
+      <description>VNET provisioning using ARM</description>
+      <pubDate>Fri, 14 Oct 2016 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+    <item>
+      <title>PowerShell DSC - Part 1</title>
+      <link>https://aaryaai.dev/blog/psdsc</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/psdsc</guid>
+      <description>PowerShell Desired State Configuration</description>
+      <pubDate>Tue, 26 Jul 2016 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Azure</category>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aarya — Skill Pages Redesign Mockup</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0c14;color:#e2e8f0;font-family:system-ui,sans-serif;min-height:100vh}
+.tab-bar{display:flex;gap:2px;padding:12px 20px;background:#0f1117;border-bottom:1px solid #1e293b;position:sticky;top:0;z-index:100}
+.tab{padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;border:none;color:#64748b;background:transparent}
+.tab.active{background:#4c1d95;color:#fff}
+.page{display:none;max-width:1200px;margin:0 auto;padding:24px 20px}
+.page.active{display:block}
+.banner{background:#1e0a44;border-bottom:1px solid #4c1d95;padding:8px 20px;font-size:11px;color:#a78bfa;text-align:center}
+
+/* ─── LANDING PAGE ─── */
+.exam-hero{padding:28px 0 20px;border-bottom:1px solid #1e293b}
+.exam-badge{display:inline-flex;align-items:center;gap:6px;background:#1e0a44;border:1px solid #4c1d95;border-radius:999px;padding:4px 12px;font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:14px}
+.exam-title{font-size:28px;font-weight:800;line-height:1.15;margin-bottom:8px}
+.exam-title .accent{background:linear-gradient(90deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.exam-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:#64748b;margin-bottom:12px}
+.exam-meta span{display:flex;align-items:center;gap:4px}
+.exam-meta .dot{width:3px;height:3px;border-radius:50%;background:#334155}
+
+/* Readiness meter */
+.readiness-strip{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.readiness-card{background:#111827;border:1px solid #1e293b;border-radius:12px;padding:14px 16px}
+.readiness-card .label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#475569;margin-bottom:8px}
+.readiness-ring{display:flex;align-items:center;gap:12px}
+.ring-outer{width:52px;height:52px;border-radius:50%;background:conic-gradient(#7c3aed 0% 34%, #1e293b 34% 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ring-inner{width:38px;height:38px;border-radius:50%;background:#111827;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#a78bfa}
+.readiness-ring .info{flex:1}
+.readiness-ring .pct{font-size:20px;font-weight:800;color:#a78bfa}
+.readiness-ring .sub{font-size:11px;color:#475569}
+.domain-bars{margin-top:6px;display:flex;flex-direction:column;gap:5px}
+.dbar-row{display:flex;align-items:center;gap:8px}
+.dbar-label{font-size:10px;color:#475569;width:20px;font-family:monospace}
+.dbar-track{flex:1;height:4px;background:#1e293b;border-radius:2px;overflow:hidden}
+.dbar-fill{height:100%;border-radius:2px;transition:width 1.2s ease}
+.dbar-fill.d1{background:#a78bfa;width:72%}
+.dbar-fill.d2{background:#60a5fa;width:34%}
+.dbar-fill.d3{background:#34d399;width:0%}
+.dbar-fill.d4{background:#f59e0b;width:0%}
+.dbar-fill.d5{background:#f87171;width:0%}
+.dbar-status{font-size:9px;font-family:monospace;width:38px;text-align:right}
+.status-strong{color:#34d399}.status-progress{color:#f59e0b}.status-empty{color:#334155}
+
+/* Recommended next action */
+.next-action{margin-top:16px;background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(96,165,250,.04));border:1px solid rgba(124,58,237,.25);border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px}
+.next-action .icon{width:42px;height:42px;border-radius:10px;background:#1e0a44;border:1px solid #4c1d95;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.next-action .text{flex:1}
+.next-action .eyebrow{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#7c3aed}
+.next-action .headline{font-size:14px;font-weight:700;color:#fff;margin:2px 0}
+.next-action .sub{font-size:12px;color:#64748b}
+.next-action .cta-btn{background:#6d28d9;border:none;color:#fff;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+
+/* Action grid */
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.action-card{background:#111827;border:1px solid #1e293b;border-radius:14px;padding:18px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.action-card:hover{border-color:#334155;transform:translateY(-1px)}
+.action-card.primary{border-color:#4c1d95;background:linear-gradient(145deg,#0f0a1e,#111827)}
+.action-card .top-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:#7c3aed;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.action-card .pulse{width:6px;height:6px;border-radius:50%;background:#7c3aed;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.action-card .card-icon{width:38px;height:38px;border-radius:10px;background:#1e293b;border:1px solid #334155;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.action-card.primary .card-icon{background:#1e0a44;border-color:#4c1d95}
+.action-card h3{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px}
+.action-card p{font-size:12px;color:#64748b;line-height:1.5;margin-bottom:12px}
+.action-card .card-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.action-card .meta-chip{font-size:10px;color:#475569;background:#0f1117;border:1px solid #1e293b;border-radius:999px;padding:2px 8px}
+.action-card .cta-link{font-size:12px;font-weight:600;color:#a78bfa;display:flex;align-items:center;gap:4px}
+.action-card.primary .cta-link{color:#c4b5fd}
+
+/* Domain readiness grid */
+.domain-readiness{margin-top:20px}
+.section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:#475569;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:#1e293b}
+.domain-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.domain-tile{background:#111827;border:1px solid #1e293b;border-radius:10px;padding:10px;cursor:pointer;transition:.15s}
+.domain-tile:hover{border-color:#334155}
+.domain-tile .d-num{font-size:10px;font-family:monospace;color:#475569;margin-bottom:4px}
+.domain-tile .d-name{font-size:11px;font-weight:600;color:#94a3b8;line-height:1.3;margin-bottom:8px}
+.domain-tile .d-bar{height:3px;border-radius:2px;background:#1e293b;overflow:hidden;margin-bottom:6px}
+.domain-tile .d-fill{height:100%;border-radius:2px}
+.domain-tile .d-status{font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;display:inline-block}
+.status-done{background:#14532d;color:#4ade80}
+.status-wip{background:#451a03;color:#fcd34d}
+.status-new{background:#1e293b;color:#475569}
+
+/* ─── NOTES PAGE ─── */
+.notes-shell{display:grid;grid-template-columns:200px 1fr 220px;gap:0;min-height:80vh}
+.notes-left{border-right:1px solid #1e293b;padding:20px 0}
+.notes-left .section-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:#334155;padding:0 16px;margin-bottom:8px}
+.domain-nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;transition:.15s;position:relative}
+.domain-nav-item:hover{background:#111827}
+.domain-nav-item.active{background:#0f0a1e}
+.domain-nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:#7c3aed}
+.dn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dn-text{flex:1;min-width:0}
+.dn-name{font-size:11px;font-weight:500;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.domain-nav-item.active .dn-name{color:#fff}
+.dn-weight{font-size:9px;font-family:monospace;color:#334155}
+.domain-nav-item.active .dn-weight{color:#7c3aed}
+.dn-status{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0}
+
+/* Reading progress bar */
+.read-progress-bar{height:3px;background:linear-gradient(90deg,#7c3aed,#60a5fa);width:38%;transition:width .3s}
+
+/* Quick facts panel */
+.quick-facts{background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(16,24,48,.6));border:1px solid rgba(124,58,237,.18);border-radius:12px;padding:14px 16px;margin-bottom:24px}
+.qf-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:#7c3aed;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.qf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.qf-item{background:#0f1117;border:1px solid #1e293b;border-radius:8px;padding:8px 10px}
+.qf-value{font-size:18px;font-weight:800;color:#a78bfa;font-family:monospace}
+.qf-label{font-size:10px;color:#475569;margin-top:2px}
+
+/* Exam trap callout */
+.exam-trap{border-left:3px solid #ef4444;background:#1a0505;border-radius:0 10px 10px 0;padding:12px 14px;margin:16px 0;display:flex;gap:10px}
+.trap-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.trap-text{font-size:13px;color:#fca5a5;line-height:1.5}
+.trap-text strong{color:#f87171}
+
+/* Prose */
+.notes-article{padding:24px 28px;min-width:0}
+.domain-header{display:flex;align-items:center;gap:12px;padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid #1e293b}
+.dh-badge{width:42px;height:42px;border-radius:10px;background:#1e293b;border:1px solid #334155;display:flex;align-items:center;justify-content:center;font-family:monospace;font-weight:800;color:#a78bfa;font-size:13px;flex-shrink:0}
+.dh-meta{flex:1}
+.dh-eyebrow{font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.dh-title{font-size:16px;font-weight:700;color:#fff}
+.dh-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.dh-chip{font-size:10px;color:#475569;background:#111827;border:1px solid #1e293b;border-radius:999px;padding:2px 8px}
+.prose h2{font-size:17px;font-weight:700;color:#f1f5f9;margin:28px 0 10px;display:flex;align-items:center;gap-8px}
+.prose h3{font-size:14px;font-weight:600;color:#cbd5e1;margin:18px 0 8px}
+.prose p{font-size:14.5px;line-height:1.8;color:#94a3b8;margin-bottom:12px}
+.prose code{font-size:12px;background:#1e293b;border:1px solid #334155;padding:2px 6px;border-radius:4px;color:#a78bfa;font-family:monospace}
+.prose pre{background:#0f1117;border:1px solid #1e293b;border-radius:10px;padding:14px;margin:12px 0;font-size:12px;color:#a78bfa;font-family:monospace;line-height:1.6;overflow-x:auto}
+
+/* End-of-domain CTA */
+.domain-end-cta{margin-top:32px;padding-top:24px;border-top:1px solid #1e293b;display:flex;gap:10px}
+.cta-quiz-btn{flex:1;background:#4c1d95;border:1px solid #6d28d9;border-radius:10px;padding:12px 16px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap-6px;gap:8px}
+.cta-next-btn{flex:1;background:#111827;border:1px solid #1e293b;border-radius:10px;padding:12px 16px;color:#94a3b8;font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.cta-next-btn .next-label{font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.1em}
+.cta-next-btn .next-name{font-size:12px;color:#fff}
+
+/* Right TOC */
+.notes-right{border-left:1px solid #1e293b;padding:20px 16px}
+.toc-header{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:#334155;margin-bottom:10px;display:flex;align-items:center;gap-4px;gap:6px}
+.toc-nav{border-left:2px solid #1e293b;padding-left:12px;display:flex;flex-direction:column;gap:2px}
+.toc-item{font-size:11px;color:#475569;padding:4px 0;cursor:pointer;transition:.1s;line-height:1.4;display:flex;align-items:flex-start;gap:4px}
+.toc-item:hover{color:#94a3b8}
+.toc-item.active{color:#a78bfa;font-weight:600}
+.toc-item.h3{padding-left:12px;font-size:10.5px}
+.toc-accent{width:2px;border-radius:1px;background:#7c3aed;flex-shrink:0;margin-top:3px;align-self:stretch;opacity:0}
+.toc-item.active .toc-accent{opacity:1}
+
+/* label badges */
+.new-badge{background:#14532d;color:#4ade80;font-size:9px;font-weight:700;text-transform:uppercase;padding:1px 5px;border-radius:3px;border:1px solid #166534;margin-left:6px}
+.exists-badge{background:#1e3a5f;color:#60a5fa;font-size:9px;font-weight:700;text-transform:uppercase;padding:1px 5px;border-radius:3px;border:1px solid #1d4ed8;margin-left:6px}
+
+/* insight callout */
+.insight{background:#0c1a2e;border:1px solid #1e3a5f;border-radius:10px;padding:12px 14px;margin:14px 0;display:flex;gap:10px}
+.insight-icon{font-size:15px;flex-shrink:0}
+.insight-text{font-size:12.5px;color:#7dd3fc;line-height:1.5}
+
+.divider{height:1px;background:linear-gradient(90deg,transparent,#1e293b,transparent);margin:24px 0}
+</style>
+</head>
+<body>
+<div class="banner">🎨 Redesign Mockup — Green = NEW · Blue = EXISTS · Not live code</div>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="show('landing')">📋 Skill Landing Page</button>
+  <button class="tab" onclick="show('notes')">📖 Study Notes Page</button>
+</div>
+
+<!-- ═══════════════════════ LANDING PAGE ═══════════════════════ -->
+<div id="landing" class="page active">
+
+  <div class="exam-hero">
+    <div class="exam-badge">🎓 CCA-F Certification Practice</div>
+    <h1 class="exam-title">Claude Certified Architect – <span class="accent">Foundations</span></h1>
+    <p style="font-size:13px;color:#64748b;line-height:1.6;margin-bottom:10px;max-width:600px">Validate your expertise in Claude API architecture, agentic patterns, prompt engineering, tool design, and context management.</p>
+    <div class="exam-meta">
+      <span>68 scenario-based MCQs</span><span class="dot"></span>
+      <span>120 min</span><span class="dot"></span>
+      <span>72% to pass</span><span class="dot"></span>
+      <span>5 domains</span><span class="dot"></span>
+      <span>👁 16 views</span>
+    </div>
+  </div>
+
+  <!-- Readiness + Recommended Next Action -->
+  <div style="margin-top:20px">
+    <div class="section-label">Your Readiness <span class="new-badge">new</span></div>
+
+    <div class="readiness-strip">
+      <!-- Readiness meter -->
+      <div class="readiness-card">
+        <div class="label">Overall Readiness</div>
+        <div class="readiness-ring">
+          <div class="ring-outer">
+            <div class="ring-inner">34%</div>
+          </div>
+          <div class="info">
+            <div class="pct">34%</div>
+            <div class="sub">2 of 5 domains started</div>
+            <div class="sub" style="color:#ef4444;font-size:10px;margin-top:2px">⬆ Need 72% to pass</div>
+          </div>
+        </div>
+        <div class="domain-bars" style="margin-top:10px">
+          <div class="dbar-row"><span class="dbar-label">D1</span><div class="dbar-track"><div class="dbar-fill d1"></div></div><span class="dbar-status status-strong">Strong</span></div>
+          <div class="dbar-row"><span class="dbar-label">D2</span><div class="dbar-track"><div class="dbar-fill d2"></div></div><span class="dbar-status status-progress">WIP</span></div>
+          <div class="dbar-row"><span class="dbar-label">D3</span><div class="dbar-track"><div class="dbar-fill d3"></div></div><span class="dbar-status status-empty">—</span></div>
+          <div class="dbar-row"><span class="dbar-label">D4</span><div class="dbar-track"><div class="dbar-fill d4"></div></div><span class="dbar-status status-empty">—</span></div>
+          <div class="dbar-row"><span class="dbar-label">D5</span><div class="dbar-track"><div class="dbar-fill d5"></div></div><span class="dbar-status status-empty">—</span></div>
+        </div>
+      </div>
+
+      <!-- Study plan mini -->
+      <div class="readiness-card">
+        <div class="label">Estimated Study Time</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div style="background:#0f1117;border:1px solid #1e293b;border-radius:8px;padding:10px;text-align:center">
+            <div style="font-size:22px;font-weight:800;color:#a78bfa;font-family:monospace">4.5h</div>
+            <div style="font-size:10px;color:#475569;margin-top:2px">Notes remaining</div>
+          </div>
+          <div style="background:#0f1117;border:1px solid #1e293b;border-radius:8px;padding:10px;text-align:center">
+            <div style="font-size:22px;font-weight:800;color:#60a5fa;font-family:monospace">68</div>
+            <div style="font-size:10px;color:#475569;margin-top:2px">Questions to practice</div>
+          </div>
+        </div>
+        <div style="background:#0f1117;border:1px solid #1e293b;border-radius:8px;padding:8px 12px;font-size:11px;color:#64748b;display:flex;align-items:center;gap:8px">
+          <span style="font-size:16px">📅</span>
+          <span>At 1h/day → <strong style="color:#a78bfa">ready in ~4 days</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommended next step -->
+    <div class="next-action">
+      <div class="icon">📖</div>
+      <div class="text">
+        <div class="eyebrow">Recommended next step</div>
+        <div class="headline">Study D3: Prompt Engineering & Structured Output</div>
+        <div class="sub">You haven't started D3 yet — it's 20% of the exam · ~45 min read</div>
+      </div>
+      <button class="cta-btn">Open Notes →</button>
+    </div>
+  </div>
+
+  <!-- 4-card action grid -->
+  <div style="margin-top:24px">
+    <div class="section-label">Study Tools <span class="exists-badge">exists</span> — Enhanced</div>
+    <div class="action-grid">
+      <!-- Quiz -->
+      <div class="action-card primary">
+        <div class="top-tag"><span class="pulse"></span> Start here</div>
+        <div class="card-icon">🧠</div>
+        <h3>Practice Quiz</h3>
+        <p>Mock exams or domain-focused drills — same scenario-based MCQ format as the real exam.</p>
+        <div class="card-meta">
+          <span class="meta-chip">68 questions</span>
+          <span class="meta-chip">120 min full mock</span>
+          <span class="meta-chip">Domain drill mode</span>
+        </div>
+        <span class="cta-link">Start Quiz →</span>
+      </div>
+      <!-- Notes -->
+      <div class="action-card">
+        <div class="card-icon">📘</div>
+        <h3>Study Notes</h3>
+        <p>Structured reference notes for all exam domains. Key rules, mental models, and exam traps.</p>
+        <div class="card-meta">
+          <span class="meta-chip">5 domains</span>
+          <span class="meta-chip">~6h total read</span>
+          <span class="meta-chip" style="color:#34d399;border-color:#14532d;background:#0d1f16">D1 complete ✓</span>
+        </div>
+        <span class="cta-link">Open Notes →</span>
+      </div>
+      <!-- Scenarios -->
+      <div class="action-card">
+        <div class="card-icon">🗂️</div>
+        <h3>Scenario Practice</h3>
+        <p>Walk through exam scenarios: architecture patterns, decision points, and anti-patterns.</p>
+        <div class="card-meta">
+          <span class="meta-chip">Scenario walkthroughs</span>
+          <span class="meta-chip">Anti-pattern focus</span>
+        </div>
+        <span class="cta-link">Browse Scenarios →</span>
+      </div>
+      <!-- Progress -->
+      <div class="action-card">
+        <div class="card-icon">📊</div>
+        <h3>Progress</h3>
+        <p>Track your scores by domain, spot weak areas, and see improvement over time.</p>
+        <div class="card-meta">
+          <span class="meta-chip">Domain heatmap</span>
+          <span class="meta-chip">Score history</span>
+        </div>
+        <span class="cta-link">View Progress →</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Domain readiness tiles -->
+  <div class="domain-readiness">
+    <div class="section-label">Domain Breakdown <span class="new-badge">enhanced</span></div>
+    <div class="domain-grid">
+      <div class="domain-tile" style="border-color:#4c1d95">
+        <div class="d-num">D1 · 27%</div>
+        <div class="d-name">Agentic Architecture & Orchestration</div>
+        <div class="d-bar"><div class="d-fill" style="background:#a78bfa;width:72%"></div></div>
+        <span class="d-status status-done">Strong</span>
+      </div>
+      <div class="domain-tile">
+        <div class="d-num">D2 · 20%</div>
+        <div class="d-name">Claude Code Config & Workflows</div>
+        <div class="d-bar"><div class="d-fill" style="background:#60a5fa;width:34%"></div></div>
+        <span class="d-status status-wip">In progress</span>
+      </div>
+      <div class="domain-tile">
+        <div class="d-num">D3 · 20%</div>
+        <div class="d-name">Prompt Engineering & Structured Output</div>
+        <div class="d-bar"><div class="d-fill" style="background:#34d399;width:0%"></div></div>
+        <span class="d-status status-new">Not started</span>
+      </div>
+      <div class="domain-tile">
+        <div class="d-num">D4 · 18%</div>
+        <div class="d-name">Tool Design & MCP Integration</div>
+        <div class="d-bar"><div class="d-fill" style="background:#f59e0b;width:0%"></div></div>
+        <span class="d-status status-new">Not started</span>
+      </div>
+      <div class="domain-tile">
+        <div class="d-num">D5 · 15%</div>
+        <div class="d-name">Context Management & Reliability</div>
+        <div class="d-bar"><div class="d-fill" style="background:#f87171;width:0%"></div></div>
+        <span class="d-status status-new">Not started</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════ NOTES PAGE ═══════════════════════ -->
+<div id="notes" class="page">
+  <!-- Reading progress bar -->
+  <div style="height:3px;background:#1e293b;margin:-24px -20px 0;position:relative">
+    <div class="read-progress-bar"></div>
+    <div style="position:absolute;right:16px;top:4px;font-size:9px;font-family:monospace;color:#334155">38% read <span class="new-badge">new</span></div>
+  </div>
+  <div style="height:20px"></div>
+
+  <div class="notes-shell">
+    <!-- LEFT: Domain nav -->
+    <div class="notes-left">
+      <div class="section-title">Domains <span class="exists-badge">exists</span></div>
+      <div class="domain-nav-item">
+        <span class="dn-dot" style="background:#a78bfa"></span>
+        <div class="dn-text"><div class="dn-name">D1: Agentic Architecture</div><div class="dn-weight">27%</div></div>
+        <div class="dn-status" style="background:#14532d;color:#4ade80">✓</div>
+      </div>
+      <div class="domain-nav-item active">
+        <span class="dn-dot" style="background:#60a5fa"></span>
+        <div class="dn-text"><div class="dn-name">D2: Claude Code</div><div class="dn-weight">20%</div></div>
+        <div class="dn-status" style="background:#1e293b;color:#f59e0b">⋯</div>
+      </div>
+      <div class="domain-nav-item">
+        <span class="dn-dot" style="background:#34d399"></span>
+        <div class="dn-text"><div class="dn-name">D3: Prompt Engineering</div><div class="dn-weight">20%</div></div>
+        <div class="dn-status" style="background:#1e293b;color:#334155">○</div>
+      </div>
+      <div class="domain-nav-item">
+        <span class="dn-dot" style="background:#f59e0b"></span>
+        <div class="dn-text"><div class="dn-name">D4: Tool Design & MCP</div><div class="dn-weight">18%</div></div>
+        <div class="dn-status" style="background:#1e293b;color:#334155">○</div>
+      </div>
+      <div class="domain-nav-item">
+        <span class="dn-dot" style="background:#f87171"></span>
+        <div class="dn-text"><div class="dn-name">D5: Context & Reliability</div><div class="dn-weight">15%</div></div>
+        <div class="dn-status" style="background:#1e293b;color:#334155">○</div>
+      </div>
+
+      <!-- Mini study stats -->
+      <div style="margin-top:16px;padding:12px 16px;border-top:1px solid #1e293b">
+        <div class="section-title">This Domain</div>
+        <div style="display:flex;flex-direction:column;gap:4px;font-size:11px">
+          <div style="display:flex;justify-content:space-between;color:#475569"><span>Read</span><span style="color:#a78bfa;font-family:monospace">38%</span></div>
+          <div style="height:3px;background:#1e293b;border-radius:2px"><div style="height:100%;width:38%;background:#7c3aed;border-radius:2px"></div></div>
+          <div style="display:flex;justify-content:space-between;color:#475569;margin-top:4px"><span>⏱ ~18 min left</span></div>
+        </div>
+      </div>
+
+      <div style="padding:12px 16px;border-top:1px solid #1e293b">
+        <div class="section-title">Domain Weights</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div class="dbar-row"><span class="dbar-label" style="width:24px">D1</span><div class="dbar-track"><div style="height:100%;width:27%;background:#a78bfa;border-radius:2px"></div></div><span style="font-size:9px;font-family:monospace;color:#475569;width:28px;text-align:right">27%</span></div>
+          <div class="dbar-row"><span class="dbar-label" style="width:24px">D2</span><div class="dbar-track"><div style="height:100%;width:20%;background:#60a5fa;border-radius:2px"></div></div><span style="font-size:9px;font-family:monospace;color:#7c3aed;width:28px;text-align:right">20%</span></div>
+          <div class="dbar-row"><span class="dbar-label" style="width:24px">D3</span><div class="dbar-track"><div style="height:100%;width:20%;background:#34d399;border-radius:2px"></div></div><span style="font-size:9px;font-family:monospace;color:#475569;width:28px;text-align:right">20%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTRE: Article -->
+    <div class="notes-article">
+      <div class="domain-header">
+        <div class="dh-badge">D2</div>
+        <div class="dh-meta">
+          <div class="dh-eyebrow">Domain 2 of 5 · 20% of exam</div>
+          <div class="dh-title">Claude Code Configuration & Workflows</div>
+          <div class="dh-chips">
+            <span class="dh-chip">⏱ 28 min read</span>
+            <span class="dh-chip" style="color:#f59e0b;border-color:#451a03">⋯ In progress</span>
+            <span class="dh-chip">4 sections · 2 H3 each</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Facts panel — NEW -->
+      <div class="quick-facts">
+        <div class="qf-title">⚡ Quick Facts <span class="new-badge">new</span></div>
+        <div class="qf-grid">
+          <div class="qf-item">
+            <div class="qf-value">3</div>
+            <div class="qf-label">Exam trap callouts</div>
+          </div>
+          <div class="qf-item">
+            <div class="qf-value">20%</div>
+            <div class="qf-label">Domain weight</div>
+          </div>
+          <div class="qf-item">
+            <div class="qf-value">12</div>
+            <div class="qf-label">Quiz questions in D2</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prose">
+        <h2 id="s1">Claude Code Basics & Setup</h2>
+        <p>Claude Code is Anthropic's agentic coding tool that runs directly in your terminal. It has full access to your filesystem, can run commands, create and edit files, and use git — within your explicitly granted permissions.</p>
+
+        <h3 id="s1a">Permission Model</h3>
+        <p>Claude Code uses a <code>CLAUDE.md</code> file at the project root to define context, preferences, and restrictions. It is NOT stored server-side — it is a plain file in your repo.</p>
+
+        <!-- Exam trap callout — ENHANCED -->
+        <div class="exam-trap">
+          <span class="trap-icon">🚨</span>
+          <div class="trap-text">
+            <strong>Exam Trap:</strong> "Claude Code stores project config in Anthropic's cloud." — FALSE. <code>CLAUDE.md</code> lives in your local repo. Anthropic does not store project-level configuration files.
+          </div>
+        </div>
+
+        <h2 id="s2">Workflow Automation with Claude Code</h2>
+        <p>Claude Code can run in headless (non-interactive) mode using <code>--print</code> and <code>--headless</code> flags. This enables CI/CD pipelines to invoke Claude for automated code review, test generation, or documentation updates.</p>
+
+        <div class="insight">
+          <span class="insight-icon">💡</span>
+          <div class="insight-text">Key mental model: Claude Code is not a "chat assistant in a terminal" — it is an <strong>autonomous agent</strong> with tool access. Treat it like a junior engineer with sandboxed filesystem access.</div>
+        </div>
+
+        <h3 id="s2a">Checkpoint & State Management</h3>
+        <p>For long-running tasks, Claude Code supports external checkpointing. When processing hundreds of files, you should save state externally — not rely on context window continuity.</p>
+
+        <div class="exam-trap">
+          <span class="trap-icon">🚨</span>
+          <div class="trap-text">
+            <strong>Exam Trap:</strong> "Use a long context window for processing hundreds of items." — It won't fit, degrades mid-task, and vanishes on crash. <strong>External checkpoint is the correct answer.</strong>
+          </div>
+        </div>
+
+        <h2 id="s3">Custom Commands & Slash Commands</h2>
+        <p>Custom slash commands are defined as <code>.md</code> files in <code>.claude/commands/</code>. They can include dynamic placeholders like <code>$ARGUMENTS</code> and be scoped to a project or user-level.</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- End-of-domain CTA — NEW -->
+      <div class="domain-end-cta">
+        <button class="cta-quiz-btn">🧠 Quiz this domain (12 questions)</button>
+        <button class="cta-next-btn">
+          <div>
+            <div class="next-label">Next domain →</div>
+            <div class="next-name">D3: Prompt Engineering & Structured Output</div>
+          </div>
+          <span style="font-size:18px;color:#475569">›</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT: TOC panel -->
+    <div class="notes-right">
+      <div class="toc-header">📋 On this page <span class="new-badge">new</span></div>
+      <div class="toc-nav">
+        <div class="toc-item active">
+          <div class="toc-accent"></div>
+          <span>Claude Code Basics & Setup</span>
+        </div>
+        <div class="toc-item h3">
+          <div class="toc-accent"></div>
+          <span>Permission Model</span>
+        </div>
+        <div class="toc-item">
+          <div class="toc-accent"></div>
+          <span>Workflow Automation</span>
+        </div>
+        <div class="toc-item h3">
+          <div class="toc-accent"></div>
+          <span>Checkpoint & State</span>
+        </div>
+        <div class="toc-item">
+          <div class="toc-accent"></div>
+          <span>Custom Commands</span>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #1e293b">
+        <div class="toc-header">📌 Exam Traps (2)</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+          <div style="background:#1a0505;border:1px solid #7f1d1d;border-radius:6px;padding:8px;font-size:10px;color:#fca5a5;cursor:pointer">CLAUDE.md is NOT cloud-stored</div>
+          <div style="background:#1a0505;border:1px solid #7f1d1d;border-radius:6px;padding:8px;font-size:10px;color:#fca5a5;cursor:pointer">Long context ≠ solution for bulk tasks</div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #1e293b">
+        <div class="toc-header">🔗 Quick Access</div>
+        <div style="display:flex;flex-direction:column;gap:4px;font-size:11px;color:#475569">
+          <a href="#" style="color:#475569;text-decoration:none;padding:3px 0;display:flex;align-items:center;gap:4px">📖 Anthropic Docs ↗</a>
+          <a href="#" style="color:#475569;text-decoration:none;padding:3px 0;display:flex;align-items:center;gap:4px">📗 Anthropic Cookbook ↗</a>
+        </div>
+      </div>
+
+      <button onclick="window.scrollTo({top:0,behavior:'smooth'})" style="margin-top:16px;width:100%;border:none;background:transparent;color:#334155;font-size:10px;cursor:pointer;text-align:left;padding-top:12px;border-top:1px solid #1e293b">↑ Back to top</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+// Animate bars on load
+setTimeout(() => {
+  document.querySelectorAll('.dbar-fill').forEach(el => { el.style.width = el.style.width; });
+}, 100);
+</script>
+</body>
+</html>

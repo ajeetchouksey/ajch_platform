@@ -250,7 +250,7 @@ export default function Notes() {
       )}
 
       {/* Content — two-column on xl: article + sticky TOC */}
-      <div className="xl:grid xl:grid-cols-[1fr_200px] xl:gap-10 xl:items-start">
+      <div className="xl:grid xl:grid-cols-[1fr_280px] xl:gap-8 xl:items-start">
 
       {/* Content */}
       <article ref={articleRef} className="min-w-0">
@@ -309,41 +309,61 @@ export default function Notes() {
 
       {/* Sticky in-page TOC — desktop xl+ only */}
       {toc.length > 0 && (
-        <aside className="hidden xl:block">
-          <div className="sticky top-24">
-            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 mb-3">
-              <List size={11} />On this page
-            </p>
-            <nav className="border-l-2 border-slate-800 pl-3.5 flex flex-col gap-0.5">
-              {toc.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToHeading(item.id)}
-                  className={`text-left transition-colors leading-snug ${
-                    item.level === 3 ? 'pl-3 text-[11px]' : 'text-xs'
-                  } ${
-                    activeId === item.id
-                      ? 'text-violet-400 font-semibold'
-                      : item.level === 3
-                        ? 'text-slate-600 hover:text-slate-400'
-                        : 'text-slate-500 hover:text-slate-300'
-                  } py-1`}
-                >
-                  {item.text}
-                </button>
-              ))}
-            </nav>
+        <aside className="hidden xl:flex xl:flex-col gap-4">
+          {/* Reading Progress Card */}
+          <div className="sticky top-24 space-y-4">
+            {/* Reading time card */}
+            {minutes && (
+              <div className="rounded-xl p-4 border border-slate-700/40 bg-slate-950/40 backdrop-blur-sm">
+                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Reading</p>
+                <p className="text-2xl font-bold text-violet-400">{minutes}</p>
+                <p className="text-xs text-slate-600">min read</p>
+              </div>
+            )}
+
+            {/* In This Article TOC */}
+            <div className="rounded-xl p-4 border border-slate-700/40 bg-slate-950/40 backdrop-blur-sm">
+              <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 mb-3">
+                <List size={11} />In this article
+              </p>
+              <nav className="flex flex-col gap-1.5">
+                {toc.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => scrollToHeading(item.id)}
+                    className={`text-left transition-colors leading-tight text-xs py-1 rounded px-2 ${
+                      item.level === 3 ? 'pl-5' : 'pl-2'
+                    } ${
+                      activeId === item.id
+                        ? 'bg-violet-500/15 text-violet-300 font-medium'
+                        : item.level === 3
+                          ? 'text-slate-600 hover:text-slate-400 hover:bg-slate-800/40'
+                          : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/40'
+                    }`}
+                  >
+                    {item.text}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            {/* Exam Traps Card */}
             {trapItems.length > 0 && (
-              <div className="mt-4 pt-3 border-t border-slate-800/60">
-                <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 mb-2">
-                  <AlertTriangle size={10} className="text-rose-500" />Traps ({trapItems.length})
+              <div className="rounded-xl p-4 border border-rose-900/40 bg-rose-950/20 backdrop-blur-sm">
+                <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-rose-400/90 mb-3">
+                  <AlertTriangle size={11} />
+                  {trapItems.length} Trap{trapItems.length !== 1 ? 's' : ''}
                 </p>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   {trapItems.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => scrollToHeading(item.id)}
-                      className="text-left text-[10px] text-rose-400/70 hover:text-rose-300 bg-rose-950/20 border border-rose-900/30 rounded px-2 py-1 leading-tight transition-colors"
+                      className={`text-left text-[10px] p-2 rounded transition-all leading-tight ${
+                        activeId === item.id
+                          ? 'bg-rose-400/20 text-rose-200 font-medium border border-rose-400/40'
+                          : 'text-rose-400/70 hover:text-rose-300 border border-rose-900/30 hover:bg-rose-950/40'
+                      }`}
                     >
                       {item.text.replace(/^[^A-Za-z]*Exam Trap[:\s"]+/i, '').replace(/["+]+$/, '')}
                     </button>
@@ -351,11 +371,33 @@ export default function Notes() {
                 </div>
               </div>
             )}
+
+            {/* Domain Stats Card */}
+            {currentDomainConfig && (
+              <div className="rounded-xl p-4 border border-slate-700/40 bg-slate-950/40 backdrop-blur-sm">
+                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-3">Domain Stats</p>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-slate-500">Weight</span>
+                    <span className="text-sm font-semibold text-violet-400">{currentDomainConfig.weight}%</span>
+                  </div>
+                  {domainQCount > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-slate-500">Questions</span>
+                      <span className="text-sm font-semibold text-blue-400">~{domainQCount}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Back to Top */}
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="mt-4 flex items-center gap-1.5 text-[11px] text-slate-600 hover:text-slate-400 transition-colors pt-3 border-t border-slate-800/60 w-full"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-500 hover:text-slate-300 hover:bg-slate-800/40 transition-all"
             >
-              <ArrowUp size={11} />Back to top
+              <ArrowUp size={12} />
+              Back to top
             </button>
           </div>
         </aside>

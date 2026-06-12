@@ -506,7 +506,7 @@ export default function Contribute() {
   const [tab, setTab] = useState<TabId>('question');
   const [mounted, setMounted] = useState(false);
   const { user, isLoading } = useAuth();
-  useEffect(() => { setTimeout(() => setMounted(true), 0); }, []);
+  useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
   const activeTab = TABS.find(t => t.id === tab)!;
   const authorName = user ? (user.name ?? user.login) : '';
 
@@ -520,7 +520,7 @@ export default function Contribute() {
 
   if (!user) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6 transition-all duration-500" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(8px)' }}>
+      <div className="max-w-2xl mx-auto space-y-6 transition-all duration-500" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(8px)', willChange: 'opacity, transform' }}>
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#a78bfa' }}>Community</p>
           <h1 className="text-2xl font-bold text-white mt-1">Contribute</h1>
@@ -542,7 +542,7 @@ export default function Contribute() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8 transition-all duration-500" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(8px)' }}>
+    <div className="max-w-2xl mx-auto space-y-8 transition-all duration-500" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(8px)', willChange: 'opacity, transform' }}>
       {/* Header */}
       <div>
         <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#a78bfa' }}>Community</p>

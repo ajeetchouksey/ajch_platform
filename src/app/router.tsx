@@ -65,6 +65,7 @@ export default function AppRoutes() {
       <Route path="/skillup/:examId" element={<ExamHome />} />
       <Route path="/skillup/:examId/quiz" element={<Quiz />} />
       <Route path="/skillup/:examId/notes" element={<Notes />} />
+      <Route path="/notes" element={<Notes />} />
       <Route path="/skillup/:examId/scenarios" element={<Scenarios />} />
       <Route path="/skillup/:examId/progress" element={<Progress />} />
       <Route path="/skillup/:examId/plan" element={<StudyPlan />} />
