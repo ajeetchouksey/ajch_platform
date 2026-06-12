@@ -1,15 +1,27 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, FolderOpen, Users, LineChart, Hash, Eye, Server, Terminal, BookMarked, Search, GitPullRequest, CalendarDays } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown } from 'lucide-react';
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
 import SearchModal from './SearchModal';
 import { Breadcrumb, Badge, VersionTag, type BreadcrumbItem } from './ui';
-import { loadBlogManifest, loadExamRegistry } from '@/lib/content-loader';
+import { loadExamRegistry } from '@/lib/content-loader';
 import { getNotesSeen } from '@/lib/storage';
 import { EXAM_SCHEMES } from '@/types/content';
-import type { BlogPostMeta, ExamConfig } from '@/types/content';
+import type { ExamConfig } from '@/types/content';
 import { SubscribeForm } from './SubscribeForm';
+
+const TOOL_NAV = [
+  { to: '/tools/token-counter',         label: 'Token Counter'  },
+  { to: '/tools/context-visualizer',    label: 'Context Viz'    },
+  { to: '/tools/mcp-scaffold',          label: 'MCP Scaffold'   },
+  { to: '/tools/rag-chunk-visualizer',  label: 'RAG Chunks'     },
+  { to: '/tools/prompt-tester',         label: 'Prompt Tester'  },
+  { to: '/tools/prompt-library',        label: 'Prompt Library' },
+  { to: '/tools/system-prompt-builder', label: 'System Prompt'  },
+  { to: '/tools/model-cost-calc',       label: 'Model Cost'     },
+  { to: '/tools/tool-schema-builder',   label: 'Schema Builder' },
+];
 
 const platformLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
@@ -93,18 +105,19 @@ function Breadcrumbs() {
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const [blogPosts, setBlogPosts] = useState<BlogPostMeta[]>([]);
   const [pageKey, setPageKey] = useState(location.pathname + location.search);
   const [currentExam, setCurrentExam] = useState<ExamConfig | null>(null);
 
   const examIdMatch = location.pathname.match(/^\/(?:exams|skillup)\/([^/]+)/);
   const currentExamId = examIdMatch ? examIdMatch[1] : null;
   const isInExam = Boolean(currentExamId);
-  const isInBlog = location.pathname.startsWith('/blog');
   const isInTeam = location.pathname.startsWith('/team') || location.pathname.startsWith('/maintainer/team');
+  const isInTool = Boolean(location.pathname.match(/^\/tools\/.+/));
+  const hasSidebar = isInExam || isInTeam;
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -135,13 +148,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     }
   }, [currentExamId, isInExam]);
 
-  useEffect(() => {
-    if (isInBlog) {
-      loadBlogManifest().then((m) => setBlogPosts(m.posts.filter((p) => !p.draft))).catch(() => {});
-    }
-  }, [isInBlog]);
 
-  const blogCategories = [...new Set(blogPosts.map((p) => p.category))];
 
   const handleSearchKey = useCallback((e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -219,7 +226,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 {({ isActive }) => (
                   <>
                     <Icon size={15} className={isActive ? 'text-violet-400' : ''} />
-                    <span className="hidden xl:inline">{label}</span>
+                    <span>{label}</span>
                     {isActive && (
                       <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-gradient-to-r from-violet-400 to-fuchsia-400 rounded-full" />
                     )}
@@ -253,7 +260,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             fixed lg:static inset-y-0 left-0 z-40 w-64 bg-slate-900/30 backdrop-blur-xl border-r border-slate-700/20
             transform transition-all duration-300 ease-out
             ${sidebarOpen ? 'translate-x-0 shadow-2xl shadow-black/50' : '-translate-x-full shadow-none'}
-            lg:translate-x-0 lg:shadow-none lg:block
+            ${hasSidebar ? 'lg:translate-x-0 lg:shadow-none lg:block' : 'lg:hidden'}
             top-14 pt-4 overflow-y-auto
           `}
         >
@@ -348,62 +355,33 @@ export default function Layout({ children }: { children: ReactNode }) {
                   </div>
                 </div>
 
-                <div className="px-4 pb-4">
-                  <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
-                    Domain Weights
-                  </h3>
-                  <div className="space-y-2">
-                    {currentExam.domains.map((domain) => (
-                      <div key={domain.id} className="flex items-center gap-2 group">
-                        <span className="text-xs text-slate-500 w-6 font-mono group-hover:text-white transition-colors">D{domain.id}</span>
-                        <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                          <div className={`h-full ${domain.color} rounded-full transition-all duration-500 group-hover:brightness-125`} style={{ width: `${domain.weight}%` }} />
-                        </div>
-                        <span className="text-xs text-slate-500 w-8 text-right font-mono group-hover:text-white transition-colors">{domain.weight}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
                 {currentExam.resources.length > 0 && (
-                  <div className="px-4 pt-3 border-t border-slate-800/50">
-                    <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3 mt-1">
-                      Resources
-                    </h3>
-                    <div className="space-y-1.5 text-xs">
-                      {currentExam.resources.map((res) => (
-                        <a key={res.url} href={res.url} target="_blank" rel="noopener noreferrer" className={`block text-slate-400 ${scheme.resourceHover} hover:translate-x-0.5 transition-all duration-200`}>
-                          {res.label} ↗
-                        </a>
-                      ))}
-                    </div>
+                  <div className="px-4 pt-2 border-t border-slate-800/50">
+                    <button
+                      onClick={() => setResourcesOpen((o) => !o)}
+                      className="w-full flex items-center justify-between py-2 group"
+                    >
+                      <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest group-hover:text-slate-400 transition-colors">
+                        Resources
+                      </span>
+                      <ChevronDown size={12} className={`text-slate-600 transition-transform duration-200 ${resourcesOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {resourcesOpen && (
+                      <div className="space-y-1.5 text-xs pb-2">
+                        {currentExam.resources.map((res) => (
+                          <a key={res.url} href={res.url} target="_blank" rel="noopener noreferrer" className={`block text-slate-400 ${scheme.resourceHover} hover:translate-x-0.5 transition-all duration-200`}>
+                            {res.label} ↗
+                          </a>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </>
             );
           })()}
 
-          {/* Blog sidebar */}
-          {isInBlog && (
-            <div className="px-4 pb-4">
-              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">Categories</h3>
-              <nav className="space-y-0.5">
-                <Link to="/blog" className="flex items-center justify-between px-3 py-1.5 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
-                  <span className="flex items-center gap-2"><Newspaper size={13} />All Posts</span>
-                  <span className="text-[10px] font-semibold bg-violet-500/15 text-violet-300 px-1.5 py-0.5 rounded-full">{blogPosts.length}</span>
-                </Link>
-                {blogCategories.map((cat, i) => {
-                  const countColors = ['text-blue-400','text-emerald-400','text-amber-400','text-rose-400','text-fuchsia-400','text-cyan-400'];
-                  return (
-                  <Link key={cat} to="/blog" className="flex items-center justify-between px-3 py-1.5 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
-                    <span className="flex items-center gap-2"><FolderOpen size={13} />{cat}</span>
-                    <span className={`text-[10px] font-semibold ${countColors[i % countColors.length]}`}>{blogPosts.filter(p => p.category === cat).length}</span>
-                  </Link>
-                  );
-                })}
-              </nav>
-            </div>
-          )}
+
 
           {/* Team sidebar */}
           {isInTeam && (
@@ -464,65 +442,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           )}
 
-          {/* Generic sidebar for non-exam, non-blog, non-team pages */}
-          {!isInExam && !isInBlog && !isInTeam && (
-            <div className="px-4 pb-4">
-              <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
-                Features
-              </h3>
-              <nav className="space-y-0.5">
-                <Link to="/skillup" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
-                  <GraduationCap size={16} />
-                  <span>Certification Exams</span>
-                  <span className="ml-auto text-[10px] bg-violet-900/40 text-violet-300 px-1.5 py-0.5 rounded-full">1</span>
-                </Link>
-                <Link to="/blog" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
-                  <Newspaper size={16} />
-                  <span>Blog</span>
-                </Link>
-                <Link to="/tools" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
-                  <Wrench size={16} />
-                  <span>AI Tools</span>
-                  <span className="ml-auto flex items-center gap-1 text-[10px] text-amber-400">
-                    <span className="w-1 h-1 rounded-full bg-amber-400 animate-pulse" />
-                    dev
-                  </span>
-                </Link>
-                <Link to="/tools/token-counter" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
-                  <Hash size={14} />
-                  <span>Token Counter</span>
-                </Link>
-                <Link to="/tools/context-visualizer" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
-                  <Eye size={14} />
-                  <span>Context Visualizer</span>
-                </Link>
-                <Link to="/tools/mcp-scaffold" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
-                  <Server size={14} />
-                  <span>MCP Scaffold</span>
-                </Link>
-                <Link to="/tools/rag-chunk-visualizer" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
-                  <Layers size={14} />
-                  <span>RAG Chunks</span>
-                </Link>
-                <Link to="/tools/prompt-tester" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
-                  <Terminal size={14} />
-                  <span>Prompt Tester</span>
-                </Link>
-                <Link to="/tools/prompt-library" className="flex items-center gap-2.5 px-3 py-2 pl-8 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
-                  <BookMarked size={14} />
-                  <span>Prompt Library</span>
-                </Link>
-                <Link to="/dashboard" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
-                  <BarChart2 size={16} />
-                  <span>Dashboard</span>
-                </Link>
-                <Link to="/team" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5 transition-all duration-200">
-                  <Users size={16} />
-                  <span>Team</span>
-                </Link>
-              </nav>
-            </div>
-          )}
+
         </aside>
 
         {/* Sidebar overlay (mobile) — always rendered for smooth fade out */}
@@ -542,6 +462,33 @@ export default function Layout({ children }: { children: ReactNode }) {
             backgroundAttachment: 'fixed',
           }}
         >
+          {/* Tools sub-nav strip */}
+          {isInTool && (
+            <div className="sticky top-0 z-20 shrink-0 border-b border-slate-700/30 bg-slate-900/90 backdrop-blur-md px-4 py-2 flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+              <NavLink
+                to="/tools"
+                end
+                className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-all shrink-0 pr-3 mr-1 border-r border-slate-700/40"
+              >
+                ← All Tools
+              </NavLink>
+              {TOOL_NAV.map(({ to, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    `px-2.5 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+                      isActive
+                        ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30'
+                        : 'text-slate-500 hover:text-white hover:bg-slate-800/60 border border-transparent'
+                    }`
+                  }
+                >
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+          )}
           <div className="flex-1 p-4 lg:p-8">
             <div className="max-w-5xl mx-auto">
               <div key={pageKey} className="animate-[fadeIn_0.38s_cubic-bezier(0.22,1,0.36,1)_both]">

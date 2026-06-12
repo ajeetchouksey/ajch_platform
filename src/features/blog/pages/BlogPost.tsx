@@ -129,7 +129,7 @@ function TocSidebar({
   const activeIdx = headings.findIndex(h => h.id === activeId);
   const authorHref = AUTHOR_PORTAL[meta.author];
   return (
-    <aside className="hidden xl:flex flex-col w-[220px] 2xl:w-[240px] shrink-0 sticky top-4 self-start max-h-[calc(100vh-5rem)]">
+    <aside className="hidden lg:flex flex-col w-[200px] xl:w-[220px] 2xl:w-[240px] shrink-0 sticky top-4 self-start max-h-[calc(100vh-5rem)]">
       <div className="flex flex-col gap-3 overflow-y-auto pb-4"
         style={{ scrollbarWidth: 'none' }}>
 
@@ -453,10 +453,10 @@ export default function BlogPost() {
 
       {/* Mobile TOC button — sits above card, only visible below xl */}
       {headings.length > 0 && (
-        <div className="xl:hidden flex justify-end mb-3">
+        <div className="lg:hidden sticky top-0 z-20 flex justify-end mb-3 pt-1 pb-2">
           <button onClick={() => setShowToc(true)}
             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl"
-            style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', color: '#a78bfa' }}>
+            style={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(139,92,246,0.35)', color: '#a78bfa', backdropFilter: 'blur(8px)' }}>
             <List size={12} /> Contents
           </button>
         </div>
