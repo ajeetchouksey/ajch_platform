@@ -11,6 +11,15 @@ import { EXAM_SCHEMES } from '@/types/content';
 import type { ExamConfig } from '@/types/content';
 import { SubscribeForm } from './SubscribeForm';
 
+const EXAM_NAV = [
+  { slug: '',          label: 'Overview',    icon: GraduationCap, end: true },
+  { slug: 'quiz',      label: 'Quiz',        icon: Brain              },
+  { slug: 'notes',     label: 'Study Notes', icon: BookOpen           },
+  { slug: 'scenarios', label: 'Scenarios',   icon: Layers             },
+  { slug: 'progress',  label: 'Progress',    icon: BarChart2          },
+  { slug: 'plan',      label: 'Study Plan',  icon: CalendarDays       },
+];
+
 const TOOL_NAV = [
   { to: '/tools/token-counter',         label: 'Token Counter'  },
   { to: '/tools/context-visualizer',    label: 'Context Viz'    },
@@ -487,6 +496,43 @@ export default function Layout({ children }: { children: ReactNode }) {
                   {label}
                 </NavLink>
               ))}
+            </div>
+          )}
+          {/* Exam sub-nav strip */}
+          {isInExam && currentExamId && (
+            <div className="sticky top-0 z-20 shrink-0 border-b border-slate-700/30 bg-slate-900/90 backdrop-blur-md px-3 py-2 flex items-center gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+              <NavLink
+                to="/skillup"
+                end
+                className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-all shrink-0 pr-3 mr-1 border-r border-slate-700/40"
+              >
+                ← Exams
+              </NavLink>
+              {currentExam && (
+                <span className="text-[11px] font-bold text-slate-300 shrink-0 pr-3 mr-1 border-r border-slate-700/40 tracking-wide">
+                  {currentExam.shortTitle}
+                </span>
+              )}
+              {EXAM_NAV.map(({ slug, label, icon: Icon, end }) => {
+                const to = slug ? `/skillup/${currentExamId}/${slug}` : `/skillup/${currentExamId}`;
+                return (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={end}
+                    className={({ isActive }) =>
+                      `flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+                        isActive
+                          ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30'
+                          : 'text-slate-500 hover:text-white hover:bg-slate-800/60 border border-transparent'
+                      }`
+                    }
+                  >
+                    <Icon size={12} />
+                    {label}
+                  </NavLink>
+                );
+              })}
             </div>
           )}
           <div className="flex-1 p-4 lg:p-8">
