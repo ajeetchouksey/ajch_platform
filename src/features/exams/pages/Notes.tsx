@@ -223,6 +223,11 @@ export default function Notes() {
               <List size={13} />
               On this page
               <span className="text-[10px] font-mono text-slate-600">({toc.length})</span>
+              {trapCount > 0 && (
+                <span className="flex items-center gap-0.5 text-[10px] font-bold text-rose-400/80">
+                  <AlertTriangle size={10} />{trapCount} traps
+                </span>
+              )}
             </span>
             {mobileTocOpen ? <ChevronUp size={14} className="text-slate-500" /> : <ChevronDown size={14} className="text-slate-500" />}
           </button>
