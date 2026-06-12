@@ -6,7 +6,8 @@ import rehypeRaw from 'rehype-raw';
 import { loadNoteForExam, loadExamRegistry } from '@/lib/content-loader';
 import { markNotesSeen } from '@/lib/storage';
 import type { DomainConfig, ExamConfig } from '@/types/content';
-import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare } from 'lucide-react';
+import GiscusComments from '@/components/GiscusComments';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -401,6 +402,20 @@ export default function Notes() {
               <ChevronRight size={16} className="text-slate-500 shrink-0 transition-transform group-hover:translate-x-0.5" />
             </button>
           ) : <div />}
+        </div>
+      )}
+
+      {/* ── Community discussion ───────────────────────────────────────── */}
+      {!loading && !error && content && (
+        <div className="mt-12 pt-8 border-t border-slate-800/60">
+          <div className="flex items-center gap-2 mb-6">
+            <MessageSquare size={16} className="text-violet-400" />
+            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Community Discussion</h2>
+          </div>
+          <GiscusComments
+            slug={`${examId}-domain-${domain}`}
+            context="skill-up"
+          />
         </div>
       )}
     </div>

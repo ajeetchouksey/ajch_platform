@@ -5,6 +5,8 @@ import {
   Calculator, Layers, FileJson, BookMarked, ArrowRight, Zap,
 } from 'lucide-react';
 import RelatedContent from '@/components/RelatedContent';
+import GiscusComments from '@/components/GiscusComments';
+import { MessageSquare } from 'lucide-react';
 
 interface ToolDef {
   icon: React.ElementType;
@@ -264,6 +266,18 @@ export default function Tools() {
         maxSkills={3}
         maxTools={0}
       />
+
+      {/* ── Community discussion ───────────────────────────────────────── */}
+      <div className="mt-12 pt-8 border-t border-slate-800/60">
+        <div className="flex items-center gap-2 mb-6">
+          <MessageSquare size={16} className="text-violet-400" />
+          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Ideas &amp; Feedback</h2>
+        </div>
+        <GiscusComments
+          slug="tools-index"
+          context="tools"
+        />
+      </div>
     </div>
   );
 }
