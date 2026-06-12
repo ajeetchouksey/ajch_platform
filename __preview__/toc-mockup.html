@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Notes TOC — Visual Mockup</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f1117; color: #e2e8f0; font-family: system-ui, sans-serif; min-height: 100vh; }
+
+  /* ── outer shell (simulates the page wrapper) ── */
+  .shell { max-width: 1200px; margin: 0 auto; padding: 24px 20px; display: grid; gap: 24px; grid-template-columns: 200px 1fr 220px; }
+
+  /* ── LEFT: domain sidebar (already exists) ── */
+  .domain-sidebar { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
+  .domain-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; cursor: pointer; transition: background .15s; }
+  .domain-item:hover { background: #1e293b; }
+  .domain-item.active { background: #4c1d95; }
+  .domain-item .badge { font-family: monospace; font-size: 11px; color: #a78bfa; background: #1e0a44; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+  .domain-item .label { font-size: 12px; color: #94a3b8; }
+  .domain-item.active .label { color: #fff; }
+  .domain-item .pct { font-size: 10px; color: #475569; margin-left: auto; font-family: monospace; }
+  .domain-item.active .pct { color: #a78bfa; }
+
+  /* ── CENTRE: article content ── */
+  .article { min-width: 0; }
+  .article-header { display: flex; align-items: center; gap: 12px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #1e293b; }
+  .d-badge { width: 40px; height: 40px; border-radius: 10px; background: #1e293b; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; font-family: monospace; font-weight: 700; color: #a78bfa; font-size: 13px; flex-shrink: 0; }
+  .article-meta { flex: 1; }
+  .article-meta .sub { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: #475569; font-weight: 600; }
+  .article-meta .title { font-size: 15px; font-weight: 600; color: #fff; }
+  .read-pill { font-size: 11px; color: #475569; background: #1e293b; border: 1px solid #334155; padding: 4px 10px; border-radius: 999px; font-family: monospace; flex-shrink: 0; }
+
+  .prose h2 { font-size: 17px; font-weight: 700; color: #f1f5f9; margin: 28px 0 12px; padding-top: 4px; }
+  .prose h3 { font-size: 14px; font-weight: 600; color: #cbd5e1; margin: 20px 0 8px; }
+  .prose p  { font-size: 15px; line-height: 1.75; color: #94a3b8; margin-bottom: 12px; }
+  .prose code { font-family: monospace; font-size: 12px; background: #1e293b; border: 1px solid #334155; padding: 2px 6px; border-radius: 4px; color: #a78bfa; }
+  .prose blockquote { border-left: 3px solid #6d28d9; padding: 10px 16px; background: #13102a; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .prose blockquote p { color: #94a3b8; margin: 0; font-size: 14px; }
+
+  /* ── RIGHT: IN-PAGE TOC (NEW) ── */
+  .toc-panel { position: sticky; top: 80px; align-self: start; }
+  .toc-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .15em; color: #475569; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .toc-label svg { opacity: .6; }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 2px; border-left: 2px solid #1e293b; padding-left: 14px; }
+  .toc-list li a { font-size: 12px; color: #475569; text-decoration: none; display: block; padding: 4px 0; line-height: 1.4; transition: color .15s; }
+  .toc-list li a:hover { color: #a78bfa; }
+  .toc-list li.active a { color: #a78bfa; font-weight: 600; }
+  .toc-list li.h3 a { padding-left: 12px; font-size: 11px; }
+  .toc-list li.active { border-left: 2px solid #7c3aed; margin-left: -16px; padding-left: 14px; }
+  .toc-scroll-pill { margin-top: 14px; display: flex; align-items: center; gap: 6px; font-size: 11px; color: #334155; cursor: pointer; border-top: 1px solid #1e293b; padding-top: 12px; }
+  .toc-scroll-pill:hover { color: #64748b; }
+
+  /* ── Mobile TOC (collapsible strip at top) ── */
+  .mobile-toc { display: none; margin-bottom: 20px; border: 1px solid #334155; border-radius: 10px; overflow: hidden; }
+  .mobile-toc-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #111827; cursor: pointer; }
+  .mobile-toc-header span { font-size: 12px; font-weight: 600; color: #94a3b8; display: flex; align-items: center; gap-6px; }
+  .mobile-toc-header .chevron { color: #475569; font-size: 14px; transition: transform .2s; }
+  .mobile-toc-body { padding: 10px 14px; background: #0f1117; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid #1e293b; }
+  .mobile-toc-body a { font-size: 12px; color: #64748b; text-decoration: none; padding: 3px 0; }
+  .mobile-toc-body a.h3 { padding-left: 14px; color: #475569; font-size: 11px; }
+  .mobile-toc-body a.active { color: #a78bfa; font-weight: 600; }
+
+  /* ── LABELS ── */
+  .label-new { background: #14532d; color: #4ade80; font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 5px; border-radius: 4px; vertical-align: middle; margin-left: 6px; border: 1px solid #166534; }
+  .label-exists { background: #1e3a5f; color: #60a5fa; font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 5px; border-radius: 4px; vertical-align: middle; margin-left: 6px; border: 1px solid #1d4ed8; }
+
+  /* ── annotation arrows ── */
+  .annot { position: absolute; font-size: 11px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; color: #94a3b8; white-space: nowrap; pointer-events: none; }
+
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; }
+    .domain-sidebar, .toc-panel { display: none; }
+    .mobile-toc { display: block; }
+  }
+</style>
+</head>
+<body>
+
+<div style="background:#1e0a44;border-bottom:1px solid #4c1d95;padding:10px 20px;font-size:12px;color:#a78bfa;display:flex;align-items:center;gap:8px;">
+  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+  Visual Mockup — Not live code &nbsp;·&nbsp; Green badge = NEW &nbsp;·&nbsp; Blue badge = already exists
+</div>
+
+<div class="shell">
+
+  <!-- LEFT SIDEBAR (EXISTING) -->
+  <aside class="domain-sidebar">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:#475569;margin-bottom:6px;">Domains <span class="label-exists">exists</span></div>
+    <div class="domain-item">
+      <span class="badge">D1</span><span class="label">Cloud Concepts</span><span class="pct">26%</span>
+    </div>
+    <div class="domain-item active">
+      <span class="badge">D2</span><span class="label">Security</span><span class="pct">25%</span>
+    </div>
+    <div class="domain-item">
+      <span class="badge">D3</span><span class="label">Technology</span><span class="pct">33%</span>
+    </div>
+    <div class="domain-item">
+      <span class="badge">D4</span><span class="label">Billing</span><span class="pct">16%</span>
+    </div>
+  </aside>
+
+  <!-- CENTRE: ARTICLE -->
+  <main class="article">
+
+    <!-- Mobile TOC (NEW, collapses on mobile) -->
+    <div class="mobile-toc">
+      <div class="mobile-toc-header">
+        <span>📋 &nbsp;On this page <span class="label-new">new</span></span>
+        <span class="chevron">▾</span>
+      </div>
+      <div class="mobile-toc-body">
+        <a href="#s1" class="active">Shared Responsibility Model</a>
+        <a href="#s2">IAM — Identity &amp; Access</a>
+        <a href="#s2a" class="h3">Users, Groups, Roles</a>
+        <a href="#s2b" class="h3">Policies &amp; Permissions</a>
+        <a href="#s3">Network Security</a>
+        <a href="#s4">Compliance Frameworks</a>
+      </div>
+    </div>
+
+    <div class="article-header">
+      <div class="d-badge">D2</div>
+      <div class="article-meta">
+        <div class="sub">Domain 2 of 4 &nbsp;·&nbsp; Security</div>
+        <div class="title">Security &amp; Compliance</div>
+      </div>
+      <div class="read-pill">⏱ 12 min read</div>
+    </div>
+
+    <div class="prose" id="content">
+      <h2 id="s1">Shared Responsibility Model</h2>
+      <p>AWS is responsible for the security <strong>of</strong> the cloud — physical hardware, networking, managed services. You are responsible for security <strong>in</strong> the cloud — OS patches, app code, IAM config, data encryption.</p>
+      <blockquote><p>⚠️ Exam trap: Lambda = AWS manages OS patches. EC2 = you manage OS patches.</p></blockquote>
+      <p>Customer responsibilities include: identity &amp; access management, data classification, network traffic protection, OS &amp; app configuration.</p>
+
+      <h2 id="s2">IAM — Identity &amp; Access</h2>
+      <p>IAM lets you control who can do what with which AWS resources. It is global (not region-specific) and free.</p>
+      <h3 id="s2a">Users, Groups &amp; Roles</h3>
+      <p>A <code>User</code> is a person or service. A <code>Group</code> is a collection of users sharing the same permissions. A <code>Role</code> is assumed temporarily, typically by services or cross-account access.</p>
+      <h3 id="s2b">Policies &amp; Permissions</h3>
+      <p>Policies are JSON documents attached to identities or resources. Default deny applies — explicit allow must exist. <code>Deny</code> always wins over <code>Allow</code>.</p>
+
+      <h2 id="s3">Network Security</h2>
+      <p>Security Groups act as stateful firewalls at the instance level. NACLs are stateless and apply at the subnet level. WAF filters HTTP/S requests, Shield protects against DDoS.</p>
+
+      <h2 id="s4">Compliance Frameworks</h2>
+      <p>AWS is compliant with hundreds of standards. Key ones for CCP: SOC 1/2/3, PCI DSS, HIPAA, ISO 27001. AWS Artifact provides on-demand access to compliance reports.</p>
+    </div>
+
+  </main>
+
+  <!-- RIGHT: IN-PAGE TOC (NEW) -->
+  <aside class="toc-panel">
+    <div class="toc-label">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      On this page <span class="label-new">new</span>
+    </div>
+    <ul class="toc-list">
+      <li class="active"><a href="#s1">Shared Responsibility Model</a></li>
+      <li><a href="#s2">IAM — Identity &amp; Access</a></li>
+      <li class="h3"><a href="#s2a">Users, Groups &amp; Roles</a></li>
+      <li class="h3"><a href="#s2b">Policies &amp; Permissions</a></li>
+      <li><a href="#s3">Network Security</a></li>
+      <li><a href="#s4">Compliance Frameworks</a></li>
+    </ul>
+    <div class="toc-scroll-pill">
+      ↑ Back to top
+    </div>
+  </aside>
+
+</div>
+
+<!-- Active state demo -->
+<script>
+  const items = document.querySelectorAll('.toc-list li');
+  items.forEach((li, i) => {
+    li.style.cursor = 'pointer';
+    li.addEventListener('click', () => {
+      items.forEach(x => x.classList.remove('active'));
+      li.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -54,7 +54,7 @@ export default function Dashboard() {
   const [dueDomains, setDueDomains] = useState<ScheduleEntry[]>([]);
 
   useEffect(() => {
-    setTimeout(() => setMounted(true), 0);
+    requestAnimationFrame(() => setMounted(true));
 
     // Build scheduler from manifest whitelist + local sessions
     loadExamRegistry().then((registry) => {
@@ -111,6 +111,7 @@ export default function Dashboard() {
         opacity: mounted ? 1 : 0,
         transform: mounted ? 'translateY(0)' : 'translateY(8px)',
         transition: 'opacity 0.3s ease, transform 0.3s ease',
+        willChange: 'opacity, transform',
       }}
     >
       {/* Header */}

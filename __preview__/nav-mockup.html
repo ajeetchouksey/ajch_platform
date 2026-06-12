@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aarya Nav Mockup — Before vs After</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background: #0f172a; color: #e2e8f0; font-family: 'Inter', system-ui, sans-serif; }
+  .glass { background: rgba(30,41,59,0.7); border: 1px solid rgba(71,85,105,0.3); }
+  .glass-edge { backdrop-filter: blur(12px); }
+  .pill-active { background: rgba(139,92,246,0.18); color: #c4b5fd; border-left: 2px solid #8b5cf6; }
+  .pill-hover:hover { background: rgba(51,65,85,0.7); color: #fff; transform: translateX(2px); }
+  .active-underline { position: absolute; bottom: 0; left: 12px; right: 12px; height: 2px; background: linear-gradient(to right, #a78bfa, #e879f9); border-radius: 9999px; }
+  .tab-active { background: rgba(139,92,246,0.15); color: #c4b5fd; }
+  .collapse-toggle { cursor: pointer; user-select: none; }
+  .collapsible { overflow: hidden; transition: max-height 0.3s ease; max-height: 300px; }
+  .collapsible.closed { max-height: 0; }
+  .section-label { font-size: 10px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; }
+  .nav-progress { height: 2px; background: linear-gradient(to right, #8b5cf6, #e879f9); animation: progress 1.2s ease forwards; }
+  @keyframes progress { from { width: 0; } to { width: 100%; } }
+  .badge-new { font-size: 9px; background: rgba(245,158,11,0.15); color: #fbbf24; padding: 1px 5px; border-radius: 999px; }
+  .scenario { border: 2px dashed rgba(139,92,246,0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px; }
+  .scenario-label { font-size: 11px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .vs-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; background: rgba(51,65,85,0.6); border: 1px solid rgba(71,85,105,0.4); color: #94a3b8; cursor: pointer; transition: all 0.15s; }
+  .chip:hover { background: rgba(71,85,105,0.8); color: #fff; }
+  .chip.active { background: rgba(139,92,246,0.15); color: #c4b5fd; border-color: rgba(139,92,246,0.4); }
+</style>
+</head>
+<body class="min-h-screen p-6">
+
+<div class="max-w-6xl mx-auto space-y-10">
+
+  <div class="text-center space-y-2 mb-8">
+    <h1 class="text-2xl font-bold text-white">Aarya — Navigation Redesign Mockups</h1>
+    <p class="text-slate-400 text-sm">Before (current) vs After (proposed) — click scenarios to toggle</p>
+  </div>
+
+  <!-- ═══ SCENARIO 1: TOP NAV ═══ -->
+  <div class="scenario">
+    <div class="scenario-label">📌 Scenario 1 — Top Navigation Bar</div>
+    <div class="grid grid-cols-2 gap-6">
+      <!-- BEFORE -->
+      <div>
+        <span class="vs-label" style="background:rgba(239,68,68,0.15);color:#f87171;">BEFORE — Icons only below 1280px</span>
+        <div class="mt-3 glass glass-edge rounded-xl overflow-hidden">
+          <div class="nav-progress" style="width:60%;animation:none;"></div>
+          <div class="flex items-center h-14 px-5 gap-2">
+            <button class="text-slate-400 hover:text-white p-1.5 rounded-md">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="flex items-center gap-2 mr-4">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6M9 12h4"/></svg>
+              <div><div class="text-sm font-bold text-violet-300">Aarya</div><div class="text-[9px] text-slate-500">My AI Learning Hub</div></div>
+            </div>
+            <!-- Icons only, no labels -->
+            <nav class="flex gap-1 flex-1">
+              <div class="relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-white">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                <!-- label hidden below xl -->
+                <div class="active-underline"></div>
+              </div>
+              <div class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-400"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+              <div class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-400"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+              <div class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-400"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+            </nav>
+            <div class="ml-auto flex items-center gap-2">
+              <div class="text-xs text-slate-400 flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-slate-800/50"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> <span class="text-[10px]">⌘K</span></div>
+            </div>
+          </div>
+          <div class="px-4 py-2 bg-red-500/5 text-red-400 text-xs">⚠ User sees icons with no labels. No way to know what each icon means.</div>
+        </div>
+      </div>
+      <!-- AFTER -->
+      <div>
+        <span class="vs-label" style="background:rgba(34,197,94,0.15);color:#4ade80;">AFTER — Labels always visible from md:</span>
+        <div class="mt-3 glass glass-edge rounded-xl overflow-hidden">
+          <div class="nav-progress"></div>
+          <div class="flex items-center h-14 px-5 gap-2">
+            <div class="flex items-center gap-2 mr-4">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6M9 12h4"/></svg>
+              <div><div class="text-sm font-bold text-violet-300">Aarya</div><div class="text-[9px] text-slate-500">My AI Learning Hub</div></div>
+            </div>
+            <!-- Labels always show -->
+            <nav class="flex gap-0.5 flex-1">
+              <div class="relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-white">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                <span>Home</span>
+                <div class="active-underline"></div>
+              </div>
+              <div class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-400 text-sm hover:text-white hover:bg-slate-800/50 cursor-pointer transition-all"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Skill Up</span></div>
+              <div class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-400 text-sm hover:text-white hover:bg-slate-800/50 cursor-pointer transition-all"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg><span>Field Notes</span></div>
+              <div class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-400 text-sm hover:text-white hover:bg-slate-800/50 cursor-pointer transition-all"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span>Tools</span></div>
+              <div class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-400 text-sm hover:text-white hover:bg-slate-800/50 cursor-pointer transition-all"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span>Docs</span></div>
+            </nav>
+            <div class="ml-auto flex items-center gap-2">
+              <div class="text-xs text-slate-400 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-800/50 cursor-pointer border border-slate-700/50"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Search</span><kbd class="text-[10px] text-slate-500">⌘K</kbd></div>
+              <div class="px-3 py-1.5 rounded-lg text-sm bg-violet-500/15 text-violet-300 border border-violet-500/30 cursor-pointer">Sign in</div>
+            </div>
+          </div>
+          <div class="px-4 py-2 bg-green-500/5 text-green-400 text-xs">✓ Every item labelled. User knows exactly where they are and can go.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCENARIO 2: HOME / GENERIC SIDEBAR ═══ -->
+  <div class="scenario">
+    <div class="scenario-label">📌 Scenario 2 — Home & Generic Pages (Tools hub, Dashboard, Team…)</div>
+    <div class="grid grid-cols-2 gap-6">
+      <!-- BEFORE -->
+      <div>
+        <span class="vs-label" style="background:rgba(239,68,68,0.15);color:#f87171;">BEFORE — "Features" sidebar duplicates page content</span>
+        <div class="mt-3 glass glass-edge rounded-xl overflow-hidden" style="height:360px;display:flex;">
+          <aside class="w-56 border-r border-slate-700/20 p-3 shrink-0 overflow-y-auto">
+            <div class="section-label mb-2">Features</div>
+            <div class="space-y-0.5 text-sm">
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>
+                <span>Certification Exams</span>
+                <span class="ml-auto text-[10px] bg-violet-900/40 text-violet-300 px-1.5 py-0.5 rounded-full">1</span>
+              </div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Blog</span></div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span>AI Tools</span><span class="ml-auto text-[10px] text-amber-400">dev</span></div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 pl-8 rounded-lg text-slate-400 cursor-pointer transition-all text-xs"><span>Token Counter</span></div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 pl-8 rounded-lg text-slate-400 cursor-pointer transition-all text-xs"><span>Context Visualizer</span></div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 pl-8 rounded-lg text-slate-400 cursor-pointer transition-all text-xs"><span>MCP Scaffold</span></div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 pl-8 rounded-lg text-slate-400 cursor-pointer transition-all text-xs"><span>RAG Chunks</span></div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 pl-8 rounded-lg text-slate-400 cursor-pointer transition-all text-xs"><span>Prompt Tester</span></div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Dashboard</span></div>
+            </div>
+          </aside>
+          <div class="flex-1 p-4 overflow-hidden">
+            <div class="text-xs text-slate-500 mb-3">breadcrumb: Home</div>
+            <div class="text-lg font-bold text-white mb-2">Welcome to Aarya</div>
+            <div class="text-sm text-slate-400">The sidebar content above is the same as the top nav — users see the same nav twice and find it confusing.</div>
+            <div class="mt-4 bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-xs text-red-300">⚠ Sidebar repeats top nav. 256px of space wasted. Confuses the page hierarchy.</div>
+          </div>
+        </div>
+      </div>
+      <!-- AFTER -->
+      <div>
+        <span class="vs-label" style="background:rgba(34,197,94,0.15);color:#4ade80;">AFTER — No sidebar on non-contextual pages</span>
+        <div class="mt-3 glass glass-edge rounded-xl overflow-hidden" style="height:360px;display:flex;">
+          <div class="flex-1 p-6 overflow-hidden">
+            <div class="text-xs text-slate-500 mb-4">breadcrumb: Home</div>
+            <div class="text-xl font-bold text-white mb-3">Welcome to Aarya</div>
+            <div class="text-sm text-slate-400 mb-5">Full viewport width — content breathes. No duplicate nav.</div>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="glass rounded-xl p-3 cursor-pointer hover:border-violet-500/40 transition-all">
+                <div class="text-violet-400 text-xs font-semibold mb-1">🎓 Skill Up</div>
+                <div class="text-xs text-slate-400">3 certification tracks</div>
+              </div>
+              <div class="glass rounded-xl p-3 cursor-pointer hover:border-blue-500/40 transition-all">
+                <div class="text-blue-400 text-xs font-semibold mb-1">📝 Field Notes</div>
+                <div class="text-xs text-slate-400">12 posts published</div>
+              </div>
+              <div class="glass rounded-xl p-3 cursor-pointer hover:border-amber-500/40 transition-all">
+                <div class="text-amber-400 text-xs font-semibold mb-1">🔧 Tools</div>
+                <div class="text-xs text-slate-400">9 AI tools live</div>
+              </div>
+            </div>
+            <div class="mt-4 bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-xs text-green-300">✓ 256px reclaimed for content. Clean, uncluttered landing experience.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCENARIO 3: EXAM SIDEBAR ═══ -->
+  <div class="scenario">
+    <div class="scenario-label">📌 Scenario 3 — Exam Context Sidebar (/skillup/ccaf/*)</div>
+    <div class="grid grid-cols-2 gap-6">
+      <!-- BEFORE -->
+      <div>
+        <span class="vs-label" style="background:rgba(239,68,68,0.15);color:#f87171;">BEFORE — 4 sections, information overload</span>
+        <div class="mt-3 glass glass-edge rounded-xl overflow-hidden" style="height:500px;display:flex;">
+          <aside class="w-56 border-r border-slate-700/20 p-3 shrink-0 overflow-y-auto text-sm">
+            <div class="section-label mb-2">CCA-F Exam</div>
+            <div class="space-y-0.5 mb-4">
+              <div class="pill-active flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer">📚 Overview</div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all">🧠 Quiz</div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all">📖 Study Notes</div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all">🎬 Scenarios</div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all">📊 Progress</div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all">📅 Study Plan</div>
+            </div>
+            <div class="section-label mb-2">Exam Domains</div>
+            <div class="space-y-0.5 mb-4 text-xs">
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-400"><span class="w-2 h-2 rounded-full bg-violet-500"></span>D1: Governance</div>
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-400"><span class="w-2 h-2 rounded-full bg-blue-500"></span>D2: Compliance</div>
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-400"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>D3: Privacy</div>
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-400"><span class="w-2 h-2 rounded-full bg-amber-500"></span>D4: Security</div>
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-400"><span class="w-2 h-2 rounded-full bg-rose-500"></span>D5: Ethics</div>
+            </div>
+            <div class="section-label mb-2">Domain Weights</div>
+            <div class="space-y-2 mb-4 text-xs">
+              <div class="flex items-center gap-2"><span class="w-6 text-slate-500 font-mono">D1</span><div class="flex-1 h-1.5 bg-slate-800 rounded-full"><div class="h-full bg-violet-500 rounded-full" style="width:30%"></div></div><span class="w-8 text-right text-slate-500">30%</span></div>
+              <div class="flex items-center gap-2"><span class="w-6 text-slate-500 font-mono">D2</span><div class="flex-1 h-1.5 bg-slate-800 rounded-full"><div class="h-full bg-blue-500 rounded-full" style="width:25%"></div></div><span class="w-8 text-right text-slate-500">25%</span></div>
+              <div class="flex items-center gap-2"><span class="w-6 text-slate-500 font-mono">D3</span><div class="flex-1 h-1.5 bg-slate-800 rounded-full"><div class="h-full bg-emerald-500 rounded-full" style="width:20%"></div></div><span class="w-8 text-right text-slate-500">20%</span></div>
+              <div class="flex items-center gap-2"><span class="w-6 text-slate-500 font-mono">D4</span><div class="flex-1 h-1.5 bg-slate-800 rounded-full"><div class="h-full bg-amber-500 rounded-full" style="width:15%"></div></div><span class="w-8 text-right text-slate-500">15%</span></div>
+              <div class="flex items-center gap-2"><span class="w-6 text-slate-500 font-mono">D5</span><div class="flex-1 h-1.5 bg-slate-800 rounded-full"><div class="h-full bg-rose-500 rounded-full" style="width:10%"></div></div><span class="w-8 text-right text-slate-500">10%</span></div>
+            </div>
+            <div class="section-label mb-2">Resources</div>
+            <div class="space-y-1 text-xs text-slate-400">
+              <div class="hover:text-violet-300 cursor-pointer">Official Exam Guide ↗</div>
+              <div class="hover:text-violet-300 cursor-pointer">Study Handbook ↗</div>
+              <div class="hover:text-violet-300 cursor-pointer">Practice Tests ↗</div>
+            </div>
+          </aside>
+          <div class="flex-1 p-4">
+            <div class="text-xs text-red-400 bg-red-500/10 rounded p-2">⚠ 4 sections crammed in. Domain Weights takes space the user only needs once. Resources always visible even if not needed.</div>
+          </div>
+        </div>
+      </div>
+      <!-- AFTER -->
+      <div>
+        <span class="vs-label" style="background:rgba(34,197,94,0.15);color:#4ade80;">AFTER — 2 sections + collapsible Resources</span>
+        <div class="mt-3 glass glass-edge rounded-xl overflow-hidden" style="height:500px;display:flex;">
+          <aside class="w-56 border-r border-slate-700/20 p-3 shrink-0 overflow-y-auto text-sm">
+            <!-- Exam badge -->
+            <div class="flex items-center gap-2 px-2 py-2 mb-3 rounded-xl" style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);">
+              <span class="text-[10px] font-bold text-violet-400 uppercase tracking-widest">CCA-F</span>
+              <span class="text-xs text-slate-400">· Exam Prep</span>
+            </div>
+            <!-- Section nav -->
+            <div class="section-label mb-2">Navigation</div>
+            <div class="space-y-0.5 mb-4">
+              <div class="pill-active flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg> Overview
+              </div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Quiz
+              </div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Notes
+              </div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Scenarios
+              </div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Progress
+              </div>
+              <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Study Plan
+              </div>
+            </div>
+            <!-- Domains — more compact -->
+            <div class="section-label mb-2">Domains</div>
+            <div class="space-y-0.5 mb-3 text-xs">
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-800/80 text-white"><span class="w-2 h-2 rounded-full bg-violet-500 ring-2 ring-offset-1 ring-offset-slate-900 ring-violet-400"></span>D1: Governance</div>
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 cursor-pointer transition-all"><span class="w-2 h-2 rounded-full bg-blue-500"></span>D2: Compliance<span class="ml-auto text-emerald-600 text-[9px]">✓</span></div>
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 cursor-pointer transition-all"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>D3: Privacy</div>
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 cursor-pointer transition-all"><span class="w-2 h-2 rounded-full bg-amber-500"></span>D4: Security</div>
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 cursor-pointer transition-all"><span class="w-2 h-2 rounded-full bg-rose-500"></span>D5: Ethics</div>
+            </div>
+            <!-- Resources collapsed -->
+            <div class="collapse-toggle flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-800/50 transition-all" onclick="this.nextElementSibling.classList.toggle('closed')">
+              <span class="section-label">Resources</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="collapsible closed pl-2 space-y-1 text-xs text-slate-400">
+              <div class="hover:text-violet-300 cursor-pointer py-1">Official Exam Guide ↗</div>
+              <div class="hover:text-violet-300 cursor-pointer py-1">Study Handbook ↗</div>
+              <div class="hover:text-violet-300 cursor-pointer py-1">Practice Tests ↗</div>
+            </div>
+          </aside>
+          <div class="flex-1 p-4 text-xs">
+            <div class="text-green-400 bg-green-500/10 rounded p-2 mb-3">✓ Domain Weights moved to ExamHome content. Resources collapsed. Sidebar is clean and focused.</div>
+            <div class="text-slate-400">The ✓ marks show which domain notes were read — retained and improved.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCENARIO 4: TOOLS INNER PAGE ═══ -->
+  <div class="scenario">
+    <div class="scenario-label">📌 Scenario 4 — Tools Inner Pages (/tools/token-counter etc.)</div>
+    <div class="grid grid-cols-2 gap-6">
+      <!-- BEFORE -->
+      <div>
+        <span class="vs-label" style="background:rgba(239,68,68,0.15);color:#f87171;">BEFORE — Generic sidebar with no tool context</span>
+        <div class="mt-3 glass glass-edge rounded-xl overflow-hidden" style="height:340px;display:flex;">
+          <aside class="w-56 border-r border-slate-700/20 p-3 shrink-0 text-sm overflow-y-auto">
+            <div class="section-label mb-2">Features</div>
+            <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all text-xs">Certification Exams</div>
+            <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all text-xs">Blog</div>
+            <div class="pill-hover flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 cursor-pointer transition-all text-xs">AI Tools</div>
+            <div class="pill-hover flex items-center gap-2 px-3 py-2 pl-8 rounded-lg text-slate-400 cursor-pointer transition-all text-xs">Token Counter</div>
+            <div class="pill-hover flex items-center gap-2 px-3 py-2 pl-8 rounded-lg text-slate-400 cursor-pointer transition-all text-xs">Context Visualizer</div>
+            <div class="text-xs text-red-400 mt-3 bg-red-500/10 rounded p-2">⚠ User is inside a tool but sees generic platform nav. No way to jump to another tool directly.</div>
+          </aside>
+          <div class="flex-1 p-4">
+            <div class="text-xs text-slate-500 mb-2">breadcrumb: Tools › Token Counter</div>
+            <div class="text-base font-bold text-white mb-2"># Token Counter</div>
+            <div class="text-xs text-slate-400">Tool content...</div>
+          </div>
+        </div>
+      </div>
+      <!-- AFTER -->
+      <div>
+        <span class="vs-label" style="background:rgba(34,197,94,0.15);color:#4ade80;">AFTER — Tool sub-nav strip, no sidebar</span>
+        <div class="mt-3 glass glass-edge rounded-xl overflow-hidden" style="height:340px;display:flex;flex-direction:column;">
+          <!-- Tool sub-nav strip -->
+          <div class="border-b border-slate-700/30 px-4 py-2 flex items-center gap-2 overflow-x-auto" style="background:rgba(15,23,42,0.6);">
+            <a class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-all shrink-0 mr-2">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              All Tools
+            </a>
+            <div class="w-px h-4 bg-slate-700/50 mx-1"></div>
+            <div class="flex gap-1">
+              <div class="chip active text-xs">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+                Token Counter
+              </div>
+              <div class="chip text-xs">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>
+                Context Viz
+              </div>
+              <div class="chip text-xs">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                Prompt Tester
+              </div>
+              <div class="chip text-xs">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                Prompt Library
+              </div>
+              <div class="chip text-xs">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/></svg>
+                MCP Scaffold
+              </div>
+            </div>
+          </div>
+          <!-- Full-width content -->
+          <div class="flex-1 p-5">
+            <div class="text-xs text-slate-500 mb-2">breadcrumb: Tools › Token Counter</div>
+            <div class="text-base font-bold text-white mb-2"># Token Counter</div>
+            <div class="text-xs text-slate-400 mb-3">Full-width tool content — no sidebar stealing space.</div>
+            <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-xs text-green-400">✓ Slim sub-nav: users jump between tools in one click. Full width for the tool itself.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCENARIO 5: BLOG SIDEBAR ═══ -->
+  <div class="scenario">
+    <div class="scenario-label">📌 Scenario 5 — Field Notes / Blog List (/blog)</div>
+    <div class="grid grid-cols-2 gap-6">
+      <!-- BEFORE -->
+      <div>
+        <span class="vs-label" style="background:rgba(239,68,68,0.15);color:#f87171;">BEFORE — Sidebar categories don't filter anything</span>
+        <div class="mt-3 glass glass-edge rounded-xl overflow-hidden" style="height:280px;display:flex;">
+          <aside class="w-56 border-r border-slate-700/20 p-3 shrink-0 text-sm">
+            <div class="section-label mb-2">Categories</div>
+            <div class="pill-hover flex items-center justify-between px-3 py-1.5 rounded-lg text-slate-400 cursor-pointer transition-all"><span>All Posts</span><span class="text-[10px] bg-violet-500/15 text-violet-300 px-1.5 rounded-full">12</span></div>
+            <div class="pill-hover flex items-center justify-between px-3 py-1.5 rounded-lg text-slate-400 cursor-pointer transition-all"><span>AI Fundamentals</span><span class="text-[10px] text-blue-400">4</span></div>
+            <div class="pill-hover flex items-center justify-between px-3 py-1.5 rounded-lg text-slate-400 cursor-pointer transition-all"><span>Certification</span><span class="text-[10px] text-emerald-400">3</span></div>
+            <div class="text-xs text-red-400 mt-3 bg-red-500/10 rounded p-2">⚠ Click on a category still goes to /blog — no filtering applied.</div>
+          </aside>
+          <div class="flex-1 p-4">
+            <div class="text-xs text-slate-400">Blog post grid here...</div>
+          </div>
+        </div>
+      </div>
+      <!-- AFTER -->
+      <div>
+        <span class="vs-label" style="background:rgba(34,197,94,0.15);color:#4ade80;">AFTER — Inline filter chips, no sidebar</span>
+        <div class="mt-3 glass glass-edge rounded-xl overflow-hidden" style="height:280px;display:flex;flex-direction:column;">
+          <div class="flex-1 p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-lg font-bold text-white">Field Notes</div>
+              <div class="text-xs text-slate-400">12 posts</div>
+            </div>
+            <!-- Inline filter chips -->
+            <div class="flex flex-wrap gap-2 mb-4">
+              <div class="chip active text-xs">All</div>
+              <div class="chip text-xs">AI Fundamentals</div>
+              <div class="chip text-xs">Certification</div>
+              <div class="chip text-xs">Platform Engineering</div>
+              <div class="chip text-xs">Tools</div>
+            </div>
+            <div class="text-xs text-slate-400 mb-2">Blog post grid here — full width, filters work inline...</div>
+            <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-xs text-green-400">✓ Filter chips are self-explanatory and work in-page. No sidebar needed.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="glass glass-edge rounded-2xl p-6">
+    <div class="text-base font-bold text-white mb-4">📋 Implementation Plan — Priority Order</div>
+    <div class="space-y-3">
+      <div class="flex items-start gap-3">
+        <span class="text-xs font-bold bg-violet-500/20 text-violet-300 px-2 py-1 rounded shrink-0">P0</span>
+        <div><div class="text-sm font-semibold text-white">Top nav labels always visible</div><div class="text-xs text-slate-400">Change <code class="text-violet-300">hidden xl:inline</code> → <code class="text-violet-300">inline</code>. All users see labelled nav.</div></div>
+        <span class="ml-auto text-xs text-amber-400 shrink-0">~15 min</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-xs font-bold bg-violet-500/20 text-violet-300 px-2 py-1 rounded shrink-0">P0</span>
+        <div><div class="text-sm font-semibold text-white">Remove generic sidebar</div><div class="text-xs text-slate-400">Delete the "Features" sidebar block for non-exam/non-blog/non-team pages.</div></div>
+        <span class="ml-auto text-xs text-amber-400 shrink-0">~20 min</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-xs font-bold bg-blue-500/20 text-blue-300 px-2 py-1 rounded shrink-0">P1</span>
+        <div><div class="text-sm font-semibold text-white">Slim exam sidebar</div><div class="text-xs text-slate-400">Remove Domain Weights section, collapse Resources by default.</div></div>
+        <span class="ml-auto text-xs text-amber-400 shrink-0">~30 min</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-xs font-bold bg-blue-500/20 text-blue-300 px-2 py-1 rounded shrink-0">P1</span>
+        <div><div class="text-sm font-semibold text-white">Tools sub-nav strip</div><div class="text-xs text-slate-400">Add sticky top strip inside tool pages with all-tools link + sibling tool pills.</div></div>
+        <span class="ml-auto text-xs text-amber-400 shrink-0">~1 hr</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-xs font-bold bg-slate-500/20 text-slate-300 px-2 py-1 rounded shrink-0">P2</span>
+        <div><div class="text-sm font-semibold text-white">Blog inline filter chips</div><div class="text-xs text-slate-400">Replace blog categories sidebar with in-page filter chips.</div></div>
+        <span class="ml-auto text-xs text-amber-400 shrink-0">~1 hr</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+// Make chips clickable for demo
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.closest('.flex').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
