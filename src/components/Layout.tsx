@@ -217,7 +217,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           </NavLink>
 
-          <nav className="hidden lg:flex flex-1 min-w-0 overflow-hidden items-center gap-0.5">
+          <nav className="hidden lg:flex flex-1 min-w-0 overflow-hidden items-center gap-0">
             {platformLinks.filter((l) => !l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
@@ -225,7 +225,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 end={end}
                 title={label}
                 className={({ isActive }) =>
-                  `relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  `relative flex items-center gap-1 px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? 'text-white'
                       : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
@@ -234,10 +234,10 @@ export default function Layout({ children }: { children: ReactNode }) {
               >
                 {({ isActive }) => (
                   <>
-                    <Icon size={15} className={isActive ? 'text-violet-400' : ''} />
+                    <Icon size={14} className={isActive ? 'text-violet-400' : ''} />
                     <span>{label}</span>
                     {isActive && (
-                      <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-gradient-to-r from-violet-400 to-fuchsia-400 rounded-full" />
+                      <span className="absolute bottom-0 left-2 right-2 xl:left-3 xl:right-3 h-0.5 bg-gradient-to-r from-violet-400 to-fuchsia-400 rounded-full" />
                     )}
                   </>
                 )}
@@ -272,6 +272,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             ${hasSidebar ? 'lg:translate-x-0 lg:shadow-none lg:block' : 'lg:hidden'}
             top-14 pt-4 overflow-y-auto
           `}
+          style={{ scrollbarWidth: 'none' }}
         >
           {/* Mobile: platform nav */}
           <div className="px-4 pb-4 lg:hidden">
@@ -468,7 +469,6 @@ export default function Layout({ children }: { children: ReactNode }) {
           className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden flex flex-col"
           style={{
             background: 'radial-gradient(ellipse 120% 45% at 50% 0%, rgba(139,92,246,0.10) 0%, transparent 55%)',
-            backgroundAttachment: 'fixed',
           }}
         >
           {/* Tools sub-nav strip */}
