@@ -14,6 +14,7 @@ import json
 import os
 import re
 import sys
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 
@@ -163,7 +164,6 @@ def main() -> None:
                         f" · page views: {page_views['total']}"
                     )
                 except Exception as exc:  # noqa: BLE001
-                    import urllib.error
                     detail = ""
                     if isinstance(exc, urllib.error.HTTPError):
                         try:
