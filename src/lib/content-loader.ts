@@ -11,6 +11,12 @@ async function fetchJSON<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+async function fetchJSONFresh<T>(path: string): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
+  return res.json() as Promise<T>;
+}
+
 async function fetchText(path: string): Promise<string> {
   const res = await fetch(`${BASE}${path}`);
   if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
@@ -90,5 +96,5 @@ export interface PlatformStats {
 }
 
 export async function loadPlatformStats(): Promise<PlatformStats> {
-  return fetchJSON<PlatformStats>('content/stats.json');
+  return fetchJSONFresh<PlatformStats>('content/stats.json');
 }
