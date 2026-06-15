@@ -95,6 +95,54 @@ export interface PlatformStats {
   };
 }
 
+// Live analytics are served from the public Gist that analytics-sync.yml
+// updates every 30 minutes — no rebuild required, always fresh.
+const _GIST_ID = (import.meta.env.VITE_STATS_GIST_ID as string | undefined)
+  ?? '4ccf1b49e144256342d92bab727fbb89';
+const _GIST_RAW = `https://gist.githubusercontent.com/ajeetchouksey/${_GIST_ID}/raw/aarya-stats.json`;
+
+interface _GistPayload {
+  users_today?: number | null;
+  users_28d?:   number | null;
+  page_views?: {
+    date_from?:           string;
+    total?:               number;
+    avg_engagement_secs?: number;
+    by_path?:             Record<string, number>;
+  };
+  synced_at?: string;
+}
+
 export async function loadPlatformStats(): Promise<PlatformStats> {
-  return fetchJSONFresh<PlatformStats>('content/stats.json');
+  const [baseResult, gistResult] = await Promise.allSettled([
+    fetchJSONFresh<PlatformStats>('content/stats.json'),
+    fetch(`${_GIST_RAW}?t=${Date.now()}`, { cache: 'no-store' })
+      .then(r => r.ok ? (r.json() as Promise<_GistPayload>) : null)
+      .catch(() => null),
+  ]);
+
+  const stats = baseResult.status === 'fulfilled'
+    ? baseResult.value
+    : ({} as PlatformStats);
+  const g = gistResult.status === 'fulfilled' ? gistResult.value : null;
+
+  // Overlay live Gist analytics on top of the build-time stats.json values
+  if (g?.page_views) {
+    stats.pageViews = {
+      dateFrom:                  g.page_views.date_from          ?? stats.pageViews?.dateFrom                  ?? '2026-05-01',
+      total:                     g.page_views.total              ?? stats.pageViews?.total                     ?? null,
+      avgEngagementDurationSecs: g.page_views.avg_engagement_secs ?? stats.pageViews?.avgEngagementDurationSecs ?? null,
+      byPath:                    g.page_views.by_path            ?? stats.pageViews?.byPath                    ?? {},
+      synced_at:                 g.synced_at                     ?? stats.pageViews?.synced_at                 ?? null,
+    };
+  }
+  if (g) {
+    stats.audience = {
+      users_today: g.users_today ?? stats.audience?.users_today ?? null,
+      users_28d:   g.users_28d   ?? stats.audience?.users_28d   ?? null,
+      synced_at:   g.synced_at   ?? stats.audience?.synced_at   ?? null,
+    };
+  }
+
+  return stats;
 }

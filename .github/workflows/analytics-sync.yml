@@ -1,6 +1,7 @@
 name: Sync Analytics Stats
-# Fetches GA4 user metrics every 30 minutes, writes to public stats gist,
-# AND commits updated stats.json back to main so the site always shows live data.
+# Fetches GA4 user metrics every 30 minutes and writes to the public Gist.
+# The browser reads live analytics directly from the Gist at runtime —
+# no repo commit or Pages redeploy required.
 # Requires GitHub secrets: GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_KEY, GIST_TOKEN.
 # GIST_TOKEN = classic PAT with 'gist' scope (gist-sync-pat).
 
@@ -10,7 +11,7 @@ on:
   workflow_dispatch:           # manual trigger for testing
 
 permissions:
-  contents: write   # needed to commit stats.json back to main
+  contents: read
 
 jobs:
   sync:
@@ -19,9 +20,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: main
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -31,22 +29,10 @@ jobs:
       - name: Install GA4 client deps
         run: pip install --quiet google-auth google-auth-httplib2 requests
 
-      - name: Fetch GA4 metrics and write to gist + stats.json
+      - name: Fetch GA4 metrics and write to gist
         env:
           GA4_PROPERTY_ID:         ${{ secrets.GA4_PROPERTY_ID }}
           GA4_SERVICE_ACCOUNT_KEY: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
           GIST_TOKEN:              ${{ secrets.GIST_TOKEN }}
           PUBLIC_STATS_GIST_ID:    4ccf1b49e144256342d92bab727fbb89
         run: python3 .github/scripts/fetch-ga4.py
-
-      - name: Commit updated stats.json to main
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/content/stats.json
-          if git diff --cached --quiet; then
-            echo "stats.json unchanged — nothing to commit."
-          else
-            git commit -m "chore(analytics): sync stats.json from GA4"
-            git push origin main
-          fi
