@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'rea
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import {
   Calendar, Clock, User, Tag, Share2, Check,
   Maximize2, Minimize2, List, X, BookOpen,
@@ -558,6 +559,7 @@ export default function BlogPost() {
             ">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
               children={content}
               components={{
                 h2({ children }) {
