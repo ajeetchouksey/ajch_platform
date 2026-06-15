@@ -2,10 +2,11 @@
 title: "When Your Burger Bot Goes Rogue: A Production Wake-Up Call"
 date: "2026-06-15"
 slug: order-bot-domain-boundary
-excerpt: "Your AI assistant has no idea what its job is — and that's your fault. Here is what broke when an ordering bot started writing Python, and the architecture that stops it."
-tags: ["ai-architecture", "guardrails", "conversational-ai", "platform-engineering", "incident-response"]
+excerpt: "A real pattern: an AI ordering bot answered Python coding requests instead of taking orders. Here is what broke architecturally, a seven-control framework to prevent domain boundary failure, and a production incident runbook."
+tags: ["ai-architecture", "guardrails", "conversational-ai", "platform-engineering", "incident-response", "intent-routing", "domain-boundary", "llm-safety"]
 category: "AI Architecture"
 readingTime: 5
+ogImage: "https://aaryaai.dev/images/blog/order-bot-domain-boundary.png"
 ---
 
 > **"Your AI assistant has no idea what its job is — and that's your fault."**

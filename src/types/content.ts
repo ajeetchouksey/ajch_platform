@@ -109,6 +109,7 @@ export interface BlogPostMeta {
   readingTime: number;
   featured: boolean;
   draft: boolean;
+  ogImage?: string;
 }
 
 export interface BlogManifest {

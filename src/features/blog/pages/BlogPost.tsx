@@ -328,6 +328,7 @@ export default function BlogPost() {
     title: meta?.title,
     description: meta?.excerpt ?? meta?.title,
     canonicalUrl: `https://aaryaai.dev/blog/${slug}`,
+    ogImage: meta?.ogImage,
   });
 
   // Load post

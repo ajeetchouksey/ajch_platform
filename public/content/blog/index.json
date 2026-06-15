@@ -3,7 +3,7 @@
     {
       "slug": "order-bot-domain-boundary",
       "title": "When Your Burger Bot Goes Rogue: A Production Wake-Up Call",
-      "excerpt": "Your AI assistant has no idea what its job is — and that's your fault. Here is what broke when an ordering bot started writing Python, and the architecture that stops it.",
+      "excerpt": "A real pattern: an AI ordering bot answered Python coding requests instead of taking orders. Here is what broke architecturally, a seven-control framework to prevent domain boundary failure, and a production incident runbook.",
       "author": "Ajeet Chouksey",
       "date": "2026-06-15",
       "updated": null,
@@ -12,12 +12,16 @@
         "guardrails",
         "conversational-ai",
         "platform-engineering",
-        "incident-response"
+        "incident-response",
+        "intent-routing",
+        "domain-boundary",
+        "llm-safety"
       ],
       "category": "AI Architecture",
       "readingTime": 5,
       "featured": false,
-      "draft": false
+      "draft": false,
+      "ogImage": "https://aaryaai.dev/images/blog/order-bot-domain-boundary.png"
     },
     {
       "slug": "github-governance-best-practices",
