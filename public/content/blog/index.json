@@ -1,6 +1,25 @@
 {
   "posts": [
     {
+      "slug": "order-bot-domain-boundary",
+      "title": "When Your Burger Bot Goes Rogue: A Production Wake-Up Call",
+      "excerpt": "Your AI assistant has no idea what its job is — and that's your fault. Here is what broke when an ordering bot started writing Python, and the architecture that stops it.",
+      "author": "Ajeet Chouksey",
+      "date": "2026-06-15",
+      "updated": null,
+      "tags": [
+        "ai-architecture",
+        "guardrails",
+        "conversational-ai",
+        "platform-engineering",
+        "incident-response"
+      ],
+      "category": "AI Architecture",
+      "readingTime": 5,
+      "featured": false,
+      "draft": false
+    },
+    {
       "slug": "github-governance-best-practices",
       "title": "GitHub Governance Isn't a Settings Page — It's a System",
       "excerpt": "Most teams treat GitHub governance as a settings page. The teams that ship safely treat it as a system — versioned, automated, and audited.",
