@@ -7,6 +7,7 @@ import {
 import { loadBlogManifest } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
+import PageViewsBadge from '@/components/PageViewsBadge';
 
 // ── Category palette ─────────────────────────────────────────────────────────
 const CAT_PALETTE: Record<string, { color: string; bg: string; border: string }> = {
@@ -95,6 +96,7 @@ function HeroCard({ post, isRead }: { post: BlogPostMeta; isRead: boolean }) {
             <span className="flex items-center gap-1 text-xs text-slate-500">
               <Clock size={11} /> {post.readingTime} min read
             </span>
+            <PageViewsBadge path={`/blog/${post.slug}`} />
             <span className="flex items-center gap-1 text-sm font-bold transition-all duration-200 group-hover:gap-2"
               style={{ color: pal.color }}>
               Read article <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
@@ -173,6 +175,7 @@ function PostCard({
         <div className="flex items-center gap-3 text-[11px] text-slate-600 mb-3">
           <span className="flex items-center gap-1"><Calendar size={10} />{dateStr}</span>
           <span className="flex items-center gap-1"><Clock size={10} />{post.readingTime} min</span>
+          <PageViewsBadge path={`/blog/${post.slug}`} />
         </div>
 
         <div className="flex flex-wrap gap-1">
