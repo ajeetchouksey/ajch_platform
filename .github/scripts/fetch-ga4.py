@@ -253,6 +253,26 @@ def main() -> None:
         print(f"✗ Failed to write gist: {type(exc).__name__}")
         sys.exit(1)
 
+    # ── Also write back to stats.json so the site always serves live data ──
+    stats["audience"] = {
+        "users_today": users_today if ga4_ok else existing_audience.get("users_today"),
+        "users_28d":   users_28d   if ga4_ok else existing_audience.get("users_28d"),
+        "synced_at":   synced_at,
+    }
+    if ga4_ok and page_views:
+        stats["pageViews"] = {
+            "dateFrom":                  "2026-05-01",
+            "total":                     page_views["total"],
+            "avgEngagementDurationSecs": page_views["avgEngagementDurationSecs"],
+            "byPath":                    page_views["byPath"],
+            "synced_at":                 synced_at,
+        }
+    stats["generated"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    with open(stats_path, "w", encoding="utf-8") as f:
+        json.dump(stats, f, indent=2)
+        f.write("\n")
+    print(f"✓ {stats_path} updated in repo (live data written).")
+
 
 if __name__ == "__main__":
     main()
