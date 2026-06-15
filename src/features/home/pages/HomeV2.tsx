@@ -202,25 +202,21 @@ export default function HomeV2() {
             </h1>
 
             {/* Platform identity tagline */}
-            <p className="text-sm font-semibold tracking-wide leading-snug mb-4" style={{ color: '#94a3b8' }}>
-              Structured paths from{' '}
-              <span className="font-black" style={{ color: '#a78bfa' }}>→</span>{' '}
-              <span className="text-slate-300">AI-curious</span>{' '}
-              <span className="font-black" style={{ color: '#a78bfa' }}>→</span>{' '}
-              <span className="text-slate-300">AI-engineer</span>{' '}
-              <span className="font-black" style={{ color: '#fb923c' }}>→</span>{' '}
-              <span className="text-slate-300">systems that actually ship</span>
-            </p>
-
-            {/* Value prop */}
             <p className="text-base text-slate-300 max-w-xl leading-relaxed mb-3">
-              Go from AI basics to production-grade systems (101 → 310) through{' '}
-              <span className="text-white font-semibold">hands-on projects</span>,
-              structured learning, and real engineering workflows.
+              The demo worked. Production didn't.{' '}
+              <span className="text-white font-semibold">Aarya is where engineers close that gap</span> —
+              {' '}structured paths from AI-curious to AI-architect, covering the systems, tradeoffs,
+              and failure modes that tutorials never show you.
             </p>
-            <p className="text-sm text-slate-500 max-w-xl leading-relaxed mb-5">
-              No fluff. No theory dumps. Build → Deploy → Learn. Free forever. Built in the open.
+            <p className="text-sm max-w-xl leading-relaxed mb-2" style={{ color: '#94a3b8' }}>
+              You leave with:
             </p>
+            <ul className="text-sm max-w-xl leading-relaxed mb-5 space-y-1" style={{ color: '#94a3b8' }}>
+              <li><span className="text-violet-400 font-bold mr-1.5">→</span>Agentic workflows and MCP servers you can deploy, not just explain</li>
+              <li><span className="text-violet-400 font-bold mr-1.5">→</span>Production guardrails, evals, and observability wired in from the start</li>
+              <li><span className="text-violet-400 font-bold mr-1.5">→</span>Exam-ready knowledge for AI certifications (CCA-F and more)</li>
+              <li><span className="text-violet-400 font-bold mr-1.5">→</span>A public track record — open source, real PRs, visible work</li>
+            </ul>
 
             {/* Intent fork */}
             <div className="flex flex-col lg:flex-row gap-2 mb-6">
