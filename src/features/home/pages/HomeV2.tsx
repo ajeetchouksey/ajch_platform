@@ -202,21 +202,27 @@ export default function HomeV2() {
             </h1>
 
             {/* Platform identity tagline */}
-            <p className="text-base text-slate-300 max-w-xl leading-relaxed mb-3">
-              The demo worked. Production didn't.{' '}
-              <span className="text-white font-semibold">Aarya is where engineers close that gap</span> —
-              {' '}structured paths from AI-curious to AI-architect, covering the systems, tradeoffs,
-              and failure modes that tutorials never show you.
+            <p className="text-xl font-semibold max-w-xl leading-snug mb-4" style={{ color: '#cbd5e1' }}>
+              Your demo passed.{' '}
+              <span style={{ color: '#fb923c' }}>Your production blew up.</span>
+              <br />
+              <span className="text-white">Aarya rewires the thinking that fixes that.</span>
             </p>
-            <p className="text-sm max-w-xl leading-relaxed mb-2" style={{ color: '#94a3b8' }}>
-              You leave with:
-            </p>
-            <ul className="text-sm max-w-xl leading-relaxed mb-5 space-y-1" style={{ color: '#94a3b8' }}>
-              <li><span className="text-violet-400 font-bold mr-1.5">→</span>Agentic workflows and MCP servers you can deploy, not just explain</li>
-              <li><span className="text-violet-400 font-bold mr-1.5">→</span>Production guardrails, evals, and observability wired in from the start</li>
-              <li><span className="text-violet-400 font-bold mr-1.5">→</span>Exam-ready knowledge for AI certifications (CCA-F and more)</li>
-              <li><span className="text-violet-400 font-bold mr-1.5">→</span>A public track record — open source, real PRs, visible work</li>
-            </ul>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 max-w-xl mb-5">
+              {([
+                ['Deploy agents', 'not just prompt them'],
+                ['Ship guardrails', 'before incidents do'],
+                ['Level up fast', 'notes, tools, scenarios, cert prep'],
+                ['Build in public', 'PRs, not screenshots'],
+              ] as [string, string][]).map(([strong, soft]) => (
+                <div key={strong} className="flex items-start gap-2">
+                  <span className="mt-1 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#a78bfa' }} />
+                  <p className="text-sm leading-tight" style={{ color: '#94a3b8' }}>
+                    <span className="text-white font-semibold">{strong}</span>{' '}{soft}
+                  </p>
+                </div>
+              ))}
+            </div>
 
             {/* Intent fork */}
             <div className="flex flex-col lg:flex-row gap-2 mb-6">
@@ -250,7 +256,7 @@ export default function HomeV2() {
               <Link to="/learn"
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-black rounded-2xl text-white transition-all duration-200 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5 active:scale-95"
                 style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.6)' }}>
-                <Zap size={15} /> Start with AI 101 — Free, 10 min <ArrowRight size={15} />
+                <Zap size={15} /> Start with AI 101 <ArrowRight size={15} />
               </Link>
               <button
                 onClick={() => document.getElementById('learning-path')?.scrollIntoView({ behavior: 'smooth' })}
