@@ -5,8 +5,17 @@
     <link>https://aaryaai.dev</link>
     <description>AI learning resources, exam prep, and engineering insights</description>
     <language>en-gb</language>
-    <lastBuildDate>Fri, 22 May 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 15 Jun 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://aaryaai.dev/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>When Your Burger Bot Goes Rogue: A Production Wake-Up Call</title>
+      <link>https://aaryaai.dev/blog/order-bot-domain-boundary</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/order-bot-domain-boundary</guid>
+      <description>Your AI assistant has no idea what its job is — and that&apos;s your fault. Here is what broke when an ordering bot started writing Python, and the architecture that stops it.</description>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>AI Architecture</category>
+    </item>
     <item>
       <title>Guardrails Are Not Constraints — They Are the Operating Model</title>
       <link>https://aaryaai.dev/blog/guardrails-are-not-constraints</link>
