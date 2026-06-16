@@ -212,7 +212,7 @@ export default function HomeV2() {
               {([
                 ['Deploy agents', 'not just prompt them'],
                 ['Ship guardrails', 'before incidents do'],
-                ['Ace certifications', 'CCA-F and beyond'],
+                ['Level up fast', 'notes, tools, scenarios, cert prep'],
                 ['Build in public', 'PRs, not screenshots'],
               ] as [string, string][]).map(([strong, soft]) => (
                 <div key={strong} className="flex items-start gap-2">
