@@ -13,6 +13,28 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 
 ---
 
+## [2.6.0] - 2026-06-16
+
+### Added
+- **OG Worker** (`workers/og-handler.ts`, `wrangler.og.toml`) — Cloudflare Worker that intercepts social bot User-Agents (LinkedInBot, Twitterbot, Slackbot, etc.) and returns per-page OG meta HTML shell; covers `/blog/:slug`, `/horizons/:track/:slug`, `/skillup/:exam`, `/tools`, `/learn` routes; stateless, no KV bindings
+- **Branded OG preview image** (`public/og-preview.png`, `__preview__/og-image.html`) — 1200×628 px dark-gradient brand card with logo, headline, differentiator pills, `aaryaai.dev` watermark; generated from HTML via Playwright
+- **Home hero headline** — updated from "Everyone's Prompting... Engineers Are Building..." to "Learn, Build and Scale with AI" with brand violet→orange gradient on "Build" and "and Scale"
+- **Tools card tagline** — "Everyone's Prompting... / Engineers Are Building." added as a branded callout block in the Developer Tools feature card (`HomeV2.tsx`)
+- **Notes page sidebar redesign** — right sidebar now matches BlogPost sidebar: CircularProgress ring (% + min left), TOC with past/active/future states (green ✓ / violet / slate), Meta card (domain badge, weight%, read time, quiz questions, Share button), Exam Traps as tag pills
+
+### Fixed
+- **Horizons page branding** — eyebrow label and headline gradient changed from off-brand sky-blue / rainbow (red→yellow→purple→green) to platform brand violet→orange palette
+- **PathwayTrack duplicate breadcrumb** — removed custom "← Horizons > AI Safety & Responsibility" nav that duplicated the Layout's standard breadcrumb
+- **PathwayArticle reading progress bar** — transparent track background (was dark `rgba(15,23,42,0.5)`), brand-color progress gradient (was red→yellow→green)
+- **Blog page heading flicker** — removed `will-change-[opacity,transform]` from Blog page header div that caused GPU layer repaint on navigation
+
+### Chores
+- `index.html` OG meta — added `og:image:width`, `og:image:height`, `twitter:site` tags
+- `stats.json` — synced to current: 57 blog posts, 24 agents (was 55/23, generated 2026-06-02)
+- `workers/og-handler.ts` ESLint fixes — empty interface `eslint-disable` comment, removed unused `_env` param from fetch handler signature
+
+---
+
 ## [2.5.0] - 2026-06-03
 
 ### Added
