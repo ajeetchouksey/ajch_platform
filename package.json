@@ -13,7 +13,6 @@
     "validate-content": "node scripts/validate-content.mjs",
     "cli": "tsx cli/index.ts",
     "curator": "tsx cli/curator.ts",
-
     "curator:stats": "tsx cli/curator.ts stats",
     "curator:validate": "tsx cli/curator.ts validate",
     "curator:coverage": "tsx cli/curator.ts coverage"
@@ -59,6 +58,7 @@
     "tsx": "^4.22.4",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.60.1",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "wrangler": "^4.100.0"
   }
 }
