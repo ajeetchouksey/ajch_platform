@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OG Preview Mock — Aarya</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 40px 24px; }
+    h1 { font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
+    .section { margin-bottom: 56px; }
+    .section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid rgba(71,85,105,0.3); }
+    .platform-row { display: flex; gap: 24px; flex-wrap: wrap; }
+
+    /* ─── LinkedIn card shell ─── */
+    .li-shell {
+      width: 360px;
+      background: #1b2431;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(71,85,105,0.4);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .li-image { width: 100%; aspect-ratio: 1.91/1; object-fit: cover; display: block; }
+    .li-image-placeholder {
+      width: 100%; aspect-ratio: 1.91/1;
+      background: #1e293b;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+      border-bottom: 1px solid rgba(71,85,105,0.3);
+    }
+    .li-image-placeholder .icon { font-size: 32px; opacity: 0.3; }
+    .li-image-placeholder .label { font-size: 11px; color: #475569; }
+    .li-body { padding: 10px 12px 12px; }
+    .li-domain { font-size: 11px; color: #94a3b8; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .li-title { font-size: 14px; font-weight: 600; color: #f1f5f9; line-height: 1.35; margin-bottom: 4px; }
+    .li-desc { font-size: 12px; color: #94a3b8; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .li-label { display: inline-block; margin-top: 4px; font-size: 10px; font-weight: 600; border-radius: 3px; padding: 1px 6px; }
+    .li-label.bad { background: rgba(239,68,68,0.15); color: #f87171; }
+    .li-label.good { background: rgba(34,197,94,0.15); color: #4ade80; }
+
+    /* ─── OG Image card (the branded image itself) ─── */
+    .og-card {
+      width: 600px;
+      aspect-ratio: 1.91/1;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 28px 32px;
+    }
+    .og-card .bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
+    }
+    .og-card .noise {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.5;
+    }
+    .og-card .orb1 {
+      position: absolute; top: -60px; right: -40px;
+      width: 280px; height: 280px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%);
+    }
+    .og-card .orb2 {
+      position: absolute; bottom: -40px; left: -20px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+    }
+    .og-card .content { position: relative; z-index: 10; }
+    .og-card .eyebrow {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+    }
+    .og-card .eyebrow .logo {
+      width: 26px; height: 26px; border-radius: 6px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900; color: white;
+    }
+    .og-card .eyebrow .site { font-size: 11px; color: #94a3b8; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .og-card .cat-badge {
+      margin-left: auto;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 20px;
+      background: rgba(139,92,246,0.2); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3);
+    }
+    .og-card h2 {
+      font-size: 22px; font-weight: 800; color: #f8fafc; line-height: 1.25;
+      letter-spacing: -0.02em; margin-bottom: 10px;
+    }
+    .og-card h2 span { color: #a78bfa; }
+    .og-card .excerpt {
+      font-size: 12px; color: #94a3b8; line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .og-card .footer {
+      margin-top: 16px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .og-card .author { font-size: 11px; color: #64748b; display: flex; align-items: center; gap: 6px; }
+    .og-card .author .avatar {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: linear-gradient(135deg, #7c3aed, #06b6d4);
+      font-size: 9px; font-weight: 700; color: white;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .og-card .read-time { font-size: 10px; color: #475569; }
+
+    /* Twitter / X card */
+    .tw-shell {
+      width: 360px;
+      background: #16202c;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(71,85,105,0.35);
+    }
+    .tw-image { width: 100%; aspect-ratio: 1.91/1; object-fit: cover; display: block; }
+    .tw-body { padding: 12px; border-top: 1px solid rgba(71,85,105,0.3); }
+    .tw-domain { font-size: 11px; color: #64748b; margin-bottom: 3px; }
+    .tw-title { font-size: 14px; font-weight: 700; color: #e2e8f0; line-height: 1.3; }
+
+    /* Slack card */
+    .slack-shell {
+      width: 340px;
+      background: #1a1d21;
+      border-radius: 4px;
+      border-left: 3px solid #7c3aed;
+      padding: 12px 14px;
+    }
+    .slack-domain { font-size: 11px; font-weight: 700; color: #7c3aed; margin-bottom: 4px; }
+    .slack-title { font-size: 14px; font-weight: 700; color: #d1d5db; margin-bottom: 4px; line-height: 1.3; }
+    .slack-desc { font-size: 12px; color: #6b7280; line-height: 1.4; }
+    .slack-img { width: 70px; height: 52px; background: #1e293b; border-radius: 4px; float: right; margin-left: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+
+    .caption { font-size: 11px; color: #475569; margin-top: 6px; }
+    .vs { font-size: 22px; font-weight: 900; color: #334155; align-self: center; padding: 0 8px; }
+
+    /* Diff table */
+    .diff { margin-top: 10px; }
+    .diff tr td { padding: 5px 10px; font-size: 12px; border-bottom: 1px solid rgba(71,85,105,0.2); }
+    .diff tr td:first-child { color: #64748b; white-space: nowrap; }
+    .diff .bad-val { color: #f87171; }
+    .diff .good-val { color: #4ade80; }
+
+    .note { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); border-radius: 6px; padding: 12px 16px; font-size: 12px; color: #94a3b8; line-height: 1.6; max-width: 780px; margin-bottom: 24px; }
+    .note strong { color: #c4b5fd; }
+  </style>
+</head>
+<body>
+
+  <div style="max-width:900px; margin:0 auto;">
+
+    <div style="margin-bottom:32px;">
+      <div style="font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#7c3aed; margin-bottom:6px;">Aarya Platform — OG Preview Mock</div>
+      <h1 style="font-size:24px; font-weight:800; color:#f1f5f9; letter-spacing:-0.01em;">What happens when you share a link</h1>
+      <p style="font-size:13px; color:#64748b; margin-top:6px;">How the same URL looks today vs. after the Cloudflare Worker OG fix</p>
+    </div>
+
+    <!-- ═══════════════════════════════════ LINKEDIN ═══════════════════════════════════ -->
+    <div class="section">
+      <div class="section-title">LinkedIn link preview</div>
+      <div class="platform-row" style="align-items:flex-start;">
+
+        <!-- NOW -->
+        <div>
+          <div class="li-shell">
+            <div class="li-image-placeholder">
+              <div class="icon">🖼</div>
+              <div class="label">og-preview.png — file not found<br>or generic site image</div>
+            </div>
+            <div class="li-body">
+              <div class="li-domain">aaryaai.dev</div>
+              <div class="li-title">Aarya — Learn, Build, and Scale with AI</div>
+              <div class="li-desc">Master AI from fundamentals to enterprise architecture. Practitioner-built certification prep, technical blog, and developer tools. Free forever.</div>
+              <span class="li-label bad">EVERY post looks identical</span>
+            </div>
+          </div>
+          <div class="caption">❌ Now — any blog post URL</div>
+        </div>
+
+        <div class="vs">→</div>
+
+        <!-- FIXED -->
+        <div>
+          <div class="li-shell">
+            <!-- The branded OG image rendered inline as CSS -->
+            <div style="width:100%; aspect-ratio:1.91/1; position:relative; overflow:hidden; background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 60%,#0f172a 100%);">
+              <div style="position:absolute;top:-40px;right:-20px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.3) 0%,transparent 70%);"></div>
+              <div style="position:absolute;bottom:-30px;left:-10px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.2) 0%,transparent 70%);"></div>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 22px;">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+                  <div style="width:20px;height:20px;border-radius:5px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:white;">A</div>
+                  <span style="font-size:9px;color:#94a3b8;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Aarya · Field Notes</span>
+                  <span style="margin-left:auto;font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(139,92,246,0.2);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);letter-spacing:0.08em;text-transform:uppercase;">AI Architecture</span>
+                </div>
+                <div style="font-size:15px;font-weight:800;color:#f8fafc;line-height:1.25;letter-spacing:-0.02em;margin-bottom:7px;">When Your Burger Bot Goes Rogue:<br><span style="color:#a78bfa;">A Production Wake-Up Call</span></div>
+                <div style="font-size:10px;color:#64748b;">Ajeet Chouksey &nbsp;·&nbsp; 5 min read &nbsp;·&nbsp; Jun 15, 2026</div>
+              </div>
+            </div>
+            <div class="li-body">
+              <div class="li-domain">aaryaai.dev</div>
+              <div class="li-title">When Your Burger Bot Goes Rogue: A Production Wake-Up Call</div>
+              <div class="li-desc">Your AI assistant has no idea what its job is — and that's your fault. Here is what broke when an ordering bot started writing Python.</div>
+              <span class="li-label good">Post-specific title + excerpt + image</span>
+            </div>
+          </div>
+          <div class="caption">✅ After fix — every post gets its own card</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ TWITTER/X ═══════════════════════════════════ -->
+    <div class="section">
+      <div class="section-title">Twitter / X link preview (summary_large_image)</div>
+      <div class="platform-row" style="align-items:flex-start;">
+
+        <div>
+          <div class="tw-shell">
+            <div style="width:100%;aspect-ratio:1.91/1;background:#1e293b;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;">
+              <div style="font-size:28px;opacity:0.2;">🖼</div>
+              <div style="font-size:10px;color:#475569;">Generic site image</div>
+            </div>
+            <div class="tw-body">
+              <div class="tw-domain">aaryaai.dev</div>
+              <div class="tw-title">Aarya — Learn, Build, and Scale with AI</div>
+            </div>
+          </div>
+          <div class="caption">❌ Now</div>
+        </div>
+
+        <div class="vs">→</div>
+
+        <div>
+          <div class="tw-shell">
+            <div style="width:100%;aspect-ratio:1.91/1;position:relative;overflow:hidden;background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 60%,#0f172a 100%);">
+              <div style="position:absolute;top:-40px;right:-20px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.3) 0%,transparent 70%);"></div>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 22px;">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+                  <div style="width:20px;height:20px;border-radius:5px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:white;">A</div>
+                  <span style="font-size:9px;color:#94a3b8;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Aarya · Field Notes</span>
+                  <span style="margin-left:auto;font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);letter-spacing:0.08em;text-transform:uppercase;">AI Architecture</span>
+                </div>
+                <div style="font-size:15px;font-weight:800;color:#f8fafc;line-height:1.25;letter-spacing:-0.02em;margin-bottom:7px;">You're Wasting 60% of<br><span style="color:#a78bfa;">Your Context Window</span></div>
+                <div style="font-size:10px;color:#64748b;">Ajeet Chouksey &nbsp;·&nbsp; 7 min read</div>
+              </div>
+            </div>
+            <div class="tw-body">
+              <div class="tw-domain">aaryaai.dev</div>
+              <div class="tw-title">You're Wasting 60% of Your Context Window</div>
+            </div>
+          </div>
+          <div class="caption">✅ After fix</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ SLACK ═══════════════════════════════════ -->
+    <div class="section">
+      <div class="section-title">Slack / Teams unfurl</div>
+      <div class="platform-row" style="align-items:flex-start;">
+        <div>
+          <div class="slack-shell">
+            <div class="slack-img" style="float:right;margin-left:10px;">🖼</div>
+            <div class="slack-domain">aaryaai.dev</div>
+            <div class="slack-title">Aarya — Learn, Build, and Scale with AI</div>
+            <div class="slack-desc">Master AI from fundamentals to enterprise architecture...</div>
+          </div>
+          <div class="caption">❌ Now</div>
+        </div>
+        <div class="vs">→</div>
+        <div>
+          <div class="slack-shell">
+            <div class="slack-img" style="float:right;margin-left:10px;background:linear-gradient(135deg,#1e1b4b,#0f172a);border:none;">
+              <span style="font-size:11px;font-weight:900;color:#a78bfa;">A</span>
+            </div>
+            <div class="slack-domain">aaryaai.dev · Field Notes</div>
+            <div class="slack-title">When Your Burger Bot Goes Rogue</div>
+            <div class="slack-desc">Your AI assistant has no idea what its job is — and that's your fault. Domain Boundary failure in production.</div>
+          </div>
+          <div class="caption">✅ After fix</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ THE OG IMAGE ITSELF ═══════════════════════════════════ -->
+    <div class="section">
+      <div class="section-title">The branded OG image (1200×628) — what gets generated per post</div>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+
+        <!-- Post 1 -->
+        <div class="og-card" style="width:600px;">
+          <div class="bg"></div>
+          <div class="noise"></div>
+          <div class="orb1"></div>
+          <div class="orb2"></div>
+          <div class="content">
+            <div class="eyebrow">
+              <div class="logo">A</div>
+              <div class="site">Aarya &nbsp;·&nbsp; Field Notes</div>
+              <span class="cat-badge">AI Architecture</span>
+            </div>
+            <h2>When Your Burger Bot Goes Rogue:<br><span>A Production Wake-Up Call</span></h2>
+            <div class="excerpt">Your AI assistant has no idea what its job is — and that's your fault. Here is what broke when an ordering bot started writing Python.</div>
+            <div class="footer">
+              <div class="author">
+                <div class="avatar">AJ</div>
+                Ajeet Chouksey
+              </div>
+              <div class="read-time">5 min read &nbsp;·&nbsp; Jun 15, 2026</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Post 2 -->
+        <div class="og-card" style="width:600px; background:none;">
+          <div class="bg" style="background:linear-gradient(135deg,#0f172a 0%,#164e63 60%,#0f172a 100%);"></div>
+          <div class="noise"></div>
+          <div class="orb1" style="background:radial-gradient(circle,rgba(6,182,212,0.25) 0%,transparent 70%);"></div>
+          <div class="orb2" style="background:radial-gradient(circle,rgba(139,92,246,0.15) 0%,transparent 70%);"></div>
+          <div class="content">
+            <div class="eyebrow">
+              <div class="logo">A</div>
+              <div class="site">Aarya &nbsp;·&nbsp; Field Notes</div>
+              <span class="cat-badge" style="background:rgba(6,182,212,0.2);color:#67e8f9;border-color:rgba(6,182,212,0.3);">AI Architecture</span>
+            </div>
+            <h2>You're Wasting 60% of<br><span style="color:#67e8f9;">Your Context Window</span></h2>
+            <div class="excerpt">Your agent isn't hallucinating. It's starving. Here's why — and the three-rule fix that engineers actually ship.</div>
+            <div class="footer">
+              <div class="author">
+                <div class="avatar" style="background:linear-gradient(135deg,#0891b2,#7c3aed);">AJ</div>
+                Ajeet Chouksey
+              </div>
+              <div class="read-time">7 min read &nbsp;·&nbsp; Jun 16, 2026</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ HOW IT WORKS ═══════════════════════════════════ -->
+    <div class="section">
+      <div class="section-title">How it works — Cloudflare Worker</div>
+      <div class="note">
+        <strong>The request flow:</strong><br><br>
+        1. LinkedIn crawler hits <code>https://aaryaai.dev/blog/order-bot-domain-boundary</code><br>
+        2. Cloudflare Worker intercepts — detects <code>User-Agent: LinkedInBot</code><br>
+        3. Worker reads <code>public/content/blog/index.json</code> (or KV store) to find the post metadata<br>
+        4. Worker returns a minimal HTML response with per-post <code>og:title</code>, <code>og:description</code>, <code>og:image</code><br>
+        5. <code>og:image</code> points to a Cloudflare Images worker URL that renders the branded card (title + category + author) as a PNG<br>
+        6. LinkedIn displays the branded card — not the generic fallback<br><br>
+        Real users get the full React SPA as normal. Only bots get the OG shell.
+      </div>
+
+      <div style="background:#0f172a;border:1px solid rgba(71,85,105,0.3);border-radius:8px;padding:20px;font-family:monospace;font-size:12px;color:#94a3b8;line-height:1.7;max-width:680px;">
+        <span style="color:#475569;">// workers/og-handler.ts (simplified)</span><br>
+        <span style="color:#7dd3fc;">const</span> <span style="color:#f8fafc;">BOT_AGENTS</span> = <span style="color:#86efac;">/LinkedInBot|Twitterbot|Slackbot|facebookexternalhit/i</span><br><br>
+        <span style="color:#7dd3fc;">export default</span> {<br>
+        &nbsp;&nbsp;<span style="color:#c084fc;">async</span> <span style="color:#7dd3fc;">fetch</span>(req) {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#7dd3fc;">const</span> ua = req.headers.get(<span style="color:#86efac;">'user-agent'</span>) ?? <span style="color:#86efac;">''</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#7dd3fc;">if</span> (!BOT_AGENTS.test(ua)) <span style="color:#7dd3fc;">return</span> fetch(req) <span style="color:#475569;">// real user → SPA</span><br><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#7dd3fc;">const</span> slug = <span style="color:#7dd3fc;">new</span> URL(req.url).pathname.split(<span style="color:#86efac;">'/'</span>).at(-1)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#7dd3fc;">const</span> post = <span style="color:#c084fc;">await</span> getPostMeta(slug) <span style="color:#475569;">// KV lookup</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#7dd3fc;">const</span> ogImage = <span style="color:#86efac;">`https://og.aaryaai.dev/${slug}.png`</span><br><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#7dd3fc;">return new</span> Response(<span style="color:#86efac;">`&lt;html&gt;&lt;head&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta property="og:title" content="${</span>post.title<span style="color:#86efac;">}"&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta property="og:description" content="${</span>post.excerpt<span style="color:#86efac;">}"&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta property="og:image" content="${</span>ogImage<span style="color:#86efac;">}"&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&lt;/head&gt;&lt;/html&gt;`</span>, {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;headers: { <span style="color:#86efac;">'content-type'</span>: <span style="color:#86efac;">'text/html'</span> }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;})<br>
+        &nbsp;&nbsp;}<br>
+        }
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,37 +1,14 @@
 {
   "schema": "1.0",
-  "generated": "2026-06-02",
+  "generated": "2026-06-16",
   "note": "Auto-updated by scripts/sync-stats.py. Run after any content agent write.",
   "platform": {
-    "blog_posts": 55,
+    "blog_posts": 57,
     "questions": 158,
     "exams": 3,
     "notes": 12,
     "scenarios": 9,
-    "agents": 23,
-    "tools": 9
-  },
-  "audience": {
-    "users_today": null,
-    "users_28d": null,
-    "synced_at": "2026-06-05"
-  },
-  "pageViews": {
-    "dateFrom": "2026-05-01",
-    "total": 1070,
-    "avgEngagementDurationSecs": 5820,
-    "byPath": {
-      "/": 344,
-      "/skillup/ccaf/notes": 178,
-      "/blog": 126,
-      "/skillup": 103,
-      "/blog/github-governance-best-practices": 82,
-      "/blog/3pdevops-4": 62,
-      "/blog/agents-are-a-new-execution-layer": 44,
-      "/learn": 28,
-      "/skillup/ccaf": 16,
-      "/blog/guardrails-are-not-constraints": 13
-    },
-    "synced_at": "2026-06-05"
+    "agents": 24,
+    "tools": 0
   }
 }

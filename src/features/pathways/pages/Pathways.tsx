@@ -82,10 +82,10 @@ export default function Pathways() {
         className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
       >
         <div className="flex items-center gap-2 mb-4">
-          <PulsingDot active color="bg-sky-400" size="sm" />
+          <PulsingDot active color="bg-violet-400" size="sm" />
           <span
             className="text-[10px] font-black uppercase tracking-[0.2em]"
-            style={{ color: '#38bdf8' }}
+            style={{ color: '#a78bfa' }}
           >
             Horizons
           </span>
@@ -94,7 +94,7 @@ export default function Pathways() {
           AI learning for{' '}
           <span
             style={{
-              background: 'linear-gradient(90deg,#f43f5e,#f59e0b,#8b5cf6,#10b981)',
+              background: 'linear-gradient(100deg, #7c3aed 0%, #a78bfa 50%, #fb923c 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}

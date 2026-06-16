@@ -58,6 +58,7 @@ const features = [
     badgeColor: '#10b981',
     title: 'Developer Tools',
     subtitle: 'Token · Context · MCP · Prompts',
+    tagline: "Everyone's Prompting...\nEngineers Are Building.",
     desc: 'Client-side utilities for the Claude API — token counting, context visualization, MCP scaffolding, and prompt templates.',
     bullets: ['9 live tools — zero backend', 'Prompt library + tester', 'RAG chunk visualizer'],
     cta: 'Open Tools',
@@ -194,14 +195,15 @@ export default function HomeV2() {
               className="font-black text-white leading-[1.1] tracking-tight mb-5"
               style={{ fontSize: 'clamp(28px, 4.2vw, 60px)' }}
             >
-              Everyone's Prompting...
+              Learn,{' '}
+              <span style={{ color: '#a78bfa' }}>Build</span>
               <br />
               <span style={{
-                background: 'linear-gradient(100deg, #7c3aed 0%, #a78bfa 45%, #fb923c 100%)',
+                background: 'linear-gradient(100deg, #7c3aed 0%, #a78bfa 40%, #fb923c 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                display: 'block',
-              }}>Engineers Are Building...</span>
+              }}>and Scale</span>
+              {' '}with AI...
             </h1>
 
             {/* Value prop */}
@@ -364,7 +366,7 @@ export default function HomeV2() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-          {dynamicFeatures.map(({ to, icon: Icon, color, bg, border, badge, title, subtitle, desc, bullets, cta }, idx) => (
+          {dynamicFeatures.map(({ to, icon: Icon, color, bg, border, badge, title, subtitle, tagline, desc, bullets, cta }, idx) => (
             <div
               key={to}
               className={`group transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
@@ -411,6 +413,27 @@ export default function HomeV2() {
                     </li>
                   ))}
                 </ul>
+
+                {/* Tagline callout — tools card differentiator */}
+                {tagline && (
+                  <div className="mb-4 rounded-xl px-4 py-3" style={{
+                    background: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(251,146,60,0.08) 100%)',
+                    border: '1px solid rgba(139,92,246,0.25)',
+                  }}>
+                    <span className="block text-[9px] font-black uppercase tracking-[0.18em] mb-1.5" style={{ color: '#64748b' }}>Why it matters</span>
+                    {tagline.split('\n').map((line, i) => (
+                      <span key={i} className="block font-black leading-tight" style={i === 0 ? {
+                        fontSize: '13px',
+                        color: '#e2e8f0',
+                      } : {
+                        fontSize: '13px',
+                        background: 'linear-gradient(100deg, #7c3aed 0%, #a78bfa 50%, #fb923c 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                      }}>{line}</span>
+                    ))}
+                  </div>
+                )}
 
                 {/* CTA */}
                 <div className="flex items-center gap-1.5 text-sm font-black transition-all duration-200 group-hover:gap-2.5"

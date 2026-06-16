@@ -1,0 +1,38 @@
+# ── aarya-og — Cloudflare Worker ─────────────────────────────────────────────
+# Per-page OG tag injector for aaryaai.dev
+#
+# This Worker intercepts social crawler requests (LinkedInBot, Twitterbot, etc.)
+# and returns a minimal HTML shell with correct per-page og:title / og:description.
+# Real users are passed through to the GitHub Pages SPA unchanged.
+#
+# ── Prerequisites ─────────────────────────────────────────────────────────────
+#   1. aaryaai.dev DNS must be proxied through Cloudflare (orange cloud in DNS).
+#      If the record is DNS-only (grey cloud) the worker route won't fire.
+#
+#   2. Find your Cloudflare Zone ID:
+#      Cloudflare Dashboard → aaryaai.dev → Overview → Zone ID (right sidebar)
+#      Replace <REPLACE_WITH_ZONE_ID> below.
+#
+# ── Deploy ────────────────────────────────────────────────────────────────────
+#   npx wrangler deploy --config wrangler.og.toml
+#
+# ── Verify ────────────────────────────────────────────────────────────────────
+#   LinkedIn Post Inspector:
+#     https://www.linkedin.com/post-inspector/inspect/?url=https://aaryaai.dev/blog/<slug>
+#   Twitter Card Validator:
+#     https://cards-dev.twitter.com/validator
+#   Curl test (simulate a bot):
+#     curl -A "LinkedInBot/1.0" https://aaryaai.dev/blog/order-bot-domain-boundary
+# ─────────────────────────────────────────────────────────────────────────────
+
+name               = "aarya-og"
+main               = "workers/og-handler.ts"
+compatibility_date = "2026-06-05"
+workers_dev        = false
+
+# Route: intercept ALL requests to aaryaai.dev
+# Bot detection logic inside the worker ensures real users pass through untouched.
+[[routes]]
+pattern   = "aaryaai.dev/*"
+zone_name = "aaryaai.dev"
+# zone_id = "<REPLACE_WITH_ZONE_ID>"   # alternative — comment out zone_name if using this
