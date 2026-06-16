@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, Key, Copy, Check, ExternalLink, X, ShieldCheck } from 'lucide-react';
+import { LogOut, Key, ExternalLink, X, ShieldCheck } from 'lucide-react';
 import { useAuth, isOAuthConfigured } from '@/lib/auth';
 
-/** Compact trust / privacy assurance shown in both sign-in panels. */
+/** Compact trust / privacy assurance shown in sign-in panels. */
 function TrustBadge() {
   return (
     <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/30">
       <ShieldCheck size={13} className="text-emerald-400 shrink-0 mt-0.5" />
       <div className="text-[10px] leading-relaxed text-slate-400 space-y-0.5">
         <p><span className="text-emerald-400 font-medium">We will:</span> read your public name &amp; avatar, save quiz scores to a private Gist you own.</p>
-        <p><span className="text-slate-500 font-medium">We will not:</span> access code, repos, emails, or DMs — and your token never leaves your browser.</p>
+        <p><span className="text-slate-500 font-medium">We will not:</span> access code, repos, emails, or DMs.</p>
       </div>
     </div>
   );
@@ -25,41 +25,10 @@ function GithubIcon({ size = 14 }: { size?: number }) {
 }
 
 export function GithubLogin() {
-  const { user, isLoading, login, loginWithToken, logout, deviceFlow, cancelDeviceFlow } = useAuth();
+  const { user, isLoading, login, loginWithToken, logout } = useAuth();
   const [showTokenInput, setShowTokenInput] = useState(false);
-  const [showDevicePanel, setShowDevicePanel] = useState(false);
   const [tokenValue, setTokenValue] = useState('');
   const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState(0);
-
-  // Sync panel visibility with device flow state
-  useEffect(() => {
-    if (deviceFlow) {
-      setShowDevicePanel(true); // eslint-disable-line react-hooks/set-state-in-effect
-    } else {
-      setShowDevicePanel(false);
-    }
-  }, [deviceFlow]);
-
-  // Live countdown — ticks every second while device flow is active
-  useEffect(() => {
-    if (!deviceFlow) return;
-    const tick = () =>
-      setSecondsLeft(Math.max(0, Math.round((deviceFlow.expiresAt - Date.now()) / 1000)));
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [deviceFlow]);
-
-  const copyCode = () => {
-    navigator.clipboard?.writeText(deviceFlow?.userCode ?? '').then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
-  const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
   if (isLoading) return <div className="w-8 h-8 rounded-full bg-gray-700 animate-pulse" />;
 
@@ -76,111 +45,6 @@ export function GithubLogin() {
         <button onClick={logout} className="p-1 text-slate-400 hover:text-red-400 transition-colors" title="Logout">
           <LogOut size={16} />
         </button>
-      </div>
-    );
-  }
-
-  // ── Device flow in progress ────────────────────────────────────────────────
-  if (deviceFlow) {
-    return (
-      <div className="relative">
-        {/* Compact navbar pill — clicking re-opens the guided panel */}
-        <button
-          onClick={() => setShowDevicePanel((v) => !v)}
-          className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-violet-950/60 border border-violet-500/40 text-violet-300 rounded-lg hover:bg-violet-900/60 transition-colors"
-          title="Click to see your sign-in instructions"
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse shrink-0" />
-          <span className="hidden sm:inline font-medium">Signing in…</span>
-        </button>
-
-        {/* Centered modal with backdrop */}
-        {showDevicePanel && (
-          <>
-            {/* Backdrop — click to dismiss panel (flow continues) */}
-            <div
-              className="fixed inset-0 z-[199] bg-black/60 backdrop-blur-sm"
-              onClick={() => setShowDevicePanel(false)}
-              aria-hidden="true"
-            />
-            {/* Centered panel — anchored below the navbar */}
-            <div className="fixed left-1/2 top-16 -translate-x-1/2 z-[200] w-[22rem] max-h-[calc(100vh-5rem)] overflow-y-auto bg-slate-900 border border-slate-700/60 rounded-2xl shadow-2xl shadow-black/80">
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
-              <div className="flex items-center gap-2 text-white">
-                <GithubIcon size={15} />
-                <span className="text-sm font-semibold">Authorize with GitHub</span>
-              </div>
-              <button
-                onClick={() => setShowDevicePanel(false)}
-                className="text-slate-500 hover:text-slate-300 transition-colors"
-                aria-label="Dismiss panel"
-              >
-                <X size={15} />
-              </button>
-            </div>
-
-            <div className="px-5 py-4 space-y-4">
-              {/* Step 1 — copy code */}
-              <div>
-                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
-                  Step 1 — Copy your code
-                </p>
-                <button
-                  onClick={copyCode}
-                  className="w-full flex items-center justify-between font-mono font-bold text-2xl tracking-[0.25em] text-white bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded-xl transition-colors group"
-                  title="Click to copy code"
-                >
-                  {deviceFlow.userCode}
-                  <span className="text-xs font-normal font-sans tracking-normal text-slate-500 group-hover:text-slate-300 flex items-center gap-1 ml-2">
-                    {copied
-                      ? <><Check size={13} className="text-emerald-400" />Copied!</>
-                      : <><Copy size={13} />Copy</>}
-                  </span>
-                </button>
-              </div>
-
-              {/* Step 2 — open GitHub */}
-              <div>
-                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
-                  Step 2 — Paste it on GitHub
-                </p>
-                <a
-                  href={deviceFlow.verificationUri}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold rounded-xl transition-colors"
-                >
-                  <ExternalLink size={14} />
-                  Open github.com/login/device
-                </a>
-              </div>
-
-              {/* Trust assurance */}
-              <TrustBadge />
-
-              {/* Step 3 — waiting */}
-              <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50">
-                <span className="w-4 h-4 border-2 border-violet-400 border-t-transparent rounded-full animate-spin shrink-0" />
-                <div>
-                  <p className="text-xs text-slate-300">Waiting for you to authorize…</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Code expires in {fmt(secondsLeft)}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer cancel */}
-            <div className="px-5 pb-4">
-              <button
-                onClick={cancelDeviceFlow}
-                className="w-full text-[11px] text-slate-600 hover:text-red-400 transition-colors py-1"
-              >
-                Cancel sign-in
-              </button>
-            </div>
-            </div>
-          </>
-        )}
       </div>
     );
   }
@@ -266,9 +130,9 @@ export function GithubLogin() {
   return (
     <div className="flex items-center gap-1">
       <button
-        onClick={async () => {
+        onClick={() => {
           if (isOAuthConfigured()) {
-            const started = await login();
+            const started = login();
             if (!started) setShowTokenInput(true);
           } else {
             setShowTokenInput(true);

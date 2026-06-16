@@ -35,6 +35,12 @@ id      = "11f07ef9b0c5432bb9a232390d3ec672"
 #   wrangler secret put ANTHROPIC_API_KEY
 #     → paste your Anthropic API key (powers /mentor/* endpoints)
 #
+#   wrangler secret put GH_CLIENT_ID
+#     → paste your GitHub OAuth App client_id (from github.com/settings/developers)
+#
+#   wrangler secret put GH_CLIENT_SECRET
+#     → paste your GitHub OAuth App client_secret (NEVER commit this value)
+#
 # ── Deploy ────────────────────────────────────────────────────────────────────
 # After secrets are set:
 #   wrangler deploy

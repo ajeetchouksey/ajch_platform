@@ -60,6 +60,10 @@ export interface Env {
   RATE_LIMITER: KVNamespace;
   /** Anthropic API key — powers /mentor/* endpoints. Set via `wrangler secret put ANTHROPIC_API_KEY`. */
   ANTHROPIC_API_KEY?: string;
+  /** GitHub OAuth App client ID — used by /oauth/callback to exchange code for token. */
+  GH_CLIENT_ID?: string;
+  /** GitHub OAuth App client secret — NEVER expose client-side. Set via `wrangler secret put GH_CLIENT_SECRET`. */
+  GH_CLIENT_SECRET?: string;
 }
 
 interface Subscriber {
@@ -362,6 +366,54 @@ interface MentorSessionRaw {
   mentorNote?: unknown;
 }
 
+// ── GitHub OAuth web flow callback ──────────────────────────────────────────
+// GET /oauth/callback?code=...&state=...
+// Called by GitHub after user approves the OAuth app. Exchanges the one-time
+// code for an access token using the client_secret (stored as a Worker secret)
+// then redirects to the SPA with the token in the URL fragment.
+// The fragment is never sent to the Pages server — safe per OAuth spec.
+async function handleOAuthCallback(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  const code = url.searchParams.get('code') ?? '';
+  const state = url.searchParams.get('state') ?? '';
+
+  // OWASP A03 — validate params before use
+  // code: GitHub issues 20-char hex codes; cap at 40 to be safe
+  // state: UUID v4 format (crypto.randomUUID() on the client)
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!code || code.length > 40 || !state || !UUID_RE.test(state)) {
+    return Response.redirect(`https://aaryaai.dev/auth/callback#error=invalid_request&state=${encodeURIComponent(state)}`, 302);
+  }
+
+  if (!env.GH_CLIENT_ID || !env.GH_CLIENT_SECRET) {
+    return Response.redirect(`https://aaryaai.dev/auth/callback#error=server_misconfigured&state=${encodeURIComponent(state)}`, 302);
+  }
+
+  try {
+    const res = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        client_id: env.GH_CLIENT_ID,
+        client_secret: env.GH_CLIENT_SECRET,
+        code,
+      }),
+    });
+
+    const data = await res.json() as Record<string, unknown>;
+
+    if (typeof data.access_token !== 'string' || !data.access_token) {
+      return Response.redirect(`https://aaryaai.dev/auth/callback#error=access_denied&state=${encodeURIComponent(state)}`, 302);
+    }
+
+    // Token delivered via fragment — never appears in server logs or referrer headers
+    const token = encodeURIComponent(data.access_token);
+    return Response.redirect(`https://aaryaai.dev/auth/callback#token=${token}&state=${encodeURIComponent(state)}`, 302);
+  } catch {
+    return Response.redirect(`https://aaryaai.dev/auth/callback#error=server_error&state=${encodeURIComponent(state)}`, 302);
+  }
+}
+
 // ── GitHub OAuth Device Flow proxy ───────────────────────────────────────────
 // Proxies browser → Worker → GitHub to bypass browser CORS restrictions.
 // No client secret is transmitted — Device Flow only needs client_id.
@@ -546,6 +598,12 @@ export default {
       return new Response(null, { status: 204, headers: corsHeadersFor(origin) });
     }
 
+    // OAuth callback — GET request from GitHub redirect; no Origin header from the browser redirect
+    const { pathname } = new URL(request.url);
+    if (pathname === '/oauth/callback' && request.method === 'GET') {
+      return handleOAuthCallback(request, env);
+    }
+
     if (request.method !== 'POST') {
       return new Response('Method Not Allowed', { status: 405 });
     }
@@ -556,7 +614,6 @@ export default {
     }
 
     // Route by path
-    const { pathname } = new URL(request.url);
     if (pathname === '/mentor/plan') return handleMentorPlan(request, env, origin);
     if (pathname === '/mentor/chat') return handleMentorChat(request, env, origin);
     if (pathname === '/oauth/device-code') return handleOAuthDeviceCode(request, origin);

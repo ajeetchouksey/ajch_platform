@@ -67,6 +67,22 @@ export function deletePlan(examId: string): void {
   localStorage.removeItem(planKey(examId));
 }
 
+/** Return all study plans stored in localStorage keyed by examId. */
+export function getAllStudyPlans(): Record<string, StudyPlan> {
+  const result: Record<string, StudyPlan> = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key?.startsWith('study_plan_')) continue;
+    const examId = key.slice('study_plan_'.length);
+    if (!isValidExamId(examId)) continue;
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) result[examId] = JSON.parse(raw) as StudyPlan;
+    } catch { /* skip malformed entry */ }
+  }
+  return result;
+}
+
 export function toggleActivity(
   examId: string,
   sessionDay: number,

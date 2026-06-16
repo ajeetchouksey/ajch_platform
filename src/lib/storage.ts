@@ -43,6 +43,11 @@ export function getScoreByDomain(examId: string): Record<number, { correct: numb
   return result;
 }
 
+/** Replace the entire sessions array (used when pulling from Gist sync). */
+export function saveSessions(sessions: QuizSession[]): void {
+  localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+}
+
 export function clearSessions(): void {
   localStorage.removeItem(SESSIONS_KEY);
 }
@@ -69,5 +74,10 @@ export function markNotesSeen(examId: string, domainId: number): void {
 /** Return ISO timestamp when notes for this domain were last seen, or null. */
 export function getNotesSeenAt(examId: string, domainId: number): string | null {
   return getNotesSeen()[`${examId}:${domainId}`] ?? null;
+}
+
+/** Replace the entire notes-seen map (used when pulling from Gist sync). */
+export function setNotesSeen(data: Record<string, string>): void {
+  localStorage.setItem(NOTES_SEEN_KEY, JSON.stringify(data));
 }
 
