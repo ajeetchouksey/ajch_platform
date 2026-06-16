@@ -239,7 +239,7 @@ export default function HomeV2() {
               <Link to="/learn"
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-black rounded-2xl text-white transition-all duration-200 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5 active:scale-95"
                 style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.6)' }}>
-                <Zap size={15} /> Start with AI 101 — Free, 10 min <ArrowRight size={15} />
+                <Zap size={15} /> Start Building <ArrowRight size={15} />
               </Link>
               <button
                 onClick={() => document.getElementById('learning-path')?.scrollIntoView({ behavior: 'smooth' })}
