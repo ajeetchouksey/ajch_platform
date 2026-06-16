@@ -1,6 +1,25 @@
 {
   "posts": [
     {
+      "slug": "context-budget-rule",
+      "title": "You're Wasting 60% of Your Context Window",
+      "excerpt": "Your agent isn't hallucinating. It's starving. Here's why — and the three-rule fix that engineers actually ship.",
+      "author": "Ajeet Chouksey",
+      "date": "2026-06-16",
+      "updated": null,
+      "tags": [
+        "context-management",
+        "cca-f",
+        "domain-5",
+        "named-framework",
+        "token-budget"
+      ],
+      "category": "AI Architecture",
+      "readingTime": 7,
+      "featured": true,
+      "draft": false
+    },
+    {
       "slug": "order-bot-domain-boundary",
       "title": "When Your Burger Bot Goes Rogue: A Production Wake-Up Call",
       "excerpt": "Your AI assistant has no idea what its job is — and that's your fault. Here is what broke when an ordering bot started writing Python, and the architecture that stops it.",

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { loadQuestionsForExam, loadQuestionsByDomainForExam, loadExamRegistry } from '@/lib/content-loader';
 import { saveSession } from '@/lib/storage';
@@ -27,6 +27,7 @@ export default function Quiz() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
   const { user, login } = useAuth();
   const { syncToGist } = useProgressSync();
+  const feedbackRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<Phase>('setup');
   const [domainFilter, setDomainFilter] = useState<number | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -103,6 +104,19 @@ export default function Quiz() {
       setSession(finished);
     }
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-scroll to feedback when answer is revealed
+  useEffect(() => {
+    if (revealed && feedbackRef.current) {
+      const main = feedbackRef.current.closest('main') as HTMLElement | null;
+      if (main) {
+        const rect = feedbackRef.current.getBoundingClientRect();
+        const mainRect = main.getBoundingClientRect();
+        const offset = rect.top - mainRect.top - 24; // 24px breathing room above feedback
+        main.scrollBy({ top: offset, behavior: 'smooth' });
+      }
+    }
+  }, [revealed]);
 
   function handleChoose(idx: number) {
     if (revealed) return;
@@ -401,6 +415,7 @@ export default function Quiz() {
       {/* Explanation */}
       {revealed && (
         <div
+          ref={feedbackRef}
           className={`rounded-xl p-4 text-sm border ${
             isCorrect ? 'border-emerald-700 bg-emerald-900/10' : 'border-rose-700 bg-rose-900/10'
           }`}

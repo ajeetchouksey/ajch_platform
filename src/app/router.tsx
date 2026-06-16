@@ -13,6 +13,11 @@ import Scenarios from '@/features/exams/pages/Scenarios';
 import Progress from '@/features/exams/pages/Progress';
 import StudyPlan from '@/features/exams/pages/StudyPlan';
 
+// ── Pathways ──────────────────────────────────────────────────────────────────
+import Pathways from '@/features/pathways/pages/Pathways';
+import PathwayTrack from '@/features/pathways/pages/PathwayTrack';
+import PathwayArticle from '@/features/pathways/pages/PathwayArticle';
+
 // ── Field Notes (Blog) ────────────────────────────────────────────────────────
 import Blog from '@/features/blog/pages/Blog';
 import BlogPost from '@/features/blog/pages/BlogPost';
@@ -76,6 +81,11 @@ export default function AppRoutes() {
       <Route path="/exams/:examId/notes" element={<ExamSubRedirect sub="notes" />} />
       <Route path="/exams/:examId/scenarios" element={<ExamSubRedirect sub="scenarios" />} />
       <Route path="/exams/:examId/progress" element={<ExamSubRedirect sub="progress" />} />
+
+      {/* Horizons */}
+      <Route path="/horizons" element={<Pathways />} />
+      <Route path="/horizons/:track" element={<PathwayTrack />} />
+      <Route path="/horizons/:track/:slug" element={<PathwayArticle />} />
 
       {/* Field Notes */}
       <Route path="/blog" element={<Blog />} />

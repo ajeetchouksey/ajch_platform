@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useReducer } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { CalendarDays, ChevronDown, ChevronRight, BookOpen, Brain, AlertTriangle, CheckCircle2, Circle, ArrowLeft, RefreshCw, Clock, Zap, Sparkles, RotateCcw, MessageCircle, X } from 'lucide-react';
+import { CalendarDays, ChevronDown, ChevronRight, BookOpen, Brain, AlertTriangle, CheckCircle2, Circle, RefreshCw, Clock, Zap, Sparkles, RotateCcw, MessageCircle, X } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { getSessions } from '@/lib/storage';
 import {
@@ -400,14 +400,6 @@ export default function StudyPlan() {
 
   return (
     <div className={`space-y-6 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-      {/* Back nav */}
-      <Link
-        to={`/skillup/${validId}`}
-        className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors"
-      >
-        <ArrowLeft size={13} />
-        Back to {exam.shortTitle} Overview
-      </Link>
 
       {/* Header */}
       <div>

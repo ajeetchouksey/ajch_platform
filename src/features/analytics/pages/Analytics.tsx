@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
-import { BarChart2, AlertCircle } from 'lucide-react';
+import { BarChart2, AlertCircle, Lock } from 'lucide-react';
 
 const ADMIN_USERS = ['ajeetchouksey', 'ajchava'];
 
@@ -26,7 +26,7 @@ export default function Analytics() {
               </span>
             )}
           </div>
-          <p className="text-sm text-slate-400">GA4 · Issue #14</p>
+          <p className="text-sm text-slate-400">Platform-wide GA4 analytics for repository collaborators.</p>
         </div>
       </div>
 
@@ -37,10 +37,11 @@ export default function Analytics() {
       {!authLoading && !user && (
         <div className="max-w-md mx-auto mt-16 text-center">
           <div className="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4">
-            <BarChart2 size={22} className="text-slate-400" />
+            <Lock size={22} className="text-slate-400" />
           </div>
           <h2 className="section-heading mb-2">Sign in required</h2>
-          <p className="text-sm text-slate-400">This page is restricted to repository collaborators.</p>
+          <p className="text-sm text-slate-400 mb-4">This page is restricted to repository collaborators. Sign in with your GitHub account to access platform analytics.</p>
+          <p className="text-xs text-slate-600">Analytics includes page views, quiz completions, and subscriber growth trends.</p>
         </div>
       )}
 
@@ -56,9 +57,9 @@ export default function Analytics() {
       {!authLoading && isAdmin && (
         <div className="glass-card rounded-xl p-8 border-violet-500/20 text-center">
           <AlertCircle size={32} className="mx-auto text-violet-400 mb-3" />
-          <h3 className="text-base font-semibold text-white mb-2">GA4 Analytics — Coming Soon</h3>
+          <h3 className="text-base font-semibold text-white mb-2">Analytics Dashboard — Coming Soon</h3>
           <p className="text-sm text-slate-400 max-w-md mx-auto">
-            GoatCounter has been removed. GA4 cookieless analytics will be wired in Issue #14.
+            GA4 cookieless analytics integration is in progress.
             Set <code className="text-violet-300">VITE_GA_MEASUREMENT_ID</code> in GitHub Pages secrets once your GA4 property is ready.
           </p>
         </div>

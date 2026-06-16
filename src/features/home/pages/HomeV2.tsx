@@ -168,7 +168,7 @@ export default function HomeV2() {
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § HERO
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      <section className={`relative pt-6 pb-2 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+      <section className={`relative pt-6 pb-2 overflow-hidden transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
 
         {/* Ambient orbs */}
         <div className="absolute -top-20 -left-32 w-[500px] h-[500px] rounded-full pointer-events-none"
@@ -179,7 +179,7 @@ export default function HomeV2() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-12 items-start relative z-10">
 
           {/* ── Left: copy ─────────────────────────────────────────────── */}
-          <div>
+          <div className="min-w-0 overflow-hidden">
             {/* Eyebrow */}
             <div className="flex items-center gap-3 mb-6 flex-wrap">
               <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full"
@@ -190,14 +190,18 @@ export default function HomeV2() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-5xl sm:text-6xl font-black text-white leading-[1.04] tracking-tight mb-5">
-              Everyone's Prompting.
+            <h1
+              className="font-black text-white leading-[1.1] tracking-tight mb-5"
+              style={{ fontSize: 'clamp(28px, 4.2vw, 60px)' }}
+            >
+              Everyone's Prompting...
               <br />
               <span style={{
                 background: 'linear-gradient(100deg, #7c3aed 0%, #a78bfa 45%, #fb923c 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-              }}>Engineers Are Building.</span>
+                display: 'block',
+              }}>Engineers Are Building...</span>
             </h1>
 
             {/* Value prop */}

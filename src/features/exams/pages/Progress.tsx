@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getSessions, getScoreByDomain, clearSessions } from '@/lib/storage';
 import { loadExamRegistry } from '@/lib/content-loader';
 import type { DomainConfig } from '@/types/content';
-import { Trash2, RotateCcw, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Trash2, RotateCcw, TrendingUp, TrendingDown, Minus, BarChart2, Brain } from 'lucide-react';
 
 export default function Progress() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
@@ -36,9 +36,23 @@ export default function Progress() {
       <div className="space-y-3">
         <p className="page-eyebrow">{examShortTitle} Tracking</p>
         <h1 className="text-2xl font-bold tracking-tight"><span className="heading-gradient">Progress</span></h1>
-        <p className="text-slate-400 text-sm">
-          No completed sessions yet. Take a quiz to start tracking your progress.
-        </p>
+        <div className="mt-12 flex flex-col items-center text-center max-w-sm mx-auto">
+          <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mb-5">
+            <BarChart2 size={26} className="text-slate-500" />
+          </div>
+          <h2 className="text-base font-semibold text-white mb-2">No sessions yet</h2>
+          <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+            Complete a quiz to start tracking your progress, domain scores, and readiness over time.
+          </p>
+          <Link
+            to={`/skillup/${examId}/quiz`}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-violet-500/20"
+            style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}
+          >
+            <Brain size={15} />
+            Take your first quiz
+          </Link>
+        </div>
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown, Compass, Map, User } from 'lucide-react';
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -35,11 +35,14 @@ const TOOL_NAV = [
 const platformLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
   { to: '/skillup', label: 'Skill Up', icon: GraduationCap },
+  { to: '/learn', label: 'Learn', icon: Map },
   { to: '/blog', label: 'Field Notes', icon: Newspaper },
+  { to: '/horizons', label: 'Horizons', icon: Compass },
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/docs', label: 'Docs', icon: BookOpen },
   { to: '/contribute', label: 'Contribute', icon: GitPullRequest },
   { to: '/team', label: 'Team', icon: Users },
+  { to: '/profile', label: 'Profile', icon: User, sidebarOnly: true },
   { to: '/dashboard', label: 'Dashboard', icon: BarChart2, sidebarOnly: true },
   { to: '/analytics', label: 'Analytics', icon: LineChart, sidebarOnly: true },
 ];
@@ -280,7 +283,30 @@ export default function Layout({ children }: { children: ReactNode }) {
               Platform
             </h3>
             <nav className="space-y-0.5">
-              {platformLinks.map(({ to, label, icon: Icon, end }) => (
+              {platformLinks.filter((l) => !l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                      isActive
+                        ? 'bg-violet-500/15 text-violet-200 border-l-2 border-violet-400 ml-0 pl-2.5'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
+                    }`
+                  }
+                >
+                  <Icon size={16} />
+                  <span>{label}</span>
+                </NavLink>
+              ))}
+            </nav>
+            <div className="border-t border-slate-800/60 my-3 -mx-1" />
+            <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
+              Account
+            </h3>
+            <nav className="space-y-0.5">
+              {platformLinks.filter((l) => l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -473,7 +499,8 @@ export default function Layout({ children }: { children: ReactNode }) {
         >
           {/* Tools sub-nav strip */}
           {isInTool && (
-            <div className="sticky top-0 z-20 shrink-0 border-b border-slate-700/30 bg-slate-900/90 backdrop-blur-md px-4 py-2 flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            <div className="sticky top-0 z-20 shrink-0 border-b border-slate-700/30 bg-slate-900/90 backdrop-blur-md relative">
+            <div className="px-4 py-2 flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
               <NavLink
                 to="/tools"
                 end
@@ -496,6 +523,8 @@ export default function Layout({ children }: { children: ReactNode }) {
                   {label}
                 </NavLink>
               ))}
+            </div>
+            <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none" style={{ background: 'linear-gradient(to left, rgba(15,23,42,0.95) 0%, transparent 100%)' }} />
             </div>
           )}
           {/* Exam sub-nav strip */}
@@ -549,8 +578,8 @@ export default function Layout({ children }: { children: ReactNode }) {
             <div className="h-px bg-gradient-to-r from-transparent via-violet-500/25 to-transparent mb-8" />
 
             <div className="max-w-5xl mx-auto space-y-6">
-              {/* Newsletter CTA — glass card matching page design language */}
-              <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.04] backdrop-blur-sm p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+              {/* Newsletter CTA — hidden on the /subscribe page itself to avoid duplication */}
+              {location.pathname !== '/subscribe' && <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.04] backdrop-blur-sm p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-white mb-0.5">Ship faster. Learn deeper.</p>
                   <p className="text-xs text-slate-500 leading-relaxed">Exam guides, AI tools &amp; engineering updates — straight to your inbox.</p>
@@ -568,7 +597,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     )
                   }
                 </div>
-              </div>
+              </div>}
 
               {/* Brand + nav row */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
