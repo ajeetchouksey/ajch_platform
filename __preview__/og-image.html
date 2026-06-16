@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!--
+    OG Image Generator — Aarya
+    ─────────────────────────────────────────────────────────────────────────────
+    Screenshot this file at EXACTLY 1200×628 to produce public/og-preview.png
+
+    How to screenshot:
+
+    Option A — Browser DevTools (recommended)
+      1. Open this file in Chrome: http://localhost:5174/__preview__/og-image.html
+      2. Open DevTools → ⋮ → More tools → Sensors (or Ctrl+Shift+P "Capture screenshot")
+      3. In DevTools → Toggle device toolbar (Ctrl+Shift+M)
+      4. Set width=1200, height=628, DPR=1
+      5. Ctrl+Shift+P → "Capture screenshot" → save as og-preview.png
+
+    Option B — Puppeteer one-liner
+      npx puppeteer-screenshot --url "http://localhost:5174/__preview__/og-image.html" \
+        --width 1200 --height 628 --output public/og-preview.png
+
+    Option C — wkhtmltoimage (if installed)
+      wkhtmltoimage --width 1200 --height 628 og-image.html og-preview.png
+    ─────────────────────────────────────────────────────────────────────────────
+  -->
+  <title>Aarya OG Image — 1200×628</title>
+  <style>
+    /* ── Reset: body IS the image — exactly 1200×628, no scrollbars ─────── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width:  1200px;
+      height:  628px;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Card (the image) ───────────────────────────────────────────────── */
+    .card {
+      position: relative;
+      width:  1200px;
+      height:  628px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 54px 72px 52px;
+      overflow: hidden;
+    }
+
+    /* Background gradient */
+    .bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg,
+        #0b1120 0%,
+        #0f172a 30%,
+        #1a1040 65%,
+        #1e1b4b 80%,
+        #130d2e 100%
+      );
+    }
+
+    /* Subtle grid texture */
+    .grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* Ambient orbs */
+    .orb-tl {
+      position: absolute; top: -120px; right: -80px;
+      width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle,
+        rgba(139,92,246,0.22) 0%,
+        rgba(109,40,217,0.08) 40%,
+        transparent 70%
+      );
+    }
+    .orb-bl {
+      position: absolute; bottom: -140px; left: -60px;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle,
+        rgba(59,130,246,0.18) 0%,
+        rgba(37,99,235,0.06) 45%,
+        transparent 70%
+      );
+    }
+    .orb-center {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px; height: 400px; border-radius: 50%;
+      background: radial-gradient(ellipse,
+        rgba(99,102,241,0.06) 0%,
+        transparent 70%
+      );
+    }
+
+    /* Decorative top accent bar */
+    .accent-bar {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        #7c3aed 20%,
+        #6366f1 50%,
+        #4f46e5 80%,
+        transparent 100%
+      );
+    }
+
+    /* ── Content layer ──────────────────────────────────────────────────── */
+    .content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: space-between;
+    }
+
+    /* Top: logo + tagline */
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-mark {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 900;
+      color: white;
+      letter-spacing: -0.04em;
+      box-shadow: 0 0 30px rgba(124,58,237,0.4);
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .logo-name {
+      font-size: 22px;
+      font-weight: 800;
+      color: #f1f5f9;
+      letter-spacing: -0.01em;
+    }
+
+    .logo-sub {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748b;
+      letter-spacing: 0.04em;
+    }
+
+    /* Top-right: badge cluster */
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 100px;
+    }
+
+    .badge-violet {
+      background: rgba(139,92,246,0.15);
+      color: #c4b5fd;
+      border: 1px solid rgba(139,92,246,0.35);
+    }
+
+    .badge-slate {
+      background: rgba(100,116,139,0.12);
+      color: #94a3b8;
+      border: 1px solid rgba(100,116,139,0.25);
+    }
+
+    /* Center: headline block */
+    .headline-block {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 0 8px;
+    }
+
+    .eyebrow {
+      font-size: 14px;
+      font-weight: 600;
+      color: #7c3aed;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .eyebrow::before {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 2px;
+      background: linear-gradient(90deg, #7c3aed, #4f46e5);
+      border-radius: 2px;
+    }
+
+    .headline {
+      font-size: 68px;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      color: #f8fafc;
+      margin-bottom: 22px;
+      /* prevent text overflow */
+      max-width: 900px;
+    }
+
+    .headline .accent {
+      background: linear-gradient(90deg, #a78bfa 0%, #818cf8 60%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subline {
+      font-size: 20px;
+      font-weight: 400;
+      color: #64748b;
+      line-height: 1.5;
+      max-width: 780px;
+    }
+
+    .subline strong {
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    /* Bottom: differentiator row */
+    .diff-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(100,116,139,0.2);
+      padding-top: 26px;
+    }
+
+    .diff-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .diff-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .diff-pill .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .diff-pill.violet {
+      background: rgba(139,92,246,0.12);
+      color: #c4b5fd;
+      border: 1px solid rgba(139,92,246,0.25);
+    }
+    .diff-pill.violet .dot { background: #7c3aed; }
+
+    .diff-pill.indigo {
+      background: rgba(99,102,241,0.12);
+      color: #a5b4fc;
+      border: 1px solid rgba(99,102,241,0.25);
+    }
+    .diff-pill.indigo .dot { background: #6366f1; }
+
+    .diff-pill.cyan {
+      background: rgba(6,182,212,0.10);
+      color: #67e8f9;
+      border: 1px solid rgba(6,182,212,0.2);
+    }
+    .diff-pill.cyan .dot { background: #06b6d4; }
+
+    .diff-pill.emerald {
+      background: rgba(16,185,129,0.10);
+      color: #6ee7b7;
+      border: 1px solid rgba(16,185,129,0.2);
+    }
+    .diff-pill.emerald .dot { background: #10b981; }
+
+    .diff-url {
+      font-size: 14px;
+      color: #475569;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+  </style>
+  <!-- Inter from Google Fonts — loads in browser; falls back to system sans-serif for offline screenshot -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="all" />
+</head>
+<body>
+
+<div class="card">
+  <!-- Backgrounds -->
+  <div class="bg"></div>
+  <div class="grid"></div>
+  <div class="orb-tl"></div>
+  <div class="orb-bl"></div>
+  <div class="orb-center"></div>
+  <div class="accent-bar"></div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Top row: logo + badges -->
+    <div class="top-row">
+      <div class="logo-group">
+        <div class="logo-mark">A</div>
+        <div class="logo-text">
+          <span class="logo-name">Aarya</span>
+          <span class="logo-sub">My AI Learning Hub</span>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge badge-violet">Free Forever</span>
+        <span class="badge badge-slate">Open Source</span>
+      </div>
+    </div>
+
+    <!-- Headline block -->
+    <div class="headline-block">
+      <div class="eyebrow">AI Learning Hub for Engineers</div>
+      <div class="headline">
+        Learn, <span class="accent">Build</span>,<br>and Scale with AI.
+      </div>
+      <div class="subline">
+        Practitioner-built certification prep, technical blog,<br>and developer tools — from fundamentals to enterprise architecture.
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="diff-row">
+      <div class="diff-pills">
+        <span class="diff-pill violet"><span class="dot"></span>Practitioner-Built</span>
+        <span class="diff-pill indigo"><span class="dot"></span>Certification Ready</span>
+        <span class="diff-pill cyan"><span class="dot"></span>Developer Tools</span>
+        <span class="diff-pill emerald"><span class="dot"></span>Free Forever · Open Source</span>
+      </div>
+      <span class="diff-url">aaryaai.dev</span>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /card -->
+
+</body>
+</html>

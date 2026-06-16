@@ -6,13 +6,48 @@ import rehypeRaw from 'rehype-raw';
 import { loadNoteForExam, loadExamRegistry } from '@/lib/content-loader';
 import { markNotesSeen } from '@/lib/storage';
 import type { DomainConfig, ExamConfig } from '@/types/content';
-import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
 function readingTime(md: string) {
   return Math.max(1, Math.ceil(md.split(/\s+/).filter(Boolean).length / 200));
+}
+
+// ── Circular reading progress (matches BlogPost sidebar) ─────────────────────
+function CircularProgress({ pct, readTime }: { pct: number; readTime: number }) {
+  const r = 18;
+  const c = 2 * Math.PI * r;
+  const remaining = Math.max(0, Math.round(readTime * (1 - pct / 100)));
+  return (
+    <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
+      style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.18)' }}>
+      <div className="relative w-11 h-11 shrink-0">
+        <svg className="w-11 h-11 -rotate-90" viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r={r} fill="none" stroke="rgba(71,85,105,0.25)" strokeWidth="2.5" />
+          <circle cx="22" cy="22" r={r} fill="none" stroke="url(#notes-pgr)" strokeWidth="2.5"
+            strokeDasharray={c} strokeDashoffset={c * (1 - pct / 100)}
+            strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.4s ease' }} />
+          <defs>
+            <linearGradient id="notes-pgr" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#a78bfa" />
+              <stop offset="100%" stopColor="#38bdf8" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white">
+          {Math.round(pct)}%
+        </span>
+      </div>
+      <div>
+        <p className="text-xs font-bold text-slate-200">Reading</p>
+        <p className="text-[10px] text-slate-500">
+          {pct >= 99 ? 'Complete ✓' : `${remaining} min left`}
+        </p>
+      </div>
+    </div>
+  );
 }
 
 // ── TOC helpers ────────────────────────────────────────────────────────────────
@@ -69,6 +104,8 @@ export default function Notes() {
   const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
   const [activeId, setActiveId] = useState<string>('');
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
+  const [readPct, setReadPct] = useState(0);
+  const [copied, setCopied] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const toc = content ? extractToc(content) : [];
 
@@ -122,6 +159,27 @@ export default function Notes() {
   }, [loading, content, setupObserver]);
 
   useEffect(() => () => observerRef.current?.disconnect(), []);
+
+  // Scroll-based reading progress
+  useEffect(() => {
+    const mainEl = document.querySelector('main') as HTMLElement | null;
+    const fn = () => {
+      const el = mainEl;
+      if (!el) return;
+      const h = el.scrollHeight - el.clientHeight;
+      setReadPct(h > 0 ? Math.min((el.scrollTop / h) * 100, 100) : 0);
+    };
+    const target: HTMLElement | Window = mainEl ?? window;
+    target.addEventListener('scroll', fn, { passive: true });
+    return () => target.removeEventListener('scroll', fn);
+  }, [loading, content]);
+
+  function handleShare() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
+  }
 
   const currentDomainConfig = examDomains.find((d) => d.id === domain);
   const currentIdx = examDomains.findIndex((d) => d.id === domain);
@@ -309,97 +367,107 @@ export default function Notes() {
 
       {/* Sticky in-page TOC — desktop xl+ only */}
       {toc.length > 0 && (
-        <aside className="hidden xl:flex xl:flex-col gap-4">
-          {/* Reading Progress Card */}
-          <div className="sticky top-24 space-y-4">
-            {/* Reading time card */}
-            {minutes && (
-              <div className="rounded-xl p-4 border border-slate-700/40 bg-slate-950/40 backdrop-blur-sm">
-                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Reading</p>
-                <p className="text-2xl font-bold text-violet-400">{minutes}</p>
-                <p className="text-xs text-slate-600">min read</p>
-              </div>
-            )}
+        <aside className="hidden xl:flex xl:flex-col gap-3 shrink-0 sticky top-4 self-start max-h-[calc(100vh-5rem)] overflow-y-auto pb-4"
+          style={{ scrollbarWidth: 'none' }}>
 
-            {/* In This Article TOC */}
-            <div className="rounded-xl p-4 border border-slate-700/40 bg-slate-950/40 backdrop-blur-sm">
-              <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 mb-3">
-                <List size={11} />In this article
+          {/* Circular reading progress */}
+          {minutes && <CircularProgress pct={readPct} readTime={minutes} />}
+
+          {/* In This Article TOC */}
+          <div className="rounded-xl p-4"
+            style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
+            <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5">
+              <List size={9} /> In this article
+            </p>
+            <nav className="space-y-0.5">
+              {(() => {
+                const activeIdx = toc.findIndex(i => i.id === activeId);
+                return toc.map(({ id, text, level }, idx) => {
+                  const isActive = activeId === id;
+                  const isPast = activeIdx >= 0 && idx < activeIdx;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => scrollToHeading(id)}
+                      className="block w-full text-left text-[11px] leading-snug py-1 rounded-r-lg transition-all duration-200"
+                      style={{
+                        paddingLeft: level === 3 ? '16px' : '6px',
+                        color: isActive ? '#a78bfa' : isPast ? '#34d399' : '#64748b',
+                        fontWeight: isActive ? 700 : 400,
+                        borderLeft: `2px solid ${isActive ? '#a78bfa' : isPast ? 'rgba(52,211,153,0.45)' : 'transparent'}`,
+                        opacity: isPast ? 0.7 : 1,
+                      }}
+                    >
+                      {text}
+                    </button>
+                  );
+                });
+              })()}
+            </nav>
+          </div>
+
+          {/* Meta card */}
+          {currentDomainConfig && (
+            <div className="rounded-xl p-4 space-y-2.5"
+              style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
+              <span className="inline-block font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-lg text-[9px]"
+                style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)' }}>
+                Domain {domain} · {currentDomainConfig.weight}% of exam
+              </span>
+              <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                <Clock size={10} className="shrink-0" />{minutes} min read
+              </div>
+              {domainQCount > 0 && (
+                <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                  <Zap size={10} className="shrink-0" />~{domainQCount} quiz questions
+                </div>
+              )}
+              <button
+                onClick={handleShare}
+                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition-all mt-1"
+                style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', color: '#a78bfa' }}
+              >
+                {copied ? <Check size={11} /> : <Share2 size={11} />}
+                {copied ? 'Copied!' : 'Share'}
+              </button>
+            </div>
+          )}
+
+          {/* Exam Traps as tags */}
+          {trapItems.length > 0 && (
+            <div className="rounded-xl p-4"
+              style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
+              <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 flex items-center gap-1.5">
+                <Tag size={9} /> <span className="text-rose-400/80">Exam Traps</span>
               </p>
-              <nav className="flex flex-col gap-1.5">
-                {toc.map((item) => (
+              <div className="flex flex-wrap gap-1.5">
+                {trapItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => scrollToHeading(item.id)}
-                    className={`text-left transition-colors leading-tight text-xs py-1 rounded px-2 ${
-                      item.level === 3 ? 'pl-5' : 'pl-2'
-                    } ${
-                      activeId === item.id
-                        ? 'bg-violet-500/15 text-violet-300 font-medium'
-                        : item.level === 3
-                          ? 'text-slate-600 hover:text-slate-400 hover:bg-slate-800/40'
-                          : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/40'
-                    }`}
+                    className="text-left text-[10px] px-2 py-0.5 rounded-lg transition-all"
+                    style={{
+                      background: 'rgba(30,41,59,0.8)',
+                      color: activeId === item.id ? '#f87171' : '#64748b',
+                      border: activeId === item.id ? '1px solid rgba(248,113,113,0.45)' : '1px solid rgba(71,85,105,0.20)',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(248,113,113,0.45)'; }}
+                    onMouseLeave={e => { if (activeId !== item.id) { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = 'rgba(71,85,105,0.20)'; } }}
                   >
-                    {item.text}
+                    #{item.text.replace(/^[^A-Za-z]*Exam Trap[:\s"]+/i, '').replace(/["+]+$/, '').toLowerCase().replace(/\s+/g, '-')}
                   </button>
                 ))}
-              </nav>
+              </div>
             </div>
+          )}
 
-            {/* Exam Traps Card */}
-            {trapItems.length > 0 && (
-              <div className="rounded-xl p-4 border border-rose-900/40 bg-rose-950/20 backdrop-blur-sm">
-                <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-rose-400/90 mb-3">
-                  <AlertTriangle size={11} />
-                  {trapItems.length} Trap{trapItems.length !== 1 ? 's' : ''}
-                </p>
-                <div className="flex flex-col gap-1.5">
-                  {trapItems.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => scrollToHeading(item.id)}
-                      className={`text-left text-[10px] p-2 rounded transition-all leading-tight ${
-                        activeId === item.id
-                          ? 'bg-rose-400/20 text-rose-200 font-medium border border-rose-400/40'
-                          : 'text-rose-400/70 hover:text-rose-300 border border-rose-900/30 hover:bg-rose-950/40'
-                      }`}
-                    >
-                      {item.text.replace(/^[^A-Za-z]*Exam Trap[:\s"]+/i, '').replace(/["+]+$/, '')}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Domain Stats Card */}
-            {currentDomainConfig && (
-              <div className="rounded-xl p-4 border border-slate-700/40 bg-slate-950/40 backdrop-blur-sm">
-                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-3">Domain Stats</p>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-slate-500">Weight</span>
-                    <span className="text-sm font-semibold text-violet-400">{currentDomainConfig.weight}%</span>
-                  </div>
-                  {domainQCount > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-slate-500">Questions</span>
-                      <span className="text-sm font-semibold text-blue-400">~{domainQCount}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Back to Top */}
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-500 hover:text-slate-300 hover:bg-slate-800/40 transition-all"
-            >
-              <ArrowUp size={12} />
-              Back to top
-            </button>
-          </div>
+          {/* Back to top */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-500 hover:text-slate-300 hover:bg-slate-800/40 transition-all"
+          >
+            <ArrowUp size={12} /> Back to top
+          </button>
         </aside>
       )}
 

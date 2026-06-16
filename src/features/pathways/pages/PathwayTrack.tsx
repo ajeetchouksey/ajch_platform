@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   ShieldCheck, TrendingUp, Brain, Zap,
-  ArrowRight, ArrowLeft, Clock, Users, ChevronRight,
+  ArrowRight, Clock, Users,
   BookOpen, BarChart2,
 } from 'lucide-react';
 import { useMeta } from '@/lib/useMeta';
@@ -355,22 +355,6 @@ export default function PathwayTrack() {
 
   return (
     <div className="space-y-10 max-w-4xl mx-auto">
-
-      {/*━━━━ BREADCRUMB */}
-      <nav
-        className={`flex items-center gap-2 text-[11px] text-slate-500 transition-all duration-500 ${
-          mounted ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <Link
-          to="/horizons"
-          className="hover:text-slate-300 transition-colors flex items-center gap-1"
-        >
-          <ArrowLeft size={11} /> Horizons
-        </Link>
-        <ChevronRight size={10} />
-        <span style={{ color: meta.color }}>{meta.label}</span>
-      </nav>
 
       {/*━━━━ TRACK HEADER */}
       <section

@@ -205,10 +205,10 @@ function ReadingBar() {
     return () => target.removeEventListener('scroll', fn);
   }, []);
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-[2px]" style={{ background: 'rgba(15,23,42,0.5)' }}>
+    <div className="fixed top-0 left-0 right-0 z-50 h-[2px]" style={{ background: 'transparent' }}>
       <div
         className="h-full transition-[width] duration-100"
-        style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #f43f5e 0%, #f59e0b 50%, #10b981 100%)' }}
+        style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #7c3aed 0%, #a78bfa 60%, #fb923c 100%)' }}
       />
     </div>
   );
