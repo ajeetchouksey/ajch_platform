@@ -1,10 +1,22 @@
 const GIST_FILENAME = 'ccaf-progress.json';
 const GIST_DESCRIPTION = 'Aarya — AI Learning Hub Progress';
 
+import type { QuizSession } from '../types/content';
+import type { StudyPlan } from './plan-generator';
+import { getSessions } from './storage';
+import { getNotesSeen } from './storage';
+import { getAllStudyPlans } from './plan-generator';
+
 interface ProgressData {
   quizHistory: Array<{ date: string; skillId?: string; domain: string; score: number; total: number }>;
   domainProgress: Record<string, { correct: number; total: number }>;
   lastSync: string;
+  /** Raw quiz sessions — restores full session history on new devices. */
+  sessions?: QuizSession[];
+  /** Notes-seen timestamps keyed by "examId:domainId". */
+  notesSeen?: Record<string, string>;
+  /** Study plans keyed by examId. */
+  studyPlans?: Record<string, StudyPlan>;
 }
 
 export async function findProgressGist(token: string): Promise<string | null> {
@@ -34,10 +46,17 @@ export async function loadProgress(token: string): Promise<ProgressData | null> 
 
 export async function saveProgress(token: string, data: ProgressData): Promise<boolean> {
   const gistId = await findProgressGist(token);
+  // Include raw sessions, notes, and study plans so all devices can sync
+  const payload: ProgressData = {
+    ...data,
+    sessions: getSessions(),
+    notesSeen: getNotesSeen(),
+    studyPlans: getAllStudyPlans(),
+  };
   const body = JSON.stringify({
     description: GIST_DESCRIPTION,
     public: false,
-    files: { [GIST_FILENAME]: { content: JSON.stringify({ ...data, lastSync: new Date().toISOString() }, null, 2) } },
+    files: { [GIST_FILENAME]: { content: JSON.stringify({ ...payload, lastSync: new Date().toISOString() }, null, 2) } },
   });
 
   if (gistId) {

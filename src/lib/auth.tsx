@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 
 interface GitHubUser {
   login: string;
@@ -7,22 +7,12 @@ interface GitHubUser {
   html_url: string;
 }
 
-export interface DeviceFlowState {
-  userCode: string;
-  verificationUri: string;
-  expiresAt: number;   // ms timestamp
-  deviceCode: string;
-  interval: number;    // seconds between polls
-}
-
 interface AuthContextType {
   user: GitHubUser | null;
   token: string | null;
   isLoading: boolean;
-  deviceFlow: DeviceFlowState | null;
-  login: () => Promise<boolean>;
+  login: () => boolean;
   loginWithToken: (token: string) => Promise<boolean>;
-  cancelDeviceFlow: () => void;
   logout: () => void;
 }
 
@@ -36,8 +26,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<GitHubUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [deviceFlow, setDeviceFlow] = useState<DeviceFlowState | null>(null);
-  const pollTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const fetchUser = useCallback(async (accessToken: string): Promise<GitHubUser | null> => {
     try {
@@ -65,86 +53,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [fetchUser]);
 
-  const cancelDeviceFlow = useCallback(() => {
-    if (pollTimer.current) clearTimeout(pollTimer.current);
-    setDeviceFlow(null);
-  }, []);
-
-  // Poll GitHub for token once device flow is active
-  useEffect(() => {
-    if (!deviceFlow) return;
-    let cancelled = false;
-
-    const poll = async () => {
-      if (cancelled) return;
-      if (Date.now() >= deviceFlow.expiresAt) { setDeviceFlow(null); return; }
-
-      try {
-        const tokenUrl = PROXY_URL
-          ? `${PROXY_URL}/oauth/token`
-          : 'https://github.com/login/oauth/access_token';
-        const res = await fetch(tokenUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            client_id: CLIENT_ID,
-            device_code: deviceFlow.deviceCode,
-            grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-          }),
-        });
-        const data = await res.json();
-
-        if (data.access_token) {
-          const u = await fetchUser(data.access_token);
-          if (u && !cancelled) {
-            setUser(u);
-            setToken(data.access_token);
-            sessionStorage.setItem(STORAGE_KEY, data.access_token);
-            setDeviceFlow(null);
-          }
-        } else if (data.error === 'slow_down') {
-          pollTimer.current = setTimeout(poll, (deviceFlow.interval + 5) * 1000);
-        } else if (data.error === 'authorization_pending') {
-          pollTimer.current = setTimeout(poll, deviceFlow.interval * 1000);
-        } else {
-          // expired_token, access_denied, unsupported_grant_type
-          if (!cancelled) setDeviceFlow(null);
-        }
-      } catch {
-        if (!cancelled) pollTimer.current = setTimeout(poll, deviceFlow.interval * 1000);
-      }
-    };
-
-    pollTimer.current = setTimeout(poll, deviceFlow.interval * 1000);
-    return () => { cancelled = true; if (pollTimer.current) clearTimeout(pollTimer.current); };
-  }, [deviceFlow, fetchUser]);
-
-  const login = useCallback(async (): Promise<boolean> => {
-    if (!CLIENT_ID) return false;
-    const deviceCodeUrl = PROXY_URL
-      ? `${PROXY_URL}/oauth/device-code`
-      : 'https://github.com/login/device/code';
-    try {
-      const r = await fetch(deviceCodeUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ client_id: CLIENT_ID, scope: 'gist read:user' }),
-      });
-      const data = await r.json();
-      if (data.device_code) {
-        setDeviceFlow({
-          userCode: data.user_code,
-          verificationUri: data.verification_uri || 'https://github.com/login/device',
-          expiresAt: Date.now() + (data.expires_in ?? 900) * 1000,
-          deviceCode: data.device_code,
-          interval: data.interval ?? 5,
-        });
-        return true;
-      }
-      return false;
-    } catch {
-      return false; // CORS or network error — caller falls back to token input
-    }
+  /**
+   * Initiate GitHub OAuth web flow.
+   * Generates a CSRF state nonce, stores it + the return path in sessionStorage,
+   * then redirects the browser to GitHub's authorize endpoint.
+   * The Cloudflare Worker at /oauth/callback exchanges the code for a token
+   * and redirects back to /auth/callback#token=...
+   * Returns false if not configured (caller falls back to PAT input).
+   */
+  const login = useCallback((): boolean => {
+    if (!CLIENT_ID || !PROXY_URL) return false;
+    const state = crypto.randomUUID();
+    sessionStorage.setItem('oauth_state', state);
+    sessionStorage.setItem('oauth_return', window.location.pathname);
+    const params = new URLSearchParams({
+      client_id: CLIENT_ID,
+      scope: 'gist read:user',
+      redirect_uri: `${PROXY_URL}/oauth/callback`,
+      state,
+    });
+    window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
+    return true;
   }, []);
 
   const loginWithToken = useCallback(async (pat: string): Promise<boolean> => {
@@ -162,11 +91,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setToken(null);
     sessionStorage.removeItem(STORAGE_KEY);
-    cancelDeviceFlow();
-  }, [cancelDeviceFlow]);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, deviceFlow, login, loginWithToken, cancelDeviceFlow, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, loginWithToken, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -179,8 +107,8 @@ export function useAuth() {
   return ctx;
 }
 
-// Device flow only needs a client_id — no proxy, no secret
+// Standard OAuth web flow requires both client_id and the proxy Worker URL.
 // eslint-disable-next-line react-refresh/only-export-components
 export function isOAuthConfigured(): boolean {
-  return !!CLIENT_ID;
+  return !!CLIENT_ID && !!PROXY_URL;
 }

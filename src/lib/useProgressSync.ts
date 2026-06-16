@@ -1,6 +1,8 @@
 import { useEffect, useCallback } from 'react';
 import { useAuth } from './auth';
 import { loadProgress, saveProgress } from './gist-sync';
+import { getSessions, saveSessions, getNotesSeen, setNotesSeen } from './storage';
+import { loadPlan, savePlan } from './plan-generator';
 
 const LOCAL_PROGRESS_KEY = 'aarya_progress';
 const LEGACY_PROGRESS_KEY = 'ccaf_progress';
@@ -59,10 +61,48 @@ export function useProgressSync() {
     if (!token) return;
     loadProgress(token).then((remote) => {
       if (!remote) return;
+      let didWrite = false;
+
+      // ── Aggregated progress ────────────────────────────────────────────────
       const local = getLocalProgress();
-      // Merge: take whichever has more history entries (simple conflict resolution)
       if (remote.quizHistory.length > local.quizHistory.length) {
         setLocalProgress(remote);
+        didWrite = true;
+      }
+
+      // ── Raw sessions ────────────────────────────────────────────────────────
+      if (remote.sessions && remote.sessions.length > getSessions().length) {
+        saveSessions(remote.sessions);
+        didWrite = true;
+      }
+
+      // ── Notes seen ─────────────────────────────────────────────────────────
+      // Union-merge: keep the more recent ISO timestamp per key
+      if (remote.notesSeen && Object.keys(remote.notesSeen).length > 0) {
+        const localNotes = getNotesSeen();
+        const merged = { ...localNotes };
+        for (const [k, remoteTs] of Object.entries(remote.notesSeen)) {
+          if (!merged[k] || remoteTs > merged[k]) {
+            merged[k] = remoteTs;
+          }
+        }
+        setNotesSeen(merged);
+        didWrite = true;
+      }
+
+      // ── Study plans ─────────────────────────────────────────────────────────
+      // Remote plan wins per exam if it was generated more recently
+      if (remote.studyPlans) {
+        for (const [examId, remotePlan] of Object.entries(remote.studyPlans)) {
+          const localPlan = loadPlan(examId);
+          if (!localPlan || remotePlan.generatedAt > localPlan.generatedAt) {
+            savePlan(remotePlan);
+            didWrite = true;
+          }
+        }
+      }
+
+      if (didWrite) {
         window.dispatchEvent(new Event('progress-updated'));
       }
     });

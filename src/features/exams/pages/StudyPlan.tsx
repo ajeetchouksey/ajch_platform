@@ -24,6 +24,7 @@ import {
 } from '@/lib/mentor-api';
 import type { StudyPlan as StudyPlanType, StudySession, Activity } from '@/lib/plan-generator';
 import type { ExamConfig } from '@/types/content';
+import { useProgressSync } from '@/lib/useProgressSync';
 
 // ── Activity icon ─────────────────────────────────────────────────────────────
 
@@ -267,6 +268,7 @@ export default function StudyPlan() {
   ];
 
   const sessions = useMemo(() => getSessions(), []);
+  const { syncToGist } = useProgressSync();
 
   // Validate examId on mount
   const validId = isValidExamId(examId) ? examId : null;
@@ -336,6 +338,7 @@ export default function StudyPlan() {
       const aiPlan = buildAIPlan(validId, exam.domains, resp.sessions, targetDate);
       if (aiPlan) {
         savePlan(aiPlan);
+        void syncToGist();
         dispatch({ type: 'ai_generated', plan: aiPlan });
         setCoachNote(resp.coachNote);
       } else {
@@ -346,15 +349,16 @@ export default function StudyPlan() {
     } finally {
       setMentorLoading(false);
     }
-  }, [validId, exam, sessions, targetDate, planRequest, mentorLoading]);
+  }, [validId, exam, sessions, targetDate, planRequest, mentorLoading, syncToGist]);
 
   const resetToAuto = useCallback(() => {
     if (!validId || !staticPlan) return;
     savePlan(staticPlan);
+    void syncToGist();
     dispatch({ type: 'reset_to_auto' });
     setCoachNote(null);
     setMentorError(null);
-  }, [validId, staticPlan]);
+  }, [validId, staticPlan, syncToGist]);
 
   const next = plan ? nextIncompleteSession(plan) : null;
   const compressed = plan ? isPlanCompressed(plan) : false;
