@@ -322,7 +322,7 @@ export default function HomeV2() {
           <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
             <Eye size={13} className="text-violet-400" />
             <span className="text-white font-bold">{pStats.pageViews.total.toLocaleString()}</span>
-            &nbsp;page views
+            &nbsp;views
           </span>
           {ghRepo != null && ghRepo.stars > 0 && (
             <>

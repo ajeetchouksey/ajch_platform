@@ -11,7 +11,7 @@
     {
       "label": "git-commit-push-main-fix",
       "type": "shell",
-      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; git add .vscode/tasks.json; git commit -m 'chore: update git-commit-push-main-fix task'; git push origin fix/footer-subscribe-env; git --no-pager log --oneline -3\"",
+      "command": "pwsh -NoProfile -Command \"cd '${workspaceFolder}'; gh pr view 72 --json state,mergeable,statusCheckRollup,autoMergeRequest | ConvertFrom-Json | Format-List\"",
       "options": { "cwd": "${workspaceFolder}" },
       "group": "none"
     },
