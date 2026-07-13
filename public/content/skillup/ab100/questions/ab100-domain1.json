@@ -223,5 +223,230 @@
     "correct": 1,
     "explanation": "RAG context injection is the most significant variable in token cost estimation — each retrieved chunk (typically 200-500 tokens) can double or triple the prompt token count. A 500-token estimate assumes no RAG context; with 3 retrieved chunks at 400 tokens each, the prompt becomes 1,700 tokens — a 3.4× cost increase. Latency requirements (A) don't affect token pricing (PTU vs PAYG affects latency but the token rate is the same). Azure Functions cost (C) is typically negligible compared to LLM inference. Azure OpenAI token pricing (D) is consistent across regions within the same deployment type.",
     "tags": ["cost-estimation", "RAG", "token-usage", "capacity-planning"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-016",
+    "scenario": "A large enterprise is beginning its journey to adopt AI agents across 12 business units. The CIO wants a structured framework to govern the adoption journey — from initial strategy through to scaling — rather than having each unit experiment independently.",
+    "question": "Which Microsoft framework provides the structured AI adoption guidance for enterprise-scale implementation?",
+    "options": [
+      "The Microsoft AI Business School curriculum for executive alignment",
+      "The Cloud Adoption Framework (CAF) for Azure — specifically the AI adoption scenario which covers strategy, planning, ready, adopt, govern, and manage phases",
+      "The Microsoft Well-Architected Framework AI Workloads pillar",
+      "The Azure Architecture Center AI reference architectures"
+    ],
+    "correct": 1,
+    "explanation": "The Cloud Adoption Framework (CAF) for Azure — AI adoption scenario (B) is the structured enterprise framework. It covers all lifecycle phases: strategy (define the business case), plan (identify skills, timelines), ready (platform setup), adopt (implementation waves), govern (policies, controls), and manage (ongoing operations). The Microsoft AI Business School (A) is a learning program for executives, not an adoption framework. The Well-Architected Framework (C) governs workload quality attributes (reliability, security, etc.) — it's applied after decisions are made, not to plan the adoption journey. Azure Architecture Center (D) provides reference architectures for specific scenarios, not enterprise adoption governance.",
+    "tags": ["cloud-adoption-framework", "AI-adoption", "governance", "enterprise"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-017",
+    "scenario": "A retail company is building a product recommendation agent. The knowledge base team has assembled 500,000 product descriptions from multiple data sources: a legacy ERP system (updated weekly), a marketing CMS (updated daily), a supplier portal (real-time), and a customer review platform (real-time). The team is assessing data quality for grounding.",
+    "question": "Which grounding data quality dimension is MOST critical to evaluate first given that prices and availability change constantly?",
+    "options": [
+      "Accuracy — verify that product descriptions match physical product attributes",
+      "Timeliness — outdated price/availability data causes customer disappointment; data freshness must be validated against acceptable staleness thresholds per source",
+      "Cleanliness — remove HTML tags, special characters, and encoding issues from raw data",
+      "Relevance — filter out products not relevant to the user's query before indexing"
+    ],
+    "correct": 1,
+    "explanation": "Timeliness (B) is the critical first dimension when data changes frequently and stale data causes business harm. A price from the weekly ERP update is up to 7 days old; recommending a price that changed yesterday creates customer trust issues. The team must establish staleness thresholds per source and implement refresh schedules accordingly. Accuracy (A) is important but static product attributes change infrequently. Cleanliness (C) is preprocessing work that should happen after freshness is understood. Relevance (D) is a retrieval concern at query time, not a data quality dimension to address during ingestion planning.",
+    "tags": ["grounding-data", "timeliness", "data-quality", "knowledge-base"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-018",
+    "scenario": "A global financial services firm is establishing its AI Center of Excellence (CoE). The COO asks what the CoE should own versus what should remain in business units.",
+    "question": "Which responsibility is core to the AI Center of Excellence rather than individual business units?",
+    "options": [
+      "Writing the business requirements for each AI agent use case",
+      "Defining enterprise AI standards, model governance policies, shared platform infrastructure, and enabling repeatable patterns that business units consume",
+      "Deploying production agents and managing day-to-day operations for each business unit",
+      "Procuring compute resources on a per-project basis for individual teams"
+    ],
+    "correct": 1,
+    "explanation": "The AI CoE owns enterprise standards and shared enablement (B): model governance policies (which models are approved for which data classifications), shared infrastructure (AI Foundry hubs, shared observability), and repeatable patterns (reference architectures, prompt library templates, evaluation frameworks). Business units apply these standards to their specific use cases. Business requirements (A) belong to the business unit — they understand their processes. Day-to-day operations (C) are executed by product teams, not the CoE. Per-project procurement (D) should flow through the CoE's shared capacity model, not be managed individually.",
+    "tags": ["AI-CoE", "governance", "enterprise-AI", "platform-strategy"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-019",
+    "scenario": "A company has deployed 8 different AI models across their platform: GPT-4o for complex reasoning, GPT-4o-mini for summarization, Phi-3-medium for code generation, and Claude 3 Haiku for quick classifications. Their application receives mixed query types and they want to optimize both cost and quality automatically.",
+    "question": "What pattern should they implement to route queries to the most appropriate model?",
+    "options": [
+      "Deploy all models behind Azure API Management and use round-robin load balancing",
+      "Implement a model router — a lightweight classifier that inspects each incoming query and routes it to the most cost-effective model capable of handling that query type",
+      "Use GPT-4o exclusively with a compressed system prompt to reduce cost",
+      "Implement user-facing model selection dropdowns so users choose their preferred model"
+    ],
+    "correct": 1,
+    "explanation": "A model router (B) is the correct pattern for multi-model optimization. The router uses a lightweight classifier (often a small, fast model or rule-based logic) to categorize the incoming query by complexity, domain, and required capability, then routes to the cheapest model that meets the quality bar. Simple classifications go to Haiku ($0.25/Mtok), complex reasoning goes to GPT-4o ($5/Mtok), code generation goes to Phi-3. Round-robin (A) ignores query characteristics and sends expensive queries to cheap models (quality failure) and simple queries to expensive models (waste). GPT-4o exclusively (C) resolves quality but wastes cost on simple tasks. User selection (D) is poor UX and places cognitive load on users who don't understand model capabilities.",
+    "tags": ["model-router", "cost-optimization", "multi-model", "intelligent-routing"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-020",
+    "scenario": "A healthcare organization is proposing an AI agent to automate prior authorization reviews. Currently, 12 full-time staff spend 85% of their time on this process. The agent will handle 70% of cases automatically. The AI platform costs $200K/year. Staff cost is $75K/person/year.",
+    "question": "What is the correct approach to calculate the ROI for this AI solution?",
+    "options": [
+      "ROI = (Number of automated cases / Total cases) × 100%",
+      "ROI = ((Cost savings from staff reduction - AI platform cost) / AI platform cost) × 100%, using 3-year TCO including implementation, training, and maintenance costs",
+      "ROI = AI platform cost / Number of cases processed per year",
+      "ROI = Staff hours saved / AI platform cost"
+    ],
+    "correct": 1,
+    "explanation": "Full 3-year TCO ROI calculation (B) is the correct approach. Cost savings: 12 staff × 85% time on task × 70% automation = 7.14 FTEs saved × $75K = $535K/year gross savings. AI platform cost: $200K/year + implementation (one-time) + training + maintenance = full TCO. ROI = ((535K - 200K - amortized setup) / full 3-year investment) × 100%. This gives the business case a defensible financial justification. Automation percentage alone (A) measures adoption, not financial return. Cost-per-case (C) is a unit economics metric, not ROI. Hours saved/cost ratio (D) is a productivity metric without revenue/savings context.",
+    "tags": ["ROI", "TCO", "cost-benefit", "business-case"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-021",
+    "scenario": "A supply chain company needs an AI agent to handle vendor invoice processing. Their shortlist includes: building a custom agent from scratch on Azure AI Foundry, buying a pre-built invoice processing SaaS solution, or extending Microsoft 365 Copilot with a custom connector to their ERP. The team has 3 Azure developers but limited AI expertise.",
+    "question": "Which framework correctly guides the build-buy-extend decision?",
+    "options": [
+      "Always build custom — proprietary solutions provide competitive advantage",
+      "Evaluate: differentiation (does this capability differentiate the business?), time-to-value, TCO, and integration complexity. Buy or extend if the process is standard; build only when differentiation justifies the investment",
+      "Always buy SaaS — it's faster and cheaper than building",
+      "Extend M365 Copilot for all use cases — it provides the fastest time-to-value"
+    ],
+    "correct": 1,
+    "explanation": "The build-buy-extend framework (B) evaluates four dimensions: business differentiation (generic invoice processing does NOT differentiate — buy or extend), time-to-value (SaaS or extend is faster), TCO over 3 years (custom build has higher ongoing maintenance), and integration complexity (ERP connector for M365 Copilot might be simpler than a full custom build). For commodity processes like invoice processing, buy or extend almost always wins. Build custom only when the process is a true differentiator or existing solutions can't meet requirements. Blanket build (A) is wasteful for commodity processes. Blanket buy (C) ignores integration complexity and data sovereignty. Blanket extend M365 (D) ignores cases where the process has no M365 touchpoint.",
+    "tags": ["build-buy-extend", "make-vs-buy", "decision-framework", "TCO"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-022",
+    "scenario": "A legal tech startup wants to deploy an AI assistant for contract clause extraction. Their training data is 50,000 contract clauses across 8 legal domains. They are evaluating GPT-4o (large general model) vs a fine-tuned Phi-3-medium SLM (small language model) for this specific task.",
+    "question": "When is using a customized Small Language Model (SLM) preferable to a large general model for a business solution?",
+    "options": [
+      "Always — SLMs are cheaper and more efficient than large models for every task",
+      "When the task is narrow and domain-specific, training data is available, latency requirements are strict, data privacy prevents cloud API calls, or the deployment environment has edge/on-premises constraints",
+      "When the output quality of the large model is insufficient — SLMs always outperform large models on specialized tasks",
+      "SLMs are only appropriate for classification tasks, not generative extraction"
+    ],
+    "correct": 1,
+    "explanation": "SLMs are preferable (B) when: the task domain is narrow (contract clause extraction — specific and well-defined), labeled training data exists (50K clauses), latency is critical (SLMs inference faster), data privacy is a concern (on-premises SLM deployment avoids sending confidential contracts to cloud APIs), or edge deployment is required. A fine-tuned Phi-3-medium on 50K contract clauses may outperform GPT-4o on this specific task at 10% of the cost. SLMs are NOT universally superior (A) — they fail on tasks requiring broad world knowledge. SLMs don't always outperform large models (C) — only on tasks they've been specifically trained for. SLMs can absolutely generate text, not just classify (D).",
+    "tags": ["SLM", "fine-tuning", "Phi-3", "model-selection"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-023",
+    "scenario": "A company's 200 employees are using Copilot Studio agents daily. The product team notices inconsistent prompt quality — some employees get excellent results while others get poor responses for the same business tasks. The AI CoE wants to standardize prompt quality across the organization.",
+    "question": "What should the AI CoE implement to systematically improve and standardize prompt quality?",
+    "options": [
+      "Mandate that all employees complete a 2-hour prompt engineering training course",
+      "Create and maintain a centralized prompt library — a curated, versioned collection of proven prompt templates for common business tasks, with guidelines on when and how to adapt each template",
+      "Restrict agent access to power users only — limit the user base to those with demonstrated prompt skills",
+      "Configure the agent's LLM temperature to 0 to ensure deterministic, consistent responses"
+    ],
+    "correct": 1,
+    "explanation": "A centralized prompt library (B) systematically addresses inconsistency by capturing what works. The library contains: proven templates for common tasks (meeting summary, email draft, data analysis), annotated examples showing effective vs ineffective prompts, guidelines for task-specific adaptation, and version control to track improvements. It democratizes best practices without requiring every user to become a prompt engineer. Training courses (A) improve individual skill but don't scale — knowledge decays and new hires need onboarding repeatedly. Restricting access (C) reduces business value. Temperature 0 (D) affects output randomness, not the quality of the task formulation in the prompt.",
+    "tags": ["prompt-library", "prompt-engineering", "AI-CoE", "standardization"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-024",
+    "scenario": "A company already has Microsoft 365 E3 licenses for all employees and wants to deploy AI agents for sales workflow automation. The CTO is debating between extending Microsoft 365 Copilot with custom connectors vs building a new custom agent in Azure AI Foundry Agent Service.",
+    "question": "When should you extend Microsoft 365 Copilot rather than build a custom agent in Azure AI Foundry?",
+    "options": [
+      "Always choose M365 Copilot extension — it's included in the E3 license",
+      "Extend M365 Copilot when the workflow lives in M365 surfaces (Teams, Outlook, SharePoint), the data is in Microsoft Graph, and the required capabilities are available via connectors and topics — without needing custom code orchestration",
+      "Build in Azure AI Foundry when the company has any Azure developers",
+      "Extend M365 Copilot only for external customer-facing scenarios"
+    ],
+    "correct": 1,
+    "explanation": "Extend M365 Copilot (B) when: the work happens in M365 surfaces (sales team uses Teams and Outlook daily), the data is in Microsoft Graph or Dataverse (CRM data, email, calendar), connectors can expose the needed actions (CRM lookup, create opportunity), and topics in Copilot Studio can handle the conversation flow. This provides fastest time-to-value with familiar user surfaces. M365 Copilot E3 does NOT include Copilot extensibility at no charge (A) — Copilot for M365 licensing applies. Azure AI Foundry is appropriate when the workflow spans non-Microsoft systems, requires complex custom orchestration, or needs capabilities beyond what Copilot Studio supports — not simply because Azure developers exist (C). M365 Copilot serves internal users; external customer-facing scenarios typically use standalone Copilot Studio agents (D).",
+    "tags": ["M365-Copilot", "extend-vs-build", "Copilot-Studio", "architecture-decision"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-025",
+    "scenario": "A company is designing a multi-agent solution for their customer service operations. Three agents are needed: a Triage Agent (classifies incoming queries), a Knowledge Agent (searches product documentation), and an Escalation Agent (routes to human agents). The architect must decide on the technology for each.",
+    "question": "How should Microsoft's multi-agent platform portfolio be applied to this scenario?",
+    "options": [
+      "Use Azure AI Foundry Agent Service for all three agents to ensure consistent orchestration",
+      "Use Copilot Studio for all three agents to minimize licensing complexity",
+      "Design the Triage and Knowledge Agents in Copilot Studio (low-code, conversational), orchestrate with an Azure AI Foundry coordinator agent that invokes Copilot Studio agents via A2A protocol when complex retrieval or escalation logic requires pro-code customization",
+      "Use Microsoft 365 Copilot for the Triage Agent, Copilot Studio for Knowledge, and Azure AI Foundry for Escalation"
+    ],
+    "correct": 2,
+    "explanation": "Mixing platforms based on capability fit (C) is the expert approach. Copilot Studio handles conversational triage and knowledge retrieval with low-code configuration, knowledge sources, and built-in connector actions. Azure AI Foundry provides the coordinator layer with pro-code orchestration, complex routing logic, and Agent-to-Agent (A2A) protocol calls to Copilot Studio agents when needed. This uses each platform where it excels. Foundry-only (A) over-engineers the conversational components. Copilot Studio-only (B) limits orchestration complexity and pro-code integration. Option D mixes three platforms unnecessarily without clear rationale for the split.",
+    "tags": ["multi-agent", "A2A-protocol", "Copilot-Studio", "Foundry", "orchestration"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-026",
+    "scenario": "A Copilot Studio agent for HR queries needs to answer questions about employee benefits, company policies, and vacation balances. The HR team has documents in SharePoint, a policy portal (public website), and vacation data in SAP SuccessFactors via a REST API.",
+    "question": "How should knowledge sources be configured to support all three data types?",
+    "options": [
+      "Upload all documents to Azure Blob Storage and connect one custom connector to retrieve everything",
+      "Configure SharePoint as a generative knowledge source, add the policy portal URL as a website knowledge source, and create a Power Automate action (or HTTP connector action) to query the SAP SuccessFactors API for vacation balances at runtime",
+      "Fine-tune the agent's LLM on all three data sources to bake the knowledge in",
+      "Use only SharePoint — SAP and web data must be manually synchronized into SharePoint first"
+    ],
+    "correct": 1,
+    "explanation": "Using purpose-built integrations for each source (B) is the correct approach. Copilot Studio natively supports: SharePoint as a generative knowledge source (RAG over documents), website URLs as knowledge sources (crawled and indexed), and connector actions or HTTP connectors for real-time API calls to SAP. This gives the agent grounded, current data from each system without data duplication. Azure Blob Storage (A) loses the native SharePoint integration and requires custom retrieval logic. Fine-tuning (C) is inappropriate — it bakes in static knowledge with no real-time SAP data and requires retraining when policies change. Synchronizing to SharePoint (D) introduces data lag, duplication, and governance complexity.",
+    "tags": ["knowledge-sources", "Copilot-Studio", "SharePoint", "API-connectors"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-027",
+    "scenario": "A company has critical business data spread across: Dataverse (CRM records), Azure SQL Database (operational data), SharePoint (documents), and Azure Data Lake (analytics data). They are planning an AI agent that needs to access all four sources. The data architect asks how to organize this data to make it available to other AI systems.",
+    "question": "What is the recommended data organization strategy for AI grounding across these sources?",
+    "options": [
+      "Migrate all data into a single Azure SQL Database to simplify the retrieval layer",
+      "Keep data in its authoritative source; use Azure AI Search as a unified retrieval layer with connectors to each source — index structured data, unstructured documents, and build a knowledge graph for cross-source relationships",
+      "Copy all data into a SharePoint document library for easy Copilot Studio integration",
+      "Build separate vector indexes for each data source and let the agent query all four independently"
+    ],
+    "correct": 1,
+    "explanation": "Azure AI Search as a unified retrieval layer (B) is the enterprise pattern. It avoids data duplication by connecting to authoritative sources: SQL connector for Dataverse and Azure SQL, blob indexer for SharePoint documents, ADLS connector for analytics data. The unified search index allows the agent to query across all sources in one retrieval call. Cross-source relationships can be modeled through knowledge graph features. Single SQL migration (A) creates a non-authoritative copy with sync complexity. SharePoint copy (C) is impractical for SQL/ADLS data. Four separate indexes (D) requires the agent to orchestrate four retrieval calls and merge results — complex and slow.",
+    "tags": ["data-organization", "Azure-AI-Search", "grounding", "unified-retrieval"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-028",
+    "scenario": "A Copilot Studio bot handles customer warranty claims. For simple warranty lookups (check if item is under warranty), a classic topic with trigger phrases and a Dataverse lookup action works perfectly. For complex claims involving photos, damage assessment, and policy interpretation, the team wants AI-generated responses. They're designing when to use classic vs generative modes.",
+    "question": "When should generative AI orchestration be used in Copilot Studio rather than classic topic matching?",
+    "options": [
+      "Always use generative orchestration — it replaces the need for classic topics entirely",
+      "Use generative orchestration when: user input is unpredictable and can't be enumerated with trigger phrases, multiple knowledge sources must be searched simultaneously, or the response requires synthesizing information across documents rather than a deterministic API lookup",
+      "Use classic topics always — generative responses are unpredictable and unreliable for business processes",
+      "Use generative orchestration only when the company has Azure OpenAI Service deployed separately"
+    ],
+    "correct": 1,
+    "explanation": "Generative orchestration (B) excels when: natural language queries are too varied to enumerate (damage assessment descriptions vary infinitely), multi-source search is needed (warranty policy docs + product spec sheets + claim history), or synthesis across documents is required. Classic topics with trigger phrases work perfectly for predictable, structured interactions (warranty lookup — user provides claim number, system returns status). Using generative for everything (A) wastes LLM tokens on interactions that deterministic logic handles better. Classic-only (C) cannot handle unstructured, open-ended queries effectively. Generative orchestration in Copilot Studio uses the configured Azure OpenAI connection — no separate deployment required (D).",
+    "tags": ["Copilot-Studio", "generative-orchestration", "classic-topics", "design-decision"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-029",
+    "scenario": "A company's CFO asks for a Total Cost of Ownership (TCO) analysis for their planned AI agent platform over 3 years. The platform will use Azure AI Foundry with PTU deployments, Copilot Studio, and Azure AI Search.",
+    "question": "Which cost categories must be included in a complete TCO for an AI-powered business solution?",
+    "options": [
+      "Only Azure service costs — Azure OpenAI, AI Search, and Storage",
+      "Azure infrastructure (compute, storage, networking), AI service costs (OpenAI tokens/PTU, AI Search, Content Safety), licensing (Copilot Studio, M365 Copilot), implementation (development, integration), training and change management, ongoing operations (monitoring, maintenance, model updates), and opportunity cost of human tasks replaced",
+      "Azure service costs plus development time only",
+      "Azure service costs and licensing only — implementation is a sunk cost not included in TCO"
+    ],
+    "correct": 1,
+    "explanation": "Complete TCO (B) captures all cost dimensions: infrastructure (compute, storage, networking), AI services (OpenAI token/PTU costs, AI Search indexing and query units, Content Safety analysis units), licensing (Copilot Studio per-session costs, M365 Copilot per-user licensing), implementation (development sprints, integration engineering, testing), change management (training, documentation, user adoption programs), ongoing operations (monitoring dashboards, model evaluation, prompt tuning, knowledge base refreshes), and optionally the opportunity cost of redeployed staff. Azure-only (A) dramatically understates real cost. Omitting licensing, training, and operations is a common mistake that leads to budget overruns. Implementation is part of TCO (D) — it's a real cost regardless of how it's accounted for.",
+    "tags": ["TCO", "cost-planning", "AI-investment", "business-case"]
+  },
+  {
+    "domain": 1,
+    "id": "ab100-d1-030",
+    "scenario": "An organization is in the early stages of AI adoption. They want to deploy prebuilt agents for common business scenarios before investing in custom development. The solution architect is asked to identify where prebuilt agents provide the fastest time to value.",
+    "question": "Which scenario is BEST served by a prebuilt Microsoft agent rather than a custom-built solution?",
+    "options": [
+      "Processing insurance claims using proprietary adjudication rules specific to the company",
+      "Summarizing emails, drafting meeting follow-ups, and retrieving CRM data within Outlook — served by Microsoft 365 Copilot for Sales",
+      "Building a multi-language customer service agent that integrates with a proprietary ticketing system",
+      "Analyzing satellite imagery for agricultural yield prediction"
+    ],
+    "correct": 1,
+    "explanation": "Microsoft 365 Copilot for Sales (B) is a prebuilt agent that works within Outlook and Teams to summarize emails, draft follow-up emails grounded in CRM data, surface account insights, and prepare for meetings — exactly matching this scenario. It requires configuration (connecting to Dynamics 365 Sales or Salesforce), not custom development. Proprietary insurance adjudication rules (A) require custom logic that no prebuilt agent can provide. Multi-language support for proprietary ticketing (C) requires custom connectors and conversation design. Satellite imagery analysis (D) requires custom computer vision models — no prebuilt Microsoft agent covers this.",
+    "tags": ["prebuilt-agents", "M365-Copilot-for-Sales", "time-to-value", "build-vs-buy"]
   }
 ]

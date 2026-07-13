@@ -277,3 +277,139 @@ graph LR
 | Memory: Redis | Working memory / session state (minutes TTL) |
 | Memory: AI Search | Knowledge base / long-term semantic retrieval |
 | RoundRobin vs Selector | RoundRobin = fixed pipeline; Selector = LLM decides who speaks next |
+
+
+---
+
+## Model Context Protocol (MCP) in Copilot Studio
+
+MCP allows Copilot Studio agents to connect to external systems that expose a standardized MCP server interface:
+
+**How it works:**
+1. Deploy an MCP server that wraps an external API or system
+2. The MCP server declares its **tools** in a standardized schema (tool name, description, input/output types)
+3. Add the MCP server endpoint as an action source in Copilot Studio
+4. The agent discovers available tools via MCP discovery and invokes them by name
+
+**When to use MCP vs. custom connector:**
+| MCP | Custom Power Platform Connector |
+|-----|-------------------------------|
+| System has an MCP server already | No MCP server available |
+| Multiple agents need to share tools | Single agent, single connector |
+| Standardized discovery required | Microsoft-certified connector ecosystem |
+
+> **Exam tip**: MCP is an **open protocol** — not a Microsoft-proprietary feature. It enables interoperability between AI systems and tools across vendors.
+
+---
+
+## Computer Use in Copilot Studio
+
+Computer Use enables a Copilot Studio agent to interact with web browser UIs **without an API**:
+
+**Capabilities:**
+- Visual perception: agent takes a screenshot and interprets UI state
+- Click buttons, fill form fields, navigate multi-step workflows
+- Extract data from pages with no structured API
+
+**When to use:**
+- Legacy web portals with no REST API
+- Supplier/partner portals that cannot be modified
+- Multi-step procurement or compliance workflows on external sites
+
+**Limitations:**
+- Slower than API-based actions (vision + interaction latency)
+- Brittle to UI layout changes (CSS redesigns break the automation)
+- Not suitable for high-frequency transactional tasks
+
+> **Exam tip**: Computer Use is for **last-resort automation** of UI-only workflows. Always prefer an API connector when one is available.
+
+---
+
+## Agent Types — Comparison Table
+
+| Type | Definition | Triggers | Actions | Example |
+|------|-----------|---------|---------|---------|
+| **Task Agent** | Executes a specific, bounded workflow with fixed steps | User request or event | Predefined tool sequence | Portfolio summary agent |
+| **Autonomous Agent** | Perceives environment, makes decisions, acts without continuous prompting | Time, event, or threshold | Dynamic — decides its own actions | Market monitoring + trade execution |
+| **Prompt-and-Response Agent** | Responds to user queries, generates structured output | User query | Generate response | Report generation, Q&A |
+
+**Governance implications:**
+- Task agents: need workflow validation and error handling
+- Autonomous agents: need **human approval gates**, rollback mechanisms, audit trails — highest governance burden
+- Prompt-and-response: need content safety, hallucination controls
+
+---
+
+## Agent Behaviors in Copilot Studio
+
+### Reasoning Mode
+- Activates **chain-of-thought (CoT)** processing before generating the final response
+- Agent generates an internal reasoning trace: breaks problem into steps, evaluates options, then responds
+- **Use when**: complex multi-step analysis, legal/financial reasoning, scientific questions
+- **Trade-offs**: higher latency, more tokens consumed
+
+### Voice Mode
+- Enables speech recognition (input) and text-to-speech synthesis (output)
+- **Design rules for voice topics**:
+  - No markdown (bullets, tables — do not render in speech)
+  - Short, conversational responses
+  - Use SSML for pauses, emphasis where needed
+  - Test in voice test canvas before deployment
+- Configure language models per supported language (multilingual voice requires per-language speech model)
+
+---
+
+## Microsoft Power Platform Well-Architected Framework for AI
+
+The Power Platform WAF provides five pillars for intelligent application workloads:
+
+| Pillar | AI-Specific Concerns |
+|--------|---------------------|
+| **Reliability** | Agent uptime, Copilot Studio failover, Dataverse capacity |
+| **Security** | DLP policies, connector authentication, AI model access controls |
+| **Operational Excellence** | ALM for agents, environment strategy, monitoring dashboards |
+| **Performance Efficiency** | Copilot Studio session limits, Dataverse query optimization |
+| **Experience Optimization** | Conversational UX quality, topic coverage, fallback handling |
+
+> **Exam tip**: WAF is applied **during design** to validate architectural decisions — not after deployment.
+
+---
+
+## D365 Copilot for Sales and Copilot for Service
+
+### Copilot for Sales
+- Surfaces in Outlook and Teams
+- **Built-in capabilities**: email summarization, reply drafting grounded in CRM data, meeting preparation, opportunity insights
+- **Extensibility**: custom connectors add non-Dynamics data sources; configuration controls which insights surface
+- **Licensing**: requires M365 Copilot + Copilot for Sales add-on
+
+### Copilot for Service
+- Surfaces in D365 Customer Service agent desktop
+- **Built-in capabilities**: case summarization, email draft with knowledge base grounding, conversation summary, next-step suggestions
+- **Customization**: business terms (tone, prohibited topics), summarization field configuration, additional knowledge sources
+- **Key design decision**: configure in D365 admin center — no custom code required for standard scenarios
+
+### D365 Contact Center Integration
+- Copilot Studio is the designated AI front-end for D365 Contact Center
+- Supports voice (IVR-style), chat, and social messaging channels
+- D365 unified routing engine handles escalation — passes conversation context to human agent
+- Design the agent for **channel-specific behavior** (voice topics differ from chat topics in formatting)
+
+---
+
+## Updated Exam Quick Reference (Domain 2 — July 2026 Syllabus)
+
+| Topic | Key Decision / Rule |
+|-------|-------------------|
+| MCP in Copilot Studio | Standardized open protocol — add MCP server as action source |
+| Computer Use | Last-resort for UI-only workflows; prefer API connectors |
+| Task agent | Fixed workflow, bounded scope |
+| Autonomous agent | Self-directed, highest governance burden — needs approval gates |
+| Prompt-response agent | Query-driven, generates output |
+| Reasoning mode | CoT processing — use for complex multi-step analysis |
+| Voice mode | No markdown in voice topics; test in voice canvas |
+| Power Platform WAF | 5 pillars: reliability, security, opex, performance, experience |
+| Copilot for Sales | M365 Copilot + Outlook/Teams — custom connectors for non-D365 data |
+| Copilot for Service | D365 admin config — no code for standard scenarios |
+| D365 Contact Center | Copilot Studio = unified AI layer across voice/chat/social |
+| MCP vs connector | MCP: standardized discovery; connector: Microsoft-certified ecosystem |
