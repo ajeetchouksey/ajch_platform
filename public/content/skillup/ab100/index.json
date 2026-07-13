@@ -4,9 +4,9 @@
   "title": "Agentic AI Business Solutions Architect Expert",
   "shortTitle": "AB-100",
   "contentLevel": "201",
-  "description": "Validate your expertise in planning, designing, monitoring, and governing agentic AI solutions using Azure AI Foundry, Copilot Studio, and the Microsoft Agent Framework.",
-  "questions": 60,
-  "duration": "150 min",
+  "description": "Validate your expertise in planning, designing, and deploying agentic AI solutions using Azure AI Foundry, Copilot Studio, Dynamics 365, and Microsoft Power Platform. Aligned to the July 2026 exam syllabus.",
+  "questions": 90,
+  "duration": "100 min",
   "passScore": "700/1000",
   "passThreshold": 70,
   "available": true,
@@ -14,15 +14,13 @@
   "colorScheme": "blue",
   "domains": [
     { "id": 1, "title": "Plan AI-Powered Business Solutions", "weight": 28, "color": "bg-blue-600", "notesFile": "content/skillup/ab100/notes/ab100-d1-plan-ai-solutions.md" },
-    { "id": 2, "title": "Design Agentic AI Solutions", "weight": 28, "color": "bg-cyan-600", "notesFile": "content/skillup/ab100/notes/ab100-d2-design-agentic.md" },
-    { "id": 3, "title": "Monitor, Test & Optimize", "weight": 22, "color": "bg-teal-600", "notesFile": "content/skillup/ab100/notes/ab100-d3-monitor-test.md" },
-    { "id": 4, "title": "Lifecycle Management & Responsible AI", "weight": 22, "color": "bg-indigo-600", "notesFile": "content/skillup/ab100/notes/ab100-d4-lifecycle-responsible.md" }
+    { "id": 2, "title": "Design AI-Powered Business Solutions", "weight": 28, "color": "bg-cyan-600", "notesFile": "content/skillup/ab100/notes/ab100-d2-design-agentic.md" },
+    { "id": 3, "title": "Deploy AI-Powered Business Solutions", "weight": 44, "color": "bg-teal-600", "notesFile": "content/skillup/ab100/notes/ab100-d3-deploy-ai-solutions.md" }
   ],
   "questionFiles": [
     "content/skillup/ab100/questions/ab100-domain1.json",
     "content/skillup/ab100/questions/ab100-domain2.json",
-    "content/skillup/ab100/questions/ab100-domain3.json",
-    "content/skillup/ab100/questions/ab100-domain4.json"
+    "content/skillup/ab100/questions/ab100-domain3.json"
   ],
   "scenarioFiles": [
     "content/skillup/ab100/scenarios/ab100-hr-onboarding-agent.json",

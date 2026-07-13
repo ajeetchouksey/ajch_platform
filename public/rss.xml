@@ -5,8 +5,17 @@
     <link>https://aaryaai.dev</link>
     <description>AI learning resources, exam prep, and engineering insights</description>
     <language>en-gb</language>
-    <lastBuildDate>Mon, 15 Jun 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 16 Jun 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://aaryaai.dev/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>You&apos;re Wasting 60% of Your Context Window</title>
+      <link>https://aaryaai.dev/blog/context-budget-rule</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/context-budget-rule</guid>
+      <description>Your agent isn&apos;t hallucinating. It&apos;s starving. Here&apos;s why — and the three-rule fix that engineers actually ship.</description>
+      <pubDate>Tue, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>AI Architecture</category>
+    </item>
     <item>
       <title>When Your Burger Bot Goes Rogue: A Production Wake-Up Call</title>
       <link>https://aaryaai.dev/blog/order-bot-domain-boundary</link>

@@ -210,3 +210,171 @@ graph TD
 | Spillover pattern | PTU primary + PAYG overflow via load balancer |
 | Data residency | EU → Sweden Central or West Europe |
 | Right to erasure | Partition vector indexes by user ID |
+
+
+---
+
+## Cloud Adoption Framework — AI Adoption Process
+
+The CAF AI adoption scenario structures enterprise AI adoption into six phases:
+
+| Phase | Key Activities |
+|-------|---------------|
+| **Strategy** | Define AI vision, identify business outcomes, executive alignment |
+| **Plan** | Skills assessment, roadmap, landing zone planning, change management |
+| **Ready** | AI Foundry Hub setup, governance policies, shared infrastructure |
+| **Adopt** | Pilot use cases, iterate, scale proven patterns |
+| **Govern** | Responsible AI policies, cost controls, compliance monitoring |
+| **Manage** | Ongoing operations, model refresh, performance monitoring |
+
+> **Exam trap**: CAF is the adoption *journey* framework. Well-Architected Framework governs *workload quality* (reliability, security, etc.) — applied after architectural decisions are made.
+
+---
+
+## Grounding Data Quality — ARTCA Dimensions
+
+When evaluating data for RAG knowledge bases, assess five dimensions:
+
+| Dimension | Description | Key Question |
+|-----------|-------------|--------------|
+| **Accuracy** | Data correctly represents the real world | Do product descriptions match physical attributes? |
+| **Relevance** | Data is pertinent to user queries | Is this content useful for the agent's domain? |
+| **Timeliness** | Data is current within acceptable staleness thresholds | How often does this data change? Is today's data required? |
+| **Cleanliness** | Data is free of duplicates, errors, encoding issues | Are there HTML artifacts, encoding problems, duplicates? |
+| **Availability** | Data is accessible to the retrieval pipeline | Can the indexer reach this source? What are the access controls? |
+
+> **Exam tip**: For real-time data (prices, inventory, stock levels), **Timeliness** is typically the most critical dimension to evaluate first.
+
+---
+
+## AI Center of Excellence (CoE)
+
+The AI CoE owns enterprise-wide AI enablement — distinct from business units that own specific use cases:
+
+**CoE Responsibilities:**
+- Define approved AI models and their data classification constraints
+- Maintain the enterprise prompt library (versioned, curated templates)
+- Own shared infrastructure (AI Foundry Hub, observability, security baselines)
+- Establish evaluation frameworks and quality gates
+- Run responsible AI reviews and publish Transparency Notes
+- Drive AI literacy and training programs
+
+**Business Unit Responsibilities:**
+- Define use case requirements and success metrics
+- Operate production agents for their domain
+- Provide domain-specific training data and review outputs
+
+> **Exam trap**: The CoE does NOT write business requirements for individual use cases — that belongs to the business unit.
+
+---
+
+## Model Router Pattern
+
+A model router is a lightweight classifier that inspects each incoming query and routes it to the most cost-effective model capable of handling that request:
+
+`
+User Query → Router (lightweight classifier) → GPT-4o-mini (simple)
+                                              → GPT-4o (complex reasoning)
+                                              → Phi-3 (code generation)
+                                              → Claude Haiku (classification)
+`
+
+**Router decision criteria:**
+- Query complexity (simple lookup vs. multi-step reasoning)
+- Domain (code, legal, medical — specialized models)
+- Latency requirements (fast models for real-time, slow for batch)
+- Cost budget per query type
+
+> **Exam tip**: The router itself is usually a fast, cheap model or rules-based classifier — NOT an expensive model like GPT-4o.
+
+---
+
+## ROI and TCO Analysis
+
+### ROI Calculation Framework
+
+`
+ROI (%) = (Net Benefit over Period / Total Investment over Period) × 100
+
+Net Benefit = Cost Savings + Revenue Uplift - Ongoing Costs
+Total Investment = Implementation + Platform + Training + Operations (3-year)
+`
+
+### TCO Components for AI Solutions
+
+| Category | Examples |
+|----------|---------|
+| **Azure infrastructure** | Compute, storage, networking, Key Vault |
+| **AI service costs** | OpenAI tokens/PTU, AI Search query units, Content Safety |
+| **Licensing** | Copilot Studio per-session, M365 Copilot per-user, D365 |
+| **Implementation** | Development, integration, testing (often the largest initial cost) |
+| **Training & change management** | User training, documentation, adoption programs |
+| **Ongoing operations** | Monitoring, knowledge base refreshes, model updates, evaluation |
+
+> **Exam tip**: Candidates often underestimate implementation and ongoing operations costs. A complete TCO captures all six categories above.
+
+---
+
+## Build-Buy-Extend Decision Framework
+
+| Factor | Build Custom | Buy SaaS | Extend Platform (M365/D365) |
+|--------|-------------|---------|---------------------------|
+| **Differentiation** | Process is a core competency | Commodity process | Standard process in Microsoft ecosystem |
+| **Time-to-value** | 3-12 months | Days-weeks | 1-4 weeks |
+| **TCO** | Highest (maintenance burden) | Subscription cost | Medium (licensing + config) |
+| **Integration** | Full control | API-limited | Native M365/D365 integration |
+| **When to choose** | True differentiator, no solution exists | Standard process, data in SaaS | Process lives in M365/D365 surfaces |
+
+> **Decision rule**: For commodity processes (invoice processing, meeting summarization), prefer Buy or Extend. Build only when differentiation justifies the investment.
+
+---
+
+## Small Language Models (SLMs)
+
+SLMs (e.g., Phi-3-mini, Phi-3-medium, Phi-3.5) are preferable to large general models when:
+
+| Condition | Rationale |
+|-----------|-----------|
+| **Narrow domain with training data** | Fine-tuned SLM can outperform GPT-4o on specific tasks |
+| **Strict latency requirements** | SLMs inference 2-5× faster than large models |
+| **Data sovereignty / on-premises** | SLMs run on local hardware — data never leaves the network |
+| **Edge deployment** | SLMs fit on constrained devices (laptops, IoT) |
+| **Cost sensitivity at scale** | SLMs cost 10-50× less per token than GPT-4o |
+
+> **Exam trap**: SLMs are NOT universally superior. They fail on tasks requiring broad world knowledge or complex multi-step reasoning that was not in their training data.
+
+---
+
+## Prompt Library
+
+An enterprise prompt library is a **centralized, curated, versioned collection** of proven prompt templates maintained by the AI CoE:
+
+**Contents:**
+- Task templates (meeting summary, email draft, code review, data analysis)
+- Domain-specific templates (legal contract review, HR policy lookup, financial analysis)
+- Annotation on what makes each template effective
+- Guidelines for adaptation per task variant
+- Version history and performance metrics
+
+**Benefits:**
+- Democratizes best practices without requiring all users to become prompt engineers
+- Reduces inconsistency — same task, same quality across the organization
+- Reduces token waste from poorly structured prompts
+
+> **Exam tip**: A prompt library is an organizational asset owned by the AI CoE — not a feature of the Azure platform.
+
+---
+
+## Updated Exam Quick Reference (Domain 1 — July 2026 Syllabus)
+
+| Topic | Key Decision / Rule |
+|-------|-------------------|
+| CAF AI adoption | Strategy → Plan → Ready → Adopt → Govern → Manage |
+| Grounding data | Evaluate ARTCA: Accuracy, Relevance, Timeliness, Cleanliness, Availability |
+| AI CoE | Owns standards, shared infra, prompt library — NOT use case BRDs |
+| Model router | Lightweight classifier routes by complexity/domain/cost |
+| ROI | 3-year TCO includes: infra + AI services + licensing + impl + training + ops |
+| Build-Buy-Extend | Commodity process → Buy or Extend; Differentiator → Build |
+| SLMs | Prefer when: narrow domain + training data + latency/cost/sovereignty constraints |
+| Prompt library | Centralized, versioned, CoE-owned collection of proven templates |
+| Multi-agent platforms | M365 Copilot (extend) → Copilot Studio (low-code) → AI Foundry (pro-code) |

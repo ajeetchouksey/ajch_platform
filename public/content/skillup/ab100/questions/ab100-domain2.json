@@ -223,5 +223,230 @@
     "correct": 1,
     "explanation": "Power Automate approval gate (B) provides a code-enforced, auditable human checkpoint. The agent cannot send the recommendation without going through the approval workflow — the approval token is required to proceed. This is a hard stop, not a soft guideline. System prompt instruction (A) is probabilistic — the LLM might skip it under certain conditions. Customer confirmation (C) is not a loan officer review — it asks the wrong person. Periodic log review (D) is after-the-fact — the regulation requires sign-off BEFORE the recommendation is sent.",
     "tags": ["HITL", "approval-gate", "compliance", "Power-Automate"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-016",
+    "scenario": "A development team is building a Copilot Studio agent that needs to connect to a proprietary inventory management system that exposes data via a REST API. The API is not available as a pre-built Power Platform connector. They want the agent to check stock levels and update reorder quantities in real time.",
+    "question": "How should Model Context Protocol (MCP) be used to enable this extensibility in Copilot Studio?",
+    "options": [
+      "MCP cannot be used with Copilot Studio — use a custom Azure Function HTTP connector instead",
+      "Deploy an MCP server that wraps the inventory REST API and exposes tools (check-stock, update-reorder); add the MCP server endpoint as an agent action source in Copilot Studio so the agent can discover and invoke these tools via the MCP protocol",
+      "Configure the inventory API URL directly in the Copilot Studio knowledge source settings",
+      "Use MCP to replace the Copilot Studio conversation engine with the inventory system's own chat interface"
+    ],
+    "correct": 1,
+    "explanation": "MCP server as an action source (B) is the correct pattern. An MCP server wraps the inventory REST API and declares its tools in a standardized schema that Copilot Studio can discover and invoke. The agent calls check-stock or update-reorder as named tools via the MCP protocol — no custom connector code required in the agent itself. The MCP server handles authentication, request translation, and response formatting. MCP is natively supported in Copilot Studio as an extensibility mechanism (A is wrong). The inventory API is transactional, not a document knowledge source (C). MCP extends the agent's capabilities, not replaces its conversation engine (D).",
+    "tags": ["MCP", "Model-Context-Protocol", "Copilot-Studio", "extensibility"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-017",
+    "scenario": "A retail company wants a Copilot Studio agent to automate web-based tasks: filling out supplier forms on external websites, extracting data from web portals that have no API, and clicking through multi-step procurement workflows. The procurement team uses a standard web browser.",
+    "question": "Which Copilot Studio capability enables the agent to perform these browser-based interactions?",
+    "options": [
+      "Copilot Studio HTTP connector — sends HTTP requests to web pages",
+      "Computer Use in Copilot Studio — enables the agent to visually perceive and interact with web browser UIs by clicking, typing, and navigating pages without requiring an API",
+      "Power Automate Desktop flows called from Copilot Studio via a cloud flow action",
+      "A custom Azure Function that uses Puppeteer/Playwright to automate browser interactions"
+    ],
+    "correct": 1,
+    "explanation": "Computer Use in Copilot Studio (B) is the correct feature. It enables the agent to perceive the visual state of a browser (screenshot-based perception) and take UI actions — clicking buttons, filling forms, navigating multi-step flows — on external websites without needing an API. This is designed exactly for legacy web portals with no API. HTTP connector (A) sends API-style HTTP requests — it cannot interact with rendered web UI. Power Automate Desktop flows (C) can automate browsers but require pre-built flow definitions for each workflow — not adaptive to changing web UIs. Custom Playwright function (D) works but is custom development that requires maintenance as websites change.",
+    "tags": ["Computer-Use", "Copilot-Studio", "browser-automation", "UI-interaction"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-018",
+    "scenario": "An architecture review team is evaluating three agent designs for a financial trading assistant: Agent A handles a single predefined query type (portfolio summary) and executes a fixed set of steps. Agent B monitors market conditions continuously and executes trades without human prompting based on pre-defined rules. Agent C responds to user questions and generates structured investment reports.",
+    "question": "How should each agent be classified according to Microsoft's agent type taxonomy?",
+    "options": [
+      "A=Autonomous, B=Task, C=Prompt-and-Response",
+      "A=Task Agent, B=Autonomous Agent, C=Prompt-and-Response Agent",
+      "A=Prompt-and-Response, B=Task Agent, C=Autonomous",
+      "All three are autonomous agents because they all use AI"
+    ],
+    "correct": 1,
+    "explanation": "Microsoft's taxonomy (B): Task Agent (A) — executes a specific, bounded task with a fixed workflow (portfolio summary = defined inputs, defined steps, defined output). Autonomous Agent (B) — perceives its environment, makes decisions, and takes actions without continuous human prompting (market monitoring + trade execution = autonomous decision-making loop). Prompt-and-Response Agent (C) — responds to user queries and generates output; conversation-driven with no autonomous action-taking (user asks → agent responds). Classification matters because each type requires different governance: autonomous agents need strict guardrails, human approval gates, and rollback mechanisms.",
+    "tags": ["agent-types", "task-agent", "autonomous-agent", "prompt-response-agent"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-019",
+    "scenario": "A Copilot Studio agent for legal research is configured to answer complex multi-step legal questions. Users report the agent gives oversimplified answers and doesn't work through legal reasoning chains. The team is evaluating enabling reasoning mode.",
+    "question": "What does enabling reasoning mode in a Copilot Studio agent do, and when is it appropriate?",
+    "options": [
+      "Reasoning mode enables the agent to search the internet for legal precedents before responding",
+      "Reasoning mode activates an extended chain-of-thought processing step where the agent thinks through the problem systematically before generating the final response — appropriate for complex multi-step problems requiring careful analysis",
+      "Reasoning mode enables voice output so the agent can speak legal analysis aloud",
+      "Reasoning mode is only available when using GPT-4o — it switches the model automatically"
+    ],
+    "correct": 1,
+    "explanation": "Reasoning mode (B) activates chain-of-thought (CoT) processing in the LLM — the agent generates an internal reasoning trace before producing the final answer. For complex legal questions, this means the agent methodically considers applicable statutes, precedents, and logical steps before concluding. This significantly improves accuracy on multi-step analytical tasks at the cost of higher latency and token usage. It does not enable internet search (A — that's the Bing Search knowledge source), it has nothing to do with voice (C — that's voice mode, a separate feature), and reasoning mode is not model-dependent (D — it's a prompt/configuration feature).",
+    "tags": ["reasoning-mode", "chain-of-thought", "Copilot-Studio", "complex-tasks"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-020",
+    "scenario": "An architect is designing an AI-powered customer service application using Microsoft Power Platform. The application will handle high-volume customer interactions, integrate with Dynamics 365, and must meet reliability and security standards. The architect needs a framework to evaluate whether the design meets enterprise quality standards.",
+    "question": "Which framework provides structured quality guidance for Power Platform AI workloads?",
+    "options": [
+      "The Azure Security Benchmark — covers network and identity security for any Azure workload",
+      "The Microsoft Power Platform Well-Architected Framework — provides reliability, security, operational excellence, performance efficiency, and experience optimization pillars specifically for Power Platform workloads including AI components",
+      "The OpenAI System Card framework — documents safety evaluations for AI deployments",
+      "ISO 27001 — the international standard for information security management"
+    ],
+    "correct": 1,
+    "explanation": "The Microsoft Power Platform Well-Architected Framework (B) is the correct framework. It extends the Azure Well-Architected Framework with Power Platform-specific guidance across five pillars: reliability (agent uptime, failover), security (connector authentication, DLP policies), operational excellence (ALM, monitoring), performance efficiency (capacity, Dataverse query optimization), and experience optimization (UX quality, conversational design). It specifically addresses intelligent application workloads including Copilot Studio agents. The Azure Security Benchmark (A) covers security only and is Azure-specific, not Power Platform. The OpenAI System Card (C) is a safety disclosure document, not a design framework. ISO 27001 (D) is a broad ISMS standard — valuable for compliance but not a workload design framework.",
+    "tags": ["Well-Architected-Framework", "Power-Platform", "AI-workloads", "architecture-review"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-021",
+    "scenario": "A sales operations team wants to configure Microsoft 365 Copilot for Sales to help their Dynamics 365 Sales users. They want Copilot to surface deal summaries, competitor intelligence from their custom knowledge base, and next-step recommendations in Outlook and Teams.",
+    "question": "How should the architect design the connector and extensibility for this scenario?",
+    "options": [
+      "Build a custom Azure AI Foundry agent and replace Copilot for Sales entirely",
+      "Configure a Copilot for Sales connector to Dynamics 365 (built-in), add a custom connector to the internal knowledge base for competitor intelligence, and configure opportunity summary and next-steps cards in the Copilot for Sales admin settings",
+      "Use Power Automate to push deal summaries into Outlook as HTML emails",
+      "Extend SharePoint with a custom web part that displays Dynamics 365 data in a Teams tab"
+    ],
+    "correct": 1,
+    "explanation": "Copilot for Sales connector + custom connector + admin configuration (B) is the correct design. The Dynamics 365 connector is built-in to Copilot for Sales — it surfaces deal data automatically. Custom connectors extend Copilot for Sales to additional data sources (the competitor knowledge base). Card configuration in the admin center controls which insights surface in Outlook and Teams meeting experiences. This is the designed extensibility model for Copilot for Sales. Replacing it with Azure AI Foundry (A) loses the native M365 integration. Power Automate HTML emails (C) is not an AI interaction. SharePoint tab (D) doesn't use Copilot for Sales at all.",
+    "tags": ["Copilot-for-Sales", "D365", "M365-Copilot", "connector-design"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-022",
+    "scenario": "A customer service team uses Dynamics 365 Customer Service. They want to configure Copilot in Dynamics 365 Customer Service to help agents draft email responses grounded in their knowledge base articles and automatically summarize cases before handoff.",
+    "question": "Which design decisions are required to implement these Copilot customizations?",
+    "options": [
+      "Deploy a new Copilot Studio agent and configure it separately from Dynamics 365",
+      "Configure the email draft feature using custom business terms that align responses with company tone/policy; configure case summarization fields to include the required data points; add knowledge base articles as knowledge sources in Copilot settings — all within Dynamics 365 Customer Service administration",
+      "Build an Azure Function that calls Azure OpenAI and inject the response into the Dynamics 365 email compose window via JavaScript",
+      "Enable Dynamics 365 Copilot for Service by purchasing separate Azure OpenAI credits"
+    ],
+    "correct": 1,
+    "explanation": "Native D365 Customer Service Copilot configuration (B) is the correct approach. The platform provides built-in configuration for: email drafting (custom business terms define tone, scope, and prohibited topics), case summarization (configure which fields and transcript sections to include), and knowledge source connection (point to existing knowledge base articles). All of this is done in the D365 admin center without code. A separate Copilot Studio agent (A) is a standalone bot, not integrated with D365 agent desktop. Custom Azure Function + JavaScript (C) is a pro-code workaround for a problem the platform already solves. Copilot for D365 is licensed through D365 Customer Service seats, not separate Azure OpenAI credits (D).",
+    "tags": ["D365-Customer-Service", "Copilot-customization", "knowledge-base", "case-summarization"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-023",
+    "scenario": "A Power Platform administrator is asked to provide a centralized place where business users can discover, try, and request access to AI models, pre-built AI components, and AI features available in their organization's Power Platform environment.",
+    "question": "Which Power Platform feature serves as this centralized AI discovery and governance hub?",
+    "options": [
+      "Power Platform Admin Center — the administrative console for environment management",
+      "AI hub in Power Platform — a centralized location for discovering and accessing AI models and features, including pre-built AI Builder models, custom AI models, and Azure AI service integrations available to makers",
+      "Microsoft AppSource — the marketplace for Power Platform solutions",
+      "Azure AI Foundry Model Catalog — the registry of all foundation and fine-tuned models"
+    ],
+    "correct": 1,
+    "explanation": "AI hub in Power Platform (B) is the correct feature. It provides a centralized discovery layer where makers can browse available AI capabilities (AI Builder prebuilt models like invoice processing, sentiment analysis; custom models deployed to the environment; Azure OpenAI integrations), try them with sample data, and include them in their apps and flows. The Admin Center (A) is for environment administration and governance settings, not model discovery for makers. AppSource (C) is for third-party solution templates and apps, not AI model discovery. Azure AI Foundry Model Catalog (D) is for professional developers managing foundation models, not Power Platform makers.",
+    "tags": ["AI-hub", "Power-Platform", "AI-Builder", "governance"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-024",
+    "scenario": "A telecommunications company is deploying a Dynamics 365 Contact Center solution. They want to integrate an AI agent into their omni-channel support — handling voice calls, chat, and social messaging — with the agent able to resolve 60% of contacts autonomously before escalating to human agents.",
+    "question": "How should the AI agent be designed for Dynamics 365 Contact Center channel integration?",
+    "options": [
+      "Build separate agents for each channel — one for voice, one for chat, one for social — each deployed independently",
+      "Design a Copilot Studio agent as the unified AI layer connected to D365 Contact Center; configure the agent for each channel (voice/chat/messaging) using channel-specific configurations; leverage the unified routing engine to escalate to human agents with context transfer",
+      "Use Azure Bot Service directly and connect it to D365 Contact Center via a REST webhook",
+      "Configure D365 Contact Center's IVR system to route all contacts to human agents and use AI only for post-call summarization"
+    ],
+    "correct": 1,
+    "explanation": "Copilot Studio as the unified AI layer with D365 Contact Center (B) is the correct architecture. Copilot Studio is the designated AI front-end for D365 Contact Center — it supports voice (with IVR-style speech recognition), chat, and social channels through unified channel configuration. The D365 Contact Center routing engine handles escalation with context transfer (conversation history, detected intent, resolved entities passed to the human agent). Separate agents per channel (A) duplicates conversation logic and loses unified intent recognition. Azure Bot Service directly (C) bypasses the native D365 integration. Post-call-only AI (D) foregoes the 60% autonomous resolution target.",
+    "tags": ["D365-Contact-Center", "Copilot-Studio", "omni-channel", "escalation"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-025",
+    "scenario": "An enterprise wants to extend Microsoft 365 Copilot for their employees. They want Copilot to be able to access their internal project management data (stored in a custom SQL database) and trigger project status update actions directly from Teams chats and Outlook.",
+    "question": "What is the correct extensibility approach for Microsoft 365 Copilot?",
+    "options": [
+      "Ask Microsoft to add a custom SQL database connector to M365 Copilot's standard capabilities",
+      "Build a declarative agent in Microsoft 365 Copilot with: a custom API plugin connected to the SQL database (for data access) and an action defined to trigger status updates, published through the Teams admin center",
+      "Build a Copilot Studio bot and embed it as a Teams app tab — it will appear alongside M365 Copilot",
+      "Use SharePoint as an intermediary — sync SQL data to SharePoint lists and configure SharePoint as a Copilot knowledge source"
+    ],
+    "correct": 1,
+    "explanation": "Declarative agent with API plugin (B) is the correct M365 Copilot extensibility model. Declarative agents extend M365 Copilot with custom knowledge and skills: an API plugin connects to the SQL database via an OpenAPI spec (no custom connector development), and action definitions let Copilot trigger status updates. The agent is published through Teams admin center and surfaces in M365 Copilot experiences. Microsoft won't add custom connectors (A). A Copilot Studio bot in a Teams tab (C) is a separate experience, not M365 Copilot extensibility. SharePoint sync (D) works for static data but adds delay, duplication, and doesn't support the action-triggering requirement.",
+    "tags": ["M365-Copilot", "declarative-agent", "API-plugin", "Teams-extensibility"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-026",
+    "scenario": "A professional services firm uses Microsoft Teams extensively. They want to deploy an agent that helps employees find project files, locate subject matter experts, and surface relevant past proposal documents during sales calls. The content is spread across Teams channels, SharePoint project sites, and OneDrive.",
+    "question": "How should the solution be optimized to work within Microsoft 365, specifically Teams and SharePoint?",
+    "options": [
+      "Build an Azure AI Foundry agent with a custom SharePoint connector and deploy it as a Teams app",
+      "Configure a Copilot Studio agent with Microsoft Graph as a knowledge source to access Teams messages, SharePoint files, and OneDrive documents; surface the agent as a Teams app using the Teams channel; use SharePoint Embedded for project document organization to optimize retrieval",
+      "Export all SharePoint content to Azure Blob Storage nightly and build a custom RAG pipeline",
+      "Use Microsoft Viva Topics (Topics app) to manually organize knowledge — no agent needed"
+    ],
+    "correct": 1,
+    "explanation": "Copilot Studio with Microsoft Graph knowledge source + Teams channel (B) is the optimized approach. Microsoft Graph gives the agent native access to Teams messages, SharePoint sites, and OneDrive files through the user's existing permissions — no data duplication required. Surfacing as a Teams app provides the agent directly in the collaboration context where the work happens. SharePoint Embedded organizes project documents for optimal retrieval with proper metadata. Azure AI Foundry custom connector (A) would require replicating Graph functionality and doesn't leverage the native M365 integration. Azure Blob export (C) creates stale copies with significant operational overhead. Viva Topics (D) is a knowledge organization tool, not an AI agent.",
+    "tags": ["Teams", "SharePoint", "Microsoft-Graph", "Copilot-Studio"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-027",
+    "scenario": "A manufacturing company uses Dynamics 365 Finance and Dynamics 365 Supply Chain Management. They want to deploy AI features to help finance controllers with variance analysis and supply chain planners with demand forecasting. Both user groups need AI assistance within their existing D365 apps.",
+    "question": "How should AI features be orchestrated for these D365 Finance and Supply Chain apps?",
+    "options": [
+      "Build separate Azure AI Foundry agents for finance and supply chain and embed them via iframes in D365",
+      "Leverage the built-in Copilot features in D365 Finance (financial insights, variance explanations, cash flow forecasting) and D365 Supply Chain Management (demand planning copilot, procurement recommendations) — configure each app's copilot settings and knowledge sources",
+      "Deploy a single Copilot Studio agent that connects to both D365 Finance and SCM via custom connectors",
+      "Use Power BI embedded analytics as the AI layer for both finance and supply chain reporting"
+    ],
+    "correct": 1,
+    "explanation": "Using built-in Copilot features per app (B) is the correct approach. D365 Finance includes native Copilot for financial variance analysis, collections summaries, and cash flow insights. D365 Supply Chain Management includes demand planning Copilot for forecast adjustments and procurement recommendations. These are pre-built, certified AI features designed for each app's data model — no custom development needed. iFrame embedding (A) is not a supported integration pattern. A single Copilot Studio agent across both apps (C) loses the native data model understanding. Power BI (D) provides analytics visualization, not conversational AI assistance.",
+    "tags": ["D365-Finance", "D365-SCM", "built-in-Copilot", "orchestration"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-028",
+    "scenario": "A company's Dynamics 365 Finance agents (chat-based assistants) need to answer questions about the company's financial policies and procedures, which are stored in SharePoint. Currently the F&O agent chat can only access F&O data tables.",
+    "question": "How can the interoperability of F&O agent chat be extended to use SharePoint as an additional knowledge source?",
+    "options": [
+      "Export SharePoint documents to Dataverse knowledge articles so the F&O agent can access them",
+      "Configure the F&O agent chat in D365 Finance admin settings to include SharePoint as an additional knowledge source — the agent will search both F&O data and SharePoint documents when answering queries",
+      "Build a separate Copilot Studio agent that reads SharePoint and manually switch between apps",
+      "Synchronize SharePoint content to D365 Finance custom fields using Power Automate"
+    ],
+    "correct": 1,
+    "explanation": "Configuring additional knowledge sources in F&O agent chat admin settings (B) is the correct approach. D365 Finance's Copilot/agent chat supports adding external knowledge sources including SharePoint — this extends the agent's grounding beyond F&O transactional data to policy and procedure documents. The agent searches both sources and synthesizes responses. Exporting to Dataverse knowledge articles (A) creates a data sync dependency and duplication. A separate Copilot Studio agent (C) requires users to switch apps to get policy information. Power Automate sync to custom fields (D) creates stale data and doesn't support natural language retrieval.",
+    "tags": ["F&O-agent-chat", "knowledge-sources", "D365-Finance", "interoperability"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-029",
+    "scenario": "A global customer service operation wants to deploy a Copilot Studio agent that supports voice interactions. Customers calling the support line should be able to speak naturally and the agent should respond in a conversational manner with appropriate pacing and tone. The company serves customers in English and Spanish.",
+    "question": "What must be configured to enable and optimize the voice mode experience in Copilot Studio?",
+    "options": [
+      "Voice mode in Copilot Studio requires a separate Azure Cognitive Services Speech resource and custom SSML scripting for each response",
+      "Enable voice mode in the Copilot Studio channel settings; configure speech recognition language models for English and Spanish; design topics with concise, conversational responses (avoid lists and markdown that don't render in voice); test using the voice test canvas before deployment",
+      "Use Azure Bot Service with Direct Line Speech channel — Copilot Studio does not support voice",
+      "Deploy a separate IVR system and use Copilot Studio only for the chat escalation"
+    ],
+    "correct": 1,
+    "explanation": "Native Copilot Studio voice mode configuration (B) is the correct approach. Voice mode is enabled through channel settings; language models are configured for each supported language (English and Spanish). Critically, topic design must adapt for voice — lists, tables, and markdown formatting break voice rendering; responses must be conversational and concise. The voice test canvas validates the experience before production. Copilot Studio handles speech synthesis and recognition natively — no separate SSML scripting required (A). Copilot Studio does support voice (C is wrong). A separate IVR (D) is unnecessary and loses the AI conversation capabilities for voice interactions.",
+    "tags": ["voice-mode", "Copilot-Studio", "speech", "multi-language"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-030",
+    "scenario": "A pharmaceutical company needs to build an AI solution for drug-drug interaction checking. They have 10 years of proprietary clinical trial data that cannot leave their premises. They need a model that understands domain-specific pharmacological terminology and can cite specific interaction mechanisms. General LLMs provide insufficient accuracy for this clinical use case.",
+    "question": "How should a custom AI model be designed using Microsoft Foundry for this requirement?",
+    "options": [
+      "Use GPT-4o with a detailed system prompt listing all known drug interactions — no custom model needed",
+      "Fine-tune a base model (such as Phi-3-medium or a life-sciences foundation model) using Microsoft Foundry's fine-tuning pipeline on the proprietary clinical trial data; deploy the fine-tuned model to an Azure-hosted endpoint within the company's private network to meet data sovereignty requirements; connect to Copilot Studio or custom application via a private endpoint",
+      "Export the clinical data to Hugging Face and fine-tune an open-source model on their public platform",
+      "Use Azure AI Search to index all clinical trial documents and rely on RAG without any fine-tuning"
+    ],
+    "correct": 1,
+    "explanation": "Fine-tuning via Microsoft Foundry + private network deployment (B) is the correct approach. Microsoft Foundry supports supervised fine-tuning (SFT) on customer data, allowing the pharmacological domain knowledge to be encoded in the model weights. Deploying to an Azure private endpoint within the company's network satisfies the data sovereignty requirement — inference happens on-premises or in a private Azure environment. GPT-4o with system prompt (A) cannot reliably encode 10 years of clinical interaction data — RAG would also be needed. Hugging Face (C) violates the data sovereignty requirement — proprietary clinical data cannot go to a public platform. RAG alone (D) may miss implicit knowledge patterns across the trial data that fine-tuning would capture.",
+    "tags": ["custom-model", "fine-tuning", "Microsoft-Foundry", "data-sovereignty"]
   }
 ]
