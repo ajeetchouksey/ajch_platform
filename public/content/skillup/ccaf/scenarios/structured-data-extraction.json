@@ -1,6 +1,8 @@
 {
   "id": "structured-data-extraction",
   "title": "Structured Data Extraction",
+  "officialDescription": "You are building a structured data extraction system using Claude. The system extracts information from unstructured documents, validates the output using JSON schemas, and maintains high accuracy. It must handle edge cases gracefully and integrate with downstream systems.",
+  "primaryDomains": ["Prompt Engineering & Structured Output", "Context Management & Reliability"],
   "description": "Build a pipeline that processes 100,000 customer feedback documents per day. Each document must be classified by sentiment (positive/negative/neutral), have key product mentions extracted as an array, be assigned a priority score (1-5), and have action items extracted. Some documents may have no products mentioned or no action items. The pipeline runs overnight — latency is not a concern but cost and reliability are.",
   "architecture_notes": "Use the Message Batches API for the overnight processing job — 50% cost reduction vs. synchronous API, supports up to 100K requests per batch. Use custom_id matching to reconcile results with input documents. Use tool_use with forced tool_choice and strict JSON Schema for the extraction — this is the most reliable structured output method. Schema design: products as array (empty array if none, not nullable), action_items as array (empty if none), sentiment as enum with 'other' escape. Implement a validation-retry loop: if extraction fails schema validation, return specific error context and retry up to 3 times before flagging for manual review. Results must be retrieved within 24 hours.",
   "key_patterns": [

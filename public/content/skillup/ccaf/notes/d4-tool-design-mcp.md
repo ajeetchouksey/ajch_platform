@@ -607,3 +607,79 @@ while True:
 | Tool pricing | ~313-346 token overhead just for enabling tools |
 
 <div class="note-scribble">If you remember ONE thing from Domain 4: under 18 tools, 3-element descriptions, structured error returns. That's 60% of the questions right there.</div>
+
+---
+
+## 4.6 MCP Resources vs Tools
+
+<div class="note-important"><strong>Explicitly in exam guide appendix.</strong> Resources are the mechanism to expose content catalogs — distinct from tools.</div>
+
+### The Three MCP Primitives
+
+| Primitive | Who Initiates | Purpose | Example |
+|---|---|---|---|
+| **Tools** | Claude (model) | Execute actions | `search_issues`, `create_ticket` |
+| **Resources** | Application | Expose read-only content catalogs | Issue list, DB schema, doc hierarchy |
+| **Prompts** | User | User-selectable prompt templates | `/review`, `/summarise` |
+
+### Why Resources Matter for Exams
+
+Without resources, an agent exploring a knowledge base must call tools repeatedly (exploratory tool calls) just to discover what content exists. Resources give the agent **visibility upfront**.
+
+```mermaid
+graph LR
+    subgraph "Without MCP Resources"
+        A["Agent"] -->|"search for topics"| T1["tool call"]
+        T1 -->|"search again"| T2["tool call"]
+        T2 -->|"search again"| T3["tool call #N"]
+    end
+    subgraph "With MCP Resources"
+        B["Agent"] -->|"reads catalog at session start"| R["Resource: topic index"]
+        R -->|"knows what exists, targeted calls only"| T4["1-2 tool calls"]
+    end
+```
+
+<div class="note-trap"><strong>TRAP:</strong> Question asks how to reduce exploratory tool calls. Answer involves exposing a content catalog as an MCP resource — NOT adding more tools.</div>
+
+---
+
+## 4.7 The isError Flag & Structured Error Taxonomy
+
+The `isError` flag is the MCP-native way to signal tool failures back to the agent **without throwing exceptions**.
+
+```typescript
+// ✅ Correct MCP error return
+return {
+  isError: true,
+  content: [{
+    type: "text",
+    text: JSON.stringify({
+      errorCategory: "transient",   // transient | validation | permission | business
+      isRetryable: true,
+      message: "Database connection timeout after 5s",
+      attemptedQuery: "SELECT * FROM orders WHERE id = ?",
+      suggestion: "Retry in 2-3 seconds"
+    })
+  }]
+}
+```
+
+### Error Category Taxonomy
+
+| Category | isRetryable | Agent Action |
+|---|---|---|
+| `transient` | `true` | Retry with exponential backoff |
+| `validation` | `false` | Fix input parameters and retry |
+| `permission` | `false` | Escalate to human / surface to user |
+| `business` | `false` | Explain policy to user, don't retry |
+
+### Edit Tool Fallback Pattern
+
+When the `Edit` built-in tool fails because anchor text is non-unique:
+
+```
+Edit tool error: "Found multiple matches for anchor text"
+→ Fall back to: Read (full file) → Write (full file with changes)
+```
+
+<div class="note-trap"><strong>TRAP:</strong> Questions ask "Edit failed with non-unique match — what next?" Answer: Read + Write fallback. NOT: try Edit again with different anchor text.</div>

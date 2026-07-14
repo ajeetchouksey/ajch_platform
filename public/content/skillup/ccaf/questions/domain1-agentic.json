@@ -193,5 +193,80 @@
     "correct": 1,
     "explanation": "PreToolUse (stop) hooks fire before a tool runs, enabling HITL approval gates. They can inspect the tool name and arguments, then block or allow. PostToolUse fires too late—the action already happened. There is no SystemPrompt hook or OnError hook in Claude Code's hook system—the available hooks are PreToolUse and PostToolUse.",
     "tags": ["stop-hook", "hooks", "HITL", "tool-execution"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-014",
+    "scenario": "You are building a customer support resolution agent using the Claude Agent SDK. Production data shows that in 12% of cases, your agent skips get_customer entirely and calls lookup_order using only the customer's stated name, occasionally leading to misidentified accounts and incorrect refunds.",
+    "question": "What change would most effectively address this reliability issue?",
+    "options": [
+      "Add a programmatic prerequisite that blocks lookup_order and process_refund calls until get_customer has returned a verified customer ID",
+      "Enhance the system prompt to state that customer verification via get_customer is mandatory before any order operations",
+      "Add few-shot examples showing the agent always calling get_customer first, even when customers volunteer order details",
+      "Implement a routing classifier that analyses each request and enables only the subset of tools appropriate for that request type"
+    ],
+    "correct": 0,
+    "explanation": "When a specific tool sequence is required for critical business logic (like verifying customer identity before processing refunds), programmatic enforcement provides deterministic guarantees that prompt-based approaches cannot. Options B and C rely on probabilistic LLM compliance — the agent is already failing 12% of the time with current instructions. Adding more instructions won't eliminate the tail-risk. Option D addresses tool availability rather than tool ordering, which is not the actual problem. A programmatic prerequisite gate is the only option that CANNOT be bypassed by input phrasing or model variance.",
+    "tags": ["programmatic-enforcement", "prerequisite-gate", "tool-ordering", "agentic-reliability"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-015",
+    "scenario": "Your customer support agent achieves 55% first-contact resolution, well below the 80% target. Logs show it escalates straightforward cases (standard damage replacements with photo evidence) while attempting to autonomously handle complex situations requiring policy exceptions.",
+    "question": "What is the most effective way to improve escalation calibration?",
+    "options": [
+      "Add explicit escalation criteria to your system prompt with few-shot examples demonstrating when to escalate versus resolve autonomously",
+      "Have the agent self-report a confidence score (1–10) before each response and automatically route requests to humans when confidence falls below a threshold",
+      "Deploy a separate classifier model trained on historical tickets to predict which requests need escalation before the main agent begins processing",
+      "Implement sentiment analysis to detect customer frustration levels and automatically escalate when negative sentiment exceeds a threshold"
+    ],
+    "correct": 0,
+    "explanation": "Adding explicit escalation criteria with few-shot examples directly addresses the root cause: unclear decision boundaries. This is the proportionate first response before adding infrastructure. Option B fails because LLM self-reported confidence is poorly calibrated — the agent is already incorrectly confident on hard cases. Option C is over-engineered, requiring labelled data and ML infrastructure when prompt optimisation hasn't been tried. Option D solves a different problem entirely; sentiment doesn't correlate with case complexity, which is the actual issue.",
+    "tags": ["escalation", "calibration", "few-shot", "human-in-the-loop"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-016",
+    "scenario": "You are running a multi-agent research system. After running on the topic 'impact of AI on creative industries', each subagent completes successfully. However, the final report covers only visual arts — completely missing music, writing, and film. The coordinator's logs show it decomposed the topic into: 'AI in digital art creation', 'AI in graphic design', and 'AI in photography'.",
+    "question": "What is the most likely root cause?",
+    "options": [
+      "The synthesis agent lacks instructions for identifying coverage gaps in the findings it receives",
+      "The coordinator agent's task decomposition is too narrow, resulting in subagent assignments that don't cover all relevant domains of the topic",
+      "The web search agent's queries are not comprehensive enough and need to be expanded to cover more creative industry sectors",
+      "The document analysis agent is filtering out sources related to non-visual creative industries due to overly restrictive relevance criteria"
+    ],
+    "correct": 1,
+    "explanation": "The coordinator's logs reveal the root cause directly: it decomposed 'creative industries' into only visual arts subtasks, completely omitting music, writing, and film. The subagents executed their assigned tasks correctly — the problem is what they were assigned. Options A, C, and D incorrectly blame downstream agents that are working correctly within their assigned scope. The coordinator is responsible for ensuring broad, complete topic coverage during task decomposition.",
+    "tags": ["task-decomposition", "coordinator", "coverage-gaps", "multi-agent"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-017",
+    "scenario": "The web search subagent in your multi-agent research pipeline times out while researching a complex topic. You need to design how this failure information flows back to the coordinator agent.",
+    "question": "Which error propagation approach best enables intelligent recovery?",
+    "options": [
+      "Return structured error context to the coordinator including the failure type, the attempted query, any partial results, and potential alternative approaches",
+      "Implement automatic retry logic with exponential backoff within the subagent, returning a generic 'search unavailable' status only after all retries are exhausted",
+      "Catch the timeout within the subagent and return an empty result set marked as successful",
+      "Propagate the timeout exception directly to a top-level handler that terminates the entire research workflow"
+    ],
+    "correct": 0,
+    "explanation": "Structured error context gives the coordinator the information it needs to make intelligent recovery decisions — whether to retry with a modified query, try an alternative approach, or proceed with partial results. Option B's generic status hides valuable context from the coordinator, preventing informed decisions. Option C suppresses the error by marking failure as success, which prevents any recovery and risks incomplete outputs. Option D terminates the entire workflow unnecessarily when recovery strategies could succeed.",
+    "tags": ["error-propagation", "structured-errors", "coordinator-recovery", "multi-agent"]
+  },
+  {
+    "domain": 1,
+    "id": "d1-018",
+    "scenario": "A pull request modifies 14 files across the stock tracking module. Your single-pass review analysing all files together produces inconsistent results: detailed feedback for some files but superficial comments for others, obvious bugs missed, and contradictory feedback — flagging a pattern as problematic in one file while approving identical code elsewhere in the same PR.",
+    "question": "How should you restructure the review?",
+    "options": [
+      "Split into focused passes: analyse each file individually for local issues, then run a separate integration-focused pass examining cross-file data flow",
+      "Require developers to split large PRs into smaller submissions of 3–4 files before the automated review runs",
+      "Switch to a higher-tier model with a larger context window to give all 14 files adequate attention in one pass",
+      "Run three independent review passes on the full PR and only flag issues that appear in at least two of the three runs"
+    ],
+    "correct": 0,
+    "explanation": "Splitting reviews into focused passes directly addresses the root cause: attention dilution when processing many files at once. File-by-file analysis ensures consistent depth, while a separate integration pass catches cross-file issues. Option B shifts burden to developers without improving the system. Option C misunderstands that larger context windows don't solve attention quality issues — they just fit more tokens. Option D would suppress detection of real bugs by requiring consensus on issues that may only be caught intermittently.",
+    "tags": ["prompt-chaining", "multi-pass-review", "attention-dilution", "task-decomposition"]
   }
 ]

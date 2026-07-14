@@ -1,29 +1,31 @@
 {
   "schemaVersion": "1.0",
   "id": "ccaf",
+  "examCode": "CCAR-F",
   "title": "Claude Certified Architect – Foundations",
   "shortTitle": "CCA-F",
   "contentLevel": "201",
   "description": "Validate your expertise in Claude API architecture, agentic patterns, prompt engineering, tool design, and context management.",
-  "questions": 68,
+  "questions": 60,
   "duration": "120 min",
-  "passScore": "72%",
+  "passScore": "720/1000",
   "passThreshold": 72,
+  "examFee": "$125 USD",
   "available": true,
   "accentColor": "#7c3aed",
   "colorScheme": "violet",
   "domains": [
     { "id": 1, "title": "Agentic Architecture & Orchestration", "weight": 27, "color": "bg-violet-600", "notesFile": "content/skillup/ccaf/notes/d1-agentic-architecture.md" },
-    { "id": 2, "title": "Claude Code Configuration & Workflows", "weight": 20, "color": "bg-blue-600", "notesFile": "content/skillup/ccaf/notes/d2-claude-code-config.md" },
-    { "id": 3, "title": "Prompt Engineering & Structured Output", "weight": 20, "color": "bg-emerald-600", "notesFile": "content/skillup/ccaf/notes/d3-prompt-engineering.md" },
-    { "id": 4, "title": "Tool Design & MCP Integration", "weight": 18, "color": "bg-amber-600", "notesFile": "content/skillup/ccaf/notes/d4-tool-design-mcp.md" },
+    { "id": 2, "title": "Tool Design & MCP Integration", "weight": 18, "color": "bg-amber-600", "notesFile": "content/skillup/ccaf/notes/d4-tool-design-mcp.md" },
+    { "id": 3, "title": "Claude Code Configuration & Workflows", "weight": 20, "color": "bg-blue-600", "notesFile": "content/skillup/ccaf/notes/d2-claude-code-config.md" },
+    { "id": 4, "title": "Prompt Engineering & Structured Output", "weight": 20, "color": "bg-emerald-600", "notesFile": "content/skillup/ccaf/notes/d3-prompt-engineering.md" },
     { "id": 5, "title": "Context Management & Reliability", "weight": 15, "color": "bg-rose-600", "notesFile": "content/skillup/ccaf/notes/d5-context-management.md" }
   ],
   "questionFiles": [
     "content/skillup/ccaf/questions/domain1-agentic.json",
+    "content/skillup/ccaf/questions/domain4-tool-design.json",
     "content/skillup/ccaf/questions/domain2-claude-code.json",
     "content/skillup/ccaf/questions/domain3-prompt-eng.json",
-    "content/skillup/ccaf/questions/domain4-tool-design.json",
     "content/skillup/ccaf/questions/domain5-context-mgmt.json"
   ],
   "scenarioFiles": [
@@ -38,5 +40,6 @@
     { "label": "Anthropic Docs", "url": "https://docs.anthropic.com" },
     { "label": "Anthropic Cookbook", "url": "https://github.com/anthropics/anthropic-cookbook" },
     { "label": "MCP Docs", "url": "https://modelcontextprotocol.io" }
-  ]
+  ],
+  "taskStatementsFile": "content/skillup/ccaf/task-statements.json"
 }

@@ -1,15 +1,18 @@
 {
   "id": "customer-support-agent",
   "title": "Customer Support Resolution Agent",
-  "description": "Build a coordinator agent that handles customer support requests across refunds, shipping inquiries, and technical issues. The agent must route tasks to specialized subagents, enforce business rules (refunds over $500 require human approval), and escalate appropriately. It must handle 10,000+ requests per day with a 95% resolution rate without human intervention.",
-  "architecture_notes": "Use a coordinator-subagent pattern with three subagents: refund_agent (billing tools), shipping_agent (logistics tools), technical_agent (knowledge base tools). Implement a PreToolUse hook on the refund tool to enforce the $500 threshold. Use tool_choice: any to ensure the coordinator always delegates rather than answering directly. Design structured error returns from each subagent with retryable flags so the coordinator can implement retry logic or escalate. Cache the static policy content in the system prompt with cache_control for cost efficiency at high request volume.",
+  "officialDescription": "You are building a customer support resolution agent using the Claude Agent SDK. The agent handles high-ambiguity requests like returns, billing disputes, and account issues. It has access to your backend systems through custom Model Context Protocol (MCP) tools (get_customer, lookup_order, process_refund, escalate_to_human). Your target is 80%+ first-contact resolution while knowing when to escalate.",
+  "primaryDomains": ["Agentic Architecture & Orchestration", "Tool Design & MCP Integration", "Context Management & Reliability"],
+  "tools": ["get_customer", "lookup_order", "process_refund", "escalate_to_human"],
+  "description": "Build a coordinator agent that handles customer support requests across refunds, billing disputes, and account issues. The agent must route tasks to the correct tools, enforce business rules (identity verification before financial operations), and escalate when policy is ambiguous or the customer requests it. Target: 80%+ first-contact resolution.",
+  "architecture_notes": "Use programmatic prerequisites to block process_refund until get_customer has returned a verified customer ID — prompt instructions alone have non-zero failure rate for critical business logic. Implement escalation criteria with explicit few-shot examples in the system prompt. Use structured handoff summaries (customer ID, root cause, recommended action) when escalating. Return structured MCP error context including errorCategory, isRetryable, and what was attempted.",
   "key_patterns": [
-    "coordinator-subagent delegation",
-    "PreToolUse hook for business rule enforcement",
-    "human-in-the-loop gate for high-value actions",
-    "structured error returns with retryable flag",
-    "tool_choice: any on coordinator",
-    "prompt caching for shared policy context"
+    "programmatic prerequisite gates (not just prompt instructions)",
+    "explicit escalation criteria with few-shot examples",
+    "structured handoff summaries for human escalation",
+    "MCP error taxonomy: transient / validation / permission / business",
+    "tool description differentiation (get_customer vs lookup_order)",
+    "identity verification before financial operations"
   ],
-  "questionIds": ["d1-001", "d1-007", "d4-001", "d5-005"]
+  "questionIds": ["d1-001", "d1-007", "d4-001", "d5-005", "d1-014", "d4-016", "d1-015"]
 }

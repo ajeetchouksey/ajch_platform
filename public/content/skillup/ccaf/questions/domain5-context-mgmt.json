@@ -223,5 +223,20 @@
     "correct": 1,
     "explanation": "Exponential backoff with jitter prevents thundering herd problems (many clients retrying simultaneously), and retry-after headers give exact wait times. Immediate retry worsens the rate limit situation. Cycling API keys may violate ToS and doesn't solve capacity issues. Fixed 1/second throttling is wasteful when capacity is available and insufficient during actual limits.",
     "tags": ["rate-limiting", "retry-strategy", "exponential-backoff", "error-handling"]
+  },
+  {
+    "domain": 5,
+    "id": "d5-016",
+    "scenario": "Your team runs two workflows: (1) a blocking pre-merge check that must complete before developers can merge, and (2) a technical debt report generated overnight for review the next morning. Your manager proposes switching both to the Message Batches API for its 50% cost savings.",
+    "question": "How should you evaluate this proposal?",
+    "options": [
+      "Use batch processing for the technical debt reports only; keep real-time calls for the pre-merge checks",
+      "Switch both workflows to batch processing with status polling to check for completion",
+      "Keep real-time calls for both workflows to avoid batch result ordering issues",
+      "Switch both to batch processing with a timeout fallback to real-time if batches take too long"
+    ],
+    "correct": 0,
+    "explanation": "The Message Batches API offers 50% cost savings but has processing times up to 24 hours with no guaranteed latency SLA. This makes it unsuitable for blocking pre-merge checks where developers wait for results, but ideal for overnight batch jobs like technical debt reports. Option B is wrong because relying on completion polling for a blocking workflow is unacceptable when developers are waiting. Option C reflects a misconception — batch results can be correlated using custom_id fields; ordering is not an issue. Option D adds unnecessary complexity when the simpler solution is matching each API to its appropriate use case.",
+    "tags": ["message-batches-api", "cost-optimisation", "latency", "batch-vs-realtime"]
   }
 ]

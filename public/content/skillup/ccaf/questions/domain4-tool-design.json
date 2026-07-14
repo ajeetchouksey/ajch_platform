@@ -223,5 +223,35 @@
     "correct": 1,
     "explanation": "FastMCP provides a high-level Python framework with decorator-based tool registration (@mcp.tool()), making MCP server creation as simple as writing a decorated function. Raw JSON-RPC requires implementing the full protocol manually. Flask isn't MCP-aware. The anthropic SDK is an API client library for calling Claude, not an MCP server framework.",
     "tags": ["FastMCP", "MCP-server", "Python", "rapid-prototyping"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-016",
+    "scenario": "Production logs show your customer support agent frequently calls get_customer when users ask about orders (e.g., 'check my order #12345'), instead of calling lookup_order. Both tools have minimal descriptions ('Retrieves customer information' / 'Retrieves order details') and accept similar identifier formats.",
+    "question": "What's the most effective first step to improve tool selection reliability?",
+    "options": [
+      "Add few-shot examples to the system prompt demonstrating correct tool selection patterns, with 5–8 examples showing order-related queries routing to lookup_order",
+      "Expand each tool's description to include input formats it handles, example queries, edge cases, and boundaries explaining when to use it versus similar tools",
+      "Implement a routing layer that parses user input before each turn and pre-selects the appropriate tool based on detected keywords and identifier patterns",
+      "Consolidate both tools into a single lookup_entity tool that accepts any identifier and internally determines which backend to query"
+    ],
+    "correct": 1,
+    "explanation": "Tool descriptions are the primary mechanism LLMs use for tool selection. When descriptions are minimal, models lack the context to differentiate between similar tools. Option B directly addresses this root cause with a low-effort, high-leverage fix. Few-shot examples (A) add token overhead without fixing the underlying issue of ambiguous descriptions. A routing layer (C) is over-engineered and bypasses the LLM's natural language understanding. Consolidating tools (D) is a valid architectural choice but requires more effort than a 'first step' warrants.",
+    "tags": ["tool-description", "tool-selection", "differentiation", "low-effort-fix"]
+  },
+  {
+    "domain": 4,
+    "id": "d4-017",
+    "scenario": "Your synthesis agent currently routes all claim verifications through the coordinator → web search agent → re-invoke synthesis. This adds 2–3 round trips per task and increases latency by 40%. Evaluation shows 85% of verifications are simple fact-checks (dates, names, statistics) while 15% require deeper investigation.",
+    "question": "What is the most effective approach to reduce overhead while maintaining system reliability?",
+    "options": [
+      "Give the synthesis agent a scoped verify_fact tool for simple lookups, while complex verifications continue delegating to the web search agent through the coordinator",
+      "Have the synthesis agent accumulate all verification needs and return them as a batch to the coordinator at the end of its pass, which then sends them all to the web search agent at once",
+      "Give the synthesis agent access to all web search tools so it can handle any verification need directly without round-trips through the coordinator",
+      "Have the web search agent proactively cache extra context around each source during initial research, anticipating what the synthesis agent might need to verify"
+    ],
+    "correct": 0,
+    "explanation": "Option A applies the principle of least privilege by giving the synthesis agent only what it needs for the 85% common case (simple fact verification) while preserving the existing coordination pattern for complex cases. Option B's batching approach creates blocking dependencies since synthesis steps may depend on earlier verified facts. Option C over-provisions the synthesis agent, violating separation of concerns and degrading tool selection reliability. Option D relies on speculative caching that cannot reliably predict what the synthesis agent will need to verify.",
+    "tags": ["least-privilege", "scoped-tools", "latency", "synthesis-agent"]
   }
 ]
