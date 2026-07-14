@@ -15,12 +15,14 @@
   "domains": [
     { "id": 1, "title": "Plan AI-Powered Business Solutions", "weight": 28, "color": "bg-blue-600", "notesFile": "content/skillup/ab100/notes/ab100-d1-plan-ai-solutions.md" },
     { "id": 2, "title": "Design AI-Powered Business Solutions", "weight": 28, "color": "bg-cyan-600", "notesFile": "content/skillup/ab100/notes/ab100-d2-design-agentic.md" },
-    { "id": 3, "title": "Deploy AI-Powered Business Solutions", "weight": 44, "color": "bg-teal-600", "notesFile": "content/skillup/ab100/notes/ab100-d3-deploy-ai-solutions.md" }
+    { "id": 3, "title": "Deploy AI-Powered Business Solutions", "weight": 22, "color": "bg-teal-600", "notesFile": "content/skillup/ab100/notes/ab100-d3-deploy-ai-solutions.md" },
+    { "id": 4, "title": "Responsible AI & Lifecycle Governance", "weight": 22, "color": "bg-purple-600", "notesFile": "content/skillup/ab100/notes/ab100-d4-lifecycle-responsible.md", "officialNote": "Tested within Domain 3 (Deploy) on the official AB-100 exam" }
   ],
   "questionFiles": [
     "content/skillup/ab100/questions/ab100-domain1.json",
     "content/skillup/ab100/questions/ab100-domain2.json",
-    "content/skillup/ab100/questions/ab100-domain3.json"
+    "content/skillup/ab100/questions/ab100-domain3.json",
+    "content/skillup/ab100/questions/ab100-domain4.json"
   ],
   "scenarioFiles": [
     "content/skillup/ab100/scenarios/ab100-hr-onboarding-agent.json",
