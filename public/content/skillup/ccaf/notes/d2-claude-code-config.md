@@ -559,3 +559,113 @@ flowchart TD
 ```
 
 <div class="note-scribble">When in doubt on exam day: "Is it about RUNNING something external?" → settings.json. "Is it about BEHAVIOR?" → CLAUDE.md hierarchy. "Is it a user-triggered prompt?" → commands/.</div>
+
+---
+
+## 3.6 Agent Skills: context:fork, allowed-tools, argument-hint
+
+<div class="note-important"><strong>Explicitly tested in the exam guide.</strong> Skills in .claude/skills/ support frontmatter that controls isolation, tool access, and parameter prompting.</div>
+
+### Skills vs Commands vs CLAUDE.md
+
+| | Commands (.claude/commands/) | Skills (.claude/skills/) | CLAUDE.md |
+|---|---|---|---|
+| Invocation | User types /name | User types /name | Always loaded automatically |
+| Isolation | Runs in main context | Can fork to isolated sub-agent | N/A |
+| Tool restriction | No | Yes (allowed-tools) | No |
+| Parameter prompting | No | Yes (argument-hint) | No |
+
+### Frontmatter Options
+
+```markdown
+---
+context: fork
+allowed-tools: Write, Edit
+argument-hint: "Enter the module name to scaffold"
+---
+# Scaffold Module Skill
+
+Generate a new module with tests and documentation.
+```
+
+#### `context: fork`
+
+Runs the skill in an **isolated sub-agent context** — outputs don't pollute your main conversation. Essential for:
+- **Verbose exploratory output** (e.g., codebase analysis that dumps 200 lines)
+- **Brainstorming alternatives** you don't want in main context
+- **Destructive-adjacent tasks** where you want a clean boundary
+
+<div class="note-trap"><strong>TRAP:</strong> An exam question shows a skill that produces verbose output and asks why the main conversation is filling up. Answer: the skill is missing `context: fork`.</div>
+
+#### `allowed-tools`
+
+Restricts which Claude Code built-in tools the skill can use during execution.
+
+```yaml
+# Only allow file writing — no Bash, no reads outside scope
+allowed-tools: Write, Edit
+```
+
+Use when a skill should be write-only, or when you want to prevent accidental destructive operations.
+
+#### `argument-hint`
+
+Displayed to the developer when they invoke the skill without arguments — prompts for required input.
+
+```yaml
+argument-hint: "Module name (e.g. payments, auth, notifications)"
+```
+
+### Personal vs Project Skills
+
+| Location | Scope | Use For |
+|---|---|---|
+| `.claude/skills/` (project) | Whole team, version-controlled | Shared workflows (scaffold, review) |
+| `~/.claude/skills/` (personal) | Just you | Personal variants, experiments |
+
+Create a personal variant in `~/.claude/skills/` with a different name to avoid affecting teammates.
+
+---
+
+## 3.7 Explore Subagent & /compact
+
+### Explore Subagent
+
+The `Explore` subagent is a built-in sub-agent you can spawn to handle **verbose discovery phases** — isolating long output from your main conversation context.
+
+```
+Use the Explore subagent to find all callers of the authenticate() function
+and return a summary — not the raw output.
+```
+
+**Why it matters:** Without Explore, a discovery phase that reads 50 files and produces 5,000 tokens of output fills your context window, degrading quality for the rest of the session.
+
+```mermaid
+graph LR
+    M["Main Agent<br/>(high-level coordination)"] -->|"Spawn"| E["Explore Subagent<br/>(verbose discovery)"]
+    E -->|"Structured summary only"| M
+    M --> I["Implementation<br/>(context still clean)"]
+```
+
+<div class="note-important"><strong>Combine with plan mode:</strong> Use plan mode to design, Explore subagent to investigate, then direct execution to implement. This preserves context at every phase.</div>
+
+### /compact
+
+The `/compact` command **reduces context usage** during an extended session by summarising the conversation so far, freeing up context window for continued work.
+
+```
+/compact
+```
+
+**Use when:** Working on a long investigation session and context window is near capacity — but you want to continue without starting over.
+
+<div class="note-trap"><strong>TRAP:</strong> An exam question describes an agent giving inconsistent answers mid-session and "referencing typical patterns rather than specific classes discovered earlier." This is context degradation. The fix is /compact (to summarise) plus scratchpad files (to persist key findings).</div>
+
+### /memory Command
+
+Use `/memory` to inspect which CLAUDE.md files and configuration sources are currently loaded — helpful for diagnosing inconsistent behaviour across sessions.
+
+```
+/memory
+# Shows: user-level, project-level, and scoped rules currently active
+```

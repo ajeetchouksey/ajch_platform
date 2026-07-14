@@ -758,3 +758,61 @@ graph TD
 | "The Invoice Processor That Started Over" | Checkpointing | External state survives process death |
 | "The 3 AM Delete" | HITL gate placement | PreToolUse hook, not prompt instruction |
 | "The Wrong Subagent Mystery" | Observability | Trace ID reveals the causal chain |
+
+---
+
+## 1.7 Session State, Resumption & Forking
+
+<div class="note-important"><strong>New in exam guide v1.0:</strong> Session management is explicitly tested — expect 1–2 questions on --resume, fork_session, and when to choose resumption vs fresh start.</div>
+
+### The Three Session Modes
+
+| Mode | Command / API | When to Use |
+|---|---|---|
+| New session | (default) | Fresh task with no prior context needed |
+| Resume named session | `--resume <session-name>` | Continue investigation after a break; prior context still valid |
+| Fork session | `fork_session` | Explore two divergent approaches from the same analysis baseline |
+
+### --resume: Named Session Resumption
+
+```bash
+# Save a session with a name
+claude --session-name "refactor-auth-module" "Explore the auth module"
+
+# Resume it the next morning
+claude --resume "refactor-auth-module" "Now implement the changes we planned"
+```
+
+<div class="note-important"><strong>Critical rule:</strong> When resuming after code modifications, explicitly tell the agent which files changed. It will re-analyse only what you specify rather than re-exploring everything.</div>
+
+```
+# After changing auth.ts overnight:
+"I've updated auth.ts since we last spoke — the JWT validation logic changed.
+Re-analyse that file and then proceed with the migration plan."
+```
+
+### fork_session: Parallel Branch Exploration
+
+`fork_session` creates an independent copy of the current conversation, so you can explore two approaches simultaneously without either polluting the other.
+
+```mermaid
+graph TD
+    B["Shared Baseline Analysis<br/>(codebase explored)"] --> F["fork_session"]
+    F --> A1["Branch A: Approach 1<br/>Rewrite with async/await"]
+    F --> A2["Branch B: Approach 2<br/>Incremental refactor"]
+    A1 --> C["Compare results,<br/>pick winner"]
+    A2 --> C
+```
+
+**Use cases:** comparing testing strategies, evaluating two library migrations, trying different refactoring approaches — all from the same understood codebase.
+
+### Resumption vs Fresh Session
+
+<div class="note-trap"><strong>TRAP:</strong> An exam question will describe a scenario where prior tool results are stale (e.g., files changed, DB state updated) and ask whether to resume or start fresh. The answer is: start fresh with an injected summary if prior tool results are unreliable.</div>
+
+| Situation | Best Choice |
+|---|---|
+| Same day, mid-investigation, files unchanged | `--resume` |
+| Next day, code was modified since last session | `--resume` + explicitly state changed files |
+| Prior tool results are stale/invalid | New session + inject structured summary |
+| Need to explore two divergent approaches | `fork_session` from baseline |

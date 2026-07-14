@@ -193,5 +193,65 @@
     "correct": 1,
     "explanation": "YAML frontmatter in CLAUDE.md files supports 'applyTo' patterns that scope instructions to matching files. CLAUDE.md doesn't support if/else logic. JSON config files aren't part of the CLAUDE.md system. Comment prefixes have no semantic meaning to the parser.",
     "tags": ["yaml-frontmatter", "CLAUDE-md", "applyTo", "scoped-rules"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-014",
+    "scenario": "You want to create a custom /review slash command that runs your team's standard code review checklist. This command should be available to every developer when they clone or pull the repository.",
+    "question": "Where should you create this command file?",
+    "options": [
+      "In the .claude/commands/ directory in the project repository",
+      "In ~/.claude/commands/ in each developer's home directory",
+      "In the CLAUDE.md file at the project root",
+      "In a .claude/config.json file with a commands array"
+    ],
+    "correct": 0,
+    "explanation": "Project-scoped custom slash commands should be stored in the .claude/commands/ directory within the repository. These commands are version-controlled and automatically available to all developers when they clone or pull the repo. Option B (~/.claude/commands/) is for personal commands that aren't shared via version control. Option C (CLAUDE.md) is for project instructions and context, not command definitions. Option D describes a configuration mechanism that doesn't exist in Claude Code.",
+    "tags": ["slash-commands", "project-scoped", ".claude/commands/", "version-control"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-015",
+    "scenario": "You've been assigned to restructure a monolithic application into microservices. This will involve changes across dozens of files and requires decisions about service boundaries and module dependencies.",
+    "question": "Which approach should you take?",
+    "options": [
+      "Enter plan mode to explore the codebase, understand dependencies, and design an implementation approach before making changes",
+      "Start with direct execution and make changes incrementally, letting the implementation reveal the natural service boundaries",
+      "Use direct execution with comprehensive upfront instructions detailing exactly how each service should be structured",
+      "Begin in direct execution mode and only switch to plan mode if you encounter unexpected complexity during implementation"
+    ],
+    "correct": 0,
+    "explanation": "Plan mode is designed for complex tasks involving large-scale changes, multiple valid approaches, and architectural decisions — exactly what monolith-to-microservices restructuring requires. It enables safe codebase exploration and design before committing to changes. Option B risks costly rework when dependencies are discovered late. Option C assumes you already know the right structure without exploring the code. Option D ignores that the complexity is already stated in the requirements, not something that might emerge later.",
+    "tags": ["plan-mode", "direct-execution", "complex-tasks", "architectural-decisions"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-016",
+    "scenario": "Your codebase has distinct areas with different conventions: React components use functional style with hooks, API handlers use async/await with specific error handling, and database models follow a repository pattern. Test files are spread throughout the codebase alongside the code they test (e.g., Button.test.tsx next to Button.tsx), and you want all tests to follow the same conventions regardless of location.",
+    "question": "What's the most maintainable way to ensure Claude automatically applies the correct conventions when generating code?",
+    "options": [
+      "Create rule files in .claude/rules/ with YAML frontmatter specifying glob patterns to conditionally apply conventions based on file paths",
+      "Consolidate all conventions in the root CLAUDE.md file under headers for each area, relying on Claude to infer which section applies",
+      "Create skills in .claude/skills/ for each code type that include the relevant conventions in their SKILL.md files",
+      "Place a separate CLAUDE.md file in each subdirectory containing that area's specific conventions"
+    ],
+    "correct": 0,
+    "explanation": "Option A is correct because .claude/rules/ with glob patterns (e.g., **/*.test.tsx) allows conventions to be automatically applied based on file paths regardless of directory location — essential for test files spread throughout the codebase. Option B relies on inference rather than explicit matching, making it unreliable. Option C requires manual skill invocation rather than automatic path-based triggering. Option D can't easily handle files spread across many directories since CLAUDE.md files are directory-bound.",
+    "tags": [".claude/rules/", "glob-patterns", "path-scoped-rules", "CLAUDE-md"]
+  },
+  {
+    "domain": 2,
+    "id": "d2-017",
+    "scenario": "Your CI/CD pipeline script runs `claude \"Analyse this pull request for security issues\"` but the job hangs indefinitely. Logs indicate Claude Code is waiting for interactive input.",
+    "question": "What's the correct approach to run Claude Code in an automated pipeline?",
+    "options": [
+      "Add the -p flag: claude -p \"Analyse this pull request for security issues\"",
+      "Set the environment variable CLAUDE_HEADLESS=true before running the command",
+      "Redirect stdin from /dev/null: claude \"Analyse this pull request for security issues\" < /dev/null",
+      "Add the --batch flag: claude --batch \"Analyse this pull request for security issues\""
+    ],
+    "correct": 0,
+    "explanation": "The -p (or --print) flag is the documented way to run Claude Code in non-interactive mode. It processes the prompt, outputs the result to stdout, and exits without waiting for user input — exactly what CI/CD pipelines require. The other options reference non-existent features (CLAUDE_HEADLESS environment variable, --batch flag) or use Unix workarounds that don't properly address Claude Code's command syntax.",
+    "tags": ["-p-flag", "non-interactive", "CI-CD", "headless-mode"]
   }
 ]

@@ -11,5 +11,7 @@
     "structured error propagation",
     "distributed tracing with trace_id"
   ],
-  "questionIds": ["d1-002", "d1-003", "d1-005", "d1-008", "d5-002", "d5-003"]
+  "questionIds": ["d1-002", "d1-003", "d1-005", "d1-008", "d5-002", "d5-003", "d1-016", "d1-017", "d4-017"],
+  "officialDescription": "You are building a multi-agent research system using the Claude Agent SDK. A coordinator agent delegates to specialized subagents: one searches the web, one analyzes documents, one synthesizes findings, and one generates reports. The system researches topics and produces comprehensive, cited reports.",
+  "primaryDomains": ["Agentic Architecture & Orchestration", "Tool Design & MCP Integration", "Context Management & Reliability"]
 }

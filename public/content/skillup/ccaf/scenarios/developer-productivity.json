@@ -1,7 +1,9 @@
 {
   "id": "developer-productivity",
   "title": "Developer Productivity with Claude",
-  "description": "Build an AI pair programming assistant integrated into the development workflow. It must understand the codebase structure, enforce team coding standards, generate tests, review PRs for security vulnerabilities, and explain complex code sections. The team has 50 developers making 500+ Claude API calls per day. Cost control is critical.",
+  "officialDescription": "You are building developer productivity tools using the Claude Agent SDK. The agent helps engineers explore unfamiliar codebases, understand legacy systems, generate boilerplate code, and automate repetitive tasks. It uses the built-in tools (Read, Write, Bash, Grep, Glob) and integrates with Model Context Protocol (MCP) servers.",
+  "primaryDomains": ["Tool Design & MCP Integration", "Claude Code Configuration & Workflows", "Agentic Architecture & Orchestration"],
+  "description": "Build an AI pair programming assistant integrated into the development workflow. It must understand the codebase structure using built-in tools (Read, Write, Bash, Grep, Glob), enforce team coding standards, generate tests, review PRs for security vulnerabilities, and explain complex code sections. The team has 50 developers making 500+ Claude API calls per day. Cost control is critical.",
   "architecture_notes": "Use Claude Code with a project CLAUDE.md capturing architecture decisions, coding standards, and key design patterns as skill files. Configure prompt caching on the static system prompt (team standards, architecture context) — at 500 calls/day the cache will be continuously warm, reducing input costs by ~90% for the static section. Implement a multi-pass review pattern: separate API calls for code generation and code review to avoid self-review blindness. Use XML tags to delimit user-provided code in prompts to prevent prompt injection via malicious code comments. Implement extended thinking for complex architectural questions.",
   "key_patterns": [
     "prompt caching on static system prompt content",

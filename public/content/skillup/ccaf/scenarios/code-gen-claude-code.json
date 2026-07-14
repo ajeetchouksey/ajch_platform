@@ -11,5 +11,7 @@
     "MCP server with stdio transport",
     "slash commands for repeated workflows"
   ],
-  "questionIds": ["d2-001", "d2-002", "d2-005", "d2-006"]
+  "questionIds": ["d2-001", "d2-002", "d2-005", "d2-006", "d2-014", "d2-015", "d2-016"],
+  "officialDescription": "You are using Claude Code to accelerate software development. Your team uses it for code generation, refactoring, debugging, and documentation. You need to integrate it into your development workflow with custom slash commands, CLAUDE.md configurations, and understand when to use plan mode vs direct execution.",
+  "primaryDomains": ["Claude Code Configuration & Workflows", "Context Management & Reliability"]
 }

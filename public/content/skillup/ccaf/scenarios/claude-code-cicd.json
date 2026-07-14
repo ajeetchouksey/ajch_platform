@@ -1,15 +1,19 @@
 {
   "id": "claude-code-cicd",
   "title": "Claude Code for CI/CD",
+  "officialDescription": "You are integrating Claude Code into your Continuous Integration/Continuous Deployment (CI/CD) pipeline. The system runs automated code reviews, generates test cases, and provides feedback on pull requests. You need to design prompts that provide actionable feedback and minimise false positives.",
+  "primaryDomains": ["Claude Code Configuration & Workflows", "Prompt Engineering & Structured Output"],
   "description": "Integrate Claude Code into a GitHub Actions CI/CD pipeline. On every PR, Claude must: (1) review code for security vulnerabilities, (2) check that new code has corresponding tests, (3) validate that Terraform changes follow naming conventions. The pipeline is fully automated — no human interaction during CI runs. Results must be structured so the pipeline can parse them and post comments to the PR.",
-  "architecture_notes": "Use Claude Code in headless mode with the -p flag for all CI/CD steps. Each step is a separate claude -p invocation with a specific prompt. Output is captured and parsed by the pipeline. Use scoped rule files (.claude/rules/) with path globs to apply security-specific rules for src/ and terraform-specific rules for infra/. Configure permissions in .claude/settings.json to read-only mode in CI (no writes, no execution) to prevent accidental side effects. Use structured JSON output (tool_use with forced tool_choice) so the pipeline can reliably parse results without regex hacks.",
+  "architecture_notes": "Use Claude Code in headless mode with the -p flag for all CI/CD steps. Each step is a separate claude -p invocation with a specific prompt. Output is captured and parsed by the pipeline. Use scoped rule files (.claude/rules/) with path globs to apply security-specific rules for src/ and terraform-specific rules for infra/. Configure permissions in .claude/settings.json to read-only mode in CI (no writes, no execution) to prevent accidental side effects. Use structured JSON output (tool_use with forced tool_choice) so the pipeline can reliably parse results without regex hacks. Use the Message Batches API for overnight technical debt reports (50% cost savings); keep real-time for blocking pre-merge checks.",
   "key_patterns": [
     "headless mode with -p flag",
     "structured JSON output for pipeline parsing",
     "read-only permissions in CI environment",
     "scoped rules for directory-specific checks",
     "exit code handling (0 = pass, 1 = fail/error)",
-    "tool_choice forced for reliable structured output"
+    "tool_choice forced for reliable structured output",
+    "Message Batches API for async overnight jobs (not blocking checks)",
+    "multi-pass review to avoid attention dilution across many files"
   ],
-  "questionIds": ["d2-003", "d2-009", "d2-010", "d3-003", "d3-010"]
+  "questionIds": ["d2-003", "d2-009", "d2-010", "d3-003", "d3-010", "d2-017", "d5-016", "d1-018"]
 }

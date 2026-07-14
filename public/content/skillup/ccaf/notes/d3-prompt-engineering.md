@@ -694,6 +694,111 @@ Your real-time dashboard needs to show Claude's response as it's generated — u
 | max_tokens | Controls OUTPUT length, NOT context window | tricky parameter questions |
 | Statelessness | Full conversation history in every API call | "memory," "session" |
 
+---
+
+## 4.8 Pydantic Validation-Retry Loops
+
+<div class="note-important"><strong>Explicitly in exam guide appendix.</strong> "Pydantic — schema validation, semantic validation errors, validation-retry loops" is a named technology.</div>
+
+### The Problem
+
+Claude returns JSON that passes syntax checking but fails semantic validation — e.g., a date field contains `"yesterday"` instead of `"2026-07-13"`, or an enum value is `"PENDING_REVIEW"` when the schema only accepts `"pending"`.
+
+### The Pattern
+
+```python
+from pydantic import BaseModel, ValidationError
+import anthropic
+
+class ExtractionResult(BaseModel):
+    invoice_number: str
+    amount: float
+    date: str   # must be YYYY-MM-DD
+    status: Literal["paid", "pending", "overdue"]
+
+def extract_with_retry(document: str, max_retries: int = 2) -> ExtractionResult:
+    client = anthropic.Anthropic()
+    messages = [{"role": "user", "content": document}]
+
+    for attempt in range(max_retries + 1):
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            tools=[extraction_tool],
+            tool_choice={"type": "tool", "name": "extract_invoice"},
+            messages=messages
+        )
+        raw = response.content[0].input
+
+        try:
+            return ExtractionResult(**raw)   # ← semantic validation here
+        except ValidationError as e:
+            if attempt == max_retries:
+                raise
+            # Inject error back: document + failed extraction + exact validation error
+            messages += [
+                {"role": "assistant", "content": response.content},
+                {"role": "user", "content": f"Validation failed: {e}\nOriginal: {raw}\nFix and retry."}
+            ]
+```
+
+### What Gets Fixed vs What Doesn't
+
+| Error Type | Retry Helps? | Why |
+|---|---|---|
+| Format mismatch (`"yesterday"` vs `"2026-07-13"`) | ✅ Yes | Model can reformat |
+| Wrong enum value (`"PENDING_REVIEW"` vs `"pending"`) | ✅ Yes | Model can map to correct value |
+| Information absent from source document | ❌ No | Model cannot hallucinate real data |
+| Structural schema error (missing required field) | ✅ Usually | Depends on source document |
+
+<div class="note-trap"><strong>TRAP:</strong> Question asks "validation-retry loop keeps failing for some documents — why?" Answer: the information is genuinely absent from the source. Retrying cannot fix what isn't there.</div>
+
+---
+
+## 4.9 Message Batches API
+
+<div class="note-important"><strong>Named technology in exam appendix.</strong> Tested via tradeoff scenarios: "which workflows are appropriate for batch processing?"</div>
+
+### Key Facts
+
+| Property | Value |
+|---|---|
+| Cost savings | **50% off** standard API pricing |
+| Processing time | Up to **24 hours** (no guaranteed SLA) |
+| Correlation | Use **`custom_id`** to match requests to responses |
+| Multi-turn tool calling | ❌ **NOT supported** |
+| Polling | Check completion status by polling |
+
+### The Blocking vs Async Split
+
+```
+Blocking workflows (real-time API) ✅
+├── Pre-merge code review (developer waits)
+├── Chatbot responses (user waits)
+└── Any synchronous user-facing operation
+
+Batch workflows (Message Batches API) ✅
+├── Overnight technical debt reports
+├── Bulk document classification
+├── Daily content moderation pipelines
+└── Any fire-and-collect operation with no latency SLA
+```
+
+### custom_id Pattern
+
+```python
+# Submit
+batch = client.beta.messages.batches.create(requests=[
+    {"custom_id": "invoice-001", "params": {"messages": [...]}},
+    {"custom_id": "invoice-002", "params": {"messages": [...]}},
+])
+
+# Correlate results
+for result in client.beta.messages.batches.results(batch.id):
+    print(result.custom_id, result.result)  # ← custom_id links back to your request
+```
+
+<div class="note-trap"><strong>TRAP:</strong> "Batch results come back in random order — how do you match them?" Answer: custom_id. The exam may also test that multi-turn tool calling is NOT supported in batch mode.</div>
+
 <div class="note-important"><strong>📋 API Parameters Quick Reference:</strong><br/>
 • <code>model</code>: Required. Model identifier string<br/>
 • <code>max_tokens</code>: Required. Maximum OUTPUT tokens (not context!)<br/>
