@@ -1,0 +1,274 @@
+{
+  "schemaVersion": "1.0",
+  "examCode": "AB-100",
+  "source": "Study guide for Exam AB-100: Agentic AI Business Solutions Architect — Microsoft Learn (effective July 22, 2026)",
+  "sourceUrl": "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-100",
+  "note": "Official exam has 3 domains. Platform splits official Domain 3 (Deploy 40-45%) into D3 (Deploy/ALM 22%) and D4 (Responsible AI 22%) for study clarity.",
+  "domains": [
+    {
+      "id": 1,
+      "title": "Plan AI-Powered Business Solutions",
+      "weight": 28,
+      "officialWeight": "25-30%",
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Analyze requirements for AI-powered business solutions",
+          "knowledge": [
+            "How agents can be applied to task automation, data analytics, and decision-making scenarios",
+            "The characteristics of high-quality grounding data: accuracy, relevance, timeliness, cleanliness, and availability",
+            "Methods for organizing and exposing business solution data for consumption by AI systems",
+            "The relationship between data quality and AI agent output reliability"
+          ],
+          "skills": [
+            "Assess the use of agents in task automation, data analytics, and decision-making",
+            "Review data for grounding, including accuracy, relevance, timeliness, cleanliness, and availability",
+            "Organize business solution data to be available for other AI systems"
+          ],
+          "questionIds": ["ab100-d1-001", "ab100-d1-002", "ab100-d1-003"]
+        },
+        {
+          "id": "1.2",
+          "title": "Design overall AI strategy for business solutions",
+          "knowledge": [
+            "The AI adoption process stages in the Cloud Adoption Framework for Azure",
+            "When to use prebuilt agents vs. custom agents vs. extending Microsoft 365 Copilot",
+            "When to create custom AI models vs. using foundation models via Copilot Studio or Microsoft Foundry",
+            "The elements of the Microsoft AI Center of Excellence",
+            "How knowledge sources and generative AI orchestration work in Copilot Studio agents",
+            "Prompt engineering guidelines and techniques applicable to business solutions",
+            "How customized small language models (SLMs) serve specific business use cases",
+            "Architectural considerations for AI solutions that span multiple Dynamics 365 apps"
+          ],
+          "skills": [
+            "Implement the AI adoption process from the Cloud Adoption Framework for Azure",
+            "Design the strategy for building AI and agents in business solutions",
+            "Design a multi-agent solution by using platforms such as Microsoft 365 Copilot, Copilot Studio, and Microsoft Foundry",
+            "Develop the use cases for prebuilt agents in the solution",
+            "Define the solution rules and constraints when building AI components with Copilot Studio, Microsoft Foundry and Foundry Tools",
+            "Determine the use of generative AI and knowledge sources in agents built with Copilot Studio",
+            "Determine when to build custom agents or extend Microsoft 365 Copilot",
+            "Determine when custom AI models should be created",
+            "Provide guidelines for creating a prompt library",
+            "Develop the use cases for customized small language models for the solution",
+            "Provide prompt engineering guidelines and techniques for AI-powered business solutions",
+            "Include the elements of the Microsoft AI Center of Excellence",
+            "Design AI solutions that use multiple Dynamics 365 apps"
+          ],
+          "questionIds": ["ab100-d1-004", "ab100-d1-005", "ab100-d1-006", "ab100-d1-007", "ab100-d1-008", "ab100-d1-009", "ab100-d1-010"]
+        },
+        {
+          "id": "1.3",
+          "title": "Evaluate the costs and benefits of an AI-powered business solution",
+          "knowledge": [
+            "ROI criteria and total cost of ownership (TCO) components for AI business solutions",
+            "The build vs. buy vs. extend decision framework for AI components",
+            "How model routers work and when intelligent routing reduces cost or improves quality",
+            "How to quantify AI business value in terms measurable by stakeholders"
+          ],
+          "skills": [
+            "Select ROI criteria for AI-powered business solutions, including the total cost of ownership",
+            "Create an ROI analysis for the proposed AI solution for a business process",
+            "Analyze whether to build, buy, or extend AI components for business solutions",
+            "Implement a model router to intelligently route requests to the most suitable model"
+          ],
+          "questionIds": ["ab100-d1-011", "ab100-d1-012", "ab100-d1-013", "ab100-d1-014", "ab100-d1-015"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Design AI-Powered Business Solutions",
+      "weight": 28,
+      "officialWeight": "25-30%",
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Design AI and agents for business solutions",
+          "knowledge": [
+            "The differences between task agents, autonomous agents, and prompt-and-response agents",
+            "Copilot Studio topic design including fallback topics for unrecognized intents",
+            "When to use NLP, conversational language understanding (CLU), or generative AI orchestration in Copilot Studio",
+            "How to design data processing pipelines for AI model grounding",
+            "How to embed AI components in Power Apps canvas apps",
+            "The Microsoft Power Platform Well-Architected Framework for intelligent workloads",
+            "Agent flows and prompt actions in Copilot Studio",
+            "Copilot customizations for Dynamics 365 Customer Experience and Service apps"
+          ],
+          "skills": [
+            "Design business terms for Copilot in Dynamics 365 apps for customer experience and service",
+            "Design customizations of Copilot in Dynamics 365 apps for customer experience and service",
+            "Design connectors for Copilot in Dynamics 365 Sales",
+            "Design agents for integration with Dynamics 365 Contact Center channels",
+            "Design task agents",
+            "Design autonomous agents",
+            "Design prompt and response agents",
+            "Propose Foundry Tools for a given requirement",
+            "Propose code-first generative pages and the use of an agent feed for apps",
+            "Design topics for Copilot Studio, including fallback",
+            "Design data processing for AI models and grounding",
+            "Design a business process to include AI components in a Power Apps canvas app",
+            "Apply the Microsoft Power Platform Well-Architected Framework to intelligent application workloads",
+            "Determine when to use standard natural language processing, conversational language understanding, or generative AI orchestration in Copilot Studio",
+            "Design agents and agent flows with Copilot Studio",
+            "Design prompt actions in Copilot Studio"
+          ],
+          "questionIds": ["ab100-d2-001", "ab100-d2-002", "ab100-d2-003", "ab100-d2-004", "ab100-d2-005", "ab100-d2-006", "ab100-d2-007", "ab100-d2-008", "ab100-d2-009", "ab100-d2-010"]
+        },
+        {
+          "id": "2.2",
+          "title": "Design extensibility of AI solutions",
+          "knowledge": [
+            "How to extend agents in Copilot Studio using Model Context Protocol (MCP)",
+            "Computer Use capability in Copilot Studio for automating tasks in apps and websites",
+            "How agent behaviors (reasoning, voice mode) are configured in Copilot Studio",
+            "Custom model design and deployment in Microsoft Foundry",
+            "Agent extensibility options in Microsoft 365 Copilot",
+            "How Microsoft 365 agents integrate with Teams and SharePoint"
+          ],
+          "skills": [
+            "Design AI solutions by using custom models in Microsoft Foundry",
+            "Design agents in Microsoft 365 Copilot",
+            "Design agent extensibility in Copilot Studio",
+            "Design agent extensibility with Model Context Protocol in Copilot Studio",
+            "Design agents to automate tasks in apps and websites by using Computer Use in Copilot Studio",
+            "Design agent behaviors in Copilot Studio, including reasoning and voice mode",
+            "Optimize solution design by using agents in Microsoft 365, including Teams and SharePoint"
+          ],
+          "questionIds": ["ab100-d2-011", "ab100-d2-012", "ab100-d2-013", "ab100-d2-014", "ab100-d2-015"]
+        },
+        {
+          "id": "2.3",
+          "title": "Orchestrate configuration for prebuilt agents and apps",
+          "knowledge": [
+            "AI features available in Dynamics 365 Finance and Supply Chain Management",
+            "AI features available in Dynamics 365 Customer Experience and Service apps",
+            "Microsoft 365 Copilot for Sales and Copilot for Service configuration options",
+            "Microsoft Power Platform AI capabilities including AI Hub",
+            "How to add knowledge sources to Dynamics 365 Finance and Supply Chain in-app help",
+            "Agent-to-agent (A2A) interoperability and knowledge source federation"
+          ],
+          "skills": [
+            "Orchestrate AI features in Dynamics 365 apps for finance and supply chain",
+            "Orchestrate AI features in Dynamics 365 apps for customer experience and service",
+            "Propose Microsoft 365 agents for business scenarios",
+            "Orchestrate the configuration of Microsoft 365 Copilot for Sales and Microsoft 365 Copilot for Service",
+            "Propose Microsoft Power Platform AI features, including AI hub",
+            "Design interoperability of the finance and operations agent chats to use additional knowledge sources",
+            "Recommend the process of adding knowledge sources to in-app help and guidance for Dynamics 365 Finance or Dynamics 365 Supply Chain Management apps"
+          ],
+          "questionIds": ["ab100-d2-016", "ab100-d2-017", "ab100-d2-018", "ab100-d2-019", "ab100-d2-020"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Deploy AI-Powered Business Solutions",
+      "weight": 22,
+      "officialWeight": "40-45% (combined with Domain 4 on official exam)",
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Analyze, monitor, and tune AI-powered business solutions",
+          "knowledge": [
+            "Monitoring tools for AI agents: Azure Monitor, Application Insights, Azure AI Evaluation",
+            "Key agent performance metrics: latency, error rate, groundedness, relevance, coherence",
+            "How telemetry data is used to detect model drift and performance degradation",
+            "How to analyze user feedback and backlog data to identify agent improvement opportunities",
+            "AI-based tools for issue analysis and automated tuning suggestions"
+          ],
+          "skills": [
+            "Recommend the process and tools required for monitoring agents",
+            "Analyze backlog and user feedback of AI and agent usage",
+            "Apply AI-based tools to analyze and identify issues and perform tuning",
+            "Monitor agent performance and metrics",
+            "Interpret telemetry data for performance and model tuning"
+          ],
+          "questionIds": ["ab100-d3-001", "ab100-d3-002", "ab100-d3-003", "ab100-d4-014", "ab100-d4-024"]
+        },
+        {
+          "id": "3.2",
+          "title": "Manage the testing of AI-powered business solutions",
+          "knowledge": [
+            "Evaluation metrics for AI agents: groundedness, relevance, coherence, safety, task completion",
+            "Validation criteria frameworks for custom AI models",
+            "Effective Copilot prompt best practices and how to validate them",
+            "End-to-end test scenario design for multi-app Dynamics 365 solutions",
+            "How Copilot can assist in generating and managing test cases"
+          ],
+          "skills": [
+            "Recommend the process and metrics to test agents",
+            "Create validation criteria of custom AI models",
+            "Validate effective Copilot prompt best practices",
+            "Design end-to-end test scenarios of AI solutions that use multiple Dynamics 365 apps",
+            "Build the strategy for creating test cases by using Copilot"
+          ],
+          "questionIds": ["ab100-d3-004", "ab100-d3-005", "ab100-d3-006", "ab100-d4-020"]
+        },
+        {
+          "id": "3.3",
+          "title": "Design the ALM process for AI-powered business solutions",
+          "knowledge": [
+            "ALM for Copilot Studio: Power Platform solutions, pac CLI, environment strategy, connection references",
+            "ALM for Microsoft Foundry Agents: agent-as-code, deployment pipelines, Key Vault for secrets",
+            "ALM for custom AI models: versioning, model registry, blue-green deployments, rollback",
+            "ALM for data in AI models: data versioning, lineage tracking, ETL pipeline governance",
+            "ALM patterns for AI in Dynamics 365 Finance, Supply Chain, and Customer Experience apps",
+            "Canary deployment and promotion gates for AI solutions"
+          ],
+          "skills": [
+            "Design the ALM process for data used in AI models and agents",
+            "Design the ALM process for Copilot Studio agents, connectors, and actions",
+            "Design the ALM process for Microsoft Foundry Agents service",
+            "Design the ALM process for custom AI models",
+            "Design the ALM process for AI in Dynamics 365 apps for finance and supply chain",
+            "Design the ALM process for AI in Dynamics 365 apps for customer experience and service"
+          ],
+          "questionIds": ["ab100-d3-007", "ab100-d3-008", "ab100-d3-009", "ab100-d4-004", "ab100-d4-008", "ab100-d4-015", "ab100-d4-023"]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Responsible AI & Lifecycle Governance",
+      "weight": 22,
+      "officialWeight": "Tested within Domain 3 (Deploy 40-45%) on the official AB-100 exam",
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "Design responsible AI, security, governance, risk management, and compliance",
+          "knowledge": [
+            "Microsoft Responsible AI principles: Fairness, Reliability & Safety, Privacy & Security, Inclusiveness, Transparency, Accountability",
+            "Azure AI Content Safety capabilities: content filtering, prompt shields, groundedness detection",
+            "EU AI Act risk classification tiers and obligations (minimal, limited, high-risk, prohibited)",
+            "GDPR principles applicable to AI systems: storage limitation, data minimization, right to erasure",
+            "Prompt injection attack types (direct and indirect) and mitigation strategies",
+            "Network isolation patterns: private endpoints, VNet integration, Azure Private DNS",
+            "Access control patterns for grounding data: pre-retrieval filtering, Entra ID on-behalf-of flow",
+            "Immutable audit trail architectures: Azure Blob WORM policy, retention policies",
+            "Model decommissioning and the challenge of right-to-erasure in fine-tuned models",
+            "Shared responsibility model for AI solutions on Azure"
+          ],
+          "skills": [
+            "Design security for agents",
+            "Design governance for agents",
+            "Design model security",
+            "Analyze solution and AI vulnerabilities and mitigations, including prompt manipulation",
+            "Review solution for adherence to responsible AI principles",
+            "Validate data residency and movement compliance",
+            "Design access controls on grounding data and model tuning",
+            "Design audit trails for changes to models and data"
+          ],
+          "questionIds": [
+            "ab100-d4-001", "ab100-d4-002", "ab100-d4-003",
+            "ab100-d4-005", "ab100-d4-006", "ab100-d4-007",
+            "ab100-d4-009", "ab100-d4-010", "ab100-d4-011",
+            "ab100-d4-012", "ab100-d4-013", "ab100-d4-016",
+            "ab100-d4-017", "ab100-d4-018", "ab100-d4-019",
+            "ab100-d4-021", "ab100-d4-022", "ab100-d4-025"
+          ]
+        }
+      ]
+    }
+  ]
+}

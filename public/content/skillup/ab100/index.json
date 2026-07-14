@@ -29,6 +29,7 @@
     "content/skillup/ab100/scenarios/ab100-invoice-processing.json",
     "content/skillup/ab100/scenarios/ab100-compliance-monitoring.json"
   ],
+  "taskStatementsFile": "content/skillup/ab100/task-statements.json",
   "resources": [
     { "label": "AB-100 Study Guide", "url": "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-100" },
     { "label": "Azure AI Foundry Docs", "url": "https://learn.microsoft.com/en-us/azure/ai-foundry/" },
