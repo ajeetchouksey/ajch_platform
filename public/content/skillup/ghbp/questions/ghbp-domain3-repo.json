@@ -148,5 +148,230 @@
     "correct": 1,
     "explanation": "Standardization at scale requires automation. Using the GitHub API (programmatically via a workflow or a governance bot) allows you to audit all repositories for required topics and either apply defaults or flag non-compliant repos via issues. A Wiki page (A) is purely advisory and degrades immediately. Branch protection (C) cannot enforce repository metadata — it only gates branch merges. GitHub's topic suggestions (D) are unstructured and vary widely — they generate tags like 'hacktoberfest' alongside technical topics, not a curated taxonomy.",
     "tags": ["repository-topics", "organization-governance", "API", "discoverability"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-011",
+    "scenario": "A developer tries to commit an AWS secret access key to a repository. Before the push completes, they receive an error from GitHub: 'Push cannot contain secrets.' The secret never reaches the remote repository.",
+    "question": "What GitHub Advanced Security feature blocked the commit at push time rather than after?",
+    "options": [
+      "Secret Scanning — detects secrets in repository history and alerts the team",
+      "Secret Scanning with Push Protection enabled — evaluates pushed commits for known secret patterns before they are accepted by GitHub",
+      "Dependabot — monitors dependencies for known vulnerable packages",
+      "CodeQL — performs semantic code analysis to detect security vulnerabilities"
+    ],
+    "correct": 1,
+    "explanation": "Push Protection is an extension of Secret Scanning that evaluates commits at push time — before they are accepted into the repository. If a commit contains a pattern matching a known secret type (AWS keys, GitHub tokens, Azure credentials, etc.), the push is rejected with an explanation. Standard Secret Scanning (A) runs after the commit is already in the repository and alerts the team retroactively. Dependabot (C) monitors dependencies, not secrets. CodeQL (D) performs static analysis, not secret detection.",
+    "tags": ["push-protection", "secret-scanning", "GitHub-Advanced-Security", "prevention"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-012",
+    "scenario": "A PR introduces a new npm dependency with a known critical CVE. The PR merges before the security team notices. The team wants to block PRs that introduce or update dependencies with open vulnerabilities before they can merge.",
+    "question": "What GitHub-native workflow configuration gates PR merges on dependency vulnerability status?",
+    "options": [
+      "Enable Dependabot alerts — Dependabot will comment on the PR with vulnerability details",
+      "Add the `actions/dependency-review-action` as a workflow step in a PR-triggered workflow and configure it as a required status check — it fails if the PR introduces dependencies with known CVEs",
+      "Require the security team to review all PRs that modify package.json via CODEOWNERS",
+      "Enable GitHub Advanced Security Code Scanning which also checks dependency vulnerabilities"
+    ],
+    "correct": 1,
+    "explanation": "The `actions/dependency-review-action` is a GitHub-maintained action that compares the before/after state of package manifests on a PR and fails the check if any newly introduced dependency has a known vulnerability in the GitHub Advisory Database. When this workflow is listed as a required status check, PRs cannot merge until the dependency review passes. Dependabot alerts (A) inform but don't block. CODEOWNERS review (C) requires humans to evaluate CVEs manually. Code scanning (D) analyzes code patterns, not dependency vulnerability databases.",
+    "tags": ["dependency-review", "CVE", "required-status-check", "supply-chain"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-013",
+    "scenario": "A developer accidentally committed a private RSA key to a repository 30 commits ago. Multiple people have cloned the repository since. The team needs to completely remove the key from all git history, not just the current working tree.",
+    "question": "What is the correct tool and approach for permanently removing a file from ALL git history?",
+    "options": [
+      "Delete the file with `git rm` and push — the file is removed from the repository",
+      "Use `git-filter-repo --path private.key --invert-paths` to rewrite all commits that contain the file, then force-push and have all collaborators re-clone or run `git fetch --all` with a reflog expiry",
+      "Use `git revert` to create a new commit that removes the file",
+      "Contact GitHub Support to delete the specific commit from the repository"
+    ],
+    "correct": 1,
+    "explanation": "git-filter-repo (the modern successor to git filter-branch) rewrites the entire repository history, removing the specified file from every commit that contained it. After running it, force-push all branches and tags to GitHub (requires admin bypass of branch protection temporarily). All existing clones must re-clone or carefully reset — their local copies still have the compromised history. Also rotate the key immediately — assume it's compromised since pushes to GitHub are server-logged. `git rm` (A) only removes from the working tree and latest commit. `git revert` (C) adds a new commit but leaves the original. GitHub Support (D) can delete repository forks but not rewrite commit history.",
+    "tags": ["git-filter-repo", "history-rewrite", "secret-removal", "remediation"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-014",
+    "scenario": "A compliance officer requires that all commits merged to the main branch can be cryptographically verified to have been made by authenticated contributors. Currently, any developer can set any name and email in their git config and commit under another person's identity.",
+    "question": "What combination of controls enforces commit author authenticity?",
+    "options": [
+      "Enable 'Require signed commits' in branch protection and require all contributors to add a verified GPG or SSH signing key to their GitHub account",
+      "Enable Vigilant Mode on all contributor accounts — GitHub marks unverified commits with a warning badge",
+      "Require all contributors to use GitHub Desktop which automatically signs commits",
+      "Use CODEOWNERS to ensure specific users review commits from unknown authors"
+    ],
+    "correct": 0,
+    "explanation": "Signed commits use public-key cryptography to bind the commit to the committer's private key. When 'Require signed commits' is enabled on the branch and the contributor's public key is associated with their GitHub account, GitHub verifies the signature and shows a 'Verified' badge. Unsigned commits are rejected. This prevents identity spoofing — a developer cannot commit as another person without their private key. Vigilant Mode (B) only marks commits, it doesn't require signing. GitHub Desktop (C) doesn't sign by default. CODEOWNERS (D) requires review but doesn't verify commit author identity.",
+    "tags": ["signed-commits", "GPG", "SSH-signing", "identity-verification"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-015",
+    "scenario": "A large enterprise has an internal tool repository that should be visible to all employees across the organization but must not be accessible to the public or to external contributors.",
+    "question": "Which GitHub repository visibility setting is designed for this enterprise use case?",
+    "options": [
+      "Private — restrict access to specific teams within the organization",
+      "Internal — visible to all authenticated members of the GitHub Enterprise organization or enterprise, but not to the public or non-members",
+      "Public — anyone can view; add branch protection to restrict contributions",
+      "Private with 'Everyone' team access at the organization level"
+    ],
+    "correct": 1,
+    "explanation": "Internal visibility is a GitHub Enterprise Cloud and Server feature. Internal repositories are accessible to all authenticated members of the enterprise (across organizations in an enterprise account) but are hidden from the public and non-members. This is the correct model for inner-source: sharing code across the organization without external exposure. Private repositories (A) require explicit team grants — not automatic org-wide access. Public repositories (C) expose code to everyone on the internet. Private with Everyone team (D) is private + manual grant, not true internal visibility.",
+    "tags": ["repository-visibility", "internal", "enterprise", "inner-source"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-016",
+    "scenario": "A team's CI/CD pipeline uses a personal access token (PAT) belonging to a developer to push releases and create GitHub Releases. When the developer leaves the company, their PAT is deactivated and the pipeline breaks. The team asks how to replace it with a non-human credential.",
+    "question": "What is the RECOMMENDED authentication approach for organization-wide automation that doesn't depend on any individual's account?",
+    "options": [
+      "Create a 'bot' GitHub user account with an organization owner role and generate a PAT for it",
+      "Create a GitHub App registered to the organization — it authenticates as the app (not a user), scoped to specific repositories and permissions, generating short-lived installation tokens",
+      "Use a deploy key per repository — each key grants single-repository access",
+      "Store a PAT in GitHub Secrets and rotate it annually"
+    ],
+    "correct": 1,
+    "explanation": "GitHub Apps are the modern standard for automation credentials. They authenticate as the app installation (not a user), have granular permission scopes (e.g., read Contents + write Pull Requests only), generate short-lived JWT installation tokens (1-hour expiry), and are tied to the organization — not any individual's account. When a developer leaves, the app is unaffected. A bot account (A) is against GitHub Terms of Service and creates a personal account with all associated risks. Deploy keys (C) are per-repo and only support read/write repository access — not API operations. Annual PAT rotation (D) still ties automation to a personal account.",
+    "tags": ["GitHub-Apps", "automation", "PAT", "non-human-identity"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-017",
+    "scenario": "A security incident reveals that an attacker gained access to a repository and exfiltrated code over 3 weeks. The security team asks: 'Can we determine exactly what the attacker accessed and what actions they took within GitHub?'",
+    "question": "Where does GitHub record administrative and security-relevant events at the organization level for forensic investigation?",
+    "options": [
+      "The repository's git log — all actions are recorded as commits",
+      "The organization's Audit Log — records all security-relevant events: logins, permission changes, repository access, secret access, webhook configuration, and more, with timestamps and actor identity",
+      "GitHub Insights — shows commit and PR activity by contributor",
+      "The repository's Security tab — shows vulnerability alerts and code scanning results"
+    ],
+    "correct": 1,
+    "explanation": "The Organization Audit Log is GitHub's forensic record. It captures events including: member additions/removals, repository visibility changes, branch protection modifications, secret access, OAuth app authorizations, SAML sessions, and more. Each entry includes the actor, timestamp, IP address, and event details. For GitHub Enterprise, the audit log can be streamed to a SIEM (Splunk, Datadog, etc.) for real-time monitoring. The git log (A) records commits, not access events. GitHub Insights (C) shows productivity metrics. The Security tab (D) shows vulnerability status.",
+    "tags": ["audit-log", "forensics", "incident-response", "organization-security"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-018",
+    "scenario": "A GitHub webhook sends repository push events to an internal deployment system. A security reviewer notes that the webhook endpoint accepts any POST request claiming to be from GitHub — there is no validation that the payload actually came from GitHub.",
+    "question": "What mechanism should be implemented to verify webhook payloads are authentically from GitHub?",
+    "options": [
+      "Restrict the webhook endpoint to GitHub's published IP ranges using a firewall rule",
+      "Configure a webhook secret in GitHub settings; GitHub signs each payload with HMAC-SHA256 using the secret; the receiver validates the `X-Hub-Signature-256` header against the computed HMAC before processing",
+      "Use HTTPS for the webhook endpoint — TLS encryption ensures the payload is authentic",
+      "Check the `X-GitHub-Event` header — only GitHub sends this header"
+    ],
+    "correct": 1,
+    "explanation": "HMAC-SHA256 signature validation is the cryptographic proof that a webhook payload originated from GitHub and was not tampered with in transit. The receiver computes `HMAC-SHA256(secret, body)` and compares it to the `X-Hub-Signature-256` header. If they match, the payload is authentic. IP allowlisting (A) provides some protection but GitHub's IP ranges change and are public — an attacker on GitHub's infrastructure could still forge requests. TLS (C) protects confidentiality in transit but doesn't authenticate the sender. The Event header (D) can be set by anyone making an HTTP request.",
+    "tags": ["webhook-security", "HMAC", "signature-validation", "X-Hub-Signature"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-019",
+    "scenario": "A company's legal team discovers that a repository uses 5 npm packages with GPL v3 licenses. The company's products are distributed as proprietary commercial software. Legal flags this as a license compliance violation requiring immediate remediation.",
+    "question": "What automated control prevents incompatible licenses from being introduced in future PRs?",
+    "options": [
+      "Add a comment to the CONTRIBUTING.md listing prohibited licenses",
+      "Add the `licensee` or `license-checker` tool as a GitHub Actions workflow step that fails the check when newly added dependencies have prohibited license types — configure it as a required status check",
+      "Enable GitHub Dependency Graph which shows all dependency licenses",
+      "Use Dependabot to flag license violations in pull request comments"
+    ],
+    "correct": 1,
+    "explanation": "License compliance tools like `licensee` or `license-checker` analyze dependency manifests, resolve the license type for each package, and can be configured to fail on a blocklist (e.g., GPL, AGPL, LGPL for commercial software). Running this as a required status check on PRs prevents incompatible licenses from being introduced. CONTRIBUTING.md (A) is advisory — developers may not read it. The Dependency Graph (C) shows licenses but doesn't block PRs. Dependabot (D) manages vulnerability patches, not license compliance.",
+    "tags": ["license-compliance", "licensee", "legal", "required-status-check"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-020",
+    "scenario": "A release tag `v2.0.0` was pushed to the repository. Two weeks later, a junior developer accidentally deletes the tag while cleaning up stale branches. The production deployment system, which references `v2.0.0` by tag, fails.",
+    "question": "What branch protection feature prevents tags from being deleted after creation?",
+    "options": [
+      "Enable 'Protect branches' and include tag patterns",
+      "Create a Ruleset targeting `refs/tags/v*` with 'Restrict deletions' and 'Block force pushes' rules — only designated bypass users can delete tags",
+      "Store the tag SHA in a repository variable as a backup reference",
+      "Enable 'Require signed commits' — signed tags cannot be deleted"
+    ],
+    "correct": 1,
+    "explanation": "Rulesets support tag protection by targeting `refs/tags/` patterns. Enabling 'Restrict deletions' on a `refs/tags/v*` pattern prevents anyone (including admins, unless on the bypass list) from deleting tags matching the pattern. 'Block force pushes' prevents moving the tag to a different commit. Classic branch protection (A) only protects branches, not tags. Storing the SHA (C) is a backup for recovery, not prevention. Signed commits (D) verify integrity but don't prevent deletion by authorized users.",
+    "tags": ["tag-protection", "rulesets", "restrict-deletions", "release-management"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-021",
+    "scenario": "A repository for a discontinued product needs to be preserved for legal and audit purposes. The team should not make any new commits, open PRs, or modify the repository, but the code must remain accessible for reading and cloning.",
+    "question": "What GitHub repository state achieves read-only preservation without deletion?",
+    "options": [
+      "Enable branch protection with lock branch on all branches",
+      "Archive the repository — it becomes read-only; existing issues and PRs are locked; no new contributions can be made; the repository is clearly marked as archived for visitors",
+      "Remove all team write permissions and transfer ownership to a dedicated archive team",
+      "Make the repository private with a single read-only viewer account"
+    ],
+    "correct": 1,
+    "explanation": "Archiving is GitHub's purpose-built mechanism for repository preservation. An archived repository is completely read-only: no new commits, issues, PRs, wiki edits, or project changes can be made. Existing content is preserved and the repository is cloneable. GitHub displays a prominent 'Archived' banner so visitors understand the repository is no longer maintained. Branch lock (A) prevents pushes to specific branches but still allows issue creation and other activity. Permission removal (C) requires ongoing management. A private viewer account (D) restricts access unnecessarily.",
+    "tags": ["repository-archiving", "read-only", "preservation", "discontinued"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-022",
+    "scenario": "A third-party security tool performs custom security analysis and produces findings in SARIF (Static Analysis Results Interchange Format). The team wants these findings to appear in the repository's Security tab alongside GitHub's own CodeQL results, and to block PRs when high-severity issues are found.",
+    "question": "How do you integrate third-party SARIF results into GitHub's Security tab and make them a PR gate?",
+    "options": [
+      "Email the SARIF file to the GitHub security team for manual review",
+      "Use `actions/upload-sarif` in the workflow to upload the SARIF file to GitHub Code Scanning; configure the check as a required status check in branch protection to block PRs with critical findings",
+      "Store the SARIF file as a workflow artifact and parse it in a subsequent workflow step",
+      "Convert the SARIF findings to GitHub Issues using the GitHub API"
+    ],
+    "correct": 1,
+    "explanation": "`actions/upload-sarif` is the GitHub-native mechanism for ingesting SARIF results from any tool into Code Scanning. Once uploaded, findings appear in the Security → Code Scanning tab with severity, location, and description. GitHub creates a check run for the upload — if configured as a required status check, PRs with high-severity findings cannot merge. This enables a unified security posture across multiple tools (CodeQL + Snyk + custom scanners) in one interface. Artifacts (C) store files but don't integrate with Code Scanning. GitHub Issues (D) lose the SARIF structure and context.",
+    "tags": ["SARIF", "code-scanning", "upload-sarif", "third-party-integration"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-023",
+    "scenario": "An organization's security team wants to enforce a baseline: all repositories must have Secret Scanning enabled, Dependabot alerts enabled, and private vulnerability reporting configured. Currently, repository owners can disable these settings.",
+    "question": "What GitHub feature enables organization administrators to enforce security settings across all repositories as non-overridable policies?",
+    "options": [
+      "Require all repository owners to sign a security policy agreement",
+      "Configure organization-level security policies in GitHub Enterprise Cloud settings — administrators can enforce Secret Scanning, Dependabot, and other security features organization-wide, preventing individual repositories from disabling them",
+      "Create a GitHub Actions workflow in each repository that verifies settings and opens issues for violations",
+      "Use the GitHub Security Overview dashboard to identify non-compliant repositories and remediate manually"
+    ],
+    "correct": 1,
+    "explanation": "GitHub Enterprise Cloud organization security policies allow administrators to enforce security features at the organization level. When 'Secret Scanning' is set to 'Enabled for all repositories' at the org level, individual repository owners cannot override this setting. The same applies to Dependabot alerts, code scanning, and other security features. Policy agreements (A) are non-technical controls. Workflow checks (C) detect but don't enforce preventively — a repository owner could still disable settings between checks. Security Overview (D) is a monitoring dashboard, not an enforcement mechanism.",
+    "tags": ["organization-policies", "security-enforcement", "enterprise", "baseline-security"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-024",
+    "scenario": "A team deploys to a single production server via SSH. They add an SSH deploy key to the repository for the deployment script. Six months later, the same deploy key is reused for a second server. The key has full write access to the repository.",
+    "question": "What are the two most significant risks with this deploy key configuration?",
+    "options": [
+      "Deploy keys expire after 90 days and must be rotated; shared keys cause expiry confusion",
+      "The key has write access (push) when it only needs read access for deployment; the same key is used across multiple servers, so compromising one server compromises all deployment targets and the repository",
+      "Deploy keys cannot be scoped to specific branches, so they access all branches",
+      "Deploy keys are not supported for private repositories"
+    ],
+    "correct": 1,
+    "explanation": "Two compounding risks: (1) Least-privilege violation — a deployment script that only pulls code needs read-only access. A write-capable key grants the deployment server the ability to push arbitrary code to the repository if the server is compromised. (2) Key reuse across servers — one key per server is the security principle. A single compromised server exposes the key, granting attackers access to all servers using that key plus write access to the repository. The remediation: generate read-only deploy keys, one per server. Deploy keys don't expire automatically (A). Branch scoping (C) is limited but not the primary issue here. Deploy keys work on private repositories (D).",
+    "tags": ["deploy-keys", "least-privilege", "key-reuse", "access-control"]
+  },
+  {
+    "domain": 3,
+    "id": "ghbp-d3-025",
+    "scenario": "A team publishes internal npm packages to GitHub Packages. A new developer's GitHub account is granted 'Read' access to the repository. They try to install the package in their local project using `npm install` but receive a 401 Unauthorized error. They have a GitHub PAT configured in .npmrc.",
+    "question": "What is the most likely cause and correct fix for the 401 error?",
+    "options": [
+      "The npm registry URL in .npmrc is incorrect — it should point to the public npm registry",
+      "The PAT does not have the `read:packages` scope; GitHub Packages authentication requires a token with the appropriate package scope, separate from repository access",
+      "The developer needs admin access to the repository to install packages",
+      "GitHub Packages is only accessible from GitHub Actions workflows, not local development"
+    ],
+    "correct": 1,
+    "explanation": "GitHub Packages uses a separate permission model from repository access. Even if a user has Read access to the repository, their PAT must explicitly include the `read:packages` scope to authenticate against the package registry. For publishing, `write:packages` is required. PATs are created in GitHub Settings → Developer Settings → Personal Access Tokens, where scopes must be explicitly granted. The npm registry URL (A) must be `https://npm.pkg.github.com` — but a URL error would typically produce a different error. Admin access (C) is not required for package consumption. GitHub Packages is accessible from anywhere with a valid token (D).",
+    "tags": ["GitHub-Packages", "PAT-scopes", "read-packages", "npm-registry"]
   }
 ]

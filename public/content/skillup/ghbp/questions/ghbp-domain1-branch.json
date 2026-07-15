@@ -148,5 +148,230 @@
     "correct": 1,
     "explanation": "A layered approach is required: .gitignore prevents accidental adds, Secret Scanning detects known secret patterns across the repository history, a pre-commit hook catches secrets before they're committed locally, and a CI check catches any that pass through. Training (A) and .gitignore alone are insufficient — both rely on developer discipline. Rotating certs (C) is remediation, not prevention. Security review on every PR (D) is expensive and slows development without automated tooling.",
     "tags": ["secret-scanning", "gitignore", "pre-commit", "secrets-prevention"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-011",
+    "scenario": "An organization has 200 repositories. The security team wants to enforce that ALL repositories require at least 1 PR review on main without configuring each repository individually. Classic branch protection requires per-repo setup.",
+    "question": "What GitHub feature enables organization-wide branch protection rules applied across all repositories from a single configuration?",
+    "options": [
+      "Organization-level branch protection policies in Enterprise settings",
+      "GitHub Rulesets — organization-scoped rules targeting repositories by name pattern, topic, or all repositories, applying enforcement without per-repo configuration",
+      "A scheduled GitHub Actions workflow that verifies protection settings across all repos",
+      "A GitHub API script run centrally to set branch protection on each repository"
+    ],
+    "correct": 1,
+    "explanation": "GitHub Rulesets allow organization administrators to create rules targeting multiple repositories simultaneously via name patterns, topics, or all repositories. A single ruleset enforces 'require PR reviews on main' across all 200 repos. Rulesets support a bypass list for service accounts and show enforcement status across the org. Classic branch protection (A) requires per-repo configuration and drifts as new repos are created. A scheduled workflow (C) detects drift but doesn't enforce preventively. An API script (D) sets rules initially but new repositories won't inherit them automatically.",
+    "tags": ["rulesets", "organization-governance", "branch-protection", "scale"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-012",
+    "scenario": "A team debates merge strategy for their main branch. Option A: merge commits (preserves full feature branch history). Option B: squash and merge (compresses all commits to one). Option C: rebase and merge (linear history without a merge commit). The team runs releases from main using conventional commits.",
+    "question": "Which merge strategy best supports automated semantic versioning from conventional commits on main?",
+    "options": [
+      "Merge commits — preserves full context of every commit during development",
+      "Squash and merge — produces a single clean commit per PR on main with a well-formed commit message",
+      "Rebase and merge — replays all feature branch commits onto main preserving individual commit history",
+      "Any strategy works — semantic-release reads PR titles not commit messages"
+    ],
+    "correct": 1,
+    "explanation": "Squash and merge is ideal for conventional-commits-based release automation. It produces one commit per PR on main with a single, deliberate commit message (e.g., 'feat: add payment retry logic') that semantic-release can parse to determine the version bump. WIP commits ('fix typo', 'more changes') from the feature branch are collapsed away. Merge commits (A) carry all developer commits including noisy WIP messages that can interfere with semantic-release parsing. Rebase (C) preserves every commit — again, WIP messages pollute the version signal. Semantic-release reads commit messages not PR titles (D).",
+    "tags": ["merge-strategy", "squash-merge", "conventional-commits", "semantic-release"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-013",
+    "scenario": "A team tags production releases as v1.0.0, v1.1.0, etc. An attacker with write access to the repository moves the v1.0.0 tag to point to a malicious commit. Downstream users running `git checkout v1.0.0` now check out malicious code.",
+    "question": "What branch protection feature prevents tags from being moved or deleted once created?",
+    "options": [
+      "Enable 'Require signed commits' — signed tags cannot be moved",
+      "Configure tag protection rules (or a Ruleset targeting `v*` refs) to restrict who can create, update, or delete tags",
+      "Store tags in a separate protected repository",
+      "Enable 'Require linear history' which also locks existing tags"
+    ],
+    "correct": 1,
+    "explanation": "Tag protection rules (or Rulesets with a `refs/tags/v*` target) restrict which users or teams can create, update, or delete matching tags. Once a release tag is created by the release pipeline, it cannot be moved or deleted by developers. Signed commits (A) verify author identity but don't prevent authorized users from deleting/recreating tags. A separate repository (C) adds operational complexity. Linear history (D) governs branch merges, not tag mutability.",
+    "tags": ["tag-protection", "release-tags", "rulesets", "supply-chain"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-014",
+    "scenario": "A repository has 'Require linear history' enabled on main. A developer tries to merge a PR using a standard merge commit and gets blocked. Their team lead asks why this setting exists.",
+    "question": "What is the PRIMARY benefit of requiring linear history on a protected branch?",
+    "options": [
+      "It forces developers to rebase frequently, improving their Git skills",
+      "It prevents merge commits, resulting in a clean single-line history where `git bisect` can reliably identify the exact commit introducing a bug",
+      "It ensures all commits are reviewed before reaching main",
+      "It reduces the repository size by eliminating merge commit objects"
+    ],
+    "correct": 1,
+    "explanation": "Linear history means every commit on main descends directly from the previous one with no merge bubbles. This makes `git bisect` (binary-search debugging) highly reliable — you can identify the exact commit that introduced a regression. With non-linear history, bisect can land on merge commits that don't represent meaningful code changes. Linear history doesn't enforce reviews (C) — that's branch protection reviews. Repository size impact (D) is negligible. It does encourage rebasing but that's a side effect, not the primary benefit (A).",
+    "tags": ["linear-history", "git-bisect", "merge-strategy", "branch-protection"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-015",
+    "scenario": "A team wants to ensure that a PR can only be merged to main after the Docker image built from that branch has been successfully deployed to a staging environment and passed smoke tests.",
+    "question": "Which branch protection setting gates PR merges on successful deployment to an environment?",
+    "options": [
+      "Required status checks — add the deployment workflow's job name as a required check",
+      "Require deployments to succeed before merging — select the 'staging' environment as a required deployment",
+      "Configure a CODEOWNERS rule requiring the ops team to approve all PRs",
+      "Require conversation resolution so reviewers must explicitly confirm staging is green"
+    ],
+    "correct": 1,
+    "explanation": "'Require deployments to succeed before merging' is a branch protection setting that specifically gates merges on successful deployment to named GitHub Environments. Adding 'staging' means the deployment job must complete and succeed (not just the workflow — the environment deployment specifically) before the PR can merge. Required status checks (A) can gate on workflow jobs but not on environment deployment status specifically. CODEOWNERS approval (C) adds human review, not automated deployment verification. Conversation resolution (D) is manual and requires reviewers to actively confirm.",
+    "tags": ["required-deployments", "staging-gate", "environments", "branch-protection"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-016",
+    "scenario": "A startup engineering team of 5 is deciding between GitFlow (with develop, release, hotfix, and feature branches) and trunk-based development (all work directly on main with feature flags). They ship multiple times per day.",
+    "question": "Which branching strategy better suits a team shipping multiple times daily?",
+    "options": [
+      "GitFlow — it provides clear release management with dedicated release branches",
+      "Trunk-based development — short-lived branches merged to main frequently; feature flags control exposure; eliminates long-running branch merge conflicts",
+      "GitFlow — the develop branch provides a stable integration point",
+      "Neither — teams shipping daily should use a single-branch workflow with no PRs"
+    ],
+    "correct": 1,
+    "explanation": "Trunk-based development (TBD) is optimized for high-frequency delivery. Developers work in branches that live for hours, not days — eliminating merge conflict accumulation. Feature flags decouple deployment from release, allowing incomplete features to be deployed safely. CI runs on every commit to trunk. GitFlow (A, C) adds ceremony: develop, release, and hotfix branches create integration points that slow down teams shipping many times per day. A single-branch no-PR workflow (D) eliminates the review gate that catches regressions.",
+    "tags": ["trunk-based", "branching-strategy", "feature-flags", "GitFlow"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-017",
+    "scenario": "A developer starts work on a large feature that will take 2 weeks. They want to push code to GitHub for backup and to share early with a collaborator without triggering CI runs or appearing in the team's PR review queue.",
+    "question": "What GitHub PR mechanism lets developers share work-in-progress without it being reviewable or mergeable?",
+    "options": [
+      "Open a PR with 'WIP:' prefix in the title — GitHub detects this and blocks merging",
+      "Open a Draft Pull Request — it runs CI but is excluded from required reviews and cannot be merged until marked Ready for Review",
+      "Push to a personal fork and share the branch URL",
+      "Use a feature branch without opening a PR until ready"
+    ],
+    "correct": 1,
+    "explanation": "Draft PRs signal that a PR is not ready for review. GitHub blocks merging draft PRs and they appear separately in the PR list. CI still runs (useful for feedback), but required reviewer assignment is deferred until the author marks it Ready for Review. WIP prefix (A) is a convention — GitHub has no native enforcement for title prefixes. Personal forks (C) complicate collaboration. No-PR branches (D) provide no visibility or CI feedback.",
+    "tags": ["draft-PR", "work-in-progress", "code-review", "CI"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-018",
+    "scenario": "A critical production incident occurs. The engineering lead needs to push an emergency hotfix directly to main to restore service while the normal CI pipeline (20-minute test suite) would cause unacceptable downtime. Branch protection blocks all direct pushes.",
+    "question": "What is the CORRECT way to design an emergency bypass mechanism without permanently weakening branch protection?",
+    "options": [
+      "Temporarily disable branch protection, push the fix, and re-enable it",
+      "Use a GitHub Ruleset with a bypass list containing a dedicated 'break-glass' team; members of that team can bypass only during verified incidents; all bypasses are logged in the organization audit log",
+      "Add the incident responder to the repository admin group to grant bypass rights",
+      "Configure a separate unprotected 'emergency' branch that auto-deploys to production"
+    ],
+    "correct": 1,
+    "explanation": "Rulesets support a bypass list — specific users or teams who can bypass the rules. A 'break-glass' team with a small, audited membership provides a controlled emergency path. Crucially, all bypasses are recorded in GitHub's organization audit log, maintaining forensic traceability. Temporarily disabling protection (A) has a race condition — other changes can slip through during the window. Admin group (C) grants permanent wide-ranging permissions, not just emergency bypass. An unprotected emergency branch (D) creates a persistent security gap.",
+    "tags": ["break-glass", "emergency-bypass", "rulesets", "audit-log"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-019",
+    "scenario": "A CODEOWNERS file contains these two entries:\n`/src/payments/ @payments-team`\n`/src/payments/config/ @security-lead`\nA PR modifies `/src/payments/config/settings.yml`. Which rule applies?",
+    "question": "Which CODEOWNERS rule takes precedence, and why?",
+    "options": [
+      "The first matching rule wins — @payments-team is required",
+      "Both rules apply — both @payments-team AND @security-lead must approve",
+      "The last matching rule wins — @security-lead is required because it's more specific and listed later",
+      "The most specific rule wins regardless of order — @security-lead always wins for config/"
+    ],
+    "correct": 2,
+    "explanation": "CODEOWNERS uses last-match-wins semantics, similar to .gitignore. The file is evaluated top-to-bottom; the LAST matching rule for a given file is the one that applies. `/src/payments/config/` appears after `/src/payments/` and matches the file, so @security-lead is the required reviewer. This is a critical exam trap — teams often assume first-match or most-specific-match wins. The practical implication: put more general rules first, more specific rules last in CODEOWNERS.",
+    "tags": ["CODEOWNERS", "last-match-wins", "precedence", "code-owners"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-020",
+    "scenario": "A compliance requirement states: 'All commits merged to main must be cryptographically signed by a verified identity.' The team wants to enforce this on the GitHub repository, not just through team policy.",
+    "question": "Which branch protection setting enforces commit signing at the repository level?",
+    "options": [
+      "Enable 'Require signed commits' in branch protection — GitHub will reject any push containing unsigned commits",
+      "Configure a GitHub Actions workflow that checks for GPG signatures and fails unsigned commits",
+      "Enable Vigilant Mode in GitHub settings — it marks unsigned commits with an 'Unverified' badge",
+      "Require all developers to add their GPG public key to their GitHub account"
+    ],
+    "correct": 0,
+    "explanation": "'Require signed commits' is a native branch protection rule. When enabled, GitHub rejects any push to the protected branch that contains commits without a verified signature. The signing must use a GPG, SSH, or S/MIME key associated with the committer's GitHub account. A workflow check (B) can detect unsigned commits but runs after the push — it cannot prevent the commit from entering the repository. Vigilant Mode (C) adds visual indicators but doesn't enforce signing. Adding GPG keys to accounts (D) is a prerequisite but doesn't enforce signing.",
+    "tags": ["signed-commits", "GPG", "branch-protection", "compliance"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-021",
+    "scenario": "A PR has 3 reviewers who left comments requesting changes. The author addresses all comments and pushes updates. One reviewer marks their comment as resolved. The PR has sufficient approvals to merge. The team lead wants to prevent premature merging while unresolved reviewer concerns remain open.",
+    "question": "What branch protection setting prevents merging while review conversations are unresolved?",
+    "options": [
+      "Require additional reviewers until all comments are marked resolved",
+      "Enable 'Require conversation resolution before merging' — the merge button is disabled until all conversations on the PR are in Resolved state",
+      "Enable 'Dismiss stale approvals when new commits are pushed' — re-review will address the comments",
+      "Configure a GitHub Actions workflow that counts open comments and fails if any remain"
+    ],
+    "correct": 1,
+    "explanation": "'Require conversation resolution before merging' is a branch protection setting that disables the merge button until every conversation thread on the PR is marked Resolved. This ensures reviewers' concerns are explicitly acknowledged by the author (or the reviewer marks it resolved themselves). Without this, approvals can be collected while unresolved blocking concerns remain in the comment thread. Dismiss stale approvals (C) re-triggers review on new commits but doesn't require resolving existing threads. A workflow check (D) could approximate this but is not the native control.",
+    "tags": ["conversation-resolution", "branch-protection", "code-review", "PR-workflow"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-022",
+    "scenario": "A team is building a feature that requires 3 months of work across 8 developers. They debate: should they maintain a long-lived feature branch, or use trunk-based development with feature flags?",
+    "question": "What is the primary technical risk of maintaining a 3-month long-lived feature branch?",
+    "options": [
+      "Long-lived branches exceed GitHub's branch age limit and are auto-deleted",
+      "Merge conflict accumulation — as main evolves over 3 months, the feature branch diverges significantly; the eventual merge becomes a high-risk 'merge hell' event",
+      "GitHub Actions workflows don't run on branches older than 30 days",
+      "CODEOWNERS rules don't apply to long-lived branches"
+    ],
+    "correct": 1,
+    "explanation": "Long-lived feature branches accumulate divergence from main with every commit that doesn't get merged into the feature branch. After 3 months, the merge can involve thousands of conflicting lines — what teams call 'merge hell.' It also defers integration testing: bugs from the feature interacting with other changes are only discovered at merge time. Feature flags + trunk-based development solve this: the feature ships to production hidden behind a flag, integrating continuously. GitHub has no branch age limit (A). Workflows run normally on all branches (C). CODEOWNERS applies to all branches (D).",
+    "tags": ["long-lived-branches", "merge-conflict", "feature-flags", "trunk-based"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-023",
+    "scenario": "A PR has 2 approvals and all CI checks passing. The author wants to merge it but is in a meeting. They want the PR to merge automatically as soon as all conditions are met.",
+    "question": "What GitHub feature automatically merges a PR once all branch protection requirements are satisfied?",
+    "options": [
+      "Set up a webhook that triggers a merge API call when checks complete",
+      "Enable 'Auto-merge' on the PR — GitHub merges it automatically when all required checks pass and reviews are obtained",
+      "Configure Dependabot to merge approved PRs automatically",
+      "Create a GitHub Actions workflow triggered on pull_request_review that calls the merge API"
+    ],
+    "correct": 1,
+    "explanation": "GitHub's Auto-merge feature (enabled per-PR by the author or a reviewer) queues the PR for automatic merging once all branch protection requirements are satisfied: required reviews collected, status checks passing, conversations resolved. It respects all configured rules — it's not a bypass. The repository must have auto-merge enabled in Settings. Webhooks (A) and Actions workflows (D) can approximate this but are fragile custom implementations. Dependabot auto-merge (C) only applies to dependency update PRs from Dependabot.",
+    "tags": ["auto-merge", "PR-automation", "branch-protection", "workflow"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-024",
+    "scenario": "After a major refactor, a team wants to prevent any new commits to the v1.x maintenance branch while keeping it readable for reference. New development is only happening on main.",
+    "question": "What branch setting makes a branch permanently read-only without deleting it?",
+    "options": [
+      "Archive the branch using the GitHub API",
+      "Enable 'Lock branch' in branch protection rules — the branch becomes read-only; no pushes or merges are permitted",
+      "Remove all team write permissions to the specific branch",
+      "Enable 'Require pull request before merging' with 0 approved reviewers required"
+    ],
+    "correct": 1,
+    "explanation": "'Lock branch' is a branch protection setting that makes the branch entirely read-only. No direct pushes, force pushes, or merges into the branch are permitted — even from administrators (when combined with 'Do not allow bypassing'). The branch remains visible, cloneable, and usable as a reference. Unlike archiving a repository (A), locking a branch doesn't affect other branches. Removing team permissions (C) is complex and doesn't prevent admins from pushing. PR with 0 required reviewers (D) still allows merging.",
+    "tags": ["lock-branch", "read-only", "maintenance-branch", "branch-protection"]
+  },
+  {
+    "domain": 1,
+    "id": "ghbp-d1-025",
+    "scenario": "A team of 15 engineers uses a single `@backend-team` CODEOWNERS entry for all backend code. Every PR requires review from any one of the 15 members. Reviews are often delayed because no specific person feels responsible. The team wants automatic, balanced distribution of review requests.",
+    "question": "What GitHub setting distributes review requests across team members automatically rather than notifying the entire team?",
+    "options": [
+      "Reduce the team size so everyone is individually responsible",
+      "Enable 'Load balance' or 'Round robin' in the GitHub Team's review assignment settings — GitHub automatically assigns a subset of team members per PR based on workload",
+      "Configure a webhook that randomly selects a team member and assigns them via the API",
+      "Create individual CODEOWNERS entries for each developer mapping to their specialty files"
+    ],
+    "correct": 1,
+    "explanation": "GitHub Teams support automatic review assignment with two algorithms: Round robin (each member gets assigned in rotation) and Load balance (members with fewer current review requests get priority). When a PR triggers a CODEOWNERS review from @backend-team, GitHub auto-assigns a configurable number of team members (e.g., 2) rather than requesting all 15. This prevents review diffusion while keeping the CODEOWNERS entry clean. Webhooks (C) are a fragile custom re-implementation of a built-in feature. Per-developer CODEOWNERS (D) creates maintenance overhead and breaks down when people leave.",
+    "tags": ["review-assignment", "load-balance", "round-robin", "team-settings"]
   }
 ]
