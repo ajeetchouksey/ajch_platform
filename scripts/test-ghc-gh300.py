@@ -7,7 +7,7 @@ errors = []
 warnings = []
 
 # 1. Validate index.json
-with open(os.path.join(base, 'index.json')) as f:
+with open(os.path.join(base, 'index.json'), encoding='utf-8') as f:
     idx = json.load(f)
 
 print('=== index.json ===')
@@ -27,7 +27,7 @@ all_questions = {}
 for fname in declared_files:
     path = os.path.join('public', fname)
     try:
-        with open(path) as f:
+        with open(path, encoding='utf-8') as f:
             qs = json.load(f)
         all_questions.update({q['id']: q for q in qs})
         domain_nums = set(q['domain'] for q in qs)
@@ -112,7 +112,7 @@ print('=== Scenario Files ===')
 for sfile in declared_scenarios:
     spath = os.path.join('public', sfile)
     try:
-        with open(spath) as f:
+        with open(spath, encoding='utf-8') as f:
             s = json.load(f)
         sq_count = len(s.get('questions', []))
         print('  [OK  ] {}: {} questions, domains={}'.format(sfile, sq_count, s.get('domains')))
@@ -144,7 +144,7 @@ else:
 print()
 print('=== task-statements.json ===')
 ts_path = os.path.join(base, 'task-statements.json')
-with open(ts_path) as f:
+with open(ts_path, encoding='utf-8') as f:
     ts = json.load(f)
 ts_domains = ts.get('domains', [])
 print('  [OK  ] {} domains defined'.format(len(ts_domains)))
