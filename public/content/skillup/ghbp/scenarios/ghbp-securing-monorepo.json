@@ -1,0 +1,18 @@
+{
+  "id": "ghbp-securing-monorepo",
+  "title": "Securing a Large Monorepo",
+  "officialDescription": "Your organization has migrated 30 microservices into a single GitHub monorepo shared by 5 teams. You need to enforce per-service ownership, prevent unauthorized changes to production-critical paths, detect secrets before they land in main, and gate all merges on passing security checks — without slowing down individual teams.",
+  "primaryDomains": ["Branch Management & Protection", "Repository Security & Governance"],
+  "description": "A fintech company runs payment-service, fraud-service, and compliance-service in one monorepo alongside 27 other microservices. Each service has its own team. The compliance team must approve every change to /services/compliance/. The platform team owns all GitHub Actions workflows. Secret scanning has flagged 3 historical leaks; the CISO wants zero-tolerance push protection enabled. All merges to main must pass a dependency vulnerability scan and a status check named 'security/snyk'. Deleted tags must be recoverable to support audit requirements.",
+  "architecture_notes": "Use GitHub Rulesets at the organization level (not legacy Branch Protection Rules) to apply consistent enforcement across all repositories without per-repo configuration. A single 'monorepo-main' ruleset targets the main branch across all repos matching the pattern 'services-*'. CODEOWNERS uses last-match-wins: place the catch-all (*) at the top and service-specific entries below — the last matching rule wins, so /services/compliance/ @compliance-team at the bottom correctly overrides the global catch-all. Enable GHAS Secret Scanning Push Protection on the org level so pushes containing known secrets are blocked at the client before they reach the server; this is not caught by pull request checks. Add a 'dependency-review' GitHub Actions workflow triggered on pull_request that uses the actions/dependency-review-action to gate on CVSS score > 7. Register 'security/snyk' as a required status check in the Ruleset, not as a branch protection rule, so it scales org-wide. Use Rulesets 'restrict deletions' to protect tags matching 'v*' — this satisfies the audit-trail requirement without using the deprecated Tag Protection Rules API.",
+  "key_patterns": [
+    "Organization-level Rulesets over per-repo Branch Protection Rules",
+    "CODEOWNERS last-match-wins: catch-all (*) at top, specific paths below",
+    "GHAS Secret Scanning Push Protection blocks at push time (not PR time)",
+    "dependency-review-action as required PR gate for CVEs",
+    "Required status check 'security/snyk' registered in Ruleset",
+    "Tag deletion protection via Rulesets 'restrict deletions' on v* pattern",
+    "Required status checks fail open by default if no CI run triggered"
+  ],
+  "questionIds": ["d1-001", "d1-011", "d1-013", "d1-019", "d1-020", "d1-024", "d3-011", "d3-012", "d3-020", "d3-023"]
+}

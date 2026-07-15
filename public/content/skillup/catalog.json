@@ -191,7 +191,10 @@
         "content/skillup/ghbp/questions/ghbp-domain2-actions.json",
         "content/skillup/ghbp/questions/ghbp-domain3-repo.json"
       ],
-      "scenarioFiles": [],
+      "scenarioFiles": [
+        "content/skillup/ghbp/scenarios/ghbp-securing-monorepo.json",
+        "content/skillup/ghbp/scenarios/ghbp-migrating-jenkins-to-actions.json"
+      ],
       "resources": [
         {
           "label": "GitHub Docs: Branch Protection",

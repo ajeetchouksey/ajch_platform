@@ -1,0 +1,19 @@
+{
+  "id": "ghbp-migrating-jenkins-to-actions",
+  "title": "Migrating Jenkins Pipelines to GitHub Actions",
+  "officialDescription": "Your company runs 40 microservices with Jenkins pipelines that are difficult to maintain, have no secrets rotation, and require a dedicated Jenkins admin. Leadership has approved migrating all pipelines to GitHub Actions over 3 sprints. You must maintain security posture, reduce secret sprawl, and achieve feature parity for build, test, and deploy workflows.",
+  "primaryDomains": ["GitHub Actions & CI/CD", "Repository Security & Governance"],
+  "description": "The platform team is migrating a Java microservices build system from Jenkins (scripted pipelines, shared libraries, credentials store) to GitHub Actions. Current state: Jenkins uses static AWS IAM user keys stored in Jenkins credentials; builds run on self-hosted Jenkins agents; 12 pipelines share a common 'build-library'; deploys target staging and production EKS clusters. Target state: OIDC for AWS authentication (no static keys); reusable workflows replace shared library; GitHub Environments gate production deploys; ephemeral self-hosted runners on Kubernetes for GPU workloads; Dependabot auto-merges patch dependency updates to reduce manual toil.",
+  "architecture_notes": "Replace static AWS IAM keys with OIDC (aws-actions/configure-aws-credentials) so GitHub Actions exchanges a short-lived OIDC token for temporary AWS credentials — no secrets stored in GitHub at all. Replace Jenkins shared libraries with reusable workflows (.github/workflows/) called via the 'uses:' key with 'secrets: inherit'; reusable workflows provide the same DRY benefit and are versioned alongside code. Use GitHub Environments with required reviewers for production deployments — the job is paused until an approved reviewer dismisses the gate; set environment protection rules rather than branch conditions. For GPU workloads requiring self-hosted runners: use ephemeral runners (actions-runner-controller on Kubernetes, --ephemeral flag) so each job gets a clean runner and no state bleeds between jobs. Set GITHUB_TOKEN permissions to least-privilege per job (permissions: block at the job level, not just the workflow level) to limit blast radius if a workflow is compromised. Enable Dependabot for npm/Maven with auto-merge on patch updates using a merge-queue-compatible auto-merge workflow. Use concurrency groups per environment to prevent simultaneous production deploys from parallel PRs.",
+  "key_patterns": [
+    "OIDC replaces static IAM keys: no secrets stored in GitHub",
+    "Reusable workflows (uses:) replace Jenkins shared libraries",
+    "GitHub Environments with required reviewers gate production",
+    "Ephemeral self-hosted runners prevent state bleed between jobs",
+    "GITHUB_TOKEN permissions declared at job level, not workflow level",
+    "Dependabot auto-merge scoped to patch updates only",
+    "Concurrency groups per environment prevent parallel production deploys",
+    "pull_request_target: avoid untrusted code execution — never combine with actions/checkout on the PR head"
+  ],
+  "questionIds": ["d2-012", "d2-013", "d2-014", "d2-015", "d2-018", "d2-019", "d2-020", "d2-021", "d2-022", "d2-024", "d3-016", "d3-018"]
+}
