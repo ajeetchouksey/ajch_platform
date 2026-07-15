@@ -5,8 +5,13 @@
     "difficulty": "easy",
     "type": "single",
     "question": "What is the PRIMARY purpose of 'content exclusions' in GitHub Copilot?",
-    "options": ["A. To prevent Copilot from making API calls that exceed usage quotas", "B. To prevent Copilot from accessing and using specific files, directories, or repositories as context when generating suggestions", "C. To block Copilot suggestions in programming languages not supported by the organization", "D. To restrict which users in an organization are allowed to receive Copilot suggestions"],
-    "correct": 1,
+    "options": [
+      "A. To prevent Copilot from accessing and using specific files, directories, or repositories as context when generating suggestions",
+      "B. To prevent Copilot from making API calls that exceed usage quotas",
+      "C. To block Copilot suggestions in programming languages not supported by the organization",
+      "D. To restrict which users in an organization are allowed to receive Copilot suggestions"
+    ],
+    "correct": 0,
     "explanation": "Content exclusions prevent Copilot from using specific files, directories, or repositories as context. This protects sensitive code (credentials, proprietary algorithms, PII-containing files) from being included in Copilot's prompt context."
   },
   {
@@ -15,8 +20,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "Where can content exclusions be configured for GitHub Copilot? Select the most complete answer.",
-    "options": ["A. Only in each developer's individual VS Code settings.json", "B. At repository level (repository settings), organization level (organization Copilot settings), and developer's editor/IDE settings", "C. Only in the organization's Copilot settings — individual repos cannot configure exclusions", "D. Exclusively via the GitHub CLI using `gh copilot exclude` commands"],
-    "correct": 1,
+    "options": [
+      "A. Only in each developer's individual VS Code settings.json",
+      "B. Only in the organization's Copilot settings â€” individual repos cannot configure exclusions",
+      "C. At repository level (repository settings), organization level (organization Copilot settings), and developer's editor/IDE settings",
+      "D. Exclusively via the GitHub CLI using `gh copilot exclude` commands"
+    ],
+    "correct": 2,
     "explanation": "Content exclusions can be configured at multiple levels: repository settings (affects all Copilot users on that repo), organization settings (affects all org repos), and local IDE settings (developer-controlled). Org and repo settings take precedence over individual settings."
   },
   {
@@ -25,8 +35,13 @@
     "difficulty": "easy",
     "type": "single",
     "question": "An administrator at TechNova wants to prevent GitHub Copilot from using any files in the `secrets/` directory as context. Which exclusion format should they use?",
-    "options": ["A. `secrets/*.*`", "B. `secrets/**`", "C. `exclude:secrets/`", "D. `!secrets/`"],
-    "correct": 1,
+    "options": [
+      "A. `secrets/**`",
+      "B. `secrets/*.*`",
+      "C. `exclude:secrets/`",
+      "D. `!secrets/`"
+    ],
+    "correct": 0,
     "explanation": "`secrets/**` is the correct glob pattern to recursively exclude all files and subdirectories within the `secrets/` directory. The `**` wildcard matches any path including subdirectories, ensuring complete exclusion."
   },
   {
@@ -35,7 +50,12 @@
     "difficulty": "easy",
     "type": "single",
     "question": "What is the 'public code filter' (duplication detection filter) in GitHub Copilot?",
-    "options": ["A. A filter that prevents Copilot from suggesting any code at all when using public Wi-Fi networks", "B. An optional filter that prevents Copilot from suggesting code that closely matches known public open-source code, reducing intellectual property and license concerns", "C. A real-time GitHub scan that detects when your code is copied by other GitHub users", "D. A filter that prevents public GitHub users from viewing private organization repositories"],
+    "options": [
+      "A. A filter that prevents Copilot from suggesting any code at all when using public Wi-Fi networks",
+      "B. An optional filter that prevents Copilot from suggesting code that closely matches known public open-source code, reducing intellectual property and license concerns",
+      "C. A real-time GitHub scan that detects when your code is copied by other GitHub users",
+      "D. A filter that prevents public GitHub users from viewing private organization repositories"
+    ],
     "correct": 1,
     "explanation": "The public code filter (duplication detection filter) optionally prevents Copilot from suggesting code that closely matches (~150 characters) publicly available open-source code. This helps organizations manage potential license compliance and IP concerns."
   },
@@ -45,9 +65,14 @@
     "difficulty": "medium",
     "type": "single",
     "question": "Where does an organization administrator enable the public code (duplication detection) filter for GitHub Copilot?",
-    "options": ["A. In each developer's individual VS Code settings under `github.copilot.enable`", "B. In the organization's Copilot settings under 'Suggestions matching public code' — set to 'Blocked' to filter out matches", "C. In the repository's `.github/copilot-config.json` file using `duplication: false`", "D. Via the GitHub CLI using `gh org settings --copilot-public-filter=block`"],
-    "correct": 1,
-    "explanation": "The duplication detection filter is configured in the organization's Copilot settings (Settings → Copilot → Policies) under 'Suggestions matching public code'. Setting it to 'Blocked' prevents suggestions that match publicly known code."
+    "options": [
+      "A. In the organization's Copilot settings under 'Suggestions matching public code' â€” set to 'Blocked' to filter out matches",
+      "B. In each developer's individual VS Code settings under `github.copilot.enable`",
+      "C. In the repository's `.github/copilot-config.json` file using `duplication: false`",
+      "D. Via the GitHub CLI using `gh org settings --copilot-public-filter=block`"
+    ],
+    "correct": 0,
+    "explanation": "The duplication detection filter is configured in the organization's Copilot settings (Settings â†’ Copilot â†’ Policies) under 'Suggestions matching public code'. Setting it to 'Blocked' prevents suggestions that match publicly known code."
   },
   {
     "id": "ghc-d6-006",
@@ -55,8 +80,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "A developer at ClearPath Technologies reports that Copilot is still suggesting content from excluded files. What should they check FIRST?",
-    "options": ["A. Reinstall the GitHub Copilot extension and restart the IDE", "B. Verify the exclusion glob patterns are correctly formatted and that the IDE has been reloaded/restarted after the exclusion was configured", "C. File a support ticket with GitHub — content exclusions should work without any troubleshooting", "D. Disable and re-enable the Copilot enterprise license from the admin console"],
-    "correct": 1,
+    "options": [
+      "A. Reinstall the GitHub Copilot extension and restart the IDE",
+      "B. File a support ticket with GitHub â€” content exclusions should work without any troubleshooting",
+      "C. Verify the exclusion glob patterns are correctly formatted and that the IDE has been reloaded/restarted after the exclusion was configured",
+      "D. Disable and re-enable the Copilot enterprise license from the admin console"
+    ],
+    "correct": 2,
     "explanation": "Common exclusion issues: incorrect glob pattern syntax and IDE not being reloaded after configuration changes. Check glob pattern validity first, then reload the IDE. Content exclusions require the IDE to refresh its configuration state."
   },
   {
@@ -65,8 +95,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "Who owns the intellectual property (IP) of code generated by GitHub Copilot?",
-    "options": ["A. GitHub owns all Copilot-generated code and licenses it back to users", "B. The developer/organization who wrote the prompt and accepted the suggestion — GitHub's terms assign generated output to the user, subject to applicable law", "C. The open-source community, since Copilot was trained on public code", "D. Microsoft owns all AI-generated code under the Azure AI terms of service"],
-    "correct": 1,
+    "options": [
+      "A. GitHub owns all Copilot-generated code and licenses it back to users",
+      "B. The open-source community, since Copilot was trained on public code",
+      "C. The developer/organization who wrote the prompt and accepted the suggestion â€” GitHub's terms assign generated output to the user, subject to applicable law",
+      "D. Microsoft owns all AI-generated code under the Azure AI terms of service"
+    ],
+    "correct": 2,
     "explanation": "Per GitHub's terms of service, developers and organizations own the code they generate and accept using Copilot. GitHub does not claim ownership of generated output. However, IP ownership law around AI-generated content is still evolving."
   },
   {
@@ -75,9 +110,14 @@
     "difficulty": "medium",
     "type": "single",
     "question": "What does GitHub's Copilot Indemnification policy protect organizations against?",
-    "options": ["A. Protection against bugs introduced by Copilot suggestions that pass code review", "B. Protection against certain third-party intellectual property claims arising from using Copilot-generated code, subject to conditions", "C. Full legal liability coverage for any malicious code introduced through Copilot suggestions", "D. Protection against GitHub service outages affecting developer productivity metrics"],
-    "correct": 1,
-    "explanation": "GitHub offers IP indemnification for Copilot — protecting organizations against certain third-party IP claims for code generated by Copilot, subject to conditions including having the public code filter enabled and following responsible use guidelines."
+    "options": [
+      "A. Protection against bugs introduced by Copilot suggestions that pass code review",
+      "B. Full legal liability coverage for any malicious code introduced through Copilot suggestions",
+      "C. Protection against certain third-party intellectual property claims arising from using Copilot-generated code, subject to conditions",
+      "D. Protection against GitHub service outages affecting developer productivity metrics"
+    ],
+    "correct": 2,
+    "explanation": "GitHub offers IP indemnification for Copilot â€” protecting organizations against certain third-party IP claims for code generated by Copilot, subject to conditions including having the public code filter enabled and following responsible use guidelines."
   },
   {
     "id": "ghc-d6-009",
@@ -85,8 +125,13 @@
     "difficulty": "easy",
     "type": "single",
     "question": "A developer opens a file containing database connection strings and API keys. How does GitHub Copilot handle this file?",
-    "options": ["A. Copilot automatically encrypts and stores the credentials in its secure vault", "B. By default, the file's content may be included in Copilot's context; content exclusions should be configured to prevent sensitive credential files from being used as context", "C. Copilot automatically detects and redacts all secrets before including file content in context", "D. Copilot Chat is disabled whenever secret patterns are detected in the active file"],
-    "correct": 1,
+    "options": [
+      "A. Copilot automatically encrypts and stores the credentials in its secure vault",
+      "B. Copilot automatically detects and redacts all secrets before including file content in context",
+      "C. By default, the file's content may be included in Copilot's context; content exclusions should be configured to prevent sensitive credential files from being used as context",
+      "D. Copilot Chat is disabled whenever secret patterns are detected in the active file"
+    ],
+    "correct": 2,
     "explanation": "By default, open file content may be included in Copilot's context. Organizations should configure content exclusions (glob patterns) for files containing credentials, API keys, and sensitive data to prevent accidental inclusion in prompts."
   },
   {
@@ -95,9 +140,14 @@
     "difficulty": "easy",
     "type": "single",
     "question": "What is the correct way to configure content exclusions at the repository level in GitHub?",
-    "options": ["A. Create a file at `.copilot/exclusions` in the root of the repository", "B. Navigate to Repository Settings → Copilot → Content Exclusion and add glob patterns for files/directories to exclude", "C. Add exclusion patterns to the repository's `.gitignore` file", "D. Use the GitHub CLI command `gh repo copilot-exclude --add 'pattern'`"],
-    "correct": 1,
-    "explanation": "Repository-level content exclusions are configured in Repository Settings → GitHub Copilot → Content Exclusion. Organization admins and repo admins with the right permissions can add glob patterns to exclude specific paths."
+    "options": [
+      "A. Create a file at `.copilot/exclusions` in the root of the repository",
+      "B. Use the GitHub CLI command `gh repo copilot-exclude --add 'pattern'`",
+      "C. Add exclusion patterns to the repository's `.gitignore` file",
+      "D. Navigate to Repository Settings â†’ Copilot â†’ Content Exclusion and add glob patterns for files/directories to exclude"
+    ],
+    "correct": 3,
+    "explanation": "Repository-level content exclusions are configured in Repository Settings â†’ GitHub Copilot â†’ Content Exclusion. Organization admins and repo admins with the right permissions can add glob patterns to exclude specific paths."
   },
   {
     "id": "ghc-d6-011",
@@ -105,9 +155,14 @@
     "difficulty": "hard",
     "type": "single",
     "question": "Pinnacle Corp has a monorepo with three projects: `core/` (proprietary algorithms), `shared/` (utilities), and `docs/` (public documentation). Which content exclusion strategy is MOST appropriate?",
-    "options": ["A. Exclude the entire monorepo from Copilot to guarantee no proprietary code is exposed", "B. Configure exclusions for `core/**` only, allowing Copilot to use `shared/` and `docs/` as helpful context", "C. Configure separate Copilot policies for each project within the monorepo", "D. Use the duplication detection filter as the sole protection mechanism for proprietary code"],
-    "correct": 1,
-    "explanation": "Targeted exclusion of `core/**` (proprietary algorithms) while allowing `shared/` and `docs/` provides the best balance — protecting sensitive IP while preserving helpful context from non-proprietary code, maximizing Copilot's usefulness."
+    "options": [
+      "A. Configure exclusions for `core/**` only, allowing Copilot to use `shared/` and `docs/` as helpful context",
+      "B. Exclude the entire monorepo from Copilot to guarantee no proprietary code is exposed",
+      "C. Configure separate Copilot policies for each project within the monorepo",
+      "D. Use the duplication detection filter as the sole protection mechanism for proprietary code"
+    ],
+    "correct": 0,
+    "explanation": "Targeted exclusion of `core/**` (proprietary algorithms) while allowing `shared/` and `docs/` provides the best balance â€” protecting sensitive IP while preserving helpful context from non-proprietary code, maximizing Copilot's usefulness."
   },
   {
     "id": "ghc-d6-012",
@@ -115,8 +170,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "A developer notices Copilot is not providing suggestions in a specific file even though the file is not in their exclusion list. What could cause this?",
-    "options": ["A. The file is too large for Copilot to process (over 1MB)", "B. The file extension may be excluded in the IDE settings, or an organization/repository-level exclusion policy is overriding the developer's configuration", "C. Copilot only works on files with fewer than 500 lines of code", "D. The developer's GitHub subscription has expired and must be renewed"],
-    "correct": 1,
+    "options": [
+      "A. The file is too large for Copilot to process (over 1MB)",
+      "B. The developer's GitHub subscription has expired and must be renewed",
+      "C. Copilot only works on files with fewer than 500 lines of code",
+      "D. The file extension may be excluded in the IDE settings, or an organization/repository-level exclusion policy is overriding the developer's configuration"
+    ],
+    "correct": 3,
     "explanation": "Missing suggestions in a non-excluded file may be caused by: IDE-level extension filtering by file type, or an organization/repository-level content exclusion policy that overrides the developer's local configuration. Check all three levels of exclusion settings."
   },
   {
@@ -125,9 +185,14 @@
     "difficulty": "medium",
     "type": "single",
     "question": "What privacy settings are available to individual GitHub Copilot users that are NOT controlled by organization administrators?",
-    "options": ["A. Individual users have no control over privacy settings — all settings are exclusively admin-controlled", "B. Individual users can control whether Copilot telemetry (code snippets used for training) is shared, when not overridden by an organization policy", "C. Individual users can disable the public code filter regardless of organizational policy", "D. Individual users can create their own content exclusions that override organization-level exclusions"],
-    "correct": 1,
-    "explanation": "Individual users (in personal Copilot subscriptions not governed by org policies) can control telemetry sharing — whether code snippets are used to improve Copilot's models. Organization policies can restrict or override individual privacy settings."
+    "options": [
+      "A. Individual users have no control over privacy settings â€” all settings are exclusively admin-controlled",
+      "B. Individual users can create their own content exclusions that override organization-level exclusions",
+      "C. Individual users can disable the public code filter regardless of organizational policy",
+      "D. Individual users can control whether Copilot telemetry (code snippets used for training) is shared, when not overridden by an organization policy"
+    ],
+    "correct": 3,
+    "explanation": "Individual users (in personal Copilot subscriptions not governed by org policies) can control telemetry sharing â€” whether code snippets are used to improve Copilot's models. Organization policies can restrict or override individual privacy settings."
   },
   {
     "id": "ghc-d6-014",
@@ -135,8 +200,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "An organization administrator wants to verify that content exclusions are working correctly after configuration. What is the recommended validation approach?",
-    "options": ["A. Disable all Copilot suggestions for 24 hours to clear cached content, then re-enable", "B. Open a file that matches an exclusion pattern in the IDE and verify that Copilot does not provide suggestions based on that file's content", "C. Check the GitHub Copilot usage dashboard for a reduction in suggestion count", "D. Run `gh copilot validate-exclusions` from the repository root directory"],
-    "correct": 1,
+    "options": [
+      "A. Open a file that matches an exclusion pattern in the IDE and verify that Copilot does not provide suggestions based on that file's content",
+      "B. Disable all Copilot suggestions for 24 hours to clear cached content, then re-enable",
+      "C. Check the GitHub Copilot usage dashboard for a reduction in suggestion count",
+      "D. Run `gh copilot validate-exclusions` from the repository root directory"
+    ],
+    "correct": 0,
     "explanation": "To validate exclusions: open a file that should be excluded, verify Copilot doesn't suggest content derived from that file, and check that the excluded file isn't surfaced as context in Copilot Chat. Reload the IDE after configuration changes before testing."
   },
   {
@@ -145,8 +215,13 @@
     "difficulty": "easy",
     "type": "single",
     "question": "What are the key limitations of GitHub Copilot's output ownership that organizations should understand?",
-    "options": ["A. No limitations exist — all Copilot-generated code is completely free from legal constraints", "B. IP ownership is governed by user's applicable law, legal landscape for AI-generated content is still evolving, and indemnification applies only when usage guidelines are followed", "C. Copilot-generated code can only be used for non-commercial projects under the free tier", "D. Copilot output is licensed under MIT License and must include attribution to GitHub in all projects"],
-    "correct": 1,
+    "options": [
+      "A. IP ownership is governed by user's applicable law, legal landscape for AI-generated content is still evolving, and indemnification applies only when usage guidelines are followed",
+      "B. No limitations exist â€” all Copilot-generated code is completely free from legal constraints",
+      "C. Copilot-generated code can only be used for non-commercial projects under the free tier",
+      "D. Copilot output is licensed under MIT License and must include attribution to GitHub in all projects"
+    ],
+    "correct": 0,
     "explanation": "Key ownership limitations: (1) AI-generated code IP law is still evolving, (2) indemnification is conditional on following responsible use guidelines, (3) the public code filter should be enabled for maximum IP protection."
   },
   {
@@ -155,9 +230,14 @@
     "difficulty": "hard",
     "type": "single",
     "question": "A security architect at NovaBuild wants to ensure that `.env` files, certificates, and private keys are never used as Copilot context across all repositories. What is the MOST scalable approach?",
-    "options": ["A. Communicate via email asking all developers to manually exclude these files in their local IDE settings", "B. Configure organization-level content exclusions with glob patterns: `**/.env`, `**/*.pem`, `**/*.key`, `**/*.p12`, `**/*.pfx` — applied automatically to all repositories in the org", "C. Require all developers to store credentials in a separate non-Git location — Copilot only reads Git-tracked files", "D. Use repository-level CODEOWNERS to restrict access to sensitive files, which also prevents Copilot from reading them"],
-    "correct": 1,
-    "explanation": "Organization-level content exclusions with glob patterns (`**/.env`, `**/*.pem`, `**/*.key`) apply automatically to all repositories in the organization without requiring per-repo or per-developer configuration — the most scalable and reliable approach."
+    "options": [
+      "A. Communicate via email asking all developers to manually exclude these files in their local IDE settings",
+      "B. Use repository-level CODEOWNERS to restrict access to sensitive files, which also prevents Copilot from reading them",
+      "C. Require all developers to store credentials in a separate non-Git location â€” Copilot only reads Git-tracked files",
+      "D. Configure organization-level content exclusions with glob patterns: `**/.env`, `**/*.pem`, `**/*.key`, `**/*.p12`, `**/*.pfx` â€” applied automatically to all repositories in the org"
+    ],
+    "correct": 3,
+    "explanation": "Organization-level content exclusions with glob patterns (`**/.env`, `**/*.pem`, `**/*.key`) apply automatically to all repositories in the organization without requiring per-repo or per-developer configuration â€” the most scalable and reliable approach."
   },
   {
     "id": "ghc-d6-017",
@@ -165,9 +245,14 @@
     "difficulty": "medium",
     "type": "single",
     "question": "What Copilot audit log events should an organization security team monitor to understand Copilot usage?",
-    "options": ["A. Copilot does not generate audit log events — usage monitoring requires third-party tools", "B. Events such as Copilot policy changes, subscription assignments/removals, and feature flag changes are captured in GitHub's audit log", "C. Audit logs only capture billing changes — not feature-level usage events", "D. Audit log events for Copilot are only available through the GitHub Advanced Security license add-on"],
-    "correct": 1,
-    "explanation": "GitHub's audit log captures Copilot-related events including: policy setting changes, subscription seat assignments and removals, feature enablement changes, and content exclusion updates — enabling security teams to track governance changes."
+    "options": [
+      "A. Copilot does not generate audit log events â€” usage monitoring requires third-party tools",
+      "B. Audit log events for Copilot are only available through the GitHub Advanced Security license add-on",
+      "C. Audit logs only capture billing changes â€” not feature-level usage events",
+      "D. Events such as Copilot policy changes, subscription assignments/removals, and feature flag changes are captured in GitHub's audit log"
+    ],
+    "correct": 3,
+    "explanation": "GitHub's audit log captures Copilot-related events including: policy setting changes, subscription seat assignments and removals, feature enablement changes, and content exclusion updates â€” enabling security teams to track governance changes."
   },
   {
     "id": "ghc-d6-018",
@@ -175,8 +260,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "Which of the following represents a correctly formatted content exclusion glob pattern to exclude all YAML files from an `infra/` directory?",
-    "options": ["A. `exclude: infra/*.yaml`", "B. `infra/**/*.yaml`", "C. `infra/**` (YAML only)", "D. `*.yaml` within the `infra/` folder scope"],
-    "correct": 1,
+    "options": [
+      "A. `infra/**/*.yaml`",
+      "B. `exclude: infra/*.yaml`",
+      "C. `infra/**` (YAML only)",
+      "D. `*.yaml` within the `infra/` folder scope"
+    ],
+    "correct": 0,
     "explanation": "`infra/**/*.yaml` is the correct glob pattern: `infra/` scopes to that directory, `**/` matches any subdirectory depth, `*.yaml` matches all YAML files. This correctly handles YAML files in nested subdirectories within `infra/`."
   },
   {
@@ -185,9 +275,14 @@
     "difficulty": "easy",
     "type": "single",
     "question": "A developer enables the 'suggestions matching public code' filter. What IMMEDIATELY happens to Copilot's behavior?",
-    "options": ["A. Copilot stops providing all suggestions and must be reconfigured from scratch", "B. Copilot filters out suggestions whose code closely matches known publicly available open-source code — unmatched suggestions continue working normally", "C. Copilot adds mandatory source attribution to all suggestions regardless of their origin", "D. The filter only activates after a 24-hour review period by GitHub's safety team"],
-    "correct": 1,
-    "explanation": "Enabling the public code filter causes Copilot to suppress suggestions that closely match (~150 character window) publicly known code. Suggestions that don't match public code continue to work normally — it's a suppression filter, not a full disable."
+    "options": [
+      "A. Copilot filters out suggestions whose code closely matches known publicly available open-source code â€” unmatched suggestions continue working normally",
+      "B. Copilot stops providing all suggestions and must be reconfigured from scratch",
+      "C. Copilot adds mandatory source attribution to all suggestions regardless of their origin",
+      "D. The filter only activates after a 24-hour review period by GitHub's safety team"
+    ],
+    "correct": 0,
+    "explanation": "Enabling the public code filter causes Copilot to suppress suggestions that closely match (~150 character window) publicly known code. Suggestions that don't match public code continue to work normally â€” it's a suppression filter, not a full disable."
   },
   {
     "id": "ghc-d6-020",
@@ -195,9 +290,14 @@
     "difficulty": "medium",
     "type": "single",
     "question": "Which statement MOST accurately describes how content exclusions affect Copilot Chat compared to inline suggestions?",
-    "options": ["A. Content exclusions apply only to inline code suggestions; Copilot Chat always has access to all files regardless of exclusions", "B. Content exclusions apply to both inline suggestions and Copilot Chat — excluded files are not used as context in either feature", "C. Content exclusions apply only to Copilot Chat; inline suggestions always have unrestricted file access", "D. Content exclusions must be configured separately for inline suggestions and Copilot Chat in two different settings panels"],
+    "options": [
+      "A. Content exclusions apply only to inline code suggestions; Copilot Chat always has access to all files regardless of exclusions",
+      "B. Content exclusions apply to both inline suggestions and Copilot Chat â€” excluded files are not used as context in either feature",
+      "C. Content exclusions apply only to Copilot Chat; inline suggestions always have unrestricted file access",
+      "D. Content exclusions must be configured separately for inline suggestions and Copilot Chat in two different settings panels"
+    ],
     "correct": 1,
-    "explanation": "Content exclusions apply to the entire Copilot context-building process — both inline suggestions and Copilot Chat respect the same exclusion configuration. Excluded files will not be used as context in either feature."
+    "explanation": "Content exclusions apply to the entire Copilot context-building process â€” both inline suggestions and Copilot Chat respect the same exclusion configuration. Excluded files will not be used as context in either feature."
   },
   {
     "id": "ghc-d6-021",
@@ -205,7 +305,12 @@
     "difficulty": "hard",
     "type": "single",
     "question": "A CISO at Meridian Analytics asks whether GitHub Copilot Enterprise data (prompts and suggestions) is used to train future models. What is the CORRECT answer?",
-    "options": ["A. Yes — all Enterprise data is used to train models and this cannot be disabled", "B. No — GitHub Copilot Business and Enterprise do not use customer code snippets (prompts or suggestions) to train or improve Copilot models, and telemetry is not used for training by default", "C. Enterprise data is anonymized and then used for training after a 90-day retention window", "D. Enterprise data is used only to fine-tune a tenant-specific model instance for that organization"],
+    "options": [
+      "A. Yes â€” all Enterprise data is used to train models and this cannot be disabled",
+      "B. No â€” GitHub Copilot Business and Enterprise do not use customer code snippets (prompts or suggestions) to train or improve Copilot models, and telemetry is not used for training by default",
+      "C. Enterprise data is anonymized and then used for training after a 90-day retention window",
+      "D. Enterprise data is used only to fine-tune a tenant-specific model instance for that organization"
+    ],
     "correct": 1,
     "explanation": "GitHub Copilot Business and Enterprise explicitly do not use customer prompts or code suggestions to train models. This is a key enterprise data privacy commitment. Individual (Copilot Individual) users can opt out of telemetry-based training in their settings."
   },
@@ -215,8 +320,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "When should a repository administrator choose repository-level content exclusions over organization-level exclusions?",
-    "options": ["A. Repository-level exclusions are always preferred and should be used for all exclusions", "B. Use repository-level exclusions for files that are unique to that repository; use org-level for patterns that should apply consistently across all org repositories", "C. Repository-level exclusions are only available for public repositories; org-level applies to private repos", "D. Repository-level and org-level exclusions perform identically — the choice is purely cosmetic"],
-    "correct": 1,
+    "options": [
+      "A. Repository-level exclusions are always preferred and should be used for all exclusions",
+      "B. Repository-level exclusions are only available for public repositories; org-level applies to private repos",
+      "C. Use repository-level exclusions for files that are unique to that repository; use org-level for patterns that should apply consistently across all org repositories",
+      "D. Repository-level and org-level exclusions perform identically â€” the choice is purely cosmetic"
+    ],
+    "correct": 2,
     "explanation": "Repository-level exclusions are appropriate for repository-specific sensitive content unique to that project. Org-level exclusions are better for consistent policies applied across all repositories (e.g., always exclude `.env` files, always exclude `secrets/`)."
   },
   {
@@ -225,8 +335,13 @@
     "difficulty": "easy",
     "type": "single",
     "question": "Which of the following files should ALWAYS be excluded from GitHub Copilot context as a security best practice?",
-    "options": ["A. TypeScript interface definition files (`.d.ts`) as they contain type exposure risks", "B. Files containing secrets, credentials, and API keys (e.g., `.env`, `*.pem`, `config/secrets.yml`)", "C. Test files because they may expose business logic through test assertions", "D. Markdown documentation files because they may reveal system architecture"],
-    "correct": 1,
+    "options": [
+      "A. TypeScript interface definition files (`.d.ts`) as they contain type exposure risks",
+      "B. Markdown documentation files because they may reveal system architecture",
+      "C. Test files because they may expose business logic through test assertions",
+      "D. Files containing secrets, credentials, and API keys (e.g., `.env`, `*.pem`, `config/secrets.yml`)"
+    ],
+    "correct": 3,
     "explanation": "Security best practice: always exclude files containing credentials, API keys, certificates, and secrets (`.env`, `*.pem`, `secrets.yml`, `credentials.json`). These should not appear in Copilot's prompt context under any circumstances."
   },
   {
@@ -235,8 +350,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "A developer at Apex Engineering configures content exclusions for `tests/fixtures/**` (test data with PII). However, they notice Copilot still suggests content from those files. After verifying the glob pattern is correct, what should they do NEXT?",
-    "options": ["A. Delete the fixture files and recreate them in a different directory", "B. Reload/restart the IDE — content exclusion changes require the IDE to reload its Copilot configuration to take effect", "C. Submit a support ticket to GitHub — content exclusions should work immediately without any IDE action", "D. Downgrade to an older version of the Copilot extension that handles exclusions differently"],
-    "correct": 1,
+    "options": [
+      "A. Reload/restart the IDE â€” content exclusion changes require the IDE to reload its Copilot configuration to take effect",
+      "B. Delete the fixture files and recreate them in a different directory",
+      "C. Submit a support ticket to GitHub â€” content exclusions should work immediately without any IDE action",
+      "D. Downgrade to an older version of the Copilot extension that handles exclusions differently"
+    ],
+    "correct": 0,
     "explanation": "After verifying glob pattern correctness, reload the IDE. Content exclusion configuration changes require the IDE to refresh its Copilot configuration. This is the most common cause of exclusions appearing not to work after correct configuration."
   },
   {
@@ -245,7 +365,12 @@
     "difficulty": "hard",
     "type": "single",
     "question": "An organization enables GitHub Copilot but has concerns about compliance in their financial services environment. Which combination of controls provides the STRONGEST compliance posture?",
-    "options": ["A. Use Copilot Individual licenses for flexibility; trust developers to manage exclusions themselves", "B. Use Copilot Enterprise, configure org-level exclusions for all sensitive directories, enable the public code filter, review audit logs regularly, and establish developer training on responsible use", "C. Disable Copilot Chat and use only inline suggestions to minimize data transmitted to GitHub's servers", "D. Configure content exclusions at the IDE level only — org-level settings create too much administrative overhead"],
+    "options": [
+      "A. Use Copilot Individual licenses for flexibility; trust developers to manage exclusions themselves",
+      "B. Use Copilot Enterprise, configure org-level exclusions for all sensitive directories, enable the public code filter, review audit logs regularly, and establish developer training on responsible use",
+      "C. Disable Copilot Chat and use only inline suggestions to minimize data transmitted to GitHub's servers",
+      "D. Configure content exclusions at the IDE level only â€” org-level settings create too much administrative overhead"
+    ],
     "correct": 1,
     "explanation": "Strongest compliance posture for regulated environments: Enterprise license (no training use), org-level exclusions (consistent, scalable protection), public code filter enabled (IP protection/indemnification), regular audit log review (governance oversight), and developer training (responsible use culture)."
   }

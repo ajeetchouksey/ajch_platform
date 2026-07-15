@@ -5,8 +5,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "Which of the following BEST describes an effective GitHub Copilot prompt structure?",
-    "options": ["A. A single one-word command telling Copilot what to generate", "B. A context-rich description including the goal, relevant constraints, expected input/output format, and examples where helpful", "C. A formal API specification written in YAML or OpenAPI format", "D. Any text typed before pressing Tab to accept a suggestion"],
-    "correct": 1,
+    "options": [
+      "A. A single one-word command telling Copilot what to generate",
+      "B. A formal API specification written in YAML or OpenAPI format",
+      "C. A context-rich description including the goal, relevant constraints, expected input/output format, and examples where helpful",
+      "D. Any text typed before pressing Tab to accept a suggestion"
+    ],
+    "correct": 2,
     "explanation": "Effective prompts include: context (what you're working on), intent (what you want), clarifications (constraints, requirements), and optionally examples. This gives the model sufficient information to generate accurate, relevant suggestions."
   },
   {
@@ -15,8 +20,13 @@
     "difficulty": "easy",
     "type": "single",
     "question": "A developer writes the comment `// Function to process data` as a Copilot prompt. Why will this likely produce poor results?",
-    "options": ["A. Comments are not processed by GitHub Copilot's context-building system", "B. The comment is too vague — it lacks specifics about what data type, what processing logic, and what the expected output format is", "C. GitHub Copilot only reads docstrings, not single-line comments", "D. The comment uses incorrect syntax for triggering Copilot suggestions"],
-    "correct": 1,
+    "options": [
+      "A. Comments are not processed by GitHub Copilot's context-building system",
+      "B. GitHub Copilot only reads docstrings, not single-line comments",
+      "C. The comment is too vague â€” it lacks specifics about what data type, what processing logic, and what the expected output format is",
+      "D. The comment uses incorrect syntax for triggering Copilot suggestions"
+    ],
+    "correct": 2,
     "explanation": "Vague prompts produce generic, often unusable suggestions. Effective prompts specify: exact data type (List[Dict]), transformation required (filter by date, aggregate by category), return type, and any edge cases to handle."
   },
   {
@@ -25,8 +35,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "What is 'zero-shot prompting' when applied to GitHub Copilot?",
-    "options": ["A. Prompting Copilot before any code has been written in the current file", "B. Asking the model to perform a task without providing any examples, relying entirely on the model's pre-trained knowledge", "C. Using Copilot without an internet connection via a local model", "D. Sending an empty prompt to trigger Copilot's default suggestion mode"],
-    "correct": 1,
+    "options": [
+      "A. Asking the model to perform a task without providing any examples, relying entirely on the model's pre-trained knowledge",
+      "B. Prompting Copilot before any code has been written in the current file",
+      "C. Using Copilot without an internet connection via a local model",
+      "D. Sending an empty prompt to trigger Copilot's default suggestion mode"
+    ],
+    "correct": 0,
     "explanation": "Zero-shot prompting means asking the model to perform a task without providing any examples in the prompt. The model relies entirely on its training to generate an appropriate response. Effective for common, well-established patterns."
   },
   {
@@ -35,9 +50,14 @@
     "difficulty": "medium",
     "type": "single",
     "question": "What is 'few-shot prompting' and when is it most effective with GitHub Copilot?",
-    "options": ["A. Using Copilot for only a few files within a larger project", "B. Providing 2–5 concrete examples of the desired input/output pattern before requesting a new completion", "C. Limiting Copilot usage to short code snippets under 10 lines", "D. Sending prompts with fewer than 10 words to maximize model focus"],
-    "correct": 1,
-    "explanation": "Few-shot prompting provides concrete examples (2–5 input/output pairs) before asking for a new completion. Most effective when the pattern is non-standard, domain-specific, or when zero-shot produces inconsistent results."
+    "options": [
+      "A. Using Copilot for only a few files within a larger project",
+      "B. Sending prompts with fewer than 10 words to maximize model focus",
+      "C. Limiting Copilot usage to short code snippets under 10 lines",
+      "D. Providing 2â€“5 concrete examples of the desired input/output pattern before requesting a new completion"
+    ],
+    "correct": 3,
+    "explanation": "Few-shot prompting provides concrete examples (2â€“5 input/output pairs) before asking for a new completion. Most effective when the pattern is non-standard, domain-specific, or when zero-shot produces inconsistent results."
   },
   {
     "id": "ghc-d4-005",
@@ -45,9 +65,14 @@
     "difficulty": "medium",
     "type": "single",
     "question": "A developer at Meridian Analytics wants Copilot to generate a function that transforms financial transaction records. Which prompt approach yields the BEST results?",
-    "options": ["A. `// transform data`", "B. `// Transform List[Dict{amount: float, currency: str, date: str}] to USD using daily rates. Return Dict[str, float] mapping date to total USD. Raise ValueError for unsupported currencies.`", "C. `// financial transformation function for the analytics team`", "D. Just starting to type the function signature with no comment"],
+    "options": [
+      "A. `// transform data`",
+      "B. `// Transform List[Dict{amount: float, currency: str, date: str}] to USD using daily rates. Return Dict[str, float] mapping date to total USD. Raise ValueError for unsupported currencies.`",
+      "C. `// financial transformation function for the analytics team`",
+      "D. Just starting to type the function signature with no comment"
+    ],
     "correct": 1,
-    "explanation": "The detailed prompt specifies the exact input data structure (List[Dict] with typed fields), transformation logic (currency conversion), return type (Dict[str, float]), and error handling (ValueError for unsupported currencies) — leaving no ambiguity for Copilot."
+    "explanation": "The detailed prompt specifies the exact input data structure (List[Dict] with typed fields), transformation logic (currency conversion), return type (Dict[str, float]), and error handling (ValueError for unsupported currencies) â€” leaving no ambiguity for Copilot."
   },
   {
     "id": "ghc-d4-006",
@@ -55,7 +80,12 @@
     "difficulty": "medium",
     "type": "single",
     "question": "How does GitHub Copilot use content from other open editor tabs when building suggestions?",
-    "options": ["A. Copilot only ever uses the currently focused tab for building prompts", "B. Content from open tabs is included as 'neighboring tab' context, providing Copilot knowledge of codebase style, types, and patterns", "C. Open tabs are only used for suggesting import statements, nothing else", "D. Tabs must be explicitly pinned and marked before Copilot uses them as context"],
+    "options": [
+      "A. Copilot only ever uses the currently focused tab for building prompts",
+      "B. Content from open tabs is included as 'neighboring tab' context, providing Copilot knowledge of codebase style, types, and patterns",
+      "C. Open tabs are only used for suggesting import statements, nothing else",
+      "D. Tabs must be explicitly pinned and marked before Copilot uses them as context"
+    ],
     "correct": 1,
     "explanation": "Copilot includes content from other open editor tabs as 'neighboring tab' context in its prompt, enabling it to understand codebase patterns, type definitions, naming conventions, and function signatures from across the project."
   },
@@ -64,10 +94,15 @@
     "domain": 4,
     "difficulty": "medium",
     "type": "single",
-    "question": "Which prompt engineering technique involves showing 2–3 example implementations before asking Copilot to generate a new one following the same pattern?",
-    "options": ["A. Zero-shot prompting", "B. Few-shot prompting", "C. Chain-of-thought prompting", "D. Role prompting"],
+    "question": "Which prompt engineering technique involves showing 2â€“3 example implementations before asking Copilot to generate a new one following the same pattern?",
+    "options": [
+      "A. Zero-shot prompting",
+      "B. Few-shot prompting",
+      "C. Chain-of-thought prompting",
+      "D. Role prompting"
+    ],
     "correct": 1,
-    "explanation": "Few-shot prompting demonstrates 2–3 examples of the desired format/pattern, letting the model infer the pattern and continue it. Particularly effective for enforcing consistent function signatures, docstring formats, or domain-specific patterns."
+    "explanation": "Few-shot prompting demonstrates 2â€“3 examples of the desired format/pattern, letting the model infer the pattern and continue it. Particularly effective for enforcing consistent function signatures, docstring formats, or domain-specific patterns."
   },
   {
     "id": "ghc-d4-008",
@@ -75,9 +110,14 @@
     "difficulty": "easy",
     "type": "single",
     "question": "A developer writes detailed JSDoc comments before a function signature. How does this benefit GitHub Copilot's suggestions?",
-    "options": ["A. It slows Copilot because it must process more tokens before generating a suggestion", "B. It provides Copilot with structured information about parameters, return types, and purpose, improving suggestion accuracy", "C. JSDoc comments are completely ignored by GitHub Copilot's prompt builder", "D. JSDoc only helps in JavaScript files; TypeScript files with interfaces are preferred"],
-    "correct": 1,
-    "explanation": "JSDoc, Python docstrings, and type annotations provide Copilot with structured context about expected behavior, parameter types, and return values — leading to significantly more accurate and correctly-typed suggestions."
+    "options": [
+      "A. It slows Copilot because it must process more tokens before generating a suggestion",
+      "B. JSDoc comments are completely ignored by GitHub Copilot's prompt builder",
+      "C. It provides Copilot with structured information about parameters, return types, and purpose, improving suggestion accuracy",
+      "D. JSDoc only helps in JavaScript files; TypeScript files with interfaces are preferred"
+    ],
+    "correct": 2,
+    "explanation": "JSDoc, Python docstrings, and type annotations provide Copilot with structured context about expected behavior, parameter types, and return values â€” leading to significantly more accurate and correctly-typed suggestions."
   },
   {
     "id": "ghc-d4-009",
@@ -85,8 +125,13 @@
     "difficulty": "easy",
     "type": "single",
     "question": "Which of the following is a prompt engineering BEST practice for getting high-quality Copilot suggestions?",
-    "options": ["A. Use single-character variable names to minimize tokens consumed by the context", "B. Use meaningful, descriptive variable and function names that clearly convey intent and purpose", "C. Always start prompts with a greeting to establish conversational context", "D. Write all prompts in UPPERCASE to signal importance to the model"],
-    "correct": 1,
+    "options": [
+      "A. Use single-character variable names to minimize tokens consumed by the context",
+      "B. Write all prompts in UPPERCASE to signal importance to the model",
+      "C. Always start prompts with a greeting to establish conversational context",
+      "D. Use meaningful, descriptive variable and function names that clearly convey intent and purpose"
+    ],
+    "correct": 3,
     "explanation": "Meaningful, descriptive names (e.g., `calculateCompoundInterest()` vs `calc()`) are one of the most impactful prompt engineering practices. Names provide Copilot with strong semantic signals about the function's purpose and expected behavior."
   },
   {
@@ -95,9 +140,14 @@
     "difficulty": "medium",
     "type": "single",
     "question": "What is 'chat history' in the context of GitHub Copilot Chat prompt engineering?",
-    "options": ["A. A persistent log of all Copilot conversations stored in GitHub's servers", "B. The conversation context from earlier in the current chat session that Copilot uses to maintain coherence and continuity across the conversation", "C. The developer's chat history across all repositories and sessions on all devices", "D. A markdown file that stores frequently used prompts for reuse across sessions"],
-    "correct": 1,
-    "explanation": "Chat history is the conversation context from the current session. Copilot Chat uses previous messages to maintain coherence, remember established context, and provide relevant follow-up responses — each new conversation starts fresh without prior session history."
+    "options": [
+      "A. A persistent log of all Copilot conversations stored in GitHub's servers",
+      "B. A markdown file that stores frequently used prompts for reuse across sessions",
+      "C. The developer's chat history across all repositories and sessions on all devices",
+      "D. The conversation context from earlier in the current chat session that Copilot uses to maintain coherence and continuity across the conversation"
+    ],
+    "correct": 3,
+    "explanation": "Chat history is the conversation context from the current session. Copilot Chat uses previous messages to maintain coherence, remember established context, and provide relevant follow-up responses â€” each new conversation starts fresh without prior session history."
   },
   {
     "id": "ghc-d4-011",
@@ -105,7 +155,12 @@
     "difficulty": "easy",
     "type": "single",
     "question": "A developer asks Copilot: 'Fix the bug in my code.' What critical information is MISSING from this prompt?",
-    "options": ["A. The word 'please' to maintain conversational politeness", "B. Specific context: which function/code has the bug, what the expected behavior is, what the actual wrong behavior is, and any error messages", "C. The programming language being used (assumed from context)", "D. The file name and exact line number in GitHub-compatible format"],
+    "options": [
+      "A. The word 'please' to maintain conversational politeness",
+      "B. Specific context: which function/code has the bug, what the expected behavior is, what the actual wrong behavior is, and any error messages",
+      "C. The programming language being used (assumed from context)",
+      "D. The file name and exact line number in GitHub-compatible format"
+    ],
     "correct": 1,
     "explanation": "Effective debugging prompts need: (1) which code has the issue, (2) what the expected behavior should be, (3) what the actual/wrong behavior is, and (4) any error messages. Without this, Copilot cannot provide targeted assistance."
   },
@@ -115,9 +170,14 @@
     "difficulty": "medium",
     "type": "single",
     "question": "Which approach BEST leverages GitHub Copilot's context-awareness for generating unit tests?",
-    "options": ["A. Opening a separate test file without the implementation file and asking Copilot for tests", "B. Keeping the implementation file open alongside the test file so Copilot has context about function signatures, parameters, return types, and behavior", "C. Copy-pasting the entire implementation code into the Copilot Chat message", "D. Using `/tests` with no additional context or open files"],
-    "correct": 1,
-    "explanation": "Having the implementation file open alongside the test file provides Copilot with function signatures, types, and implementation context — enabling it to generate tests that correctly match the actual function contracts."
+    "options": [
+      "A. Keeping the implementation file open alongside the test file so Copilot has context about function signatures, parameters, return types, and behavior",
+      "B. Opening a separate test file without the implementation file and asking Copilot for tests",
+      "C. Copy-pasting the entire implementation code into the Copilot Chat message",
+      "D. Using `/tests` with no additional context or open files"
+    ],
+    "correct": 0,
+    "explanation": "Having the implementation file open alongside the test file provides Copilot with function signatures, types, and implementation context â€” enabling it to generate tests that correctly match the actual function contracts."
   },
   {
     "id": "ghc-d4-013",
@@ -125,7 +185,12 @@
     "difficulty": "hard",
     "type": "single",
     "question": "A developer at TechNova asks Copilot: 'Using our repository's existing error handling pattern, add error handling to the fetchUserProfile function.' What prompt engineering technique is demonstrated?",
-    "options": ["A. Zero-shot prompting with minimal context", "B. Context-aware prompting that references existing codebase conventions to ensure consistent output", "C. Chain-of-thought prompting with explicit reasoning steps", "D. Role prompting where Copilot is assigned the role of a senior developer"],
+    "options": [
+      "A. Zero-shot prompting with minimal context",
+      "B. Context-aware prompting that references existing codebase conventions to ensure consistent output",
+      "C. Chain-of-thought prompting with explicit reasoning steps",
+      "D. Role prompting where Copilot is assigned the role of a senior developer"
+    ],
     "correct": 1,
     "explanation": "This prompt explicitly references existing codebase conventions ('our repository's existing error handling pattern'), directing Copilot to generate code consistent with established patterns rather than using a generic approach."
   },
@@ -135,9 +200,14 @@
     "difficulty": "medium",
     "type": "single",
     "question": "What does 'prompt process flow' describe in GitHub Copilot Chat?",
-    "options": ["A. The order in which developers should compose their prompts for best results", "B. The technical pipeline: user input → context collection → prompt construction → model inference → response delivery back to the IDE", "C. A flowchart that must be created before using Copilot on a new project", "D. The process of saving and cataloging prompts in the `.github/prompts/` directory"],
-    "correct": 1,
-    "explanation": "The prompt process flow is the technical pipeline: user types a message → Copilot collects context (open files, chat history, workspace) → constructs the full prompt → sends to model → model generates response → response returned to the IDE."
+    "options": [
+      "A. The technical pipeline: user input â†’ context collection â†’ prompt construction â†’ model inference â†’ response delivery back to the IDE",
+      "B. The order in which developers should compose their prompts for best results",
+      "C. A flowchart that must be created before using Copilot on a new project",
+      "D. The process of saving and cataloging prompts in the `.github/prompts/` directory"
+    ],
+    "correct": 0,
+    "explanation": "The prompt process flow is the technical pipeline: user types a message â†’ Copilot collects context (open files, chat history, workspace) â†’ constructs the full prompt â†’ sends to model â†’ model generates response â†’ response returned to the IDE."
   },
   {
     "id": "ghc-d4-015",
@@ -145,8 +215,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "Which prompt engineering principle suggests breaking complex implementation tasks into smaller, sequential Copilot prompts?",
-    "options": ["A. Zero-shot decomposition into parallel tasks", "B. Single-responsibility prompting — asking Copilot to do one specific, well-defined thing at a time", "C. Batch processing — combining all subtasks into one comprehensive prompt", "D. Parallel prompting — submitting multiple prompts simultaneously in separate chat sessions"],
-    "correct": 1,
+    "options": [
+      "A. Zero-shot decomposition into parallel tasks",
+      "B. Parallel prompting â€” submitting multiple prompts simultaneously in separate chat sessions",
+      "C. Batch processing â€” combining all subtasks into one comprehensive prompt",
+      "D. Single-responsibility prompting â€” asking Copilot to do one specific, well-defined thing at a time"
+    ],
+    "correct": 3,
     "explanation": "Single-responsibility prompting breaks complex tasks into focused, one-at-a-time requests. Instead of 'build a complete authentication system', prompt sequentially: 'generate the User model', then 'generate the JWT middleware', etc. This produces higher quality output."
   },
   {
@@ -155,8 +230,13 @@
     "difficulty": "hard",
     "type": "single",
     "question": "A developer at NovaBuild wants Copilot to follow their team's snake_case naming conventions across all sessions. Which combination is MOST effective?",
-    "options": ["A. Mention the convention in each individual Copilot Chat message", "B. Create `.github/copilot-instructions.md` defining the conventions and open representative example files as neighboring context", "C. Add naming convention documentation to the project README", "D. Configure naming conventions in VS Code's settings.json editor preferences"],
-    "correct": 1,
+    "options": [
+      "A. Mention the convention in each individual Copilot Chat message",
+      "B. Configure naming conventions in VS Code's settings.json editor preferences",
+      "C. Add naming convention documentation to the project README",
+      "D. Create `.github/copilot-instructions.md` defining the conventions and open representative example files as neighboring context"
+    ],
+    "correct": 3,
     "explanation": "Combining `copilot-instructions.md` (defines conventions system-level for all Chat interactions) with opening representative example files as neighboring context (demonstrates the pattern concretely) provides both explicit instruction and few-shot exemplars."
   },
   {
@@ -165,18 +245,28 @@
     "difficulty": "medium",
     "type": "single",
     "question": "What is 'role prompting' in the context of GitHub Copilot Chat?",
-    "options": ["A. Asking Copilot to adopt a specific expert persona (e.g., 'Act as a security engineer reviewing this code for OWASP Top 10 vulnerabilities')", "B. Configuring Copilot's user role and permissions in the organization's admin settings", "C. Assigning Copilot to specific files or directories in the CODEOWNERS file", "D. Using the hidden `/role` command to switch Copilot's operating mode between generation and review"],
+    "options": [
+      "A. Asking Copilot to adopt a specific expert persona (e.g., 'Act as a security engineer reviewing this code for OWASP Top 10 vulnerabilities')",
+      "B. Configuring Copilot's user role and permissions in the organization's admin settings",
+      "C. Assigning Copilot to specific files or directories in the CODEOWNERS file",
+      "D. Using the hidden `/role` command to switch Copilot's operating mode between generation and review"
+    ],
     "correct": 0,
-    "explanation": "Role prompting instructs Copilot to adopt a specific expert perspective — security engineer, performance specialist, accessibility auditor. This frames the request from an expert viewpoint, producing more domain-specific and targeted feedback."
+    "explanation": "Role prompting instructs Copilot to adopt a specific expert perspective â€” security engineer, performance specialist, accessibility auditor. This frames the request from an expert viewpoint, producing more domain-specific and targeted feedback."
   },
   {
     "id": "ghc-d4-018",
     "domain": 4,
     "difficulty": "hard",
     "type": "single",
-    "question": "A developer needs Copilot to generate a new function that exactly matches an existing function's style — same error handling, same logging pattern, same variable naming. What is the MOST effective approach?",
-    "options": ["A. Describe the desired style characteristics in a detailed natural language paragraph", "B. Open an example of the existing function in a neighboring editor tab and write a specific comment describing only the new function's unique logic", "C. Copy the existing function into the Copilot Chat message and ask Copilot to modify it", "D. Use the `/style` slash command to lock Copilot into the existing file's style"],
-    "correct": 1,
+    "question": "A developer needs Copilot to generate a new function that exactly matches an existing function's style â€” same error handling, same logging pattern, same variable naming. What is the MOST effective approach?",
+    "options": [
+      "A. Describe the desired style characteristics in a detailed natural language paragraph",
+      "B. Use the `/style` slash command to lock Copilot into the existing file's style",
+      "C. Copy the existing function into the Copilot Chat message and ask Copilot to modify it",
+      "D. Open an example of the existing function in a neighboring editor tab and write a specific comment describing only the new function's unique logic"
+    ],
+    "correct": 3,
     "explanation": "Opening the exemplar function in a neighboring tab provides direct few-shot context. A focused comment on only the new function's unique logic lets Copilot infer style from the example, producing the most style-consistent result."
   },
   {
@@ -185,8 +275,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "When should a developer use `#file:` references over `@workspace` in Copilot Chat?",
-    "options": ["A. `#file:` should always be used because it is faster than `@workspace`", "B. Use `#file:` when you know exactly which file contains the relevant context; use `@workspace` when you need to search across the entire indexed codebase", "C. `#file:` works only offline; `@workspace` requires an active internet connection", "D. `#file:` is only available in VS Code; `@workspace` works across all supported IDEs"],
-    "correct": 1,
+    "options": [
+      "A. `#file:` should always be used because it is faster than `@workspace`",
+      "B. `#file:` is only available in VS Code; `@workspace` works across all supported IDEs",
+      "C. `#file:` works only offline; `@workspace` requires an active internet connection",
+      "D. Use `#file:` when you know exactly which file contains the relevant context; use `@workspace` when you need to search across the entire indexed codebase"
+    ],
+    "correct": 3,
     "explanation": "`#file:` provides targeted, efficient context from a specific known file. `@workspace` searches across all indexed workspace files for broader codebase questions. Use `#file:` for precision; `@workspace` for discovery-type questions."
   },
   {
@@ -195,7 +290,12 @@
     "difficulty": "medium",
     "type": "single",
     "question": "Why is including type information (TypeScript interfaces, Python type hints) important for GitHub Copilot prompt engineering?",
-    "options": ["A. Type information is only relevant for statically typed languages and has no measurable impact on Copilot suggestions", "B. Types provide Copilot explicit information about data structures, enabling type-safe code, correct method usage, and accurate transformations", "C. Type annotations consume tokens that reduce the amount of business logic Copilot can process", "D. Copilot ignores type annotations when generating code and uses only variable names"],
+    "options": [
+      "A. Type information is only relevant for statically typed languages and has no measurable impact on Copilot suggestions",
+      "B. Types provide Copilot explicit information about data structures, enabling type-safe code, correct method usage, and accurate transformations",
+      "C. Type annotations consume tokens that reduce the amount of business logic Copilot can process",
+      "D. Copilot ignores type annotations when generating code and uses only variable names"
+    ],
     "correct": 1,
     "explanation": "Type annotations tell Copilot the exact shape of data structures, enabling it to generate correctly typed code, use appropriate methods, and perform valid transformations without having to guess the underlying data model."
   },
@@ -205,8 +305,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "A developer writes: `// TODO: This function should validate email addresses.` What single improvement would MOST enhance this prompt?",
-    "options": ["A. Remove the `TODO:` prefix and restructure as an imperative command", "B. Add specifics: validation rule (RFC 5321 format), return type (bool), and error handling behavior (return False vs. raise ValueError)", "C. Translate the comment into multiple languages to improve model comprehension", "D. Add the developer's GitHub username as context for personalized suggestions"],
-    "correct": 1,
+    "options": [
+      "A. Remove the `TODO:` prefix and restructure as an imperative command",
+      "B. Add the developer's GitHub username as context for personalized suggestions",
+      "C. Translate the comment into multiple languages to improve model comprehension",
+      "D. Add specifics: validation rule (RFC 5321 format), return type (bool), and error handling behavior (return False vs. raise ValueError)"
+    ],
+    "correct": 3,
     "explanation": "Adding specifics transforms vague intent into an actionable specification: validation standard (RFC 5321), expected return type (bool), and error handling behavior (False vs. exception). This gives Copilot enough information to generate an accurate implementation."
   },
   {
@@ -215,8 +320,13 @@
     "difficulty": "hard",
     "type": "single",
     "question": "Why do shorter, focused prompts often outperform long multi-task prompts in GitHub Copilot?",
-    "options": ["A. Shorter prompts consume fewer tokens, directly reducing API cost per request", "B. Focused prompts reduce context noise — the model can allocate its attention fully to one specific task without confusion from multiple competing instructions", "C. GitHub Copilot has a strict maximum prompt length of 100 characters enforced server-side", "D. Long prompts cause network timeouts because they exceed GitHub's request payload limit"],
-    "correct": 1,
+    "options": [
+      "A. Shorter prompts consume fewer tokens, directly reducing API cost per request",
+      "B. Long prompts cause network timeouts because they exceed GitHub's request payload limit",
+      "C. GitHub Copilot has a strict maximum prompt length of 100 characters enforced server-side",
+      "D. Focused prompts reduce context noise â€” the model can allocate its attention fully to one specific task without confusion from multiple competing instructions"
+    ],
+    "correct": 3,
     "explanation": "Focused, single-task prompts reduce context noise and allow the model to allocate attention effectively. Multi-task prompts cause attention diffusion across competing instructions, leading to lower quality or incomplete responses for each subtask."
   },
   {
@@ -225,8 +335,13 @@
     "difficulty": "medium",
     "type": "single",
     "question": "How does including relevant import statements in the current file improve GitHub Copilot's suggestions?",
-    "options": ["A. Import statements are stripped from the prompt context to reduce token count", "B. Import statements signal which libraries are in scope, allowing Copilot to generate API-compatible suggestions for those specific libraries", "C. Imports only improve suggestions when they appear on the same line as the cursor position", "D. Only type imports (import type) are used by Copilot; runtime imports are ignored"],
-    "correct": 1,
+    "options": [
+      "A. Import statements are stripped from the prompt context to reduce token count",
+      "B. Imports only improve suggestions when they appear on the same line as the cursor position",
+      "C. Import statements signal which libraries are in scope, allowing Copilot to generate API-compatible suggestions for those specific libraries",
+      "D. Only type imports (import type) are used by Copilot; runtime imports are ignored"
+    ],
+    "correct": 2,
     "explanation": "Import statements tell Copilot which libraries are available in scope, enabling it to generate correct API calls for those specific libraries rather than suggesting generic implementations or using unknown/unavailable APIs."
   },
   {
@@ -235,9 +350,14 @@
     "difficulty": "medium",
     "type": "single",
     "question": "A prompt engineering trainer at NovaBuild is teaching junior developers Copilot best practices. Which guideline set is MOST comprehensive?",
-    "options": ["A. Use minimum words to avoid confusing the model", "B. Provide context, be specific about inputs/outputs, use descriptive names, give examples for non-standard patterns, and iterate when results are unsatisfactory", "C. Avoid natural language — use only code comments and type annotations", "D. Use Copilot Chat exclusively for complex tasks; never use inline suggestions for anything beyond simple completions"],
-    "correct": 1,
-    "explanation": "Comprehensive best practices: provide context → be specific (inputs/outputs/constraints) → use descriptive naming → provide examples for non-standard patterns → iterate on unsatisfactory results. This covers all key dimensions of effective prompt engineering."
+    "options": [
+      "A. Use minimum words to avoid confusing the model",
+      "B. Avoid natural language â€” use only code comments and type annotations",
+      "C. Provide context, be specific about inputs/outputs, use descriptive names, give examples for non-standard patterns, and iterate when results are unsatisfactory",
+      "D. Use Copilot Chat exclusively for complex tasks; never use inline suggestions for anything beyond simple completions"
+    ],
+    "correct": 2,
+    "explanation": "Comprehensive best practices: provide context â†’ be specific (inputs/outputs/constraints) â†’ use descriptive naming â†’ provide examples for non-standard patterns â†’ iterate on unsatisfactory results. This covers all key dimensions of effective prompt engineering."
   },
   {
     "id": "ghc-d4-025",
@@ -245,8 +365,13 @@
     "difficulty": "easy",
     "type": "single",
     "question": "What happens to Copilot Chat context when a developer starts a 'New Conversation'?",
-    "options": ["A. All previous conversations are permanently deleted from GitHub's global servers", "B. The previous chat history is cleared and Copilot starts fresh without prior context — useful for avoiding context pollution when switching tasks", "C. Starting a new conversation counts as a new usage session and increments subscription billing", "D. Chat history is archived automatically to `.github/copilot-history/` before being cleared"],
-    "correct": 1,
+    "options": [
+      "A. All previous conversations are permanently deleted from GitHub's global servers",
+      "B. Chat history is archived automatically to `.github/copilot-history/` before being cleared",
+      "C. Starting a new conversation counts as a new usage session and increments subscription billing",
+      "D. The previous chat history is cleared and Copilot starts fresh without prior context â€” useful for avoiding context pollution when switching tasks"
+    ],
+    "correct": 3,
     "explanation": "Starting a new conversation clears the session chat history context. This is useful when switching to an unrelated task, as previous conversation context can pollute new requests. Use new conversations for clean, focused assistance on different topics."
   }
 ]
