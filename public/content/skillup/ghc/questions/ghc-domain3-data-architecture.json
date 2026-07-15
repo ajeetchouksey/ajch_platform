@@ -1,0 +1,252 @@
+[
+  {
+    "id": "ghc-d3-001",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "When a developer triggers a GitHub Copilot inline suggestion, which data is sent to GitHub's servers to generate the completion?",
+    "options": ["A. The entire repository codebase and git history", "B. A constructed prompt from code context near the cursor — surrounding code, open file tabs, and imports", "C. Only the last line of code that the developer typed", "D. The developer's entire Copilot Chat history across all projects"],
+    "correct": 1,
+    "explanation": "Copilot sends a constructed prompt — including code context near the cursor, surrounding code snippets, open editor tab contents, and import statements — to GitHub's servers. It does NOT send the entire repository."
+  },
+  {
+    "id": "ghc-d3-002",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "What is the role of GitHub's proxy in the GitHub Copilot architecture?",
+    "options": ["A. The proxy stores all accepted code suggestions in a cache for reuse across developers", "B. The proxy sits between the IDE and the AI model, filtering both requests and responses for content policy compliance and safety", "C. The proxy forwards Copilot requests directly to an external third-party AI model", "D. The proxy is responsible for distributing Copilot IDE extension updates"],
+    "correct": 1,
+    "explanation": "GitHub's Copilot proxy sits between the IDE and the AI model, performing input filtering (on the way in) and post-processing (on the way out) — including content policy compliance, public code matching, and safety checks."
+  },
+  {
+    "id": "ghc-d3-003",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "During the 'post-processing' phase of GitHub Copilot's suggestion pipeline, what operation may occur?",
+    "options": ["A. The suggestion is emailed to the developer's team lead for approval", "B. Suggestions that closely match public code above a similarity threshold may be filtered when the public code filter is enabled", "C. The suggestion is automatically committed and pushed to the remote repository", "D. Post-processing compiles the suggestion to verify it is syntactically correct"],
+    "correct": 1,
+    "explanation": "Post-processing is applied after the model generates a completion. It includes filtering suggestions that match public code (when the duplicate detection filter is enabled), content policy enforcement, and other safety checks before sending to the IDE."
+  },
+  {
+    "id": "ghc-d3-004",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which of the following CORRECTLY describes the code suggestion lifecycle in GitHub Copilot?",
+    "options": ["A. Developer writes code → Copilot trains on it → Copilot generates personalized suggestions → suggestion auto-committed", "B. Developer types → context collected → prompt constructed → sent to model → model generates completion → post-processing → suggestion displayed in IDE", "C. Developer opens file → Copilot scans entire repository → selects best match → sends suggestions via notification", "D. Code is uploaded to GitHub → Copilot analyzes the commit history → sends suggestions via email"],
+    "correct": 1,
+    "explanation": "The lifecycle: developer types → context is collected (surrounding code, tabs, imports) → a prompt is constructed → sent to the model → model generates completions → post-processing (filtering, safety) → displayed as ghost text in the IDE."
+  },
+  {
+    "id": "ghc-d3-005",
+    "domain": 3,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "A developer uses GitHub Copilot with a newly released framework that launched 3 months ago. Why might suggestion quality be lower than expected?",
+    "options": ["A. GitHub Copilot does not support frameworks released outside the US", "B. LLMs have a training data cutoff date; the framework may have launched after the model's knowledge cutoff", "C. Copilot requires a framework-specific extension to be installed separately", "D. New frameworks require manual indexing by GitHub before Copilot can suggest code"],
+    "correct": 1,
+    "explanation": "LLMs have a training cutoff date after which they have no knowledge of new frameworks, APIs, or libraries. Developers should verify Copilot suggestions against current documentation for recently released technologies."
+  },
+  {
+    "id": "ghc-d3-006",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which of the following telemetry data does GitHub Copilot collect from Individual subscribers by default?",
+    "options": ["A. The full contents of every file the developer opens in their IDE", "B. Suggestion acceptance/rejection rates, latency metrics, and aggregated usage patterns", "C. The developer's keystrokes and cursor movements in real time", "D. All code committed to GitHub repositories linked to the developer's account"],
+    "correct": 1,
+    "explanation": "By default, Copilot collects telemetry including suggestion acceptance/rejection rates, latency data, and aggregated usage metrics. It does NOT collect the full content of every file or real-time keystrokes. This can be disabled in settings."
+  },
+  {
+    "id": "ghc-d3-007",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "How does GitHub Copilot determine which code context to include when constructing a prompt for inline suggestions?",
+    "options": ["A. It always sends the complete content of the currently active file", "B. It uses code surrounding the cursor position, content from open editor tabs, file imports/includes, and related contextual signals", "C. It randomly selects 10 lines from anywhere in the repository", "D. It only uses the code on the current line where the cursor is positioned"],
+    "correct": 1,
+    "explanation": "Copilot's prompt building algorithm selects: code before and after the cursor, content from other open editor tabs (neighboring tab context), import/require statements, and other contextual signals — all within the model's context window limit."
+  },
+  {
+    "id": "ghc-d3-008",
+    "domain": 3,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "For GitHub Copilot Business and Enterprise plans, does GitHub use customer code to train the underlying Copilot model?",
+    "options": ["A. Yes, all customer code is used anonymously to improve the model", "B. No, GitHub explicitly does not use code from Business or Enterprise plans to train or fine-tune the Copilot model", "C. Only anonymized code snippets from accepted suggestions are used for training", "D. Training data opt-in is configurable per repository by organization admins"],
+    "correct": 1,
+    "explanation": "For Business and Enterprise plans, GitHub explicitly states it does NOT use customer code (prompts or suggestions) to train or improve the underlying Copilot model. This is a key privacy commitment for enterprise customers."
+  },
+  {
+    "id": "ghc-d3-009",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "What is the 'context window' in the context of GitHub Copilot's AI model?",
+    "options": ["A. The IDE editor window that displays Copilot suggestions alongside code", "B. The maximum amount of text (tokens) the model can process in a single prompt request", "C. A settings panel for configuring which editor windows Copilot is active in", "D. The time window during which a suggestion can be accepted before it expires"],
+    "correct": 1,
+    "explanation": "The context window is the maximum number of tokens (code, comments, context) the model can process at once. Content exceeding this limit is dropped. This is a fundamental LLM architectural constraint that affects how much context Copilot can use."
+  },
+  {
+    "id": "ghc-d3-010",
+    "domain": 3,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "A developer has 5 files open in their IDE while working with GitHub Copilot. How does Copilot use these open files?",
+    "options": ["A. Copilot ignores all open files except the currently active file with focus", "B. Copilot may use content from open editor tabs as additional 'neighboring tab' context when building prompts", "C. All open files are automatically uploaded to GitHub for full repository analysis", "D. Open files are used to train a personalized model instance for the developer"],
+    "correct": 1,
+    "explanation": "GitHub Copilot uses content from open editor tabs as 'neighboring tab' context signals when building prompts, enabling more contextually relevant suggestions based on broader codebase knowledge."
+  },
+  {
+    "id": "ghc-d3-011",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which statement about GitHub Copilot data handling is MOST accurate for an Individual subscriber?",
+    "options": ["A. No code data is ever transmitted to GitHub's servers — all processing is local", "B. Code context snippets are transmitted to GitHub's servers to generate suggestions; telemetry may also be collected", "C. The entire repository is uploaded to GitHub's AI servers when Copilot is first enabled", "D. Individual subscriber data handling follows exactly the same policy as Enterprise subscribers"],
+    "correct": 1,
+    "explanation": "For Individual subscribers, code context snippets are transmitted to generate suggestions, and telemetry (suggestion acceptance rates, latency) may be collected. Individual subscribers have fewer privacy guarantees than Business/Enterprise."
+  },
+  {
+    "id": "ghc-d3-012",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "What does 'input filtering' refer to in GitHub Copilot's architecture?",
+    "options": ["A. Filtering which file types appear in the IDE's file explorer sidebar", "B. Processing applied to prompts BEFORE they reach the AI model to check for content policy violations", "C. Filtering which programming languages Copilot can generate suggestions for", "D. Rate limiting applied to specific developer accounts that exceed usage thresholds"],
+    "correct": 1,
+    "explanation": "Input filtering is applied to prompts before they reach the AI model. This may include checks for sensitive content patterns, content policy violations, and other pre-processing that ensures only appropriate prompts reach the model."
+  },
+  {
+    "id": "ghc-d3-013",
+    "domain": 3,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "Why is GitHub Copilot's underlying model NOT retrained in real-time on user code as developers use it?",
+    "options": ["A. Real-time retraining is technically impossible with current deep learning architectures", "B. To protect user code privacy; models are not retrained on individual user prompts in real-time — model updates follow separate training and release cycles", "C. Real-time retraining would make the model too specific to each user, reducing its general usefulness", "D. GitHub lacks the computational infrastructure for continuous real-time retraining at scale"],
+    "correct": 1,
+    "explanation": "Copilot models are not retrained in real-time on user prompts. This protects user privacy and ensures consistent model behavior. Model updates follow separate training pipelines and planned release cycles independent of individual user sessions."
+  },
+  {
+    "id": "ghc-d3-014",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer at Apex Engineering is concerned about what data leaves their machine when using GitHub Copilot. Which of the following is sent to GitHub's servers?",
+    "options": ["A. Nothing — all suggestion generation happens entirely on-device", "B. Code context snippets (surrounding code, open file contents, imports) used to construct the prompt", "C. The developer's entire local file system and project directories", "D. The developer's complete Copilot Chat history across all repositories and sessions"],
+    "correct": 1,
+    "explanation": "When generating suggestions, code context snippets (not the entire repo or file system) are sent to GitHub's servers. Specifically: code around the cursor, open tab contents, import statements, and similar contextual data used to build the prompt."
+  },
+  {
+    "id": "ghc-d3-015",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which BEST describes how Copilot handles the training data cutoff limitation when generating code for rapidly evolving APIs?",
+    "options": ["A. Copilot automatically searches the internet for the latest API documentation before responding", "B. Copilot generates suggestions based on historical training patterns; developers must validate against current API documentation", "C. Copilot displays a warning banner whenever it detects potentially outdated API usage in a suggestion", "D. Copilot integrates with GitHub's repository index for real-time knowledge updates"],
+    "correct": 1,
+    "explanation": "Copilot cannot self-update its knowledge past its training cutoff. Suggestions for rapidly evolving APIs may reflect older versions. Developers must verify suggestions against current documentation, especially for frequently updated frameworks and libraries."
+  },
+  {
+    "id": "ghc-d3-016",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Where does the computational inference for generating GitHub Copilot suggestions primarily occur?",
+    "options": ["A. Entirely on the developer's local machine using local GPU resources", "B. On GitHub's cloud infrastructure (Microsoft Azure), not locally on the developer's machine", "C. On the developer's organization's private on-premises servers", "D. In a browser-based WebAssembly runtime within the IDE itself"],
+    "correct": 1,
+    "explanation": "GitHub Copilot's AI inference runs on GitHub's cloud infrastructure (powered by Azure). The local IDE extension sends context to GitHub's servers, which run the model and return suggestions — no local AI computation is required."
+  },
+  {
+    "id": "ghc-d3-017",
+    "domain": 3,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "GitHub Copilot Enterprise provides enhanced data isolation compared to Business. What does this mean in practice?",
+    "options": ["A. Enterprise user data is stored on geographically separate servers from Individual users", "B. Enterprise customer code is processed in isolated environments, not used for model training, and subject to stricter data handling commitments and enterprise agreements", "C. Enterprise users have dedicated physical server racks allocated exclusively for their Copilot usage", "D. Enterprise allows running Copilot entirely on the organization's own on-premises infrastructure"],
+    "correct": 1,
+    "explanation": "Copilot Enterprise provides stronger data isolation — customer prompts and code are not used for model training, processed under enterprise compliance commitments, with additional administrative controls and features beyond Business plan capabilities."
+  },
+  {
+    "id": "ghc-d3-018",
+    "domain": 3,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "A team uses both Python and TypeScript in the same monorepo. How does GitHub Copilot handle multi-language codebases?",
+    "options": ["A. Copilot only supports one language per repository — you must choose the primary language in settings", "B. Copilot provides suggestions across multiple languages within the same codebase, using the appropriate language context from surrounding files", "C. Copilot requires a separate subscription add-on for each additional programming language", "D. Copilot defaults to the most common language in the repository and ignores others"],
+    "correct": 1,
+    "explanation": "GitHub Copilot is language-agnostic and can provide suggestions across multiple languages in the same codebase. It adapts its suggestions based on the language context of the file around the cursor."
+  },
+  {
+    "id": "ghc-d3-019",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "What is the significance of 'prompt building' in GitHub Copilot's architecture?",
+    "options": ["A. Prompt building is the VS Code UI panel where developers type questions to Copilot Chat", "B. Prompt building is the process of constructing the optimal input for the AI model by selecting and prioritizing available context within the context window", "C. Prompt building converts generated code back to pseudocode for the model to validate", "D. Prompt building is the security review process applied to all developer queries before processing"],
+    "correct": 1,
+    "explanation": "Prompt building is the critical architectural step where Copilot constructs the input sent to the AI model — selecting, prioritizing, and fitting the most relevant context (neighboring code, open tabs, file structure) within the model's context window limit."
+  },
+  {
+    "id": "ghc-d3-020",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which statement about GitHub Copilot's public code matching (duplication detection) filter is MOST accurate?",
+    "options": ["A. The filter blocks all code suggestions that bear any resemblance to any public code", "B. When enabled, the filter detects suggestions that closely match public code on GitHub.com and suppresses them to reduce inadvertent license compliance issues", "C. The filter automatically attaches open-source licenses to AI-generated code", "D. The duplication detection filter only works for JavaScript and Python code"],
+    "correct": 1,
+    "explanation": "The public code matching filter (when enabled) detects suggestions that closely match public code on GitHub.com and suppresses those specific suggestions. This helps developers avoid inadvertently reproducing publicly licensed code."
+  },
+  {
+    "id": "ghc-d3-021",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "What types of context does GitHub Copilot use beyond the currently active file?",
+    "options": ["A. Only files in the same directory as the currently active file", "B. Content from other open editor tabs, import/require statements in the current file, and related workspace contextual signals", "C. All files from the most recent commit on the repository's default branch", "D. Only test files that are associated with the currently active implementation file"],
+    "correct": 1,
+    "explanation": "Beyond the active file, Copilot uses: other open editor tabs (neighboring tab context), import/require statements (to understand dependencies), and other contextual signals from the workspace to build a richer prompt."
+  },
+  {
+    "id": "ghc-d3-022",
+    "domain": 3,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "Why might GitHub Copilot sometimes suggest insecure code patterns such as SQL concatenation or weak hashing?",
+    "options": ["A. Copilot is intentionally designed to present insecure patterns to test developer security awareness", "B. Copilot was trained on public code that includes repositories with insecure patterns, and the model may reproduce these without awareness of their security implications", "C. Insecure suggestions are a bug in the post-processing pipeline that GitHub is actively fixing", "D. Insecure suggestions only appear in free trial versions of Copilot, not paid subscriptions"],
+    "correct": 1,
+    "explanation": "Since Copilot was trained on public code — which includes repositories with SQL injection patterns, weak MD5 hashing, hardcoded credentials — it may reproduce these patterns without awareness of the security implications."
+  },
+  {
+    "id": "ghc-d3-023",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "How does Copilot suggestion quality correlate with programming language representation in training data?",
+    "options": ["A. Suggestion quality is identical across all programming languages Copilot supports", "B. Suggestion quality is generally higher for languages well-represented in training data (Python, JavaScript, TypeScript) and may be lower for niche or newer languages", "C. Copilot only provides suggestions for languages with over 1 billion public lines on GitHub", "D. Less common languages receive better suggestions because the model focuses more attention on them"],
+    "correct": 1,
+    "explanation": "Copilot's suggestion quality correlates with a language's representation in its training corpus. Widely used languages (Python, JavaScript, TypeScript, Go) typically produce higher quality suggestions than niche or recently created languages."
+  },
+  {
+    "id": "ghc-d3-024",
+    "domain": 3,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "What is the purpose of GitHub's Trust Center in the context of GitHub Copilot data handling?",
+    "options": ["A. A feature for certifying and marking AI-generated code as safe for production use", "B. A resource where GitHub publishes its data handling policies, security certifications, compliance reports, and privacy practices for Copilot and other products", "C. A private admin dashboard for enterprise customers to view their specific data processing records", "D. A GitHub Action that automatically scans Copilot suggestions for data compliance violations"],
+    "correct": 1,
+    "explanation": "GitHub's Trust Center (github.com/trust-center) is where GitHub publishes its data handling policies, security certifications (SOC 2, ISO 27001), compliance documentation, and privacy practices for its products including Copilot."
+  },
+  {
+    "id": "ghc-d3-025",
+    "domain": 3,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "A developer at NovaBuild asks: 'Does GitHub Copilot use my organization's private repository code to train its models?' What is the correct answer for a Copilot Business subscriber?",
+    "options": ["A. Yes, all code is anonymized and then used to improve future model versions", "B. No — for Business and Enterprise plans, GitHub does not use code from prompts or suggestions to train or fine-tune the Copilot model", "C. Yes, but only code from repositories marked as 'public' within the organization", "D. Training data usage depends on the individual developer's telemetry opt-in settings"],
+    "correct": 1,
+    "explanation": "For Copilot Business and Enterprise plans, GitHub explicitly commits that customer code from prompts and suggestions is NOT used to train or fine-tune the GitHub Copilot model. This is a fundamental enterprise privacy guarantee."
+  }
+]
