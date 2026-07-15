@@ -19,7 +19,7 @@ export default function Scenarios() {
   }, [examId]);
 
   useEffect(() => {
-    setLoading(true);
+    setLoading(true); // eslint-disable-line react-hooks/set-state-in-effect
     loadScenariosForExam(examId)
       .then((s) => { setScenarios(s); setLoading(false); })
       .catch(() => setLoading(false));

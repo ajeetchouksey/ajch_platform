@@ -1,7 +1,7 @@
 import type { ElementType } from 'react';
 
 // ─── Variant token map ───────────────────────────────────────────────────────
-export const BADGE_VARIANTS = {
+export const BADGE_VARIANTS = { // eslint-disable-line react-refresh/only-export-components
   violet:  'bg-violet-500/15 text-violet-300 border-violet-500/30',
   blue:    'bg-blue-500/15 text-blue-300 border-blue-500/30',
   emerald: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',

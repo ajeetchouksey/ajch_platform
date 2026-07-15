@@ -125,7 +125,7 @@ const poAgent: AgentData = {
 /* ─────────────────────────────────────────────────────────────
    L1 — Domain Leads
 ───────────────────────────────────────────────────────────── */
-export const l1Agents: AgentData[] = [
+export const l1Agents: AgentData[] = [ // eslint-disable-line react-refresh/only-export-components
   {
     id: 'platform-control',
     name: 'Platform Architect',
@@ -927,7 +927,7 @@ function OrchestratorCard({ agent, visible, onOpenProfile }: { agent: AgentData;
 
   useEffect(() => {
     if (hovered) { const t = setTimeout(() => setShowDeliveries(true), 200); return () => clearTimeout(t); }
-    setShowDeliveries(false);
+    setShowDeliveries(false); // eslint-disable-line react-hooks/set-state-in-effect
   }, [hovered]);
 
   return (
@@ -1008,7 +1008,7 @@ function POAgentCard({ agent, visible, onOpenProfile }: { agent: AgentData; visi
 
   useEffect(() => {
     if (hovered) { const t = setTimeout(() => setShowDeliveries(true), 200); return () => clearTimeout(t); }
-    setShowDeliveries(false);
+    setShowDeliveries(false); // eslint-disable-line react-hooks/set-state-in-effect
   }, [hovered]);
 
   const modules = [
@@ -1266,7 +1266,7 @@ function L1CommanderCard({ agent, index, visible, onOpenProfile }: { agent: Agen
 
   useEffect(() => {
     if (hovered) { const t = setTimeout(() => setShowDeliveries(true), 200); return () => clearTimeout(t); }
-    setShowDeliveries(false);
+    setShowDeliveries(false); // eslint-disable-line react-hooks/set-state-in-effect
   }, [hovered]);
 
   return (

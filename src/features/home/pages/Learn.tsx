@@ -60,8 +60,7 @@ export default function Learn() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
-  const [sessions, setSessions] = useState<ReturnType<typeof getSessions>>([]);
-  useEffect(() => { setSessions(getSessions().filter(s => !!s.finishedAt)); }, []);
+  const [sessions] = useState<ReturnType<typeof getSessions>>(() => getSessions().filter(s => !!s.finishedAt));
 
   const bestScore = sessions.length > 0
     ? Math.max(...sessions.map(s => Math.round((s.score / s.total) * 100)))
