@@ -5,7 +5,7 @@
   "shortTitle": "GH-BP",
   "contentLevel": "101",
   "description": "Build expertise in GitHub repository governance, branch protection, GitHub Actions security, CI/CD best practices, and team collaboration workflows.",
-  "questions": 30,
+  "questions": 75,
   "duration": "60 min",
   "passScore": "75%",
   "passThreshold": 75,

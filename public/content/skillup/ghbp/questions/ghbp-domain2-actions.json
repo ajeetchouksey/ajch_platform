@@ -148,5 +148,230 @@
     "correct": 1,
     "explanation": "GitHub's native badge URL format is: `https://github.com/{owner}/{repo}/actions/workflows/{workflow-filename}.yml/badge.svg`. This renders a badge showing the last run status for that workflow file. You can append `?branch=main` to show the status specifically for the main branch. Shields.io (A) is a third-party service — functional but an external dependency. The `/workflows/` path format (C) is outdated and uses workflow name, not file. The API endpoint (D) doesn't return a badge image.",
     "tags": ["status-badges", "README", "workflow-visibility", "documentation"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-011",
+    "scenario": "A public repository has a workflow triggered by `pull_request_target` that checks out the PR's code using `actions/checkout` with `ref: ${{ github.event.pull_request.head.sha }}` and runs it in a context with access to repository secrets.",
+    "question": "Why is this `pull_request_target` + checkout pattern a critical security vulnerability?",
+    "options": [
+      "pull_request_target workflows cannot access secrets — they run in a read-only context",
+      "pull_request_target runs with the base branch's permissions and secrets. Checking out and executing untrusted PR code gives external contributors full access to repository secrets — a supply-chain attack vector",
+      "The vulnerability is that actions/checkout must use the default ref, not a PR SHA",
+      "pull_request_target is deprecated and should not be used"
+    ],
+    "correct": 1,
+    "explanation": "pull_request_target runs in the context of the base repository (not the fork) and has access to secrets — by design, for legitimate use cases like posting comments. The vulnerability arises when you also check out and execute the untrusted PR's code. An attacker can submit a PR that modifies workflow scripts or test files, which then run with full secret access. The safe pattern: use pull_request (no secret access for fork PRs) for code execution, and pull_request_target only for safe operations that don't run untrusted code (e.g., labeling, commenting).",
+    "tags": ["pull_request_target", "security", "supply-chain", "secrets", "fork"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-012",
+    "scenario": "A team's deploy workflow runs on every push to main. When 3 developers merge PRs within 2 minutes, 3 deploy jobs queue up simultaneously. Each deploy takes 8 minutes. The last deploy wins and overwrites the previous ones, but 2 deploys run wastefully.",
+    "question": "What GitHub Actions configuration cancels in-progress deploys when a newer one starts?",
+    "options": [
+      "Set `max-parallel: 1` in the job matrix strategy",
+      "Add a `concurrency` group to the workflow with `cancel-in-progress: true` — when a new run starts for the same group, the in-progress run is cancelled",
+      "Use an environment with required reviewers to manually queue deploys",
+      "Add a `timeout-minutes: 1` to the deploy job so old deploys expire"
+    ],
+    "correct": 1,
+    "explanation": "Concurrency groups define a named slot. Only one workflow run with the same group key can run at a time. With `cancel-in-progress: true`, starting a new run in the group cancels the currently running one immediately. This prevents deploy pile-ups while ensuring only the latest code reaches production. `max-parallel` (A) applies to matrix jobs, not workflow runs. Required reviewers (C) add human gates, not cancellation. Short timeouts (D) kill any deploy in progress regardless of whether a newer one is waiting.",
+    "tags": ["concurrency", "cancel-in-progress", "deploy", "optimization"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-013",
+    "scenario": "A team has 10 workflows that each define the same 15-step 'build and push Docker image' sequence inline. When the Docker registry URL changes, all 10 files need updating. The team wants to extract this into a reusable unit that can also accept inputs like image-name and tag.",
+    "question": "What is the CORRECT GitHub Actions mechanism for a reusable, parameterized multi-step sequence used within a single workflow (not calling another full workflow file)?",
+    "options": [
+      "A reusable workflow (on: workflow_call) stored in a shared repository",
+      "A composite action — defined in action.yml with `runs.using: composite`, accepting inputs and containing multiple steps, reusable across workflows and repositories",
+      "A workflow template stored in .github/workflow-templates/",
+      "An environment configuration with a shared step script"
+    ],
+    "correct": 1,
+    "explanation": "Composite actions package multiple steps into a single `uses:` reference with typed inputs. They live in a repository's action.yml and are called like any other action: `uses: org/repo/path@version`. Unlike reusable workflows, composite actions run inline within the calling job (same runner, same environment) — making them ideal for step-level reuse. Reusable workflows (A) run as separate jobs and are better for full pipeline reuse. Workflow templates (C) are starter files — copying, not sharing. Environment configs (D) share variables, not step logic.",
+    "tags": ["composite-actions", "reusable", "DRY", "action.yml"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-014",
+    "scenario": "A team switches to self-hosted runners for cost savings. A security auditor notes that the self-hosted runner is shared across all repositories in the organization and runs jobs from public forks of the organization's open-source repositories.",
+    "question": "What is the PRIMARY security risk of this configuration?",
+    "options": [
+      "Self-hosted runners have lower performance than GitHub-hosted runners",
+      "A malicious PR from a public fork can execute arbitrary code on the self-hosted runner, potentially accessing other repositories' secrets, cached credentials, and internal network resources the runner has access to",
+      "Self-hosted runners cannot use organization-level secrets",
+      "Self-hosted runners are not allowed on public repositories by GitHub policy"
+    ],
+    "correct": 1,
+    "explanation": "Self-hosted runners persist between jobs (unlike ephemeral GitHub-hosted runners) and may have access to internal networks, caches, and credentials. A malicious fork PR that triggers a workflow on a self-hosted runner can exfiltrate runner credentials, poison the tool cache, or pivot to internal systems. GitHub recommends: never using self-hosted runners for public repositories or with fork PR access, using ephemeral (just-in-time) runners that are destroyed after each job, and isolating runners per repository. GitHub-hosted runners are isolated ephemeral VMs — self-hosted runners require additional hardening (B).",
+    "tags": ["self-hosted-runners", "security", "ephemeral", "fork-risk"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-015",
+    "scenario": "A team's test suite must pass on Ubuntu 22.04, Windows Server 2022, and macOS 14 with Node.js 18 and Node.js 20. That's 6 combinations. They currently have 6 separate workflow jobs, each copy-pasted with different runner and Node version values.",
+    "question": "What GitHub Actions feature eliminates the duplication by running all 6 combinations automatically?",
+    "options": [
+      "Create 6 separate workflow files, one per combination",
+      "Use a matrix strategy: define `os` and `node-version` as matrix dimensions; GitHub generates one job per combination automatically",
+      "Use workflow_call to pass parameters to 6 separate called workflows",
+      "Use environment variables to switch behavior within a single parameterized job"
+    ],
+    "correct": 1,
+    "explanation": "Matrix strategy is the purpose-built feature for combinatorial test jobs. Defining `matrix: { os: [ubuntu-22.04, windows-2022, macos-14], node-version: [18, 20] }` generates 6 jobs automatically — one per combination. Each job uses `${{ matrix.os }}` and `${{ matrix.node-version }}` as its runner and setup parameter. Failed combinations are individually identifiable. Adding a new OS or Node version requires changing only the matrix definition. Separate files (A) and workflow_call (C) don't reduce duplication. Environment variable switching (D) produces one job result, hiding which combination failed.",
+    "tags": ["matrix-strategy", "cross-platform", "test-combinations", "parallelism"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-016",
+    "scenario": "A workflow step needs to use a database connection string that varies by environment (dev/staging/prod). The connection string for dev is non-sensitive but the production connection string contains credentials. A developer suggests storing all of them as workflow environment variables in the YAML file.",
+    "question": "What is the CORRECT way to handle environment-specific configuration where some values are sensitive?",
+    "options": [
+      "Store all values as environment variables in the workflow YAML — they are not committed to a branch",
+      "Store non-sensitive configuration as GitHub Variables (vars context) and sensitive values as GitHub Secrets (secrets context); reference environment-specific secrets via GitHub Environments",
+      "Encrypt all values with gpg before storing them in the workflow YAML",
+      "Use a single secret per environment and concatenate all config values into it"
+    ],
+    "correct": 1,
+    "explanation": "GitHub distinguishes between Variables (plaintext, visible in logs, accessible via `${{ vars.NAME }}`) and Secrets (masked in logs, only accessible via `${{ secrets.NAME }}`). Non-sensitive config (DB host, port, feature flags) belongs in Variables. Credentials belong in Secrets. GitHub Environments let you define environment-specific sets of variables and secrets, so the same workflow reference `${{ secrets.DB_PASSWORD }}` resolves to different values per environment. Workflow YAML is committed to the repository (A) — production credentials in YAML are a critical exposure. Custom encryption (C) requires key management overhead.",
+    "tags": ["secrets", "variables", "environments", "configuration-management"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-017",
+    "scenario": "A build workflow produces a 500MB binary artifact. The artifact is used by a downstream integration test job in the same workflow. After 90 days, old build artifacts are consuming significant GitHub storage. The team wants to reduce storage cost while keeping artifacts accessible for 30 days.",
+    "question": "What is the CORRECT configuration for artifact retention in this scenario?",
+    "options": [
+      "Upload the artifact with `actions/upload-artifact` and set `retention-days: 30`",
+      "Store the artifact in a GitHub Release asset, which has no retention limit",
+      "Use GitHub Packages to store the binary with a 30-day expiry policy",
+      "Delete the artifact at the end of the workflow using the GitHub API"
+    ],
+    "correct": 0,
+    "explanation": "`actions/upload-artifact` supports a `retention-days` parameter. Setting `retention-days: 30` automatically deletes the artifact after 30 days, reducing storage costs while keeping it available for the common use cases (debugging, audit). GitHub Releases (B) are for user-facing release assets — storing internal build artifacts there pollutes the release page and has no TTL. GitHub Packages (C) doesn't have a built-in TTL for all package types. Manual deletion via API (D) requires additional workflow steps and won't clean up artifacts from failed runs.",
+    "tags": ["artifacts", "retention", "storage", "upload-artifact"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-018",
+    "scenario": "A team wants a workflow that can be triggered manually from the GitHub UI for emergency deployments. The operator must specify a target environment ('staging' or 'production') and an image tag to deploy. The workflow should validate that only 'staging' or 'production' are accepted.",
+    "question": "What trigger and input configuration supports this manual workflow with validated inputs?",
+    "options": [
+      "on: push with environment variables set in the workflow",
+      "on: workflow_dispatch with `inputs` defining `environment` as a `choice` type with options ['staging', 'production'] and `image-tag` as a string input",
+      "on: repository_dispatch triggered via the GitHub API with a JSON payload",
+      "on: schedule with a cron that checks a configuration file"
+    ],
+    "correct": 1,
+    "explanation": "workflow_dispatch enables manual triggering from the GitHub UI (or API). The `inputs` block defines form fields: `choice` type provides a dropdown with predefined valid values (preventing arbitrary environment names), `string` type accepts free-form text. The operator sees a form in the GitHub Actions UI, selects the environment and types the image tag, then runs the workflow. repository_dispatch (C) is API-only, not UI-triggered. schedule (D) is time-based, not manual. push (A) can't define inputs.",
+    "tags": ["workflow_dispatch", "manual-trigger", "inputs", "choice-type"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-019",
+    "scenario": "An organization stores a shared database migration credentials as an organization secret. One repository team overrides it with a repository-level secret of the same name pointing to their test database. A specific deployment environment should use production credentials.",
+    "question": "What is the correct GitHub secrets precedence hierarchy?",
+    "options": [
+      "Organization secrets always win — repository and environment secrets are overridden",
+      "Environment secrets > Repository secrets > Organization secrets; a more specific scope always takes precedence",
+      "Repository secrets always win — they override organization secrets for that repository",
+      "The most recently created secret wins regardless of scope"
+    ],
+    "correct": 1,
+    "explanation": "GitHub secrets follow scope precedence: Environment secrets override Repository secrets, which override Organization secrets. For a job referencing a specific environment, if an environment-level secret with the name exists, it's used. If not, the repository-level secret is checked. If not found there, the organization-level secret is used. This hierarchy allows organization-wide defaults to be overridden at progressively more specific scopes — exactly the pattern for shared credentials overridden per repository or per deployment environment.",
+    "tags": ["secrets-hierarchy", "organization-secrets", "environment-secrets", "precedence"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-020",
+    "scenario": "Dependabot opens 15 PRs per week for minor and patch version bumps of npm dependencies. All have green CI and no breaking changes. The security team approves auto-merging for patch updates but requires human review for minor and major updates.",
+    "question": "What configuration correctly implements this auto-merge policy for Dependabot?",
+    "options": [
+      "Enable auto-merge globally for all Dependabot PRs",
+      "Configure a GitHub Actions workflow triggered by dependabot PRs that uses the GitHub CLI to approve and enable auto-merge only when `${{ github.event.pull_request.title }}` matches a patch version pattern",
+      "In dependabot.yml, set `open-pull-requests-limit: 0` for minor and major updates",
+      "Create a Dependabot secret that enables auto-merge for patch updates"
+    ],
+    "correct": 1,
+    "explanation": "A workflow triggered on `pull_request` (or `pull_request_target` for public repos) can check `${{ steps.metadata.outputs.update-type }}` using the `dependabot/fetch-metadata` action to determine if the update is a patch, minor, or major bump. For patch updates, the workflow runs `gh pr review --approve` and `gh pr merge --auto --squash`. For minor/major, it exits without approving. This gives programmatic control without bypassing security review for significant updates. Limit 0 (C) prevents PRs from being created, not just auto-merged.",
+    "tags": ["Dependabot", "auto-merge", "patch-updates", "fetch-metadata"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-021",
+    "scenario": "A workflow has 3 jobs: `build`, `test`, and `deploy`. The deploy job needs to create a GitHub Release (write:contents) and push a Docker image using OIDC. The build and test jobs only need to read repository contents.",
+    "question": "What is the MOST secure permissions configuration for this workflow?",
+    "options": [
+      "Set `permissions: write-all` at the workflow level for simplicity",
+      "Set `permissions: read-all` at the workflow level as a default, then override in the deploy job with `permissions: { contents: write, id-token: write }` — each job gets only what it needs",
+      "Set `permissions: { contents: write, id-token: write }` at the workflow level — unused permissions don't cause harm",
+      "Omit permissions entirely — GitHub uses sensible defaults"
+    ],
+    "correct": 1,
+    "explanation": "Job-level permission overrides are the correct least-privilege pattern. Setting `permissions: read-all` at the workflow level constrains all jobs by default, then granting elevated permissions only to the deploy job limits the blast radius if any job is compromised (e.g., via a malicious action). `write-all` (A) grants maximum permissions to every job unnecessarily. Workflow-level write permissions (C) propagate to all jobs including build/test. Omitting permissions (D) defaults to the repository's base token permissions, which may be too permissive or too restrictive unpredictably.",
+    "tags": ["permissions", "least-privilege", "GITHUB_TOKEN", "job-permissions"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-022",
+    "scenario": "A workflow has a `build` job that produces a Docker image tag (e.g., `sha-abc1234`). A downstream `deploy` job needs to reference this exact tag. The tag value is computed dynamically during the build job and is not known at workflow authoring time.",
+    "question": "What is the correct mechanism for passing a value from one job to a dependent job in GitHub Actions?",
+    "options": [
+      "Write the value to a shared file in the workspace; the deploy job reads the file",
+      "Define an `outputs` block on the build job, set the output using `$GITHUB_OUTPUT`, then reference it in the deploy job via `needs.build.outputs.image-tag`",
+      "Use a repository variable — the build job writes to it via API and the deploy job reads it",
+      "Pass the value as an environment variable with `env:` at the workflow level"
+    ],
+    "correct": 1,
+    "explanation": "Job outputs are the designed mechanism for inter-job data passing. The build job writes `echo 'image-tag=sha-abc1234' >> $GITHUB_OUTPUT`, declares it in `outputs: { image-tag: ${{ steps.tag.outputs.image-tag }} }`, and the deploy job (with `needs: build`) references `${{ needs.build.outputs.image-tag }}`. Shared files (A) don't work across jobs because each job runs on a fresh runner. Repository variables (C) have write/read latency and create state outside the workflow. Workflow-level env (D) is set before the run — dynamic values computed during execution aren't available.",
+    "tags": ["job-outputs", "GITHUB_OUTPUT", "needs", "inter-job-data"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-023",
+    "scenario": "A build workflow occasionally hangs indefinitely when a test fixture fails to clean up a running process. This causes the workflow to consume a GitHub Actions runner for hours until the daily billing resets. The team wants to automatically terminate stuck workflows after 30 minutes.",
+    "question": "What GitHub Actions configuration enforces a maximum runtime for a workflow or job?",
+    "options": [
+      "Configure the runner to reboot after 30 minutes using a system cron job",
+      "Set `timeout-minutes: 30` at the workflow level or job level — GitHub automatically cancels the workflow/job if it runs longer than the specified time",
+      "Use the GitHub API to monitor workflow run duration and cancel via webhook",
+      "Set an environment variable `MAX_RUNTIME=30` and check it in each step"
+    ],
+    "correct": 1,
+    "explanation": "`timeout-minutes` is a built-in GitHub Actions field for both workflows and individual jobs. Setting it at the job level (`jobs.test: timeout-minutes: 30`) cancels that specific job after 30 minutes. Setting it at the workflow level applies to the entire run. GitHub natively handles the cancellation — no external monitoring required. Runner reboots (A) would interrupt all running jobs on the runner. API monitoring (C) adds external infrastructure. Environment variables (D) would require every step to check and respect the value.",
+    "tags": ["timeout", "hung-workflow", "cost-control", "reliability"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-024",
+    "scenario": "A deploy job should only run when a push reaches the `main` branch — not on PRs, not on other branches. Currently the job runs on every push event regardless of branch because the trigger is `on: push`.",
+    "question": "What is the CORRECT way to restrict a job to run only on pushes to main?",
+    "options": [
+      "Change the trigger to `on: push: branches: [main]` to limit the workflow to main branch pushes only",
+      "Add `if: github.ref == 'refs/heads/main'` to the deploy job — the job is skipped on any other branch or PR",
+      "Both A and B are valid; A restricts at the workflow level while B restricts at the job level — combine both for defense in depth",
+      "Use `on: push` and add a step that checks the branch name and exits early if not main"
+    ],
+    "correct": 2,
+    "explanation": "Both approaches work and serve different purposes. Restricting the trigger (`on: push: branches: [main]`) prevents the entire workflow from running on non-main pushes — saving runner minutes for all jobs. Adding `if: github.ref == 'refs/heads/main'` on the deploy job allows other jobs (build, test) to run on all branches while restricting only deploy. Combining both is defense-in-depth: the workflow only triggers on main, and even if someone broadens the trigger later, the deploy job has its own guard. An early-exit step (D) works but consumes a runner and doesn't skip cleanly.",
+    "tags": ["conditional-execution", "if-condition", "branch-filter", "trigger"]
+  },
+  {
+    "domain": 2,
+    "id": "ghbp-d2-025",
+    "scenario": "A team uses `actions/cache` in their workflow. A developer on a feature branch notices that the cache from main is being read but their feature branch cannot write a new cache entry that would be accessible from main.",
+    "question": "What is the correct understanding of GitHub Actions cache scope and branch isolation?",
+    "options": [
+      "Cache is global per repository — all branches read and write to the same cache pool",
+      "Cache scope is branch-first: a branch can read from its own cache, then fall back to the base branch cache, then the default branch. Only the default branch and the base branch write caches visible to PRs from child branches",
+      "Cache is isolated per workflow run — no sharing between runs or branches",
+      "Cache is scoped to the runner OS — ubuntu caches are not accessible from windows runners"
+    ],
+    "correct": 1,
+    "explanation": "GitHub Actions cache has a branch-scoped hierarchy. When a PR branch looks for a cache hit, it checks: 1) its own branch cache, 2) the base branch cache, 3) the default branch cache. This allows feature branches to benefit from main's warm cache (the common case for package caches). However, caches created on a feature branch are NOT accessible from main or other branches — preventing cross-branch cache poisoning. Runner OS isolation (D) is also true but is a separate concern from branch scoping.",
+    "tags": ["cache-scope", "branch-isolation", "actions-cache", "performance"]
   }
 ]
