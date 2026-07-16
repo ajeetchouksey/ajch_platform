@@ -67,6 +67,40 @@ Common distractor: students confuse X with Y because... {A memorable framing or 
 | X | Always do Y when Z |
 ```
 
+## Deep Dive Standard (REQUIRED for every domain note)
+
+Pointer tables and cheat sheets tell learners *what* to remember; they do not build *understanding*. Every domain note **must** include a `## Deep Dive` section, placed after the topic bodies and before the Cheat Sheet. It has four required elements:
+
+```markdown
+## Deep Dive: {Making {Domain} Click}
+
+### 1. The connective narrative
+
+Prose (not bullets) that ties the domain's concepts into one mental model —
+how the pieces relate, why they exist, and what problem they solve together.
+Aim for 2–4 short paragraphs a learner could read aloud and *understand*.
+
+### 2. Worked scenario
+
+> **Scenario.** A concrete, realistic situation walked end-to-end — the setup,
+> the decision, the reasoning, and the outcome. Show the thinking, not just the
+> answer. Use real numbers, real tool names, real config.
+
+### 3. Memory aid
+
+A mnemonic or checklist the learner can recall under exam pressure — e.g.
+**AVISOR** (Audit · Validate · Isolate · Scope · Observe · Review). Keep it
+honest: the letters must map to real, load-bearing concepts, not filler.
+
+### 4. Exam strategy for this domain
+
+- The traps this domain sets (absolute-language distractors, look-alike terms…)
+- What the exam rewards vs. punishes here
+- The one sentence you'd tell a learner 5 minutes before the exam
+```
+
+**Rules**: Depth over pointers — a Deep Dive that just restates the cheat sheet fails review. The worked scenario must be genuinely *worked* (reasoning shown, not just a conclusion). The memory aid must be defensible. Omitting any of the four elements is a review failure.
+
 ## Custom HTML Classes (rendered by MermaidDiagram component)
 
 Use these in markdown for special styling:
@@ -86,9 +120,12 @@ Use these in markdown for special styling:
 2. **Exam-oriented** — every paragraph should answer "why does this matter for the exam?"
 3. **Concrete examples** — use real API calls, real token counts, real limits
 4. **Cross-domain links** — note connections: "The 18-tool limit (D4) explains why coordinators exist (D1)"
-5. **Mermaid diagrams** — use for flows, hierarchies, decision trees6. **Human Angle** — include one memorable analogy, proverb, or punch line in the Overview section of each domain file. Mark it clearly with the 💡 callout. This aids retention without distorting exam content. Rule: *proverbs support memory, never replace precision.* If no natural fit exists, omit — a forced analogy is worse than none.
+5. **Mermaid diagrams** — use for flows, hierarchies, decision trees
+6. **Depth over pointers** — every domain note must teach understanding, not just list facts. A note that only points at concepts (tables, bullets, term lists) without a `## Deep Dive` section that explains *how* and *why* fails review.
+7. **Worked scenarios** — include at least one end-to-end worked scenario per domain (inside the Deep Dive) that shows the reasoning, not just the answer. Use real numbers, real tool names, real config.
+8. **Human Angle** — include one memorable analogy, proverb, or punch line in the Overview section of each domain file. Mark it clearly with the 💡 callout. This aids retention without distorting exam content. Rule: *proverbs support memory, never replace precision.* If no natural fit exists, omit — a forced analogy is worse than none.
 
-> **AI Guardrail**: Human Angle content must be professional, culturally neutral, and must not alter the technical accuracy of any documented fact. It exists outside the exam content boundary.
+> **AI Guardrail**: Human Angle and Deep Dive content must be professional, culturally neutral, and must not alter the technical accuracy of any documented fact. Memory aids (mnemonics/checklists) must map to real, load-bearing concepts — never invented filler. Deep Dive narrative and worked scenarios live within the exam content boundary and must be factually correct; the Human Angle callout exists outside it.
 ## Update Workflow
 
 1. Read the existing notes file
