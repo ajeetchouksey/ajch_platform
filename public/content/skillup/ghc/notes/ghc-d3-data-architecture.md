@@ -222,6 +222,43 @@ Every LLM has a maximum **context window** (measured in tokens — roughly 3–4
 
 ---
 
+## Deep Dive: Making the Architecture Concrete
+
+Domain 3 is where candidates lose easy marks because the concepts feel abstract. The fix is to anchor every fact to a concrete mechanism. Two areas deserve special attention: **the context window** and **the data-privacy tiers**.
+
+### Tokens and the context window — with real numbers
+
+A **token** is roughly ¾ of a word (about 3–4 characters of English or code). When people say a model has a "context window of 128k tokens," they mean the model can consider about that many tokens of prompt + response *combined* at once. Everything Copilot knows about your task in a single request must fit in that budget.
+
+> **Why this matters practically.** Imagine a 4,000-line file. That's well over 30,000 tokens on its own. Add the system instructions, your `copilot-instructions.md`, three open neighbour tabs, and chat history, and you can blow past the window. When that happens, Copilot **silently truncates the lowest-priority context first** — usually the far edges of neighbour files and older chat turns. The result: a suggestion that looks reasonable but is *inconsistent with code it never actually saw*.
+
+This is the mechanism behind a classic exam scenario: *"Copilot generated a function that duplicates one that already exists elsewhere in the same large file — why?"* Answer: the existing function fell outside the context window. The mitigation is not "a bigger model" — it's **keeping files focused, closing irrelevant tabs, and using explicit `#file:` references** so the important context survives truncation.
+
+### The data pipeline, retold as a story
+
+Don't memorise the seven steps as a list — remember the *shape*: your code never goes straight to a model. It flows **IDE → GitHub's proxy (pre-filter) → LLM → proxy (post-filter: public code filter, safety) → IDE**. The proxy is the security checkpoint on both the inbound and outbound trip. Two exam-relevant consequences:
+
+1. **The public code filter runs on the way *back*** (post-processing), not before generation. It suppresses a suggestion *after* the model produced it.
+2. **Content exclusions act at the IDE/collection stage** — excluded files never enter the prompt in the first place, which is why they protect secrets so effectively.
+
+### The privacy tiers — the single most tested fact in this domain
+
+| Tier | Trains on your code? | The one-line rule |
+|------|---------------------|-------------------|
+| Individual | Only if you *don't* opt out | Opt-out is available but on by default historically |
+| **Business** | **Never** | Customer code is *never* used for training |
+| **Enterprise** | **Never** | Customer code is *never* used for training |
+
+If you remember nothing else from Domain 3, remember: **Business and Enterprise never train on your prompts or suggestions.** Prompts are retained up to **28 days** for abuse/safety monitoring — retention for *safety* is not the same as *training*, and the exam loves to blur that line.
+
+### Exam Strategy for Domain 3
+
+- Distinguish **retention (28 days, safety)** from **training (never, for Business/Enterprise)**. A question mentioning "28 days" is about abuse monitoring, not model training.
+- Any answer claiming Copilot has **real-time internet access** or reads your **disk at rest** is wrong — it uses open-editor context and the assembled prompt only.
+- When a scenario describes an *inconsistent or duplicate* suggestion in a big file, the cause is the **context window**, not a model defect.
+
+---
+
 ## Key Exam Traps ⚠️
 
 | Trap | Correct Answer |

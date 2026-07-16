@@ -273,6 +273,40 @@ Copilot suggests:
 
 ---
 
+## Deep Dive: Productivity With Guardrails
+
+Domain 5 questions usually pair a **productivity gain** with a **necessary caution** — and the right answer respects both. The recurring theme: *Copilot makes you faster, but speed without verification just ships bugs faster.* Internalise the pairing and most questions answer themselves.
+
+### A full test-generation story
+
+> **Task:** You wrote `parse_iso8601(s: str) -> datetime`. You select it and run `/tests`.
+
+Copilot instantly produces the *happy path* (`"2024-01-15T10:30:00Z"` → correct datetime) and a few obvious failures (empty string, malformed input). This is the productivity win: the tedious scaffolding is done in seconds.
+
+But here's the exam's point — **Copilot tends to under-test the tricky edges** because it can't run the code or reason about your domain. A careful engineer *adds* what it missed:
+- Leap-second and leap-day dates (`2024-02-29`)
+- DST transition timestamps
+- The Year-2038 boundary
+- Timezone offsets like `+05:30` (half-hour zones)
+
+So the correct exam posture is never "Copilot writes my tests for me" but **"Copilot drafts the suite; I review coverage and add the edge cases it can't infer."** Any answer claiming Copilot guarantees full coverage or that its tests are always correct is wrong.
+
+### Sample data: the PII trap
+
+Copilot will happily generate realistic-looking test data — *including* patterns that resemble real SSNs, credit cards, or phone numbers — unless you tell it not to. **It does not automatically avoid PII.** The right practice (and the right answer) is to *explicitly instruct* fictional values: `.test`/`.example` email domains, obviously fake names, or a library like `faker`. This connects back to Domain 1's responsible-use principle: the human sets the guardrail.
+
+### Why context-switching reduction is a real productivity metric
+
+The hidden cost in software work isn't typing — it's the **flow break** every time you leave the editor for docs or Stack Overflow. Copilot's biggest measured productivity effect comes from *keeping you in the IDE*: "what's the `reduce` signature again?" gets answered inline instead of via a five-minute browser detour. The exam frames this as **reducing** context switching — not *eliminating* it (some lookups still need a browser), so beware absolute-language answers.
+
+### Exam Strategy for Domain 5
+
+- Every productivity claim has a **caution twin**: fast tests → review coverage; instant sample data → enforce fictional PII; quick refactor → still run the suite. Pick answers that hold both.
+- Copilot **cannot execute code** — it can't verify its own output at runtime. Reject any answer implying it runs or proves correctness.
+- "Reduces" beats "eliminates" for context switching, coverage, and manual effort — absolute claims are usually the distractor.
+
+---
+
 ## Key Exam Traps ⚠️
 
 | Trap | Correct Answer |
