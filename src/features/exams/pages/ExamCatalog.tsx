@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef, useMemo, type ReactNode } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   GraduationCap, Clock, Target, ArrowRight,
-  Lock, Brain, BarChart2, Zap, BookOpen,
+  Lock, Brain, BarChart2, Zap, BookOpen, Search, X,
 } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
@@ -40,6 +40,23 @@ const defaultPalette = {
   border: 'rgba(71,85,105,0.25)', glow: 'transparent',
   btn: '#1e293b',
 };
+
+// ── Provider inference ──────────────────────────────────────────────────
+function deriveProvider(exam: ExamConfig): string {
+  const id = exam.id.toLowerCase();
+  if (id.startsWith('gh')) return 'GitHub';
+  if (id.startsWith('ab')) return 'Microsoft';
+  if (id.startsWith('cca')) return 'Anthropic';
+  if (id.startsWith('aws')) return 'AWS';
+  if (id.startsWith('gcp')) return 'Google';
+  const hay = `${exam.title} ${exam.description}`.toLowerCase();
+  if (/\bgithub\b|copilot/.test(hay)) return 'GitHub';
+  if (/\bazure\b|microsoft/.test(hay)) return 'Microsoft';
+  if (/\bclaude\b|anthropic/.test(hay)) return 'Anthropic';
+  if (/\baws\b|amazon/.test(hay)) return 'AWS';
+  if (/\bgoogle\b|gcp/.test(hay)) return 'Google';
+  return 'Other';
+}
 
 // ── Single exam card ──────────────────────────────────────────────────────────
 function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
@@ -164,7 +181,7 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
 
         {/* Domain pills */}
         <div className="flex flex-wrap gap-1.5 mb-7">
-          {exam.domains.map((d) => (
+          {exam.domains.slice(0, 4).map((d) => (
             <span
               key={d.id}
               className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full font-medium"
@@ -174,6 +191,14 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
               D{d.id}: {d.title}
             </span>
           ))}
+          {exam.domains.length > 4 && (
+            <span
+              className="flex items-center text-[10px] px-2.5 py-1 rounded-full font-bold"
+              style={{ background: 'rgba(15,23,42,0.8)', color: '#94a3b8', border: '1px solid rgba(71,85,105,0.18)' }}
+            >
+              +{exam.domains.length - 4} more
+            </span>
+          )}
         </div>
 
         {/* CTA row */}
@@ -236,6 +261,24 @@ function SkeletonCard() {
   );
 }
 
+// ── Filter chip ────────────────────────────────────────────────────────
+function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all duration-150 whitespace-nowrap"
+      style={
+        active
+          ? { color: '#a78bfa', background: 'rgba(139,92,246,0.14)', border: '1px solid rgba(139,92,246,0.40)' }
+          : { color: '#64748b', background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(71,85,105,0.20)' }
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function ExamCatalog() {
   useMeta({
@@ -253,10 +296,60 @@ export default function ExamCatalog() {
     requestAnimationFrame(() => setMounted(true));
   }, []);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const q = searchParams.get('q') ?? '';
+  const provider = searchParams.get('provider') ?? '';
+  const level = searchParams.get('level') ?? '';
+  const status = searchParams.get('status') ?? '';
+  const sort = searchParams.get('sort') ?? 'recommended';
+  const filtersActive = Boolean(q || provider || level || status || sort !== 'recommended');
+
+  const setParam = (key: string, value: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set(key, value); else next.delete(key);
+    setSearchParams(next, { replace: true });
+  };
+  const toggleParam = (key: string, value: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (searchParams.get(key) === value) next.delete(key); else next.set(key, value);
+    setSearchParams(next, { replace: true });
+  };
+  const clearFilters = () => setSearchParams(new URLSearchParams(), { replace: true });
+
   const available = exams.filter((e) => e.available);
   const coming = exams.filter((e) => !e.available);
   const totalQuestions = exams.reduce((a, e) => a + e.questions, 0);
   const totalDomains = exams.reduce((a, e) => a + e.domains.length, 0);
+
+  const providers = useMemo(
+    () => Array.from(new Set(exams.map(deriveProvider))).sort(),
+    [exams],
+  );
+  const levels = useMemo(
+    () => Array.from(new Set(exams.map((e) => e.contentLevel).filter(Boolean) as string[])).sort(),
+    [exams],
+  );
+
+  const filtered = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    const list = exams.filter((e) => {
+      if (provider && deriveProvider(e) !== provider) return false;
+      if (level && e.contentLevel !== level) return false;
+      if (status === 'live' && !e.available) return false;
+      if (status === 'soon' && e.available) return false;
+      if (needle) {
+        const hay = `${e.title} ${e.shortTitle} ${e.description} ${e.domains.map((d) => d.title).join(' ')}`.toLowerCase();
+        if (!hay.includes(needle)) return false;
+      }
+      return true;
+    });
+    return [...list].sort((a, b) => {
+      if (sort === 'questions') return b.questions - a.questions;
+      if (sort === 'az') return a.title.localeCompare(b.title);
+      if (a.available !== b.available) return a.available ? -1 : 1;
+      return b.questions - a.questions;
+    });
+  }, [exams, q, provider, level, status, sort]);
 
   return (
     <div className="space-y-10">
@@ -329,6 +422,92 @@ export default function ExamCatalog() {
         </div>
       )}
 
+      {/* ── Discovery toolbar ── */}
+      {!loading && exams.length > 0 && (
+        <div className="space-y-4">
+          {/* Search */}
+          <div className="relative max-w-md">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+            <input
+              type="text"
+              value={q}
+              onChange={(e) => setParam('q', e.target.value)}
+              placeholder="Search certifications, domains…"
+              className="w-full pl-9 pr-9 py-2.5 text-sm text-white rounded-xl outline-none transition-colors focus:border-violet-500/50"
+              style={{ background: 'rgba(8,15,30,0.97)', border: '1px solid rgba(71,85,105,0.25)' }}
+            />
+            {q && (
+              <button
+                type="button"
+                onClick={() => setParam('q', '')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                aria-label="Clear search"
+              >
+                <X size={15} />
+              </button>
+            )}
+          </div>
+
+          {/* Chips + sort */}
+          <div className="flex flex-wrap items-center gap-2">
+            {providers.length > 1 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-600 mr-0.5">Provider</span>
+                {providers.map((p) => (
+                  <Chip key={p} active={provider === p} onClick={() => toggleParam('provider', p)}>{p}</Chip>
+                ))}
+              </div>
+            )}
+
+            {levels.length > 1 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-600 mr-0.5 ml-2">Level</span>
+                {levels.map((l) => (
+                  <Chip key={l} active={level === l} onClick={() => toggleParam('level', l)}>L{l}</Chip>
+                ))}
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-600 mr-0.5 ml-2">Status</span>
+              <Chip active={status === 'live'} onClick={() => toggleParam('status', 'live')}>Live</Chip>
+              <Chip active={status === 'soon'} onClick={() => toggleParam('status', 'soon')}>Coming soon</Chip>
+            </div>
+
+            <div className="flex items-center gap-1.5 ml-auto">
+              <span className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-600">Sort</span>
+              <select
+                value={sort}
+                onChange={(e) => setParam('sort', e.target.value === 'recommended' ? '' : e.target.value)}
+                className="text-[11px] font-bold text-slate-300 rounded-lg px-2.5 py-1.5 outline-none cursor-pointer"
+                style={{ background: 'rgba(8,15,30,0.97)', border: '1px solid rgba(71,85,105,0.25)' }}
+              >
+                <option value="recommended">Recommended</option>
+                <option value="questions">Most questions</option>
+                <option value="az">A–Z</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Result count + clear */}
+          {filtersActive && (
+            <div className="flex items-center gap-3 text-[11px] text-slate-500">
+              <span>
+                Showing <span className="text-white font-bold">{filtered.length}</span> of{' '}
+                <span className="text-white font-bold">{exams.length}</span> certifications
+              </span>
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="flex items-center gap-1 font-bold text-violet-400 hover:text-violet-300 transition-colors"
+              >
+                <X size={11} /> Clear filters
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── Loading ── */}
       {loading && (
         <div className="space-y-5">
@@ -337,8 +516,27 @@ export default function ExamCatalog() {
         </div>
       )}
 
-      {/* ── Available exams ── */}
-      {!loading && available.length > 0 && (
+      {/* ── Filtered results ── */}
+      {!loading && filtersActive && (
+        filtered.length > 0 ? (
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+            {filtered.map((exam, idx) => (
+              <ExamCard key={exam.id} exam={exam} idx={idx} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <Search size={36} className="mx-auto mb-4 text-slate-700" />
+            <p className="text-slate-400 text-sm mb-2">No certifications match your filters.</p>
+            <button type="button" onClick={clearFilters} className="text-violet-400 text-xs font-bold hover:text-violet-300">
+              Clear all filters
+            </button>
+          </div>
+        )
+      )}
+
+      {/* ── Available exams (curated) ── */}
+      {!loading && !filtersActive && available.length > 0 && (
         <div className="space-y-5">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
             <GraduationCap size={12} className="text-violet-400" />
@@ -352,8 +550,8 @@ export default function ExamCatalog() {
         </div>
       )}
 
-      {/* ── Coming soon ── */}
-      {!loading && coming.length > 0 && (
+      {/* ── Coming soon (curated) ── */}
+      {!loading && !filtersActive && coming.length > 0 && (
         <div className="space-y-5">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
             <Lock size={12} className="text-slate-600" />
