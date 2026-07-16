@@ -237,6 +237,44 @@ New task: Start a NEW conversation to avoid old context polluting new task
 
 ---
 
+## Deep Dive: From Vague to Precise — an Iteration Walkthrough
+
+The exam tests prompt engineering less as trivia and more as *judgement*: given a weak prompt and a goal, which change most improves the result? The skill is seeing **why** each refinement helps. Watch one prompt evolve:
+
+> **Attempt 1 (vague):** `# get users`
+> Copilot has almost nothing to work with. It might return a bare `SELECT * FROM users` or an arbitrary function. The failure mode here is **under-specification** — no inputs, no outputs, no constraints.
+
+> **Attempt 2 (add intent + shape):** `# Function get_active_users(db) that returns users where status == 'active', as a list of dicts.`
+> Now Copilot knows the *name*, the *filter*, and the *return type*. Quality jumps because you supplied **intent and format**.
+
+> **Attempt 3 (add constraints + edge cases):** `# get_active_users(db: Session) -> list[dict]. Return users with status=='active', ordered by created_at desc, limit 100. Exclude soft-deleted (deleted_at is not None). Raise ValueError if db is None.`
+> This is production-grade. You've added **constraints** (ordering, limit), a **business rule** (soft-delete), and **error handling**. Copilot now generates something you can almost ship — because you did the thinking a senior engineer would do *before* writing code.
+
+The lesson the exam rewards: **specificity about inputs, outputs, and constraints is the single biggest lever.** Longer isn't better — *more precise* is better. A rambling paragraph of unrelated context actually *hurts* by diluting the signal.
+
+### Zero-shot vs. one-shot vs. few-shot — the distinction people fail
+
+| Term | How many examples? | Use when |
+|------|-------------------|----------|
+| **Zero-shot** | **0 examples** (but you still write a prompt) | The task is common and well-understood |
+| **One-shot** | **1 example** | You need to pin down a specific format |
+| **Few-shot** | **2–5 examples** | The pattern is domain-specific or unusual |
+
+**Memory aid:** the number in the name = the number of *examples*, never the number of words. "Zero-shot" does **not** mean "no prompt" — it means "no worked examples." This exact confusion is a favourite trap.
+
+### Implicit prompt engineering: the free win
+
+The highest-value technique costs nothing extra: **good names and type annotations are themselves prompts.** `def calculate_compound_interest(principal: float, annual_rate: float, years: int) -> float:` tells Copilot everything; `def calc(p, r, n):` tells it nothing. On the exam, if two answers are "write more prose in the comment" vs. "add type annotations and descriptive names," the latter is usually the stronger, lower-cost choice.
+
+### Exam Strategy for Domain 4
+
+- Map the term to the **example count**: zero=0, one=1, few=2–5. Expect at least one question probing this.
+- Prefer answers that add **specificity (inputs/outputs/constraints)** over answers that just add length.
+- `@workspace` searches your **indexed codebase**, never the internet; `#file:` is for when you already know the file.
+- Chat history is **session-scoped** — starting a new conversation is the correct move to prevent old context polluting a new, unrelated task.
+
+---
+
 ## Key Exam Traps ⚠️
 
 | Trap | Correct Answer |

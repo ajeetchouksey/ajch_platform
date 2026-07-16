@@ -283,3 +283,48 @@ Monitor Copilot governance changes via Organization → Settings → Audit Log:
 | Code Review | PR page → Request Copilot Review |
 | Spark | github.com/copilot |
 | Organization settings | Organization → Settings → Copilot |
+
+---
+
+## Deep Dive: Choosing the Right Feature for the Job
+
+Domain 2 carries the **highest exam weight (27%)**, and the most common question style is: *"A developer wants to do X — which Copilot feature should they use?"* The features overlap, so understanding the **decision boundaries** is worth more than memorising each feature in isolation.
+
+### Inline vs. Chat vs. Edits vs. Agent Mode — the mental model
+
+Think of these four as a ladder of increasing **autonomy and scope**:
+
+| Feature | Scope | Autonomy | Best for |
+|---------|-------|----------|----------|
+| **Inline suggestions** | Current cursor position | None — you drive every keystroke | Completing the line/block you're actively typing |
+| **Copilot Chat** | Conversational, single file/selection | Low — you apply changes manually | Asking questions, explaining, generating a snippet to copy |
+| **Copilot Edits** | Multiple files you choose | Medium — proposes diffs across files, you approve each | A *known* change spanning several files ("add types to these components") |
+| **Agent Mode** | Whole task, files it decides | High — plans, edits, runs commands, self-corrects | An *open-ended* multi-step goal ("build the login flow with tests") |
+
+**The exam distinction that trips people up:** *Edits* vs *Agent Mode*. Use **Edits** when *you* already know which files change and roughly what the change is. Use **Agent Mode** when the task requires the AI to **figure out the plan itself**, potentially touching files you didn't anticipate and running commands. Edits = you hold the map; Agent = Copilot draws the map.
+
+### A concrete walkthrough
+
+> **Task:** "Migrate our REST client from `axios` to the native `fetch` API across the project."
+>
+> - If you open the 3 files you *know* use axios and want controlled, file-by-file diffs → **Copilot Edits**.
+> - If you're not sure how many files are affected and want Copilot to search, plan the migration, update each call site, and run the test suite to confirm → **Agent Mode**.
+> - If you just want to understand *how* one tricky axios interceptor maps to fetch before deciding → **Chat** with `/explain`.
+
+### Where MCP fits
+
+MCP (Model Context Protocol) is not a "mode" — it's a **connector**. It extends *any* of the above by giving Copilot live access to external systems (a database schema, an issue tracker, live docs). The exam framing: MCP answers the question *"how does Copilot get context it can't see in your open files?"* When a question mentions **schema-aware SQL** or **pulling live requirements from Jira**, MCP is the mechanism.
+
+### `copilot-instructions.md` — why it matters more than it looks
+
+This single file is the highest-leverage customisation in the exam. It is:
+- Located at **`.github/copilot-instructions.md`** (a very common trap answer places it in repo root).
+- **Always injected** into Chat's system context for *every* developer on the repo — so it standardises AI behaviour team-wide without each person configuring anything.
+- The right answer whenever a question asks *"how do you make Copilot consistently follow our team's conventions?"*
+
+### Exam Strategy for Domain 2
+
+- Because this is the biggest domain, budget the most study time here. Expect several "which feature" scenario questions.
+- Memorise the **invocation locations** (Agent Mode = Chat mode dropdown, not a shortcut; CLI = `gh copilot`; Spark = github.com).
+- Remember Copilot Code Review **complements** human review — any answer saying it *replaces* reviewers is wrong.
+- Content exclusions affect **both** inline *and* Chat (see Domain 6) — features don't leak excluded content.

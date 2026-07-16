@@ -271,6 +271,56 @@ Organization admins can monitor governance changes via:
 
 ---
 
+## Deep Dive: Exclusions, Filters, and Ownership Untangled
+
+Domain 6 blends three easily-confused ideas: **content exclusions** (what Copilot can *read*), the **public code filter** (what Copilot can *suggest*), and **output ownership/indemnification** (who is *liable*). Keeping them in separate mental boxes is most of the battle.
+
+### Exclusions vs. the public code filter — opposite ends of the pipe
+
+| | Content Exclusions | Public Code Filter |
+|---|---|---|
+| **Controls** | What goes *into* the prompt | What comes *out* of the model |
+| **Stage** | Input / context collection | Output / post-processing |
+| **Protects against** | Leaking *your* secrets & IP into prompts | Emitting *others'* public/licensed code |
+| **Configured as** | Glob patterns (org/repo/IDE) | A policy toggle (Allowed / Blocked) |
+
+A one-liner that resolves most questions: **exclusions guard your inputs; the public code filter guards your outputs.** If a scenario is about hiding `.env` secrets → exclusions. If it's about not reproducing open-source code → the filter.
+
+### Precedence, with a conflict example
+
+Exclusions resolve **Organization > Repository > IDE**. The higher level always wins. Concretely:
+
+> A developer adds an *IDE-level* rule to *allow* a folder that the **organization** has excluded. What happens? The org exclusion **wins** — the folder stays excluded. Individuals can make things *more* restrictive locally, but they can **never override an org-level exclusion to be less restrictive.**
+
+This is why org-level exclusions are the recommended, scalable control: one policy protects every repo, and no individual can accidentally (or deliberately) weaken it.
+
+### The `**/.env` glob trap, explained
+
+`*.env` matches `.env` **only in the root directory**. Real projects nest config: `services/api/.env`, `apps/web/.env`. The recursive form **`**/.env`** matches at *any* depth — that's the one you want. The single most common Domain 6 mistake is choosing the non-recursive pattern. Also note Copilot exclusions use **plain globs** — there is no `!negation` and no `exclude:` prefix; you list what to *exclude*, period.
+
+### The "reload" gotcha
+
+Exclusions (and many policy changes) take effect **only after the IDE is reloaded/restarted**. A scenario where "the excluded file still shows up in suggestions" almost always resolves to *the developer didn't reload the IDE.* This is the first thing to check and a frequent correct answer.
+
+### Ownership and indemnification — the conditional safety net
+
+You (or your org) **own** Copilot output per GitHub's ToS — GitHub claims nothing. But **indemnification** (GitHub defending you against an IP claim) is **not automatic**; it is a *conditional* offer requiring **all** of:
+
+1. Copilot **Business or Enterprise** (not Individual)
+2. Public code filter set to **Blocked**
+3. Following GitHub's **responsible use** guidelines
+4. Not *knowingly* reproducing public code
+
+Miss any one and the indemnification claim can fail. On the exam, "indemnification" should immediately trigger the mental checklist above — and the reminder that the public code filter being **Blocked** is a hard prerequisite.
+
+### Exam Strategy for Domain 6
+
+- Sort every question into one box first: **inputs (exclusions)**, **outputs (filter)**, or **liability (ownership/indemnification)**.
+- Recursive glob = **`**/`**; org precedence always wins; reload the IDE after changes.
+- Business/Enterprise **never train** on customer code (shared with Domain 3) — and indemnification is **conditional**, never guaranteed by the filter alone.
+
+---
+
 ## Key Exam Traps ⚠️
 
 | Trap | Correct Answer |

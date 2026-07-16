@@ -143,6 +143,38 @@ GitHub Copilot is a tool. The developer who uses the tool is responsible for the
 
 ---
 
+## Deep Dive: How the Pieces Fit Together
+
+It's easy to memorise "the developer is accountable" as an isolated fact. On the exam, the real skill is recognising *how* accountability, validation, and IP protection reinforce each other in a single workflow. Walk through this scenario the way an examiner expects you to reason:
+
+> **Scenario.** You ask Copilot to write a function that parses uploaded CSV files and stores rows in your database. Copilot produces working code in seconds. What must happen before this reaches production?
+
+1. **Read and understand it first (accountability).** You cannot delegate ownership to the tool. If the parser has a flaw, it is *your* flaw the moment you press Accept. This is why "review before commit" is not bureaucratic — it is the mechanism that makes accountability real.
+2. **Security-scan it (risk management).** CSV parsing is a classic injection surface (formula injection, path traversal on filenames, unbounded memory on large files). Copilot's training data contains both secure and insecure examples, so it can just as easily suggest the vulnerable version. GitHub Advanced Security / CodeQL is how you catch what your eyes miss.
+3. **Verify the APIs are real and current (hallucination + cutoff).** If Copilot calls `csv.read_dataframe()` — a method that doesn't exist — you'll only discover it at runtime unless you check the docs. The training cutoff means even *real* methods it suggests may be deprecated.
+4. **Check for IP exposure (public code filter).** If the parser closely matches a copyleft-licensed open-source implementation, shipping it could create a license obligation. The public code filter reduces this risk but does **not** eliminate it.
+
+The throughline: **Copilot accelerates the first draft; you own everything after that.** Every responsible-use control exists to close a specific gap between "looks correct" and "is correct and safe."
+
+### Memory Aid: the "A-VISOR" checklist
+
+Before you accept non-trivial AI code, run your **AVISOR**:
+
+- **A** — **Accountable**: do I understand this well enough to defend it in review?
+- **V** — **Verify**: are the APIs/methods real and current?
+- **I** — **IP**: could this be reproducing licensed public code?
+- **S** — **Security**: any OWASP Top 10 risk introduced?
+- **O** — **Output tested**: does it pass tests and handle edge cases?
+- **R** — **Review policy**: does my org require disclosure or extra sign-off?
+
+### Exam Strategy for Domain 1
+
+- When an answer choice contains an **absolute promise about safety** ("automatically secure", "guarantees", "eliminates all risk"), it is almost always the wrong choice. Responsible-AI answers favour *reduction of risk* and *human verification*.
+- Questions that describe skipping review "to save time" or "because the tests passed in CI" are testing whether you understand that **accountability is non-transferable**.
+- If a question mentions **indemnification**, remember it is *conditional* (Business/Enterprise + public code filter set to Blocked + responsible use) — never automatic.
+
+---
+
 ## Key Exam Traps ⚠️
 
 | Trap | Correct Answer |
