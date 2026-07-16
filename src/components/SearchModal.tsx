@@ -48,9 +48,10 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
       .catch(() => {});
   }, [open, index.length]);
 
-  // Focus input when opening
+  // Focus input when opening — resetting state on prop change is intentional here
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setQuery('');
       setResults([]);
       setActiveIdx(0);
@@ -58,8 +59,9 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
     }
   }, [open]);
 
-  // Run search on query change
+  // Run search on query change — derived state pattern, intentional
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setResults(search(query, index));
     setActiveIdx(0);
   }, [query, index]);

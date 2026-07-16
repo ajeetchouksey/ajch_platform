@@ -58,6 +58,7 @@ export default function Docs() {
 
   useEffect(() => {
     if (!selectedDoc) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);
     fetch(`${BASE}${selectedDoc.file}`)

@@ -1,0 +1,137 @@
+{
+  "id": "ghc-ai-assisted-tdd",
+  "examId": "ghc",
+  "title": "AI-Assisted TDD at Apex Engineering",
+  "description": "Apex Engineering is adopting AI-assisted Test-Driven Development (TDD) practices using GitHub Copilot. A development team is building a financial calculation library and must use Copilot effectively for prompt engineering, test generation, security validation, and responsible AI practices throughout the TDD cycle.",
+  "difficulty": "medium",
+  "estimatedMinutes": 20,
+  "domains": [1, 4, 5],
+  "scenario": {
+    "background": "Apex Engineering's platform team is building `FinCalc` — a TypeScript financial calculation library used by client-facing applications. The team consists of three developers:\n\n- **Meera Osei** (Lead Developer) — ensures code quality and responsible Copilot usage\n- **Jonas Brandt** (Backend Developer) — writes core calculation logic with TDD\n- **Anika Torres** (QA Engineer) — focuses on edge case identification and security testing\n\nThe team follows strict TDD: write failing test → implement → refactor. They are integrating GitHub Copilot into each TDD phase and need to use it effectively while maintaining code quality and security standards.\n\nThe first feature: `calculateLoanAmortization(principal, annualRate, termMonths)` — a core financial calculation function.",
+    "characters": [
+      {
+        "name": "Meera Osei",
+        "role": "Lead Developer",
+        "concern": "Ensuring Copilot suggestions are reviewed and validated; responsible use practices"
+      },
+      {
+        "name": "Jonas Brandt",
+        "role": "Backend Developer",
+        "concern": "Effective prompting for precise financial calculations; few-shot vs zero-shot choices"
+      },
+      {
+        "name": "Anika Torres",
+        "role": "QA Engineer",
+        "concern": "Edge case coverage; security review of generated calculation logic"
+      }
+    ]
+  },
+  "questions": [
+    {
+      "id": "ghc-s2-q1",
+      "question": "Jonas needs to write the FIRST test in the TDD cycle for `calculateLoanAmortization`. He asks Copilot: 'Generate a test for calculateLoanAmortization'. What is WRONG with this prompt?",
+      "options": [
+        "A. The prompt uses the function name directly — Copilot requires only natural language descriptions",
+        "B. The prompt is too vague — it doesn't specify input values, expected output, testing framework, or which specific behavior/scenario to test",
+        "C. The prompt is too technical for Copilot Chat — it should use inline comments instead",
+        "D. Nothing is wrong — this is a valid and effective prompt for test generation"
+      ],
+      "correct": 1,
+      "explanation": "The prompt lacks: (1) specific input values (principal, rate, term), (2) expected output for those inputs, (3) testing framework (Vitest/Jest), and (4) which scenario to test (happy path, error case, edge case). Specific prompts produce accurate assertions."
+    },
+    {
+      "id": "ghc-s2-q2",
+      "question": "Jonas rewrites the prompt: 'Using Vitest, generate a test for calculateLoanAmortization(400000, 0.065, 360) — should return 2528.27 as monthly payment (rounded to 2dp). Test should be descriptive and follow existing test file naming conventions (describe/it structure).' What prompting technique improvements did Jonas make?",
+      "options": [
+        "A. Role prompting and chain-of-thought prompting",
+        "B. Specificity (exact inputs/expected output), framework specification (Vitest), and format context (existing naming conventions)",
+        "C. Zero-shot prompting with system-level role assignment",
+        "D. Few-shot prompting with 3 examples before the main request"
+      ],
+      "correct": 1,
+      "explanation": "Jonas improved the prompt through specificity (exact inputs: 400000, 0.065, 360), precision (exact expected output: 2528.27), framework context (Vitest), and format guidance (describe/it structure matching existing conventions) — all key prompt engineering best practices."
+    },
+    {
+      "id": "ghc-s2-q3",
+      "question": "Jonas's new test file and the existing test files are both open in editor tabs. He asks Copilot: 'Generate the implementation of calculateLoanAmortization that makes the test pass.' What benefit does having the test file open in a neighboring tab provide?",
+      "options": [
+        "A. No benefit — Copilot uses only the current file and ignores all other tabs",
+        "B. Neighboring tab context allows Copilot to see the exact function signature, expected behavior, and return type from the test, enabling it to generate a matching implementation",
+        "C. Open tabs are used only for import statement suggestions, nothing more",
+        "D. Copilot requires files to be explicitly pinned in the IDE before using them as context"
+      ],
+      "correct": 1,
+      "explanation": "Neighboring tab context is a key Copilot feature — open tabs provide function signatures, type expectations, return value shapes, and behavioral requirements that Copilot uses to generate more accurate, context-aware implementations."
+    },
+    {
+      "id": "ghc-s2-q4",
+      "question": "Copilot generates the loan amortization implementation. Meera sees that the function works for Jonas's test case but notices Copilot didn't add input validation. What should she do, following responsible AI usage principles?",
+      "options": [
+        "A. Trust Copilot's judgment — since the test passes, the implementation is correct and complete",
+        "B. Review the generated code critically, identify missing validation (negative principal, zero term, invalid rate range), and either prompt Copilot to add it or implement it manually",
+        "C. Rerun Copilot until it generates a version that includes input validation",
+        "D. Accept the suggestion immediately and open a separate ticket for validation to be added later"
+      ],
+      "correct": 1,
+      "explanation": "Responsible AI use means reviewing generated code critically rather than accepting it at face value. A passing test doesn't guarantee completeness. Meera should identify missing validation and proactively address it — developer accountability applies to all accepted suggestions."
+    },
+    {
+      "id": "ghc-s2-q5",
+      "question": "Anika asks Copilot to identify edge cases for `calculateLoanAmortization`. Copilot suggests: zero principal, negative annual rate, term of 0 months, rate of exactly 0%, very large principal (>$100M), and fractional term (non-integer months). What type of testing does this represent?",
+      "options": [
+        "A. Regression testing — preventing previously fixed bugs from reappearing",
+        "B. Boundary value analysis and equivalence partitioning — testing at input extremes, invalid inputs, and special mathematical cases",
+        "C. Load testing — verifying the function handles high-volume concurrent calls",
+        "D. Smoke testing — verifying basic functionality before deeper test suites run"
+      ],
+      "correct": 1,
+      "explanation": "Copilot's edge case suggestions cover boundary values (very large principal, term=0) and equivalence classes (zero rate, negative rate, fractional term). This is boundary value analysis and equivalence partitioning — core systematic test design techniques."
+    },
+    {
+      "id": "ghc-s2-q6",
+      "question": "After generating tests for all edge cases, Anika asks Copilot to review the implementation for potential security issues. Copilot flags that the function doesn't validate the `annualRate` parameter and could potentially be called with adversarial inputs causing computation errors. What responsible action should the team take?",
+      "options": [
+        "A. Dismiss the concern — financial calculation functions in an internal library don't have security surface areas",
+        "B. Treat Copilot's security feedback as one input to evaluate — validate the concern is relevant, add appropriate bounds checking if warranted, and run through additional security review",
+        "C. Immediately escalate to GitHub Support as a security vulnerability in Copilot itself",
+        "D. Accept all Copilot security suggestions without review, since AI is more thorough than human security review"
+      ],
+      "correct": 1,
+      "explanation": "Copilot's security suggestions should be evaluated critically as one input — not blindly accepted or dismissed. If the concern is valid, add appropriate validation. Always maintain developer judgment; Copilot can flag false positives and may miss real issues."
+    },
+    {
+      "id": "ghc-s2-q7",
+      "question": "Jonas wants to generate documentation for `calculateLoanAmortization` including: what it does, parameter types/constraints, return value, thrown exceptions, and a usage example. Which approach produces the MOST comprehensive documentation?",
+      "options": [
+        "A. Ask Copilot: 'Add documentation to this function'",
+        "B. Select the function → use `/doc` in Copilot Chat, then review and supplement the generated TSDoc/JSDoc with domain-specific notes Copilot may have omitted",
+        "C. Copy-paste the function into Chat and ask for a README section",
+        "D. Use inline comments only — full JSDoc is too verbose for a calculation function"
+      ],
+      "correct": 1,
+      "explanation": "The `/doc` slash command generates structured TSDoc/JSDoc documentation. Review is essential — Copilot may omit domain-specific constraints (e.g., maximum reasonable loan term, regulatory compliance notes) that require developer expertise to add."
+    },
+    {
+      "id": "ghc-s2-q8",
+      "question": "The team completed the TDD cycle using Copilot. Meera is writing the PR description. She asks Copilot to generate the PR summary. Which statement about the generated PR summary is TRUE?",
+      "options": [
+        "A. Copilot's PR summary is automatically submitted — it cannot be edited before submitting",
+        "B. The PR summary is generated as a draft that Meera should review and refine — she remains responsible for the accuracy of what's submitted",
+        "C. PR summaries generated by Copilot are marked with a mandatory 'AI-generated' disclaimer visible to all reviewers",
+        "D. PR summaries are only available if the repository has GitHub Advanced Security enabled"
+      ],
+      "correct": 1,
+      "explanation": "Copilot PR summaries generate a draft — the developer reviews, edits, and submits. The developer is responsible for accuracy of the final PR description. Summaries are a productivity accelerator, not a hands-off automation."
+    }
+  ],
+  "keyLearnings": [
+    "Effective test generation prompts specify: exact inputs, expected outputs, testing framework, and behavioral scenario",
+    "Neighboring tab context (open files) gives Copilot visibility into test requirements for implementation generation",
+    "Responsible AI use means reviewing Copilot suggestions critically — a passing test doesn't guarantee completeness",
+    "Copilot excels at edge case discovery: boundary values, invalid inputs, and special mathematical cases",
+    "Copilot security suggestions should be evaluated as informed input, not blindly accepted or dismissed",
+    "The `/doc` slash command generates structured documentation — always review and supplement domain-specific notes",
+    "PR summaries are reviewed drafts — the developer is responsible for accuracy of what is submitted",
+    "Developer accountability applies to ALL accepted suggestions, regardless of source (AI or human)"
+  ]
+}

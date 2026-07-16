@@ -6,7 +6,7 @@ const REPO = 'ajeetchouksey/ajch_platform';
 const REPO_ID = 'R_kgDOSkXkfg';
 
 /** All available Giscus discussion categories, keyed by usage context. */
-export const GISCUS_CATEGORIES = {
+export const GISCUS_CATEGORIES = { // eslint-disable-line react-refresh/only-export-components
   'field-notes': { category: 'Field Notes', categoryId: 'DIC_kwDOSkXkfs4C-Vst' }, // blog posts
   'skill-up':    { category: 'Skill Up',    categoryId: 'DIC_kwDOSkXkfs4C-Vs0' }, // study notes / exams
   'tools':       { category: 'Tools',       categoryId: 'DIC_kwDOSkXkfs4C-Vs7' }, // tools page

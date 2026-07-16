@@ -187,7 +187,8 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
-  const fadeIn = (_delay: number) =>
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const fadeIn = (_: number) =>
     `transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`;
 
   return (

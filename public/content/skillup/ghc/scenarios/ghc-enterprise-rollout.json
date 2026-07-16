@@ -1,0 +1,142 @@
+{
+  "id": "ghc-enterprise-rollout",
+  "examId": "ghc",
+  "title": "Enterprise Copilot Rollout at Stellar DevOps",
+  "description": "Stellar DevOps, a 1,200-developer SaaS company, is rolling out GitHub Copilot Enterprise across three engineering divisions. The Platform Engineering team has been tasked with configuring, piloting, and managing the rollout while ensuring compliance with the company's IP protection policies, data privacy requirements, and security standards.",
+  "difficulty": "hard",
+  "estimatedMinutes": 25,
+  "domains": [2, 3, 6],
+  "scenario": {
+    "background": "Stellar DevOps operates a monorepo containing three layers: `core-platform/` (proprietary orchestration algorithms), `shared-services/` (internal utilities, open for reference), and `client-integrations/` (customer-specific code). The company has the following requirements:\n\n1. Protect the `core-platform/` IP from being included in any Copilot context\n2. Prevent developers from inadvertently including code matching public OSS in the proprietary codebase\n3. All 1,200 developers should have access to Copilot in their IDEs within 30 days\n4. The security team requires audit trail visibility for all Copilot policy changes\n5. Developers should be able to use Copilot CLI for DevOps automation tasks\n\nThe CTO, Raj Mehta, has asked the platform team to design the complete rollout configuration.",
+    "characters": [
+      {
+        "name": "Raj Mehta",
+        "role": "CTO",
+        "concern": "IP protection and compliance with company data governance policies"
+      },
+      {
+        "name": "Priya Nakamura",
+        "role": "Platform Engineering Lead",
+        "concern": "Scalable rollout configuration, minimal per-developer setup required"
+      },
+      {
+        "name": "Derek Walsh",
+        "role": "Security Architect",
+        "concern": "Audit visibility, public code filter, credential file exclusions"
+      },
+      {
+        "name": "Zara Okonkwo",
+        "role": "DevOps Engineer",
+        "concern": "Using Copilot CLI for pipeline automation and shell scripting"
+      }
+    ]
+  },
+  "questions": [
+    {
+      "id": "ghc-s1-q1",
+      "question": "Derek wants to protect `core-platform/` from being used as Copilot context for ALL 1,200 developers without requiring individual configuration. What is the MOST effective and scalable configuration approach?",
+      "options": [
+        "A. Send an organization-wide email asking all developers to add `core-platform/**` to their local VS Code settings",
+        "B. Configure an organization-level content exclusion with the glob pattern `core-platform/**` in Organization Settings → GitHub Copilot → Content Exclusion",
+        "C. Create a `.copilotignore` file in the `core-platform/` directory root",
+        "D. Set up a CODEOWNERS file that restricts read access to `core-platform/` — Copilot respects CODEOWNERS access controls"
+      ],
+      "correct": 1,
+      "explanation": "Organization-level content exclusions apply automatically to all repositories and all developers in the organization without any per-developer or per-repository configuration. This is the only scalable approach that guarantees consistent protection."
+    },
+    {
+      "id": "ghc-s1-q2",
+      "question": "Raj wants to ensure GitHub's IP indemnification applies to Stellar DevOps's Copilot usage. Which configuration is REQUIRED to qualify for this protection?",
+      "options": [
+        "A. Use GitHub Copilot Individual licenses for all 1,200 developers",
+        "B. Use GitHub Copilot Business or Enterprise and set 'Suggestions matching public code' to 'Blocked' in organization settings",
+        "C. File a legal attestation with GitHub's legal team confirming responsible use",
+        "D. Configure repository-level content exclusions for all repositories before enabling Copilot"
+      ],
+      "correct": 1,
+      "explanation": "GitHub's IP indemnification requires: (1) Copilot Business or Enterprise subscription, and (2) the 'Suggestions matching public code' filter set to 'Blocked'. Both conditions must be met — the public code filter is mandatory for indemnification eligibility."
+    },
+    {
+      "id": "ghc-s1-q3",
+      "question": "Priya needs to assign Copilot seats to all 1,200 developers programmatically as part of the automated onboarding pipeline. What is the correct method?",
+      "options": [
+        "A. Use `gh copilot assign-seats --count 1200` from the CLI",
+        "B. Use the GitHub REST API: `POST /orgs/{org}/copilot/billing/selected_users` with the list of usernames to add",
+        "C. Manually assign seats one-by-one through the GitHub web UI Organization Settings page",
+        "D. Send a GitHub Actions workflow trigger that auto-assigns all new user accounts"
+      ],
+      "correct": 1,
+      "explanation": "Programmatic seat assignment uses the GitHub REST API endpoint `POST /orgs/{org}/copilot/billing/selected_users`. This supports bulk operations and can be integrated into the onboarding automation pipeline."
+    },
+    {
+      "id": "ghc-s1-q4",
+      "question": "Zara needs to generate complex Kubernetes deployment YAML from natural language descriptions using the Copilot CLI. Which command installs the CLI extension?",
+      "options": [
+        "A. `npm install -g github-copilot-cli`",
+        "B. `gh extension install github/gh-copilot`",
+        "C. `brew install github-copilot-cli`",
+        "D. `pip install gh-copilot`"
+      ],
+      "correct": 1,
+      "explanation": "The Copilot CLI is installed as a GitHub CLI extension using `gh extension install github/gh-copilot`. The GitHub CLI (`gh`) must be installed first. This is the only supported installation method."
+    },
+    {
+      "id": "ghc-s1-q5",
+      "question": "Derek's security team needs to monitor all Copilot policy changes, such as when the public code filter setting is modified or content exclusion rules are updated. Where should they look?",
+      "options": [
+        "A. GitHub → Organization → Insights → Copilot Usage Dashboard",
+        "B. GitHub → Organization → Settings → Audit Log, filtering by 'copilot' events",
+        "C. GitHub → Organization → Security → Advanced Security Settings → Copilot Audit",
+        "D. GitHub → Organization → Copilot → Governance → Policy Change History"
+      ],
+      "correct": 1,
+      "explanation": "Copilot policy changes are captured in the Organization Audit Log under 'copilot' event types (e.g., `copilot.policy_change`, `copilot.content_exclusion_created`). This is the authoritative source for Copilot governance audit trails."
+    },
+    {
+      "id": "ghc-s1-q6",
+      "question": "Stellar DevOps's monorepo also contains `.env` files, deployment certificates (`*.pem`), and Terraform variable files (`terraform.tfvars`) in various directories. What org-level exclusion configuration covers all of these?",
+      "options": [
+        "A. `*.env, *.pem, terraform.tfvars` (comma-separated in a single line)",
+        "B. Three separate glob patterns on separate lines: `**/.env`, `**/*.pem`, `**/terraform.tfvars`",
+        "C. A single exclusion for `secrets/**` which recursively covers all sensitive file types",
+        "D. Add these files to `.gitignore` — Copilot automatically respects `.gitignore` patterns as exclusions"
+      ],
+      "correct": 1,
+      "explanation": "Each file type needs its own glob pattern using the `**` wildcard for recursive matching: `**/.env` (at any depth), `**/*.pem` (all PEM files), `**/terraform.tfvars` (all Terraform var files). They cannot be combined on one line."
+    },
+    {
+      "id": "ghc-s1-q7",
+      "question": "After configuring org-level content exclusions, three developers on the platform team report that Copilot is still suggesting content from `core-platform/` files. What should Priya ask them to do FIRST?",
+      "options": [
+        "A. Uninstall and reinstall the GitHub Copilot extension",
+        "B. Reload or restart their IDE — content exclusion configuration changes require the IDE to refresh its Copilot configuration",
+        "C. Sign out and back in to their GitHub account in the IDE",
+        "D. Verify the glob pattern by creating a test file in `core-platform/` and checking if it's suggested"
+      ],
+      "correct": 1,
+      "explanation": "Content exclusion changes require the IDE to reload its Copilot configuration. Reloading/restarting the IDE is the first troubleshooting step. If the issue persists after reload, then check glob pattern correctness and org-level policy propagation."
+    },
+    {
+      "id": "ghc-s1-q8",
+      "question": "Raj asks whether Stellar DevOps's code prompts (code context sent to Copilot) and suggestions are used to train future GitHub Copilot models. With Copilot Enterprise, what is the correct answer?",
+      "options": [
+        "A. Yes — all prompts are anonymized and used for model improvement after 90 days",
+        "B. No — GitHub Copilot Enterprise never uses customer code (prompts or suggestions) to train or improve Copilot models",
+        "C. Only suggestions that developers explicitly accept are used for training",
+        "D. Training data usage depends on the organization's geographic region and data residency settings"
+      ],
+      "correct": 1,
+      "explanation": "GitHub Copilot Business and Enterprise explicitly commit that customer code — neither prompts sent nor suggestions returned — is ever used to train or improve Copilot models. This is a core enterprise data privacy commitment."
+    }
+  ],
+  "keyLearnings": [
+    "Organization-level content exclusions are the only scalable approach for protecting sensitive directories across 1,200+ developers",
+    "IP indemnification requires Copilot Business/Enterprise + public code filter set to Blocked",
+    "Bulk seat assignment uses the GitHub REST API: POST /orgs/{org}/copilot/billing/selected_users",
+    "Copilot CLI installs via: gh extension install github/gh-copilot",
+    "Copilot policy changes are monitored via Organization Audit Log filtering by 'copilot' events",
+    "Each sensitive file type needs its own `**/*.ext` glob pattern — they cannot be combined",
+    "Content exclusion changes require IDE reload to take effect",
+    "Copilot Enterprise: customer code is NEVER used for model training"
+  ]
+}

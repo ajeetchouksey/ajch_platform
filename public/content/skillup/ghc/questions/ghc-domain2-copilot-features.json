@@ -1,0 +1,377 @@
+[
+  {
+    "id": "ghc-d2-001",
+    "domain": 2,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "What is the FIRST step to enable GitHub Copilot functionality in VS Code?",
+    "options": [
+      "A. Install the GitHub Copilot extension from the VS Code Marketplace and sign in with a GitHub account that has an active Copilot subscription",
+      "B. Run `npm install github-copilot` in the project terminal",
+      "C. Enable Copilot in VS Code Settings > Extensions > GitHub Copilot",
+      "D. Create a `.copilot` configuration file in the project root directory"
+    ],
+    "correct": 0,
+    "explanation": "Enabling Copilot in VS Code requires: (1) installing the GitHub Copilot extension from the Marketplace, then (2) signing in with a GitHub account that has an active Copilot subscription (Individual, Business, or Enterprise)."
+  },
+  {
+    "id": "ghc-d2-002",
+    "domain": 2,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "A developer sees a gray 'ghost text' inline suggestion in VS Code while typing. Which keyboard shortcut accepts the FULL suggestion?",
+    "options": [
+      "A. Enter",
+      "B. Ctrl+Space",
+      "C. Tab",
+      "D. Alt+]"
+    ],
+    "correct": 2,
+    "explanation": "Tab is the default keyboard shortcut to accept a complete inline (ghost text) suggestion from GitHub Copilot in VS Code. Alt+] cycles to the next alternative suggestion; Alt+[ cycles to the previous."
+  },
+  {
+    "id": "ghc-d2-003",
+    "domain": 2,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which of the following BEST describes the difference between GitHub Copilot inline suggestions and GitHub Copilot Chat?",
+    "options": [
+      "A. Inline suggestions appear as ghost text while typing; Copilot Chat is a conversational interface for questions, explanations, and code requests",
+      "B. Copilot Chat is only available on github.com; inline suggestions work only in the terminal",
+      "C. Inline suggestions only work for Python; Copilot Chat works for all languages",
+      "D. Copilot Chat requires a separate paid subscription from inline suggestions"
+    ],
+    "correct": 0,
+    "explanation": "Inline suggestions (ghost text) appear contextually as you type in the editor. Copilot Chat is a dedicated chat panel for conversational interactions â€” asking questions, explaining code, requesting refactors, and getting documentation help."
+  },
+  {
+    "id": "ghc-d2-004",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer at Meridian Analytics wants to use GitHub Copilot Agent Mode. Which statement BEST describes what Agent Mode enables?",
+    "options": [
+      "A. Agent Mode allows GitHub to automatically review and merge pull requests on a schedule",
+      "B. Agent Mode enables Copilot to autonomously plan and execute multi-step coding tasks, iterate on errors, and use tools within a defined scope",
+      "C. Agent Mode permanently replaces the need for human code review in CI/CD pipelines",
+      "D. Agent Mode is only available in GitHub Copilot Enterprise plan"
+    ],
+    "correct": 1,
+    "explanation": "Agent Mode enables Copilot to autonomously undertake multi-step coding tasks â€” planning, writing code, running tests, iterating on errors â€” within a defined scope, going beyond single-file or single-action suggestions."
+  },
+  {
+    "id": "ghc-d2-005",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which command correctly installs the GitHub Copilot CLI extension?",
+    "options": [
+      "A. `npm install -g github-copilot-cli`",
+      "B. `gh extension install github/gh-copilot`",
+      "C. `pip install github-copilot`",
+      "D. `brew install gh-copilot`"
+    ],
+    "correct": 1,
+    "explanation": "`gh extension install github/gh-copilot` is the correct command. GitHub Copilot CLI is installed as a GitHub CLI (`gh`) extension. The `gh` CLI must be installed and authenticated first."
+  },
+  {
+    "id": "ghc-d2-006",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer at TechNova Solutions wants to understand what a complex shell command does using Copilot CLI. Which command should they use?",
+    "options": [
+      "A. `gh copilot explain \"<command>\"`",
+      "B. `gh copilot suggest --explain <command>`",
+      "C. `gh copilot decode \"<command>\"`",
+      "D. `gh copilot help \"<command>\"`"
+    ],
+    "correct": 0,
+    "explanation": "`gh copilot explain \"<command>\"` uses Copilot to provide a natural language explanation of what a shell command does, making it easier to understand complex or unfamiliar commands without consulting external documentation."
+  },
+  {
+    "id": "ghc-d2-007",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which `gh copilot` subcommand helps developers generate shell commands from natural language descriptions?",
+    "options": [
+      "A. `gh copilot generate`",
+      "B. `gh copilot suggest`",
+      "C. `gh copilot create`",
+      "D. `gh copilot write`"
+    ],
+    "correct": 1,
+    "explanation": "`gh copilot suggest` takes a natural language description and generates the appropriate shell command interactively. It asks follow-up questions to clarify intent and refine the suggestion."
+  },
+  {
+    "id": "ghc-d2-008",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Vertex Systems is configuring GitHub Copilot content exclusions to prevent certain files from being used as context. Where can content exclusions be configured?",
+    "options": [
+      "A. Only in the `.copilotignore` file in the repository root",
+      "B. At the repository level (repository settings) and at the organization level (organization settings)",
+      "C. Only at the IDE level in each developer's VS Code settings.json",
+      "D. Only enterprise plan administrators can configure content exclusions"
+    ],
+    "correct": 1,
+    "explanation": "Content exclusions are configured at the repository level (repository Settings > Copilot > Content exclusions) and the organization level (organization Settings > Copilot). These prevent specified files from being sent as context for Copilot suggestions."
+  },
+  {
+    "id": "ghc-d2-009",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "What is 'Copilot Edits' in GitHub Copilot?",
+    "options": [
+      "A. A feature that automatically fixes code style violations on save",
+      "B. A Copilot feature that edits and improves pull request descriptions",
+      "C. The ability for developers to edit Copilot's system-level prompts",
+      "D. A feature that enables Copilot to propose and apply edits across multiple files based on a natural language description"
+    ],
+    "correct": 3,
+    "explanation": "Copilot Edits enables developers to describe a change in natural language and have Copilot propose edits across multiple files simultaneously, enabling broader refactoring, feature additions, and codebase-wide changes."
+  },
+  {
+    "id": "ghc-d2-010",
+    "domain": 2,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "What does Model Context Protocol (MCP) enable when used with GitHub Copilot Agent Mode?",
+    "options": [
+      "A. MCP enables Copilot to run in fully offline mode without internet connectivity",
+      "B. MCP enables Copilot to connect to external tools and data sources (databases, APIs, file systems) through standardized interfaces",
+      "C. MCP is a protocol for encrypting Copilot suggestions in transit between IDE and GitHub servers",
+      "D. MCP enables Copilot to share context with other developers collaborating on the same file"
+    ],
+    "correct": 1,
+    "explanation": "Model Context Protocol (MCP) allows Copilot Agent Mode to connect to external tools and data sources through standardized interfaces, enabling Copilot to interact with databases, APIs, project management tools, and file systems during agentic tasks."
+  },
+  {
+    "id": "ghc-d2-011",
+    "domain": 2,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which GitHub Copilot feature automatically generates a natural language summary of the changes made in a pull request?",
+    "options": [
+      "A. Copilot Code Review",
+      "B. Pull Request summaries",
+      "C. Copilot Edits",
+      "D. Copilot Spaces"
+    ],
+    "correct": 1,
+    "explanation": "GitHub Copilot Pull Request summaries automatically generate a description of the changes, key decisions, and impact of a PR, saving developers time writing PR descriptions and helping reviewers understand the changes faster."
+  },
+  {
+    "id": "ghc-d2-012",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer at NovaBuild wants Copilot to consistently follow their repository's coding conventions in all Copilot Chat interactions. Which file should they create?",
+    "options": [
+      "A. `.github/copilot-config.json`",
+      "B. `.github/copilot-instructions.md`",
+      "C. `.copilot/rules.md`",
+      "D. `COPILOT_RULES.md` in the repository root"
+    ],
+    "correct": 1,
+    "explanation": "Creating `.github/copilot-instructions.md` allows developers to define custom instructions that GitHub Copilot Chat follows for all interactions within that repository â€” ensuring consistent coding conventions, style, and context."
+  },
+  {
+    "id": "ghc-d2-013",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "An organization admin at Pinnacle Corp wants to enable GitHub Copilot Code Review for their organization's pull requests. Where should they configure this?",
+    "options": [
+      "A. In each repository's CODEOWNERS file",
+      "B. In the organization's Copilot settings to enable Code Review and configure policies",
+      "C. By installing a separate 'GitHub Copilot Code Review' GitHub App",
+      "D. By adding a `.github/workflows/copilot-review.yml` workflow to each repository"
+    ],
+    "correct": 1,
+    "explanation": "Organization-wide Copilot Code Review is configured in the organization's Copilot settings. Admins can enable the feature, set policies, configure review standards, and control which repositories and pull requests are covered."
+  },
+  {
+    "id": "ghc-d2-014",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "What does the 'GitHub Copilot Spaces' feature provide to development teams?",
+    "options": [
+      "A. Cloud storage for Copilot-generated code snippet libraries",
+      "B. A collaborative environment where teams create AI-powered experiences with curated context, documentation, and tools",
+      "C. A whiteboard feature for planning integrated with Copilot suggestions",
+      "D. A dedicated isolated Copilot server for enterprise on-premises deployments"
+    ],
+    "correct": 1,
+    "explanation": "GitHub Copilot Spaces allows teams to create dedicated AI-powered collaboration environments with curated context, documentation, and tool access â€” enabling richer, more grounded team-based AI assistance."
+  },
+  {
+    "id": "ghc-d2-015",
+    "domain": 2,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which Copilot Chat slash command asks Copilot to generate unit tests for selected code?",
+    "options": [
+      "A. `/debug`",
+      "B. `/optimize`",
+      "C. `/tests`",
+      "D. `/unittest`"
+    ],
+    "correct": 2,
+    "explanation": "`/tests` is a built-in Copilot Chat slash command that generates unit tests for selected code. Other built-in commands include `/explain` (explain code), `/fix` (fix bugs), `/docs` (generate docs), and `/new` (scaffold a new project)."
+  },
+  {
+    "id": "ghc-d2-016",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "An organization admin wants to review which developers are using GitHub Copilot and what policy events occurred. Where should they look?",
+    "options": [
+      "A. The organization's Audit Log, filtered for Copilot action events",
+      "B. GitHub Actions workflow logs for each repository",
+      "C. GitHub Copilot's built-in individual usage dashboard",
+      "D. The GitHub Copilot REST API at `/orgs/{org}/copilot/usage`"
+    ],
+    "correct": 0,
+    "explanation": "Organization audit logs capture Copilot-specific events such as enabling/disabling Copilot access, policy changes, seat assignments, and feature access changes. Admins can filter by the `copilot` action category."
+  },
+  {
+    "id": "ghc-d2-017",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer is using GitHub Copilot Chat and wants to provide a specific file as context. Which syntax correctly attaches a file?",
+    "options": [
+      "A. `#file:src/utils.ts`",
+      "B. `@file:src/utils.ts`",
+      "C. `[src/utils.ts]`",
+      "D. `include:src/utils.ts`"
+    ],
+    "correct": 0,
+    "explanation": "Using `#file:filename.ext` syntax in Copilot Chat attaches a specific file as explicit context for the conversation, allowing Copilot to provide more accurate, file-aware assistance."
+  },
+  {
+    "id": "ghc-d2-018",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "What is the purpose of 'prompt files' (`.github/prompts/*.md`) in GitHub Copilot?",
+    "options": [
+      "A. Reusable markdown files containing prompts that can be invoked in Copilot Chat for consistent, repeatable interactions",
+      "B. Files that store Copilot's API configuration and rate limit settings",
+      "C. Files that log all prompts sent to Copilot for compliance audit purposes",
+      "D. Configuration files that set Copilot's model temperature and inference parameters"
+    ],
+    "correct": 0,
+    "explanation": "Prompt files (`.github/prompts/`) are reusable markdown files containing commonly used prompts. Developers can reference them in Copilot Chat for consistent, standardized interactions â€” useful for code reviews, documentation, or common coding tasks."
+  },
+  {
+    "id": "ghc-d2-019",
+    "domain": 2,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "An admin at Stellar DevOps wants to use the GitHub REST API to programmatically check Copilot seat usage for their organization. Which API endpoint category should they use?",
+    "options": [
+      "A. `/orgs/{org}/members` with a Copilot filter parameter",
+      "B. `/enterprises/{enterprise}/copilot/metrics` for all organizations",
+      "C. `/orgs/{org}/actions/secrets` for token management",
+      "D. `/orgs/{org}/copilot/billing` and related billing/seats endpoints"
+    ],
+    "correct": 3,
+    "explanation": "The GitHub REST API provides `/orgs/{org}/copilot/billing` endpoints to retrieve Copilot seat usage, manage seat assignments, get billing summaries, and track subscription data programmatically."
+  },
+  {
+    "id": "ghc-d2-020",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which GitHub Copilot feature allows a developer to describe a new application idea in natural language and receive a generated initial scaffold?",
+    "options": [
+      "A. Copilot Edits",
+      "B. Agent Mode with MCP",
+      "C. GitHub Copilot Spark",
+      "D. Pull Request summaries"
+    ],
+    "correct": 2,
+    "explanation": "GitHub Copilot Spark enables developers to describe an application idea in natural language and receive a generated app scaffold, accelerating the initial project setup and prototyping phase."
+  },
+  {
+    "id": "ghc-d2-021",
+    "domain": 2,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer uses `@workspace` in GitHub Copilot Chat. What does this context participant enable?",
+    "options": [
+      "A. Opens the entire GitHub repository in a new browser tab for browsing",
+      "B. Provides Copilot Chat with indexed context from across the entire local workspace to answer codebase-wide questions",
+      "C. Sends the workspace configuration to GitHub's servers for remote analysis",
+      "D. Syncs the local workspace with the remote repository's default branch"
+    ],
+    "correct": 1,
+    "explanation": "`@workspace` is a Copilot Chat participant that allows asking questions about your entire codebase. Copilot indexes workspace files to provide context-aware answers about the full project structure, patterns, and relationships."
+  },
+  {
+    "id": "ghc-d2-022",
+    "domain": 2,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "How can an organization admin configure GitHub Copilot to be available only in certain IDEs for all organization members?",
+    "options": [
+      "A. By configuring IDE feature availability policies in the organization's Copilot settings",
+      "B. By purchasing IDE-specific Copilot license add-ons for each IDE type",
+      "C. By creating per-repository `.copilot/ide-config.json` policy files",
+      "D. IDE availability is determined solely by the Copilot plan tier, not by admin policy"
+    ],
+    "correct": 0,
+    "explanation": "Organization admins can configure Copilot feature availability policies in organization settings, including which IDE integrations (VS Code, JetBrains, Vim, Neovim, Visual Studio, etc.) are permitted for organization members."
+  },
+  {
+    "id": "ghc-d2-023",
+    "domain": 2,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "What are 'Sub-Agents' in the context of GitHub Copilot Agent Mode?",
+    "options": [
+      "A. Human reviewers who validate and approve Agent Mode outputs before merging",
+      "B. External AI services connected to Agent Mode via the MCP protocol",
+      "C. GitHub Actions bots that automatically merge Agent Mode-generated pull requests",
+      "D. Specialized agent instances that can be delegated specific subtasks to optimize context usage and enable parallel task execution"
+    ],
+    "correct": 3,
+    "explanation": "Sub-Agents in Agent Mode are specialized instances that can be delegated specific subtasks, enabling better context management, parallel task execution, and optimized handling of complex multi-step development workflows."
+  },
+  {
+    "id": "ghc-d2-024",
+    "domain": 2,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "A developer sees multiple alternative inline suggestions available from Copilot. How do they cycle through the alternatives in VS Code?",
+    "options": [
+      "A. Press F5 to cycle forward through all available alternatives",
+      "B. Right-click in the editor and select 'Show GitHub Copilot alternatives'",
+      "C. Press Alt+] to see the next suggestion and Alt+[ to see the previous suggestion",
+      "D. Type `/alternatives` in the inline suggestion ghost text area"
+    ],
+    "correct": 2,
+    "explanation": "When multiple inline suggestions are available, developers cycle through them using Alt+] (next suggestion) and Alt+[ (previous suggestion) in VS Code, allowing comparison before accepting the best option with Tab."
+  },
+  {
+    "id": "ghc-d2-025",
+    "domain": 2,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "An admin at ClearPath Technologies wants to control whether organization members can use GitHub Copilot features on github.com (web editor, PR summaries) in addition to their IDE. Where is this configured?",
+    "options": [
+      "A. In the organization's Copilot policy settings, which controls feature availability on github.com separately from IDE access",
+      "B. In each repository's branch protection rules settings",
+      "C. In the GitHub Actions permissions settings for the organization",
+      "D. In each member's individual GitHub profile settings â€” admins cannot control this centrally"
+    ],
+    "correct": 0,
+    "explanation": "Organization Copilot settings include separate controls for feature availability on github.com (web editor, Copilot Chat on github.com, PR summaries) and IDE-based features, giving admins granular control over where Copilot is accessible."
+  }
+]

@@ -1,0 +1,304 @@
+{
+  "schemaVersion": "1.0",
+  "examId": "ghc",
+  "examCode": "GH-300",
+  "lastUpdated": "2025-01-01",
+  "domains": [
+    {
+      "id": 1,
+      "title": "Use GitHub Copilot Responsibly",
+      "weight": 18,
+      "tasks": [
+        {
+          "id": "d1-t1",
+          "title": "Understand responsible AI principles",
+          "knowledge": [
+            "Recognize risks and limitations of generative AI in software development",
+            "Understand ethical usage of AI coding assistants",
+            "Identify potential harms from AI-generated code (security, bias, copyright)",
+            "Describe mitigation strategies for AI-generated code risks",
+            "Understand responsible AI frameworks applicable to developer tools"
+          ],
+          "skills": [
+            "Evaluate AI-generated code for ethical and safety implications",
+            "Apply responsible AI principles when using Copilot",
+            "Identify when AI suggestions may introduce risks or biases",
+            "Make informed decisions about when to accept or reject Copilot suggestions"
+          ],
+          "questionIds": ["ghc-d1-001", "ghc-d1-002", "ghc-d1-003", "ghc-d1-004", "ghc-d1-005", "ghc-d1-006", "ghc-d1-007", "ghc-d1-008", "ghc-d1-009", "ghc-d1-010", "ghc-d1-011", "ghc-d1-012", "ghc-d1-013"]
+        },
+        {
+          "id": "d1-t2",
+          "title": "Validate and operate AI tools responsibly",
+          "knowledge": [
+            "Understand the necessity of validating AI-generated output before use",
+            "Recognize that Copilot can produce hallucinations and incorrect suggestions",
+            "Know the principles for operating Copilot in a responsible and safe manner",
+            "Understand developer accountability for accepted AI-generated code"
+          ],
+          "skills": [
+            "Review and test AI-generated code before committing",
+            "Apply critical evaluation to Copilot suggestions",
+            "Operate Copilot as an assistant, maintaining developer oversight and accountability",
+            "Establish validation workflows for AI-assisted development"
+          ],
+          "questionIds": ["ghc-d1-014", "ghc-d1-015", "ghc-d1-016", "ghc-d1-017", "ghc-d1-018", "ghc-d1-019", "ghc-d1-020", "ghc-d1-021", "ghc-d1-022", "ghc-d1-023", "ghc-d1-024", "ghc-d1-025"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Use GitHub Copilot Features",
+      "weight": 27,
+      "tasks": [
+        {
+          "id": "d2-t1",
+          "title": "Use Copilot in the IDE",
+          "knowledge": [
+            "Know how to enable GitHub Copilot in VS Code, JetBrains IDEs, and other supported editors",
+            "Understand different trigger modes: inline suggestions, Copilot Chat, slash commands",
+            "Know how to use Copilot in Agent Mode for multi-step autonomous tasks",
+            "Understand how content exclusions are applied in the IDE context"
+          ],
+          "skills": [
+            "Enable and configure Copilot in supported IDEs",
+            "Use inline completions, ghost text, and next suggestion navigation",
+            "Interact with Copilot Chat using natural language and slash commands",
+            "Invoke Agent Mode for complex multi-file editing tasks"
+          ],
+          "questionIds": ["ghc-d2-001", "ghc-d2-002", "ghc-d2-003", "ghc-d2-004", "ghc-d2-005", "ghc-d2-006", "ghc-d2-007"]
+        },
+        {
+          "id": "d2-t2",
+          "title": "Use GitHub Copilot CLI",
+          "knowledge": [
+            "Define what GitHub Copilot CLI is and its purpose for terminal productivity",
+            "Know how to install the CLI: `gh extension install github/gh-copilot`",
+            "Understand key CLI features: `gh copilot explain`, `gh copilot suggest`",
+            "Know how to use CLI sessions for multi-turn terminal assistance"
+          ],
+          "skills": [
+            "Install and configure the GitHub Copilot CLI extension",
+            "Use `gh copilot explain` to understand unfamiliar shell commands",
+            "Use `gh copilot suggest` to generate commands from natural language",
+            "Generate scripts and command sequences using CLI assistance"
+          ],
+          "questionIds": ["ghc-d2-008", "ghc-d2-009", "ghc-d2-010", "ghc-d2-011"]
+        },
+        {
+          "id": "d2-t3",
+          "title": "Use Copilot features and capabilities",
+          "knowledge": [
+            "Understand Agent Mode capabilities and when to use it",
+            "Know Copilot Edits for multi-file simultaneous editing",
+            "Understand Model Context Protocol (MCP) integration with Copilot",
+            "Know Copilot Sub-Agents, Extensions, and GitHub Copilot Spaces",
+            "Understand PR Summary generation and automatic code review",
+            "Know `.github/copilot-instructions.md` for repository-level customization",
+            "Understand GitHub Copilot Spark for web app creation"
+          ],
+          "skills": [
+            "Use Agent Mode for autonomous multi-step development tasks",
+            "Apply Copilot Edits to refactor across multiple files",
+            "Configure and use MCP servers with Copilot",
+            "Set up copilot-instructions.md for team-wide context customization",
+            "Generate PR summaries and request Copilot code reviews"
+          ],
+          "questionIds": ["ghc-d2-012", "ghc-d2-013", "ghc-d2-014", "ghc-d2-015", "ghc-d2-016", "ghc-d2-017", "ghc-d2-018", "ghc-d2-019"]
+        },
+        {
+          "id": "d2-t4",
+          "title": "Manage organization-wide settings and policies",
+          "knowledge": [
+            "Know how to manage Copilot policies across an organization in GitHub admin settings",
+            "Understand Code Review policy configuration for Copilot-automated reviews",
+            "Know IDE availability settings (VS Code, JetBrains, etc.) and github.com availability",
+            "Understand audit log events available for Copilot governance",
+            "Know how to use the REST API for managing Copilot seat subscriptions"
+          ],
+          "skills": [
+            "Configure organization-level Copilot policies in GitHub admin settings",
+            "Enable and configure Copilot Code Review for pull requests",
+            "Assign and remove Copilot seats using the REST API or GitHub UI",
+            "Monitor Copilot usage via audit logs and admin dashboards"
+          ],
+          "questionIds": ["ghc-d2-020", "ghc-d2-021", "ghc-d2-022", "ghc-d2-023", "ghc-d2-024", "ghc-d2-025"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Understand GitHub Copilot Data and Architecture",
+      "weight": 13,
+      "tasks": [
+        {
+          "id": "d3-t1",
+          "title": "Describe data handling and flow",
+          "knowledge": [
+            "Understand how user code (prompts) flows from IDE to GitHub Copilot servers",
+            "Know how context is collected and assembled into the prompt sent to the LLM",
+            "Understand the role of the Copilot proxy in filtering and processing",
+            "Know data sharing policies: what data is transmitted, retained, and used",
+            "Understand how suggestions are post-processed before being returned to the IDE"
+          ],
+          "skills": [
+            "Explain the end-to-end data flow from IDE input to suggestion display",
+            "Describe how prompts are constructed from editor context",
+            "Identify where data is filtered and processed in the Copilot pipeline",
+            "Apply knowledge of data handling to make informed privacy decisions"
+          ],
+          "questionIds": ["ghc-d3-001", "ghc-d3-002", "ghc-d3-003", "ghc-d3-004", "ghc-d3-005", "ghc-d3-006", "ghc-d3-007", "ghc-d3-008", "ghc-d3-009", "ghc-d3-010", "ghc-d3-011", "ghc-d3-012", "ghc-d3-013"]
+        },
+        {
+          "id": "d3-t2",
+          "title": "Understand code suggestion lifecycle and LLM limitations",
+          "knowledge": [
+            "Understand the complete code suggestion lifecycle from trigger to display",
+            "Know fundamental LLM limitations: context window, hallucinations, training data cutoff",
+            "Understand the probabilistic nature of LLM outputs",
+            "Know why Copilot may produce outdated, incorrect, or insecure suggestions"
+          ],
+          "skills": [
+            "Describe the full lifecycle of a Copilot code suggestion",
+            "Apply knowledge of LLM limitations to evaluate suggestion quality",
+            "Identify when Copilot suggestions are likely to be outdated or incorrect",
+            "Use validation strategies to compensate for LLM limitations"
+          ],
+          "questionIds": ["ghc-d3-014", "ghc-d3-015", "ghc-d3-016", "ghc-d3-017", "ghc-d3-018", "ghc-d3-019", "ghc-d3-020", "ghc-d3-021", "ghc-d3-022", "ghc-d3-023", "ghc-d3-024", "ghc-d3-025"]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Apply Prompt Engineering and Context Crafting",
+      "weight": 13,
+      "tasks": [
+        {
+          "id": "d4-t1",
+          "title": "Craft effective prompts",
+          "knowledge": [
+            "Understand prompt structure and the elements of an effective Copilot prompt",
+            "Know how Copilot determines context from the active file, open tabs, and workspace",
+            "Understand zero-shot prompting: task without examples",
+            "Understand few-shot prompting: task with 2–5 concrete examples",
+            "Know prompt engineering best practices: specificity, descriptive naming, type annotations"
+          ],
+          "skills": [
+            "Write specific, context-rich prompts that produce accurate suggestions",
+            "Use descriptive variable and function names as natural prompt engineering",
+            "Apply few-shot examples to teach Copilot non-standard patterns",
+            "Structure comments to maximize Copilot suggestion quality"
+          ],
+          "questionIds": ["ghc-d4-001", "ghc-d4-002", "ghc-d4-003", "ghc-d4-004", "ghc-d4-005", "ghc-d4-006", "ghc-d4-007", "ghc-d4-008", "ghc-d4-009", "ghc-d4-010", "ghc-d4-011", "ghc-d4-012", "ghc-d4-013"]
+        },
+        {
+          "id": "d4-t2",
+          "title": "Engineer prompts for performance",
+          "knowledge": [
+            "Understand prompt engineering principles: specificity, single responsibility, context richness",
+            "Know the Copilot prompt process flow: user input → context → model → response",
+            "Understand how chat history is used across a conversation session",
+            "Know when to use `#file:`, `@workspace`, and chat participants for context control"
+          ],
+          "skills": [
+            "Apply single-responsibility prompting for complex multi-step tasks",
+            "Use prompt process flow knowledge to engineer higher-quality prompts",
+            "Leverage chat history strategically within a Copilot Chat session",
+            "Reference specific files and workspace context using `#file:` and `@workspace`"
+          ],
+          "questionIds": ["ghc-d4-014", "ghc-d4-015", "ghc-d4-016", "ghc-d4-017", "ghc-d4-018", "ghc-d4-019", "ghc-d4-020", "ghc-d4-021", "ghc-d4-022", "ghc-d4-023", "ghc-d4-024", "ghc-d4-025"]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Improve Developer Productivity with GitHub Copilot",
+      "weight": 14,
+      "tasks": [
+        {
+          "id": "d5-t1",
+          "title": "Enhance productivity and code quality",
+          "knowledge": [
+            "Know how Copilot accelerates code generation for boilerplate and repetitive tasks",
+            "Understand how Copilot assists with refactoring and code modernization",
+            "Know how Copilot generates code documentation (docstrings, inline comments, README)",
+            "Understand how Copilot accelerates developer learning in unfamiliar codebases",
+            "Know how Copilot reduces context switching by providing answers within the IDE",
+            "Understand sample data and mock data generation use cases",
+            "Know legacy code modernization capabilities (Python 2→3, callbacks→async/await)"
+          ],
+          "skills": [
+            "Use Copilot to generate boilerplate, scaffolding, and repetitive code patterns",
+            "Apply Copilot Edits for refactoring and code modernization tasks",
+            "Generate docstrings, README sections, and inline documentation with Copilot",
+            "Use Copilot as an in-IDE learning tool for unfamiliar frameworks and APIs",
+            "Generate realistic test fixtures and mock data using Copilot"
+          ],
+          "questionIds": ["ghc-d5-001", "ghc-d5-002", "ghc-d5-003", "ghc-d5-004", "ghc-d5-005", "ghc-d5-006", "ghc-d5-007", "ghc-d5-008", "ghc-d5-009", "ghc-d5-010", "ghc-d5-011", "ghc-d5-012", "ghc-d5-013"]
+        },
+        {
+          "id": "d5-t2",
+          "title": "Support testing and security",
+          "knowledge": [
+            "Understand how Copilot generates unit tests and integration tests",
+            "Know how Copilot identifies edge cases and boundary conditions",
+            "Understand how to generate test assertions with Copilot",
+            "Know how Copilot suggests security improvements in existing code",
+            "Understand performance optimization use cases with Copilot"
+          ],
+          "skills": [
+            "Generate unit and integration tests for existing functions using Copilot",
+            "Use Copilot to identify and test edge cases and boundary conditions",
+            "Write comprehensive test assertions with Copilot assistance",
+            "Use Copilot to identify and suggest security improvements",
+            "Apply Copilot for performance optimization in algorithms and queries"
+          ],
+          "questionIds": ["ghc-d5-014", "ghc-d5-015", "ghc-d5-016", "ghc-d5-017", "ghc-d5-018", "ghc-d5-019", "ghc-d5-020", "ghc-d5-021", "ghc-d5-022", "ghc-d5-023", "ghc-d5-024", "ghc-d5-025"]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Configure Privacy, Content Exclusions, and Safeguards",
+      "weight": 15,
+      "tasks": [
+        {
+          "id": "d6-t1",
+          "title": "Manage privacy settings and content exclusions",
+          "knowledge": [
+            "Know how to configure content exclusions at repository, organization, and IDE levels",
+            "Understand glob pattern syntax for content exclusion rules",
+            "Understand output ownership: who owns Copilot-generated code",
+            "Know the limitations around Copilot output IP and indemnification conditions",
+            "Understand individual user privacy controls vs. organizational policy controls"
+          ],
+          "skills": [
+            "Configure repository-level and organization-level content exclusions",
+            "Write correct glob patterns to exclude sensitive files and directories",
+            "Apply content exclusions for credentials, proprietary algorithms, and PII-containing files",
+            "Validate that content exclusions are working correctly after configuration"
+          ],
+          "questionIds": ["ghc-d6-001", "ghc-d6-002", "ghc-d6-003", "ghc-d6-004", "ghc-d6-005", "ghc-d6-006", "ghc-d6-007", "ghc-d6-008", "ghc-d6-009", "ghc-d6-010", "ghc-d6-011", "ghc-d6-012", "ghc-d6-013"]
+        },
+        {
+          "id": "d6-t2",
+          "title": "Apply safeguards and troubleshoot",
+          "knowledge": [
+            "Know how to enable the suggestions matching public code (duplication detection) filter",
+            "Understand what the public code filter does and its IP indemnification implications",
+            "Know how to troubleshoot issues with Copilot suggestions not appearing",
+            "Understand how to troubleshoot content exclusions not taking effect",
+            "Know audit log events related to Copilot for governance oversight"
+          ],
+          "skills": [
+            "Enable and configure the public code filter in organizational settings",
+            "Troubleshoot missing suggestions by checking exclusion settings at all levels",
+            "Resolve content exclusion issues (reload IDE, verify glob patterns, check org policy priority)",
+            "Monitor Copilot usage and policy changes using GitHub audit logs"
+          ],
+          "questionIds": ["ghc-d6-014", "ghc-d6-015", "ghc-d6-016", "ghc-d6-017", "ghc-d6-018", "ghc-d6-019", "ghc-d6-020", "ghc-d6-021", "ghc-d6-022", "ghc-d6-023", "ghc-d6-024", "ghc-d6-025"]
+        }
+      ]
+    }
+  ]
+}

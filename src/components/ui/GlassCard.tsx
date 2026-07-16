@@ -1,7 +1,7 @@
 import React from 'react';
 
 // ─── Accent token map ───────────────────────────────────────────────────────
-export const ACCENT = {
+export const ACCENT = { // eslint-disable-line react-refresh/only-export-components
   violet:  'linear-gradient(90deg,#7c3aed,#a78bfa)',
   blue:    'linear-gradient(90deg,#1d4ed8,#60a5fa)',
   emerald: 'linear-gradient(90deg,#065f46,#34d399)',

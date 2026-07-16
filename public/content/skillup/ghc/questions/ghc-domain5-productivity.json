@@ -1,0 +1,377 @@
+[
+  {
+    "id": "ghc-d5-001",
+    "domain": 5,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "A developer at Stellar DevOps uses GitHub Copilot to generate a boilerplate Express.js REST API scaffold. What is the PRIMARY productivity benefit?",
+    "options": [
+      "A. Copilot automatically deploys and hosts the generated API on GitHub Pages",
+      "B. Copilot reduces time spent on repetitive boilerplate, allowing the developer to focus on differentiating business logic",
+      "C. Copilot eliminates the need for backend development expertise in the team",
+      "D. Copilot generates the API with built-in auto-scaling and load balancing"
+    ],
+    "correct": 1,
+    "explanation": "A key productivity benefit of Copilot is accelerating boilerplate generation â€” freeing developers from repetitive setup (server configuration, route scaffolding, middleware setup) so they can focus creative effort on business-specific logic."
+  },
+  {
+    "id": "ghc-d5-002",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer needs to refactor a legacy callback-based JavaScript function to use modern async/await syntax. How should they use GitHub Copilot most effectively?",
+    "options": [
+      "A. Select the function, use Copilot Edits or Copilot Chat to describe the async/await transformation, review the proposed change before applying",
+      "B. GitHub Copilot cannot help with code modernization or refactoring tasks",
+      "C. Ask Copilot to delete the old function and generate a completely new one from scratch",
+      "D. Use the hidden `/legacy` slash command to trigger automated legacy code detection and conversion"
+    ],
+    "correct": 0,
+    "explanation": "Copilot Edits or Copilot Chat can handle code modernization efficiently â€” select the callback-based function, describe the async/await transformation goal, and review Copilot's proposed changes before accepting them."
+  },
+  {
+    "id": "ghc-d5-003",
+    "domain": 5,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which GitHub Copilot use case BEST demonstrates accelerating learning about an unfamiliar framework?",
+    "options": [
+      "A. Using Copilot to copy-paste code examples from public Stack Overflow answers",
+      "B. Asking Copilot to explain framework concepts, generate working examples, and answer API questions directly within the IDE while coding",
+      "C. Having Copilot generate a fake documentation site for the framework",
+      "D. Copilot automatically downloading and running the framework's official getting-started tutorial"
+    ],
+    "correct": 1,
+    "explanation": "Copilot accelerates framework learning by providing inline explanations, examples, and answers to API questions without requiring context switches to external documentation â€” maintaining developer flow state."
+  },
+  {
+    "id": "ghc-d5-004",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer at Orion Software wants Copilot to generate unit tests for a `calculateTax()` function. What should they do FIRST for the best results?",
+    "options": [
+      "A. Nothing â€” Copilot can generate accurate tests for any function with no context at all",
+      "B. Delete all existing tests to avoid conflicts with new test generation",
+      "C. Ensure the implementation file is open, the function is well-named and documented, so Copilot has clear context about purpose, parameters, and expected behavior",
+      "D. Install a separate testing-specific Copilot extension before using test generation features"
+    ],
+    "correct": 2,
+    "explanation": "For quality test generation: open the implementation file (provides context), ensure the function is well-named (signals intent), and has documentation/type annotations (specifies expected behavior). This gives Copilot enough information to generate meaningful tests."
+  },
+  {
+    "id": "ghc-d5-005",
+    "domain": 5,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which of the following BEST describes how GitHub Copilot enables 'reduction in context switching' for developers?",
+    "options": [
+      "A. Copilot automatically blocks distracting websites and social media during focus sessions",
+      "B. Context switching reduction means Copilot sends calendar reminders to stay focused on one task",
+      "C. By providing inline answers, explanations, documentation lookups, and code examples without leaving the IDE, Copilot eliminates switches to external tools",
+      "D. Copilot closes all browser tabs when the developer starts a new coding session"
+    ],
+    "correct": 2,
+    "explanation": "Context switching reduction is a key Copilot productivity benefit â€” it brings documentation, explanations, and examples directly into the IDE, eliminating the need to switch between editor, browser, documentation sites, and Stack Overflow."
+  },
+  {
+    "id": "ghc-d5-006",
+    "domain": 5,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "A developer needs to generate realistic but fake test data for a user management system with 100 records. How can GitHub Copilot assist?",
+    "options": [
+      "A. Copilot cannot generate test data â€” only real, database-sourced data can be used in tests",
+      "B. Sample data generation requires a GitHub Copilot Enterprise subscription with data generation tools enabled",
+      "C. Copilot connects to live databases to extract and anonymize real production data for tests",
+      "D. Ask Copilot to generate a function that produces realistic sample data structures (names, emails, IDs) in the required format for testing"
+    ],
+    "correct": 3,
+    "explanation": "Copilot excels at generating sample/mock data â€” it can create functions producing realistic test fixtures with appropriate data types, formats, and structures. Always use clearly fictional values (not real PII patterns) in test data."
+  },
+  {
+    "id": "ghc-d5-007",
+    "domain": 5,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which GitHub Copilot feature MOST helps a developer quickly understand a complex, undocumented function they've never encountered before?",
+    "options": [
+      "A. Copilot Edits â€” to reformat and restructure the function for clarity",
+      "B. The `/docs` command with no selection â€” which searches external documentation",
+      "C. GitHub Copilot Spark â€” which generates a new version of the function from scratch",
+      "D. The `/explain` slash command in Copilot Chat â€” which generates a natural language explanation of selected code"
+    ],
+    "correct": 3,
+    "explanation": "The `/explain` command in Copilot Chat generates a natural language explanation of selected code, making it invaluable for understanding complex, undocumented, or legacy code without having to manually trace through execution paths."
+  },
+  {
+    "id": "ghc-d5-008",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer at TechNova is modernizing a Python 2 codebase to Python 3. Which Copilot capability makes this task most efficient?",
+    "options": [
+      "A. Copilot can identify Python 2-specific patterns (print statements, integer division, unicode strings) and suggest Python 3 equivalents",
+      "B. Copilot can automatically run the Python 2to3 migration tool on behalf of the developer",
+      "C. Copilot automatically installs Python 3 and configures virtual environments for the project",
+      "D. Legacy code modernization features require a GitHub Copilot Enterprise license"
+    ],
+    "correct": 0,
+    "explanation": "Copilot is effective for Python 2â†’3 migration â€” it can identify deprecated patterns (`print` statements, `xrange`, byte/unicode confusion) and suggest modern equivalents, significantly accelerating a tedious, error-prone process."
+  },
+  {
+    "id": "ghc-d5-009",
+    "domain": 5,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "What is the PRIMARY productivity benefit of using GitHub Copilot for code documentation generation?",
+    "options": [
+      "A. It produces perfectly accurate documentation that never requires human review or editing",
+      "B. It accelerates docstring, README, and inline comment creation â€” reducing the time cost of documentation that developers frequently deprioritize",
+      "C. It automatically publishes generated documentation to GitHub Pages and Read the Docs",
+      "D. Documentation generated by Copilot is legally exempt from accuracy requirements under GitHub's terms"
+    ],
+    "correct": 1,
+    "explanation": "Documentation is frequently deprioritized under time pressure. Copilot dramatically reduces the time cost of writing docstrings, README sections, and inline comments, making it easier for developers to maintain good documentation practices."
+  },
+  {
+    "id": "ghc-d5-010",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A junior developer at ClearPath Technologies uses Copilot to generate integration tests for a REST API. What ADDITIONAL benefit might Copilot provide beyond just generating test code?",
+    "options": [
+      "A. Copilot automatically runs the generated tests against a live staging environment",
+      "B. Copilot-generated integration tests automatically create and configure required mock services",
+      "C. Copilot can suggest edge cases and boundary conditions that less experienced developers might overlook, improving overall test coverage quality",
+      "D. Copilot guarantees 100% code coverage when generating integration tests"
+    ],
+    "correct": 2,
+    "explanation": "Beyond generating test code, Copilot can suggest edge cases, boundary conditions, and error scenarios (empty inputs, null values, malformed data, authentication failures) that less experienced developers might not think to test."
+  },
+  {
+    "id": "ghc-d5-011",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which of the following represents a valid security-improvement productivity use case for GitHub Copilot?",
+    "options": [
+      "A. Copilot can automatically patch production vulnerabilities without developer review or testing",
+      "B. Copilot provides a verified CVE-free codebase guarantee when used with GitHub Advanced Security",
+      "C. Copilot can suggest security improvements such as parameterized queries, input sanitization, and proper secret management during code reviews",
+      "D. Security improvement suggestions require a separate GitHub Copilot Security add-on subscription"
+    ],
+    "correct": 2,
+    "explanation": "Copilot can proactively suggest security improvements â€” recommending parameterized queries instead of string concatenation, input validation, proper password hashing, and secure secret management patterns during development."
+  },
+  {
+    "id": "ghc-d5-012",
+    "domain": 5,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "A performance engineer uses Copilot Chat to optimize a slow database query. Which prompt yields the MOST useful recommendations?",
+    "options": [
+      "A. 'This JOIN query runs 8s on a 1M-row Orders table. Missing index on Orders.customer_id. Suggest: 1) index strategy 2) query rewrite for better selectivity'",
+      "B. 'Make this query faster'",
+      "C. 'Optimize this SQL query'",
+      "D. 'Fix performance issues in my database'"
+    ],
+    "correct": 0,
+    "explanation": "The specific prompt includes exact performance metrics (8s), dataset scale (1M rows), identified bottleneck (missing index), and explicit asks for targeted solutions. This enables Copilot to provide actionable, specific recommendations rather than generic advice."
+  },
+  {
+    "id": "ghc-d5-013",
+    "domain": 5,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "How does GitHub Copilot help with 'reducing boilerplate' in modern web development?",
+    "options": [
+      "A. Copilot generates complete, repetitive code structures (CRUD endpoints, React components, form validation logic) from brief natural language descriptions",
+      "B. Copilot eliminates the need for frameworks by generating pure native platform code",
+      "C. Boilerplate reduction means Copilot generates shorter variable names to reduce file sizes",
+      "D. Copilot removes all code comments and documentation from files to reduce boilerplate overhead"
+    ],
+    "correct": 0,
+    "explanation": "Boilerplate reduction means Copilot can generate repetitive, predictable code structures â€” REST endpoints, data models, component scaffolding, form validators â€” from descriptions, freeing developers for creative problem-solving."
+  },
+  {
+    "id": "ghc-d5-014",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "When generating mock data with GitHub Copilot for a test database, what should developers be mindful of?",
+    "options": [
+      "A. Copilot cannot generate SQL INSERT statements â€” only SELECT queries",
+      "B. SQL seed data generation requires the GitHub Copilot CLI extension, not the IDE extension",
+      "C. Generated test data will automatically populate production databases if included in the seed script",
+      "D. Ensure generated data uses clearly fictional values, not realistic PII patterns that could be mistaken for actual customer data or create compliance issues"
+    ],
+    "correct": 3,
+    "explanation": "When generating test data, use clearly fictional values (not realistic SSNs, credit card formats, or real email domains) to avoid compliance concerns and prevent test data from being mistaken for real personal information."
+  },
+  {
+    "id": "ghc-d5-015",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which statement about GitHub Copilot Code Review's role in the development workflow is MOST accurate?",
+    "options": [
+      "A. Copilot Code Review completely replaces the need for human pull request reviewers",
+      "B. Copilot Code Review provides automated initial feedback on code quality, security, and best practices, complementing human review",
+      "C. Copilot Code Review only analyzes JavaScript and TypeScript pull requests",
+      "D. Code Review functionality is only activated when Agent Mode is enabled in the organization settings"
+    ],
+    "correct": 1,
+    "explanation": "Copilot Code Review provides automated AI-powered feedback on PRs â€” identifying issues and suggesting improvements. It complements (not replaces) human review by handling initial automated checks, freeing human reviewers to focus on design and business logic."
+  },
+  {
+    "id": "ghc-d5-016",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A team at NovaBuild wants to use GitHub Copilot to improve test coverage for their React application. What is the MOST effective workflow?",
+    "options": [
+      "A. Ask Copilot to generate tests for the entire application all at once in a single prompt",
+      "B. Use Copilot exclusively for test setup/fixture code but never for assertion logic",
+      "C. Work file by file: open the component alongside the test file, describe specific test scenarios in Chat, review and iterate on generated tests",
+      "D. Use Copilot only for end-to-end tests using Playwright â€” never for unit tests"
+    ],
+    "correct": 2,
+    "explanation": "The most effective workflow: work incrementally file by file, keep the implementation open alongside the test file for context, describe specific scenarios, review for accuracy, and iterate. This produces higher quality tests than bulk generation."
+  },
+  {
+    "id": "ghc-d5-017",
+    "domain": 5,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "What does 'accelerating learning and reducing context switching' mean in the context of GitHub Copilot?",
+    "options": [
+      "A. Copilot can complete Microsoft Learn certification paths on behalf of developers to accelerate their career",
+      "B. Copilot reduces the frequency of required team stand-up meetings through automated reporting",
+      "C. Context switching reduction means Copilot automatically rotates developers between different coding tasks throughout the day",
+      "D. Copilot provides on-demand explanations, code examples, and answers within the IDE, reducing the need to switch between editor and browser documentation"
+    ],
+    "correct": 3,
+    "explanation": "Copilot reduces context switching by bringing learning and documentation into the development IDE flow. Developers ask questions and get answers without leaving the editor, maintaining focus, flow state, and momentum."
+  },
+  {
+    "id": "ghc-d5-018",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer uses Copilot to identify edge cases for a string parsing function. Copilot suggests testing empty strings, null values, strings with special characters, and very long strings. What testing best practice does this represent?",
+    "options": [
+      "A. Regression testing â€” verifying previously fixed bugs don't reappear",
+      "B. Smoke testing â€” verifying basic functionality works before deeper testing",
+      "C. Load testing â€” verifying the function handles high-volume concurrent requests",
+      "D. Boundary value analysis and edge case identification â€” testing at input extremes and special cases"
+    ],
+    "correct": 3,
+    "explanation": "Copilot's edge case suggestions (empty, null, special characters, very long inputs) represent boundary value analysis â€” a fundamental test design technique of testing at input extremes and special cases where failures are most likely."
+  },
+  {
+    "id": "ghc-d5-019",
+    "domain": 5,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which statement about Copilot's assistance with regular expressions is MOST accurate?",
+    "options": [
+      "A. GitHub Copilot cannot generate regular expressions â€” only dedicated regex tools can",
+      "B. Regex generation requires the GitHub Copilot CLI extension specifically, not the IDE extension",
+      "C. Copilot generates regex only for Python â€” JavaScript and other languages require manual regex writing",
+      "D. Copilot can generate regex patterns from natural language descriptions and explain what existing regex patterns match"
+    ],
+    "correct": 3,
+    "explanation": "Regular expressions are notoriously hard to write and read. Copilot can generate regex from descriptions ('match ISO 8601 dates', 'validate IPv4 addresses') and explain what existing complex patterns do â€” a significant productivity accelerator."
+  },
+  {
+    "id": "ghc-d5-020",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer at Apex Engineering is onboarding to a large, unfamiliar codebase. How does GitHub Copilot maximize their productivity during onboarding?",
+    "options": [
+      "A. By automatically committing and pushing code changes the developer writes, bypassing the review process",
+      "B. By explaining existing functions, generating tests to understand behavior, suggesting implementation approaches consistent with existing patterns, and answering codebase-specific questions",
+      "C. By automatically deleting unused and dead code identified across the repository",
+      "D. By running automated performance benchmarks on the codebase and generating an optimization roadmap"
+    ],
+    "correct": 1,
+    "explanation": "For unfamiliar codebases, Copilot accelerates onboarding â€” explaining existing code, suggesting pattern-consistent implementations, answering architecture questions, and generating tests to understand behavior of existing functions."
+  },
+  {
+    "id": "ghc-d5-021",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "When using Copilot to generate test assertions for a unit test, what information produces the BEST assertion quality?",
+    "options": [
+      "A. The function being tested, its specific input values, and the precisely expected output for each test scenario",
+      "B. Only the function name and nothing else",
+      "C. Only the file path of the implementation file being tested",
+      "D. The testing framework's configuration file (jest.config.js, pytest.ini, etc.)"
+    ],
+    "correct": 0,
+    "explanation": "For accurate assertion generation, provide: (1) the function being tested, (2) specific concrete input values, (3) the precise expected outputs. With this information, Copilot can generate accurate `assertEqual`, `assertThrows`, and `assertRaises` assertions."
+  },
+  {
+    "id": "ghc-d5-022",
+    "domain": 5,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "How can GitHub Copilot help a developer optimize memory usage in a Node.js application with potential memory leaks?",
+    "options": [
+      "A. Copilot can automatically profile the running Node.js process and restart it when memory thresholds are exceeded",
+      "B. Ask Copilot to analyze specific code sections for memory issues â€” it can explain implications of patterns (closures retaining scope, unbounded caches, unremoved event listeners) and suggest more memory-efficient alternatives",
+      "C. Copilot connects directly to the Node.js V8 runtime to measure actual heap memory usage in real time",
+      "D. Memory optimization suggestions require purchasing GitHub Advanced Security as a separate product add-on"
+    ],
+    "correct": 1,
+    "explanation": "Copilot can identify memory-intensive patterns (closures retaining large scope, unbounded Maps/arrays, event listeners never removed) and suggest more efficient alternatives â€” providing a valuable first pass at memory leak investigation."
+  },
+  {
+    "id": "ghc-d5-023",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer at Quantum Labs is implementing a sorting algorithm and wants performance optimization suggestions from Copilot. What context is MOST important to provide?",
+    "options": [
+      "A. Just implement the first algorithm Copilot suggests and measure its performance afterwards",
+      "B. Provide dataset characteristics (size, distribution, data types, sorted percentage) and explicitly request complexity analysis and alternative algorithm comparison",
+      "C. Use only the `/optimize` slash command without any additional context",
+      "D. Copilot cannot reason about algorithm time/space complexity â€” only dedicated algorithms textbooks can"
+    ],
+    "correct": 1,
+    "explanation": "Algorithm optimization suggestions improve significantly with context: dataset size (100 vs 1M records), characteristics (mostly sorted? many duplicates? numeric?), and explicit requests for complexity analysis enable Copilot to recommend the most appropriate algorithm."
+  },
+  {
+    "id": "ghc-d5-024",
+    "domain": 5,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which GitHub Copilot capability BEST helps developers working with unfamiliar CLI tools and shell commands?",
+    "options": [
+      "A. `gh copilot explain \"<command>\"` explains what commands do; `gh copilot suggest` generates commands from natural language descriptions",
+      "B. Copilot can automatically install any CLI tool that the developer asks about",
+      "C. Copilot provides a graphical UI wrapper for all CLI tools to eliminate the need to memorize syntax",
+      "D. CLI assistance requires Agent Mode to be enabled and the CLI to be in the Copilot agent context"
+    ],
+    "correct": 0,
+    "explanation": "The Copilot CLI's `explain` and `suggest` commands are productivity accelerators â€” `explain` tells you what an unfamiliar command does, `suggest` generates the right command from a natural language description. Both reduce CLI learning friction significantly."
+  },
+  {
+    "id": "ghc-d5-025",
+    "domain": 5,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer at Stellar DevOps wants to use Copilot to generate a GitHub Actions workflow for Node.js CI/CD. What approach produces the best workflow?",
+    "options": [
+      "A. Ask Copilot to generate a complete workflow without providing any project-specific context",
+      "B. Use Copilot only for the YAML syntax formatting â€” all workflow logic must be written manually",
+      "C. Create a new `.github/workflows/ci.yml` file with descriptive comments specifying triggers, jobs, steps, and technology stack, then let Copilot complete the workflow",
+      "D. GitHub Actions workflow generation is exclusively available in GitHub Copilot Enterprise"
+    ],
+    "correct": 2,
+    "explanation": "Creating the workflow file with descriptive comments (trigger: push to main, technology: Node.js 20, steps: install â†’ lint â†’ test â†’ build â†’ deploy) provides Copilot the context to generate an accurate, complete, and relevant workflow."
+  }
+]

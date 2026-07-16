@@ -59,6 +59,7 @@
         "content/skillup/ab100/scenarios/ab100-invoice-processing.json",
         "content/skillup/ab100/scenarios/ab100-compliance-monitoring.json"
       ],
+      "taskStatementsFile": "content/skillup/ab100/task-statements.json",
       "resources": [
         {
           "label": "AB-100 Study Guide",
@@ -216,6 +217,106 @@
         {
           "label": "Conventional Commits",
           "url": "https://www.conventionalcommits.org"
+        }
+      ]
+    },
+    {
+      "schemaVersion": "1.0",
+      "id": "ghc",
+      "examCode": "GH-300",
+      "title": "GitHub Copilot",
+      "shortTitle": "GH-300",
+      "contentLevel": "201",
+      "description": "Demonstrate expertise in using GitHub Copilot to improve software development productivity, quality, and security. Covers responsible AI use, prompt engineering, Copilot features across various plans, data architecture, and privacy safeguards.",
+      "questions": 150,
+      "duration": "100 min",
+      "passScore": "700/1000",
+      "passThreshold": 70,
+      "examFee": "$165 USD",
+      "available": true,
+      "accentColor": "#0366d6",
+      "colorScheme": "blue",
+      "taskStatementsFile": "content/skillup/ghc/task-statements.json",
+      "domains": [
+        {
+          "id": 1,
+          "title": "Use GitHub Copilot Responsibly",
+          "weight": 18,
+          "color": "bg-orange-600",
+          "notesFile": "content/skillup/ghc/notes/ghc-d1-responsible-ai.md"
+        },
+        {
+          "id": 2,
+          "title": "Use GitHub Copilot Features",
+          "weight": 27,
+          "color": "bg-blue-600",
+          "notesFile": "content/skillup/ghc/notes/ghc-d2-copilot-features.md"
+        },
+        {
+          "id": 3,
+          "title": "Understand GitHub Copilot Data and Architecture",
+          "weight": 13,
+          "color": "bg-purple-600",
+          "notesFile": "content/skillup/ghc/notes/ghc-d3-data-architecture.md"
+        },
+        {
+          "id": 4,
+          "title": "Apply Prompt Engineering and Context Crafting",
+          "weight": 13,
+          "color": "bg-green-600",
+          "notesFile": "content/skillup/ghc/notes/ghc-d4-prompt-engineering.md"
+        },
+        {
+          "id": 5,
+          "title": "Improve Developer Productivity with GitHub Copilot",
+          "weight": 14,
+          "color": "bg-teal-600",
+          "notesFile": "content/skillup/ghc/notes/ghc-d5-developer-productivity.md"
+        },
+        {
+          "id": 6,
+          "title": "Configure Privacy, Content Exclusions, and Safeguards",
+          "weight": 15,
+          "color": "bg-red-600",
+          "notesFile": "content/skillup/ghc/notes/ghc-d6-privacy-safeguards.md"
+        }
+      ],
+      "questionFiles": [
+        "content/skillup/ghc/questions/ghc-domain1-responsible-ai.json",
+        "content/skillup/ghc/questions/ghc-domain2-copilot-features.json",
+        "content/skillup/ghc/questions/ghc-domain3-data-architecture.json",
+        "content/skillup/ghc/questions/ghc-domain4-prompt-engineering.json",
+        "content/skillup/ghc/questions/ghc-domain5-productivity.json",
+        "content/skillup/ghc/questions/ghc-domain6-privacy-safeguards.json"
+      ],
+      "scenarioFiles": [
+        "content/skillup/ghc/scenarios/ghc-enterprise-rollout.json",
+        "content/skillup/ghc/scenarios/ghc-ai-assisted-tdd.json"
+      ],
+      "resources": [
+        {
+          "label": "GH-300 Study Guide",
+          "url": "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/gh-300"
+        },
+        {
+          "label": "GitHub Copilot Documentation",
+          "url": "https://docs.github.com/en/copilot"
+        },
+        {
+          "label": "Responsible AI with GitHub Copilot",
+          "url": "https://learn.microsoft.com/en-us/training/modules/responsible-ai-with-github-copilot/"
+        },
+        {
+          "label": "GitHub Copilot Fundamentals Part 1",
+          "url": "https://learn.microsoft.com/en-gb/training/paths/copilot/"
+        },
+        {
+          "label": "GitHub Copilot Fundamentals Part 2",
+          "url": "https://learn.microsoft.com/en-gb/training/paths/gh-copilot-2/"
+        },
+        {
+          "label": "GitHub Copilot Plans and Features",
+          "url": "https://docs.github.com/copilot/about-github-copilot/plans-for-github-copilot"
         }
       ]
     }

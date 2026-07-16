@@ -1,0 +1,377 @@
+[
+  {
+    "id": "ghc-d1-001",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer at TechNova Solutions notices that GitHub Copilot suggested code that introduces a SQL injection vulnerability. Which principle of responsible AI usage does this scenario primarily highlight?",
+    "options": [
+      "A. Hallucination risk in natural language output",
+      "B. Security harm from unreviewed AI-generated code",
+      "C. Copyright infringement from training data",
+      "D. Data residency violation"
+    ],
+    "correct": 1,
+    "explanation": "AI tools can generate code with security vulnerabilities. Responsible AI usage requires critically reviewing all AI-generated code for security issues before deployment â€” the developer, not the AI, is accountable for what is committed."
+  },
+  {
+    "id": "ghc-d1-002",
+    "domain": 1,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which of the following BEST describes a 'hallucination' in the context of AI code generation tools like GitHub Copilot?",
+    "options": [
+      "A. The model confidently producing incorrect, fabricated, or outdated code suggestions",
+      "B. The model generating code faster than expected",
+      "C. The model failing to produce any suggestion at all",
+      "D. The model producing suggestions in the wrong programming language"
+    ],
+    "correct": 0,
+    "explanation": "Hallucinations refer to AI models generating plausible-looking but factually incorrect, fabricated, or outdated outputs with apparent confidence. Developers must validate all Copilot output rather than assuming correctness."
+  },
+  {
+    "id": "ghc-d1-003",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A team lead at Meridian Engineering wants to establish responsible AI guidelines for GitHub Copilot. Which mitigation strategy MOST effectively addresses the risk of over-reliance on AI-generated code?",
+    "options": [
+      "A. Disabling GitHub Copilot for junior developers",
+      "B. Using GitHub Copilot only for unit test generation",
+      "C. Requiring all AI-generated code to pass mandatory human code review before merging",
+      "D. Limiting Copilot to 10 suggestions per developer per day"
+    ],
+    "correct": 2,
+    "explanation": "Mandatory human code review is the most effective systemic mitigation against over-reliance, ensuring a developer validates correctness, security, and quality before code is merged â€” regardless of its source."
+  },
+  {
+    "id": "ghc-d1-004",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which of the following is an ethical consideration when using GitHub Copilot's code generation, related to its training data?",
+    "options": [
+      "A. Copilot may reproduce patterns from low-quality, insecure, or biased public repositories",
+      "B. Copilot's training data is exclusively from internal enterprise repositories",
+      "C. Copilot uses only open-source code with explicit AI training consent",
+      "D. Training data is refreshed daily to reflect the latest security standards"
+    ],
+    "correct": 0,
+    "explanation": "Copilot was trained on a large corpus of public code. This training data may include repositories with poor quality, insecure patterns, or biases that the model may reproduce in suggestions without awareness."
+  },
+  {
+    "id": "ghc-d1-005",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A developer using GitHub Copilot to write code for a healthcare application must be aware of which specific responsible AI risk?",
+    "options": [
+      "A. Copilot does not support healthcare programming languages",
+      "B. Copilot-generated code may not comply with HIPAA, HL7, or other domain-specific regulations",
+      "C. Copilot generates code that is too verbose for healthcare applications",
+      "D. GitHub servers may not be located in the required geographic region"
+    ],
+    "correct": 1,
+    "explanation": "In regulated industries, AI-generated code may not inherently comply with domain-specific regulations (HIPAA, GDPR, HL7, etc.). Developers must validate compliance of all AI-generated code in regulated contexts."
+  },
+  {
+    "id": "ghc-d1-006",
+    "domain": 1,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which statement BEST describes how developers should treat suggestions from GitHub Copilot?",
+    "options": [
+      "A. Accept all suggestions immediately to maximize productivity",
+      "B. Treat suggestions as authoritative since they are AI-generated",
+      "C. Critically evaluate each suggestion as they would code from a peer that requires review",
+      "D. Reject all suggestions that deviate from expected patterns"
+    ],
+    "correct": 2,
+    "explanation": "GitHub Copilot suggestions should be treated like code from a peer â€” they require review, validation, and potentially modification. The developer maintains full accountability for all code they commit."
+  },
+  {
+    "id": "ghc-d1-007",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Apex Digital's engineering manager notices developers are accepting Copilot suggestions without reviewing them. What is the PRIMARY risk of this behavior?",
+    "options": [
+      "A. Increased license costs for GitHub Copilot",
+      "B. Reduced suggestion variety over time",
+      "C. Introduction of bugs, security vulnerabilities, or license-violating code into the production codebase",
+      "D. Copilot being rate-limited due to high acceptance rates"
+    ],
+    "correct": 2,
+    "explanation": "Accepting AI suggestions without review risks introducing bugs, security vulnerabilities, deprecated API usage, or code that may infringe on open-source licenses into production. Human review is mandatory."
+  },
+  {
+    "id": "ghc-d1-008",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which of the following represents a potential intellectual property (IP) concern when using GitHub Copilot?",
+    "options": [
+      "A. Copilot may suggest code that closely resembles publicly licensed code from its training corpus",
+      "B. Copilot charges extra for generating code involving complex algorithms",
+      "C. Copilot sends generated code to competitors for benchmarking",
+      "D. Copilot refuses to generate code for proprietary programming languages"
+    ],
+    "correct": 0,
+    "explanation": "Copilot may occasionally suggest code matching or closely resembling code from its training data. This can raise license compatibility questions, particularly for copyleft licenses like GPL. The public code filter helps mitigate this."
+  },
+  {
+    "id": "ghc-d1-009",
+    "domain": 1,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "A developer at Vertex Systems prompts GitHub Copilot to generate a database query for customer records. What responsible AI practice should they follow?",
+    "options": [
+      "A. Run the generated query directly in production to validate it works",
+      "B. Share the generated code with other teams without review since AI is reliable",
+      "C. Review the generated query for correctness, performance, and SQL injection risk before execution",
+      "D. Accept the suggestion since AI-generated queries are always optimized for security"
+    ],
+    "correct": 2,
+    "explanation": "All AI-generated database queries must be reviewed for correctness, performance, and security (especially SQL injection) before execution â€” particularly when accessing sensitive customer data."
+  },
+  {
+    "id": "ghc-d1-010",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which of the following describes the principle of 'human oversight' in the context of responsible AI use with GitHub Copilot?",
+    "options": [
+      "A. AI models must be monitored by GitHub engineers at all times",
+      "B. Human reviewers must completely rewrite all AI suggestions before they can be used",
+      "C. Developers maintain responsibility for reviewing, validating, and taking accountability for all AI-generated code they commit",
+      "D. GitHub Copilot must be supervised by a designated AI officer in each organization"
+    ],
+    "correct": 2,
+    "explanation": "Human oversight means the developer remains responsible for all code they commit, including AI-generated code. Copilot is an assistant â€” the developer must validate, test, and take full accountability for what is merged."
+  },
+  {
+    "id": "ghc-d1-011",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "ClearPath Technologies is rolling out GitHub Copilot to their engineering team. Which practice BEST promotes transparency in AI-assisted development?",
+    "options": [
+      "A. Keeping AI tool usage confidential to avoid biasing code reviewers",
+      "B. Replacing all human-written documentation with AI-generated content",
+      "C. Never disclosing that Copilot suggestions were used to maintain credibility",
+      "D. Documenting when AI tools significantly contributed to code generation, enabling appropriate review scrutiny"
+    ],
+    "correct": 3,
+    "explanation": "Transparency in AI usage includes documenting significant AI contributions to code, allowing reviewers to apply appropriate scrutiny and teams to understand the AI's role in their development process."
+  },
+  {
+    "id": "ghc-d1-012",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which of the following is NOT a genuine limitation of GitHub Copilot related to responsible AI usage?",
+    "options": [
+      "A. Copilot may generate code referencing deprecated library versions",
+      "B. Copilot cannot understand business context and domain-specific requirements",
+      "C. Copilot always generates fully tested, production-ready code",
+      "D. Copilot may suggest code that doesn't align with team coding standards"
+    ],
+    "correct": 2,
+    "explanation": "Copilot does NOT always generate production-ready or tested code â€” this is a critical misconception. All suggestions require review and validation. Options A, B, and D are genuine limitations developers must account for."
+  },
+  {
+    "id": "ghc-d1-013",
+    "domain": 1,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "A developer at Stellar DevOps uses Copilot to generate authentication code. Which concern should take HIGHEST priority during code review?",
+    "options": [
+      "A. Code formatting and style consistency with the rest of the file",
+      "B. Security vulnerabilities including credential exposure, weak hashing algorithms, or injection flaws",
+      "C. Function naming conventions and variable name clarity",
+      "D. Line count of the generated authentication function"
+    ],
+    "correct": 1,
+    "explanation": "Authentication code is security-critical. When reviewing AI-generated security code, checking for vulnerabilities (weak hashing, credential exposure, injection flaws, missing rate limiting) must take the highest priority over stylistic concerns."
+  },
+  {
+    "id": "ghc-d1-014",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which statement about GitHub Copilot's training data and potential for biased output is MOST accurate?",
+    "options": [
+      "A. GitHub Copilot was trained exclusively on curated, bias-free, peer-reviewed code",
+      "B. The model may reflect patterns, shortcuts, or insecure practices present in its public training corpus",
+      "C. GitHub manually reviewed all 100M+ training examples to remove biased patterns",
+      "D. Training data bias only affects natural language outputs, never code generation"
+    ],
+    "correct": 1,
+    "explanation": "Like all LLMs, Copilot may reflect biases, antipatterns, or insecure coding practices present in its public training corpus. Developers should critically evaluate suggestions rather than assuming the AI applies best practices."
+  },
+  {
+    "id": "ghc-d1-015",
+    "domain": 1,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which of the following BEST describes GitHub's position on developer accountability for Copilot-generated code?",
+    "options": [
+      "A. GitHub assumes legal liability for bugs in Copilot-generated code",
+      "B. The developer is fully responsible for all code they commit, regardless of whether AI generated it",
+      "C. Copilot-generated code is automatically exempt from standard code review policies",
+      "D. GitHub Copilot generates certified, production-safe code on GitHub Enterprise"
+    ],
+    "correct": 1,
+    "explanation": "GitHub's terms are clear: developers are fully responsible for all code they commit. Copilot is an assistant, not an autonomous agent â€” the developer owns the output and its consequences."
+  },
+  {
+    "id": "ghc-d1-016",
+    "domain": 1,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "Orion Software's security team wants to evaluate the risk of Copilot generating code with known CVEs. Which mitigation strategy should they implement as part of their CI/CD pipeline?",
+    "options": [
+      "A. Integrate automated SAST/SCA scanning as a required CI/CD gate for all Copilot-assisted commits",
+      "B. Disable Copilot for all security-related files permanently",
+      "C. Require developers to memorize the OWASP Top 10 before using Copilot",
+      "D. Switch from GitHub Copilot to a competing AI tool"
+    ],
+    "correct": 0,
+    "explanation": "Automated SAST/SCA scanning integrated as a CI/CD gate provides systematic, scalable protection against AI-generated code containing known vulnerability patterns, complementing human code review."
+  },
+  {
+    "id": "ghc-d1-017",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Which action demonstrates 'operating GitHub Copilot responsibly' when working on code handling sensitive business logic?",
+    "options": [
+      "A. Sharing the entire codebase context with Copilot to maximize suggestion quality",
+      "B. Allowing Copilot Agent Mode to autonomously commit generated code to main",
+      "C. Accepting all Copilot suggestions to meet project deadlines",
+      "D. Using Copilot for generic utilities and applying heightened scrutiny when it touches sensitive business rules"
+    ],
+    "correct": 3,
+    "explanation": "Operating responsibly means applying heightened scrutiny to AI suggestions for sensitive business logic â€” not blindly accepting suggestions when the stakes are high, and ensuring business rules are correctly implemented."
+  },
+  {
+    "id": "ghc-d1-018",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "A compliance officer at Pinnacle Corp is concerned about Copilot generating code that doesn't meet their regulatory requirements. What is the MOST appropriate governance measure?",
+    "options": [
+      "A. Disable Copilot for all developers permanently",
+      "B. Use Copilot exclusively for documentation generation, never for code",
+      "C. Only allow senior developers (5+ years) to use Copilot",
+      "D. Create an AI usage policy including mandatory review processes, developer training, and automated scanning gates"
+    ],
+    "correct": 3,
+    "explanation": "A comprehensive AI usage policy combining review processes, training requirements, and automated scanning gates provides governance that enables productivity benefits while managing regulatory compliance risks."
+  },
+  {
+    "id": "ghc-d1-019",
+    "domain": 1,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "Which of the following represents a 'dual-use' risk when using GitHub Copilot?",
+    "options": [
+      "A. Copilot can be used for both web and mobile development simultaneously",
+      "B. Copilot can suggest code in multiple programming languages in the same session",
+      "C. Copilot runs in both VS Code and JetBrains IDEs using the same extension",
+      "D. Copilot could potentially generate exploit code or malicious scripts if prompted with harmful intent"
+    ],
+    "correct": 3,
+    "explanation": "Dual-use risk refers to AI tools potentially being used for both beneficial (legitimate development) and harmful (exploit generation) purposes. Organizations should establish acceptable use policies as part of their AI governance."
+  },
+  {
+    "id": "ghc-d1-020",
+    "domain": 1,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "When a developer at TechNova Solutions uses GitHub Copilot to generate Terraform IaC templates, what responsible AI practice is MOST critical?",
+    "options": [
+      "A. Using Copilot only for Terraform, never Bicep or CloudFormation",
+      "B. Only using Copilot for IaC comments, not actual resource definitions",
+      "C. Limiting Copilot to generating 50 lines of IaC per session",
+      "D. Validating generated IaC does not over-provision permissions, expose resources publicly, or create security misconfigurations"
+    ],
+    "correct": 3,
+    "explanation": "AI-generated IaC can introduce critical security misconfigurations â€” overly permissive IAM roles, publicly exposed storage buckets, missing encryption at rest. Validation against security baselines (e.g., CIS benchmarks) is essential before applying."
+  },
+  {
+    "id": "ghc-d1-021",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "GitHub Copilot may generate code suggestions referencing deprecated APIs or outdated library versions. Which responsible AI principle does this limitation relate to?",
+    "options": [
+      "A. Data privacy and user consent",
+      "B. Intellectual property and copyright rights",
+      "C. Training data cutoff and knowledge staleness of large language models",
+      "D. Dual-use risks and potential misuse"
+    ],
+    "correct": 2,
+    "explanation": "LLMs have a training data cutoff date. Copilot may suggest deprecated APIs, outdated packages with known CVEs, or practices no longer considered current. Developers must verify suggestions against current documentation."
+  },
+  {
+    "id": "ghc-d1-022",
+    "domain": 1,
+    "difficulty": "easy",
+    "type": "single",
+    "question": "Which of the following scenarios represents an APPROPRIATE use of GitHub Copilot?",
+    "options": [
+      "A. Committing Copilot-generated code directly without review because project deadlines are tight",
+      "B. Relying entirely on Copilot to write production authentication systems without security testing",
+      "C. Using Copilot to generate a boilerplate Express.js server structure, then reviewing and customizing it",
+      "D. Using Copilot autonomously to write and commit code while the developer attends meetings"
+    ],
+    "correct": 2,
+    "explanation": "Using Copilot for boilerplate generation and then reviewing and customizing the output represents appropriate use â€” leveraging AI for acceleration while the developer maintains accountability and quality standards."
+  },
+  {
+    "id": "ghc-d1-023",
+    "domain": 1,
+    "difficulty": "medium",
+    "type": "single",
+    "question": "Apex Digital's CTO wants to ensure developers understand Copilot's limitations before adoption. Which statement about LLM limitations is MOST important to communicate?",
+    "options": [
+      "A. GitHub Copilot cannot generate comments or inline documentation",
+      "B. GitHub Copilot cannot understand natural language comments in code",
+      "C. GitHub Copilot only works reliably with JavaScript and Python",
+      "D. GitHub Copilot may generate plausible-looking but incorrect code, requiring human validation of all output"
+    ],
+    "correct": 3,
+    "explanation": "The most critical limitation to communicate is that Copilot can generate plausible but incorrect code (hallucinations), requiring developers to validate all output rather than assuming correctness â€” especially for complex or security-sensitive logic."
+  },
+  {
+    "id": "ghc-d1-024",
+    "domain": 1,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "Which of the following correctly describes an ethical concern specific to using AI-generated code in open-source projects?",
+    "options": [
+      "A. AI-generated code could inadvertently reproduce GPL-licensed code, causing license incompatibility in permissively licensed projects",
+      "B. AI-generated code executes more slowly than human-written code",
+      "C. Open-source projects are contractually prohibited from using GitHub Copilot",
+      "D. AI-generated code automatically receives a Creative Commons license"
+    ],
+    "correct": 0,
+    "explanation": "A key ethical concern is that AI training data included copyleft-licensed repositories. If Copilot reproduces such code in an MIT-licensed project, the copyleft terms may propagate â€” creating unintended license incompatibility."
+  },
+  {
+    "id": "ghc-d1-025",
+    "domain": 1,
+    "difficulty": "hard",
+    "type": "single",
+    "question": "A developer at ClearPath Technologies builds an ML pipeline using Copilot for data preprocessing. Which responsible AI practice should they prioritize?",
+    "options": [
+      "A. Accept all Copilot suggestions without modification to save development time",
+      "B. Use Copilot only for variable naming in ML code, not for transformation logic",
+      "C. Validate that AI-generated preprocessing code does not introduce data leakage or bias into the ML pipeline",
+      "D. Disable Copilot when working with Python data science libraries"
+    ],
+    "correct": 2,
+    "explanation": "In ML pipelines, data preprocessing errors (bias introduction, data leakage, incorrect transformations) can corrupt model training and produce unreliable models. Validating AI-generated preprocessing code for these specific issues is critical."
+  }
+]
