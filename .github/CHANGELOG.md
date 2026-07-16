@@ -11,6 +11,10 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 
 ## [Unreleased]
 
+### Added
+- **SkillUp discovery toolbar** (`src/features/exams/pages/ExamCatalog.tsx`) — search box, Provider/Level/Status filter chips, and sort (Recommended / Most questions / A–Z) on the `/skillup` catalog; filter state is URL-backed via `useSearchParams` (survives reload/back). Domain pills collapse to 4 + “+N more”; curated “Available Now / Coming Soon” sections preserved when no filter is active. Scales the catalog for a growing certification list.
+- **Deep Dive notes standard** (`.github/agents/docs-engineer.agent.md` → 1.1.0, `.github/agents/curriculum-engineer.agent.md` → 1.1.0) — every domain study note must now include a `## Deep Dive` section with four required elements: connective narrative, an end-to-end worked scenario, a memory aid/mnemonic, and per-domain exam strategy. Pointer-only notes are rejected in review.
+
 ---
 
 ## [2.6.0] - 2026-06-16
