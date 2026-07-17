@@ -1,6 +1,25 @@
 {
   "posts": [
     {
+      "slug": "llm-observability",
+      "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
+      "excerpt": "Your API returned 200 OK and your users were furious. Here's the three-signal observability model that tells you what actually happened inside the model call — before the bill arrives.",
+      "author": "Ajeet Chouksey",
+      "date": "2026-07-17",
+      "updated": null,
+      "tags": [
+        "observability",
+        "llmops",
+        "tracing",
+        "cost-tracking",
+        "platform-engineering"
+      ],
+      "category": "LLMOps",
+      "readingTime": 8,
+      "featured": false,
+      "draft": false
+    },
+    {
       "slug": "context-budget-rule",
       "title": "You're Wasting 60% of Your Context Window",
       "excerpt": "Your agent isn't hallucinating. It's starving. Here's why — and the three-rule fix that engineers actually ship.",
