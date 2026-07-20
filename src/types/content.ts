@@ -80,9 +80,35 @@ export interface Scenario {
   id: string;
   title: string;
   description: string;
-  architecture_notes: string;
-  key_patterns: string[];
-  questionIds: string[];
+  // ── Legacy (CCA-F) schema ──
+  architecture_notes?: string;
+  key_patterns?: string[];
+  questionIds?: string[];
+  // ── Rich (GH-300 / GHBP / AB-100) schema ──
+  examId?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  estimatedMinutes?: number;
+  domains?: number[];
+  scenario?: {
+    background: string;
+    characters: ScenarioCharacter[];
+  };
+  questions?: ScenarioQuestion[];
+  keyLearnings?: string[];
+}
+
+export interface ScenarioCharacter {
+  name: string;
+  role: string;
+  concern: string;
+}
+
+export interface ScenarioQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correct: number;
+  explanation: string;
 }
 
 export interface QuizSession {
