@@ -29,9 +29,9 @@ const features = [
     badge: 'LIVE',
     badgeColor: '#8b5cf6',
     title: 'Practice Real Scenarios',
-    subtitle: '68 Scenarios · 5 AI Domains',
-    desc: 'Practitioner-grade scenarios across 5 AI domains. Agentic patterns, MCP tool design, context management — the kind of problems you face in production.',
-    bullets: ['68 production-grade scenarios', 'Instant scoring + explanations', 'Track progress across domains'],
+    subtitle: '590+ Practice Qs · 4 Certifications',
+    desc: 'Practitioner-grade scenarios across multiple AI certification tracks. Agentic patterns, MCP tool design, context management — the kind of problems you face in production.',
+    bullets: ['590+ production-grade scenarios', 'Instant scoring + explanations', 'Track progress across domains'],
     cta: 'Start Practicing',
   },
   {

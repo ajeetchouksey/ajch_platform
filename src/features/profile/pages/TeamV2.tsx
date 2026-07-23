@@ -407,6 +407,7 @@ const TICKER_ITEMS = [
   '🎨 Design Systems Engineer: UX audit',
   '📊 Product Manager scoring backlog',
   '🔍 AI Researcher scanning arXiv',
+  '📋 Interview Prep Engineer: parsing new JD pack',
 ];
 
 /* ─── Pipeline steps (hero) ─────────────────────────────────────────────────── */
@@ -424,7 +425,7 @@ const ARCH_LAYERS = [
   { label: 'Dispatch Layer',      color: '#8b5cf6', agents: ['Staff Engineer', 'Product Manager'],                          count: 2  },
   { label: 'Domain Leads',        color: '#3b82f6', agents: ['Platform Architect', 'Content Lead', 'Curriculum Eng', 'Pair Programmer'], count: 4 },
   { label: 'Platform Foundation', color: '#f59e0b', agents: ['AppSec Engineer', 'Design Systems', 'SRE', 'DevRel'],         count: 4  },
-  { label: 'Specialists',         color: '#10b981', agents: ['13 sub-agents across all domain leads'],                      count: 13 },
+  { label: 'Specialists',         color: '#10b981', agents: ['14 sub-agents across all domain leads'],                      count: 14 },
 ];
 
 /* ─── Main page ──────────────────────────────────────────────────────────────── */
@@ -456,7 +457,7 @@ export default function TeamV2() {
       capabilities: ['Intent Classification', 'Security Pre-flight', 'Agent Routing', 'Synthesis'],
       status: 'active' as const,
       activeTask: 'Routing blog request → Content Lead',
-      model: 'Claude Sonnet', tools: 14, version: 'v2.0.0',
+      model: 'Claude Sonnet', tools: 14, version: 'v2.4.0',
       icon: Cpu, isNew: false, isLarge: true,
       profileFile: 'staff-engineer.agent.md',
     },
@@ -595,6 +596,13 @@ export default function TeamV2() {
           capabilities: ['arXiv Scan', 'Model Benchmarks', 'Tool Discovery', 'Trend Synthesis'],
           status: 'standby' as const, icon: Globe2,
           profileFile: 'ai-researcher.agent.md',
+        },
+        {
+          id: 'interview-prep', name: 'Interview Prep Engineer', role: 'Interview Commander',
+          tagline: 'JD in. Canon pack out. Never duplicate.',
+          capabilities: ['JD Parser', 'Competency Mapper', 'Q&A Bank', 'Industry Context'],
+          status: 'active' as const, icon: Handshake,
+          profileFile: 'interview-prep-engineer.md',
         },
       ],
     },
