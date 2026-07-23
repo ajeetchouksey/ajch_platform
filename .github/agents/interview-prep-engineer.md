@@ -1,5 +1,7 @@
 ---
 name: Interview Prep Engineer
+version: 1.0.0
+last_modified: "2026-07-23"
 description: >
   Interview Commander for Aarya — My AI Learning Hub. Turns Job Descriptions (JDs)
   into detailed, reusable interview-prep packs: parses the JD, maps it to a shared
