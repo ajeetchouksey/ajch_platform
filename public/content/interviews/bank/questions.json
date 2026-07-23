@@ -39,7 +39,7 @@
       "Treats subagent output as trusted free text"
     ],
     "tags": ["coordinator", "planner-executor", "subagents", "token-cost", "termination"],
-    "roles": ["agentic-ai-platform-architect"]
+    "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
     "id": "q-orch-002",
@@ -80,7 +80,7 @@
       "'We just add retries in the app layer'"
     ],
     "tags": ["temporal", "durable-execution", "idempotency", "stateful-execution", "replay"],
-    "roles": ["agentic-ai-platform-architect"]
+    "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
     "id": "q-hitl-001",
@@ -122,7 +122,7 @@
       "Fail-open design"
     ],
     "tags": ["HITL", "guardrails", "PreToolUse", "audit", "human-in-the-loop"],
-    "roles": ["agentic-ai-platform-architect"]
+    "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
     "id": "q-rag-001",
@@ -164,7 +164,7 @@
       "No citations / no refuse path"
     ],
     "tags": ["rag", "rbac", "grounding", "eval", "pii", "observability"],
-    "roles": ["agentic-ai-platform-architect"]
+    "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
     "id": "q-cost-001",
@@ -205,7 +205,7 @@
       "Misses context growth as the driver"
     ],
     "tags": ["finops", "cost", "model-routing", "caching", "latency-accuracy"],
-    "roles": ["agentic-ai-platform-architect"]
+    "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
     "id": "q-eval-001",
@@ -247,7 +247,7 @@
       "Eval set never updated from real failures"
     ],
     "tags": ["evaluation", "llm-as-judge", "ci-gate", "trajectory", "feedback-loop"],
-    "roles": ["agentic-ai-platform-architect"]
+    "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
     "id": "q-frameworks-001",
@@ -288,7 +288,7 @@
       "No abstraction / migration story"
     ],
     "tags": ["langgraph", "crewai", "autogen", "mcp", "abstraction", "lock-in"],
-    "roles": ["agentic-ai-platform-architect"]
+    "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
     "id": "q-leadership-001",

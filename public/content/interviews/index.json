@@ -57,6 +57,32 @@
       "available": true,
       "jdFile": "content/interviews/roles/hr-ai-lead/jd.md",
       "packFile": "content/interviews/roles/hr-ai-lead/pack.json"
+    },
+    {
+      "id": "agentic-ai-platform-architect-v2",
+      "title": "Agentic AI Platform Architect",
+      "shortTitle": "Agentic AI Architect",
+      "seniority": "Principal · 12–16 yrs",
+      "location": "Pune & Bangalore",
+      "description": "Same principal-level agentic AI architect scope with stronger emphasis on internal developer platform: reusable SDKs, multi-model routing, agent lifecycle management, and AI-first SDLC adoption across the engineering org.",
+      "industry": {
+        "label": "Enterprise Software & Platform Engineering",
+        "domain": "cross-industry-enterprise",
+        "summary": "A second enterprise Agentic AI Platform Architect posting — the platform is a horizontal internal capability consumed by many engineering teams. SDK design, multi-model routing, agent lifecycle management, and AI-first SDLC are first-class concerns alongside governance.",
+        "focusAreas": [
+          "Reusable SDKs and internal AI platform engineering",
+          "Multi-model orchestration and LLM provider routing/abstraction",
+          "Agent lifecycle management (create, monitor, retire, version)",
+          "AI-first SDLC adoption across engineering teams",
+          "Enterprise governance, HITL, and audit at platform scale"
+        ]
+      },
+      "colorScheme": "blue",
+      "accentColor": "linear-gradient(90deg, #2563eb, #60a5fa)",
+      "questionCount": 8,
+      "available": true,
+      "jdFile": "content/interviews/roles/agentic-ai-platform-architect-v2/jd.md",
+      "packFile": "content/interviews/roles/agentic-ai-platform-architect-v2/pack.json"
     }
   ]
 }

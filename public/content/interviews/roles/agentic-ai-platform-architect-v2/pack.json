@@ -1,0 +1,89 @@
+{
+  "schema": "interview-pack@1",
+  "roleId": "agentic-ai-platform-architect-v2",
+  "title": "Agentic AI Platform Architect",
+  "seniority": "principal",
+  "experience": "12-16 years",
+  "location": "Pune & Bangalore",
+  "jdFile": "content/interviews/roles/agentic-ai-platform-architect-v2/jd.md",
+  "industry": {
+    "label": "Enterprise Software & Platform Engineering",
+    "domain": "cross-industry-enterprise",
+    "summary": "A second enterprise Agentic AI Platform Architect posting with a stronger emphasis on internal developer platform (reusable SDKs, multi-model routing abstraction layers, agent lifecycle management) and AI-first SDLC adoption (coding/testing/documentation automation). The platform is a horizontal capability — other engineering teams build on it — so developer experience, reusability, and organisation-wide adoption are first-class concerns alongside governance.",
+    "focusAreas": [
+      "Reusable SDKs and internal AI platform engineering",
+      "Multi-model orchestration and LLM provider routing/abstraction",
+      "Agent lifecycle management (create, monitor, retire, version)",
+      "AI-first SDLC adoption across engineering teams (coding/testing/docs automation)",
+      "Enterprise governance, HITL, and audit at platform scale"
+    ]
+  },
+  "competencyWeights": {
+    "multi-agent-orchestration": 25,
+    "agent-frameworks": 12,
+    "distributed-systems-workflow": 12,
+    "responsible-ai-governance": 12,
+    "evaluation-quality": 10,
+    "rag-architecture": 8,
+    "cost-finops-optimization": 8,
+    "leadership-mentoring": 8,
+    "prompt-context-design": 5
+  },
+  "items": [
+    {
+      "ref": "q-orch-001",
+      "addendum": {
+        "whyForThisRole": "This JD explicitly calls out 'build reusable SDKs and internal platforms' — the planner-executor coordinator pattern is the core abstraction that becomes the SDK's execution model.",
+        "industryAngle": "When the coordinator is packaged as an internal SDK consumed by many engineering teams, the typed hand-off contract between agents becomes a public API contract. Breaking that contract means breaking every team that depends on the SDK. Design it contract-first: define the `TaskSpec` and `AgentResult` schemas before writing any orchestration logic, version them explicitly, and run a compatibility check as part of CI."
+      }
+    },
+    {
+      "ref": "q-orch-002",
+      "addendum": {
+        "whyForThisRole": "The JD names 'agent lifecycle management' as a distinct capability alongside orchestration. Durable execution is the foundation for managing agents that can be paused, resumed, versioned, and retired safely.",
+        "industryAngle": "Agent lifecycle management at platform scale means the durable-execution layer must support graceful versioning — a running agent workflow from v1 of the SDK must continue to completion even after v2 is deployed for new runs. Temporal's versioning API (`workflow.GetVersion`) handles this; design the workflow code with explicit version gates from the first release, not as a retrofit."
+      }
+    },
+    {
+      "ref": "q-hitl-001",
+      "addendum": {
+        "industryAngle": "As a shared internal platform, the HITL guardrail is a platform-level primitive, not a per-application concern. The SDK must ship a `require_approval()` hook that any consuming team can wire to their own approval service — with a default implementation that fails closed if no approval service is configured. This prevents teams from accidentally deploying agents without HITL and then discovering the gap in production."
+      }
+    },
+    {
+      "ref": "q-rag-001",
+      "addendum": {
+        "industryAngle": "For a horizontal platform SDK, the RAG abstraction must support pluggable retrievers (Azure AI Search, Pinecone, pgvector) behind a common interface — consuming teams should not need to rewrite their agent when the retrieval backend changes. Design the retriever as an injected dependency with a typed `Retriever` protocol; the platform ships reference implementations for the approved enterprise backends."
+      }
+    },
+    {
+      "ref": "q-cost-001",
+      "addendum": {
+        "industryAngle": "At internal-platform scale the FinOps concern is per-team attribution. The platform SDK must tag every LLM call with the consuming team's identifier at the request level, so the central FinOps dashboard can show each team their own spend and enforce per-team budgets. Without this, cost visibility is opaque and teams have no incentive to optimise — all spend looks like 'platform cost'."
+      }
+    },
+    {
+      "ref": "q-eval-001",
+      "addendum": {
+        "industryAngle": "The JD explicitly asks for 'feedback loops and improvement pipelines' in addition to evaluation frameworks. For an internal platform, the eval suite ships as a shared library: consuming teams contribute domain-specific test cases, the platform team maintains the harness and CI gate. The feedback loop is closed by routing production failure traces (via LangFuse or equivalent) back into the eval set automatically — flagged traces become new regression tests."
+      }
+    },
+    {
+      "ref": "q-frameworks-001",
+      "addendum": {
+        "whyForThisRole": "This JD explicitly calls out 'multi-model orchestration and routing' and 'integration of multiple LLM providers through abstraction layers' — more explicit than most JDs on the provider-routing concern.",
+        "industryAngle": "The abstraction layer for multi-model routing must solve three enterprise problems the JD names: (1) model failover — if the primary provider is unavailable, route to a secondary; (2) cost routing — use a cheaper model for classification/triage tasks, expensive frontier models only when quality demands it; (3) enterprise compliance — only approved models (those with enterprise DPAs and regional data residency) are in the routing pool. The platform team owns the routing table and the approval gate; consuming teams declare a capability requirement (e.g. 'code-generation', 'reasoning') and the router decides which approved model fills it.",
+        "extraFollowUps": [
+          { "q": "How do you version the LLM provider routing table without breaking running workflows?", "a": "Treat the routing table as a versioned config artifact with a stable interface — workflows pin to a routing-table version at deployment time, not at call time, so a table update doesn't silently change the model a running workflow uses mid-execution." }
+        ]
+      }
+    },
+    {
+      "ref": "q-leadership-001",
+      "addendum": {
+        "whyForThisRole": "The JD's 'drive adoption of AI-first SDLC practices' and 'enable automation across the development lifecycle (coding, testing, documentation)' are the industry-specific leadership angle.",
+        "industryAngle": "AI-first SDLC adoption in this context means the platform team is also the team that ships AI-powered developer tooling to the engineering org — coding assistants, AI-generated test scaffolding, automated documentation agents. Adoption requires the platform team to be a visible internal customer of its own tools: use the coding assistant in your own PRs, run the doc-generation agent on the platform SDK itself, publish the outcomes. Engineers adopt tools they see their most respected peers using, not tools that are mandated."
+      }
+    }
+  ]
+}
