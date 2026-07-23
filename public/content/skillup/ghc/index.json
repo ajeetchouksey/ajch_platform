@@ -20,7 +20,7 @@
     { "id": 2, "title": "Use GitHub Copilot Features", "weight": 27, "color": "bg-blue-600", "notesFile": "content/skillup/ghc/notes/ghc-d2-copilot-features.md" },
     { "id": 3, "title": "Understand GitHub Copilot Data and Architecture", "weight": 13, "color": "bg-purple-600", "notesFile": "content/skillup/ghc/notes/ghc-d3-data-architecture.md" },
     { "id": 4, "title": "Apply Prompt Engineering and Context Crafting", "weight": 13, "color": "bg-green-600", "notesFile": "content/skillup/ghc/notes/ghc-d4-prompt-engineering.md" },
-    { "id": 5, "title": "Improve Developer Productivity with GitHub Copilot", "weight": 14, "color": "bg-teal-600", "notesFile": "content/skillup/ghc/notes/ghc-d5-developer-productivity.md" },
+    { "id": 5, "title": "Improve Developer Productivity with GitHub Copilot", "weight": 14, "color": "bg-teal-600", "notesFile": "content/skillup/ghc/notes/ghc-d5-productivity.md" },
     { "id": 6, "title": "Configure Privacy, Content Exclusions, and Safeguards", "weight": 15, "color": "bg-red-600", "notesFile": "content/skillup/ghc/notes/ghc-d6-privacy-safeguards.md" }
   ],
   "questionFiles": [

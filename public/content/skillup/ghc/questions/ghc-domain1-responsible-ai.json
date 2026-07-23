@@ -12,7 +12,11 @@
       "D. Data residency violation"
     ],
     "correct": 1,
-    "explanation": "AI tools can generate code with security vulnerabilities. Responsible AI usage requires critically reviewing all AI-generated code for security issues before deployment â€” the developer, not the AI, is accountable for what is committed."
+    "explanation": "AI tools can generate code with security vulnerabilities. Responsible AI usage requires critically reviewing all AI-generated code for security issues before deployment — the developer, not the AI, is accountable for what is committed.",
+    "tags": [
+      "responsible-ai",
+      "security"
+    ]
   },
   {
     "id": "ghc-d1-002",
@@ -27,7 +31,13 @@
       "D. The model producing suggestions in the wrong programming language"
     ],
     "correct": 0,
-    "explanation": "Hallucinations refer to AI models generating plausible-looking but factually incorrect, fabricated, or outdated outputs with apparent confidence. Developers must validate all Copilot output rather than assuming correctness."
+    "explanation": "Hallucinations refer to AI models generating plausible-looking but factually incorrect, fabricated, or outdated outputs with apparent confidence. Developers must validate all Copilot output rather than assuming correctness.",
+    "tags": [
+      "responsible-ai",
+      "hallucination",
+      "context",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d1-003",
@@ -42,7 +52,13 @@
       "D. Limiting Copilot to 10 suggestions per developer per day"
     ],
     "correct": 2,
-    "explanation": "Mandatory human code review is the most effective systemic mitigation against over-reliance, ensuring a developer validates correctness, security, and quality before code is merged â€” regardless of its source."
+    "explanation": "Mandatory human code review is the most effective systemic mitigation against over-reliance, ensuring a developer validates correctness, security, and quality before code is merged — regardless of its source.",
+    "tags": [
+      "responsible-ai",
+      "security",
+      "over-reliance",
+      "code-review"
+    ]
   },
   {
     "id": "ghc-d1-004",
@@ -57,7 +73,12 @@
       "D. Training data is refreshed daily to reflect the latest security standards"
     ],
     "correct": 0,
-    "explanation": "Copilot was trained on a large corpus of public code. This training data may include repositories with poor quality, insecure patterns, or biases that the model may reproduce in suggestions without awareness."
+    "explanation": "Copilot was trained on a large corpus of public code. This training data may include repositories with poor quality, insecure patterns, or biases that the model may reproduce in suggestions without awareness.",
+    "tags": [
+      "responsible-ai",
+      "bias",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d1-005",
@@ -72,7 +93,12 @@
       "D. GitHub servers may not be located in the required geographic region"
     ],
     "correct": 1,
-    "explanation": "In regulated industries, AI-generated code may not inherently comply with domain-specific regulations (HIPAA, GDPR, HL7, etc.). Developers must validate compliance of all AI-generated code in regulated contexts."
+    "explanation": "In regulated industries, AI-generated code may not inherently comply with domain-specific regulations (HIPAA, GDPR, HL7, etc.). Developers must validate compliance of all AI-generated code in regulated contexts.",
+    "tags": [
+      "responsible-ai",
+      "compliance",
+      "context"
+    ]
   },
   {
     "id": "ghc-d1-006",
@@ -87,7 +113,10 @@
       "D. Reject all suggestions that deviate from expected patterns"
     ],
     "correct": 2,
-    "explanation": "GitHub Copilot suggestions should be treated like code from a peer â€” they require review, validation, and potentially modification. The developer maintains full accountability for all code they commit."
+    "explanation": "GitHub Copilot suggestions should be treated like code from a peer — they require review, validation, and potentially modification. The developer maintains full accountability for all code they commit.",
+    "tags": [
+      "responsible-ai"
+    ]
   },
   {
     "id": "ghc-d1-007",
@@ -102,7 +131,12 @@
       "D. Copilot being rate-limited due to high acceptance rates"
     ],
     "correct": 2,
-    "explanation": "Accepting AI suggestions without review risks introducing bugs, security vulnerabilities, deprecated API usage, or code that may infringe on open-source licenses into production. Human review is mandatory."
+    "explanation": "Accepting AI suggestions without review risks introducing bugs, security vulnerabilities, deprecated API usage, or code that may infringe on open-source licenses into production. Human review is mandatory.",
+    "tags": [
+      "responsible-ai",
+      "security",
+      "ip-licensing"
+    ]
   },
   {
     "id": "ghc-d1-008",
@@ -117,7 +151,11 @@
       "D. Copilot refuses to generate code for proprietary programming languages"
     ],
     "correct": 0,
-    "explanation": "Copilot may occasionally suggest code matching or closely resembling code from its training data. This can raise license compatibility questions, particularly for copyleft licenses like GPL. The public code filter helps mitigate this."
+    "explanation": "Copilot may occasionally suggest code matching or closely resembling code from its training data. This can raise license compatibility questions, particularly for copyleft licenses like GPL. The public code filter helps mitigate this.",
+    "tags": [
+      "responsible-ai",
+      "ip-licensing"
+    ]
   },
   {
     "id": "ghc-d1-009",
@@ -132,7 +170,12 @@
       "D. Accept the suggestion since AI-generated queries are always optimized for security"
     ],
     "correct": 2,
-    "explanation": "All AI-generated database queries must be reviewed for correctness, performance, and security (especially SQL injection) before execution â€” particularly when accessing sensitive customer data."
+    "explanation": "All AI-generated database queries must be reviewed for correctness, performance, and security (especially SQL injection) before execution — particularly when accessing sensitive customer data.",
+    "tags": [
+      "responsible-ai",
+      "security",
+      "prompting"
+    ]
   },
   {
     "id": "ghc-d1-010",
@@ -147,7 +190,12 @@
       "D. GitHub Copilot must be supervised by a designated AI officer in each organization"
     ],
     "correct": 2,
-    "explanation": "Human oversight means the developer remains responsible for all code they commit, including AI-generated code. Copilot is an assistant â€” the developer must validate, test, and take full accountability for what is merged."
+    "explanation": "Human oversight means the developer remains responsible for all code they commit, including AI-generated code. Copilot is an assistant — the developer must validate, test, and take full accountability for what is merged.",
+    "tags": [
+      "responsible-ai",
+      "context",
+      "testing"
+    ]
   },
   {
     "id": "ghc-d1-011",
@@ -162,7 +210,10 @@
       "D. Documenting when AI tools significantly contributed to code generation, enabling appropriate review scrutiny"
     ],
     "correct": 3,
-    "explanation": "Transparency in AI usage includes documenting significant AI contributions to code, allowing reviewers to apply appropriate scrutiny and teams to understand the AI's role in their development process."
+    "explanation": "Transparency in AI usage includes documenting significant AI contributions to code, allowing reviewers to apply appropriate scrutiny and teams to understand the AI's role in their development process.",
+    "tags": [
+      "responsible-ai"
+    ]
   },
   {
     "id": "ghc-d1-012",
@@ -177,7 +228,11 @@
       "D. Copilot may suggest code that doesn't align with team coding standards"
     ],
     "correct": 2,
-    "explanation": "Copilot does NOT always generate production-ready or tested code â€” this is a critical misconception. All suggestions require review and validation. Options A, B, and D are genuine limitations developers must account for."
+    "explanation": "Copilot does NOT always generate production-ready or tested code — this is a critical misconception. All suggestions require review and validation. Options A, B, and D are genuine limitations developers must account for.",
+    "tags": [
+      "responsible-ai",
+      "testing"
+    ]
   },
   {
     "id": "ghc-d1-013",
@@ -192,7 +247,12 @@
       "D. Line count of the generated authentication function"
     ],
     "correct": 1,
-    "explanation": "Authentication code is security-critical. When reviewing AI-generated security code, checking for vulnerabilities (weak hashing, credential exposure, injection flaws, missing rate limiting) must take the highest priority over stylistic concerns."
+    "explanation": "Authentication code is security-critical. When reviewing AI-generated security code, checking for vulnerabilities (weak hashing, credential exposure, injection flaws, missing rate limiting) must take the highest priority over stylistic concerns.",
+    "tags": [
+      "responsible-ai",
+      "security",
+      "code-review"
+    ]
   },
   {
     "id": "ghc-d1-014",
@@ -207,7 +267,11 @@
       "D. Training data bias only affects natural language outputs, never code generation"
     ],
     "correct": 1,
-    "explanation": "Like all LLMs, Copilot may reflect biases, antipatterns, or insecure coding practices present in its public training corpus. Developers should critically evaluate suggestions rather than assuming the AI applies best practices."
+    "explanation": "Like all LLMs, Copilot may reflect biases, antipatterns, or insecure coding practices present in its public training corpus. Developers should critically evaluate suggestions rather than assuming the AI applies best practices.",
+    "tags": [
+      "responsible-ai",
+      "bias"
+    ]
   },
   {
     "id": "ghc-d1-015",
@@ -222,7 +286,10 @@
       "D. GitHub Copilot generates certified, production-safe code on GitHub Enterprise"
     ],
     "correct": 1,
-    "explanation": "GitHub's terms are clear: developers are fully responsible for all code they commit. Copilot is an assistant, not an autonomous agent â€” the developer owns the output and its consequences."
+    "explanation": "GitHub's terms are clear: developers are fully responsible for all code they commit. Copilot is an assistant, not an autonomous agent — the developer owns the output and its consequences.",
+    "tags": [
+      "responsible-ai"
+    ]
   },
   {
     "id": "ghc-d1-016",
@@ -237,7 +304,13 @@
       "D. Switch from GitHub Copilot to a competing AI tool"
     ],
     "correct": 0,
-    "explanation": "Automated SAST/SCA scanning integrated as a CI/CD gate provides systematic, scalable protection against AI-generated code containing known vulnerability patterns, complementing human code review."
+    "explanation": "Automated SAST/SCA scanning integrated as a CI/CD gate provides systematic, scalable protection against AI-generated code containing known vulnerability patterns, complementing human code review.",
+    "tags": [
+      "responsible-ai",
+      "security",
+      "code-review",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d1-017",
@@ -252,7 +325,11 @@
       "D. Using Copilot for generic utilities and applying heightened scrutiny when it touches sensitive business rules"
     ],
     "correct": 3,
-    "explanation": "Operating responsibly means applying heightened scrutiny to AI suggestions for sensitive business logic â€” not blindly accepting suggestions when the stakes are high, and ensuring business rules are correctly implemented."
+    "explanation": "Operating responsibly means applying heightened scrutiny to AI suggestions for sensitive business logic — not blindly accepting suggestions when the stakes are high, and ensuring business rules are correctly implemented.",
+    "tags": [
+      "responsible-ai",
+      "copilot-business"
+    ]
   },
   {
     "id": "ghc-d1-018",
@@ -267,7 +344,13 @@
       "D. Create an AI usage policy including mandatory review processes, developer training, and automated scanning gates"
     ],
     "correct": 3,
-    "explanation": "A comprehensive AI usage policy combining review processes, training requirements, and automated scanning gates provides governance that enables productivity benefits while managing regulatory compliance risks."
+    "explanation": "A comprehensive AI usage policy combining review processes, training requirements, and automated scanning gates provides governance that enables productivity benefits while managing regulatory compliance risks.",
+    "tags": [
+      "responsible-ai",
+      "compliance",
+      "policies",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d1-019",
@@ -282,7 +365,10 @@
       "D. Copilot could potentially generate exploit code or malicious scripts if prompted with harmful intent"
     ],
     "correct": 3,
-    "explanation": "Dual-use risk refers to AI tools potentially being used for both beneficial (legitimate development) and harmful (exploit generation) purposes. Organizations should establish acceptable use policies as part of their AI governance."
+    "explanation": "Dual-use risk refers to AI tools potentially being used for both beneficial (legitimate development) and harmful (exploit generation) purposes. Organizations should establish acceptable use policies as part of their AI governance.",
+    "tags": [
+      "responsible-ai"
+    ]
   },
   {
     "id": "ghc-d1-020",
@@ -297,7 +383,11 @@
       "D. Validating generated IaC does not over-provision permissions, expose resources publicly, or create security misconfigurations"
     ],
     "correct": 3,
-    "explanation": "AI-generated IaC can introduce critical security misconfigurations â€” overly permissive IAM roles, publicly exposed storage buckets, missing encryption at rest. Validation against security baselines (e.g., CIS benchmarks) is essential before applying."
+    "explanation": "AI-generated IaC can introduce critical security misconfigurations — overly permissive IAM roles, publicly exposed storage buckets, missing encryption at rest. Validation against security baselines (e.g., CIS benchmarks) is essential before applying.",
+    "tags": [
+      "responsible-ai",
+      "security"
+    ]
   },
   {
     "id": "ghc-d1-021",
@@ -312,7 +402,12 @@
       "D. Dual-use risks and potential misuse"
     ],
     "correct": 2,
-    "explanation": "LLMs have a training data cutoff date. Copilot may suggest deprecated APIs, outdated packages with known CVEs, or practices no longer considered current. Developers must verify suggestions against current documentation."
+    "explanation": "LLMs have a training data cutoff date. Copilot may suggest deprecated APIs, outdated packages with known CVEs, or practices no longer considered current. Developers must verify suggestions against current documentation.",
+    "tags": [
+      "responsible-ai",
+      "documentation",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d1-022",
@@ -327,7 +422,10 @@
       "D. Using Copilot autonomously to write and commit code while the developer attends meetings"
     ],
     "correct": 2,
-    "explanation": "Using Copilot for boilerplate generation and then reviewing and customizing the output represents appropriate use â€” leveraging AI for acceleration while the developer maintains accountability and quality standards."
+    "explanation": "Using Copilot for boilerplate generation and then reviewing and customizing the output represents appropriate use — leveraging AI for acceleration while the developer maintains accountability and quality standards.",
+    "tags": [
+      "responsible-ai"
+    ]
   },
   {
     "id": "ghc-d1-023",
@@ -342,7 +440,12 @@
       "D. GitHub Copilot may generate plausible-looking but incorrect code, requiring human validation of all output"
     ],
     "correct": 3,
-    "explanation": "The most critical limitation to communicate is that Copilot can generate plausible but incorrect code (hallucinations), requiring developers to validate all output rather than assuming correctness â€” especially for complex or security-sensitive logic."
+    "explanation": "The most critical limitation to communicate is that Copilot can generate plausible but incorrect code (hallucinations), requiring developers to validate all output rather than assuming correctness — especially for complex or security-sensitive logic.",
+    "tags": [
+      "responsible-ai",
+      "security",
+      "hallucination"
+    ]
   },
   {
     "id": "ghc-d1-024",
@@ -357,7 +460,11 @@
       "D. AI-generated code automatically receives a Creative Commons license"
     ],
     "correct": 0,
-    "explanation": "A key ethical concern is that AI training data included copyleft-licensed repositories. If Copilot reproduces such code in an MIT-licensed project, the copyleft terms may propagate â€” creating unintended license incompatibility."
+    "explanation": "A key ethical concern is that AI training data included copyleft-licensed repositories. If Copilot reproduces such code in an MIT-licensed project, the copyleft terms may propagate — creating unintended license incompatibility.",
+    "tags": [
+      "responsible-ai",
+      "ip-licensing"
+    ]
   },
   {
     "id": "ghc-d1-025",
@@ -372,6 +479,10 @@
       "D. Disable Copilot when working with Python data science libraries"
     ],
     "correct": 2,
-    "explanation": "In ML pipelines, data preprocessing errors (bias introduction, data leakage, incorrect transformations) can corrupt model training and produce unreliable models. Validating AI-generated preprocessing code for these specific issues is critical."
+    "explanation": "In ML pipelines, data preprocessing errors (bias introduction, data leakage, incorrect transformations) can corrupt model training and produce unreliable models. Validating AI-generated preprocessing code for these specific issues is critical.",
+    "tags": [
+      "responsible-ai",
+      "bias"
+    ]
   }
 ]

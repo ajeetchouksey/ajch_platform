@@ -12,7 +12,12 @@
     ],
     "correct": 1,
     "explanation": "Scoped rule files in .claude/rules/ with YAML frontmatter path globs are the highest-precedence and most precise way to apply directory-specific rules. A single root CLAUDE.md (A) applies globally and can't differentiate directories cleanly. Multiple CLAUDE.md files in subdirectories (C) works but has lower precedence than .claude/rules/ and is harder to manage centrally. There is no --rules CLI flag (D). The 3-level hierarchy is: ~/.claude/CLAUDE.md (global) < ./CLAUDE.md (project) < .claude/rules/*.md (scoped, highest priority).",
-    "tags": ["CLAUDE.md", "scoped-rules", "hierarchy", "claude-code-config"]
+    "tags": [
+      "CLAUDE.md",
+      "scoped-rules",
+      "hierarchy",
+      "claude-code-config"
+    ]
   },
   {
     "domain": 2,
@@ -27,7 +32,12 @@
     ],
     "correct": 1,
     "explanation": "The correct YAML frontmatter key is 'path' with a glob pattern. The triple-dash delimiters (---) are required to mark the frontmatter block. The path glob 'src/**/*.ts' matches all TypeScript files under the src/ directory recursively. The rule is only activated when Claude Code is working on a file that matches the path pattern. Other key names like applies_to, scope, or glob are not recognized by Claude Code.",
-    "tags": ["scoped-rules", "YAML-frontmatter", "path-glob", "claude-code-config"]
+    "tags": [
+      "scoped-rules",
+      "YAML-frontmatter",
+      "path-glob",
+      "claude-code-config"
+    ]
   },
   {
     "domain": 2,
@@ -42,7 +52,12 @@
     ],
     "correct": 1,
     "explanation": "The -p flag (short for --print) puts Claude Code into non-interactive print mode, suitable for CI/CD pipelines. It accepts the prompt as an argument, executes it, prints the output, and exits — no interactive session is started. The --headless flag (A) does not exist. Stdin piping (C) is not the documented approach for headless operation. There is no CLAUDE_HEADLESS env var (D). The -p flag is the standard way to automate Claude Code in scripts and pipelines.",
-    "tags": ["headless-mode", "CI/CD", "automation", "claude-code-config"]
+    "tags": [
+      "headless-mode",
+      "CI/CD",
+      "automation",
+      "claude-code-config"
+    ]
   },
   {
     "domain": 2,
@@ -57,7 +72,13 @@
     ],
     "correct": 1,
     "explanation": "MCP servers configured in .claude/settings.json with stdio transport are the correct way to expose custom tools to Claude Code. The MCP server runs locally as a subprocess, communicates via stdin/stdout, and exposes tools that Claude Code can call. System prompt tool definitions (A) are for the API, not Claude Code's tool integration mechanism. CLAUDE.md (C) is for instructions, not tool registration. Skill files (D) provide guidance/context but cannot execute database queries — skills = instructional context, tools = runtime execution.",
-    "tags": ["MCP", "tools", "settings.json", "stdio-transport", "claude-code-config"]
+    "tags": [
+      "MCP",
+      "tools",
+      "settings.json",
+      "stdio-transport",
+      "claude-code-config"
+    ]
   },
   {
     "domain": 2,
@@ -72,7 +93,12 @@
     ],
     "correct": 1,
     "explanation": "A PostToolUse hook is code-enforced and triggers automatically after every file write tool call. It can inspect the file path, detect if it's in src/, and execute the test suite. CLAUDE.md instructions (A) are guidance — Claude may forget or skip this in long sessions. A slash command (C) is manual and not automatic. There is no model instruction setting in settings.json for this (D). For automatic, guaranteed behavior: use hooks. For suggested behavior: use prompts/instructions.",
-    "tags": ["hooks", "PostToolUse", "automation", "skills-vs-tools"]
+    "tags": [
+      "hooks",
+      "PostToolUse",
+      "automation",
+      "skills-vs-tools"
+    ]
   },
   {
     "domain": 2,
@@ -87,7 +113,11 @@
     ],
     "correct": 1,
     "explanation": "Skills are instructional context files that inform Claude's decisions (what tables exist, what the relationships are, what naming conventions to follow). Tools are for runtime execution (actually running queries, inserting records). A schema description is read once to give Claude context — that's exactly what a skill file is for. If you need Claude to query the live schema dynamically, that's a tool. The distinction: skills = knowledge that shapes behavior, tools = actions that affect state.",
-    "tags": ["skills-vs-tools", "CLAUDE.md", "claude-code-config"]
+    "tags": [
+      "skills-vs-tools",
+      "CLAUDE.md",
+      "claude-code-config"
+    ]
   },
   {
     "domain": 2,
@@ -102,7 +132,12 @@
     ],
     "correct": 2,
     "explanation": "The full 3-level hierarchy from lowest to highest precedence is: (1) ~/.claude/CLAUDE.md (global, applies everywhere), (2) ./CLAUDE.md (project-level, overrides global), (3) .claude/rules/*.md with path globs (scoped, highest priority, only applies to matching files). This allows you to set global defaults, override at project level, and further override for specific file types or directories. Modification time (D) has no relevance to precedence.",
-    "tags": ["CLAUDE.md", "hierarchy", "precedence", "claude-code-config"]
+    "tags": [
+      "CLAUDE.md",
+      "hierarchy",
+      "precedence",
+      "claude-code-config"
+    ]
   },
   {
     "domain": 2,
@@ -117,7 +152,11 @@
     ],
     "correct": 1,
     "explanation": "Slash commands in Claude Code are defined as Markdown files in .claude/commands/. The filename becomes the command name (e.g., .claude/commands/commit.md creates /commit). The file describes what the command does and Claude executes it when invoked. package.json scripts (A) are for npm, not Claude Code commands. settings.json (C) handles permissions and MCP config, not slash commands. MCP tools (D) are for runtime actions, not reusable prompt commands.",
-    "tags": ["slash-commands", "claude-code-config", "automation"]
+    "tags": [
+      "slash-commands",
+      "claude-code-config",
+      "automation"
+    ]
   },
   {
     "domain": 2,
@@ -132,7 +171,12 @@
     ],
     "correct": 2,
     "explanation": "Exit code 1 from Claude Code indicates an error — not a content judgment. It means the command failed at the infrastructure level: invalid arguments, a permission error (Claude Code blocked an action), authentication failure, or an unrecoverable task failure. Exit code 0 means success. Claude does not use exit codes to indicate the content of its findings (A). A successful review exits 0 (B). Token truncation (D) would appear in the output text, not as exit code 1.",
-    "tags": ["headless-mode", "CI/CD", "exit-codes", "error-handling"]
+    "tags": [
+      "headless-mode",
+      "CI/CD",
+      "exit-codes",
+      "error-handling"
+    ]
   },
   {
     "domain": 2,
@@ -147,7 +191,11 @@
     ],
     "correct": 1,
     "explanation": "Permission modes in Claude Code are configured in .claude/settings.json. You can allow/deny specific tool categories (read, write, execute, network) to control what Claude Code can do in a given project or session. This is the authoritative permission mechanism. CLAUDE.md instructions (A) are guidance, not enforcement. There is no --read-only flag (C). MCP server config (D) only controls custom tools, not Claude Code's built-in file system and execution tools.",
-    "tags": ["permissions", "settings.json", "claude-code-config"]
+    "tags": [
+      "permissions",
+      "settings.json",
+      "claude-code-config"
+    ]
   },
   {
     "domain": 2,
@@ -162,7 +210,12 @@
     ],
     "correct": 1,
     "explanation": "Claude Code's CLAUDE.md system uses hierarchical inheritance—rules in parent directories apply to all subdirectories, while child CLAUDE.md files add or override specifics. A single file becomes unmanageable at scale. YAML config isn't the CLAUDE.md format. Environment variables don't control agent behavior rules.",
-    "tags": ["CLAUDE-md", "hierarchy", "configuration", "monorepo"]
+    "tags": [
+      "CLAUDE-md",
+      "hierarchy",
+      "configuration",
+      "monorepo"
+    ]
   },
   {
     "domain": 2,
@@ -177,7 +230,12 @@
     ],
     "correct": 1,
     "explanation": "MCP servers should be configured with least-privilege credentials AND limited tool exposure — defense in depth. Relying on Claude's judgment for access control is insecure. Disabling MCP loses dynamic querying capability. Hooks could block queries but don't address the credential/exposure layer; proper security requires both credential restriction and tool scoping.",
-    "tags": ["MCP-config", "security", "least-privilege", "mcp-server"]
+    "tags": [
+      "MCP-config",
+      "security",
+      "least-privilege",
+      "mcp-server"
+    ]
   },
   {
     "domain": 2,
@@ -192,7 +250,12 @@
     ],
     "correct": 1,
     "explanation": "YAML frontmatter in CLAUDE.md files supports 'applyTo' patterns that scope instructions to matching files. CLAUDE.md doesn't support if/else logic. JSON config files aren't part of the CLAUDE.md system. Comment prefixes have no semantic meaning to the parser.",
-    "tags": ["yaml-frontmatter", "CLAUDE-md", "applyTo", "scoped-rules"]
+    "tags": [
+      "yaml-frontmatter",
+      "CLAUDE-md",
+      "applyTo",
+      "scoped-rules"
+    ]
   },
   {
     "domain": 2,
@@ -207,7 +270,12 @@
     ],
     "correct": 0,
     "explanation": "Project-scoped custom slash commands should be stored in the .claude/commands/ directory within the repository. These commands are version-controlled and automatically available to all developers when they clone or pull the repo. Option B (~/.claude/commands/) is for personal commands that aren't shared via version control. Option C (CLAUDE.md) is for project instructions and context, not command definitions. Option D describes a configuration mechanism that doesn't exist in Claude Code.",
-    "tags": ["slash-commands", "project-scoped", ".claude/commands/", "version-control"]
+    "tags": [
+      "slash-commands",
+      "project-scoped",
+      ".claude/commands/",
+      "version-control"
+    ]
   },
   {
     "domain": 2,
@@ -222,7 +290,12 @@
     ],
     "correct": 0,
     "explanation": "Plan mode is designed for complex tasks involving large-scale changes, multiple valid approaches, and architectural decisions — exactly what monolith-to-microservices restructuring requires. It enables safe codebase exploration and design before committing to changes. Option B risks costly rework when dependencies are discovered late. Option C assumes you already know the right structure without exploring the code. Option D ignores that the complexity is already stated in the requirements, not something that might emerge later.",
-    "tags": ["plan-mode", "direct-execution", "complex-tasks", "architectural-decisions"]
+    "tags": [
+      "plan-mode",
+      "direct-execution",
+      "complex-tasks",
+      "architectural-decisions"
+    ]
   },
   {
     "domain": 2,
@@ -237,7 +310,12 @@
     ],
     "correct": 0,
     "explanation": "Option A is correct because .claude/rules/ with glob patterns (e.g., **/*.test.tsx) allows conventions to be automatically applied based on file paths regardless of directory location — essential for test files spread throughout the codebase. Option B relies on inference rather than explicit matching, making it unreliable. Option C requires manual skill invocation rather than automatic path-based triggering. Option D can't easily handle files spread across many directories since CLAUDE.md files are directory-bound.",
-    "tags": [".claude/rules/", "glob-patterns", "path-scoped-rules", "CLAUDE-md"]
+    "tags": [
+      ".claude/rules/",
+      "glob-patterns",
+      "path-scoped-rules",
+      "CLAUDE-md"
+    ]
   },
   {
     "domain": 2,
@@ -252,6 +330,671 @@
     ],
     "correct": 0,
     "explanation": "The -p (or --print) flag is the documented way to run Claude Code in non-interactive mode. It processes the prompt, outputs the result to stdout, and exits without waiting for user input — exactly what CI/CD pipelines require. The other options reference non-existent features (CLAUDE_HEADLESS environment variable, --batch flag) or use Unix workarounds that don't properly address Claude Code's command syntax.",
-    "tags": ["-p-flag", "non-interactive", "CI-CD", "headless-mode"]
+    "tags": [
+      "-p-flag",
+      "non-interactive",
+      "CI-CD",
+      "headless-mode"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-018",
+    "scenario": "You want a slash command available to the whole team through version control.",
+    "question": "Where should it live?",
+    "options": [
+      "~/.claude/commands/ (user scope)",
+      ".claude/commands/ (project scope, committed to the repo)",
+      "A gist linked in the README",
+      "Inside CLAUDE.md as prose"
+    ],
+    "correct": 1,
+    "explanation": "Project-scoped commands in .claude/commands/ are shared team-wide via version control. User-scoped ~/.claude/commands/ (A) is personal only. A gist (C) isn't loaded by Claude Code, and prose in CLAUDE.md (D) is not an invokable slash command.",
+    "tags": [
+      "slash-commands",
+      "project-scope",
+      "version-control",
+      "claude-code"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-019",
+    "scenario": "A skill produces very verbose codebase-analysis output that pollutes the main conversation and crowds out context.",
+    "question": "Which SKILL.md frontmatter option isolates it?",
+    "options": [
+      "context: fork - run the skill in an isolated sub-agent context so its output doesn't pollute the main session",
+      "allowed-tools: none",
+      "argument-hint: verbose",
+      "context: inline"
+    ],
+    "correct": 0,
+    "explanation": "context: fork runs a skill in an isolated sub-agent context, keeping its verbose output out of the main conversation. allowed-tools (B) restricts tools, argument-hint (C) prompts for parameters, and there is no benefit from an 'inline' setting (D) for isolation.",
+    "tags": [
+      "skills",
+      "context-fork",
+      "SKILL.md",
+      "isolation"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-020",
+    "scenario": "You want a skill that can only write files and must never run destructive shell commands.",
+    "question": "Which frontmatter field enforces this?",
+    "options": [
+      "context: fork",
+      "allowed-tools - restrict the skill to specific tools (e.g., file writes only)",
+      "argument-hint",
+      "paths"
+    ],
+    "correct": 1,
+    "explanation": "allowed-tools in skill frontmatter restricts which tools the skill may use during execution, e.g., limiting it to file writes to prevent destructive actions. context: fork (A) isolates context, argument-hint (C) prompts for input, and paths (D) is for path-scoped rules, not skills.",
+    "tags": [
+      "skills",
+      "allowed-tools",
+      "SKILL.md",
+      "safety"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-021",
+    "scenario": "When developers invoke your skill without the required parameter, they get confusing behavior.",
+    "question": "Which frontmatter field prompts them for the needed argument?",
+    "options": [
+      "argument-hint",
+      "context: fork",
+      "allowed-tools",
+      "paths"
+    ],
+    "correct": 0,
+    "explanation": "argument-hint frontmatter prompts developers for required parameters when they invoke a skill without arguments, improving usability. context: fork (B) isolates context, allowed-tools (C) restricts tools, and paths (D) scopes rules by file glob.",
+    "tags": [
+      "skills",
+      "argument-hint",
+      "SKILL.md",
+      "usability"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-022",
+    "scenario": "You must decide whether to put a convention in a Skill or in CLAUDE.md.",
+    "question": "Which distinction is correct?",
+    "options": [
+      "Skills are always-loaded universal standards; CLAUDE.md is on-demand",
+      "Skills are on-demand, task-specific workflows invoked when needed; CLAUDE.md holds always-loaded universal standards",
+      "They are identical; choose either",
+      "CLAUDE.md can only hold slash commands"
+    ],
+    "correct": 1,
+    "explanation": "Skills are invoked on demand for task-specific workflows, whereas CLAUDE.md holds always-loaded universal standards. Option A inverts this. They are not interchangeable (C), and CLAUDE.md holds standards/instructions, not only slash commands (D).",
+    "tags": [
+      "skills",
+      "CLAUDE.md",
+      "on-demand",
+      "standards"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-023",
+    "scenario": "You want personal tweaks to a shared skill without affecting teammates.",
+    "question": "What is the recommended approach?",
+    "options": [
+      "Edit the shared .claude/skills/ version directly",
+      "Create a personal variant in ~/.claude/skills/ with a different name",
+      "Delete the shared skill and recreate it privately",
+      "Fork the whole repository"
+    ],
+    "correct": 1,
+    "explanation": "Create a personal skill variant in user-scoped ~/.claude/skills/ under a different name so your customization doesn't affect the shared project skill. Editing the shared version (A) changes it for everyone, deleting it (C) breaks the team, and forking the repo (D) is disproportionate.",
+    "tags": [
+      "skills",
+      "user-scope",
+      "personal-variant",
+      "claude-code"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-024",
+    "scenario": "Your test-file conventions must apply to test files scattered across many directories, not just one folder.",
+    "question": "Which mechanism applies them best?",
+    "options": [
+      "A subdirectory CLAUDE.md in each folder that contains tests",
+      "A .claude/rules/ file with YAML frontmatter paths using a glob like **/*.test.tsx",
+      "Inline comments in each test file",
+      "A single root CLAUDE.md line saying 'apply test rules'"
+    ],
+    "correct": 1,
+    "explanation": "Path-specific rules in .claude/rules/ with a glob (e.g., paths: [\"**/*.test.tsx\"]) apply conventions to files by type regardless of location, which subdirectory CLAUDE.md files (A) can't do cleanly for scattered files. Inline comments (C) don't scale, and a vague root line (D) lacks scoping.",
+    "tags": [
+      "path-rules",
+      "glob",
+      "rules-directory",
+      "conditional-loading"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-025",
+    "scenario": "You add Terraform-specific conventions that should load only when editing Terraform files.",
+    "question": "Which frontmatter achieves conditional activation?",
+    "options": [
+      "context: fork",
+      "paths: [\"terraform/**/*\"] in a .claude/rules/ file",
+      "allowed-tools: terraform",
+      "argument-hint: terraform"
+    ],
+    "correct": 1,
+    "explanation": "A .claude/rules/ file with paths: [\"terraform/**/*\"] loads the rule only when editing matching files, reducing irrelevant context and token usage. context: fork (A) isolates skill context, and allowed-tools/argument-hint (C, D) are skill fields, not path scoping.",
+    "tags": [
+      "path-rules",
+      "glob",
+      "conditional-loading",
+      "terraform"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-026",
+    "scenario": "A convention applies to all files of a certain type spread across the codebase, and you're choosing between a subdirectory CLAUDE.md and a path-scoped rule.",
+    "question": "Which is advantageous and why?",
+    "options": [
+      "Subdirectory CLAUDE.md, because it always loads for the whole repo",
+      "Path-scoped rule with a glob, because it applies by file type across directories and loads only when relevant",
+      "Neither; put it in the system prompt",
+      "Both are identical in behavior"
+    ],
+    "correct": 1,
+    "explanation": "Glob-based path-scoped rules apply conventions by file type across directories and load only when editing matching files - ideal for cross-cutting file types. A subdirectory CLAUDE.md (A) is directory-bound and would need duplication. The system prompt (C) isn't the mechanism, and the two options are not identical (D).",
+    "tags": [
+      "path-rules",
+      "glob",
+      "CLAUDE.md",
+      "conditional-loading"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-027",
+    "scenario": "A prose description of a data transformation keeps producing inconsistent results from Claude Code.",
+    "question": "Which iterative-refinement technique most effectively communicates the expected transformation?",
+    "options": [
+      "Add the word 'carefully' to the prompt",
+      "Provide 2-3 concrete input/output examples of the transformation",
+      "Increase max_tokens",
+      "Switch to plan mode permanently"
+    ],
+    "correct": 1,
+    "explanation": "Concrete input/output examples are the most effective way to convey a transformation when prose is interpreted inconsistently. Vague emphasis (A) and max_tokens (C) don't clarify intent, and plan mode (D) is about planning changes, not specifying transformations.",
+    "tags": [
+      "iterative-refinement",
+      "examples",
+      "input-output",
+      "prompt-engineering"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-028",
+    "scenario": "You want Claude Code to progressively improve an implementation against expected behavior and edge cases.",
+    "question": "Which workflow embodies test-driven iteration?",
+    "options": [
+      "Write the implementation first, then never test",
+      "Write a test suite covering behavior, edge cases, and performance first, then iterate by sharing test failures",
+      "Ask Claude to guess edge cases without tests",
+      "Run the code once and accept the output"
+    ],
+    "correct": 1,
+    "explanation": "Test-driven iteration writes the tests first, then feeds failures back to Claude to guide progressive improvement. Skipping tests (A, D) provides no signal, and guessing edge cases (C) is unreliable compared to explicit test cases.",
+    "tags": [
+      "iterative-refinement",
+      "test-driven",
+      "edge-cases",
+      "workflow"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-029",
+    "scenario": "Before implementing a caching layer in an unfamiliar domain, you want Claude to surface design considerations you might miss (invalidation, failure modes).",
+    "question": "Which pattern fits?",
+    "options": [
+      "The interview pattern: have Claude ask clarifying questions to surface considerations before implementing",
+      "Direct execution with no questions",
+      "Batch processing the design overnight",
+      "context: fork on the main session"
+    ],
+    "correct": 0,
+    "explanation": "The interview pattern has Claude ask questions to surface considerations (cache invalidation, failure modes) before coding, valuable in unfamiliar domains. Direct execution without questions (B) risks missing key concerns, batch processing (C) doesn't fit interactive design, and context: fork (D) isolates skill output rather than eliciting design questions.",
+    "tags": [
+      "iterative-refinement",
+      "interview-pattern",
+      "design",
+      "workflow"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-030",
+    "scenario": "You have several bugs to fix. Some are independent; others interact (fixing one changes another).",
+    "question": "How should you sequence the fixes?",
+    "options": [
+      "Always fix them one at a time regardless of interaction",
+      "Provide interacting problems together in a single detailed message; iterate sequentially for independent problems",
+      "Always fix them all in one message regardless of independence",
+      "Ignore interactions; order doesn't matter"
+    ],
+    "correct": 1,
+    "explanation": "Interacting problems should be described together so Claude can reconcile them in one pass; independent problems are fine to iterate on sequentially. Rigidly one-at-a-time (A) mishandles interactions, always-together (C) can conflate unrelated fixes, and interactions clearly do matter (D).",
+    "tags": [
+      "iterative-refinement",
+      "sequencing",
+      "interacting-issues",
+      "workflow"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-031",
+    "scenario": "Your CI pipeline runs `claude \"Analyze this PR for security issues\"` and the job hangs waiting for input.",
+    "question": "What is the correct fix for non-interactive execution?",
+    "options": [
+      "Set CLAUDE_HEADLESS=true",
+      "Add the -p (or --print) flag to run in non-interactive print mode",
+      "Add a --batch flag",
+      "Redirect stdin from /dev/null and hope it exits"
+    ],
+    "correct": 1,
+    "explanation": "The -p/--print flag is the documented way to run Claude Code non-interactively: it processes the prompt, prints the result, and exits - exactly what CI needs. CLAUDE_HEADLESS (A) and --batch (C) are not real features, and stdin redirection (D) is a fragile workaround that doesn't address the CLI's mode.",
+    "tags": [
+      "ci-cd",
+      "print-flag",
+      "non-interactive",
+      "claude-code"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-032",
+    "scenario": "You need Claude Code's CI output to be machine-parseable so a script can post inline PR comments.",
+    "question": "Which CLI flags produce structured output?",
+    "options": [
+      "--verbose alone",
+      "--output-format json together with --json-schema to enforce a structure",
+      "--print only, then regex the prose",
+      "--color=never"
+    ],
+    "correct": 1,
+    "explanation": "--output-format json with --json-schema yields machine-parseable, schema-conformant findings suitable for automated PR comment posting. --verbose (A) and --color (D) don't structure output, and regexing prose from --print (C) is fragile compared to enforced JSON.",
+    "tags": [
+      "ci-cd",
+      "output-format-json",
+      "json-schema",
+      "structured-output"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-033",
+    "scenario": "Re-running an automated review after new commits produces duplicate comments for issues already reported.",
+    "question": "How do you prevent duplicates?",
+    "options": [
+      "Disable the review after the first run",
+      "Include prior review findings in context and instruct Claude to report only new or still-unaddressed issues",
+      "Post all findings again and let humans dedupe",
+      "Lower max_tokens so fewer comments are produced"
+    ],
+    "correct": 1,
+    "explanation": "Feeding prior findings into context and instructing Claude to report only new or unresolved issues avoids duplicate comments across re-runs. Disabling the review (A) loses value, re-posting everything (C) burdens humans, and max_tokens (D) arbitrarily truncates rather than deduplicating.",
+    "tags": [
+      "ci-cd",
+      "review",
+      "deduplication",
+      "context"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-034",
+    "scenario": "Your generated tests keep duplicating scenarios already covered by the existing suite.",
+    "question": "What input reduces this?",
+    "options": [
+      "Provide the existing test files in context so generation avoids duplicating covered scenarios",
+      "Ask for more tests without any context",
+      "Increase temperature to add variety",
+      "Generate tests in a forked session with no repo access"
+    ],
+    "correct": 0,
+    "explanation": "Supplying the existing test files lets Claude avoid regenerating already-covered scenarios and focus on gaps. Asking blindly (B) or raising temperature (C) doesn't inform it of coverage, and removing repo access (D) makes it less aware of what exists.",
+    "tags": [
+      "ci-cd",
+      "test-generation",
+      "context",
+      "deduplication"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-035",
+    "scenario": "You want to improve the quality of CI-generated tests by giving Claude your team's testing standards and fixtures.",
+    "question": "Where should this project context live for CI-invoked Claude Code?",
+    "options": [
+      "Only in the developer's shell history",
+      "In CLAUDE.md (testing standards, fixture conventions, review criteria) so CI-invoked runs pick it up",
+      "In a private user-level file not committed to the repo",
+      "In the PR description each time"
+    ],
+    "correct": 1,
+    "explanation": "CLAUDE.md is the mechanism for supplying project context - testing standards, fixture conventions, review criteria - to CI-invoked Claude Code. Shell history (A) isn't loaded, user-level uncommitted files (C) won't reach CI, and PR descriptions (D) are ad hoc and inconsistent.",
+    "tags": [
+      "ci-cd",
+      "CLAUDE.md",
+      "testing-standards",
+      "context"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-036",
+    "scenario": "The same Claude session that generated a module is then asked to review its own changes and misses issues.",
+    "question": "What principle explains this and what's the fix?",
+    "options": [
+      "Sessions never affect review quality; the model is stateless",
+      "Session context isolation: an independent review instance (fresh context) reviews more effectively than the session that wrote the code",
+      "Always reuse the authoring session for review to save tokens",
+      "Reviews should be skipped for AI-generated code"
+    ],
+    "correct": 1,
+    "explanation": "A session biased by having authored the code is less effective at critiquing it; an independent review instance with fresh context catches more issues. The model isn't context-free here (A), reusing the authoring session (C) reintroduces bias, and skipping review (D) is unsafe.",
+    "tags": [
+      "ci-cd",
+      "session-isolation",
+      "review",
+      "independent-review"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-037",
+    "scenario": "A change is a simple single-file addition of one date-validation conditional with clear scope.",
+    "question": "Plan mode or direct execution?",
+    "options": [
+      "Plan mode with a multi-phase plan",
+      "Direct execution - simple, well-scoped, single-file change",
+      "Spawn subagents to debate it",
+      "Batch API overnight"
+    ],
+    "correct": 1,
+    "explanation": "Simple, well-scoped single-file edits are ideal for direct execution. Plan mode (A) is for complex, multi-file, architectural work; subagents (C) and batch processing (D) are unnecessary overhead for a one-line conditional.",
+    "tags": [
+      "plan-mode",
+      "direct-execution",
+      "scoping",
+      "claude-code"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-038",
+    "scenario": "You need to plan a library migration affecting 45+ files, then execute the planned approach.",
+    "question": "Which combination is recommended?",
+    "options": [
+      "Direct execution for both planning and implementation",
+      "Use plan mode to investigate and design, then direct execution to implement the planned approach",
+      "Plan mode for everything including each edit",
+      "Skip planning; migrate file by file ad hoc"
+    ],
+    "correct": 1,
+    "explanation": "Complex migrations benefit from plan mode for investigation/design followed by direct execution for the now-well-understood implementation. Direct execution for planning (A) risks costly rework, staying in plan mode for every edit (C) is inefficient, and ad hoc migration (D) invites inconsistency and errors.",
+    "tags": [
+      "plan-mode",
+      "direct-execution",
+      "migration",
+      "workflow"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-039",
+    "scenario": "During a multi-phase Claude Code task, a verbose discovery phase threatens to exhaust the context window.",
+    "question": "Which Claude Code feature isolates discovery output?",
+    "options": [
+      "The Explore subagent, which runs discovery in isolation and returns a summary",
+      "The /compact command applied to the system prompt",
+      "Increasing max_tokens",
+      "Disabling CLAUDE.md"
+    ],
+    "correct": 0,
+    "explanation": "The Explore subagent isolates verbose discovery and returns a concise summary, preserving main-context budget across phases. /compact (B) summarizes existing context but isn't a discovery-isolation subagent, max_tokens (C) is unrelated, and disabling CLAUDE.md (D) removes needed standards.",
+    "tags": [
+      "plan-mode",
+      "explore-subagent",
+      "context-management",
+      "discovery"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-040",
+    "scenario": "You want CI to fail fast when Claude Code output can't be parsed as the expected structure.",
+    "question": "Which approach is most robust?",
+    "options": [
+      "Parse free-form text with brittle regexes",
+      "Enforce a schema with --json-schema and validate the JSON output in the pipeline, failing on schema violations",
+      "Trust the output and never validate",
+      "Only check the exit code"
+    ],
+    "correct": 1,
+    "explanation": "Enforcing --json-schema and validating the JSON lets CI fail fast on malformed/unexpected output. Regexing free text (A) is fragile, skipping validation (C) is unsafe, and exit codes alone (D) don't confirm the payload structure.",
+    "tags": [
+      "ci-cd",
+      "json-schema",
+      "validation",
+      "structured-output"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-041",
+    "scenario": "Your CLAUDE.md hierarchy has user-level, project-level, and directory-level files. A directory-level instruction conflicts with a project-level one while editing a file in that directory.",
+    "question": "What is the expected effect of the more specific directory-level file?",
+    "options": [
+      "It is ignored in favor of the project root",
+      "More specific directory-level guidance applies for files in that directory, layered over broader project-level settings",
+      "User-level always wins over everything",
+      "Conflicts crash Claude Code"
+    ],
+    "correct": 1,
+    "explanation": "The hierarchy layers from user to project to directory, with more specific directory-level guidance applying for files within that directory. It isn't ignored (A), user-level isn't globally dominant (C - and isn't shared via VCS), and conflicts don't crash the tool (D).",
+    "tags": [
+      "CLAUDE.md",
+      "hierarchy",
+      "directory-level",
+      "scoping"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-042",
+    "scenario": "You want a slash command that runs a repeatable code-review workflow the whole team can invoke.",
+    "question": "Which combination is correct?",
+    "options": [
+      "Put it in ~/.claude/commands/ so only you can run it",
+      "Put it in .claude/commands/ and commit it so the team shares it via version control",
+      "Describe it in the README and run manually",
+      "Encode it as a path-scoped rule"
+    ],
+    "correct": 1,
+    "explanation": "A team-shared, repeatable workflow belongs in project-scoped .claude/commands/ committed to the repo. User scope (A) limits it to you, a README (C) isn't invokable, and path-scoped rules (D) are for conditional convention loading, not commands.",
+    "tags": [
+      "slash-commands",
+      "project-scope",
+      "version-control",
+      "workflow"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-043",
+    "scenario": "A brainstorming skill dumps many exploratory alternatives into the main chat, derailing the focused task.",
+    "question": "Which frontmatter setting keeps the exploration out of the main session?",
+    "options": [
+      "argument-hint",
+      "context: fork",
+      "paths",
+      "allowed-tools: all"
+    ],
+    "correct": 1,
+    "explanation": "context: fork runs the skill in an isolated sub-agent context so its exploratory output doesn't pollute the main conversation. argument-hint (A) prompts for input, paths (C) scopes rules, and allowed-tools: all (D) would broaden rather than isolate.",
+    "tags": [
+      "skills",
+      "context-fork",
+      "isolation",
+      "exploration"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-044",
+    "scenario": "You must choose the safest way to prevent a file-generation skill from accidentally deleting files.",
+    "question": "Which frontmatter configuration helps?",
+    "options": [
+      "context: fork only",
+      "allowed-tools limited to write/create operations, excluding destructive commands",
+      "argument-hint: safe",
+      "paths: [\"**/*\"]"
+    ],
+    "correct": 1,
+    "explanation": "Restricting allowed-tools to write/create operations (excluding destructive shell/delete) prevents accidental deletions during skill execution. context: fork (A) isolates context but doesn't limit tools, argument-hint (C) prompts for input, and a broad paths glob (D) is unrelated to tool safety.",
+    "tags": [
+      "skills",
+      "allowed-tools",
+      "safety",
+      "SKILL.md"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-045",
+    "scenario": "Two teammates get different Claude Code behavior on the same repo. One suspects a stray user-level instruction.",
+    "question": "What is the fastest way to confirm which memory files are loaded?",
+    "options": [
+      "Diff the entire repo",
+      "Run /memory to list the loaded memory files for each environment",
+      "Restart the machine",
+      "Increase logging verbosity in CI"
+    ],
+    "correct": 1,
+    "explanation": "/memory lists the currently loaded memory files, quickly revealing whether a user-level file is causing divergent behavior. Diffing the repo (A) misses user-level files, restarting (C) does nothing, and CI verbosity (D) doesn't reflect local memory loading.",
+    "tags": [
+      "CLAUDE.md",
+      "memory-command",
+      "diagnosis",
+      "hierarchy"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-046",
+    "scenario": "Your team wants conventions that apply to all GraphQL resolver files regardless of where they live.",
+    "question": "Which is the cleanest implementation?",
+    "options": [
+      "A CLAUDE.md in every directory that might hold a resolver",
+      "A .claude/rules/ file with a glob path like **/*.resolver.ts",
+      "A comment at the top of each resolver",
+      "A single sentence in the root CLAUDE.md with no scoping"
+    ],
+    "correct": 1,
+    "explanation": "A path-scoped rule with a glob (**/*.resolver.ts) applies to all matching files across directories and loads only when relevant. Per-directory CLAUDE.md (A) requires duplication, per-file comments (C) don't scale, and an unscoped root line (D) always loads and lacks targeting.",
+    "tags": [
+      "path-rules",
+      "glob",
+      "conventions",
+      "conditional-loading"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-047",
+    "scenario": "You are refining a migration script and want to fix a specific edge case: null values in a date column.",
+    "question": "Which iterative-refinement action is most effective?",
+    "options": [
+      "Say 'handle nulls better' with no example",
+      "Provide a specific test case with example input (null date) and expected output to fix the edge case",
+      "Increase temperature",
+      "Switch to batch processing"
+    ],
+    "correct": 1,
+    "explanation": "Providing a concrete test case (null-date input and expected output) precisely communicates the desired edge-case handling. Vague guidance (A) yields inconsistent results, temperature (C) doesn't specify behavior, and batch processing (D) is unrelated to refining logic.",
+    "tags": [
+      "iterative-refinement",
+      "edge-cases",
+      "examples",
+      "test-cases"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-048",
+    "scenario": "For a predictable pre-merge check that must complete before developers can merge, your manager suggests moving it to the Message Batches API for cost savings.",
+    "question": "From a Claude Code CI standpoint, is that appropriate?",
+    "options": [
+      "Yes; batch is always cheaper so use it everywhere",
+      "No; blocking pre-merge checks need timely results, so keep real-time; batch suits non-blocking overnight jobs",
+      "Yes; batch has a guaranteed low-latency SLA",
+      "No; batch cannot correlate requests at all"
+    ],
+    "correct": 1,
+    "explanation": "Blocking pre-merge checks require timely completion, which the batch API (up to 24h, no latency SLA) can't guarantee; keep them real-time and reserve batch for non-blocking jobs. Batch isn't universally appropriate (A), has no low-latency SLA (C), and can correlate via custom_id (D is false).",
+    "tags": [
+      "ci-cd",
+      "batch-api",
+      "latency",
+      "workflow"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-049",
+    "scenario": "You want to verify that a newly added .claude/rules/ file only affects the intended file type and isn't loading globally.",
+    "question": "What determines whether the rule loads?",
+    "options": [
+      "It always loads globally regardless of frontmatter",
+      "The YAML frontmatter paths glob - the rule loads only when editing files matching the pattern",
+      "The file's alphabetical position",
+      "Whether context: fork is set"
+    ],
+    "correct": 1,
+    "explanation": "A path-scoped rule loads only when the edited file matches its frontmatter paths glob, keeping it targeted. It doesn't load globally (A), isn't governed by filename order (C), and context: fork (D) is a skill setting, not a rule-loading trigger.",
+    "tags": [
+      "path-rules",
+      "glob",
+      "frontmatter",
+      "conditional-loading"
+    ]
+  },
+  {
+    "domain": 2,
+    "id": "d2-050",
+    "scenario": "A large CLAUDE.md is being split. Some conventions apply everywhere; others only to specific file types.",
+    "question": "What is the best split strategy?",
+    "options": [
+      "Put everything into path-scoped rules with no CLAUDE.md",
+      "Keep universal always-on standards in CLAUDE.md (or .claude/rules/ without path scoping) and put type-specific conventions in path-scoped .claude/rules/ files",
+      "Put everything into one path-scoped rule matching **/*",
+      "Duplicate all conventions in every subdirectory"
+    ],
+    "correct": 1,
+    "explanation": "Universal standards belong in always-loaded CLAUDE.md/rules, while type-specific conventions go in path-scoped .claude/rules/ files that load only when relevant. Forcing everything into path rules (A) can drop universal coverage, a **/* rule (C) defeats scoping, and duplication (D) is unmaintainable.",
+    "tags": [
+      "CLAUDE.md",
+      "rules-directory",
+      "path-rules",
+      "organization"
+    ]
   }
 ]

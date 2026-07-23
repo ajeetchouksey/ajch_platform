@@ -19,7 +19,8 @@ import json
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-QDIR = os.path.join(ROOT, "public", "content", "questions")
+# Live registry serves questions from the skillup tree (see src/lib/content-loader.ts).
+QDIR = os.path.join(ROOT, "public", "content", "skillup", "ccaf", "questions")
 
 FILES = {
     1: "domain1-agentic.json",

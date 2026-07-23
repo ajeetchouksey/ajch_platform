@@ -12,7 +12,13 @@
       "D. Create a `.copilot` configuration file in the project root directory"
     ],
     "correct": 0,
-    "explanation": "Enabling Copilot in VS Code requires: (1) installing the GitHub Copilot extension from the Marketplace, then (2) signing in with a GitHub account that has an active Copilot subscription (Individual, Business, or Enterprise)."
+    "explanation": "Enabling Copilot in VS Code requires: (1) installing the GitHub Copilot extension from the Marketplace, then (2) signing in with a GitHub account that has an active Copilot subscription (Individual, Business, or Enterprise).",
+    "tags": [
+      "copilot-features",
+      "enterprise",
+      "copilot-business",
+      "vscode"
+    ]
   },
   {
     "id": "ghc-d2-002",
@@ -27,7 +33,11 @@
       "D. Alt+]"
     ],
     "correct": 2,
-    "explanation": "Tab is the default keyboard shortcut to accept a complete inline (ghost text) suggestion from GitHub Copilot in VS Code. Alt+] cycles to the next alternative suggestion; Alt+[ cycles to the previous."
+    "explanation": "Tab is the default keyboard shortcut to accept a complete inline (ghost text) suggestion from GitHub Copilot in VS Code. Alt+] cycles to the next alternative suggestion; Alt+[ cycles to the previous.",
+    "tags": [
+      "copilot-features",
+      "vscode"
+    ]
   },
   {
     "id": "ghc-d2-003",
@@ -42,7 +52,13 @@
       "D. Copilot Chat requires a separate paid subscription from inline suggestions"
     ],
     "correct": 0,
-    "explanation": "Inline suggestions (ghost text) appear contextually as you type in the editor. Copilot Chat is a dedicated chat panel for conversational interactions â€” asking questions, explaining code, requesting refactors, and getting documentation help."
+    "explanation": "Inline suggestions (ghost text) appear contextually as you type in the editor. Copilot Chat is a dedicated chat panel for conversational interactions — asking questions, explaining code, requesting refactors, and getting documentation help.",
+    "tags": [
+      "copilot-features",
+      "copilot-chat",
+      "context",
+      "refactoring"
+    ]
   },
   {
     "id": "ghc-d2-004",
@@ -57,7 +73,11 @@
       "D. Agent Mode is only available in GitHub Copilot Enterprise plan"
     ],
     "correct": 1,
-    "explanation": "Agent Mode enables Copilot to autonomously undertake multi-step coding tasks â€” planning, writing code, running tests, iterating on errors â€” within a defined scope, going beyond single-file or single-action suggestions."
+    "explanation": "Agent Mode enables Copilot to autonomously undertake multi-step coding tasks — planning, writing code, running tests, iterating on errors — within a defined scope, going beyond single-file or single-action suggestions.",
+    "tags": [
+      "copilot-features",
+      "testing"
+    ]
   },
   {
     "id": "ghc-d2-005",
@@ -72,7 +92,11 @@
       "D. `brew install gh-copilot`"
     ],
     "correct": 1,
-    "explanation": "`gh extension install github/gh-copilot` is the correct command. GitHub Copilot CLI is installed as a GitHub CLI (`gh`) extension. The `gh` CLI must be installed and authenticated first."
+    "explanation": "`gh extension install github/gh-copilot` is the correct command. GitHub Copilot CLI is installed as a GitHub CLI (`gh`) extension. The `gh` CLI must be installed and authenticated first.",
+    "tags": [
+      "copilot-features",
+      "copilot-cli"
+    ]
   },
   {
     "id": "ghc-d2-006",
@@ -87,7 +111,13 @@
       "D. `gh copilot help \"<command>\"`"
     ],
     "correct": 0,
-    "explanation": "`gh copilot explain \"<command>\"` uses Copilot to provide a natural language explanation of what a shell command does, making it easier to understand complex or unfamiliar commands without consulting external documentation."
+    "explanation": "`gh copilot explain \"<command>\"` uses Copilot to provide a natural language explanation of what a shell command does, making it easier to understand complex or unfamiliar commands without consulting external documentation.",
+    "tags": [
+      "copilot-features",
+      "copilot-cli",
+      "documentation",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d2-007",
@@ -102,7 +132,10 @@
       "D. `gh copilot write`"
     ],
     "correct": 1,
-    "explanation": "`gh copilot suggest` takes a natural language description and generates the appropriate shell command interactively. It asks follow-up questions to clarify intent and refine the suggestion."
+    "explanation": "`gh copilot suggest` takes a natural language description and generates the appropriate shell command interactively. It asks follow-up questions to clarify intent and refine the suggestion.",
+    "tags": [
+      "copilot-features"
+    ]
   },
   {
     "id": "ghc-d2-008",
@@ -117,7 +150,12 @@
       "D. Only enterprise plan administrators can configure content exclusions"
     ],
     "correct": 1,
-    "explanation": "Content exclusions are configured at the repository level (repository Settings > Copilot > Content exclusions) and the organization level (organization Settings > Copilot). These prevent specified files from being sent as context for Copilot suggestions."
+    "explanation": "Content exclusions are configured at the repository level (repository Settings > Copilot > Content exclusions) and the organization level (organization Settings > Copilot). These prevent specified files from being sent as context for Copilot suggestions.",
+    "tags": [
+      "copilot-features",
+      "content-exclusions",
+      "context"
+    ]
   },
   {
     "id": "ghc-d2-009",
@@ -132,7 +170,12 @@
       "D. A feature that enables Copilot to propose and apply edits across multiple files based on a natural language description"
     ],
     "correct": 3,
-    "explanation": "Copilot Edits enables developers to describe a change in natural language and have Copilot propose edits across multiple files simultaneously, enabling broader refactoring, feature additions, and codebase-wide changes."
+    "explanation": "Copilot Edits enables developers to describe a change in natural language and have Copilot propose edits across multiple files simultaneously, enabling broader refactoring, feature additions, and codebase-wide changes.",
+    "tags": [
+      "copilot-features",
+      "refactoring",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d2-010",
@@ -147,7 +190,11 @@
       "D. MCP enables Copilot to share context with other developers collaborating on the same file"
     ],
     "correct": 1,
-    "explanation": "Model Context Protocol (MCP) allows Copilot Agent Mode to connect to external tools and data sources through standardized interfaces, enabling Copilot to interact with databases, APIs, project management tools, and file systems during agentic tasks."
+    "explanation": "Model Context Protocol (MCP) allows Copilot Agent Mode to connect to external tools and data sources through standardized interfaces, enabling Copilot to interact with databases, APIs, project management tools, and file systems during agentic tasks.",
+    "tags": [
+      "copilot-features",
+      "context"
+    ]
   },
   {
     "id": "ghc-d2-011",
@@ -162,7 +209,11 @@
       "D. Copilot Spaces"
     ],
     "correct": 1,
-    "explanation": "GitHub Copilot Pull Request summaries automatically generate a description of the changes, key decisions, and impact of a PR, saving developers time writing PR descriptions and helping reviewers understand the changes faster."
+    "explanation": "GitHub Copilot Pull Request summaries automatically generate a description of the changes, key decisions, and impact of a PR, saving developers time writing PR descriptions and helping reviewers understand the changes faster.",
+    "tags": [
+      "copilot-features",
+      "pull-requests"
+    ]
   },
   {
     "id": "ghc-d2-012",
@@ -177,7 +228,12 @@
       "D. `COPILOT_RULES.md` in the repository root"
     ],
     "correct": 1,
-    "explanation": "Creating `.github/copilot-instructions.md` allows developers to define custom instructions that GitHub Copilot Chat follows for all interactions within that repository â€” ensuring consistent coding conventions, style, and context."
+    "explanation": "Creating `.github/copilot-instructions.md` allows developers to define custom instructions that GitHub Copilot Chat follows for all interactions within that repository — ensuring consistent coding conventions, style, and context.",
+    "tags": [
+      "copilot-features",
+      "copilot-chat",
+      "context"
+    ]
   },
   {
     "id": "ghc-d2-013",
@@ -192,7 +248,13 @@
       "D. By adding a `.github/workflows/copilot-review.yml` workflow to each repository"
     ],
     "correct": 1,
-    "explanation": "Organization-wide Copilot Code Review is configured in the organization's Copilot settings. Admins can enable the feature, set policies, configure review standards, and control which repositories and pull requests are covered."
+    "explanation": "Organization-wide Copilot Code Review is configured in the organization's Copilot settings. Admins can enable the feature, set policies, configure review standards, and control which repositories and pull requests are covered.",
+    "tags": [
+      "copilot-features",
+      "pull-requests",
+      "code-review",
+      "administration"
+    ]
   },
   {
     "id": "ghc-d2-014",
@@ -207,7 +269,13 @@
       "D. A dedicated isolated Copilot server for enterprise on-premises deployments"
     ],
     "correct": 1,
-    "explanation": "GitHub Copilot Spaces allows teams to create dedicated AI-powered collaboration environments with curated context, documentation, and tool access â€” enabling richer, more grounded team-based AI assistance."
+    "explanation": "GitHub Copilot Spaces allows teams to create dedicated AI-powered collaboration environments with curated context, documentation, and tool access — enabling richer, more grounded team-based AI assistance.",
+    "tags": [
+      "copilot-features",
+      "context",
+      "documentation",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d2-015",
@@ -222,7 +290,13 @@
       "D. `/unittest`"
     ],
     "correct": 2,
-    "explanation": "`/tests` is a built-in Copilot Chat slash command that generates unit tests for selected code. Other built-in commands include `/explain` (explain code), `/fix` (fix bugs), `/docs` (generate docs), and `/new` (scaffold a new project)."
+    "explanation": "`/tests` is a built-in Copilot Chat slash command that generates unit tests for selected code. Other built-in commands include `/explain` (explain code), `/fix` (fix bugs), `/docs` (generate docs), and `/new` (scaffold a new project).",
+    "tags": [
+      "copilot-features",
+      "copilot-chat",
+      "slash-commands",
+      "testing"
+    ]
   },
   {
     "id": "ghc-d2-016",
@@ -237,7 +311,13 @@
       "D. The GitHub Copilot REST API at `/orgs/{org}/copilot/usage`"
     ],
     "correct": 0,
-    "explanation": "Organization audit logs capture Copilot-specific events such as enabling/disabling Copilot access, policy changes, seat assignments, and feature access changes. Admins can filter by the `copilot` action category."
+    "explanation": "Organization audit logs capture Copilot-specific events such as enabling/disabling Copilot access, policy changes, seat assignments, and feature access changes. Admins can filter by the `copilot` action category.",
+    "tags": [
+      "copilot-features",
+      "audit",
+      "administration",
+      "policies"
+    ]
   },
   {
     "id": "ghc-d2-017",
@@ -252,7 +332,13 @@
       "D. `include:src/utils.ts`"
     ],
     "correct": 0,
-    "explanation": "Using `#file:filename.ext` syntax in Copilot Chat attaches a specific file as explicit context for the conversation, allowing Copilot to provide more accurate, file-aware assistance."
+    "explanation": "Using `#file:filename.ext` syntax in Copilot Chat attaches a specific file as explicit context for the conversation, allowing Copilot to provide more accurate, file-aware assistance.",
+    "tags": [
+      "copilot-features",
+      "copilot-chat",
+      "context",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d2-018",
@@ -267,7 +353,13 @@
       "D. Configuration files that set Copilot's model temperature and inference parameters"
     ],
     "correct": 0,
-    "explanation": "Prompt files (`.github/prompts/`) are reusable markdown files containing commonly used prompts. Developers can reference them in Copilot Chat for consistent, standardized interactions â€” useful for code reviews, documentation, or common coding tasks."
+    "explanation": "Prompt files (`.github/prompts/`) are reusable markdown files containing commonly used prompts. Developers can reference them in Copilot Chat for consistent, standardized interactions — useful for code reviews, documentation, or common coding tasks.",
+    "tags": [
+      "copilot-features",
+      "copilot-chat",
+      "code-review",
+      "prompting"
+    ]
   },
   {
     "id": "ghc-d2-019",
@@ -282,7 +374,12 @@
       "D. `/orgs/{org}/copilot/billing` and related billing/seats endpoints"
     ],
     "correct": 3,
-    "explanation": "The GitHub REST API provides `/orgs/{org}/copilot/billing` endpoints to retrieve Copilot seat usage, manage seat assignments, get billing summaries, and track subscription data programmatically."
+    "explanation": "The GitHub REST API provides `/orgs/{org}/copilot/billing` endpoints to retrieve Copilot seat usage, manage seat assignments, get billing summaries, and track subscription data programmatically.",
+    "tags": [
+      "copilot-features",
+      "administration",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d2-020",
@@ -297,7 +394,11 @@
       "D. Pull Request summaries"
     ],
     "correct": 2,
-    "explanation": "GitHub Copilot Spark enables developers to describe an application idea in natural language and receive a generated app scaffold, accelerating the initial project setup and prototyping phase."
+    "explanation": "GitHub Copilot Spark enables developers to describe an application idea in natural language and receive a generated app scaffold, accelerating the initial project setup and prototyping phase.",
+    "tags": [
+      "copilot-features",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d2-021",
@@ -312,7 +413,13 @@
       "D. Syncs the local workspace with the remote repository's default branch"
     ],
     "correct": 1,
-    "explanation": "`@workspace` is a Copilot Chat participant that allows asking questions about your entire codebase. Copilot indexes workspace files to provide context-aware answers about the full project structure, patterns, and relationships."
+    "explanation": "`@workspace` is a Copilot Chat participant that allows asking questions about your entire codebase. Copilot indexes workspace files to provide context-aware answers about the full project structure, patterns, and relationships.",
+    "tags": [
+      "copilot-features",
+      "copilot-chat",
+      "context",
+      "ide-integration"
+    ]
   },
   {
     "id": "ghc-d2-022",
@@ -327,7 +434,13 @@
       "D. IDE availability is determined solely by the Copilot plan tier, not by admin policy"
     ],
     "correct": 0,
-    "explanation": "Organization admins can configure Copilot feature availability policies in organization settings, including which IDE integrations (VS Code, JetBrains, Vim, Neovim, Visual Studio, etc.) are permitted for organization members."
+    "explanation": "Organization admins can configure Copilot feature availability policies in organization settings, including which IDE integrations (VS Code, JetBrains, Vim, Neovim, Visual Studio, etc.) are permitted for organization members.",
+    "tags": [
+      "copilot-features",
+      "administration",
+      "ide-integration",
+      "vscode"
+    ]
   },
   {
     "id": "ghc-d2-023",
@@ -342,7 +455,11 @@
       "D. Specialized agent instances that can be delegated specific subtasks to optimize context usage and enable parallel task execution"
     ],
     "correct": 3,
-    "explanation": "Sub-Agents in Agent Mode are specialized instances that can be delegated specific subtasks, enabling better context management, parallel task execution, and optimized handling of complex multi-step development workflows."
+    "explanation": "Sub-Agents in Agent Mode are specialized instances that can be delegated specific subtasks, enabling better context management, parallel task execution, and optimized handling of complex multi-step development workflows.",
+    "tags": [
+      "copilot-features",
+      "context"
+    ]
   },
   {
     "id": "ghc-d2-024",
@@ -357,7 +474,11 @@
       "D. Type `/alternatives` in the inline suggestion ghost text area"
     ],
     "correct": 2,
-    "explanation": "When multiple inline suggestions are available, developers cycle through them using Alt+] (next suggestion) and Alt+[ (previous suggestion) in VS Code, allowing comparison before accepting the best option with Tab."
+    "explanation": "When multiple inline suggestions are available, developers cycle through them using Alt+] (next suggestion) and Alt+[ (previous suggestion) in VS Code, allowing comparison before accepting the best option with Tab.",
+    "tags": [
+      "copilot-features",
+      "vscode"
+    ]
   },
   {
     "id": "ghc-d2-025",
@@ -369,9 +490,15 @@
       "A. In the organization's Copilot policy settings, which controls feature availability on github.com separately from IDE access",
       "B. In each repository's branch protection rules settings",
       "C. In the GitHub Actions permissions settings for the organization",
-      "D. In each member's individual GitHub profile settings â€” admins cannot control this centrally"
+      "D. In each member's individual GitHub profile settings — admins cannot control this centrally"
     ],
     "correct": 0,
-    "explanation": "Organization Copilot settings include separate controls for feature availability on github.com (web editor, Copilot Chat on github.com, PR summaries) and IDE-based features, giving admins granular control over where Copilot is accessible."
+    "explanation": "Organization Copilot settings include separate controls for feature availability on github.com (web editor, Copilot Chat on github.com, PR summaries) and IDE-based features, giving admins granular control over where Copilot is accessible.",
+    "tags": [
+      "copilot-features",
+      "copilot-chat",
+      "administration",
+      "ide-integration"
+    ]
   }
 ]
