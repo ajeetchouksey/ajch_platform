@@ -1,7 +1,7 @@
 {
   "schema": "1.0",
-  "platform_version": "2.1.0",
-  "generated": "2026-06-02",
+  "platform_version": "2.7.0",
+  "generated": "2026-07-23",
   "note": "Auto-updated by agents-validate.yml on push to main. Frozen into each GitHub Release by release.yml.",
   "agents": [
     {
@@ -25,14 +25,14 @@
     {
       "file": "content-lead.agent.md",
       "name": "Content Lead",
-      "version": "1.0.0",
-      "last_modified": "2026-05-29"
+      "version": "1.1.0",
+      "last_modified": "2026-06-16"
     },
     {
       "file": "curriculum-engineer.agent.md",
       "name": "Curriculum Engineer",
-      "version": "1.0.0",
-      "last_modified": "2026-05-29"
+      "version": "1.1.0",
+      "last_modified": "2026-07-16"
     },
     {
       "file": "delivery-manager.agent.md",
@@ -55,8 +55,8 @@
     {
       "file": "docs-engineer.agent.md",
       "name": "Docs Engineer",
-      "version": "1.0.0",
-      "last_modified": "2026-05-29"
+      "version": "1.1.0",
+      "last_modified": "2026-07-16"
     },
     {
       "file": "frontend-engineer.agent.md",
@@ -133,14 +133,14 @@
     {
       "file": "staff-engineer.agent.md",
       "name": "Staff Engineer",
-      "version": "2.4.0",
-      "last_modified": "2026-06-02"
+      "version": "2.5.1",
+      "last_modified": "2026-06-10"
     },
     {
       "file": "tech-writer.agent.md",
       "name": "Tech Writer",
-      "version": "1.0.0",
-      "last_modified": "2026-05-29"
+      "version": "1.1.0",
+      "last_modified": "2026-06-16"
     },
     {
       "file": "test-engineer.agent.md",
