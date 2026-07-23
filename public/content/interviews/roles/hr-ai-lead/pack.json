@@ -1,0 +1,87 @@
+{
+  "schema": "interview-pack@1",
+  "roleId": "hr-ai-lead",
+  "title": "Senior HR AI Lead",
+  "seniority": "senior",
+  "experience": "8-12 years",
+  "location": "India (Bangalore / Pune)",
+  "jdFile": "content/interviews/roles/hr-ai-lead/jd.md",
+  "industry": {
+    "label": "Energy Sector · Enterprise HR Technology",
+    "domain": "energy-enterprise-hr",
+    "summary": "This role sits inside the HR function of a large multinational energy company, building internal AI solutions for HR colleagues and employees. Frame answers for regulated, data-sensitive enterprise environments: GDPR, Works Council co-determination, HR platform integrations (Workday, SuccessFactors), and the specific responsible-AI surface area of employment decisions. The audience for AI outputs are employees and HR professionals — trust, fairness, and transparency are first-class requirements, not nice-to-haves.",
+    "focusAreas": [
+      "GDPR, Works Council & employment-law compliance",
+      "HR platform integrations (Workday, SuccessFactors, ServiceNow HRSD)",
+      "Responsible AI for employment decisions (fairness, explainability, audit)",
+      "Employee-data privacy & data-classification architecture",
+      "Distributed India team building & engineering culture"
+    ]
+  },
+  "competencyWeights": {
+    "domain-hr": 20,
+    "responsible-ai-governance": 15,
+    "rag-architecture": 15,
+    "leadership-mentoring": 12,
+    "stakeholder-fluency": 10,
+    "evaluation-quality": 10,
+    "agent-frameworks": 10,
+    "product-mindset": 8
+  },
+  "items": [
+    {
+      "ref": "q-hr-grounding-001"
+    },
+    {
+      "ref": "q-hr-responsible-ai-001"
+    },
+    {
+      "ref": "q-hr-stakeholder-001"
+    },
+    {
+      "ref": "q-rag-001",
+      "addendum": {
+        "whyForThisRole": "The JD explicitly names knowledge-grounding as day-one work — 'ground an assistant in HR knowledge'. This question tests general RAG architecture depth.",
+        "industryAngle": "In an HR context, the retrieval corpus spans policy documents, job-level frameworks, benefits guides, and HR FAQs — but sits directly adjacent to sensitive employee data (payroll, performance, leave records). The architecture must enforce a hard separation: policy content in the vector index (with document-level RBAC), personal data served only through deterministic API connectors to Workday/SuccessFactors with explicit entitlement checks. A single-corpus design is a data-privacy incident waiting to happen.",
+        "extraFollowUps": [
+          { "q": "How do you handle policy documents that update every month?", "a": "Webhook from the document management system triggers a targeted re-index of changed chunks only; add a freshness metadata field and a disclaimer when chunks are over 60 days old." }
+        ]
+      }
+    },
+    {
+      "ref": "q-hitl-001",
+      "addendum": {
+        "whyForThisRole": "The JD calls out 'human oversight' and partnering with 'Works Council and Legal' as a core responsibility.",
+        "industryAngle": "In a Works Council environment, HITL is not just a safety mechanism — it is a legally co-determined requirement. The Works Council has a right to be informed and consulted on any system that affects employees, and the design of the human review process (who approves, what they see, how they record a decision, and whether an employee can contest) must be agreed with them before deployment. Frame HITL as a co-designed governance control, not a last-minute safety net.",
+        "extraFollowUps": [
+          { "q": "What do you do if the Works Council requires that no automated decision can be made without human sign-off?", "a": "Design the system as decision-support-only: AI provides ranked options and explanations, a named human HR advisor makes and records the final decision, and the system cannot proceed without that record." }
+        ]
+      }
+    },
+    {
+      "ref": "q-eval-001",
+      "addendum": {
+        "industryAngle": "For an HR AI assistant, evaluation must include a responsible-AI test suite alongside quality tests: a set of adversarial queries that probe for protected-attribute leakage, policy questions for recently-updated documents (testing freshness), and edge cases involving employee-personal-data boundaries. An eval set that only measures factual accuracy on clean policy FAQs will miss the failure modes that matter most in this domain."
+      }
+    },
+    {
+      "ref": "q-frameworks-001",
+      "addendum": {
+        "industryAngle": "The JD explicitly names LangGraph, OpenAI Agents SDK, AG2/AutoGen, Semantic Kernel, Pydantic AI, and MCP — a broader framework list than most architect JDs. For an HR context the selection criteria add compliance dimensions: does the framework support deterministic guardrails at the tool level (mandatory for HITL enforcement)? Does the cloud AI platform (Azure AI Foundry named in the JD) have an enterprise DPA for GDPR compliance? Can the agent runtime operate with no-training-on-data guarantees? Pydantic AI is worth calling out for structured, typed outputs — critical when the agent is generating HR decisions that need an audit trail.",
+        "extraFollowUps": [
+          { "q": "Why would you choose Pydantic AI over LangGraph for an HR decision-support tool?", "a": "Pydantic AI enforces typed, schema-validated outputs natively — every HR decision the agent produces is structurally guaranteed to include the required fields (decision, rationale, cited-policy, human-reviewer-required flag), which simplifies audit logging and GDPR Article 22 explainability." }
+        ]
+      }
+    },
+    {
+      "ref": "q-leadership-001",
+      "addendum": {
+        "whyForThisRole": "The JD's 'grow the HR AI capability in India' is the primary leadership mandate — not just technical mentoring but building a hub from near-zero.",
+        "industryAngle": "Building an AI team inside a large energy company's HR function means navigating two cultures at once: a corporate HR function that is new to AI and needs patient enablement, and an engineering community that may be used to slower enterprise delivery cadences. The 'AI-first SDLC' change is harder here because you're asking HR colleagues to become AI co-creators, not just consumers. Frame adoption as an enterprise change-management program with HR leadership as visible sponsors, and invest early in a Community of Practice that bridges HR domain knowledge and engineering capability.",
+        "extraFollowUps": [
+          { "q": "How do you build AI fluency in HR colleagues who are not technical?", "a": "Run structured 'pair-and-build' sessions where an HR SME and an engineer prototype together on a real problem; follow up with a lightweight 'what AI can and cannot do' workshop grounded in the prototype's failure cases — seeing real failures demystifies and builds appropriate calibration." }
+        ]
+      }
+    }
+  ]
+}

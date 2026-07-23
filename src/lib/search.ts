@@ -6,7 +6,7 @@
 // user input). AppSec binding condition from Sprint 4 pre-build gate met.
 // ──────────────────────────────────────────────────────────────────────────
 
-export type SearchDocType = 'blog' | 'exam' | 'tool' | 'note';
+export type SearchDocType = 'blog' | 'exam' | 'tool' | 'note' | 'interview';
 
 export interface SearchDocument {
   id: string;
@@ -99,6 +99,32 @@ export function buildToolDocs(): SearchDocument[] {
     { id: 'tool/rag-chunk-visualizer', type: 'tool', title: 'RAG Chunk Visualizer', excerpt: 'Visualise how text is chunked for retrieval.', url: '/tools/rag-chunk-visualizer', tags: ['rag', 'chunking', 'retrieval'] },
     { id: 'tool/prompt-library', type: 'tool', title: 'Prompt Library', excerpt: 'Browse and copy reusable prompt templates.', url: '/tools/prompt-library', tags: ['prompt', 'library', 'templates'] },
   ];
+}
+
+/**
+ * Build SearchDocument[] from interview-prep bank items.
+ * Bank item IDs are hardcoded slug-style identifiers (e.g. "q-orch-001")
+ * authored by the Interview Prep Engineer, never derived from raw JD text.
+ * Results are deduped by design because the bank is the single source of truth.
+ */
+export function buildInterviewDocs(items: Array<{
+  id: string;
+  question: string;
+  competency: string;
+  type: string;
+  difficulty: string;
+  tags?: string[];
+  detailedAnswer?: { summary?: string };
+}>): SearchDocument[] {
+  return items.map((q) => ({
+    id: `interview/${q.id}`,
+    type: 'interview' as SearchDocType,
+    title: q.question,
+    excerpt: q.detailedAnswer?.summary ?? '',
+    url: `/interview/q/${q.id}`,
+    tags: [...(q.tags ?? []), q.type, q.difficulty],
+    category: q.competency,
+  }));
 }
 
 // ── Search function ────────────────────────────────────────────────────────

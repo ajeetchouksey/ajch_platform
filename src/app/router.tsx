@@ -34,6 +34,11 @@ import RagChunkVisualizer from '@/features/tools/pages/RagChunkVisualizer';
 import PromptTester from '@/features/tools/pages/PromptTester';
 import PromptLibrary from '@/features/tools/pages/PromptLibrary';
 
+// ── Interview Prep ────────────────────────────────────────────────────────────
+import InterviewCatalog from '@/features/interview/pages/InterviewCatalog';
+import InterviewPack from '@/features/interview/pages/InterviewPack';
+import InterviewQuestion from '@/features/interview/pages/InterviewQuestion';
+
 // ── Docs ──────────────────────────────────────────────────────────────────────
 import Docs from '@/features/docs/pages/Docs';
 
@@ -102,6 +107,11 @@ export default function AppRoutes() {
       <Route path="/tools/rag-chunk-visualizer" element={<RagChunkVisualizer />} />
       <Route path="/tools/prompt-tester" element={<PromptTester />} />
       <Route path="/tools/prompt-library" element={<PromptLibrary />} />
+
+      {/* Interview Prep */}
+      <Route path="/interview" element={<InterviewCatalog />} />
+      <Route path="/interview/q/:id" element={<InterviewQuestion />} />
+      <Route path="/interview/:roleId" element={<InterviewPack />} />
 
       {/* Docs */}
       <Route path="/docs" element={<Docs />} />

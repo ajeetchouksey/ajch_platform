@@ -12,8 +12,32 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 ## [Unreleased]
 
 ### Added
-- **SkillUp discovery toolbar** (`src/features/exams/pages/ExamCatalog.tsx`) — search box, Provider/Level/Status filter chips, and sort (Recommended / Most questions / A–Z) on the `/skillup` catalog; filter state is URL-backed via `useSearchParams` (survives reload/back). Domain pills collapse to 4 + “+N more”; curated “Available Now / Coming Soon” sections preserved when no filter is active. Scales the catalog for a growing certification list.
+- **SkillUp discovery toolbar** (`src/features/exams/pages/ExamCatalog.tsx`) — search box, Provider/Level/Status filter chips, and sort (Recommended / Most questions / A–Z) on the `/skillup` catalog; filter state is URL-backed via `useSearchParams` (survives reload/back). Domain pills collapse to 4 + "+N more"; curated "Available Now / Coming Soon" sections preserved when no filter is active. Scales the catalog for a growing certification list.
 - **Deep Dive notes standard** (`.github/agents/docs-engineer.agent.md` → 1.1.0, `.github/agents/curriculum-engineer.agent.md` → 1.1.0) — every domain study note must now include a `## Deep Dive` section with four required elements: connective narrative, an end-to-end worked scenario, a memory aid/mnemonic, and per-domain exam strategy. Pointer-only notes are rejected in review.
+
+---
+
+## [2.7.0] - 2026-07-23
+
+### Added
+- **Interview Prep feature** (`/interview`) — full end-to-end interview-preparation module: role catalog, faceted-search pack view, and detailed question pages with first-person spoken-answer content; wired into global search (`buildInterviewDocs`) and sidebar nav
+  - `InterviewCatalog` (`/interview`) — role cards with industry badge, seniority, question count
+  - `InterviewPack` (`/interview/:roleId`) — competency-weight bars (clickable filters), keyword search, facet chips (type / difficulty / competency / tag), industry-context banner; renders role-specific addenda
+  - `InterviewQuestion` (`/interview/q/:id?role=`) — full teaching payload: summary callout, deep dive, real scenario (first-person), worked example (code-fenced), use cases, tradeoffs, anti-patterns, follow-ups, red flags; role-addendum block with industry-angle sub-section
+- **Interview content bank** (`public/content/interviews/`) — canonical Q&A bank + 3 role packs:
+  - 11 bank questions (8 original Agentic AI Architect + 3 new HR AI questions)
+  - `agentic-ai-platform-architect` pack (8 q, Principal · 12–16 yrs, Pune & Bangalore, Enterprise Software)
+  - `hr-ai-lead` pack (8 q, Senior · 8–12 yrs, India, Energy Sector · Enterprise HR Technology) — includes `q-hr-grounding-001` (two-tier HR knowledge index), `q-hr-stakeholder-001` (Works Council / DPIA sequencing), `q-hr-responsible-ai-001` (disparate impact, GDPR Art. 22, automation bias)
+  - `agentic-ai-platform-architect-v2` pack (8 q, all refs) — demonstrates canonical dedup model; SDK / multi-model routing / agent lifecycle addenda
+- **Industry-context system** — `industry` block on every role (`label`, `domain`, `summary`, `focusAreas`) surfaced in catalog card badges and pack-page banner; `addendum.industryAngle` per question rendered as a sub-section inside the role-delta callout
+- **Interview Prep Engineer agent** (`.github/agents/interview-prep-engineer.md` → 1.0.0) — Interview Commander with 6 skills: `jd-parser`, `competency-mapper`, `question-generator`, `industry-contextualizer`, `dedup-resolver`, `cross-jd-linker`; documents canonical bank schema, reference/delta model, and industry-context rules
+
+### Changed
+- `src/lib/content-loader.ts` — added `InterviewIndustry`, `InterviewRoleSummary` (with `industry?`), `InterviewPack` (with `industry?`), `InterviewAddendum` (with `industryAngle?`), `InterviewCompetency`, `InterviewPackItemRef`, `ResolvedInterviewItem` interfaces; added `loadInterviewIndex()`, `loadInterviewCompetencies()`, `loadInterviewPack()`, `loadInterviewJd()`, `loadResolvedPackItems()` loaders
+- `src/lib/search.ts` — `buildInterviewDocs()` maps bank items to `/interview/q/:id` search docs; `SearchDocType` includes `'interview'`
+- `src/components/SearchModal.tsx` — Interview Prep wired into global `Promise.all` search index; `Briefcase` icon + colour entry
+- `src/components/Layout.tsx` — Interview Prep nav entry (Briefcase icon, after Horizons); breadcrumb `interview` label
+- `src/app/router.tsx` — routes `/interview`, `/interview/q/:id`, `/interview/:roleId`
 
 ---
 

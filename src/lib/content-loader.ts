@@ -68,6 +68,143 @@ export async function loadScenariosForExam(examId: string): Promise<Scenario[]> 
   return Promise.all(exam.scenarioFiles.map((f) => fetchJSON<Scenario>(f)));
 }
 
+// ── Interview-prep loaders ──────────────────────────────────────────────────
+
+export interface InterviewBankItem {
+  id: string;
+  competency: string;
+  type: string;
+  difficulty: string;
+  question: string;
+  detailedAnswer: {
+    summary: string;
+    deepDive: string;
+    realScenario: string;
+    workedExample: string;
+    useCases: string[];
+    tradeoffs: string[];
+    antiPatterns: string[];
+  };
+  explanation: string;
+  followUps: Array<{ q: string; a: string }>;
+  redFlags: string[];
+  tags: string[];
+  roles: string[];
+}
+
+export async function loadInterviewBank(): Promise<InterviewBankItem[]> {
+  return fetchJSON<InterviewBankItem[]>('content/interviews/bank/questions.json');
+}
+
+export interface InterviewIndustry {
+  label: string;
+  domain?: string;
+  summary: string;
+  focusAreas: string[];
+}
+
+export interface InterviewRoleSummary {
+  id: string;
+  title: string;
+  shortTitle?: string;
+  seniority: string;
+  location?: string;
+  description: string;
+  industry?: InterviewIndustry;
+  colorScheme: string;
+  accentColor?: string;
+  questionCount: number;
+  available: boolean;
+  jdFile: string;
+  packFile: string;
+}
+
+export interface InterviewIndex {
+  schema: string;
+  generated: string;
+  bank: { competenciesFile: string; questionsFile: string };
+  roles: InterviewRoleSummary[];
+}
+
+export interface InterviewCompetency {
+  id: string;
+  title: string;
+  group: string;
+}
+
+export interface InterviewAddendum {
+  whyForThisRole?: string;
+  additionalContext?: string;
+  industryAngle?: string;
+  extraFollowUps?: Array<{ q: string; a: string }>;
+}
+
+export interface InterviewPackItemRef {
+  ref?: string;
+  addendum?: InterviewAddendum;
+  id?: string;
+}
+
+export interface InterviewPack {
+  schema: string;
+  roleId: string;
+  title: string;
+  seniority: string;
+  experience?: string;
+  location?: string;
+  jdFile: string;
+  industry?: InterviewIndustry;
+  competencyWeights: Record<string, number>;
+  items: InterviewPackItemRef[];
+}
+
+export async function loadInterviewIndex(): Promise<InterviewIndex> {
+  return fetchJSON<InterviewIndex>('content/interviews/index.json');
+}
+
+export async function loadInterviewCompetencies(): Promise<InterviewCompetency[]> {
+  const data = await fetchJSON<{ competencies: InterviewCompetency[] }>(
+    'content/interviews/bank/competencies.json',
+  );
+  return data.competencies;
+}
+
+export async function loadInterviewPack(roleId: string): Promise<InterviewPack> {
+  const index = await loadInterviewIndex();
+  const role = index.roles.find((r) => r.id === roleId);
+  if (!role) throw new Error(`Interview role "${roleId}" not found`);
+  return fetchJSON<InterviewPack>(role.packFile);
+}
+
+export async function loadInterviewJd(roleId: string): Promise<string> {
+  const index = await loadInterviewIndex();
+  const role = index.roles.find((r) => r.id === roleId);
+  if (!role) throw new Error(`Interview role "${roleId}" not found`);
+  return fetchText(role.jdFile);
+}
+
+/** Resolve a pack's items against the canonical bank, merging any addendum deltas. */
+export interface ResolvedInterviewItem extends InterviewBankItem {
+  addendum?: InterviewAddendum;
+}
+
+export async function loadResolvedPackItems(roleId: string): Promise<ResolvedInterviewItem[]> {
+  const [pack, bank] = await Promise.all([loadInterviewPack(roleId), loadInterviewBank()]);
+  const byId = new Map(bank.map((q) => [q.id, q]));
+  const resolved: ResolvedInterviewItem[] = [];
+  for (const item of pack.items) {
+    if (item.ref) {
+      const base = byId.get(item.ref);
+      if (base) resolved.push({ ...base, addendum: item.addendum });
+    } else if (item.id) {
+      const inline = byId.get(item.id);
+      if (inline) resolved.push(inline);
+    }
+  }
+  return resolved;
+}
+
+
 // ── Platform stats ─────────────────────────────────────────────────────────
 export interface PlatformStats {
   schema: string;

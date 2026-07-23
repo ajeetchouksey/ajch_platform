@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown, Compass, Map, User } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown, Compass, Map, User, Briefcase } from 'lucide-react';
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -38,6 +38,7 @@ const platformLinks = [
   { to: '/learn', label: 'Learn', icon: Map },
   { to: '/blog', label: 'Field Notes', icon: Newspaper },
   { to: '/horizons', label: 'Horizons', icon: Compass },
+  { to: '/interview', label: 'Interview Prep', icon: Briefcase },
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/docs', label: 'Docs', icon: BookOpen },
   { to: '/contribute', label: 'Contribute', icon: GitPullRequest },
@@ -67,6 +68,7 @@ function Breadcrumbs() {
     exams:      'Skill Up',
     skillup:    'Skill Up',
     blog:       'Field Notes',
+    interview:  'Interview Prep',
     tools:      'Tools',
     docs:       'Docs',
     learn:      'Learning Hub',

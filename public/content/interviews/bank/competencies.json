@@ -1,0 +1,26 @@
+{
+  "schema": "interview-competencies@1",
+  "description": "Shared competency taxonomy for interview-prep packs. JD packs select from and weight these; questions in the bank reference a competency by id.",
+  "competencies": [
+    { "id": "llm-genai-foundations", "title": "LLMs & Generative AI Foundations", "group": "AI Core" },
+    { "id": "rag-architecture", "title": "RAG Architecture & Retrieval", "group": "AI Core" },
+    { "id": "multi-agent-orchestration", "title": "Multi-Agent Orchestration & Agentic Patterns", "group": "AI Core" },
+    { "id": "prompt-context-design", "title": "Prompt Engineering & Context Design", "group": "AI Core" },
+    { "id": "evaluation-quality", "title": "Evaluation Frameworks, Output Quality & Reliability", "group": "AI Core" },
+    { "id": "responsible-ai-governance", "title": "Responsible AI, Governance, HITL & Guardrails", "group": "Governance" },
+    { "id": "agent-frameworks", "title": "Agent Frameworks (LangGraph / CrewAI / AutoGen / Semantic Kernel / MCP)", "group": "AI Core" },
+    { "id": "vector-db-embeddings", "title": "Vector Databases & Embeddings", "group": "AI Core" },
+    { "id": "python-engineering", "title": "Python Engineering", "group": "Engineering" },
+    { "id": "dotnet-api-architecture", "title": ".NET / REST API Architecture", "group": "Engineering" },
+    { "id": "cloud-ai-platforms", "title": "Cloud AI Platforms (Azure / AWS / GCP)", "group": "Engineering" },
+    { "id": "cicd-devops-mlops", "title": "CI/CD, DevOps, MLOps & LLMOps", "group": "Engineering" },
+    { "id": "distributed-systems-workflow", "title": "Distributed Systems & Durable Workflow (Temporal)", "group": "Engineering" },
+    { "id": "cost-finops-optimization", "title": "Cost / FinOps & Latency-Accuracy Optimization", "group": "Engineering" },
+    { "id": "observability-tracing", "title": "AI Observability & Tracing (LangFuse)", "group": "Engineering" },
+    { "id": "enterprise-integration", "title": "Enterprise Integration (CRM / ERP / HR platforms / DevOps)", "group": "Engineering" },
+    { "id": "leadership-mentoring", "title": "Leadership, Mentoring & Technical Direction", "group": "Leadership" },
+    { "id": "stakeholder-fluency", "title": "Stakeholder Fluency (Business ↔ Engineering)", "group": "Leadership" },
+    { "id": "product-mindset", "title": "Product Mindset, Prioritization & Ambiguity", "group": "Leadership" },
+    { "id": "domain-hr", "title": "Domain Depth: HR / People Analytics", "group": "Domain" }
+  ]
+}

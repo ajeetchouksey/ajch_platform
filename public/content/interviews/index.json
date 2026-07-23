@@ -1,0 +1,88 @@
+{
+  "schema": "interviews@1",
+  "generated": "2026-07-23",
+  "bank": {
+    "competenciesFile": "content/interviews/bank/competencies.json",
+    "questionsFile": "content/interviews/bank/questions.json"
+  },
+  "roles": [
+    {
+      "id": "agentic-ai-platform-architect",
+      "title": "Agentic AI Platform Architect",
+      "shortTitle": "Agentic AI Architect",
+      "seniority": "Principal · 12–16 yrs",
+      "location": "Pune & Bangalore",
+      "description": "Design, build, and scale enterprise-grade agentic AI platforms: multi-agent orchestration, durable workflows, HITL governance, evaluation, and cost optimization.",
+      "industry": {
+        "label": "Enterprise Software & Platform Engineering",
+        "domain": "cross-industry-enterprise",
+        "summary": "This is an internal enterprise AI-platform role — the agentic platform is a horizontal capability that other business units build on. Answers should be framed for large, often regulated enterprises: deep integration with CRM/ERP/DevOps/data ecosystems, enterprise governance, compliance and audit, multi-tenant scale, and FinOps accountability across teams.",
+        "focusAreas": [
+          "Enterprise system integration (CRM, ERP, DevOps, data platforms)",
+          "Enterprise governance, compliance & auditability (HITL, guardrails)",
+          "Multi-tenant, distributed scale & resilient execution",
+          "FinOps / cost accountability across business units",
+          "AI-first SDLC adoption across the engineering org"
+        ]
+      },
+      "colorScheme": "violet",
+      "accentColor": "linear-gradient(90deg, #7c3aed, #a78bfa)",
+      "questionCount": 8,
+      "available": true,
+      "jdFile": "content/interviews/roles/agentic-ai-platform-architect/jd.md",
+      "packFile": "content/interviews/roles/agentic-ai-platform-architect/pack.json"
+    },
+    {
+      "id": "hr-ai-lead",
+      "title": "Senior HR AI Lead",
+      "shortTitle": "HR AI Lead",
+      "seniority": "Senior · 8–12 yrs",
+      "location": "India (Bangalore / Pune)",
+      "description": "Build and lead AI solutions for an enterprise HR function: employee-facing assistants, talent-acquisition copilots, HR knowledge agents, and workforce analytics — in a regulated, Works-Council environment.",
+      "industry": {
+        "label": "Energy Sector · Enterprise HR Technology",
+        "domain": "energy-enterprise-hr",
+        "summary": "This role sits inside the HR function of a large multinational energy company, building internal AI solutions for HR colleagues and employees. Frame answers for regulated, data-sensitive enterprise environments: GDPR, Works Council co-determination, HR platform integrations (Workday, SuccessFactors), and the specific responsible-AI surface area of employment decisions.",
+        "focusAreas": [
+          "GDPR, Works Council & employment-law compliance",
+          "HR platform integrations (Workday, SuccessFactors, ServiceNow HRSD)",
+          "Responsible AI for employment decisions (fairness, explainability, audit)",
+          "Employee-data privacy & data-classification architecture",
+          "Distributed India team building & engineering culture"
+        ]
+      },
+      "colorScheme": "emerald",
+      "accentColor": "linear-gradient(90deg, #059669, #34d399)",
+      "questionCount": 8,
+      "available": true,
+      "jdFile": "content/interviews/roles/hr-ai-lead/jd.md",
+      "packFile": "content/interviews/roles/hr-ai-lead/pack.json"
+    },
+    {
+      "id": "agentic-ai-platform-architect-v2",
+      "title": "Agentic AI Platform Architect",
+      "shortTitle": "Agentic AI Architect",
+      "seniority": "Principal · 12–16 yrs",
+      "location": "Pune & Bangalore",
+      "description": "Same principal-level agentic AI architect scope with stronger emphasis on internal developer platform: reusable SDKs, multi-model routing, agent lifecycle management, and AI-first SDLC adoption across the engineering org.",
+      "industry": {
+        "label": "Enterprise Software & Platform Engineering",
+        "domain": "cross-industry-enterprise",
+        "summary": "A second enterprise Agentic AI Platform Architect posting — the platform is a horizontal internal capability consumed by many engineering teams. SDK design, multi-model routing, agent lifecycle management, and AI-first SDLC are first-class concerns alongside governance.",
+        "focusAreas": [
+          "Reusable SDKs and internal AI platform engineering",
+          "Multi-model orchestration and LLM provider routing/abstraction",
+          "Agent lifecycle management (create, monitor, retire, version)",
+          "AI-first SDLC adoption across engineering teams",
+          "Enterprise governance, HITL, and audit at platform scale"
+        ]
+      },
+      "colorScheme": "blue",
+      "accentColor": "linear-gradient(90deg, #2563eb, #60a5fa)",
+      "questionCount": 8,
+      "available": true,
+      "jdFile": "content/interviews/roles/agentic-ai-platform-architect-v2/jd.md",
+      "packFile": "content/interviews/roles/agentic-ai-platform-architect-v2/pack.json"
+    }
+  ]
+}
