@@ -10,7 +10,7 @@
       "shortTitle": "AB-100",
       "contentLevel": "201",
       "description": "Validate your expertise in planning, designing, and deploying agentic AI solutions using Azure AI Foundry, Copilot Studio, Dynamics 365, and Microsoft Power Platform. Aligned to the July 2026 exam syllabus.",
-      "questions": 90,
+      "questions": 115,
       "duration": "100 min",
       "passScore": "700/1000",
       "passThreshold": 70,
@@ -271,7 +271,7 @@
           "title": "Improve Developer Productivity with GitHub Copilot",
           "weight": 14,
           "color": "bg-teal-600",
-          "notesFile": "content/skillup/ghc/notes/ghc-d5-developer-productivity.md"
+          "notesFile": "content/skillup/ghc/notes/ghc-d5-productivity.md"
         },
         {
           "id": 6,
