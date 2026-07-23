@@ -1,0 +1,36 @@
+{
+  "schema": "interviews@1",
+  "generated": "2026-07-23",
+  "bank": {
+    "competenciesFile": "content/interviews/bank/competencies.json",
+    "questionsFile": "content/interviews/bank/questions.json"
+  },
+  "roles": [
+    {
+      "id": "agentic-ai-platform-architect",
+      "title": "Agentic AI Platform Architect",
+      "shortTitle": "Agentic AI Architect",
+      "seniority": "Principal · 12–16 yrs",
+      "location": "Pune & Bangalore",
+      "description": "Design, build, and scale enterprise-grade agentic AI platforms: multi-agent orchestration, durable workflows, HITL governance, evaluation, and cost optimization.",
+      "industry": {
+        "label": "Enterprise Software & Platform Engineering",
+        "domain": "cross-industry-enterprise",
+        "summary": "This is an internal enterprise AI-platform role — the agentic platform is a horizontal capability that other business units build on. Answers should be framed for large, often regulated enterprises: deep integration with CRM/ERP/DevOps/data ecosystems, enterprise governance, compliance and audit, multi-tenant scale, and FinOps accountability across teams.",
+        "focusAreas": [
+          "Enterprise system integration (CRM, ERP, DevOps, data platforms)",
+          "Enterprise governance, compliance & auditability (HITL, guardrails)",
+          "Multi-tenant, distributed scale & resilient execution",
+          "FinOps / cost accountability across business units",
+          "AI-first SDLC adoption across the engineering org"
+        ]
+      },
+      "colorScheme": "violet",
+      "accentColor": "linear-gradient(90deg, #7c3aed, #a78bfa)",
+      "questionCount": 8,
+      "available": true,
+      "jdFile": "content/interviews/roles/agentic-ai-platform-architect/jd.md",
+      "packFile": "content/interviews/roles/agentic-ai-platform-architect/pack.json"
+    }
+  ]
+}

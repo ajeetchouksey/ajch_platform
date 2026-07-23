@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, X, FileText, GraduationCap, Wrench, ArrowRight } from 'lucide-react';
-import { search, buildBlogDocs, buildExamDocs, buildToolDocs } from '@/lib/search';
+import { Search, X, FileText, GraduationCap, Wrench, ArrowRight, Briefcase } from 'lucide-react';
+import { search, buildBlogDocs, buildExamDocs, buildToolDocs, buildInterviewDocs } from '@/lib/search';
 import type { SearchDocument, SearchResult } from '@/lib/search';
-import { loadBlogManifest, loadExamRegistry } from '@/lib/content-loader';
+import { loadBlogManifest, loadExamRegistry, loadInterviewBank } from '@/lib/content-loader';
 
 // ── Icon by content type ───────────────────────────────────────────────────
 const TYPE_ICON: Record<SearchDocument['type'], React.ElementType> = {
@@ -11,12 +11,14 @@ const TYPE_ICON: Record<SearchDocument['type'], React.ElementType> = {
   exam: GraduationCap,
   tool: Wrench,
   note: FileText,
+  interview: Briefcase,
 };
 const TYPE_COLOR: Record<SearchDocument['type'], string> = {
   blog: '#a78bfa',
   exam: '#34d399',
   tool: '#60a5fa',
   note: '#fb923c',
+  interview: '#f472b6',
 };
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -37,12 +39,13 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   // Build index once on first open
   useEffect(() => {
     if (!open || index.length > 0) return;
-    Promise.all([loadBlogManifest(), loadExamRegistry()])
-      .then(([blog, exams]) => {
+    Promise.all([loadBlogManifest(), loadExamRegistry(), loadInterviewBank().catch(() => [])])
+      .then(([blog, exams, interview]) => {
         setIndex([
           ...buildBlogDocs(blog.posts),
           ...buildExamDocs(exams.exams),
           ...buildToolDocs(),
+          ...buildInterviewDocs(interview),
         ]);
       })
       .catch(() => {});

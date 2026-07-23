@@ -1,0 +1,82 @@
+{
+  "schema": "interview-pack@1",
+  "roleId": "agentic-ai-platform-architect",
+  "title": "Agentic AI Platform Architect",
+  "seniority": "principal",
+  "experience": "12-16 years",
+  "location": "Pune & Bangalore",
+  "jdFile": "content/interviews/roles/agentic-ai-platform-architect/jd.md",
+  "industry": {
+    "label": "Enterprise Software & Platform Engineering",
+    "domain": "cross-industry-enterprise",
+    "summary": "This is an internal enterprise AI-platform role — the agentic platform is a horizontal capability that other business units build on. Frame answers for large, often regulated enterprises: deep integration with CRM/ERP/DevOps/data ecosystems, enterprise governance, compliance and audit, multi-tenant scale, and FinOps accountability across teams.",
+    "focusAreas": [
+      "Enterprise system integration (CRM, ERP, DevOps, data platforms)",
+      "Enterprise governance, compliance & auditability (HITL, guardrails)",
+      "Multi-tenant, distributed scale & resilient execution",
+      "FinOps / cost accountability across business units",
+      "AI-first SDLC adoption across the engineering org"
+    ]
+  },
+  "competencyWeights": {
+    "multi-agent-orchestration": 27,
+    "distributed-systems-workflow": 15,
+    "responsible-ai-governance": 15,
+    "evaluation-quality": 10,
+    "rag-architecture": 8,
+    "cost-finops-optimization": 8,
+    "agent-frameworks": 7,
+    "leadership-mentoring": 5,
+    "prompt-context-design": 5
+  },
+  "items": [
+    {
+      "ref": "q-orch-001",
+      "addendum": {
+        "industryAngle": "In this enterprise-platform context the coordinator is a shared service many business units invoke — so the bounded step/token budget doubles as a per-tenant cost guardrail, and the typed hand-off contract is exactly what lets a central platform team safely support workflows other teams authored."
+      }
+    },
+    {
+      "ref": "q-orch-002",
+      "addendum": {
+        "industryAngle": "The JD explicitly names Temporal IO and enterprise integrations (CRM/ERP). Durable execution matters here because an agent run spans multiple systems of record — a re-sent side effect like a duplicate ERP posting or CRM update is a business-data-integrity incident, not just a cosmetic glitch."
+      }
+    },
+    {
+      "ref": "q-hitl-001",
+      "addendum": {
+        "industryAngle": "For a regulated enterprise the code-level approval gate and audit trail aren't just safety — they're what satisfies internal audit, SOX-style change controls, and compliance sign-off. Frame HITL as an enterprise-governance control wired to RBAC and retained, tamper-evident audit logs."
+      }
+    },
+    {
+      "ref": "q-rag-001",
+      "addendum": {
+        "industryAngle": "In this enterprise setting index-level RBAC must map onto existing enterprise identity and entitlements (SSO groups, data-classification tiers), and the audit of which documents were retrieved is a hard compliance requirement — not a nice-to-have."
+      }
+    },
+    {
+      "ref": "q-cost-001",
+      "addendum": {
+        "industryAngle": "The JD calls out FinOps by name. At enterprise scale the answer must include per-business-unit chargeback/showback and budgets, so spend is attributable to the team that drove it rather than buried in a single platform bill."
+      }
+    },
+    {
+      "ref": "q-eval-001",
+      "addendum": {
+        "industryAngle": "As a shared platform, the eval suite becomes a quality contract — effectively an SLA — with every consuming business unit. The CI gate protects all downstream teams at once, and new eval cases often originate from production incidents across multiple tenants."
+      }
+    },
+    {
+      "ref": "q-frameworks-001",
+      "addendum": {
+        "industryAngle": "For an enterprise platform team the abstraction layer is doubly important: consuming teams standardise on your interfaces, and you must support multi-LLM-provider routing (the JD calls this out) plus enterprise procurement/security constraints on which models and frameworks are actually approved for use."
+      }
+    },
+    {
+      "ref": "q-leadership-001",
+      "addendum": {
+        "industryAngle": "The JD's 'drive AI-first SDLC across the organization' is the industry angle here — frame adoption as an enterprise change-management program spanning many teams, with a platform-team operating model and early security/compliance partnership, not a single-team win."
+      }
+    }
+  ]
+}
