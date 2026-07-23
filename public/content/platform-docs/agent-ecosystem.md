@@ -1,6 +1,6 @@
 # Agent Ecosystem
 
-Aarya — My AI Learning Hub is maintained by a **21-agent multi-agent system** orchestrated by the Staff Engineer agent. Every change to the platform — code, content, or infrastructure — flows through this system.
+Aarya — My AI Learning Hub is maintained by a **24-agent multi-agent system** orchestrated by the Staff Engineer agent. Every change to the platform — code, content, or infrastructure — flows through this system.
 
 ## Orchestration Model
 
@@ -14,6 +14,9 @@ graph TD
     SE --> SRE["SRE\nRelease / CI / CHANGELOG"]
     SE --> DR["DevRel\nCommunity / social"]
     SE --> PD["Platform Docs\nPlatform documentation"]
+    SE --> IPE["Interview Prep Engineer\nInterview content"]
+    SE --> DM["Delivery Manager\nSprint ceremonies"]
+    SE --> AIR["AI Researcher\nModel & tool research"]
     CL --> TW["Tech Writer\nDraft content"]
     CL --> RE["Release Engineer\nPublish content"]
     PA --> FE["Frontend Engineer\nComponent work"]
@@ -21,35 +24,39 @@ graph TD
     PA --> PE["Platform Engineer\nInfra / tooling"]
     PA --> PDE["Platform Dev Expert\nsrc/lib · types · scripts"]
     PA --> TE["Test Engineer\nunit · integration · E2E"]
+    CE --> AE["Assessment Engineer\nMCQ generation"]
+    CE --> DE["Docs Engineer\nStudy notes"]
 ```
 
 ## Agent Roles
 
 | Agent | Version | Scope |
 |-------|---------|-------|
-| Staff Engineer | v2.3.0 | Orchestrator — routes all requests, enforces guardrails |
-| Product Manager | v1.0.0 | Issue Gate — GitHub issues as work units |
-| AppSec Engineer | v1.0.0 | Security Gate — OWASP/secret/schema validation |
-| Platform Architect | v1.0.0 | UI, routing, deployment architecture |
+| Staff Engineer | v2.4.0 | Orchestrator — routes all requests, enforces guardrails |
+| Product Manager | v1.1.0 | Issue Gate — GitHub issues as work units, RICE scoring, sprint planning |
+| AppSec Engineer | v1.1.0 | Security Gate — OWASP/secret/schema validation |
+| Platform Architect | v3.2.0 | UI, routing, deployment architecture |
 | Frontend Engineer | v1.0.0 | React components, Tailwind, accessibility |
-| Design Systems Engineer | v1.0.0 | Brand consistency, UX audit |
+| Design Systems Engineer | v1.1.0 | Brand consistency, UX audit, `src/components/ui/` library |
 | Platform Engineer | v1.0.0 | Infra, CI/CD tooling, scripts |
-| Platform Dev Expert | v1.0.1 | `src/lib/`, `src/types/`, build scripts, data-flow logic |
+| Platform Dev Expert | v1.0.0 | `src/lib/`, `src/types/`, build scripts, data-flow logic |
 | Test Engineer | v1.0.0 | Unit tests, integration tests, E2E (Playwright), coverage config |
-| SRE | v1.0.0 | Releases, versioning, CHANGELOG, monitoring |
+| SRE | v1.2.0 | Releases, versioning, CHANGELOG, monitoring |
 | Content Lead | v1.0.0 | Blog pipeline orchestrator |
 | Tech Writer | v1.0.0 | Drafts blog posts and articles |
-| Release Engineer | v1.0.0 | Publishes content to `public/content/` |
-| Curriculum Engineer | v1.0.0 | Exam questions, notes, scenarios |
+| Release Engineer | v1.0.0 | Publishes content to `public/content/blog/` |
+| Curriculum Engineer | v1.0.0 | Exam questions, notes, scenarios — orchestrates Assessment Engineer + Docs Engineer |
+| Assessment Engineer | v1.0.0 | MCQ generation, schema-validated question JSON |
+| Docs Engineer | v1.0.0 | Domain study notes with Deep Dive standard |
+| Interview Prep Engineer | v1.0.0 | Interview Commander — JD packs, canonical Q&A bank, industry context |
 | Platform Docs | v1.0.0 | Platform-facing documentation (this file) |
-| DevRel | v1.0.0 | Community posts, social content |
-| Docs Engineer | v1.0.0 | Developer-facing docs (READMEs, ADRs) |
+| DevRel | v1.0.0 | Community posts, social content (LinkedIn, Twitter/X) |
+| Delivery Manager | v1.0.0 | Sprint ceremonies, backlog grooming, velocity commentary |
+| AI Researcher | v1.0.0 | AI model evaluation, paper synthesis, tooling radar |
 | QA Engineer | v1.0.0 | Diagram validation, test coverage |
-| Principal Mentor | v1.0.0 | Code review, mentoring Junior Dev |
-| Pair Programmer | v1.0.0 | Collaborative implementation |
-| Junior Dev | v1.0.0 | Simple tasks, learning exercises |
-| AI Researcher | v1.0.0 | AI model evaluation, research |
-| Assessment Engineer | v1.0.0 | Quiz/assessment tooling |
+| Principal Mentor | v1.0.0 | Socratic teaching, concept explanation, exam trap highlights |
+| Pair Programmer | v1.0.0 | Collaborative implementation, multi-role study |
+| Junior Dev | v1.0.0 | Student simulation (101/201/301 levels) |
 
 ## Guardrails
 

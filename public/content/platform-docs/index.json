@@ -1,11 +1,11 @@
 {
   "schema": "1.0",
-  "generated": "2026-06-02",
+  "generated": "2026-07-23",
   "docs": [
     {
       "id": "architecture",
       "title": "Platform Architecture",
-      "description": "Tech stack, content pipeline, agent system, and deployment model",
+      "description": "Tech stack, content pipeline, 24-agent system, and deployment model",
       "file": "content/platform-docs/architecture.md",
       "icon": "Layers",
       "category": "infrastructure"
@@ -13,7 +13,7 @@
     {
       "id": "agent-ecosystem",
       "title": "Agent Ecosystem",
-      "description": "The 21-agent multi-agent system — roles, orchestration chain, guardrails",
+      "description": "The 24-agent multi-agent system — roles, orchestration chain, guardrails",
       "file": "content/platform-docs/agent-ecosystem.md",
       "icon": "Cpu",
       "category": "agents"
@@ -21,7 +21,7 @@
     {
       "id": "content-schema",
       "title": "Content Schema",
-      "description": "Exam, question, blog, notes, and scenario data structures",
+      "description": "Exam, question, blog, notes, scenario, and interview-prep data structures",
       "file": "content/platform-docs/content-schema.md",
       "icon": "FileCode",
       "category": "content"
