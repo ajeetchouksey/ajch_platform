@@ -1,6 +1,6 @@
 {
   "schema": "1.0",
-  "generated": "2026-07-17",
+  "generated": "2026-07-23",
   "note": "Auto-updated by scripts/sync-stats.py. Run after any content agent write.",
   "platform": {
     "blog_posts": 58,

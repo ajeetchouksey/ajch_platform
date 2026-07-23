@@ -5,7 +5,7 @@
       "title": "Claude Certified Architect – Foundations",
       "shortTitle": "CCA-F",
       "description": "Validate your expertise in Claude API architecture, agentic patterns, prompt engineering, tool design, and context management.",
-      "questions": 68,
+      "questions": 250,
       "duration": "120 min",
       "passScore": "72%",
       "passThreshold": 72,

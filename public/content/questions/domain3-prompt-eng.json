@@ -12,7 +12,12 @@
     ],
     "correct": 1,
     "explanation": "Explicit categorical rules eliminate ambiguity. 'Be careful with violent content' is vague — Claude has to interpret what 'careful' and 'violent' mean, leading to inconsistency. Categorical rules with specific criteria create deterministic behavior. Few-shot examples (A) help but are probabilistic and can't cover every edge case. Temperature (C) affects creativity/randomness, not rule adherence. Chain-of-thought reasoning (D) improves explainability but not consistency if the underlying instruction is still vague.",
-    "tags": ["explicit-criteria", "system-prompt", "deterministic-behavior", "prompt-engineering"]
+    "tags": [
+      "explicit-criteria",
+      "system-prompt",
+      "deterministic-behavior",
+      "prompt-engineering"
+    ]
   },
   {
     "domain": 3,
@@ -27,7 +32,12 @@
     ],
     "correct": 2,
     "explanation": "XML tags are Anthropic's recommended approach for structuring complex system prompts. They provide unambiguous delimiters that Claude parses reliably, even when the content within a section contains markdown, code, or other structured data. Markdown headers (A) can be ambiguous when content itself contains headers. Numbered lists (B) don't create a containment structure. Separate API calls (D) would work but is expensive and unnecessary — a well-structured single prompt is preferred for related context.",
-    "tags": ["XML-tags", "system-prompt-architecture", "structuring", "prompt-engineering"]
+    "tags": [
+      "XML-tags",
+      "system-prompt-architecture",
+      "structuring",
+      "prompt-engineering"
+    ]
   },
   {
     "domain": 3,
@@ -42,7 +52,12 @@
     ],
     "correct": 2,
     "explanation": "Forcing a specific tool_use call (tool_choice: {type: 'tool', name: 'extract_sentiment'}) with a strict JSON Schema is the most reliable approach because it constrains Claude's output at the API level — Claude MUST call that tool with a valid input matching the schema. output_config (B) is reliable but slightly less strict than tool_use for complex schemas. Plain system prompt instruction (A) is the least reliable — Claude may add prose, miss fields, or produce invalid JSON. Few-shot (D) is probabilistic.",
-    "tags": ["structured-output", "tool_choice", "JSON-schema", "output_config"]
+    "tags": [
+      "structured-output",
+      "tool_choice",
+      "JSON-schema",
+      "output_config"
+    ]
   },
   {
     "domain": 3,
@@ -57,7 +72,12 @@
     ],
     "correct": 2,
     "explanation": "Effective retry prompts must include: (1) the exact error message, (2) the location of the error, (3) the original failing content, and (4) a focused instruction. Generic retries (A, B) give Claude no new information — it will likely make the same mistake. Injecting the answer (D) defeats the purpose and doesn't help Claude learn the constraint. Specific error context lets Claude reason about exactly what went wrong. This pattern — validate → extract error → return specific error context → retry — is the standard validation-retry loop.",
-    "tags": ["validation-retry", "error-context", "structured-output", "prompt-engineering"]
+    "tags": [
+      "validation-retry",
+      "error-context",
+      "structured-output",
+      "prompt-engineering"
+    ]
   },
   {
     "domain": 3,
@@ -72,7 +92,12 @@
     ],
     "correct": 2,
     "explanation": "Self-review blindness is a documented failure mode: the model that generated content tends to evaluate it positively because it essentially agrees with its own choices. The solution is multi-pass review — a completely separate API call (new conversation, no generation context) for the review step. This is why content generation and content review should be separate sessions in production pipelines. Recency bias (B) is a different problem. Temperature (D) affects creativity, not self-review tendency.",
-    "tags": ["multi-pass-review", "self-review-blindness", "pipeline-design", "prompt-engineering"]
+    "tags": [
+      "multi-pass-review",
+      "self-review-blindness",
+      "pipeline-design",
+      "prompt-engineering"
+    ]
   },
   {
     "domain": 3,
@@ -87,7 +112,12 @@
     ],
     "correct": 1,
     "explanation": "Extended thinking is a Claude API feature that enables a dedicated reasoning phase before the visible response. Claude works through the problem in a thinking block that you can inspect but isn't shown to end users by default. This is fundamentally different from asking Claude to 'think carefully' (C) which is just a vague instruction. Few-shot CoT examples (D) help but are less reliable than the dedicated extended thinking feature for complex tasks. Temperature (A) affects output diversity, not reasoning depth.",
-    "tags": ["extended-thinking", "chain-of-thought", "reasoning", "prompt-engineering"]
+    "tags": [
+      "extended-thinking",
+      "chain-of-thought",
+      "reasoning",
+      "prompt-engineering"
+    ]
   },
   {
     "domain": 3,
@@ -102,7 +132,12 @@
     ],
     "correct": 2,
     "explanation": "Prompt caching is designed exactly for this pattern: static content that appears in every request. By marking the policy section with cache_control, you pay the full write cost once (or every 5 minutes TTL), and subsequent requests with the same prefix pay only 0.1x the normal input cost. RAG (B) adds latency and complexity and isn't ideal when the content is always relevant. Compression (A) saves some tokens but doesn't address the fundamental repeated-processing cost. Removing it (D) degrades response quality.",
-    "tags": ["prompt-caching", "cache_control", "cost-optimization", "context-management"]
+    "tags": [
+      "prompt-caching",
+      "cache_control",
+      "cost-optimization",
+      "context-management"
+    ]
   },
   {
     "domain": 3,
@@ -117,7 +152,12 @@
     ],
     "correct": 1,
     "explanation": "XML delimiters combined with explicit untrusted-content instructions are the primary defense against prompt injection. Wrapping user content in <user_document> and instructing Claude to treat it as data (not instructions) creates a clear semantic boundary. Input validation (A) helps but cannot catch all injection patterns. System prompt instructions not to reveal themselves (C) are a secondary mitigation, not a primary defense. No model is immune to injection (D) — it's an architectural problem, not a model problem. Defense-in-depth: delimit + instruct + validate.",
-    "tags": ["prompt-injection", "XML-tags", "security", "agentic-pipeline"]
+    "tags": [
+      "prompt-injection",
+      "XML-tags",
+      "security",
+      "agentic-pipeline"
+    ]
   },
   {
     "domain": 3,
@@ -132,7 +172,12 @@
     ],
     "correct": 1,
     "explanation": "Use an array (not nullable, not a string) and require it — defaulting to an empty array [] when no products are found. Empty array is semantically correct ('no products found') and type-safe. Nullable arrays (C) require null checks in every consumer. A comma-separated string (A) is not machine-readable. Embedding structured data in a prose field (D) breaks the structured output contract. Schema design rule: prefer empty collections over nullable for list fields; reserve nullable for genuinely optional scalar fields.",
-    "tags": ["JSON-schema", "structured-output", "nullable-fields", "schema-design"]
+    "tags": [
+      "JSON-schema",
+      "structured-output",
+      "nullable-fields",
+      "schema-design"
+    ]
   },
   {
     "domain": 3,
@@ -147,7 +192,12 @@
     ],
     "correct": 2,
     "explanation": "Tool_use with forced tool_choice is constrained at the API level — Claude cannot add prose, fences, or comments because it's required to return a valid tool input matching the schema. Prompt instructions (B) are probabilistic and prone to the exact failures described. Regex post-processing (A) is brittle and adds complexity. Retry loops (D) help for transient failures but don't fix systematic issues. When you need reliable structured output, use the API mechanism (tool_use or output_config), not prompt instructions.",
-    "tags": ["structured-output", "tool_use", "tool_choice", "reliability"]
+    "tags": [
+      "structured-output",
+      "tool_use",
+      "tool_choice",
+      "reliability"
+    ]
   },
   {
     "domain": 3,
@@ -162,7 +212,12 @@
     ],
     "correct": 1,
     "explanation": "Few-shot examples with XML structure give Claude concrete patterns to match, dramatically improving consistency for classification tasks. A bare list lacks calibration for ambiguous cases. Long descriptions without examples are ambiguous. Chain-of-thought helps reasoning but doesn't anchor classification boundaries — you need examples to show WHERE the lines are drawn.",
-    "tags": ["few-shot", "classification", "XML-tags", "consistency"]
+    "tags": [
+      "few-shot",
+      "classification",
+      "XML-tags",
+      "consistency"
+    ]
   },
   {
     "domain": 3,
@@ -177,6 +232,771 @@
     ],
     "correct": 1,
     "explanation": "XML tags create clear boundaries between trusted (system) and untrusted (user) content, and explicit meta-instructions tell Claude to maintain its role despite user attempts. Keyword filtering is easily bypassed with synonyms or encoding. Temperature doesn't affect instruction following. Character limits harm usability without preventing injection — even short strings can be effective attacks.",
-    "tags": ["injection-defense", "security", "XML-tags", "system-prompt"]
+    "tags": [
+      "injection-defense",
+      "security",
+      "XML-tags",
+      "system-prompt"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-013",
+    "scenario": "Your code-review prompt says 'check that comments are accurate,' and it flags many false positives on stylistic comments.",
+    "question": "Which rewrite improves precision?",
+    "options": [
+      "Add 'be conservative' and 'only report high-confidence findings'",
+      "Use explicit categorical criteria: 'flag a comment only when its claimed behavior contradicts the actual code behavior'",
+      "Lower the temperature",
+      "Ask for fewer findings overall"
+    ],
+    "correct": 1,
+    "explanation": "Explicit categorical criteria (contradiction between claimed and actual behavior) outperform vague guidance for precision. Confidence-based hedging like 'be conservative' (A) doesn't define what to report, temperature (C) doesn't clarify criteria, and simply asking for fewer findings (D) may drop true positives.",
+    "tags": [
+      "explicit-criteria",
+      "false-positives",
+      "precision",
+      "prompt-engineering"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-014",
+    "scenario": "One review category (naming-style nitpicks) has a high false-positive rate and is eroding developer trust in the whole tool.",
+    "question": "What is a sound short-term action while you improve it?",
+    "options": [
+      "Keep it enabled; trust will recover on its own",
+      "Temporarily disable the high false-positive category to restore trust while refining its criteria",
+      "Disable all categories to be safe",
+      "Increase max_tokens for that category"
+    ],
+    "correct": 1,
+    "explanation": "Temporarily disabling a high-false-positive category restores trust in the accurate categories while you refine the problematic one. Leaving it on (A) continues eroding trust, disabling everything (C) throws away value, and max_tokens (D) doesn't change accuracy.",
+    "tags": [
+      "explicit-criteria",
+      "false-positives",
+      "developer-trust",
+      "prompt-engineering"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-015",
+    "scenario": "You need consistent severity classification (critical/major/minor) across reviews.",
+    "question": "Which technique yields the most consistent classification?",
+    "options": [
+      "Tell the model to 'use good judgment' on severity",
+      "Define explicit severity criteria with concrete code examples for each level",
+      "Randomly assign severity to reduce bias",
+      "Only allow one severity level"
+    ],
+    "correct": 1,
+    "explanation": "Explicit severity definitions anchored by concrete code examples per level produce consistent classification. 'Good judgment' (A) is vague, randomness (C) is nonsensical, and collapsing to one level (D) removes needed granularity.",
+    "tags": [
+      "explicit-criteria",
+      "severity",
+      "classification",
+      "examples"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-016",
+    "scenario": "Detailed prose instructions still produce inconsistently formatted, hard-to-action output from Claude.",
+    "question": "Which technique most effectively enforces consistent, actionable format?",
+    "options": [
+      "Longer prose instructions",
+      "2-4 targeted few-shot examples demonstrating the exact desired output format",
+      "Higher temperature",
+      "Repeating the instruction three times"
+    ],
+    "correct": 1,
+    "explanation": "Few-shot examples are the most effective way to lock in a consistent, actionable output format when instructions alone fall short. More prose (A), higher temperature (C), or repetition (D) don't demonstrate the target format the way concrete examples do.",
+    "tags": [
+      "few-shot",
+      "output-format",
+      "consistency",
+      "prompt-engineering"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-017",
+    "scenario": "For ambiguous tool-selection cases, you want the model to generalize good judgment rather than memorize fixed rules.",
+    "question": "How should few-shot examples be constructed?",
+    "options": [
+      "Show only the final answer with no reasoning",
+      "Show 2-4 examples that include the reasoning for why one action was chosen over plausible alternatives",
+      "Provide 50 examples covering every case",
+      "Provide contradictory examples to increase robustness"
+    ],
+    "correct": 1,
+    "explanation": "Few-shot examples that reveal the reasoning for choosing one action over plausible alternatives help the model generalize judgment to novel cases. Answer-only examples (A) hide the rationale, 50 examples (C) are unnecessary and costly, and contradictory examples (D) confuse the model.",
+    "tags": [
+      "few-shot",
+      "reasoning",
+      "generalization",
+      "ambiguous-cases"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-018",
+    "scenario": "Your extraction over varied documents (inline citations vs bibliographies) misses fields depending on structure.",
+    "question": "Which few-shot approach helps?",
+    "options": [
+      "Examples from only one document structure",
+      "Examples demonstrating correct handling of varied document structures (inline citations, bibliographies, methodology sections)",
+      "No examples; rely on schema alone",
+      "Examples with intentionally wrong extractions"
+    ],
+    "correct": 1,
+    "explanation": "Few-shot examples spanning the varied structures teach the model to handle each correctly and reduce structure-dependent misses. Single-structure examples (A) don't generalize, schema alone (C) doesn't teach structural handling, and wrong examples (D) mislead.",
+    "tags": [
+      "few-shot",
+      "extraction",
+      "document-structure",
+      "generalization"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-019",
+    "scenario": "You must guarantee schema-compliant JSON with no syntax errors from an extraction task.",
+    "question": "Which approach is most reliable?",
+    "options": [
+      "Ask for JSON in the prompt and hope it's valid",
+      "Use tool_use with a JSON schema; extract from the tool_use response to eliminate JSON syntax errors",
+      "Post-process free text with a JSON repair library",
+      "Increase max_tokens so JSON isn't truncated"
+    ],
+    "correct": 1,
+    "explanation": "tool_use with a JSON schema is the most reliable route to guaranteed schema-compliant output, eliminating syntax errors. Prompt-and-hope (A) and JSON repair (C) are unreliable, and max_tokens (D) only addresses truncation, not validity or schema conformance.",
+    "tags": [
+      "structured-output",
+      "tool_use",
+      "json-schema",
+      "reliability"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-020",
+    "scenario": "You have multiple extraction schemas and the document type is unknown, but you must ensure the model calls one of the extraction tools rather than replying with text.",
+    "question": "Which tool_choice setting fits?",
+    "options": [
+      "tool_choice: 'auto'",
+      "tool_choice: 'any'",
+      "tool_choice: 'none'",
+      "tool_choice: {\"type\": \"tool\", \"name\": \"specific\"}"
+    ],
+    "correct": 1,
+    "explanation": "tool_choice: 'any' forces a tool call while letting the model pick the appropriate extraction schema for an unknown document type. 'auto' (A) may return text, 'none' (C) forbids tools, and forcing a specific tool (D) is wrong when the type is unknown.",
+    "tags": [
+      "structured-output",
+      "tool_choice",
+      "any",
+      "extraction"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-021",
+    "scenario": "A metadata extraction must always run before enrichment tools in the same pipeline.",
+    "question": "Which tool_choice ensures the metadata tool runs first?",
+    "options": [
+      "tool_choice: 'auto'",
+      "tool_choice: {\"type\": \"tool\", \"name\": \"extract_metadata\"} to force it, then process later steps in follow-up turns",
+      "tool_choice: 'any'",
+      "tool_choice: 'none'"
+    ],
+    "correct": 1,
+    "explanation": "Forcing the named tool (extract_metadata) guarantees it runs first; enrichment proceeds in subsequent turns. 'auto' (A) and 'any' (C) don't guarantee which/whether the specific tool runs first, and 'none' (D) forbids tools entirely.",
+    "tags": [
+      "structured-output",
+      "tool_choice",
+      "forced-tool",
+      "ordering"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-022",
+    "scenario": "Strict JSON schemas via tool use removed all syntax errors, but you still see line items that don't sum to the stated total.",
+    "question": "What does this reveal about schema strictness?",
+    "options": [
+      "Strict schemas also guarantee semantic correctness",
+      "Strict schemas eliminate syntax errors but not semantic errors like arithmetic inconsistencies or misplaced values",
+      "The schema must be malformed",
+      "tool_use is the wrong approach"
+    ],
+    "correct": 1,
+    "explanation": "Strict schemas guarantee structural/syntactic validity but not semantics - values can still be wrong or inconsistent (line items not summing). This isn't a malformed schema (C) or a reason to abandon tool_use (D); it calls for semantic validation on top of the schema.",
+    "tags": [
+      "structured-output",
+      "json-schema",
+      "semantic-errors",
+      "validation"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-023",
+    "scenario": "Source documents sometimes lack a field, and your required-field schema causes the model to fabricate values.",
+    "question": "How should the schema be designed?",
+    "options": [
+      "Keep all fields required to force complete output",
+      "Make fields optional/nullable when the source may not contain them, so the model isn't pushed to fabricate",
+      "Remove the field entirely",
+      "Add more required fields to distract the model"
+    ],
+    "correct": 1,
+    "explanation": "Marking fields optional/nullable when the source may omit them prevents the model from inventing values to satisfy required fields. Forcing required (A) causes hallucination, deleting the field (C) loses data when present, and adding fields (D) worsens the problem.",
+    "tags": [
+      "structured-output",
+      "json-schema",
+      "nullable",
+      "hallucination"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-024",
+    "scenario": "You need an extensible category field that can gracefully handle values you didn't anticipate.",
+    "question": "Which schema pattern fits?",
+    "options": [
+      "A closed enum with no escape value",
+      "An enum plus an 'other' value with a detail string (and an 'unclear' value for ambiguous cases)",
+      "A free-text field with no enum",
+      "A boolean field"
+    ],
+    "correct": 1,
+    "explanation": "An enum with 'other' + a detail string (and 'unclear' for ambiguity) supports extensibility while keeping structure. A closed enum (A) can't represent novel values, free text (C) loses structure, and a boolean (D) can't categorize.",
+    "tags": [
+      "structured-output",
+      "json-schema",
+      "enum",
+      "extensibility"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-025",
+    "scenario": "An extraction failed a semantic validation. You will retry with feedback.",
+    "question": "What should the retry request include?",
+    "options": [
+      "Only the instruction to 'try again'",
+      "The original document, the failed extraction, and the specific validation errors for self-correction",
+      "A different unrelated document",
+      "A higher temperature and nothing else"
+    ],
+    "correct": 1,
+    "explanation": "Retry-with-error-feedback appends the original document, the failed output, and the specific validation errors so the model can self-correct. A bare 'try again' (A) gives no guidance, an unrelated document (C) is nonsensical, and temperature alone (D) doesn't communicate the errors.",
+    "tags": [
+      "validation",
+      "retry",
+      "error-feedback",
+      "self-correction"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-026",
+    "scenario": "The required information is simply not present in the provided document. Your pipeline keeps retrying extraction.",
+    "question": "Why will retries not help here?",
+    "options": [
+      "Retries always help if you add more of them",
+      "Retries can't produce information absent from the source; they help with format/structural errors, not missing data",
+      "The schema must be wrong",
+      "Temperature is too low"
+    ],
+    "correct": 1,
+    "explanation": "Retries correct format or structural mistakes, but they cannot conjure data that isn't in the source. Adding retries (A) wastes calls, and the issue is missing information, not a wrong schema (C) or temperature (D). Detect this case and stop retrying.",
+    "tags": [
+      "validation",
+      "retry",
+      "limits",
+      "missing-data"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-027",
+    "scenario": "You want to analyze which code constructs most often trigger findings that developers later dismiss (false positives).",
+    "question": "Which schema addition enables systematic analysis?",
+    "options": [
+      "Remove all metadata to keep output small",
+      "Add a detected_pattern field to each finding so you can correlate dismissals with patterns",
+      "Add a random id to each finding",
+      "Store findings as unstructured prose"
+    ],
+    "correct": 1,
+    "explanation": "A detected_pattern field lets you correlate dismissed findings with the constructs that triggered them, enabling targeted prompt improvements. Removing metadata (A) or using prose (D) prevents analysis, and a random id (C) doesn't capture the pattern.",
+    "tags": [
+      "validation",
+      "feedback-loop",
+      "detected_pattern",
+      "false-positives"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-028",
+    "scenario": "You want to catch invoices where line items don't add up to the stated total.",
+    "question": "Which self-correction validation design works?",
+    "options": [
+      "Extract only the stated_total and trust it",
+      "Extract calculated_total alongside stated_total and flag discrepancies; add a conflict_detected boolean for inconsistent source data",
+      "Ask the model to 'double check' with no fields",
+      "Round all totals to hide differences"
+    ],
+    "correct": 1,
+    "explanation": "Extracting both calculated_total and stated_total (plus a conflict_detected flag) surfaces arithmetic inconsistencies the schema alone can't catch. Trusting stated_total (A) misses errors, a vague 'double check' (C) is unreliable, and rounding (D) hides real discrepancies.",
+    "tags": [
+      "validation",
+      "semantic-validation",
+      "self-correction",
+      "conflict-detection"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-029",
+    "scenario": "Your manager wants to switch an overnight technical-debt report and a blocking pre-merge check both to the Message Batches API for 50% savings.",
+    "question": "How should you evaluate this?",
+    "options": [
+      "Switch both to batch for maximum savings",
+      "Use batch only for the overnight report (latency-tolerant); keep the blocking pre-merge check real-time",
+      "Keep both real-time to avoid ordering issues",
+      "Switch both to batch with a real-time timeout fallback"
+    ],
+    "correct": 1,
+    "explanation": "Batch (up to 24h, no latency SLA) suits latency-tolerant overnight jobs but not blocking pre-merge checks where developers wait. Switching both (A, D) risks blocking developers, and keeping both real-time (C) forgoes easy savings on the overnight job (batch results correlate via custom_id, so ordering isn't the concern).",
+    "tags": [
+      "batch-api",
+      "latency",
+      "cost",
+      "workflow"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-030",
+    "scenario": "You submit many documents to the Message Batches API and need to match each response to its request.",
+    "question": "Which mechanism correlates request/response pairs?",
+    "options": [
+      "Response arrival order",
+      "The custom_id field attached to each request and echoed in its response",
+      "A timestamp heuristic",
+      "The document's first line"
+    ],
+    "correct": 1,
+    "explanation": "custom_id fields correlate batch requests with their responses regardless of ordering. Arrival order (A) isn't guaranteed, and timestamps (C) or content heuristics (D) are unreliable ways to match pairs.",
+    "tags": [
+      "batch-api",
+      "custom_id",
+      "correlation",
+      "structured-output"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-031",
+    "scenario": "A workflow needs Claude to execute a tool mid-request, get the result, and continue reasoning within the same request.",
+    "question": "Is the Message Batches API appropriate?",
+    "options": [
+      "Yes; batch supports multi-turn tool calling within one request",
+      "No; the batch API does not support multi-turn tool calling within a single request",
+      "Yes; batch is identical to real-time",
+      "No; because batch has a guaranteed 1-minute SLA"
+    ],
+    "correct": 1,
+    "explanation": "The batch API does not support multi-turn tool calling within a single request, so mid-request tool execution isn't possible there. It is not identical to real-time (A, C), and it has no low-latency SLA (D's reasoning is wrong).",
+    "tags": [
+      "batch-api",
+      "multi-turn",
+      "tool-calling",
+      "limits"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-032",
+    "scenario": "Source documents use inconsistent formats (dates, units) but you enforce a strict output schema.",
+    "question": "How do you handle the inconsistency alongside the schema?",
+    "options": [
+      "Only enforce the schema and ignore formatting",
+      "Include format normalization rules in the prompt alongside the strict output schema",
+      "Loosen the schema to accept any format",
+      "Reject any document that isn't pre-normalized"
+    ],
+    "correct": 1,
+    "explanation": "Combining strict output schemas with in-prompt format normalization rules handles messy source formatting while keeping structured output. Ignoring formatting (A) yields inconsistent values, loosening the schema (C) defeats its purpose, and rejecting documents (D) is impractical.",
+    "tags": [
+      "structured-output",
+      "normalization",
+      "json-schema",
+      "prompt-engineering"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-033",
+    "scenario": "You want to reduce false positives while still letting the model generalize to genuinely new issues.",
+    "question": "Which few-shot strategy helps?",
+    "options": [
+      "Only show examples of issues to report",
+      "Include examples that distinguish acceptable patterns from genuine issues, so the model learns the boundary and generalizes",
+      "Show no negative examples",
+      "Provide only one example"
+    ],
+    "correct": 1,
+    "explanation": "Examples that contrast acceptable patterns with genuine issues teach the decision boundary, cutting false positives while preserving generalization. Only-positive examples (A, C) don't convey what to skip, and a single example (D) under-specifies the boundary.",
+    "tags": [
+      "few-shot",
+      "false-positives",
+      "generalization",
+      "boundary"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-034",
+    "scenario": "Extraction of a required field keeps coming back empty/null for documents with unusual layouts.",
+    "question": "Which fix directly targets this?",
+    "options": [
+      "Make the field required and add retries",
+      "Add few-shot examples showing correct extraction from documents with those varied formats",
+      "Increase temperature",
+      "Remove the field"
+    ],
+    "correct": 1,
+    "explanation": "Few-shot examples demonstrating correct extraction from the varied/unusual formats address empty/null results for those layouts. Forcing required + retries (A) risks fabrication or wasted retries, temperature (C) doesn't teach layout handling, and removing the field (D) loses needed data.",
+    "tags": [
+      "few-shot",
+      "extraction",
+      "null-fields",
+      "document-format"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-035",
+    "scenario": "You need machine-parseable findings (location, issue, severity, suggested fix) posted as PR comments.",
+    "question": "Which combination best guarantees the structure?",
+    "options": [
+      "Ask for a bulleted list in prose",
+      "Define a tool_use schema with those fields and few-shot examples demonstrating the exact format",
+      "Use free text and parse with regex",
+      "Rely on temperature 0 alone"
+    ],
+    "correct": 1,
+    "explanation": "A tool_use schema for the fields plus few-shot examples of the exact format yields reliable, machine-parseable output. Prose lists (A) and regex parsing (C) are fragile, and temperature 0 alone (D) doesn't guarantee structure.",
+    "tags": [
+      "structured-output",
+      "tool_use",
+      "few-shot",
+      "ci-cd"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-036",
+    "scenario": "You want to reduce hallucination in an extraction task over informal measurements (e.g., 'a pinch', '2 cups-ish').",
+    "question": "Which technique is most effective?",
+    "options": [
+      "Raise temperature for creativity",
+      "Provide few-shot examples showing how to handle informal/ambiguous measurements consistently",
+      "Force all measurements into a required numeric field",
+      "Ignore informal measurements"
+    ],
+    "correct": 1,
+    "explanation": "Few-shot examples demonstrating consistent handling of informal measurements reduce hallucination and standardize output. Higher temperature (A) increases variability, forcing required numerics (C) invites fabrication, and ignoring them (D) loses data.",
+    "tags": [
+      "few-shot",
+      "hallucination",
+      "extraction",
+      "ambiguity"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-037",
+    "scenario": "Your prompt says 'only report high-confidence findings,' yet precision hasn't improved.",
+    "question": "Why does confidence-based filtering underperform explicit criteria?",
+    "options": [
+      "Confidence phrasing objectively improves precision every time",
+      "Vague confidence instructions don't define WHAT to report; specific categorical criteria do, yielding better precision",
+      "The model can't understand the word 'confidence'",
+      "You must set a numeric confidence threshold in the API"
+    ],
+    "correct": 1,
+    "explanation": "'High-confidence only' doesn't specify which categories or conditions warrant a report, so precision stalls; explicit categorical criteria define the target and improve precision. It doesn't reliably help (A), the issue isn't vocabulary (C), and there's no built-in API confidence threshold to set here (D).",
+    "tags": [
+      "explicit-criteria",
+      "confidence",
+      "precision",
+      "prompt-engineering"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-038",
+    "scenario": "You must ensure the model returns structured data rather than a conversational reply, but any of several valid tools may be used.",
+    "question": "Which setting is appropriate?",
+    "options": [
+      "tool_choice: 'auto'",
+      "tool_choice: 'any'",
+      "tool_choice: 'none'",
+      "No tool_choice; rely on the prompt"
+    ],
+    "correct": 1,
+    "explanation": "tool_choice: 'any' forces a tool call (guaranteeing structured output) while letting the model choose among valid tools. 'auto' (A) or no setting (D) may yield text, and 'none' (C) forbids tools entirely.",
+    "tags": [
+      "structured-output",
+      "tool_choice",
+      "any",
+      "reliability"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-039",
+    "scenario": "A document type is known and one specific schema must be applied every time.",
+    "question": "Which tool_choice is most appropriate?",
+    "options": [
+      "tool_choice: 'auto'",
+      "tool_choice: {\"type\": \"tool\", \"name\": \"extract_known_type\"}",
+      "tool_choice: 'any'",
+      "tool_choice: 'none'"
+    ],
+    "correct": 1,
+    "explanation": "When exactly one schema applies, forcing that named tool guarantees it runs. 'auto' (A) may return text, 'any' (C) could pick a different tool, and 'none' (D) forbids tools.",
+    "tags": [
+      "structured-output",
+      "tool_choice",
+      "forced-tool",
+      "extraction"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-040",
+    "scenario": "You designed a schema with a required 'discount_code' field, but many invoices legitimately have no discount, and the model invents codes.",
+    "question": "What is the correct schema change?",
+    "options": [
+      "Keep it required; invented codes are acceptable",
+      "Make discount_code optional/nullable so the model can omit it when absent",
+      "Rename the field",
+      "Add a second required discount field"
+    ],
+    "correct": 1,
+    "explanation": "Making discount_code nullable/optional lets the model correctly omit it when there's no discount, preventing fabrication. Keeping it required (A) causes invented codes, renaming (C) doesn't address requiredness, and adding another required field (D) worsens it.",
+    "tags": [
+      "structured-output",
+      "json-schema",
+      "nullable",
+      "hallucination"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-041",
+    "scenario": "You want an extraction to flag when the source contains contradictory data (two different totals stated).",
+    "question": "Which design captures this?",
+    "options": [
+      "Silently pick one total",
+      "Add a conflict_detected boolean (and capture both values) so downstream systems can handle the inconsistency",
+      "Reject the document outright",
+      "Average the two totals"
+    ],
+    "correct": 1,
+    "explanation": "A conflict_detected boolean plus capturing both values surfaces source contradictions for downstream handling. Silently choosing (A) or averaging (D) hides/creates errors, and rejecting the document (C) may discard otherwise usable data.",
+    "tags": [
+      "validation",
+      "conflict-detection",
+      "structured-output",
+      "provenance"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-042",
+    "scenario": "For a nightly test-generation job that isn't time-sensitive, you want to cut cost.",
+    "question": "Is the Message Batches API a good fit?",
+    "options": [
+      "No; batch is never worth it",
+      "Yes; nightly, latency-tolerant jobs are ideal for the 50% batch savings",
+      "No; test generation requires multi-turn tool calling in one request",
+      "Yes, but only with a guaranteed latency SLA"
+    ],
+    "correct": 1,
+    "explanation": "Nightly, non-blocking test generation is latency-tolerant and a good fit for batch's 50% savings. Batch can be worth it (A is wrong), simple test generation needn't do multi-turn tool calling in one request (C), and batch offers no latency SLA (D).",
+    "tags": [
+      "batch-api",
+      "cost",
+      "latency",
+      "test-generation"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-043",
+    "scenario": "You want the model to choose whether to answer directly or call a tool, depending on the input.",
+    "question": "Which tool_choice reflects that flexibility?",
+    "options": [
+      "tool_choice: 'auto'",
+      "tool_choice: 'any'",
+      "tool_choice: {\"type\": \"tool\", \"name\": \"x\"}",
+      "tool_choice: 'none'"
+    ],
+    "correct": 0,
+    "explanation": "tool_choice: 'auto' lets the model decide between replying with text or calling a tool. 'any' (B) forces a tool call, forcing a named tool (C) removes choice, and 'none' (D) forbids tools.",
+    "tags": [
+      "structured-output",
+      "tool_choice",
+      "auto",
+      "flexibility"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-044",
+    "scenario": "Your reviewer prompt flags a pattern as a bug in one file but approves the identical pattern in another during the same run.",
+    "question": "Which prompt improvement best reduces this inconsistency?",
+    "options": [
+      "Tell it to 'be consistent'",
+      "Provide explicit criteria and few-shot examples that define the pattern as acceptable or a genuine issue, so classification is consistent",
+      "Increase temperature",
+      "Review each file in a separate model with no shared criteria"
+    ],
+    "correct": 1,
+    "explanation": "Explicit criteria plus few-shot examples pin down whether a pattern is acceptable or a real issue, producing consistent classification. 'Be consistent' (A) is vague, temperature (C) adds variance, and separate models with no shared criteria (D) can diverge further.",
+    "tags": [
+      "explicit-criteria",
+      "few-shot",
+      "consistency",
+      "false-positives"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-045",
+    "scenario": "A strict-schema extraction returns valid JSON, but 'shipping_cost' is placed in the 'tax' field.",
+    "question": "What kind of error is this and how do you catch it?",
+    "options": [
+      "A syntax error caught by the schema",
+      "A semantic (misplaced-value) error not caught by schema strictness; catch it with semantic validation/self-correction checks",
+      "An impossible error with tool_use",
+      "A truncation error fixed by max_tokens"
+    ],
+    "correct": 1,
+    "explanation": "Placing a value in the wrong field is a semantic error that strict schemas don't catch; semantic validation (e.g., cross-field checks, self-correction) is needed. It's not a syntax error (A), tool_use doesn't prevent semantic mistakes (C), and it isn't truncation (D).",
+    "tags": [
+      "validation",
+      "semantic-errors",
+      "json-schema",
+      "self-correction"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-046",
+    "scenario": "You want a retry loop that only retries when it can actually help.",
+    "question": "Which condition should trigger a retry?",
+    "options": [
+      "The required data is absent from the source",
+      "A format or structural output error occurred (e.g., malformed structure) that feedback can correct",
+      "The document is simply long",
+      "The model produced any output at all"
+    ],
+    "correct": 1,
+    "explanation": "Retries help for format/structural errors that error-feedback can correct; they don't help when required data is absent (A). Length alone (C) isn't a reason to retry, and producing some output (D) isn't a trigger by itself.",
+    "tags": [
+      "validation",
+      "retry",
+      "error-feedback",
+      "limits"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-047",
+    "scenario": "You need consistent, actionable review output and precise criteria at once.",
+    "question": "Which combined approach is strongest?",
+    "options": [
+      "Explicit categorical criteria alone with no examples",
+      "Explicit criteria for WHAT to report plus few-shot examples for HOW to format it",
+      "Few-shot format examples with no criteria",
+      "Neither; rely on temperature 0"
+    ],
+    "correct": 1,
+    "explanation": "Combining explicit criteria (what to report) with few-shot examples (how to format) yields both precision and consistent, actionable output. Criteria alone (A) may still format inconsistently, examples without criteria (C) may report the wrong things, and temperature 0 (D) addresses neither.",
+    "tags": [
+      "explicit-criteria",
+      "few-shot",
+      "precision",
+      "output-format"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-048",
+    "scenario": "Your schema must categorize support tickets, but new categories appear over time and some tickets are genuinely ambiguous.",
+    "question": "Which schema design handles both?",
+    "options": [
+      "A closed enum only",
+      "An enum with 'other' + detail for new categories and an 'unclear' value for ambiguous tickets",
+      "A required free-text category",
+      "A numeric category id with no labels"
+    ],
+    "correct": 1,
+    "explanation": "An enum plus 'other'+detail (extensibility) and an 'unclear' value (ambiguity) covers both evolving categories and ambiguous cases. A closed enum (A) can't grow, free text (C) loses structure, and unlabeled numeric ids (D) are opaque.",
+    "tags": [
+      "structured-output",
+      "enum",
+      "extensibility",
+      "ambiguity"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-049",
+    "scenario": "You must force a specific extraction to run before any enrichment, then handle enrichment in later turns.",
+    "question": "Which is the correct sequence design?",
+    "options": [
+      "Set tool_choice: 'any' and hope extraction goes first",
+      "Force the extraction tool with tool_choice: {\"type\":\"tool\",\"name\":\"extract\"}, then run enrichment in follow-up turns",
+      "Put everything in one tool call",
+      "Use batch processing to order them"
+    ],
+    "correct": 1,
+    "explanation": "Forcing the named extraction tool guarantees it runs first; enrichment then proceeds in subsequent turns. 'any' (A) doesn't guarantee order, a single mega tool call (C) conflates steps, and batch (D) can't do mid-request multi-turn sequencing.",
+    "tags": [
+      "structured-output",
+      "tool_choice",
+      "ordering",
+      "forced-tool"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "d3-050",
+    "scenario": "After adding tool_use with a strict schema, syntax errors vanished but stakeholders still report 'wrong' extractions.",
+    "question": "What is the right mental model to communicate?",
+    "options": [
+      "tool_use guarantees both syntax and semantics",
+      "tool_use guarantees structure/syntax; semantic correctness needs additional validation, examples, and normalization",
+      "The remaining errors mean tool_use failed",
+      "Semantics are impossible to improve"
+    ],
+    "correct": 1,
+    "explanation": "tool_use guarantees structural/syntactic validity, but semantic correctness requires extra measures: semantic validation, few-shot examples, and normalization rules. It doesn't guarantee semantics (A), the errors don't mean tool_use failed (C), and semantics can indeed be improved (D).",
+    "tags": [
+      "structured-output",
+      "tool_use",
+      "semantic-errors",
+      "validation"
+    ]
   }
 ]

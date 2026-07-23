@@ -12,7 +12,11 @@
     ],
     "correct": 1,
     "explanation": "The 'lost-in-the-middle' effect is empirically documented: LLMs pay significantly less attention to content in the middle of very long contexts compared to the beginning and end. For critical constraints in large contexts, place them at the start (system prompt top) or end (just before the current query). Repetition (C) helps but adds token cost. Tool description constraints (D) only apply when that tool is called. For global constraints, position is a key reliability factor in long-context architectures.",
-    "tags": ["lost-in-the-middle", "context-management", "large-context"]
+    "tags": [
+      "lost-in-the-middle",
+      "context-management",
+      "large-context"
+    ]
   },
   {
     "domain": 5,
@@ -27,7 +31,11 @@
     ],
     "correct": 2,
     "explanation": "Progressive summarization is the correct strategy: compress older conversational turns into dense, structured summaries while preserving the task state. Critically, numeric data and structured findings must be copied verbatim into the summary — not paraphrased — because summarization introduces errors into numbers. Simply continuing (A) will hit degradation and eventually the context limit. Starting over (B) loses all work. Arbitrarily deleting old messages (D) may delete critical context without understanding importance.",
-    "tags": ["progressive-summarization", "context-management", "long-running-agent"]
+    "tags": [
+      "progressive-summarization",
+      "context-management",
+      "long-running-agent"
+    ]
   },
   {
     "domain": 5,
@@ -42,7 +50,11 @@
     ],
     "correct": 2,
     "explanation": "Tool result trimming is a key context management technique: strip tool outputs to only the fields your application actually needs before appending them to message history. Appending the full 15,000 token response (A) wastes 99% of the tokens, fills the context window faster, and increases costs. Asking Claude to summarize (B) adds an extra round-trip and introduces another layer where data can be lost. External storage (D) adds architectural complexity. The right place to trim is the tool handler layer before the result enters the conversation.",
-    "tags": ["tool-result-trimming", "context-management", "token-efficiency"]
+    "tags": [
+      "tool-result-trimming",
+      "context-management",
+      "token-efficiency"
+    ]
   },
   {
     "domain": 5,
@@ -57,7 +69,12 @@
     ],
     "correct": 2,
     "explanation": "The three legitimate escalation triggers are: explicit user request, inability to make progress with available resources, and situations requiring out-of-scope judgment. User frustration alone (part of the scenario) is NOT a trigger — frustration is an emotional state, not an indicator that the agent cannot technically resolve the issue. The agent should not escalate based on context fullness (D) — that's a technical implementation concern, not an escalation trigger. Waiting for 3 failures (B) is arbitrary and may let the user suffer unnecessarily.",
-    "tags": ["escalation", "human-in-the-loop", "agent-behavior", "context-management"]
+    "tags": [
+      "escalation",
+      "human-in-the-loop",
+      "agent-behavior",
+      "context-management"
+    ]
   },
   {
     "domain": 5,
@@ -72,7 +89,12 @@
     ],
     "correct": 1,
     "explanation": "Prompt caching is designed for exactly this pattern: static content shared across many requests. At 100,000 calls/day, you're making ~70 calls/minute — the 5-minute TTL cache will be continuously warm. Each cached request pays 0.1x the normal input cost for the 10,000 token preamble, reducing input costs by 90% for that section. You can extend TTL to 1 hour by paying 2x write cost, which is worthwhile at high volume. Injecting fresh each time (C) and compression (D) don't capture the caching benefit.",
-    "tags": ["prompt-caching", "cache_control", "TTL", "cost-optimization"]
+    "tags": [
+      "prompt-caching",
+      "cache_control",
+      "TTL",
+      "cost-optimization"
+    ]
   },
   {
     "domain": 5,
@@ -87,7 +109,12 @@
     ],
     "correct": 1,
     "explanation": "The Message Batches API is specifically designed for large-scale async workloads where latency is not critical. Key specs: up to 100,000 requests per batch, 50% cost reduction vs. synchronous API, 24-hour processing window, results matched via custom_id. This overnight classification job is a perfect fit: 50,000 tasks, latency-insensitive, cost-sensitive. Streaming (A) is for real-time responses. Extended thinking (C) increases cost, not reduces it. Parallel tool calls (D) is for multi-tool use in one conversation, not batch document processing.",
-    "tags": ["batch-API", "cost-optimization", "async-processing", "large-scale"]
+    "tags": [
+      "batch-API",
+      "cost-optimization",
+      "async-processing",
+      "large-scale"
+    ]
   },
   {
     "domain": 5,
@@ -102,7 +129,12 @@
     ],
     "correct": 1,
     "explanation": "The Message Batches API has a 24-hour processing and expiry window. Requests submitted in a batch must be retrieved within 24 hours — after that, the results expire. If some of your 80,000 requests weren't completed and returned within 24 hours, those results are gone. The solution is to identify which custom_ids didn't return results and resubmit them in a new batch. Batches do support up to 100,000 requests (D is wrong). The issue is expiry timing, not capacity or outages.",
-    "tags": ["batch-API", "24-hour-expiry", "custom_id", "error-handling"]
+    "tags": [
+      "batch-API",
+      "24-hour-expiry",
+      "custom_id",
+      "error-handling"
+    ]
   },
   {
     "domain": 5,
@@ -117,7 +149,12 @@
     ],
     "correct": 1,
     "explanation": "Prompt caching supports a maximum of 4 cache_control breakpoints per API request. If you specify more than 4, only the last 4 are honored — earlier markers are ignored. This is a critical architectural constraint: you must design your caching strategy to use at most 4 breakpoints effectively. Common pattern: use 1 on the system prompt, 1-2 on stable few-shot examples, and leave 1 for dynamic content. Unlimited markers (A), restriction to system prompts (C), and per-message requirement (D) are all incorrect.",
-    "tags": ["prompt-caching", "cache_control", "4-breakpoints", "limitations"]
+    "tags": [
+      "prompt-caching",
+      "cache_control",
+      "4-breakpoints",
+      "limitations"
+    ]
   },
   {
     "domain": 5,
@@ -132,7 +169,12 @@
     ],
     "correct": 2,
     "explanation": "Exponential backoff with jitter is the industry-standard pattern for rate limit handling. It provides: (1) increasing wait time so the service has time to recover, (2) random jitter to prevent thundering herd (all clients retrying simultaneously). Immediate retry (A) makes the rate limit problem worse. Fixed-interval retry (B) helps but can still cause synchronized retry spikes. Circuit breaker (D) is a complementary pattern but stopping entirely on first failure is too aggressive for transient rate limits.",
-    "tags": ["rate-limiting", "exponential-backoff", "retry-strategy", "reliability"]
+    "tags": [
+      "rate-limiting",
+      "exponential-backoff",
+      "retry-strategy",
+      "reliability"
+    ]
   },
   {
     "domain": 5,
@@ -147,7 +189,11 @@
     ],
     "correct": 1,
     "explanation": "The golden rule of context summarization: summarize prose (it compresses well and paraphrasing preserves meaning), but copy numeric data and structured decisions VERBATIM. Summarization is a lossy process — it introduces rounding errors, approximations, and omissions in quantitative data. A measurement summarized as 'approximately 42.7' is qualitatively different from exactly 42.7183. Key decisions should also be preserved exactly — paraphrasing decisions can alter their meaning. Option A (uniform summarization) will corrupt numeric data. Option C loses the data entirely. Option D makes the summary dependent on the original context.",
-    "tags": ["progressive-summarization", "numeric-data-preservation", "context-management"]
+    "tags": [
+      "progressive-summarization",
+      "numeric-data-preservation",
+      "context-management"
+    ]
   },
   {
     "domain": 5,
@@ -162,7 +208,12 @@
     ],
     "correct": 1,
     "explanation": "The 'lost in the middle' phenomenon means Claude (like all transformer LLMs) attends more strongly to the beginning and end of context, with reduced attention to middle sections. It doesn't drop tokens (all are processed) — it's an attention distribution pattern. It's not strict primacy or recency — both ends get more attention than the middle.",
-    "tags": ["lost-in-middle", "context-window", "attention", "information-placement"]
+    "tags": [
+      "lost-in-middle",
+      "context-window",
+      "attention",
+      "information-placement"
+    ]
   },
   {
     "domain": 5,
@@ -177,7 +228,12 @@
     ],
     "correct": 1,
     "explanation": "Anthropic's prompt caching uses cache_control markers on content blocks. Cached prefixes are stored server-side for 5 minutes (refreshed on each hit), reducing cost by 90% for reads. CDN caching doesn't apply to inference API calls. Projects are a UI feature, not an API optimization. Gzip reduces transfer but not server-side processing time.",
-    "tags": ["prompt-caching", "cache-control", "cost-optimization", "latency"]
+    "tags": [
+      "prompt-caching",
+      "cache-control",
+      "cost-optimization",
+      "latency"
+    ]
   },
   {
     "domain": 5,
@@ -192,7 +248,12 @@
     ],
     "correct": 1,
     "explanation": "The Message Batches API is specifically designed for high-volume async workloads, offering 50% cost reduction with results typically delivered within 1 hour (guaranteed within 24 hours). Sending simultaneous requests will hit rate limits quickly. Multiple API keys to bypass limits violates ToS. Streaming is for real-time single-response delivery, not batch processing.",
-    "tags": ["batches-API", "cost-optimization", "async-processing", "high-volume"]
+    "tags": [
+      "batches-API",
+      "cost-optimization",
+      "async-processing",
+      "high-volume"
+    ]
   },
   {
     "domain": 5,
@@ -207,7 +268,12 @@
     ],
     "correct": 1,
     "explanation": "Progressive summarization compresses older turns (preserving exact data like IDs, amounts, decisions) while retaining recent context, allowing the agent to continue within limits. max_tokens controls output length, not context window size. Starting fresh loses all accumulated state. No current Claude model exceeds 200K context.",
-    "tags": ["summarization", "context-window", "progressive-summarization", "agentic-loop"]
+    "tags": [
+      "summarization",
+      "context-window",
+      "progressive-summarization",
+      "agentic-loop"
+    ]
   },
   {
     "domain": 5,
@@ -222,6 +288,451 @@
     ],
     "correct": 1,
     "explanation": "Exponential backoff with jitter prevents thundering herd problems (many clients retrying simultaneously), and retry-after headers give exact wait times. Immediate retry worsens the rate limit situation. Cycling API keys may violate ToS and doesn't solve capacity issues. Fixed 1/second throttling is wasteful when capacity is available and insufficient during actual limits.",
-    "tags": ["rate-limiting", "retry-strategy", "exponential-backoff", "error-handling"]
+    "tags": [
+      "rate-limiting",
+      "retry-strategy",
+      "exponential-backoff",
+      "error-handling"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-016",
+    "scenario": "A single very long context window holds hundreds of documents, and Claude reliably uses the first and last items but misses key facts buried in the middle.",
+    "question": "Which phenomenon is this and how do you mitigate it?",
+    "options": [
+      "Token truncation; raise max_tokens",
+      "The lost-in-the-middle effect; order the most important content near the start/end and extract key facts rather than dumping everything",
+      "A model bug; switch models",
+      "Rate limiting; slow down requests"
+    ],
+    "correct": 1,
+    "explanation": "The lost-in-the-middle effect degrades recall of content buried mid-context. Mitigate by position-aware ordering (important content near the beginning/end) and extracting key facts instead of dumping raw text. It isn't truncation (A), a model bug (C), or rate limiting (D).",
+    "tags": [
+      "context-management",
+      "lost-in-the-middle",
+      "position-aware",
+      "reliability"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-017",
+    "scenario": "A multi-turn conversation is approaching the context limit as tool outputs accumulate.",
+    "question": "Which technique preserves the essential state within budget?",
+    "options": [
+      "Keep every raw tool output verbatim",
+      "Progressive summarization: periodically compress prior turns/tool outputs into concise structured summaries",
+      "Delete the system prompt",
+      "Randomly drop messages"
+    ],
+    "correct": 1,
+    "explanation": "Progressive summarization compresses accumulated history into concise summaries, staying within budget while preserving essential state. Keeping everything verbatim (A) exhausts the window, deleting the system prompt (C) loses instructions, and random dropping (D) risks losing critical facts.",
+    "tags": [
+      "context-management",
+      "summarization",
+      "token-budget",
+      "multi-turn"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-018",
+    "scenario": "Tool outputs are extremely verbose (huge JSON blobs) and crowd out room for reasoning.",
+    "question": "What is the recommended optimization?",
+    "options": [
+      "Feed the full raw outputs every time",
+      "Trim/extract only the relevant fields from verbose tool outputs before adding them to context",
+      "Increase temperature",
+      "Stop using tools"
+    ],
+    "correct": 1,
+    "explanation": "Trimming verbose tool outputs to the relevant fields (structured fact extraction) frees context for reasoning while retaining needed data. Full raw outputs (A) waste budget, temperature (C) is unrelated, and abandoning tools (D) loses capability.",
+    "tags": [
+      "context-management",
+      "tool-output-trimming",
+      "extraction",
+      "token-budget"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-019",
+    "scenario": "A long-running task must remember intermediate findings across many steps without bloating the conversation.",
+    "question": "Which pattern helps?",
+    "options": [
+      "Keep all findings inline in the conversation",
+      "Use a scratchpad file to persist intermediate facts/state, reading back only what's needed",
+      "Rely on the model to remember everything",
+      "Increase max_tokens indefinitely"
+    ],
+    "correct": 1,
+    "explanation": "A scratchpad file externalizes intermediate state so the conversation stays lean, with the agent reading back only what it needs. Inlining everything (A) bloats context, trusting memory (C) is unreliable, and max_tokens (D) can't grow without bound.",
+    "tags": [
+      "context-management",
+      "scratchpad",
+      "state-persistence",
+      "long-running"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-020",
+    "scenario": "When passing context between agents, you keep the most position-sensitive information where the model attends best.",
+    "question": "Which ordering strategy reflects position awareness?",
+    "options": [
+      "Bury critical facts in the middle of a long block",
+      "Place the most important inputs near the beginning or end of the context, where recall is strongest",
+      "Randomize order each turn",
+      "Always alphabetize inputs"
+    ],
+    "correct": 1,
+    "explanation": "Because recall is strongest at the start and end, position-aware ordering places critical inputs there. Burying them mid-context (A) invites the lost-in-the-middle effect, and random (C) or alphabetical (D) ordering ignores attention position.",
+    "tags": [
+      "context-management",
+      "position-aware",
+      "lost-in-the-middle",
+      "ordering"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-021",
+    "scenario": "You want per-field confidence on extractions so downstream systems can decide what to trust.",
+    "question": "Which approach provides trustworthy confidence signals?",
+    "options": [
+      "Ask the model for a single overall confidence with no calibration",
+      "Emit field-level confidence and calibrate it against a labeled validation set",
+      "Assume all fields are 100% confident",
+      "Use response length as a proxy for confidence"
+    ],
+    "correct": 1,
+    "explanation": "Field-level confidence calibrated against a labeled validation set yields trustworthy signals for downstream decisions. A single uncalibrated score (A), assuming full confidence (C), or using length as a proxy (D) are unreliable.",
+    "tags": [
+      "reliability",
+      "confidence-scoring",
+      "calibration",
+      "validation-set"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-022",
+    "scenario": "To measure your extraction system's true error rate across document types, you plan to sample outputs for human review.",
+    "question": "Which sampling approach gives a representative error estimate?",
+    "options": [
+      "Review only the easiest documents",
+      "Use stratified sampling across document types (and fields) to measure error rates representatively",
+      "Review a single random document",
+      "Only review outputs the model flagged as low confidence"
+    ],
+    "correct": 1,
+    "explanation": "Stratified sampling across document types (and fields) produces representative error-rate estimates and reveals where accuracy varies. Easy-only (A) or single-document (C) samples bias the estimate, and reviewing only low-confidence flags (D) misses confident-but-wrong errors.",
+    "tags": [
+      "reliability",
+      "stratified-sampling",
+      "error-rate",
+      "human-review"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-023",
+    "scenario": "Your human-review workflow needs to decide which extractions get human eyes given limited reviewer time.",
+    "question": "How should confidence calibration inform this?",
+    "options": [
+      "Send everything to humans regardless of confidence",
+      "Route low-confidence (well-calibrated) items to human review while auto-accepting high-confidence ones, monitoring accuracy by segment",
+      "Send only high-confidence items to humans",
+      "Pick items to review at random with no confidence signal"
+    ],
+    "correct": 1,
+    "explanation": "Calibrated confidence lets you focus scarce human review on low-confidence items while auto-accepting reliable high-confidence ones, with ongoing accuracy monitoring by segment. Reviewing everything (A) wastes effort, reviewing only high-confidence items (C) is backwards, and pure random review (D) ignores useful signal.",
+    "tags": [
+      "reliability",
+      "human-review",
+      "confidence",
+      "calibration"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-024",
+    "scenario": "Accuracy differs sharply by document type and by field (e.g., dates vs free-text notes).",
+    "question": "What reliability practice does this call for?",
+    "options": [
+      "Report one global accuracy number",
+      "Segment accuracy by document type and field to target improvements where they're needed",
+      "Ignore per-field differences",
+      "Only track the best-performing field"
+    ],
+    "correct": 1,
+    "explanation": "Segmenting accuracy by document type and field reveals where the system is weak and guides targeted improvements. A single global number (A), ignoring differences (C), or tracking only the best field (D) hides the problem areas.",
+    "tags": [
+      "reliability",
+      "accuracy-segmentation",
+      "human-review",
+      "monitoring"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-025",
+    "scenario": "A cited research report must let readers trace each claim back to its source.",
+    "question": "Which practice ensures information provenance?",
+    "options": [
+      "Summarize sources into one blended paragraph",
+      "Maintain explicit claim-to-source mappings so each claim links to the document/URL it came from",
+      "Drop sources to keep the report short",
+      "Cite only the first source found"
+    ],
+    "correct": 1,
+    "explanation": "Explicit claim-source mappings preserve provenance so every claim is traceable to its origin. Blending sources (A) loses attribution, dropping sources (C) removes traceability, and citing only the first (D) misrepresents provenance.",
+    "tags": [
+      "reliability",
+      "provenance",
+      "claim-source-mapping",
+      "citations"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-026",
+    "scenario": "Your research aggregates data points that are time-sensitive (e.g., 'current CEO', 'latest price').",
+    "question": "How should temporal data be handled for reliability?",
+    "options": [
+      "Ignore dates; treat all facts as timeless",
+      "Annotate facts with their temporal context (as-of dates) so consumers know when each fact was valid",
+      "Always use the newest-looking value with no date",
+      "Delete anything with a date"
+    ],
+    "correct": 1,
+    "explanation": "Temporal facts should carry as-of dates so consumers understand validity windows. Treating facts as timeless (A), guessing the newest (C), or deleting dated facts (D) all undermine reliability for time-sensitive data.",
+    "tags": [
+      "reliability",
+      "temporal-data",
+      "provenance",
+      "as-of-dates"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-027",
+    "scenario": "Two sources give conflicting figures for the same metric.",
+    "question": "What is the reliable way to represent this in the output?",
+    "options": [
+      "Silently pick one and hide the conflict",
+      "Annotate the conflict, presenting both values with their sources so downstream consumers can adjudicate",
+      "Average the two figures",
+      "Drop both figures"
+    ],
+    "correct": 1,
+    "explanation": "Conflict annotation - surfacing both values with their sources - lets consumers adjudicate rather than trusting a hidden choice. Silently picking (A), averaging (C), or dropping both (D) obscure or distort the underlying disagreement.",
+    "tags": [
+      "reliability",
+      "conflict-annotation",
+      "provenance",
+      "sources"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-028",
+    "scenario": "A research report should be honest about what it could NOT find.",
+    "question": "Which practice supports this?",
+    "options": [
+      "Omit any mention of gaps to look complete",
+      "Report coverage gaps explicitly so readers know which questions remain unanswered",
+      "Fill gaps with plausible guesses",
+      "Only report what was found"
+    ],
+    "correct": 1,
+    "explanation": "Explicit coverage-gap reporting tells readers what remains unanswered, improving trust and guiding follow-up. Hiding gaps (A), filling them with guesses (C), or silently omitting them (D) misrepresent completeness.",
+    "tags": [
+      "reliability",
+      "coverage-gaps",
+      "provenance",
+      "reporting"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-029",
+    "scenario": "You resume a long analysis session, but several analyzed files changed since last time.",
+    "question": "What is the reliable handling?",
+    "options": [
+      "Trust the cached tool results as-is",
+      "Inform the resumed session which files changed for targeted re-analysis, or start fresh with an injected summary if results are largely stale",
+      "Re-explore the entire codebase every time",
+      "Ignore the changes"
+    ],
+    "correct": 1,
+    "explanation": "Reliable resumption tells the session exactly which files changed for targeted re-analysis, or restarts fresh with a summary when prior results are largely stale. Trusting stale caches (A) or ignoring changes (D) causes wrong reasoning, and full re-exploration (C) is wasteful.",
+    "tags": [
+      "reliability",
+      "session-management",
+      "stale-context",
+      "resume"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-030",
+    "scenario": "The same session that generated code is asked to self-review and misses defects.",
+    "question": "Which reliability principle applies?",
+    "options": [
+      "Self-review is always as good as independent review",
+      "Session context isolation: an independent review instance with fresh context reviews more effectively than the authoring session",
+      "Reviews should be skipped for speed",
+      "Increase max_tokens to improve review"
+    ],
+    "correct": 1,
+    "explanation": "An authoring session is biased toward its own output; an independent review instance with fresh context catches more issues. Self-review isn't equivalent (A), skipping review (C) is unsafe, and max_tokens (D) doesn't remove authoring bias.",
+    "tags": [
+      "reliability",
+      "session-isolation",
+      "independent-review",
+      "context"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-031",
+    "scenario": "You must decide whether to resume a prior session or start fresh with a structured summary.",
+    "question": "When is resumption the better choice?",
+    "options": [
+      "When prior tool results are largely stale",
+      "When prior context is mostly valid and only minor changes occurred, so continuity is worth keeping",
+      "Always, regardless of staleness",
+      "Never; fresh starts are always better"
+    ],
+    "correct": 1,
+    "explanation": "Resumption is preferable when prior context is mostly valid with only minor changes, preserving useful continuity. When results are largely stale (A), a fresh summary is safer; and neither 'always resume' (C) nor 'never resume' (D) is correct - it depends on staleness.",
+    "tags": [
+      "reliability",
+      "session-management",
+      "resume",
+      "fresh-start"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-032",
+    "scenario": "To calibrate confidence scores, you compare predicted confidence against actual correctness.",
+    "question": "What does a well-calibrated model look like?",
+    "options": [
+      "It reports 100% confidence on everything",
+      "Among items it marks ~80% confident, roughly 80% are actually correct",
+      "Confidence is random noise",
+      "Confidence equals output length"
+    ],
+    "correct": 1,
+    "explanation": "Calibration means predicted confidence matches empirical accuracy - ~80%-confident items are right ~80% of the time. Uniform 100% confidence (A), random confidence (C), or length-as-confidence (D) are all poorly calibrated.",
+    "tags": [
+      "reliability",
+      "calibration",
+      "confidence-scoring",
+      "validation-set"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-033",
+    "scenario": "Your context is filling with long historical tool outputs that are no longer needed for current reasoning.",
+    "question": "What is the most effective context-window action?",
+    "options": [
+      "Keep all history to be safe",
+      "Extract and retain only the still-relevant structured facts, dropping or summarizing obsolete verbose outputs",
+      "Delete the current user question",
+      "Switch to a smaller model"
+    ],
+    "correct": 1,
+    "explanation": "Retaining only still-relevant structured facts (and summarizing/dropping obsolete verbose outputs) optimizes the context window for current reasoning. Keeping everything (A) exhausts budget, deleting the question (C) breaks the task, and a smaller model (D) doesn't address the bloated context.",
+    "tags": [
+      "context-management",
+      "extraction",
+      "summarization",
+      "token-budget"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-034",
+    "scenario": "A pipeline extracts data from thousands of documents and needs a defensible error-rate figure for stakeholders.",
+    "question": "Which method produces a defensible estimate efficiently?",
+    "options": [
+      "Manually review every document",
+      "Stratified sampling by document type/field plus human review of the sample to estimate error rates per segment",
+      "Trust the model's self-reported accuracy",
+      "Review only documents that failed schema validation"
+    ],
+    "correct": 1,
+    "explanation": "Stratified sampling with human review of the sample yields defensible, segment-level error estimates without reviewing everything. Full manual review (A) doesn't scale, self-reported accuracy (C) is unverified, and reviewing only schema failures (D) misses semantic errors in valid-looking output.",
+    "tags": [
+      "reliability",
+      "stratified-sampling",
+      "error-rate",
+      "human-review"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-035",
+    "scenario": "You are designing how a synthesis agent receives search results so it can cite accurately.",
+    "question": "Which context-passing format best preserves reliability?",
+    "options": [
+      "A single prose paragraph blending all findings",
+      "A structured format separating each claim's content from its metadata (source URL, title, page) ",
+      "Only the raw HTML of each page",
+      "Just the search query with no results"
+    ],
+    "correct": 1,
+    "explanation": "A structured format that keeps each claim linked to its source metadata preserves attribution for accurate citation. A blended paragraph (A) loses provenance, raw HTML (C) is noisy and unstructured, and passing only the query (D) provides no findings.",
+    "tags": [
+      "reliability",
+      "context-passing",
+      "provenance",
+      "structured-data"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-036",
+    "scenario": "During a multi-phase task, verbose discovery output threatens to exhaust context before the main work begins.",
+    "question": "Which reliability technique isolates the noise?",
+    "options": [
+      "Do discovery in the main session and hope it fits",
+      "Run discovery via an Explore subagent (or context: fork) that returns a concise summary to the main context",
+      "Increase max_tokens",
+      "Skip discovery entirely"
+    ],
+    "correct": 1,
+    "explanation": "Isolating verbose discovery in an Explore subagent (or a context: fork skill) returns a concise summary and protects the main context budget. Doing it inline (A) risks exhaustion, max_tokens (C) doesn't isolate intake, and skipping discovery (D) loses needed understanding.",
+    "tags": [
+      "context-management",
+      "explore-subagent",
+      "context-fork",
+      "discovery"
+    ]
+  },
+  {
+    "domain": 5,
+    "id": "d5-037",
+    "scenario": "You want end-to-end reliability: accurate extraction, honest uncertainty, and traceable claims.",
+    "question": "Which combination of practices best achieves this?",
+    "options": [
+      "Strict schema only, no provenance or confidence",
+      "Structured output plus calibrated field-level confidence, claim-source provenance, and stratified human review of a sample",
+      "High temperature and long context",
+      "Self-reported accuracy with no validation set"
+    ],
+    "correct": 1,
+    "explanation": "Combining structured output, calibrated field-level confidence, claim-source provenance, and stratified human-review sampling delivers accuracy, honest uncertainty, and traceability. Schema-only (A) lacks confidence/provenance, high temperature/long context (C) doesn't ensure reliability, and unvalidated self-reporting (D) isn't defensible.",
+    "tags": [
+      "reliability",
+      "confidence-scoring",
+      "provenance",
+      "human-review"
+    ]
   }
 ]

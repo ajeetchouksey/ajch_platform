@@ -5,8 +5,17 @@
     <link>https://aaryaai.dev</link>
     <description>AI learning resources, exam prep, and engineering insights</description>
     <language>en-gb</language>
-    <lastBuildDate>Tue, 16 Jun 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 17 Jul 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://aaryaai.dev/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Observability for LLMs: Logs, Traces, and the Token Meter</title>
+      <link>https://aaryaai.dev/blog/llm-observability</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/llm-observability</guid>
+      <description>Your API returned 200 OK and your users were furious. Here&apos;s the three-signal observability model that tells you what actually happened inside the model call — before the bill arrives.</description>
+      <pubDate>Fri, 17 Jul 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>LLMOps</category>
+    </item>
     <item>
       <title>You&apos;re Wasting 60% of Your Context Window</title>
       <link>https://aaryaai.dev/blog/context-budget-rule</link>
