@@ -31,6 +31,32 @@
       "available": true,
       "jdFile": "content/interviews/roles/agentic-ai-platform-architect/jd.md",
       "packFile": "content/interviews/roles/agentic-ai-platform-architect/pack.json"
+    },
+    {
+      "id": "hr-ai-lead",
+      "title": "Senior HR AI Lead",
+      "shortTitle": "HR AI Lead",
+      "seniority": "Senior · 8–12 yrs",
+      "location": "India (Bangalore / Pune)",
+      "description": "Build and lead AI solutions for an enterprise HR function: employee-facing assistants, talent-acquisition copilots, HR knowledge agents, and workforce analytics — in a regulated, Works-Council environment.",
+      "industry": {
+        "label": "Energy Sector · Enterprise HR Technology",
+        "domain": "energy-enterprise-hr",
+        "summary": "This role sits inside the HR function of a large multinational energy company, building internal AI solutions for HR colleagues and employees. Frame answers for regulated, data-sensitive enterprise environments: GDPR, Works Council co-determination, HR platform integrations (Workday, SuccessFactors), and the specific responsible-AI surface area of employment decisions.",
+        "focusAreas": [
+          "GDPR, Works Council & employment-law compliance",
+          "HR platform integrations (Workday, SuccessFactors, ServiceNow HRSD)",
+          "Responsible AI for employment decisions (fairness, explainability, audit)",
+          "Employee-data privacy & data-classification architecture",
+          "Distributed India team building & engineering culture"
+        ]
+      },
+      "colorScheme": "emerald",
+      "accentColor": "linear-gradient(90deg, #059669, #34d399)",
+      "questionCount": 8,
+      "available": true,
+      "jdFile": "content/interviews/roles/hr-ai-lead/jd.md",
+      "packFile": "content/interviews/roles/hr-ai-lead/pack.json"
     }
   ]
 }
