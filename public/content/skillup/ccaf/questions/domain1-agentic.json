@@ -12,7 +12,12 @@
     ],
     "correct": 1,
     "explanation": "Hooks are code-enforced guarantees that run before tool execution regardless of what Claude decides. A PreToolUse hook is the only option here that CANNOT be overridden by user input or a clever prompt. System prompt instructions (A) and few-shot examples (C) are probabilistic — a sufficiently persistent user might override them. tool_choice: auto (D) gives Claude discretion, which is exactly what you're trying to remove. Core principle: 'When something MUST happen, use code. When something SHOULD happen, use prompts.'",
-    "tags": ["hooks", "PreToolUse", "human-in-the-loop", "coordinator-subagent"]
+    "tags": [
+      "hooks",
+      "PreToolUse",
+      "human-in-the-loop",
+      "coordinator-subagent"
+    ]
   },
   {
     "domain": 1,
@@ -27,7 +32,12 @@
     ],
     "correct": 2,
     "explanation": "Structured error returns give the coordinator actionable information to route around the failure. A plain string (A) requires string parsing and is fragile. Unhandled exceptions (B) crash the agentic loop. Silent empty returns (D) cause the coordinator to proceed with bad data. The retryable field is critical — it tells the coordinator whether to retry or escalate to a human, enabling graceful degradation in multi-agent systems.",
-    "tags": ["error-propagation", "multi-agent", "structured-errors", "coordinator-subagent"]
+    "tags": [
+      "error-propagation",
+      "multi-agent",
+      "structured-errors",
+      "coordinator-subagent"
+    ]
   },
   {
     "domain": 1,
@@ -42,7 +52,11 @@
     ],
     "correct": 1,
     "explanation": "This workflow has hard data dependencies: you cannot analyze until you have search results; you cannot write a report until analysis is done. Parallel execution (A, D) is only appropriate for independent operations. Single-turn (C) works for simple chains but loses explicit state control and makes error recovery nearly impossible. Sequential multi-turn execution gives you checkpoints, allows injecting intermediate validation, and makes the agentic loop inspectable.",
-    "tags": ["sequential-execution", "workflow-patterns", "agentic-loop"]
+    "tags": [
+      "sequential-execution",
+      "workflow-patterns",
+      "agentic-loop"
+    ]
   },
   {
     "domain": 1,
@@ -57,7 +71,12 @@
     ],
     "correct": 2,
     "explanation": "Hooks should return structured, typed error responses rather than either silently failing or crashing the session. Silent failure (A, D) breaks the audit requirement — a compliance-critical operation. Crashing the entire session (B) is overly destructive for a transient infrastructure issue. Returning retryable: true with context lets the coordinator implement retry logic or escalate to a human with full context, preserving both reliability and the audit requirement.",
-    "tags": ["hooks", "PostToolUse", "error-handling", "structured-errors"]
+    "tags": [
+      "hooks",
+      "PostToolUse",
+      "error-handling",
+      "structured-errors"
+    ]
   },
   {
     "domain": 1,
@@ -72,7 +91,12 @@
     ],
     "correct": 1,
     "explanation": "Long-running agents must be designed for resumability. Persisting state externally after each significant action means if the process is interrupted (network failure, timeout, crash), you can restart from the last checkpoint rather than from scratch. A single massive context window (C) hits the 'lost in the middle' problem and will exhaust the context limit for hundreds of PRs. Streaming (A) and max_tokens (D) are performance/output concerns, not resumability concerns.",
-    "tags": ["long-running-tasks", "state-persistence", "resumability", "agentic-loop"]
+    "tags": [
+      "long-running-tasks",
+      "state-persistence",
+      "resumability",
+      "agentic-loop"
+    ]
   },
   {
     "domain": 1,
@@ -87,7 +111,11 @@
     ],
     "correct": 0,
     "explanation": "When tasks are independent (no data dependencies between them), Claude supports parallel tool calls — submitting multiple tool_use blocks in one assistant turn. The tool results are then returned in a single user turn. This is the correct and efficient pattern. Separate sessions (B) adds overhead and complexity. Sequential chaining (C) wastes time when there's no dependency. Embedding everything in one tool call (D) is poor tool design and loses parallelism benefits.",
-    "tags": ["parallel-execution", "tool-calls", "coordinator-subagent"]
+    "tags": [
+      "parallel-execution",
+      "tool-calls",
+      "coordinator-subagent"
+    ]
   },
   {
     "domain": 1,
@@ -102,7 +130,12 @@
     ],
     "correct": 1,
     "explanation": "A PreToolUse hook is code-enforced and cannot be bypassed by prompt manipulation. The system prompt instruction (A) is probabilistic — a convincing user could override it. The tool description (C) is guidance for Claude, not a hard gate. Removing the tool entirely (D) may be the right choice in some contexts but doesn't allow for supervised use. For irreversible actions (deletions, sends, charges), use hooks as hard gates, not prompts as soft suggestions.",
-    "tags": ["human-in-the-loop", "hooks", "PreToolUse", "irreversible-actions"]
+    "tags": [
+      "human-in-the-loop",
+      "hooks",
+      "PreToolUse",
+      "irreversible-actions"
+    ]
   },
   {
     "domain": 1,
@@ -117,7 +150,12 @@
     ],
     "correct": 1,
     "explanation": "Structured tracing with a propagated trace_id is the only approach that gives you a complete causal chain. A single trace_id lets you correlate all events (tool calls, errors, responses) across every subagent in the tree. Print statements (A) don't correlate across agents. Asking the coordinator to explain (C) is retrospective and unreliable — Claude may not accurately report its reasoning. Inferring from output (D) is unscalable and error-prone in complex systems.",
-    "tags": ["observability", "tracing", "debugging", "multi-agent"]
+    "tags": [
+      "observability",
+      "tracing",
+      "debugging",
+      "multi-agent"
+    ]
   },
   {
     "domain": 1,
@@ -132,7 +170,12 @@
     ],
     "correct": 1,
     "explanation": "stop_reason: 'end_turn' means Claude has completed its current turn naturally — it has no more tool calls to make and its response is complete. This is the normal exit condition for an agentic loop iteration. The loop should surface the final response to the user or trigger the next phase of the workflow. stop_reason: 'tool_use' would indicate Claude wants to make another tool call. Mishandling stop reasons is a common source of infinite loops or premature termination in agentic systems.",
-    "tags": ["agentic-loop", "stop-reason", "tool-calls", "lifecycle"]
+    "tags": [
+      "agentic-loop",
+      "stop-reason",
+      "tool-calls",
+      "lifecycle"
+    ]
   },
   {
     "domain": 1,
@@ -147,7 +190,12 @@
     ],
     "correct": 1,
     "explanation": "Tool selection accuracy degrades significantly beyond ~18 tools in the context. By splitting 36 tools across 3 specialized subagents (12 each), each subagent operates well within the effective range, dramatically improving accuracy. This is a direct application of the 18-tool degradation cliff principle. Cost (A) is not necessarily reduced — you may pay more in total tokens across subagents. Parallel execution (C) is possible but not automatic. Code complexity (D) is typically higher with multi-agent architectures, not lower.",
-    "tags": ["coordinator-subagent", "tool-degradation", "18-tool-cliff", "architecture"]
+    "tags": [
+      "coordinator-subagent",
+      "tool-degradation",
+      "18-tool-cliff",
+      "architecture"
+    ]
   },
   {
     "domain": 1,
@@ -162,7 +210,12 @@
     ],
     "correct": 1,
     "explanation": "HITL gates pause the agentic loop before high-risk operations, presenting the planned action to the user for approval. Try-catch only handles errors after execution (too late for prevention). Sandboxing adds complexity without direct oversight and may miss side effects. Auto-approving coordinators defeat the purpose of human oversight entirely.",
-    "tags": ["HITL", "agentic-loop", "safety", "human-oversight"]
+    "tags": [
+      "HITL",
+      "agentic-loop",
+      "safety",
+      "human-oversight"
+    ]
   },
   {
     "domain": 1,
@@ -177,7 +230,12 @@
     ],
     "correct": 1,
     "explanation": "Checkpointing persists intermediate state to external storage so agents can resume from the last successful step after failures. Restarting wastes all completed work. In-memory caching is lost on process crashes or restarts. Parallel execution of dependent steps produces incorrect results and doesn't solve rate limiting.",
-    "tags": ["checkpointing", "error-recovery", "agentic-loop", "resilience"]
+    "tags": [
+      "checkpointing",
+      "error-recovery",
+      "agentic-loop",
+      "resilience"
+    ]
   },
   {
     "domain": 1,
@@ -192,7 +250,12 @@
     ],
     "correct": 1,
     "explanation": "PreToolUse (stop) hooks fire before a tool runs, enabling HITL approval gates. They can inspect the tool name and arguments, then block or allow. PostToolUse fires too late—the action already happened. There is no SystemPrompt hook or OnError hook in Claude Code's hook system—the available hooks are PreToolUse and PostToolUse.",
-    "tags": ["stop-hook", "hooks", "HITL", "tool-execution"]
+    "tags": [
+      "stop-hook",
+      "hooks",
+      "HITL",
+      "tool-execution"
+    ]
   },
   {
     "domain": 1,
@@ -207,7 +270,12 @@
     ],
     "correct": 0,
     "explanation": "When a specific tool sequence is required for critical business logic (like verifying customer identity before processing refunds), programmatic enforcement provides deterministic guarantees that prompt-based approaches cannot. Options B and C rely on probabilistic LLM compliance — the agent is already failing 12% of the time with current instructions. Adding more instructions won't eliminate the tail-risk. Option D addresses tool availability rather than tool ordering, which is not the actual problem. A programmatic prerequisite gate is the only option that CANNOT be bypassed by input phrasing or model variance.",
-    "tags": ["programmatic-enforcement", "prerequisite-gate", "tool-ordering", "agentic-reliability"]
+    "tags": [
+      "programmatic-enforcement",
+      "prerequisite-gate",
+      "tool-ordering",
+      "agentic-reliability"
+    ]
   },
   {
     "domain": 1,
@@ -222,7 +290,12 @@
     ],
     "correct": 0,
     "explanation": "Adding explicit escalation criteria with few-shot examples directly addresses the root cause: unclear decision boundaries. This is the proportionate first response before adding infrastructure. Option B fails because LLM self-reported confidence is poorly calibrated — the agent is already incorrectly confident on hard cases. Option C is over-engineered, requiring labelled data and ML infrastructure when prompt optimisation hasn't been tried. Option D solves a different problem entirely; sentiment doesn't correlate with case complexity, which is the actual issue.",
-    "tags": ["escalation", "calibration", "few-shot", "human-in-the-loop"]
+    "tags": [
+      "escalation",
+      "calibration",
+      "few-shot",
+      "human-in-the-loop"
+    ]
   },
   {
     "domain": 1,
@@ -237,7 +310,12 @@
     ],
     "correct": 1,
     "explanation": "The coordinator's logs reveal the root cause directly: it decomposed 'creative industries' into only visual arts subtasks, completely omitting music, writing, and film. The subagents executed their assigned tasks correctly — the problem is what they were assigned. Options A, C, and D incorrectly blame downstream agents that are working correctly within their assigned scope. The coordinator is responsible for ensuring broad, complete topic coverage during task decomposition.",
-    "tags": ["task-decomposition", "coordinator", "coverage-gaps", "multi-agent"]
+    "tags": [
+      "task-decomposition",
+      "coordinator",
+      "coverage-gaps",
+      "multi-agent"
+    ]
   },
   {
     "domain": 1,
@@ -252,7 +330,12 @@
     ],
     "correct": 0,
     "explanation": "Structured error context gives the coordinator the information it needs to make intelligent recovery decisions — whether to retry with a modified query, try an alternative approach, or proceed with partial results. Option B's generic status hides valuable context from the coordinator, preventing informed decisions. Option C suppresses the error by marking failure as success, which prevents any recovery and risks incomplete outputs. Option D terminates the entire workflow unnecessarily when recovery strategies could succeed.",
-    "tags": ["error-propagation", "structured-errors", "coordinator-recovery", "multi-agent"]
+    "tags": [
+      "error-propagation",
+      "structured-errors",
+      "coordinator-recovery",
+      "multi-agent"
+    ]
   },
   {
     "domain": 1,
@@ -267,6 +350,1011 @@
     ],
     "correct": 0,
     "explanation": "Splitting reviews into focused passes directly addresses the root cause: attention dilution when processing many files at once. File-by-file analysis ensures consistent depth, while a separate integration pass catches cross-file issues. Option B shifts burden to developers without improving the system. Option C misunderstands that larger context windows don't solve attention quality issues — they just fit more tokens. Option D would suppress detection of real bugs by requiring consensus on issues that may only be caught intermittently.",
-    "tags": ["prompt-chaining", "multi-pass-review", "attention-dilution", "task-decomposition"]
+    "tags": [
+      "prompt-chaining",
+      "multi-pass-review",
+      "attention-dilution",
+      "task-decomposition"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-019",
+    "scenario": "In a hub-and-spoke multi-agent system, a subagent needs data that another subagent produced earlier in the run.",
+    "question": "How should that data reach the second subagent?",
+    "options": [
+      "Subagents share global memory automatically, so no action is needed",
+      "The coordinator passes the required prior findings explicitly in the second subagent's prompt",
+      "The second subagent calls the first subagent directly to request the data",
+      "Store the data in the model's context window so all agents inherit it"
+    ],
+    "correct": 1,
+    "explanation": "Subagents operate with isolated context and do not inherit the coordinator's or peers' history. In hub-and-spoke, all inter-agent communication flows through the coordinator, which explicitly injects the needed findings into each subagent's prompt. Direct subagent-to-subagent calls (C) break observability and consistent error handling. There is no shared global memory (A, D).",
+    "tags": [
+      "multi-agent",
+      "coordinator-subagent",
+      "context-passing",
+      "hub-and-spoke"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-020",
+    "scenario": "A coordinator always runs the full pipeline: web_search -> analyze -> synthesize -> report, even for simple factual queries answerable from a single search.",
+    "question": "What improvement best follows good orchestration design?",
+    "options": [
+      "Merge all subagents into one mega-agent to reduce overhead",
+      "Have the coordinator analyze query complexity and dynamically invoke only the subagents needed",
+      "Always run subagents in parallel regardless of dependencies",
+      "Remove the coordinator and let subagents self-organize"
+    ],
+    "correct": 1,
+    "explanation": "A well-designed coordinator assesses query requirements and selectively invokes subagents rather than forcing every query through the full chain. Merging into one agent (A) loses separation of concerns. Blind parallelism (C) ignores real dependencies. Removing the coordinator (D) destroys the observability and routing benefits of hub-and-spoke.",
+    "tags": [
+      "multi-agent",
+      "coordinator",
+      "dynamic-routing",
+      "orchestration"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-021",
+    "scenario": "Your research coordinator decomposes 'survey the state of solid-state batteries' by assigning each subagent the identical broad query.",
+    "question": "What problem does this cause and how is it fixed?",
+    "options": [
+      "It causes duplication; partition scope by assigning distinct subtopics or source types to each subagent",
+      "It causes nothing; identical queries improve reliability through voting",
+      "It causes latency only; fix by running them sequentially",
+      "It causes context overflow; fix by shrinking max_tokens"
+    ],
+    "correct": 0,
+    "explanation": "Identical broad queries make subagents cover the same ground, wasting effort and leaving gaps. Partitioning scope - assigning each subagent a distinct subtopic or source type (academic papers vs industry news vs patents) - minimizes duplication and maximizes coverage. Voting (B) is not the goal here; the issue is coverage/duplication, not latency (C) or tokens (D).",
+    "tags": [
+      "multi-agent",
+      "task-decomposition",
+      "scope-partitioning",
+      "coordinator"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-022",
+    "scenario": "After synthesis, the coordinator notices the report omits an entire subtopic the user asked about.",
+    "question": "Which orchestration pattern addresses this?",
+    "options": [
+      "Accept the gap; re-running is too expensive",
+      "An iterative refinement loop: coordinator detects the gap, re-delegates targeted search/analysis, then re-invokes synthesis until coverage is sufficient",
+      "Ask the user to rephrase the original request",
+      "Increase the synthesis agent's max_tokens and retry verbatim"
+    ],
+    "correct": 1,
+    "explanation": "Iterative refinement lets the coordinator evaluate synthesis output for gaps, dispatch targeted follow-up queries to search/analysis subagents, and re-run synthesis until coverage criteria are met. Accepting the gap (A) fails the task. Rephrasing (C) shifts burden to the user. Raising max_tokens (D) does not fix missing information that was never gathered.",
+    "tags": [
+      "multi-agent",
+      "iterative-refinement",
+      "coverage",
+      "coordinator"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-023",
+    "scenario": "Your coordinator must spawn subagents. During setup you configure allowedTools for the coordinator.",
+    "question": "What must allowedTools include for the coordinator to invoke subagents?",
+    "options": [
+      "The Bash tool",
+      "The Task tool",
+      "The Read tool",
+      "Nothing; subagent spawning is always enabled"
+    ],
+    "correct": 1,
+    "explanation": "Subagents are spawned via the Task tool. For a coordinator to invoke them, its allowedTools configuration must include 'Task'. Bash (A) and Read (C) are unrelated built-ins. Spawning is not implicitly enabled (D) - it must be granted through allowedTools.",
+    "tags": [
+      "multi-agent",
+      "Task-tool",
+      "allowedTools",
+      "subagent-spawning"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-024",
+    "scenario": "You pass web search results to a synthesis subagent by concatenating everything into one prose blob, losing which URL each fact came from.",
+    "question": "How should context be passed to preserve attribution?",
+    "options": [
+      "Use a structured format that separates content from metadata (source URLs, titles, page numbers)",
+      "Rely on the synthesis agent to guess sources from wording",
+      "Only pass the first source to keep the prompt short",
+      "Ask the coordinator to remember sources instead of passing them"
+    ],
+    "correct": 0,
+    "explanation": "To preserve provenance across handoffs, pass context in a structured format that keeps each claim linked to its metadata (source URL, document name, page). A prose blob (chosen wrong) destroys attribution. Guessing (B) fabricates citations, dropping sources (C) loses coverage, and expecting the coordinator to 'remember' (D) doesn't help the subagent that must cite.",
+    "tags": [
+      "multi-agent",
+      "context-passing",
+      "provenance",
+      "structured-data"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-025",
+    "scenario": "You want three independent enrichment subagents to run at once to cut latency.",
+    "question": "How do you spawn them for true parallel execution?",
+    "options": [
+      "Emit three Task tool calls across three separate coordinator turns",
+      "Emit multiple Task tool calls within a single coordinator response",
+      "Call one Task tool and ask it to fan out internally",
+      "Set tool_choice to 'any' so they run together"
+    ],
+    "correct": 1,
+    "explanation": "Parallel subagents are launched by emitting multiple Task tool calls in a single coordinator response; they then execute concurrently. Spreading calls across separate turns (A) serializes them. A single Task cannot fan out on its own (C), and tool_choice (D) governs whether/which tool is called, not parallelism.",
+    "tags": [
+      "multi-agent",
+      "parallel-execution",
+      "Task-tool",
+      "latency"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-026",
+    "scenario": "When writing the coordinator's prompt for subagents, you must choose between step-by-step procedures and goal-plus-criteria instructions.",
+    "question": "Which yields more adaptable subagents?",
+    "options": [
+      "Rigid step-by-step procedural instructions for every subagent",
+      "Prompts that specify research goals and quality criteria, letting subagents adapt their approach",
+      "Empty prompts so subagents infer intent from the tool list",
+      "Only the raw user query with no framing"
+    ],
+    "correct": 1,
+    "explanation": "Specifying goals and quality criteria (rather than exact procedures) lets subagents adapt to what they discover, which is the point of delegating to an intelligent agent. Rigid procedures (A) make subagents brittle. Empty (C) or bare-query (D) prompts under-specify the task and reduce reliability.",
+    "tags": [
+      "multi-agent",
+      "prompt-design",
+      "adaptability",
+      "coordinator"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-027",
+    "scenario": "A support agent must never call process_refund until the customer's identity has been verified via get_customer.",
+    "question": "What enforces this reliably?",
+    "options": [
+      "A system prompt instruction to always verify first",
+      "A programmatic prerequisite gate (or PreToolUse hook) that blocks process_refund until get_customer has returned a verified customer ID",
+      "A few-shot example showing verification before refund",
+      "Setting tool_choice to 'any'"
+    ],
+    "correct": 1,
+    "explanation": "Deterministic ordering for a financial operation requires code enforcement: a prerequisite gate/hook that blocks process_refund until verification completed. Prompt instructions (A) and few-shot examples (C) are probabilistic with a non-zero failure rate. tool_choice: any (D) only forces a tool to be called, not the correct order.",
+    "tags": [
+      "enforcement",
+      "prerequisite-gate",
+      "hooks",
+      "human-in-the-loop"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-028",
+    "scenario": "A customer message raises three separate issues: a wrong charge, a delayed shipment, and a password reset.",
+    "question": "What is the recommended decomposition approach?",
+    "options": [
+      "Handle only the first issue and ask the customer to resend the others",
+      "Decompose into distinct items, investigate each (in parallel where possible) using shared context, then synthesize one unified resolution",
+      "Escalate immediately because multi-issue tickets require humans",
+      "Merge all three into a single tool call"
+    ],
+    "correct": 1,
+    "explanation": "Multi-concern requests should be decomposed into discrete items, each investigated (in parallel when independent) against shared context, then synthesized into a single coherent response. Handling one (A) frustrates the customer. Immediate escalation (C) defeats autonomous resolution. A single merged tool call (D) cannot address heterogeneous concerns correctly.",
+    "tags": [
+      "task-decomposition",
+      "multi-concern",
+      "parallel-investigation",
+      "synthesis"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-029",
+    "scenario": "Your agent escalates a complex billing dispute to a human who has no access to the conversation transcript.",
+    "question": "What should the handoff include?",
+    "options": [
+      "Just the customer's name and 'please help'",
+      "A structured summary: customer ID, root-cause analysis, relevant amounts, and a recommended action",
+      "The full raw token-by-token transcript with no summary",
+      "Only the final unresolved question"
+    ],
+    "correct": 1,
+    "explanation": "A good escalation handoff gives the human everything needed to act without re-investigating: customer ID, root cause, key figures (e.g., refund amount), and a recommended next step. A bare name (A) or lone question (D) forces rework. Dumping the raw transcript (C) buries the signal and wastes the agent's synthesis capability.",
+    "tags": [
+      "escalation",
+      "handoff",
+      "human-in-the-loop",
+      "structured-summary"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-030",
+    "scenario": "Different MCP tools return timestamps as Unix epoch, ISO 8601, and numeric status codes. Your agent keeps misreading them.",
+    "question": "Which hook pattern normalizes this before the model reasons over the data?",
+    "options": [
+      "A PreToolUse hook that rewrites the user's request",
+      "A PostToolUse hook that transforms heterogeneous tool outputs into a consistent normalized format",
+      "A system prompt telling Claude to convert formats itself",
+      "No hook; ask each MCP server owner to change their API"
+    ],
+    "correct": 1,
+    "explanation": "PostToolUse hooks intercept tool results and can normalize heterogeneous formats (timestamps, status codes) into one consistent representation before the model sees them - deterministic and reliable. PreToolUse (A) acts on outgoing calls, not results. Asking Claude to convert (C) is probabilistic. Changing every upstream API (D) is often infeasible.",
+    "tags": [
+      "hooks",
+      "PostToolUse",
+      "normalization",
+      "data-formats"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-031",
+    "scenario": "Compliance requires that refunds above $500 are always redirected to human approval, with no exceptions.",
+    "question": "Which mechanism guarantees this?",
+    "options": [
+      "A PostToolUse hook that logs large refunds after they execute",
+      "A tool-call interception (PreToolUse) hook that blocks process_refund over $500 and redirects to escalation",
+      "A strongly worded system prompt",
+      "Few-shot examples of refusing large refunds"
+    ],
+    "correct": 1,
+    "explanation": "Blocking an action before it happens requires intercepting the outgoing tool call: a PreToolUse-style hook inspects the refund amount and blocks/redirects when it exceeds $500. Logging after the fact (A) is too late. Prompts (C) and few-shot examples (D) are probabilistic and can be overridden.",
+    "tags": [
+      "hooks",
+      "PreToolUse",
+      "compliance",
+      "interception"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-032",
+    "scenario": "You are choosing between a fixed sequential pipeline and dynamic adaptive decomposition for a task.",
+    "question": "Which task is best served by DYNAMIC adaptive decomposition?",
+    "options": [
+      "Formatting a set of files with a known linter in a known order",
+      "An open-ended investigation like 'add comprehensive tests to a legacy codebase' where subtasks emerge as dependencies are discovered",
+      "Converting a list of dates from one format to another",
+      "Running the same three review steps on every pull request"
+    ],
+    "correct": 1,
+    "explanation": "Dynamic decomposition fits open-ended tasks where you cannot enumerate subtasks up front and must adapt as you learn (mapping structure, finding high-impact areas, then planning). Predictable, repeatable multi-aspect work (A, C, D) is better handled by fixed sequential pipelines / prompt chaining.",
+    "tags": [
+      "task-decomposition",
+      "dynamic-decomposition",
+      "prompt-chaining",
+      "workflow-patterns"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-033",
+    "scenario": "A single-pass review of a 14-file pull request gives deep feedback on some files and shallow feedback on others, and even contradicts itself.",
+    "question": "What restructuring fixes the root cause?",
+    "options": [
+      "Use a larger context window model and keep the single pass",
+      "Split into per-file local analysis passes plus a separate cross-file integration pass",
+      "Run the same full-PR prompt three times and keep only agreed findings",
+      "Require developers to submit smaller PRs"
+    ],
+    "correct": 1,
+    "explanation": "The root cause is attention dilution when many files are analyzed together. Prompt chaining - analyze each file individually for local issues, then a dedicated cross-file integration pass - restores consistent depth and catches cross-file issues. A bigger context window (A) doesn't fix attention quality. Triple-voting (C) suppresses real intermittent findings, and pushing work to developers (D) doesn't improve the system.",
+    "tags": [
+      "task-decomposition",
+      "prompt-chaining",
+      "code-review",
+      "attention-dilution"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-034",
+    "scenario": "You resume a long investigation with --resume after editing several files that the prior session had analyzed.",
+    "question": "What is the reliability risk and best mitigation?",
+    "options": [
+      "No risk; resumed sessions always re-read files automatically",
+      "Stale tool results: inform the resumed session which files changed so it re-analyzes them, or start fresh with an injected summary",
+      "The session cannot be resumed after edits at all",
+      "You must delete the session and lose all context"
+    ],
+    "correct": 1,
+    "explanation": "Resuming reuses cached tool results that may now be stale after edits, leading to reasoning on outdated content. Mitigate by telling the resumed session exactly which files changed for targeted re-analysis, or - when prior results are largely stale - start a new session with a structured summary. Resumption doesn't auto-refresh files (A), and edits don't forbid resumption (C, D).",
+    "tags": [
+      "session-management",
+      "resume",
+      "stale-context",
+      "reliability"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-035",
+    "scenario": "You want to compare two refactoring strategies that both start from the same completed codebase analysis, without redoing the analysis.",
+    "question": "Which mechanism fits?",
+    "options": [
+      "Start two brand-new sessions from scratch",
+      "Use fork_session to branch two independent explorations from the shared analysis baseline",
+      "Use --resume on the same session for both, alternating",
+      "Copy-paste the analysis into two prompts manually"
+    ],
+    "correct": 1,
+    "explanation": "fork_session creates independent branches from a shared baseline, ideal for exploring divergent approaches (two refactors) without repeating the expensive analysis. Fresh sessions (A) discard the baseline. Alternating --resume on one session (C) entangles the two explorations. Manual copy-paste (D) is error-prone and loses tool-result fidelity.",
+    "tags": [
+      "session-management",
+      "fork_session",
+      "divergent-exploration",
+      "baseline"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-036",
+    "scenario": "Your coordinator invokes a subagent but the subagent behaves as if it knows nothing about the task the coordinator was working on.",
+    "question": "What is the most likely cause?",
+    "options": [
+      "The subagent inherits context automatically but ignored it",
+      "Subagents do not inherit parent context; required information was not passed in the subagent's prompt",
+      "The Task tool was disabled",
+      "The model version differs between agents"
+    ],
+    "correct": 1,
+    "explanation": "Subagents run with isolated context and do not automatically inherit the parent's conversation or memory. If nothing was explicitly included in the subagent's prompt, it starts blind. This is a context-passing bug, not an inheritance-that-was-ignored issue (A), a disabled Task tool (C - that would prevent spawning entirely), or a version mismatch (D).",
+    "tags": [
+      "multi-agent",
+      "context-isolation",
+      "context-passing",
+      "subagent"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-037",
+    "scenario": "A subagent hits a transient network timeout while fetching one of several sources.",
+    "question": "What is the preferred error-handling pattern before escalating to the coordinator?",
+    "options": [
+      "Immediately propagate the timeout and terminate the whole workflow",
+      "Attempt local recovery (retry/alternate source); if unresolved, return structured error plus partial results and what was attempted",
+      "Silently mark the fetch successful with empty results",
+      "Crash the subagent so the coordinator restarts everything"
+    ],
+    "correct": 1,
+    "explanation": "Subagents should handle transient failures locally (retry or try an alternate source) and only escalate what they cannot resolve, returning structured error context plus any partial results and the steps attempted. Propagating and terminating (A) is over-destructive. Faking success (C) corrupts downstream results. Crashing (D) discards progress.",
+    "tags": [
+      "error-handling",
+      "local-recovery",
+      "structured-errors",
+      "multi-agent"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-038",
+    "scenario": "The synthesis subagent needs to verify simple facts (dates, names) mid-task; 85% are trivial lookups, 15% need deep investigation.",
+    "question": "Which design reduces round-trips while respecting least privilege?",
+    "options": [
+      "Give synthesis the full web-search toolset so it never needs the coordinator",
+      "Give synthesis a scoped verify_fact tool for simple lookups; route complex verifications through the coordinator to the web search agent",
+      "Batch all verifications to the end and send them at once",
+      "Have the web search agent pre-cache everything synthesis might need"
+    ],
+    "correct": 1,
+    "explanation": "A scoped cross-role tool (verify_fact) handles the 85% common case in-place while complex cases still route through the coordinator - minimizing round-trips without over-provisioning. Full web tools (A) violate separation of concerns. End-of-pass batching (B) creates blocking dependencies. Speculative caching (D) can't reliably predict needs.",
+    "tags": [
+      "multi-agent",
+      "scoped-tools",
+      "least-privilege",
+      "verify_fact"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-039",
+    "scenario": "You need identity verification before any financial operation, and prompt instructions have a small but real failure rate in tests.",
+    "question": "What does this failure rate imply for design?",
+    "options": [
+      "Add more emphatic wording to the prompt until failures vanish",
+      "Use programmatic enforcement (gates/hooks) for the mandatory ordering; reserve prompts for should-happen guidance",
+      "Accept the failures as within tolerance for financial flows",
+      "Increase temperature to make Claude more careful"
+    ],
+    "correct": 1,
+    "explanation": "A non-zero prompt failure rate is unacceptable for must-happen ordering around financial operations, so enforcement belongs in code (prerequisite gates/hooks). Prompts are appropriate for soft, should-happen guidance. More wording (A) never reaches zero. Tolerating failures (C) is a compliance risk, and temperature (D) doesn't guarantee ordering.",
+    "tags": [
+      "enforcement",
+      "hooks",
+      "compliance",
+      "prompt-vs-code"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-040",
+    "scenario": "During a multi-phase exploration, verbose discovery output from scanning a large repo threatens to exhaust the main conversation's context.",
+    "question": "Which mechanism isolates that verbosity while returning a usable result?",
+    "options": [
+      "Increase max_tokens on the main session",
+      "Use the Explore subagent to run verbose discovery in isolation and return a concise summary to the main context",
+      "Disable tool results in the main session",
+      "Truncate the repo before scanning"
+    ],
+    "correct": 1,
+    "explanation": "The Explore subagent runs noisy discovery in an isolated context and returns only a summary, preserving the main conversation's context budget. Raising max_tokens (A) affects output length, not context intake. Disabling tool results (C) breaks reasoning, and truncating the repo (D) risks missing relevant code.",
+    "tags": [
+      "Explore-subagent",
+      "context-management",
+      "discovery",
+      "summarization"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-041",
+    "scenario": "A long-running agent processes hundreds of PRs over several hours and may be interrupted by crashes or timeouts.",
+    "question": "What is the key architectural requirement for resumability?",
+    "options": [
+      "Hold all PRs in one very large context window",
+      "Persist agent state (current task, completed items, pending queue) to external storage after each significant action",
+      "Use streaming to reduce latency",
+      "Raise max_tokens to avoid truncation"
+    ],
+    "correct": 1,
+    "explanation": "Resumable long-running agents checkpoint state externally after each significant action so an interruption resumes from the last checkpoint. A single huge context (A) hits limits and lost-in-the-middle problems. Streaming (C) and max_tokens (D) are output/latency concerns, not resumability.",
+    "tags": [
+      "long-running-tasks",
+      "state-persistence",
+      "resumability",
+      "checkpointing"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-042",
+    "scenario": "Two subagents both write to a shared 'findings' store, and the coordinator later can't tell which agent produced which finding or whether one is stale.",
+    "question": "What design principle was violated?",
+    "options": [
+      "All communication and writes should route through the coordinator with clear provenance, not via a shared mutable store",
+      "Subagents should share more memory, not less",
+      "The coordinator should have fewer tools",
+      "Findings should be stored as unstructured prose"
+    ],
+    "correct": 0,
+    "explanation": "Hub-and-spoke requires routing information through the coordinator so it controls flow, error handling, and provenance. A shared mutable store bypasses the coordinator, losing attribution and staleness tracking. More shared memory (B) worsens it; the coordinator's tool count (C) is irrelevant; unstructured prose (D) makes attribution worse.",
+    "tags": [
+      "multi-agent",
+      "coordinator",
+      "provenance",
+      "hub-and-spoke"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-043",
+    "scenario": "A coordinator decomposes a broad topic too narrowly, so the final report misses major aspects the user cares about.",
+    "question": "What is the risk being described and its remedy?",
+    "options": [
+      "Over-broad decomposition; remedy by narrowing further",
+      "Overly narrow decomposition causing incomplete coverage; remedy with broader partitioning and a coverage-check refinement loop",
+      "Excessive parallelism; remedy by serializing",
+      "Too many tools; remedy by removing the search tool"
+    ],
+    "correct": 1,
+    "explanation": "Overly narrow task decomposition leaves broad topics under-covered. The fix is to partition scope more comprehensively and add a coordinator-driven coverage check that re-delegates for gaps. Narrowing further (A) worsens coverage; the issue isn't parallelism (C) or tool count (D).",
+    "tags": [
+      "multi-agent",
+      "task-decomposition",
+      "coverage",
+      "coordinator"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-044",
+    "scenario": "You are implementing the agentic loop and must map API states to control flow.",
+    "question": "Which mapping is correct?",
+    "options": [
+      "stop_reason 'tool_use' -> stop the loop; 'end_turn' -> execute tools",
+      "stop_reason 'tool_use' -> execute tools and continue; 'end_turn' -> stop the loop",
+      "stop_reason 'max_tokens' -> always safe to stop with a complete answer",
+      "stop_reason is irrelevant; loop on message length"
+    ],
+    "correct": 1,
+    "explanation": "'tool_use' means Claude requested tools - execute them, append results, and continue. 'end_turn' means Claude is finished - stop. Option A inverts this. 'max_tokens' (C) indicates truncation, not clean completion. Message length (D) is not a valid control signal.",
+    "tags": [
+      "agentic-loop",
+      "stop_reason",
+      "control-flow",
+      "tool_use"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-045",
+    "scenario": "Your coordinator needs observability into every subagent action for debugging and consistent error handling.",
+    "question": "Which architecture best supports this?",
+    "options": [
+      "Peer-to-peer subagents that call each other directly",
+      "Hub-and-spoke where all subagent communication and errors route through the coordinator",
+      "A flat design with no coordinator",
+      "Each subagent logging independently to different sinks"
+    ],
+    "correct": 1,
+    "explanation": "Hub-and-spoke centralizes communication and error handling in the coordinator, giving a single point of observability and consistent routing. Peer-to-peer (A) and coordinator-less (C) designs scatter control and errors. Independent per-agent logging (D) fragments observability.",
+    "tags": [
+      "multi-agent",
+      "hub-and-spoke",
+      "observability",
+      "coordinator"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-046",
+    "scenario": "You want to force a specific extraction tool to run first, then process follow-up steps in later turns of the loop.",
+    "question": "Which tool_choice configuration achieves the forced first call?",
+    "options": [
+      "tool_choice: 'auto'",
+      "tool_choice: {\"type\": \"tool\", \"name\": \"extract_metadata\"}",
+      "tool_choice: 'none'",
+      "Omit tool_choice entirely"
+    ],
+    "correct": 1,
+    "explanation": "Forcing a named tool with tool_choice: {type: tool, name: ...} guarantees that specific tool is called first; subsequent steps proceed in follow-up turns. 'auto' (A) lets the model choose or return text, 'none' (C) forbids tools, and omitting it (D) defaults to auto behavior.",
+    "tags": [
+      "tool_choice",
+      "forced-tool",
+      "agentic-loop",
+      "ordering"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-047",
+    "scenario": "A coordinator receives a structured error from a subagent with retryable: false and errorCategory: 'business'.",
+    "question": "What is the appropriate coordinator response?",
+    "options": [
+      "Retry the same call several times",
+      "Do not retry; communicate the business-rule outcome or escalate, per the error's guidance",
+      "Terminate the entire workflow immediately",
+      "Ignore the error and continue with empty data"
+    ],
+    "correct": 1,
+    "explanation": "retryable: false with a business category means retrying is pointless - the action violated a rule. The coordinator should honor the outcome (e.g., inform the user or escalate) rather than retry (A). Terminating everything (C) is over-reactive for a single item, and ignoring it (D) proceeds on bad state.",
+    "tags": [
+      "error-handling",
+      "structured-errors",
+      "retryable",
+      "coordinator"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-048",
+    "scenario": "You must decide whether an operation belongs in a hook or in the system prompt.",
+    "question": "Which rule of thumb applies?",
+    "options": [
+      "If it MUST happen deterministically, use code (hooks/gates); if it SHOULD happen, prompts are acceptable",
+      "Always use prompts; hooks are for logging only",
+      "Always use hooks; prompts are deprecated",
+      "Use whichever is shorter to write"
+    ],
+    "correct": 0,
+    "explanation": "The guiding principle: deterministic must-happen requirements belong in code (hooks/prerequisite gates); probabilistic should-happen guidance can live in prompts. Prompts alone (B) can't guarantee compliance; hooks aren't required for soft guidance (C); and code length (D) is irrelevant to correctness.",
+    "tags": [
+      "hooks",
+      "enforcement",
+      "prompt-vs-code",
+      "design-principle"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-049",
+    "scenario": "A coordinator spawns four subagents but only three are needed for a simple query, wasting time and tokens.",
+    "question": "What coordinator behavior prevents this?",
+    "options": [
+      "Always spawn the maximum number of subagents for consistency",
+      "Analyze the query and invoke only the subagents whose capabilities the query requires",
+      "Spawn subagents at random to balance load",
+      "Never spawn subagents; do everything in the coordinator"
+    ],
+    "correct": 1,
+    "explanation": "The coordinator should match subagent invocation to actual query requirements, invoking only what's needed. Always-max (A) wastes resources, randomness (C) is unprincipled, and doing everything in the coordinator (D) forfeits specialization when it is genuinely needed.",
+    "tags": [
+      "multi-agent",
+      "dynamic-routing",
+      "efficiency",
+      "coordinator"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-050",
+    "scenario": "Your agentic loop must append tool results so the model can incorporate them into the next decision.",
+    "question": "Where do tool results belong in the conversation?",
+    "options": [
+      "In the system prompt, replacing it each turn",
+      "As tool_result blocks appended to the conversation history, keyed to their tool_use_id",
+      "In a separate log the model never sees",
+      "Concatenated into the user's original message only once"
+    ],
+    "correct": 1,
+    "explanation": "Tool outputs are appended as tool_result blocks tied to the originating tool_use_id, extending the conversation so the model reasons over new information next turn. Rewriting the system prompt (A) is wrong and destructive. A hidden log (C) prevents the model from using results, and stuffing them into the first user message (D) breaks multi-step correlation.",
+    "tags": [
+      "agentic-loop",
+      "tool_result",
+      "conversation-history",
+      "context"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-051",
+    "scenario": "Your team runs the same multi-aspect pull-request review (style, security, tests) on every PR in an identical, predictable way.",
+    "question": "For this fully predictable multi-aspect review, which decomposition is most appropriate?",
+    "options": [
+      "Dynamic adaptive decomposition regenerated each run",
+      "A fixed sequential pipeline (prompt chaining) with defined passes",
+      "A single monolithic prompt covering all aspects together",
+      "Random ordering of aspects each run"
+    ],
+    "correct": 1,
+    "explanation": "Predictable, repeatable multi-aspect work is best served by a fixed sequential pipeline / prompt chaining with defined passes. Dynamic decomposition (A) adds needless variability for a known workflow, a monolithic prompt (C) causes attention dilution, and random ordering (D) harms reproducibility.",
+    "tags": [
+      "task-decomposition",
+      "prompt-chaining",
+      "code-review",
+      "reproducibility"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-052",
+    "scenario": "A subagent returns a valid empty result set (a query with legitimately no matches). Your coordinator treats it as a failure and retries repeatedly.",
+    "question": "What distinction was missed?",
+    "options": [
+      "Empty results always indicate an error",
+      "A successful query with no matches is different from an access failure; only access failures warrant retry decisions",
+      "Retries are always safe, so the behavior is fine",
+      "The subagent should have raised an exception instead"
+    ],
+    "correct": 1,
+    "explanation": "A valid empty result means the query succeeded but found nothing - not an error. Conflating it with an access failure triggers pointless retries. Structured results should distinguish 'no matches' from 'could not access,' so the coordinator only retries genuine access failures. Retries aren't always harmless (C), and exceptions (D) would misrepresent a successful query.",
+    "tags": [
+      "error-handling",
+      "empty-results",
+      "retryable",
+      "coordinator"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-053",
+    "scenario": "You resume a named investigation session with --resume <session-name> to continue prior work.",
+    "question": "What is the primary benefit of named session resumption here?",
+    "options": [
+      "It merges unrelated sessions into one",
+      "It lets you continue a specific prior conversation with its accumulated context intact",
+      "It resets all context to start clean",
+      "It runs the session in a forked branch automatically"
+    ],
+    "correct": 1,
+    "explanation": "Named resumption (--resume <name>) continues a specific prior conversation with its context, ideal for picking up multi-day investigations. It doesn't merge sessions (A), reset context (C), or fork automatically (D - forking is fork_session's job).",
+    "tags": [
+      "session-management",
+      "resume",
+      "named-session",
+      "continuity"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-054",
+    "scenario": "A coordinator must aggregate results from three subagents into a final report, but one subagent returned partial results with a structured error.",
+    "question": "What is the best aggregation behavior?",
+    "options": [
+      "Discard all results because one subagent was incomplete",
+      "Incorporate the partial results, note the gap/limitation from the structured error, and decide whether to re-delegate for the missing part",
+      "Silently drop the failed subagent's contribution with no note",
+      "Block and wait indefinitely for the failed subagent"
+    ],
+    "correct": 1,
+    "explanation": "Good aggregation uses available partial results, transparently notes limitations surfaced by the structured error, and decides whether a targeted re-delegation is worthwhile. Discarding everything (A) wastes good work, silent dropping (C) hides gaps, and blocking forever (D) stalls the workflow.",
+    "tags": [
+      "multi-agent",
+      "aggregation",
+      "partial-results",
+      "coordinator"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-055",
+    "scenario": "You need Claude to reason about which tool to call next based on evolving context rather than a preset order.",
+    "question": "This describes which paradigm?",
+    "options": [
+      "A deterministic decision tree",
+      "Model-driven decision-making within an agentic loop",
+      "A static prompt-chaining pipeline",
+      "A batch job"
+    ],
+    "correct": 1,
+    "explanation": "Letting Claude choose the next tool from current context is model-driven decision-making, the essence of an agentic loop. A decision tree (A) and static prompt chain (C) fix the path in advance, and a batch job (D) doesn't support mid-request multi-turn tool selection.",
+    "tags": [
+      "agentic-loop",
+      "model-driven",
+      "tool-selection",
+      "paradigm"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-056",
+    "scenario": "Your team debates whether to run subagents in parallel or sequentially for a task with strict data dependencies (B needs A's output, C needs B's).",
+    "question": "Which execution model is correct?",
+    "options": [
+      "Parallel - always faster",
+      "Sequential - each step consumes the prior step's output, so ordering is required",
+      "Fire-and-forget all three simultaneously",
+      "Randomized ordering"
+    ],
+    "correct": 1,
+    "explanation": "Hard data dependencies (B needs A, C needs B) require sequential execution so each step has its predecessor's output. Parallel/fire-and-forget (A, C) would run steps before their inputs exist, and randomized ordering (D) breaks correctness. Parallelism is only for independent operations.",
+    "tags": [
+      "agentic-loop",
+      "sequential-execution",
+      "data-dependencies",
+      "workflow-patterns"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-057",
+    "scenario": "A coordinator prompt lists step-by-step instructions so detailed that subagents can't adapt when the data differs from expectations.",
+    "question": "What is the tradeoff being illustrated?",
+    "options": [
+      "Over-specified procedural prompts reduce adaptability; goal-and-criteria prompts improve it",
+      "Under-specified prompts always outperform detailed ones",
+      "Prompt detail has no effect on subagent behavior",
+      "Only tool count affects adaptability"
+    ],
+    "correct": 0,
+    "explanation": "Highly procedural prompts constrain subagents to a rigid path, hurting adaptability when reality diverges; specifying goals and quality criteria lets them adjust. Under-specification isn't universally better (B), prompt detail clearly matters (C), and adaptability isn't solely a function of tool count (D).",
+    "tags": [
+      "multi-agent",
+      "prompt-design",
+      "adaptability",
+      "coordinator"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-058",
+    "scenario": "You must guarantee the model calls SOME tool rather than replying with conversational text, but it may pick which one.",
+    "question": "Which tool_choice setting fits?",
+    "options": [
+      "tool_choice: 'auto'",
+      "tool_choice: 'any'",
+      "tool_choice: 'none'",
+      "tool_choice: {\"type\": \"tool\", \"name\": \"x\"}"
+    ],
+    "correct": 1,
+    "explanation": "tool_choice: 'any' forces the model to call a tool while leaving the choice of which up to it. 'auto' (A) permits a plain text reply. 'none' (C) forbids tools. Forcing a named tool (D) removes the model's choice, which the scenario wants to keep.",
+    "tags": [
+      "tool_choice",
+      "any",
+      "agentic-loop",
+      "structured-output"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-059",
+    "scenario": "A crash-recovery design stores a manifest of completed and pending subtasks to disk during a long agentic run.",
+    "question": "What is the manifest's role on restart?",
+    "options": [
+      "It is decorative and ignored on restart",
+      "It lets the agent skip completed subtasks and resume the pending queue, enabling crash recovery",
+      "It forces a full restart from scratch",
+      "It replaces the need for any tool results"
+    ],
+    "correct": 1,
+    "explanation": "A persisted manifest of completed vs pending work lets a restarted agent resume from where it stopped instead of redoing everything - the basis of crash recovery for long runs. It isn't decorative (A), doesn't force a full restart (C), and doesn't replace tool results (D) needed for reasoning.",
+    "tags": [
+      "long-running-tasks",
+      "crash-recovery",
+      "manifest",
+      "state-persistence"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-060",
+    "scenario": "Your coordinator must decide between resuming a stale session and starting fresh with a structured summary.",
+    "question": "When is starting fresh with an injected summary more reliable?",
+    "options": [
+      "When prior context is mostly valid and only a file changed",
+      "When prior tool results are largely stale and would mislead reasoning",
+      "Never; resuming is always better",
+      "Only when the session name is forgotten"
+    ],
+    "correct": 1,
+    "explanation": "When prior tool results are largely stale, a fresh session seeded with an accurate structured summary is more reliable than resuming with misleading cached results. If prior context is mostly valid (A), targeted resumption is fine. Resuming isn't always better (C), and this decision is about staleness, not forgotten names (D).",
+    "tags": [
+      "session-management",
+      "fresh-start",
+      "stale-context",
+      "summary"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-061",
+    "scenario": "You spawn parallel subagents for independent subtopics, but they occasionally duplicate the same sources.",
+    "question": "What coordinator-side technique reduces duplication?",
+    "options": [
+      "Give every subagent the identical query",
+      "Assign distinct subtopics or source types per subagent and pass what's already covered as shared context",
+      "Run them sequentially with the same query",
+      "Increase each subagent's temperature"
+    ],
+    "correct": 1,
+    "explanation": "Partitioning by distinct subtopic/source type and sharing coverage context minimizes overlap even in parallel runs. Identical queries (A) guarantee duplication, sequential-same-query (C) is slow and still redundant, and temperature (D) doesn't address scope overlap.",
+    "tags": [
+      "multi-agent",
+      "parallel-execution",
+      "scope-partitioning",
+      "duplication"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-062",
+    "scenario": "A support flow must honor an explicit customer request to speak with a human immediately, even mid-investigation.",
+    "question": "What is the correct agent behavior?",
+    "options": [
+      "Finish the full investigation first, then escalate",
+      "Escalate to a human right away, compiling a structured handoff summary of what is known so far",
+      "Refuse and continue autonomously",
+      "Ask the customer to justify the request before escalating"
+    ],
+    "correct": 1,
+    "explanation": "Explicit human-agent requests should be honored immediately, accompanied by a structured handoff of current findings. Forcing the customer to wait through investigation (A) or justify the request (D) ignores their explicit preference, and refusing (C) violates escalation policy.",
+    "tags": [
+      "escalation",
+      "customer-preference",
+      "handoff",
+      "human-in-the-loop"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-063",
+    "scenario": "You want to add a PostToolUse hook to audit every tool call, but the audit database is briefly unavailable.",
+    "question": "What should the hook do?",
+    "options": [
+      "Silently skip the audit and continue as if nothing happened",
+      "Return a structured error with retryable: true so the coordinator can retry or escalate while preserving the audit requirement",
+      "Crash the entire session immediately",
+      "Rewrite the tool result to hide the failure"
+    ],
+    "correct": 1,
+    "explanation": "For a transient infra failure on a compliance-critical audit, the hook should return a structured, retryable error so the coordinator retries or escalates - preserving the audit requirement. Silent skipping (A, D) breaks compliance, and crashing the session (C) is over-destructive for a transient issue.",
+    "tags": [
+      "hooks",
+      "PostToolUse",
+      "error-handling",
+      "retryable"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-064",
+    "scenario": "Your coordinator receives four structured errors: a timeout, an invalid-input error, a policy violation, and a permission error.",
+    "question": "Which classification helps it respond correctly to each?",
+    "options": [
+      "Treat all four identically as generic failures",
+      "Distinguish transient vs validation vs business vs permission errors and choose retry/escalate/inform accordingly",
+      "Retry all four the same number of times",
+      "Escalate all four to a human immediately"
+    ],
+    "correct": 1,
+    "explanation": "Different error categories demand different responses: retry transient timeouts, fix/inform on validation, honor/inform on business-rule violations, and escalate permission issues appropriately. Treating them identically (A), uniform retries (C), or blanket escalation (D) wastes effort or mishandles cases.",
+    "tags": [
+      "error-handling",
+      "error-classification",
+      "coordinator",
+      "structured-errors"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-065",
+    "scenario": "A microservice restructuring will touch 45+ files and involves choosing between two integration approaches with different infrastructure needs.",
+    "question": "Plan mode or direct execution?",
+    "options": [
+      "Direct execution - it's just editing files",
+      "Plan mode - large-scale, multi-file, architectural decision with multiple valid approaches",
+      "Neither; run it as a batch job",
+      "Direct execution with a high max_tokens"
+    ],
+    "correct": 1,
+    "explanation": "Large-scale, multi-file changes with architectural tradeoffs are exactly what plan mode is for: explore and design safely before committing. Direct execution (A, D) suits small well-scoped changes, and a batch job (C) doesn't fit interactive architectural planning.",
+    "tags": [
+      "plan-mode",
+      "architecture",
+      "multi-file",
+      "task-decomposition"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-066",
+    "scenario": "For a single-file bug fix with a clear stack trace, which execution style is appropriate?",
+    "question": "Choose the best fit.",
+    "options": [
+      "Plan mode with a multi-phase design document",
+      "Direct execution - the change is well-scoped and understood",
+      "Spawn five subagents to debate the fix",
+      "A 24-hour batch job"
+    ],
+    "correct": 1,
+    "explanation": "A well-understood, single-file fix with a clear stack trace is ideal for direct execution. Plan mode (A) is overkill for a scoped change, multiple debating subagents (C) add needless coordination, and a batch job (D) is inappropriate for an interactive fix.",
+    "tags": [
+      "direct-execution",
+      "plan-mode",
+      "scoping",
+      "workflow-patterns"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-067",
+    "scenario": "Your coordinator emits multiple Task calls in one turn to parallelize, but also has a step that depends on all of them finishing.",
+    "question": "How should the dependent step be handled?",
+    "options": [
+      "Emit it in the same turn as the parallel Task calls",
+      "Wait for the parallel subagents' results, then run the dependent step in a subsequent turn using their aggregated output",
+      "Skip the dependent step to save time",
+      "Run it before the parallel calls"
+    ],
+    "correct": 1,
+    "explanation": "Parallel Task calls run concurrently within a turn; a step that depends on all of them must run in a later turn after their results are aggregated. Emitting it in the same turn (A) or before (D) means it runs without required inputs, and skipping it (C) drops necessary work.",
+    "tags": [
+      "multi-agent",
+      "parallel-execution",
+      "dependencies",
+      "aggregation"
+    ]
+  },
+  {
+    "domain": 1,
+    "id": "d1-068",
+    "scenario": "You are reviewing an agent that terminates whenever it has produced any assistant text, even mid-tool-sequence, causing truncated tasks.",
+    "question": "What is the single most important fix?",
+    "options": [
+      "Increase the iteration cap",
+      "Drive termination from stop_reason == 'end_turn' with no pending tool_use, not from text presence",
+      "Lower temperature",
+      "Add more few-shot examples of finishing"
+    ],
+    "correct": 1,
+    "explanation": "The bug is using text presence as a completion signal; the fix is to terminate only on stop_reason == 'end_turn' with no pending tool_use. Iteration caps (A) don't fix premature termination, and temperature (C) or few-shot examples (D) don't change the control-flow logic.",
+    "tags": [
+      "agentic-loop",
+      "stop_reason",
+      "loop-termination",
+      "bugfix"
+    ]
   }
 ]

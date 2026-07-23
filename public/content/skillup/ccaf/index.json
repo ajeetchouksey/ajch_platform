@@ -6,7 +6,7 @@
   "shortTitle": "CCA-F",
   "contentLevel": "201",
   "description": "Validate your expertise in Claude API architecture, agentic patterns, prompt engineering, tool design, and context management.",
-  "questions": 60,
+  "questions": 250,
   "duration": "120 min",
   "passScore": "720/1000",
   "passThreshold": 72,
