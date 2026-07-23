@@ -775,7 +775,7 @@ export default function TeamV2() {
                 Meet the <span className="heading-gradient">Team</span>
               </h1>
               <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-1 font-medium">
-                One human. Twenty-one specialised AI agents.
+                One human. Twenty-four specialised AI agents.
               </p>
               <p className="text-slate-400 text-sm leading-relaxed mb-8">
                 Every feature on this platform ships through a gated, seven-step pipeline —
@@ -864,7 +864,7 @@ export default function TeamV2() {
                 {/* Footer */}
                 <div className="px-4 py-2.5 border-t border-slate-800/40 flex items-center justify-between">
                   <span className="text-[10px] font-mono text-slate-600">total_agents</span>
-                  <span className="text-sm font-black font-mono" style={{ color: '#8b5cf6' }}>23</span>
+                  <span className="text-sm font-black font-mono" style={{ color: '#8b5cf6' }}>24</span>
                 </div>
               </div>
             </div>
@@ -873,10 +873,10 @@ export default function TeamV2() {
           {/* Stats chips — full width below the grid */}
           <div className="flex flex-wrap gap-3 mt-8">
             {[
-              { icon: Activity, label: '14 agents active',          color: '#10b981' },
+              { icon: Activity, label: '15 agents active',          color: '#10b981' },
               { icon: Radio,    label: '7 standby',                  color: '#64748b' },
               { icon: Command,  label: '3 orchestration layers',     color: '#8b5cf6' },
-              { icon: Boxes,    label: '23 total — all open-source', color: '#38bdf8' },
+              { icon: Boxes,    label: '24 total — all open-source', color: '#38bdf8' },
             ].map(({ icon: I, label, color }) => (
               <div key={label} className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium
                 bg-slate-800/60 border border-slate-700/40 text-slate-300">
