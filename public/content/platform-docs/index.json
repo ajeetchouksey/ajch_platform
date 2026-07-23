@@ -35,14 +35,6 @@
       "category": "releases"
     },
     {
-      "id": "gap-map",
-      "title": "Vision vs Reality — Gap Map",
-      "description": "8-gap implementation plan: what the platform vision requires vs what exists today, sprint assignments, and agent ownership",
-      "file": "content/platform-docs/gap-map.md",
-      "icon": "Map",
-      "category": "planning"
-    },
-    {
       "id": "subscription-architecture",
       "title": "Subscription Architecture",
       "description": "Dual-channel subscriber system — GitHub App, Gist, and Cloudflare Worker. No third-party email tools.",
