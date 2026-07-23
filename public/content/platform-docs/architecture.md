@@ -20,22 +20,34 @@ Aarya — My AI Learning Hub is a fully static, client-side SPA built with React
 
 ```
 src/
-  pages/          React page components (one per route)
-  components/     Shared UI components + ui/ sub-library
-  lib/            Content loaders, auth, analytics, utilities
+  app/            Router and app entry
+  features/       Feature modules (one per domain)
+    blog/         Blog index + post pages
+    exams/        Exam catalog + quiz + notes + scenarios
+    interview/    Interview Prep — catalog, pack, question pages
+    home/         Landing page and Learn page
+    profile/      Team / maintainer profile
+    tools/        Developer Tools hub
+  components/     Shared UI components + ui/ design-system library
+  lib/            Content loaders, auth, analytics, search, utilities
   types/          TypeScript interfaces for content models
+  data/           Static seed data (maintainer profile)
 
 public/content/   All static content (fetched at runtime)
   blog/           Blog manifest + Markdown posts
   exams/          Exam registry + question banks + notes
-  scenarios/      Scenario JSON files
-  agents/         Agent registry JSON
+  interviews/     Interview Prep — bank, competencies, role packs
+    bank/         questions.json + competencies.json
+    roles/        Per-role pack.json + jd.md
+  skillup/        SkillUp multi-cert catalog + per-exam questions
+  agents/         Agent registry JSON (auto-generated)
   platform-docs/  This documentation
   stats.json      Auto-generated platform statistics
 
 scripts/          Python maintenance scripts
+workers/          Cloudflare Worker (OG meta handler)
 .github/
-  agents/         21 .agent.md files (multi-agent system)
+  agents/         24 .agent.md files + specialist .md files
   workflows/      CI/CD workflows
 ```
 
@@ -90,6 +102,12 @@ graph LR
 - **`ci.yml`** — Triggered on PRs. Runs `tsc -b` and `npm run build` as a build gate.
 - **`release.yml`** — Triggered on version tags (`v*`). Extracts CHANGELOG section for the tag and creates a GitHub Release.
 - **`agents-validate.yml`** — Validates all `.agent.md` frontmatter on every push.
+- **`analytics-sync.yml`** — Syncs GA4 pageview data on a schedule.
+- **`dependency-review.yml`** — Reviews dependency changes on PRs for security vulnerabilities.
+- **`codeql.yml`** — CodeQL static analysis scan on push and PR.
+- **`stale.yml`** — Marks stale issues and PRs after inactivity.
+
+> All workflow files use `actions/checkout@v5.1.0` and `actions/setup-node@v5` (node24 runtime).
 
 ## Stats Pipeline
 
@@ -115,15 +133,22 @@ python3 scripts/sync-stats.py
 | Route | Page |
 |-------|------|
 | `/` | Home |
-| `/exams` | Exam Catalog |
-| `/exams/:examId` | Exam Home |
-| `/exams/:examId/quiz` | Quiz |
-| `/exams/:examId/notes` | Study Notes |
-| `/exams/:examId/scenarios` | Scenarios |
+| `/skillup` | SkillUp Exam Catalog |
+| `/skillup/:examId` | Exam Home |
+| `/skillup/:examId/quiz` | Quiz |
+| `/skillup/:examId/notes` | Study Notes |
+| `/skillup/:examId/scenarios` | Scenarios |
+| `/interview` | Interview Prep Catalog |
+| `/interview/:roleId` | Interview Pack (Q&A list) |
+| `/interview/q/:id` | Interview Question Detail |
 | `/blog` | Blog Index |
 | `/blog/:slug` | Blog Post |
-| `/tools` | Tools Hub |
+| `/horizons` | Horizons Learning Paths |
+| `/horizons/:track/:slug` | Pathway Article |
+| `/tools` | Developer Tools Hub |
 | `/tools/:toolId` | Individual Tool |
+| `/subscribe` | Newsletter Subscribe |
+| `/contribute` | Community Contributions |
 | `/docs` | Platform Docs (this page) |
 | `/team` | Team |
 | `/analytics` | Analytics |
@@ -131,7 +156,7 @@ python3 scripts/sync-stats.py
 
 ## Multi-Agent System
 
-The platform is maintained by a **21-agent multi-agent system** orchestrated by the Staff Engineer agent. All changes go through:
+The platform is maintained by a **24-agent multi-agent system** orchestrated by the Staff Engineer agent. All changes go through:
 
 1. **Issue Gate** — Product Manager finds or creates a GitHub issue before any build work
 2. **Security Gate** — AppSec Engineer validates file paths and inputs pre- and post-build
