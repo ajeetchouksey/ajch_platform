@@ -9,6 +9,10 @@ import {
   ChevronRight,
   GitGraph,
   Layers,
+  Cpu,
+  AlertTriangle,
+  TrendingUp,
+  Plug,
 } from 'lucide-react';
 import {
   loadUseCaseById,
@@ -188,6 +192,104 @@ export default function UseCaseDetail() {
                 </div>
               </div>
             </GlassCard>
+          )}
+
+          {/* Tech stack */}
+          {featured.techStack && featured.techStack.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <Cpu size={14} className="text-sky-400" />
+                Tech Stack
+              </h2>
+              <div className="space-y-3">
+                {featured.techStack.map((cat) => (
+                  <div key={cat.category}>
+                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">{cat.category}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {cat.tools.map((tool) => (
+                        <span key={tool}
+                          className="inline-block px-2.5 py-1 rounded-lg text-[11px] font-medium text-sky-300"
+                          style={{ background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.20)' }}>
+                          {tool}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Scaling considerations */}
+          {featured.scalingConsiderations && featured.scalingConsiderations.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <TrendingUp size={14} className="text-emerald-400" />
+                Scaling Considerations
+              </h2>
+              <ul className="space-y-2">
+                {featured.scalingConsiderations.map((c, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-slate-300 leading-relaxed">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500/60 shrink-0" />
+                    {c}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Failure modes */}
+          {featured.failureModes && featured.failureModes.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <AlertTriangle size={14} className="text-rose-400" />
+                Failure Modes & Mitigations
+              </h2>
+              <div className="space-y-3">
+                {featured.failureModes.map((fm, i) => (
+                  <div key={i}
+                    className="rounded-xl p-4"
+                    style={{ background: 'rgba(15,23,42,0.70)', border: '1px solid rgba(251,113,133,0.15)' }}>
+                    <p className="text-[11px] font-semibold text-rose-300 mb-1.5 flex items-center gap-1.5">
+                      <AlertTriangle size={11} className="shrink-0" /> {fm.mode}
+                    </p>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      <span className="text-emerald-400 font-semibold">Mitigation: </span>
+                      {fm.mitigation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Integrations */}
+          {featured.integrations && featured.integrations.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <Plug size={14} className="text-violet-400" />
+                System Integrations
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {featured.integrations.map((intg) => (
+                  <div key={intg.system}
+                    className="rounded-xl p-3"
+                    style={{ background: 'rgba(15,23,42,0.70)', border: '1px solid rgba(71,85,105,0.25)' }}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-semibold text-slate-200">{intg.system}</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                        style={{
+                          color: intg.type === 'Write' ? '#34d399' : intg.type === 'Read' ? '#38bdf8' : intg.type === 'HITL' ? '#fb923c' : intg.type === 'Trigger' ? '#a78bfa' : '#94a3b8',
+                          background: intg.type === 'Write' ? 'rgba(52,211,153,0.12)' : intg.type === 'Read' ? 'rgba(56,189,248,0.12)' : intg.type === 'HITL' ? 'rgba(251,146,60,0.12)' : intg.type === 'Trigger' ? 'rgba(167,139,250,0.12)' : 'rgba(71,85,105,0.15)',
+                        }}>
+                        {intg.type}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">{intg.note}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Related exams */}

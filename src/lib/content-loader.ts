@@ -300,6 +300,22 @@ export interface UseCaseRelatedLink {
   vertical: string;
 }
 
+export interface UseCaseTechStackCategory {
+  category: string;
+  tools: string[];
+}
+
+export interface UseCaseFailureMode {
+  mode: string;
+  mitigation: string;
+}
+
+export interface UseCaseIntegration {
+  system: string;
+  type: string;
+  note: string;
+}
+
 export interface FeaturedUseCase {
   id: string;
   title: string;
@@ -312,6 +328,10 @@ export interface FeaturedUseCase {
   keyInsights?: string;
   mermaidDiagram?: string;
   architectureNotes?: string;
+  techStack?: UseCaseTechStackCategory[];
+  failureModes?: UseCaseFailureMode[];
+  scalingConsiderations?: string[];
+  integrations?: UseCaseIntegration[];
   relatedExams?: UseCaseRelatedExam[];
   relatedInterviewQs?: string[];
   relatedUseCases?: UseCaseRelatedLink[];

@@ -57,5 +57,87 @@
       "label": "Insurance Policy Q&A Agent",
       "vertical": "Insurance"
     }
+  ],
+  "techStack": [
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-sonnet (report parsing + evaluation)",
+        "claude-3-haiku (section extraction)"
+      ]
+    },
+    {
+      "category": "Document Processing",
+      "tools": [
+        "PyPDF2 / pdfplumber (PDF parsing)",
+        "LlamaParse (structured extraction)"
+      ]
+    },
+    {
+      "category": "Storage",
+      "tools": [
+        "PostgreSQL (control catalog + eval results)",
+        "S3 (report archive)"
+      ]
+    },
+    {
+      "category": "Workflow",
+      "tools": [
+        "Python async pipeline",
+        "Celery (long-running eval jobs)"
+      ]
+    },
+    {
+      "category": "Reporting",
+      "tools": [
+        "Jinja2 templates (markdown reports)",
+        "Confluence / Notion API (publish)"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "LLM misidentifies which section covers a control",
+      "mitigation": "Section extraction uses exact SOC 2 heading patterns (Type I/II nomenclature); human spot-check on first run per auditor; low-confidence evals flagged for manual review."
+    },
+    {
+      "mode": "Control catalog grows stale vs. framework updates",
+      "mitigation": "Version-pin the control catalog with effective dates; quarterly review by GRC team; changes trigger re-evaluation of existing reports."
+    },
+    {
+      "mode": "Report structure varies wildly across auditors",
+      "mitigation": "Multi-pass extraction: try structured heading parse first, fall back to semantic search if structure not found; log parsing method used per report."
+    },
+    {
+      "mode": "Gap narrative misrepresents actual risk level",
+      "mitigation": "Risk severity mapping is rule-based (not LLM-generated) — deterministic mapping from coverage score to risk tier; LLM only writes prose around the determined tier."
+    }
+  ],
+  "scalingConsiderations": [
+    "Typical SOC 2 report: 80–200 pages; full eval run takes 3–8 minutes per report at claude-3-5-sonnet pricing — acceptable for quarterly compliance cycles.",
+    "Control catalog size: 60–120 controls typical; each requires one extraction pass + one evaluation call; batch and cache intermediate section extractions to avoid re-parsing.",
+    "Multi-standard support (SOC 2 + ISO 27001 + PCI DSS): same architecture, swap control catalog; maintain separate eval pipelines per standard."
+  ],
+  "integrations": [
+    {
+      "system": "GRC Platform (ServiceNow GRC / Archer)",
+      "type": "Write",
+      "note": "Pushes evaluation results and remediation items to risk register"
+    },
+    {
+      "system": "Document Store (SharePoint / S3)",
+      "type": "Read",
+      "note": "Source of third-party SOC 2 reports"
+    },
+    {
+      "system": "Ticketing (Jira / ServiceNow)",
+      "type": "Write",
+      "note": "Creates remediation tasks for each identified gap"
+    },
+    {
+      "system": "Confluence / Notion",
+      "type": "Write",
+      "note": "Publishes evaluation summary report for stakeholders"
+    }
   ]
 }

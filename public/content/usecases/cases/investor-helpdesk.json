@@ -58,5 +58,94 @@
       "label": "Meeting Prep Agent (GTM)",
       "vertical": "Sales & GTM"
     }
+  ],
+  "techStack": [
+    {
+      "category": "Embedding",
+      "tools": [
+        "text-embedding-3-large (OpenAI)",
+        "voyage-finance-2 (Voyage AI)"
+      ]
+    },
+    {
+      "category": "Vector Store",
+      "tools": [
+        "pgvector (PostgreSQL)",
+        "Pinecone",
+        "Weaviate"
+      ]
+    },
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-sonnet (answer generation)",
+        "claude-3-haiku (reranking prompt)"
+      ]
+    },
+    {
+      "category": "Reranker",
+      "tools": [
+        "Cohere Rerank v3",
+        "cross-encoder/ms-marco-MiniLM-L-6-v2"
+      ]
+    },
+    {
+      "category": "Access Control",
+      "tools": [
+        "JWT claims → pre-filter SQL",
+        "OPA (Open Policy Agent)"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "Answer cites wrong fund performance figures",
+      "mitigation": "Ground answer strictly to retrieved chunks — no parametric knowledge for financial data; add citation check that each figure in the answer has a source reference."
+    },
+    {
+      "mode": "Entitlement filter bypass serves restricted fund data",
+      "mitigation": "Pre-filter applied at vector search time (WHERE investor_tier IN (…)), not post-retrieval; security audit on every retrieval path change."
+    },
+    {
+      "mode": "Embedding index staleness after NAV update",
+      "mitigation": "Event-driven re-embed on document publish event (not scheduled batch); use document version hash to detect changes and trigger incremental re-indexing."
+    },
+    {
+      "mode": "Reranker latency causes P99 > 3s for complex queries",
+      "mitigation": "Cap reranking to top-20 candidates; apply async prefetch on common query patterns; cache reranker scores for repeated query/document pairs."
+    }
+  ],
+  "scalingConsiderations": [
+    "Vector index size: at 10,000 fund documents × 500 chunks/doc = 5M vectors; pgvector handles this with HNSW index; Pinecone recommended above 50M vectors.",
+    "Embedding refresh cadence: NAV and performance data updates daily — use change-data-capture to trigger incremental re-embed rather than full re-index.",
+    "Latency SLA: wealth management investors expect < 2s response; pre-compute embeddings for top-100 recurring query patterns as cache layer.",
+    "Multi-tenancy: isolate vector namespaces per fund family to prevent cross-contamination of proprietary product data."
+  ],
+  "integrations": [
+    {
+      "system": "Document Management (SharePoint / S3)",
+      "type": "Read",
+      "note": "Source of fund fact sheets, prospectuses, performance reports"
+    },
+    {
+      "system": "CRM (Salesforce / Dynamics)",
+      "type": "Read",
+      "note": "Investor tier and entitlement data for RBAC pre-filter"
+    },
+    {
+      "system": "Market Data (Bloomberg / Refinitiv)",
+      "type": "Read",
+      "note": "Real-time NAV and benchmark data for freshness check"
+    },
+    {
+      "system": "Investor Portal",
+      "type": "Serve",
+      "note": "Web UI or chatbot widget exposing the Q&A interface"
+    },
+    {
+      "system": "Audit Log (SIEM)",
+      "type": "Write",
+      "note": "All queries and retrieved chunks logged for compliance"
+    }
   ]
 }

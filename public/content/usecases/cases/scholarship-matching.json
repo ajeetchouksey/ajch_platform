@@ -47,5 +47,89 @@
       "label": "Safety Ops Chatbot (Construction)",
       "vertical": "Construction & Safety"
     }
+  ],
+  "techStack": [
+    {
+      "category": "Embedding",
+      "tools": [
+        "text-embedding-3-small (applicant + scholarship profile vectors)",
+        "sentence-transformers/all-MiniLM-L6-v2 (lightweight option)"
+      ]
+    },
+    {
+      "category": "Vector Store",
+      "tools": [
+        "pgvector (applicant-scholarship match matrix)",
+        "Qdrant"
+      ]
+    },
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-haiku (eligibility screening)",
+        "claude-3-5-sonnet (application guidance + essay feedback)"
+      ]
+    },
+    {
+      "category": "Data Sources",
+      "tools": [
+        "Scholarship database (Fastweb / College Board API)",
+        "FAFSA data integration",
+        "Institutional SIS (Banner / Ellucian)"
+      ]
+    },
+    {
+      "category": "Workflow",
+      "tools": [
+        "Python async pipeline",
+        "Celery (batch matching runs)"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "Applicant matched to scholarship they are ineligible for",
+      "mitigation": "Hard eligibility filters applied as vector search pre-conditions (GPA floor, major, citizenship, state residency) — not soft suggestions; LLM only explains confirmed matches."
+    },
+    {
+      "mode": "Essay feedback reveals private applicant information to wrong counsellor",
+      "mitigation": "Tenant isolation: each applicant's data scoped to their assigned counsellor only; no cross-applicant context in any LLM call."
+    },
+    {
+      "mode": "Scholarship database contains expired or discontinued awards",
+      "mitigation": "Daily freshness check against scholarship source; expired awards soft-deleted and excluded from matching; re-index on source update."
+    }
+  ],
+  "scalingConsiderations": [
+    "Applicant pool: regional program 500–2000 applicants; national platform 50,000+; embedding-based matching scales linearly; pre-compute top-20 matches per applicant during off-peak hours.",
+    "Scholarship catalog: 5,000–50,000 active scholarships with complex eligibility criteria; represent as structured metadata + free-text description for hybrid search.",
+    "Batch processing: run matching at enrollment time and update monthly as new scholarships are added; real-time for user-initiated searches."
+  ],
+  "integrations": [
+    {
+      "system": "Student Information System (Banner / Ellucian)",
+      "type": "Read",
+      "note": "Academic records, financial data, enrollment status"
+    },
+    {
+      "system": "FAFSA / CSS Profile",
+      "type": "Read",
+      "note": "Financial need data for need-based scholarship matching"
+    },
+    {
+      "system": "Scholarship Database (Fastweb / College Board)",
+      "type": "Read",
+      "note": "Catalog of available scholarships with eligibility criteria"
+    },
+    {
+      "system": "Counsellor Portal (Naviance / Scoir)",
+      "type": "Write",
+      "note": "Pushes match shortlist and guidance to counsellor view"
+    },
+    {
+      "system": "Student Email / Portal",
+      "type": "Write",
+      "note": "Delivers personalised match report and application checklist"
+    }
   ]
 }

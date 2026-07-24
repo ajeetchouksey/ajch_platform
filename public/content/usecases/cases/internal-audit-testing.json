@@ -59,5 +59,95 @@
       "label": "Invoice Operations Agent with HITL",
       "vertical": "Finance & Ops"
     }
+  ],
+  "techStack": [
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-sonnet (test logic evaluation + finding narrative)",
+        "claude-3-haiku (sampling criteria generation)"
+      ]
+    },
+    {
+      "category": "Data Access",
+      "tools": [
+        "Direct SQL (read-only audit role)",
+        "Snowflake / BigQuery (data warehouse queries)",
+        "REST API for ERP data"
+      ]
+    },
+    {
+      "category": "Workflow",
+      "tools": [
+        "Temporal (durable audit workflow)",
+        "Apache Airflow (scheduled test runs)"
+      ]
+    },
+    {
+      "category": "Workpaper Generation",
+      "tools": [
+        "python-docx",
+        "Jinja2 templates",
+        "SharePoint upload via Graph API"
+      ]
+    },
+    {
+      "category": "Evidence Management",
+      "tools": [
+        "Auditboard integration",
+        "TeamMate+ API",
+        "Custom PostgreSQL evidence store"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "SQL query returns sample that misses actual control failures (sample bias)",
+      "mitigation": "Risk-stratified sampling: always include edge cases (month-end transactions, large amounts, new employees); supplement random sample with targeted high-risk queries."
+    },
+    {
+      "mode": "LLM misinterprets ambiguous control description",
+      "mitigation": "Control descriptions stored with structured acceptance criteria (not prose); LLM evaluates against boolean criteria, not narrative interpretation."
+    },
+    {
+      "mode": "Finding escalated incorrectly due to data quality issue not control failure",
+      "mitigation": "Data quality pre-check before running test logic; data quality exceptions logged separately from control failures."
+    },
+    {
+      "mode": "Sensitive financial data in LLM context",
+      "mitigation": "PII masking (employee names → IDs, account numbers → last 4) before passing to LLM; data never leaves enterprise network boundary (on-premise or VPC deployment)."
+    }
+  ],
+  "scalingConsiderations": [
+    "Audit plan scale: 200–500 controls typical for a large bank; prioritize automated testing for high-frequency, data-rich controls (transaction limits, access reviews) over judgment-heavy controls.",
+    "Run cadence: quarterly comprehensive audit + monthly continuous monitoring for key controls (SOX-scoped especially).",
+    "Workpaper volume: automated testing generates 3–5 pages of workpaper evidence per control; review process must scale accordingly."
+  ],
+  "integrations": [
+    {
+      "system": "ERP (SAP / Oracle)",
+      "type": "Read",
+      "note": "Transaction data for test population and sample"
+    },
+    {
+      "system": "IAM System (Active Directory / Okta)",
+      "type": "Read",
+      "note": "Access and approval chain verification"
+    },
+    {
+      "system": "Audit Management (AuditBoard / TeamMate+)",
+      "type": "Write",
+      "note": "Pushes findings, evidence, and workpapers"
+    },
+    {
+      "system": "Data Warehouse (Snowflake / BigQuery)",
+      "type": "Read",
+      "note": "Historical transaction data for trend analysis"
+    },
+    {
+      "system": "SharePoint",
+      "type": "Write",
+      "note": "Stores workpaper packages in audit folder structure"
+    }
   ]
 }
