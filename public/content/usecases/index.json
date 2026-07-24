@@ -1,0 +1,40 @@
+{
+  "schema": "usecases-index@1",
+  "generated": "2026-07-24",
+  "description": "Catalog of enterprise AI use cases sourced from Stack AI '100+ Use Cases Transforming Enterprises'. Powers the /usecases platform page.",
+  "totalCount": 45,
+  "verticals": [
+    { "id": "insurance",         "label": "Insurance",                 "count": 11, "icon": "shield" },
+    { "id": "government",        "label": "Government",                "count": 10, "icon": "landmark" },
+    { "id": "wealth-management", "label": "Wealth Management",         "count": 9,  "icon": "trending-up" },
+    { "id": "education",         "label": "Education",                 "count": 8,  "icon": "book-open" },
+    { "id": "private-lending",   "label": "Private Lending",           "count": 8,  "icon": "dollar-sign" },
+    { "id": "banking",           "label": "Banking",                   "count": 10, "icon": "building-2" },
+    { "id": "industrials",       "label": "Industrials / Construction","count": 13, "icon": "hard-hat" },
+    { "id": "gtm",               "label": "Go-To-Market",              "count": 15, "icon": "megaphone" },
+    { "id": "operations",        "label": "Operations",                "count": 11, "icon": "settings" },
+    { "id": "real-estate",       "label": "Real Estate",               "count": 7,  "icon": "home" },
+    { "id": "legal",             "label": "Legal Teams",               "count": 7,  "icon": "scale" },
+    { "id": "compliance",        "label": "Compliance",                "count": 7,  "icon": "check-circle" }
+  ],
+  "patterns": [
+    { "id": "document-rag",                  "label": "Document RAG",                    "count": 22 },
+    { "id": "trigger-extract-validate-route","label": "Trigger → Extract → Route",       "count": 18 },
+    { "id": "research-synthesize-generate",  "label": "Research → Synthesize → Generate","count": 14 },
+    { "id": "hitl-approval-gate",            "label": "HITL Approval Gate",              "count": 11 },
+    { "id": "parallel-subagents",            "label": "Parallel Subagents",              "count": 7  },
+    { "id": "document-eval-structured-output","label": "Document Eval + Structured Output","count": 12 }
+  ],
+  "featuredIds": [
+    "invoice-ops-hitl",
+    "aml-parallel-hitl",
+    "investor-helpdesk",
+    "soc2-compliance-eval",
+    "policy-qa-rag",
+    "policy-memo-writer",
+    "inbound-lead-magnet",
+    "vendor-onboarding",
+    "internal-audit-testing",
+    "meeting-prep-agent"
+  ]
+}
