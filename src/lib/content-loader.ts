@@ -89,6 +89,7 @@ export interface InterviewBankItem {
   followUps: Array<{ q: string; a: string }>;
   redFlags: string[];
   tags: string[];
+  diagram?: { caption: string; chart: string };
   roles: string[];
 }
 
