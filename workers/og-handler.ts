@@ -44,6 +44,12 @@ let _manifestCache: BlogManifest | null = null;
 let _manifestFetchedAt = 0;
 const MANIFEST_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+let _interviewBankCache: InterviewQuestion[] | null = null;
+let _interviewBankFetchedAt = 0;
+
+let _interviewIndexCache: InterviewIndex | null = null;
+let _interviewIndexFetchedAt = 0;
+
 // ── Types ───────────────────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface Env {} // no bindings needed
@@ -64,6 +70,19 @@ interface BlogPost {
 
 interface BlogManifest {
   posts: BlogPost[];
+}
+
+interface InterviewQuestion {
+  id: string;
+  question: string;
+  type: string;
+  difficulty: string;
+  detailedAnswer: { summary: string };
+  tags: string[];
+}
+
+interface InterviewIndex {
+  roles: Array<{ id: string; title: string; description: string }>;
 }
 
 // ── OWASP A03 — HTML entity escaping ─────────────────────────────────────────
@@ -92,6 +111,42 @@ async function getBlogManifest(): Promise<BlogManifest> {
     return _manifestCache;
   } catch {
     return { posts: [] };
+  }
+}
+
+async function getInterviewBank(): Promise<InterviewQuestion[]> {
+  const now = Date.now();
+  if (_interviewBankCache && now - _interviewBankFetchedAt < MANIFEST_TTL_MS) {
+    return _interviewBankCache;
+  }
+  try {
+    const res = await fetch(`${SITE_URL}/content/interviews/bank/questions.json`, {
+      cf: { cacheEverything: true, cacheTtl: 300 },
+    });
+    if (!res.ok) return [];
+    _interviewBankCache = (await res.json()) as InterviewQuestion[];
+    _interviewBankFetchedAt = now;
+    return _interviewBankCache;
+  } catch {
+    return [];
+  }
+}
+
+async function getInterviewIndex(): Promise<InterviewIndex> {
+  const now = Date.now();
+  if (_interviewIndexCache && now - _interviewIndexFetchedAt < MANIFEST_TTL_MS) {
+    return _interviewIndexCache;
+  }
+  try {
+    const res = await fetch(`${SITE_URL}/content/interviews/index.json`, {
+      cf: { cacheEverything: true, cacheTtl: 300 },
+    });
+    if (!res.ok) return { roles: [] };
+    _interviewIndexCache = (await res.json()) as InterviewIndex;
+    _interviewIndexFetchedAt = now;
+    return _interviewIndexCache;
+  } catch {
+    return { roles: [] };
   }
 }
 
@@ -186,6 +241,46 @@ export default {
     // /horizons/:track/:slug — Horizons learning-path articles (also in blog manifest)
     if (section === 'horizons' && rest.length >= 2 && rest[1]) {
       return handleBlogSlug(rest[1], `${SITE_URL}${url.pathname}`);
+    }
+
+    // /interview/q/:id — individual question detail page
+    if (section === 'interview' && rest[0] === 'q' && rest[1]) {
+      const bank = await getInterviewBank();
+      const q = bank.find((item) => item.id === rest[1]);
+      if (q) {
+        const stem = q.question.length > 120 ? q.question.slice(0, 120) + '…' : q.question;
+        return buildOgShell({
+          title: `${stem} · Interview Prep | Aarya`,
+          description: q.detailedAnswer.summary,
+          image: OG_IMAGE_FALLBACK,
+          url: `${SITE_URL}${url.pathname}`,
+          type: 'article',
+        });
+      }
+    }
+
+    // /interview/:roleId — role pack overview page
+    if (section === 'interview' && rest[0] && rest[0] !== 'q') {
+      const index = await getInterviewIndex();
+      const role = index.roles.find((r) => r.id === rest[0]);
+      if (role) {
+        return buildOgShell({
+          title: `${role.title} Interview Prep · Aarya`,
+          description: role.description,
+          image: OG_IMAGE_FALLBACK,
+          url: `${SITE_URL}${url.pathname}`,
+        });
+      }
+    }
+
+    // /interview — catalog
+    if (section === 'interview' && rest.length === 0) {
+      return buildOgShell({
+        title: 'AI Interview Prep — Aarya',
+        description: 'Deep-dive Q&A for AI platform engineers and architects. Real scenarios, worked examples, and architecture diagrams. Free forever.',
+        image: OG_IMAGE_FALLBACK,
+        url: `${SITE_URL}/interview`,
+      });
     }
 
     // /skillup/:exam — certification exam pages
