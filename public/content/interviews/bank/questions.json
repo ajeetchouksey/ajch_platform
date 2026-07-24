@@ -39,6 +39,10 @@
       "Treats subagent output as trusted free text"
     ],
     "tags": ["coordinator", "planner-executor", "subagents", "token-cost", "termination"],
+    "diagram": {
+      "caption": "Bounded Planner-Executor-Critic coordinator loop",
+      "chart": "flowchart TD\n    G([User Goal]) --> P[Planner]\n    P -->|typed plan| CL{Coordinator Loop}\n    CL -->|next task| E[Executor]\n    E -->|result| CR[Critic]\n    CR -->|done| OUT([Output])\n    CR -->|revise ≤2x| CL\n    CR -->|escalate| H([Human in Loop])\n    CL -->|budget exceeded| H\n    style CL fill:#1a2a42,stroke:#7c3aed\n    style H fill:#2a1a1a,stroke:#fb7185\n    style OUT fill:#1a2a12,stroke:#34d399"
+    },
     "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
@@ -80,6 +84,10 @@
       "'We just add retries in the app layer'"
     ],
     "tags": ["temporal", "durable-execution", "idempotency", "stateful-execution", "replay"],
+    "diagram": {
+      "caption": "Durable workflow: crash-safe replay with idempotent activities",
+      "chart": "sequenceDiagram\n    participant W as Workflow Engine\n    participant A1 as fetch_invoice\n    participant A2 as llm_plan (Activity)\n    participant A3 as do_step (idempotent)\n    W->>A1: execute → record\n    A1-->>W: data ✓\n    Note over W: Crash / deploy\n    W->>W: Replay from history\n    Note over A1: Already recorded — skip\n    W->>A2: execute → record\n    A2-->>W: plan ✓\n    W->>A3: execute (idempotency_key)\n    A3-->>W: result ✓\n    W-->>W: done"
+    },
     "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
@@ -122,6 +130,10 @@
       "Fail-open design"
     ],
     "tags": ["HITL", "guardrails", "PreToolUse", "audit", "human-in-the-loop"],
+    "diagram": {
+      "caption": "Human-in-the-Loop approval gate with audit trail",
+      "chart": "flowchart LR\n    AA[Agent Action] --> RC{Risk Check}\n    RC -->|low risk| EX[Execute]\n    RC -->|high risk| AG[Approval Gate]\n    AG -->|approve| EX\n    AG -->|reject| HO[Human Override]\n    AG -->|timeout| ES[Escalate / Pause]\n    EX --> AL[Audit Log]\n    HO --> AL\n    style AG fill:#1a2a42,stroke:#fbbf24\n    style AL fill:#162236,stroke:#34d399\n    style HO fill:#2a1a1a,stroke:#fb7185"
+    },
     "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
@@ -164,6 +176,10 @@
       "No citations / no refuse path"
     ],
     "tags": ["rag", "rbac", "grounding", "eval", "pii", "observability"],
+    "diagram": {
+      "caption": "Enterprise RAG pipeline with RBAC pre-filter and freshness gate",
+      "chart": "flowchart LR\n    Q([User Query]) --> EC{Entitlement\nCheck}\n    EC --> VS[Vector Search\n+ pre-filter]\n    VS --> FC{Freshness\nCheck}\n    FC -->|stale| WN[Disclaim + Warn]\n    FC -->|fresh| LLM[LLM + Grounding]\n    WN --> LLM\n    PD[(Personal Data)] -->|API only| LLM\n    LLM --> R([Response\n+ Citations])\n    style EC fill:#1a2a12,stroke:#34d399\n    style PD fill:#2a1a1a,stroke:#fb7185"
+    },
     "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
@@ -205,6 +221,10 @@
       "Misses context growth as the driver"
     ],
     "tags": ["finops", "cost", "model-routing", "caching", "latency-accuracy"],
+    "diagram": {
+      "caption": "FinOps: prompt caching + model routing + cost attribution",
+      "chart": "flowchart LR\n    R([Request]) --> CK{Prompt Cache\nhit?}\n    CK -->|hit| CR([Cached Response])\n    CK -->|miss| MR{Model Router}\n    MR -->|simple| HK[Haiku\nlow cost]\n    MR -->|medium| SN[Sonnet\nbalanced]\n    MR -->|complex| OP[Opus\nhigh cap]\n    HK & SN & OP --> TK[Token Telemetry]\n    TK --> CB[Cost Attribution\nper team / feature]\n    CB --> BA[Budget Alert]\n    style CK fill:#1a2a42,stroke:#7c3aed\n    style CR fill:#1a2a12,stroke:#34d399"
+    },
     "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
@@ -247,6 +267,10 @@
       "Eval set never updated from real failures"
     ],
     "tags": ["evaluation", "llm-as-judge", "ci-gate", "trajectory", "feedback-loop"],
+    "diagram": {
+      "caption": "Continuous evaluation pipeline — from CI gate to production feedback loop",
+      "chart": "flowchart TD\n    CH[Prompt / Model / Code Change] --> CI[CI Eval Gate]\n    CI --> DC[Deterministic Checks\nschema · tool-seq · cost]\n    DC --> LJ[LLM-as-Judge\nfaithfulness · helpfulness]\n    LJ --> TR[Trajectory Eval\ntool choice + ordering]\n    TR --> RG{Regression?}\n    RG -->|pass| DP[Deploy]\n    RG -->|fail| BK[Block merge]\n    DP --> OB[Production Traces]\n    OB --> FL[Failure Triage]\n    FL --> NE[New Eval Case]\n    NE --> CI\n    style RG fill:#1a2a42,stroke:#7c3aed\n    style DP fill:#1a2a12,stroke:#34d399\n    style BK fill:#2a1a1a,stroke:#fb7185"
+    },
     "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
@@ -288,6 +312,10 @@
       "No abstraction / migration story"
     ],
     "tags": ["langgraph", "crewai", "autogen", "mcp", "abstraction", "lock-in"],
+    "diagram": {
+      "caption": "Framework abstraction layer — swap orchestrators without rewriting business logic",
+      "chart": "flowchart TD\n    BL[Business Logic\nTools · Prompts · Evals] --> LLP[LLMProvider Protocol]\n    BL --> TP[Tool Protocol\n+ MCP Layer]\n    BL --> ORP[Orchestrator Protocol]\n    LLP --> OAA[OpenAI Adapter]\n    LLP --> ANA[Anthropic Adapter]\n    ORP --> LGA[LangGraph\nstate-machine control]\n    ORP --> CRA[CrewAI\nrole-based teams]\n    ORP --> AGA[AutoGen\nconversational agents]\n    style BL fill:#1a2a42,stroke:#7c3aed\n    style TP fill:#162236,stroke:#34d399"
+    },
     "roles": ["agentic-ai-platform-architect", "agentic-ai-platform-architect-v2"]
   },
   {
@@ -330,6 +358,10 @@
       "Solo-hero framing"
     ],
     "tags": ["influence", "adoption", "ai-first-sdlc", "mentoring", "community-of-practice"],
+    "diagram": {
+      "caption": "Adoption flywheel — proof-of-value to self-sustaining community of practice",
+      "chart": "flowchart LR\n    SK([Skeptical Org]) --> LH[Lighthouse Team\nmeasurable win]\n    LH -->|results visible| TP[Template\n+ Golden Path]\n    TP -->|friction removed| PR[Peer Pull\nadoption spreads]\n    PR --> CP[Community of Practice\nself-sustaining]\n    CP --> AI([AI-first SDLC])\n    style LH fill:#1a2a42,stroke:#7c3aed\n    style CP fill:#1a2a12,stroke:#34d399"
+    },
     "roles": ["agentic-ai-platform-architect", "hr-ai-lead"]
   },
   {
@@ -374,6 +406,10 @@
       "No freshness strategy"
     ],
     "tags": ["rag", "hr-data-privacy", "rbac", "data-classification", "enterprise-rag", "knowledge-grounding"],
+    "diagram": {
+      "caption": "Two-tier HR RAG: data classification, pre-filter RBAC, and deterministic personal-data API",
+      "chart": "flowchart TD\n    HR[(HR Document Corpus)] --> T1[Tier 1: Public\nFAQs · Benefits · Policy]\n    HR --> T2[Tier 2: HR-Restricted\nComp Bands · Headcount]\n    HR --> T3[Tier 3: Personal Data\nPayslips · Ratings · Leave]\n    T1 --> VI1[Vector Index\naudience: all-employees]\n    T2 --> VI2[Vector Index\naudience: managers / HRBP]\n    T3 --> NI[Never Indexed]\n    VI1 & VI2 --> PF[Pre-filter by role\nat query time]\n    NI --> API[Deterministic API\nWorkday / SuccessFactors]\n    PF --> LLM[LLM]\n    API --> LLM\n    LLM --> R([Response + Citations])\n    style T3 fill:#2a1a1a,stroke:#fb7185\n    style NI fill:#2a1a1a,stroke:#fb7185\n    style PF fill:#1a2a12,stroke:#34d399"
+    },
     "roles": ["hr-ai-lead"]
   },
   {
@@ -418,6 +454,10 @@
       "Framing Cyber Security as a bureaucratic hurdle rather than a risk partner"
     ],
     "tags": ["stakeholder-management", "works-council", "dpia", "gdpr", "enterprise-pilot", "responsible-ai", "hr-governance"],
+    "diagram": {
+      "caption": "HR AI pilot stakeholder sequencing — front-load to prevent mid-build architecture rework",
+      "chart": "flowchart LR\n    HL[HR Leadership\nWk 1-2\nKPIs + risk appetite] --> DP[Data Privacy\nWk 2-3\nDPIA + constraints]\n    DP --> WC[Works Council\nWk 3-4\nTransparency + co-design]\n    WC --> CS[Cyber Security\nWk 4-5\nThreat model + red-team]\n    CS --> PL([Pilot Launch\nWk 6+])\n    style HL fill:#1a2a42,stroke:#60a5fa\n    style DP fill:#1a2a12,stroke:#34d399\n    style WC fill:#2a1a22,stroke:#fbbf24\n    style CS fill:#1a1a2a,stroke:#a78bfa\n    style PL fill:#1a2a12,stroke:#7c3aed"
+    },
     "roles": ["hr-ai-lead"]
   },
   {
@@ -462,6 +502,10 @@
       "Unaware of GDPR Article 22 or EU AI Act high-risk classification for HR systems"
     ],
     "tags": ["responsible-ai", "fairness", "disparate-impact", "gdpr-article-22", "eu-ai-act", "automation-bias", "hr-ai", "explainability"],
+    "diagram": {
+      "caption": "Responsible HR AI: fairness-as-gate and automation-bias-resistant HITL design",
+      "chart": "flowchart TD\n    DEV[Model Development] --> FA[Fairness Assessment\nDemographic parity · Equalized odds]\n    FA --> GNG{Go / No-Go Gate}\n    GNG -->|pass| PROD[Production Deploy]\n    GNG -->|fail| DEV\n    PROD --> MON[Monthly Disparate\nImpact Report]\n    MON --> AUD{Divergence > 5%?}\n    AUD -->|yes| INV[Investigation + Retrain]\n    AUD -->|no| CONT[Continue]\n    INV --> DEV\n    subgraph HITL Design\n    HC[Human reviews case first] --> DS[AI score shown after]\n    DS --> DR[Decision + 1-line reason]\n    DR --> AT[Audit Trail + Appeal path]\n    end\n    style GNG fill:#1a2a42,stroke:#7c3aed\n    style GNG fill:#1a2a42,stroke:#7c3aed\n    style INV fill:#2a1a1a,stroke:#fb7185\n    style PROD fill:#1a2a12,stroke:#34d399"
+    },
     "roles": ["hr-ai-lead"]
   }
 ]
