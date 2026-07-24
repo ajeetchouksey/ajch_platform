@@ -1,0 +1,49 @@
+{
+  "id": "safety-ops-chatbot",
+  "title": "Safety Ops Chatbot (Construction)",
+  "vertical": "industrials",
+  "patterns": [
+    "document-rag"
+  ],
+  "problem": "Construction professionals struggle to quickly find, interpret, and apply the correct safety procedures — OSHA standards, company policies, and incident records are in different systems.",
+  "solution": "Multi-source RAG agent answers safety questions by searching OSHA standards, company safety policies, safety risk registers, and incident records — providing grounded, compliant answers with citations.",
+  "whoItsFor": "Safety Managers, Team Leads, Supervisors",
+  "workflowSteps": [
+    "Safety question submitted (optionally with uploaded photo or incident file)",
+    "Parallel retrieval across: OSHA safety standards, OSHA injury incident database, company safety risk register, safety health & environment policies",
+    "LLM synthesizes a compliant answer citing both regulatory and internal sources",
+    "User receives answer with source citations from each knowledge base consulted"
+  ],
+  "keyInsights": "Multi-source RAG where sources have different authority levels (OSHA regulation > company policy > incident record). The response must make the source hierarchy explicit so the reader knows what is regulatory vs. internal guidance.",
+  "relatedExams": [
+    {
+      "exam": "ccdf",
+      "domain": 1,
+      "why": "Applications and Integration — multi-source knowledge base design"
+    },
+    {
+      "exam": "ccarf",
+      "domain": 6,
+      "why": "Configuration and Knowledge Management"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-rag-001"
+  ],
+  "examScenarioPotential": "medium",
+  "blogPotential": "high",
+  "mermaidDiagram": "flowchart LR\n  A([Safety Question]) --> B[Parallel Search]\n  B --> C1[OSHA Standards - Regulatory Authority]\n  B --> C2[Company Safety Policies - Internal Guidance]\n  B --> C3[Incident Records - Historical Data]\n  C1 & C2 & C3 --> D[Synthesize with Source Hierarchy]\n  D --> E([Compliant Answer with Citations])",
+  "architectureNotes": "Site workers query the chatbot via a mobile interface. RAG retrieves relevant procedures from the safety manual and incident database. Hazard-specific queries trigger additional context from the regulatory compliance database. Answers include direct citations; high-severity hazard queries simultaneously alert the site safety officer. All queries are logged for compliance audit trails.",
+  "relatedUseCases": [
+    {
+      "id": "policy-qa-rag",
+      "label": "Insurance Policy Q&A Agent",
+      "vertical": "Insurance"
+    },
+    {
+      "id": "vendor-onboarding",
+      "label": "Vendor Onboarding Agent",
+      "vertical": "Finance & Ops"
+    }
+  ]
+}

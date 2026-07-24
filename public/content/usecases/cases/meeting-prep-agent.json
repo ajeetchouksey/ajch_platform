@@ -1,0 +1,56 @@
+{
+  "id": "meeting-prep-agent",
+  "title": "Meeting Prep Agent (GTM)",
+  "vertical": "gtm",
+  "patterns": [
+    "parallel-subagents",
+    "research-synthesize-generate"
+  ],
+  "problem": "Executives and AEs walk into meetings cold because assembling account notes and company news into a prep email is a manual, time-consuming task.",
+  "solution": "Coordinator runs simultaneous web, LinkedIn, and SharePoint searches about attendees and the company, then drafts a prep email with agenda, talking points, and suggested questions.",
+  "whoItsFor": "Demand Gen, Partner Marketing Teams, AEs",
+  "workflowSteps": [
+    "Intake: attendee list, company name, meeting context",
+    "Parallel searches: (1) web search for company news, (2) LinkedIn search for attendee profiles, (3) SharePoint search for past account interactions",
+    "Coordinator merges parallel results",
+    "Drafts prep email: agenda, talking points, suggested questions, account context",
+    "Sends to exec/AE ahead of meeting"
+  ],
+  "keyInsights": "Parallel search fan-out with a merge coordinator is the pattern. Token budget matters — three parallel searches can return large results; the coordinator must summarize each source to a token-bounded summary before merging, not pass raw results to the final LLM.",
+  "relatedExams": [
+    {
+      "exam": "ccdf",
+      "domain": 3,
+      "why": "Agents and Workflows — parallel subagent fan-out"
+    },
+    {
+      "exam": "ccap",
+      "domain": 6,
+      "why": "Claude Models, Prompting & Context Engineering — context compression"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-orch-001"
+  ],
+  "examScenarioPotential": "medium",
+  "blogPotential": "high",
+  "mermaidDiagram": "flowchart LR\n  A([Attendees + Meeting Context]) --> B[Coordinator]\n  B --> C1[Web Search: Company News]\n  B --> C2[LinkedIn: Attendee Profiles]\n  B --> C3[SharePoint: Account History]\n  C1 & C2 & C3 --> D[Token-Bounded Merge]\n  D --> E[Draft Prep Email: Agenda + Talking Points]\n  E --> F([Exec or AE Inbox])",
+  "architectureNotes": "The agent ingests the meeting invite (attendee list, company names) and pulls CRM data, recent news, and LinkedIn profiles. A synthesis model produces a briefing document: attendee bios, company context, open opportunities, recommended talking points, and risk flags. The briefing is delivered to the sales rep 30 minutes before the meeting via email and CRM note.",
+  "relatedUseCases": [
+    {
+      "id": "investor-helpdesk",
+      "label": "Investor Helpdesk Agent",
+      "vertical": "Investment Management"
+    },
+    {
+      "id": "inbound-lead-magnet",
+      "label": "Inbound Lead Magnet Agent",
+      "vertical": "Sales & GTM"
+    },
+    {
+      "id": "investment-proposal-drafting",
+      "label": "Investment Proposal Drafting Agent",
+      "vertical": "Investment Management"
+    }
+  ]
+}

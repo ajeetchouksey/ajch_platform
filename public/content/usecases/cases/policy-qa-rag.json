@@ -1,0 +1,61 @@
+{
+  "id": "policy-qa-rag",
+  "title": "Insurance Policy Q&A Agent",
+  "vertical": "insurance",
+  "patterns": [
+    "document-rag"
+  ],
+  "problem": "Policyholders and agents spend hours on hold or navigating PDFs to get answers about coverage, exclusions, and claim eligibility.",
+  "solution": "RAG agent over a versioned policy document knowledge base. Retrieves relevant policy sections, validates freshness, generates grounded answers with section citations.",
+  "whoItsFor": "Policyholders, Insurance Agents, Claims Teams",
+  "workflowSteps": [
+    "User submits natural language question about their policy",
+    "Query is embedded and run against the policy vector index",
+    "Pre-filter applies by policy type and policyholder entitlement",
+    "Top-k chunks retrieved, freshness checked against last-updated date",
+    "LLM generates answer grounded in retrieved sections with citations",
+    "Response includes policy section reference and last-updated date"
+  ],
+  "keyInsights": "Document freshness is critical in insurance — a stale exclusion clause answer can create liability. Freshness gate + 'policy last updated on X' disclaimer is mandatory, not optional.",
+  "relatedExams": [
+    {
+      "exam": "ccdf",
+      "domain": 1,
+      "why": "Applications and Integration — RAG pipeline design"
+    },
+    {
+      "exam": "ccdf",
+      "domain": 4,
+      "why": "Prompt and Context Engineering — context window management"
+    },
+    {
+      "exam": "ccarf",
+      "domain": 6,
+      "why": "Configuration and Knowledge Management"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-rag-001"
+  ],
+  "examScenarioPotential": "high",
+  "blogPotential": "high",
+  "mermaidDiagram": "flowchart LR\n  A([User Question]) --> B[Embed Query]\n  B --> C[RBAC Pre-Filter by Policy Type]\n  C --> D[Vector Search Top-K]\n  D --> E{Freshness Gate}\n  E -->|Current| F[LLM Answer with Citations]\n  E -->|Stale| G[Staleness Disclaimer + LLM Answer]\n  F & G --> H([Grounded Answer])",
+  "architectureNotes": "Policy documents are chunked at the section level (not page) to preserve logical boundaries, then embedded and stored in a vector index. At query time, a query rewriter normalises insurance jargon before retrieval. Top-k chunks are reranked by section relevance and recency. The LLM answers with section citations; a confidence scorer flags low-confidence answers for human escalation.",
+  "relatedUseCases": [
+    {
+      "id": "city-council-summary",
+      "label": "City Council Meeting Summary Agent",
+      "vertical": "Policy & Government"
+    },
+    {
+      "id": "policy-memo-writer",
+      "label": "Policy Memo Writer Agent",
+      "vertical": "Policy & Government"
+    },
+    {
+      "id": "investor-helpdesk",
+      "label": "Investor Helpdesk Agent",
+      "vertical": "Investment Management"
+    }
+  ]
+}

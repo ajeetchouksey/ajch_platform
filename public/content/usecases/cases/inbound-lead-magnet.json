@@ -1,0 +1,51 @@
+{
+  "id": "inbound-lead-magnet",
+  "title": "Inbound Lead Magnet Agent",
+  "vertical": "gtm",
+  "patterns": [
+    "trigger-extract-validate-route",
+    "research-synthesize-generate"
+  ],
+  "problem": "Marketing teams want to convert inbound form fills into personalized, high-value content immediately — but manually creating custom deliverables at scale is impossible.",
+  "solution": "Form submission triggers an agent that researches the prospect's company and role, generates a personalized PDF deliverable, delivers it by email, and logs the enriched lead in HubSpot.",
+  "whoItsFor": "Demand Generation, Growth Marketing Teams",
+  "workflowSteps": [
+    "Form submission event triggers the workflow",
+    "Agent enriches lead data: web search for company news, LinkedIn company profile",
+    "Generates personalized PDF report/guide tailored to company size and industry",
+    "Sends PDF to prospect via email within minutes of form fill",
+    "Logs enriched lead record (company context, generated asset) to HubSpot CRM"
+  ],
+  "keyInsights": "The CRM write must be idempotent — form re-submissions must not create duplicate leads. This is the same idempotency-key pattern from invoice-ops-hitl, applied to a marketing automation context.",
+  "relatedExams": [
+    {
+      "exam": "ccdf",
+      "domain": 1,
+      "why": "Applications and Integration — CRM integration, webhook triggers"
+    },
+    {
+      "exam": "ccdf",
+      "domain": 3,
+      "why": "Agents and Workflows — trigger-driven workflow"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-orch-002"
+  ],
+  "examScenarioPotential": "medium",
+  "blogPotential": "high",
+  "mermaidDiagram": "flowchart LR\n  A([Form Submission]) --> B[Enrich Lead Data]\n  B --> C1[Web Search: Company News]\n  B --> C2[LinkedIn: Company Profile]\n  C1 & C2 --> D[Generate Custom PDF]\n  D --> E([Email to Prospect])\n  D --> F([HubSpot CRM Write + Idempotency Key])",
+  "architectureNotes": "Inbound form submissions trigger the agent. It scores the lead using a classification model, then branches: high-fit leads get a personalised nurture email drafted by an LLM and queued for human approval; low-fit leads receive an automated acknowledgement. CRM records are created or updated idempotently. A daily digest surfaces leads awaiting human action.",
+  "relatedUseCases": [
+    {
+      "id": "meeting-prep-agent",
+      "label": "Meeting Prep Agent (GTM)",
+      "vertical": "Sales & GTM"
+    },
+    {
+      "id": "investor-helpdesk",
+      "label": "Investor Helpdesk Agent",
+      "vertical": "Investment Management"
+    }
+  ]
+}

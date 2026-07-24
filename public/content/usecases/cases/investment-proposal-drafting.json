@@ -1,0 +1,51 @@
+{
+  "id": "investment-proposal-drafting",
+  "title": "Investment Proposal Drafting Agent",
+  "vertical": "wealth-management",
+  "patterns": [
+    "research-synthesize-generate",
+    "document-rag"
+  ],
+  "problem": "Every bake-off, DDQ, and consultant questionnaire pulls the same team away from clients to reconstruct answers that already exist somewhere in a past PowerPoint or ADV filing.",
+  "solution": "Agent classifies the incoming RFP/DDQ, searches past pitches, ADV filings, and firm narrative archives, drafts tone-unified sections with regulatory disclosures, and routes to the lead advisor for final review.",
+  "whoItsFor": "Sales, BD, and IR teams at RIAs",
+  "workflowSteps": [
+    "Incoming RFP/DDQ/bake-off request classified by request type",
+    "Agent searches: past pitch books, ADV filings, DDQ archives, firm narrative docs",
+    "Drafts each section matching house style and regulatory disclosure requirements (Form ADV, CRS)",
+    "Reviewer receives draft with source references for every section",
+    "Lead advisor approves, edits, and sends to prospect"
+  ],
+  "keyInsights": "RAG over 'past successful responses' is the core value pattern here. The key risk is that retrieved language may be from a deprecated filing — freshness metadata on every chunk and a 'last approved for use' date on firm narrative documents is essential.",
+  "relatedExams": [
+    {
+      "exam": "ccdf",
+      "domain": 4,
+      "why": "Prompt and Context Engineering — style constraints, compliance language"
+    },
+    {
+      "exam": "ccap",
+      "domain": 2,
+      "why": "Solution Design & Architecture — RAG over proprietary document archives"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-rag-001"
+  ],
+  "examScenarioPotential": "medium",
+  "blogPotential": "medium",
+  "mermaidDiagram": "flowchart LR\n  A([RFP or DDQ Input]) --> B[Classify Request Type]\n  B --> C[Search Archives]\n  C --> D1[Past Pitch Books]\n  C --> D2[ADV Filings]\n  C --> D3[DDQ Archives]\n  D1 & D2 & D3 --> E[Draft Sections: House Style + Disclosures]\n  E --> F([Lead Advisor Review])",
+  "architectureNotes": "The agent takes client profile data (risk tolerance, horizon, objectives) and pulls relevant market data and fund performance metrics from internal APIs. A portfolio-fit model scores available products against the client profile. The drafting LLM produces a personalised proposal narrative; a compliance check step validates suitability statements and required disclosures before human RM sign-off.",
+  "relatedUseCases": [
+    {
+      "id": "investor-helpdesk",
+      "label": "Investor Helpdesk Agent",
+      "vertical": "Investment Management"
+    },
+    {
+      "id": "meeting-prep-agent",
+      "label": "Meeting Prep Agent (GTM)",
+      "vertical": "Sales & GTM"
+    }
+  ]
+}

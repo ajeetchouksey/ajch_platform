@@ -1,0 +1,57 @@
+{
+  "id": "policy-memo-writer",
+  "title": "Policy Memo Writer Agent",
+  "vertical": "government",
+  "patterns": [
+    "research-synthesize-generate",
+    "document-rag"
+  ],
+  "problem": "Government policy teams spend days manually researching prior memos, regulations, and stakeholder inputs before drafting a new policy memo.",
+  "solution": "Agent researches relevant prior memos, regulations, and public comments in parallel, synthesizes key points, then drafts a formatted policy memo in the agency's house style.",
+  "whoItsFor": "Policy Analysts, Legislative Staff, Government Communications Teams",
+  "workflowSteps": [
+    "Policy brief or topic inputted by analyst",
+    "Agent runs parallel searches: internal memo archive, regulatory database, public comment records",
+    "Synthesizes relevant findings into structured outline",
+    "Drafts memo in agency house style with executive summary, background, recommendations",
+    "Sends to supervisor for review; annotates sources for every claim"
+  ],
+  "keyInsights": "Source attribution is non-negotiable in government. Every claim in the memo must trace back to a retrievable document — this is the HITL + audit trail pattern applied to written output rather than a database transaction.",
+  "relatedExams": [
+    {
+      "exam": "ccdf",
+      "domain": 4,
+      "why": "Prompt and Context Engineering — structured output, house style"
+    },
+    {
+      "exam": "ccap",
+      "domain": 6,
+      "why": "Claude Models, Prompting & Context Engineering"
+    },
+    {
+      "exam": "ccarf",
+      "domain": 2,
+      "why": "Workflow Integration and Solution Design"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-rag-001",
+    "q-orch-001"
+  ],
+  "examScenarioPotential": "medium",
+  "blogPotential": "high",
+  "mermaidDiagram": "flowchart TD\n  A([Policy Brief Input]) --> B[Parallel Research]\n  B --> C1[Internal Memo Archive]\n  B --> C2[Regulatory Database]\n  B --> C3[Public Comment Records]\n  C1 & C2 & C3 --> D[Synthesize Key Findings]\n  D --> E[Draft Memo with Source Attribution]\n  E --> F([Supervisor Review])",
+  "architectureNotes": "The agent receives a legislative text URL and optional focus topics. It runs a multi-pass summarisation: first a structural pass to extract sections, then a policy-impact pass per section, then a cross-section synthesis. The final memo follows a fixed template (summary, key changes, stakeholder impact, recommended actions). A reviewer step checks for unsupported claims before the memo is sent.",
+  "relatedUseCases": [
+    {
+      "id": "policy-qa-rag",
+      "label": "Insurance Policy Q&A Agent",
+      "vertical": "Insurance"
+    },
+    {
+      "id": "city-council-summary",
+      "label": "City Council Meeting Summary Agent",
+      "vertical": "Policy & Government"
+    }
+  ]
+}

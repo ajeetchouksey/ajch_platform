@@ -1,0 +1,62 @@
+{
+  "id": "investor-helpdesk",
+  "title": "Investor Helpdesk Agent",
+  "vertical": "wealth-management",
+  "patterns": [
+    "parallel-subagents",
+    "document-rag"
+  ],
+  "problem": "Wealth advisors field repetitive investor questions that require pulling from CRM history, product knowledge bases, and compliance-approved language — each from different systems.",
+  "solution": "A coordinator dispatches two specialized subagents in parallel (CRM-LLM for account history, Product-LLM for investment knowledge), merges their typed results, and a Formatter-LLM produces a compliant, personalized response.",
+  "whoItsFor": "Wealth Advisors, Client Service Teams at RIAs and Broker-Dealers",
+  "workflowSteps": [
+    "User query arrives (chat or email)",
+    "Coordinator identifies query type and dispatches parallel subagents",
+    "CRM-LLM: retrieves account history, past interactions, investor preferences",
+    "Product-LLM: retrieves relevant fund/product docs from knowledge base",
+    "Coordinator merges {status, result} from each subagent",
+    "Formatter-LLM: composes compliant response matching house tone and regulatory disclosure requirements"
+  ],
+  "keyInsights": "This is the clearest example of the multi-LLM coordinator pattern in the document. Each subagent is specialized (knows its data domain well), and the formatter is the compliance guardrail. The typed merge contract between subagents and coordinator is what prevents hallucinated cross-data blending.",
+  "relatedExams": [
+    {
+      "exam": "ccdf",
+      "domain": 3,
+      "why": "Agents and Workflows — multi-LLM orchestration"
+    },
+    {
+      "exam": "ccap",
+      "domain": 2,
+      "why": "Solution Design & Architecture — parallel agent topologies"
+    },
+    {
+      "exam": "ccaf",
+      "domain": 1,
+      "why": "Agentic Architecture & Orchestration"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-orch-001"
+  ],
+  "examScenarioPotential": "high",
+  "blogPotential": "high",
+  "mermaidDiagram": "flowchart LR\n  A([Investor Query]) --> B[Coordinator LLM]\n  B --> C1[CRM-LLM: Account History]\n  B --> C2[Product-LLM: Investment Docs]\n  C1 & C2 --> D[Typed Merge]\n  D --> E[Formatter-LLM: Compliance Language]\n  E --> F([Compliant Personalized Response])",
+  "architectureNotes": "A RAG pipeline retrieves relevant chunks from fund fact sheets, prospectuses, and performance reports stored in a vector database. The retrieval context is injected into the LLM prompt, which produces a grounded, cited answer. An eligibility filter runs pre-retrieval to restrict content by investor tier. A reranker prioritises the most topically relevant chunks when the query spans multiple funds.",
+  "relatedUseCases": [
+    {
+      "id": "investment-proposal-drafting",
+      "label": "Investment Proposal Drafting Agent",
+      "vertical": "Investment Management"
+    },
+    {
+      "id": "policy-qa-rag",
+      "label": "Insurance Policy Q&A Agent",
+      "vertical": "Insurance"
+    },
+    {
+      "id": "meeting-prep-agent",
+      "label": "Meeting Prep Agent (GTM)",
+      "vertical": "Sales & GTM"
+    }
+  ]
+}
