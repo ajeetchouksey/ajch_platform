@@ -284,3 +284,68 @@ export async function loadPlatformStats(): Promise<PlatformStats> {
 
   return stats;
 }
+
+// ── Use Cases (AI UseCases section) ────────────────────────────────────────
+
+export interface UseCaseRelatedExam {
+  exam: string;
+  domain: number;
+  why: string;
+}
+
+export interface FeaturedUseCase {
+  id: string;
+  title: string;
+  vertical: string;
+  patterns: string[];
+  problem: string;
+  solution?: string;
+  whoItsFor?: string;
+  workflowSteps?: string[];
+  keyInsights?: string;
+  relatedExams?: UseCaseRelatedExam[];
+  relatedInterviewQs?: string[];
+  examScenarioPotential?: string;
+  blogPotential?: string;
+}
+
+export interface CatalogUseCase {
+  id: string;
+  title: string;
+  vertical: string;
+  patterns: string[];
+}
+
+export interface SourceIntel {
+  schema: string;
+  generated: string;
+  verticals: Array<{ id: string; label: string; useCaseCount: number; primaryPatterns: string[] }>;
+  featuredUseCases: FeaturedUseCase[];
+  catalogUseCases: CatalogUseCase[];
+}
+
+export type AnyUseCase = FeaturedUseCase | CatalogUseCase;
+
+let _sourceIntelCache: SourceIntel | null = null;
+
+export async function loadSourceIntel(): Promise<SourceIntel> {
+  if (_sourceIntelCache) return _sourceIntelCache;
+  _sourceIntelCache = await fetchJSON<SourceIntel>('content/usecases/_source-intel.json');
+  return _sourceIntelCache;
+}
+
+export async function loadAllUseCases(): Promise<AnyUseCase[]> {
+  const intel = await loadSourceIntel();
+  const featuredIds = new Set(intel.featuredUseCases.map((u) => u.id));
+  const catalog = intel.catalogUseCases.filter((u) => !featuredIds.has(u.id));
+  return [...intel.featuredUseCases, ...catalog];
+}
+
+export async function loadUseCaseById(id: string): Promise<AnyUseCase | null> {
+  const intel = await loadSourceIntel();
+  return (
+    intel.featuredUseCases.find((u) => u.id === id) ??
+    intel.catalogUseCases.find((u) => u.id === id) ??
+    null
+  );
+}

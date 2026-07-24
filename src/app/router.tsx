@@ -39,6 +39,10 @@ import InterviewCatalog from '@/features/interview/pages/InterviewCatalog';
 import InterviewPack from '@/features/interview/pages/InterviewPack';
 import InterviewQuestion from '@/features/interview/pages/InterviewQuestion';
 
+// ── AI Use Cases ──────────────────────────────────────────────────────────────
+import UseCasesCatalog from '@/features/usecases/pages/UseCasesCatalog';
+import UseCaseDetail from '@/features/usecases/pages/UseCaseDetail';
+
 // ── Docs ──────────────────────────────────────────────────────────────────────
 import Docs from '@/features/docs/pages/Docs';
 
@@ -112,6 +116,10 @@ export default function AppRoutes() {
       <Route path="/interview" element={<InterviewCatalog />} />
       <Route path="/interview/q/:id" element={<InterviewQuestion />} />
       <Route path="/interview/:roleId" element={<InterviewPack />} />
+
+      {/* AI Use Cases */}
+      <Route path="/usecases" element={<UseCasesCatalog />} />
+      <Route path="/usecases/:id" element={<UseCaseDetail />} />
 
       {/* Docs */}
       <Route path="/docs" element={<Docs />} />
