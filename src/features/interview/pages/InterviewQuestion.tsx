@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import {
-  ArrowLeft, AlertTriangle, CheckCircle2, Lightbulb, Target, MessageCircleQuestion, Sparkles,
+  ArrowLeft, AlertTriangle, CheckCircle2, Lightbulb, Target, MessageCircleQuestion, Sparkles, GitGraph,
 } from 'lucide-react';
+import MermaidDiagram from '@/components/MermaidDiagram';
 import {
   loadInterviewBank, loadInterviewCompetencies, loadResolvedPackItems,
   type InterviewBankItem, type InterviewCompetency, type InterviewAddendum,
@@ -115,6 +116,15 @@ export default function InterviewQuestion() {
           <p className="text-sm text-slate-200 leading-relaxed">{da.summary}</p>
         </div>
       </GlassCard>
+
+      {/* Diagram */}
+      {da && item.diagram && (
+        <Section icon={GitGraph} title={item.diagram.caption} accent="#38bdf8">
+          <div className="mt-1 rounded-xl overflow-hidden" style={{ background: 'rgba(10,15,25,0.7)', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem' }}>
+            <MermaidDiagram chart={item.diagram.chart} />
+          </div>
+        </Section>
+      )}
 
       {/* Role delta */}
       {addendum && (
