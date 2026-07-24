@@ -1,0 +1,64 @@
+{
+  "id": "aml-parallel-hitl",
+  "title": "Anti-Money Laundering Agent",
+  "vertical": "banking",
+  "patterns": [
+    "parallel-subagents",
+    "hitl-approval-gate",
+    "trigger-extract-validate-route"
+  ],
+  "problem": "AML/compliance teams spend hours manually reviewing suspicious-activity emails, cross-checking customer records, and writing closure decisions — with high regulatory deadline pressure.",
+  "solution": "Email-triggered agent runs a parallel investigation (public profile, bank account lookup, AML policy retrieval), drafts a closure decision, sends to human for review, then commits the closure to the portal on approval.",
+  "whoItsFor": "AML Officers, Fraud & Risk Operations Analysts",
+  "workflowSteps": [
+    "Trigger fires on new AML notification email",
+    "Parallel subagents: (1) research public profile, (2) find matching bank account, (3) retrieve AML policy docs from SharePoint",
+    "Coordinator merges typed results into a draft closure decision",
+    "Sends draft + evidence to human reviewer via portal",
+    "If approved: logs decision, closes account in portal, archives",
+    "If rejected: records dissent, escalates to senior compliance officer"
+  ],
+  "keyInsights": "Classic parallel-subagent coordinator pattern. No account is closed without explicit human approval — HITL is a regulatory requirement, not just a safety preference. The typed merge contract across three parallel subagents is what makes this auditable.",
+  "relatedExams": [
+    {
+      "exam": "ccdf",
+      "domain": 3,
+      "why": "Agents and Workflows — parallel subagent coordination"
+    },
+    {
+      "exam": "ccap",
+      "domain": 4,
+      "why": "Governance, Safety & Risk Management — regulated industry HITL requirements"
+    },
+    {
+      "exam": "ccarf",
+      "domain": 3,
+      "why": "Governance, Risk, and Responsible Use"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-orch-001",
+    "q-hitl-001"
+  ],
+  "examScenarioPotential": "high",
+  "blogPotential": "medium",
+  "mermaidDiagram": "flowchart LR\n  A([AML Alert Email]) --> B[Coordinator]\n  B --> C1[Public Profile Search]\n  B --> C2[Bank Account Lookup]\n  B --> C3[AML Policy Docs]\n  C1 & C2 & C3 --> D[Merge Typed Evidence]\n  D --> E[Draft Closure Decision]\n  E --> F[HITL Reviewer Portal]\n  F -->|Approved| G([Close Account + Audit Log])\n  F -->|Rejected| H([Escalate to Senior Officer])",
+  "architectureNotes": "Multiple risk-check agents run in parallel (velocity, watchlist, typology) against the same transaction record. A scoring aggregator collects their outputs and applies a threshold rule: score ≥ threshold triggers a SAR draft; score between the soft and hard limits routes to a human analyst for review. Parallelism cuts latency vs. sequential checks; the HITL layer satisfies regulatory oversight requirements.",
+  "relatedUseCases": [
+    {
+      "id": "invoice-ops-hitl",
+      "label": "Invoice Operations Agent with HITL",
+      "vertical": "Finance & Ops"
+    },
+    {
+      "id": "soc2-compliance-eval",
+      "label": "SOC 2 Report Evaluation Agent",
+      "vertical": "Compliance & Legal"
+    },
+    {
+      "id": "internal-audit-testing",
+      "label": "Internal Audit Testing Agent (Banking)",
+      "vertical": "Banking"
+    }
+  ]
+}

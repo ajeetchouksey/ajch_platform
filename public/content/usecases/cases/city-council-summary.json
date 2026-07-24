@@ -1,0 +1,51 @@
+{
+  "id": "city-council-summary",
+  "title": "City Council Meeting Summary Agent",
+  "vertical": "government",
+  "patterns": [
+    "document-rag",
+    "research-synthesize-generate"
+  ],
+  "problem": "Answering constituent and press questions spanning many past meetings requires searching scattered recordings and transcripts.",
+  "solution": "Agent ingests meeting recordings and transcripts, produces structured summaries (agenda items, decisions, dissents, quotes), and exposes a Q&A interface for the full meeting history.",
+  "whoItsFor": "Constituents, Reporters, City Staff Members",
+  "workflowSteps": [
+    "Meeting recording and transcript uploaded after each meeting",
+    "Transcription agent produces text; summary agent extracts agenda items, decisions, dissents, notable quotes",
+    "Structured summaries indexed into searchable knowledge base",
+    "Q&A interface allows natural language queries across full meeting history",
+    "Responses cite specific meeting, date, and speaker"
+  ],
+  "keyInsights": "Longitudinal institutional memory is the value proposition. The key design decision is whether to store structured summaries or raw transcripts in the vector index — structured summaries with metadata filters are more cost-efficient and produce higher-precision retrieval.",
+  "relatedExams": [
+    {
+      "exam": "ccdf",
+      "domain": 1,
+      "why": "Applications and Integration — multimodal (audio→text→RAG)"
+    },
+    {
+      "exam": "ccarf",
+      "domain": 6,
+      "why": "Configuration and Knowledge Management"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-rag-001"
+  ],
+  "examScenarioPotential": "medium",
+  "blogPotential": "medium",
+  "mermaidDiagram": "flowchart TD\n  A([Meeting Recording + Transcript]) --> B[Transcription Agent]\n  B --> C[Summary Agent: Agenda + Decisions + Quotes]\n  C --> D[Index with Meeting Metadata]\n  D --> E([Natural Language Q&A Across Full Meeting History])",
+  "architectureNotes": "Meeting audio or transcript is segmented by speaker-turn. Each segment is summarised and tagged by topic (budget, zoning, public comment, etc.). A synthesis agent merges per-topic summaries into a structured minutes document with action items and vote records. The output is posted to a public portal and emailed to subscribers automatically.",
+  "relatedUseCases": [
+    {
+      "id": "policy-qa-rag",
+      "label": "Insurance Policy Q&A Agent",
+      "vertical": "Insurance"
+    },
+    {
+      "id": "policy-memo-writer",
+      "label": "Policy Memo Writer Agent",
+      "vertical": "Policy & Government"
+    }
+  ]
+}

@@ -91,6 +91,7 @@ export interface InterviewBankItem {
   tags: string[];
   diagram?: { caption: string; chart: string };
   roles: string[];
+  relatedUseCases?: UseCaseRelatedLink[];
 }
 
 export async function loadInterviewBank(): Promise<InterviewBankItem[]> {
@@ -293,6 +294,12 @@ export interface UseCaseRelatedExam {
   why: string;
 }
 
+export interface UseCaseRelatedLink {
+  id: string;
+  label: string;
+  vertical: string;
+}
+
 export interface FeaturedUseCase {
   id: string;
   title: string;
@@ -304,8 +311,10 @@ export interface FeaturedUseCase {
   workflowSteps?: string[];
   keyInsights?: string;
   mermaidDiagram?: string;
+  architectureNotes?: string;
   relatedExams?: UseCaseRelatedExam[];
   relatedInterviewQs?: string[];
+  relatedUseCases?: UseCaseRelatedLink[];
   examScenarioPotential?: string;
   blogPotential?: string;
 }
@@ -343,6 +352,13 @@ export async function loadAllUseCases(): Promise<AnyUseCase[]> {
 }
 
 export async function loadUseCaseById(id: string): Promise<AnyUseCase | null> {
+  // Try the individual case file first (has architectureNotes + relatedUseCases)
+  try {
+    const caseFile = await fetchJSON<FeaturedUseCase>(`content/usecases/cases/${id}.json`);
+    if (caseFile?.id) return caseFile;
+  } catch {
+    // fall through to source-intel
+  }
   const intel = await loadSourceIntel();
   return (
     intel.featuredUseCases.find((u) => u.id === id) ??

@@ -8,6 +8,7 @@ import {
   MessageSquare,
   ChevronRight,
   GitGraph,
+  Layers,
 } from 'lucide-react';
 import {
   loadUseCaseById,
@@ -164,6 +165,11 @@ export default function UseCaseDetail() {
               <GlassCard accent="violet" border="border-slate-700/40" className="p-4">
                 <MermaidDiagram chart={featured.mermaidDiagram} />
               </GlassCard>
+              {featured.architectureNotes && (
+                <p className="mt-3 text-xs text-slate-400 leading-relaxed">
+                  {featured.architectureNotes}
+                </p>
+              )}
             </div>
           )}
 
@@ -236,6 +242,31 @@ export default function UseCaseDetail() {
                   >
                     {qid}
                     <ChevronRight size={11} />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Related use cases */}
+          {featured.relatedUseCases && featured.relatedUseCases.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <Layers size={14} className="text-emerald-400" />
+                Related Use Cases
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {featured.relatedUseCases.map((rel) => (
+                  <Link
+                    key={rel.id}
+                    to={`/usecases/${rel.id}`}
+                    className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-emerald-500/40 hover:bg-slate-800/80 transition-all group"
+                  >
+                    <ChevronRight size={13} className="text-emerald-400 mt-0.5 shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-slate-200 leading-snug">{rel.label}</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">{rel.vertical}</p>
+                    </div>
                   </Link>
                 ))}
               </div>

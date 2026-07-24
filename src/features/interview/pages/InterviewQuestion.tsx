@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import {
-  ArrowLeft, AlertTriangle, CheckCircle2, Lightbulb, Target, MessageCircleQuestion, Sparkles, GitGraph,
+  ArrowLeft, AlertTriangle, CheckCircle2, Lightbulb, Target, MessageCircleQuestion, Sparkles, GitGraph, Building2,
 } from 'lucide-react';
 import MermaidDiagram from '@/components/MermaidDiagram';
 import {
@@ -227,6 +227,27 @@ export default function InterviewQuestion() {
           ))}
         </ul>
       </Section>
+
+      {/* Real-world use cases */}
+      {item.relatedUseCases && item.relatedUseCases.length > 0 && (
+        <Section icon={Building2} title="Real-World Examples" accent="#34d399">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {item.relatedUseCases.map((uc) => (
+              <Link
+                key={uc.id}
+                to={`/usecases/${uc.id}`}
+                className="flex items-start gap-2 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-emerald-500/40 hover:bg-slate-800/80 transition-all group"
+              >
+                <Building2 size={13} className="text-emerald-400 mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-slate-200 leading-snug">{uc.label}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">{uc.vertical}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </Section>
+      )}
 
       {/* Tags */}
       <div className="mt-8 flex flex-wrap gap-1.5">

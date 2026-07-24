@@ -1,0 +1,51 @@
+{
+  "id": "scholarship-matching",
+  "title": "Scholarship Matching Agent",
+  "vertical": "education",
+  "patterns": [
+    "document-rag",
+    "research-synthesize-generate"
+  ],
+  "problem": "Students miss out on scholarships because the matching process requires researching hundreds of programs and comparing eligibility criteria manually.",
+  "solution": "Agent ingests student profile and academic background, searches a scholarship knowledge base, scores matches on eligibility and fit, and produces a ranked list with application guidance for each.",
+  "whoItsFor": "Students, Academic Counselors, Financial Aid Offices",
+  "workflowSteps": [
+    "Student submits profile: GPA, major, demographics, interests, financial need",
+    "Agent searches scholarship knowledge base across multiple categories",
+    "Scores each match on: eligibility (hard filter), fit (semantic), deadline proximity",
+    "Produces ranked shortlist with eligibility summary, application steps, and deadline for each",
+    "Optionally: drafts first-pass personal statement outline for top matches"
+  ],
+  "keyInsights": "Hybrid search (hard eligibility filters + semantic fit scoring) is the key pattern. Pure semantic search returns false positives on eligibility-gated scholarships. The pre-filter-then-rank pattern from RAG/RBAC applies directly here.",
+  "relatedExams": [
+    {
+      "exam": "ccdf",
+      "domain": 1,
+      "why": "Applications and Integration — hybrid search, pre-filter patterns"
+    },
+    {
+      "exam": "ccarf",
+      "domain": 4,
+      "why": "Prompting and Task Execution — structured output, ranking"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-rag-001"
+  ],
+  "examScenarioPotential": "medium",
+  "blogPotential": "high",
+  "mermaidDiagram": "flowchart TD\n  A([Student Profile Submitted]) --> B{Hard Eligibility Filter}\n  B -->|Eligible| C[Semantic Fit Scoring]\n  B -->|Ineligible| X([Excluded])\n  C --> D[Score by Fit + Deadline Proximity]\n  D --> E[Ranked Shortlist]\n  E --> F([Application Guidance per Match])",
+  "architectureNotes": "Applicant profiles (demographics, financials, academic records, essays) are embedded and matched against a scholarship catalog using vector similarity. A scoring model ranks scholarships by eligibility fit. For top matches, the agent drafts personalised application guidance and identifies missing documents. A counsellor review step approves the shortlist before it is shared with the student.",
+  "relatedUseCases": [
+    {
+      "id": "policy-qa-rag",
+      "label": "Insurance Policy Q&A Agent",
+      "vertical": "Insurance"
+    },
+    {
+      "id": "safety-ops-chatbot",
+      "label": "Safety Ops Chatbot (Construction)",
+      "vertical": "Construction & Safety"
+    }
+  ]
+}

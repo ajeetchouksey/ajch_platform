@@ -1,0 +1,58 @@
+{
+  "id": "vendor-onboarding",
+  "title": "Vendor Onboarding Agent",
+  "vertical": "operations",
+  "patterns": [
+    "trigger-extract-validate-route",
+    "hitl-approval-gate"
+  ],
+  "problem": "Ops teams manually collect documents, verify details, chase missing information, and email back and forth for weeks before a new vendor is ready to transact.",
+  "solution": "Agent intakes vendor information, runs parallel document parsing + extraction, sends a structured summary to a human for approval, then updates the vendor master system and notifies all parties.",
+  "whoItsFor": "Operations Teams, Procurement Operations Teams",
+  "workflowSteps": [
+    "Vendor submits onboarding form and uploads documents",
+    "Document parser + extraction LLM fire in parallel: extract entity, tax ID, banking details, certifications",
+    "Validation: checks for missing required fields, flags potential duplicates in vendor master",
+    "Summary sent to human approver with extracted fields and confidence scores",
+    "On approval: updates vendor master spreadsheet, emails vendor confirmation, emails admin",
+    "On rejection/missing info: emails vendor with specific request for missing data"
+  ],
+  "keyInsights": "The typed routing condition is critical: the agent must distinguish between 'missing information' (ask vendor), 'approved' (proceed), and 'disapproved' (reject with reason) — not route based on LLM prose interpretation.",
+  "relatedExams": [
+    {
+      "exam": "ccdf",
+      "domain": 3,
+      "why": "Agents and Workflows — conditional routing, HITL"
+    },
+    {
+      "exam": "ab100",
+      "domain": 3,
+      "why": "Deploy AI-Powered Business Solutions — procurement automation"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-hitl-001",
+    "q-orch-001"
+  ],
+  "examScenarioPotential": "high",
+  "blogPotential": "medium",
+  "mermaidDiagram": "flowchart LR\n  A([Vendor Form + Docs]) --> B[Parallel Parse]\n  B --> C1[Entity + Tax ID]\n  B --> C2[Banking Details]\n  B --> C3[Certifications]\n  C1 & C2 & C3 --> D[Validate + Dedup Check]\n  D --> E[HITL Approval Gate]\n  E -->|Approved| F([Update Vendor Master + Notify])\n  E -->|Incomplete| G([Request Missing Docs from Vendor])",
+  "architectureNotes": "Vendor submissions (forms, documents) are ingested and routed through parallel validation agents: sanctions screening, financial health check, document completeness check. A coordinator aggregates results into an overall risk score. Low-risk vendors proceed to automatic approval and ERP provisioning; medium-risk vendors route to procurement review; high-risk vendors are rejected with a documented reason.",
+  "relatedUseCases": [
+    {
+      "id": "invoice-ops-hitl",
+      "label": "Invoice Operations Agent with HITL",
+      "vertical": "Finance & Ops"
+    },
+    {
+      "id": "meeting-prep-agent",
+      "label": "Meeting Prep Agent (GTM)",
+      "vertical": "Sales & GTM"
+    },
+    {
+      "id": "inbound-lead-magnet",
+      "label": "Inbound Lead Magnet Agent",
+      "vertical": "Sales & GTM"
+    }
+  ]
+}

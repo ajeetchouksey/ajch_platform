@@ -1,0 +1,63 @@
+{
+  "id": "internal-audit-testing",
+  "title": "Internal Audit Testing Agent (Banking)",
+  "vertical": "banking",
+  "patterns": [
+    "document-eval-structured-output",
+    "hitl-approval-gate"
+  ],
+  "problem": "Auditors manually review hundreds of loan files against audit objectives, extracting evidence and writing workpapers — a weeks-long process that scales poorly.",
+  "solution": "Agent reviews loan files against audit objectives, extracts evidence, maps it to audit criteria, produces draft workpapers with evidence citations, and routes to auditor for sign-off.",
+  "whoItsFor": "Internal Audit Teams, Credit Risk, Loan Review Officers",
+  "workflowSteps": [
+    "Audit lead specifies audit objectives and population of loan files",
+    "Agent ingests each file: extracts key fields (loan amount, borrower, collateral, approval chain)",
+    "Maps extracted data to each audit objective, flags exceptions",
+    "Drafts workpaper section per objective with evidence citations",
+    "Routes draft workpapers to auditor for review and sign-off",
+    "Auditor approves, modifies, or rejects; finalized workpapers archived"
+  ],
+  "keyInsights": "Every finding must be traceable to a source document page and paragraph — this is the compliance-grade citation requirement. The evaluation rubric (audit objectives) must be versioned and approved before the agent runs, not improvised per session.",
+  "relatedExams": [
+    {
+      "exam": "ccap",
+      "domain": 4,
+      "why": "Governance, Safety & Risk Management — audit trail requirements"
+    },
+    {
+      "exam": "ccdf",
+      "domain": 8,
+      "why": "Eval, Testing, and Debugging — evaluation framework design"
+    },
+    {
+      "exam": "ab100",
+      "domain": 3,
+      "why": "Deploy AI-Powered Business Solutions — regulated industry deployment"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-eval-001",
+    "q-hitl-001"
+  ],
+  "examScenarioPotential": "high",
+  "blogPotential": "medium",
+  "mermaidDiagram": "flowchart TD\n  A([Audit Objectives]) --> C[Extract and Map to Criteria]\n  B([Loan File Population]) --> C\n  C --> D{Exception Found?}\n  D -->|Yes| E[Flag + Evidence Citation]\n  D -->|No| F[Objective Pass]\n  E & F --> G[Draft Workpaper Section]\n  G --> H[Auditor Sign-Off HITL Gate]\n  H --> I([Archive])",
+  "architectureNotes": "The agent reads the audit test plan and control list, then queries the ERP/transaction system for sample data matching each test criteria. For each sample it applies the test logic (e.g., approval-chain verification, limit checks) and records pass/fail with evidence links. A HITL review step is triggered for any failed test before the finding is escalated. The audit workpaper is generated automatically.",
+  "relatedUseCases": [
+    {
+      "id": "aml-parallel-hitl",
+      "label": "Anti-Money Laundering Agent",
+      "vertical": "Banking"
+    },
+    {
+      "id": "soc2-compliance-eval",
+      "label": "SOC 2 Report Evaluation Agent",
+      "vertical": "Compliance & Legal"
+    },
+    {
+      "id": "invoice-ops-hitl",
+      "label": "Invoice Operations Agent with HITL",
+      "vertical": "Finance & Ops"
+    }
+  ]
+}

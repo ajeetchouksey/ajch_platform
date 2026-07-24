@@ -1,0 +1,61 @@
+{
+  "id": "soc2-compliance-eval",
+  "title": "SOC 2 Report Evaluation Agent",
+  "vertical": "compliance",
+  "patterns": [
+    "document-eval-structured-output"
+  ],
+  "problem": "Compliance teams manually review SOC 2 reports against FFIEC examination frameworks, rating User Entity Controls (UECs) and User Relevant Specified Criteria — a multi-day process prone to inconsistency.",
+  "solution": "Agent ingests a SOC 2 report, evaluates each control against the FFIEC framework (producing CUEC/URSIT ratings), generates a structured evaluation document, uploads to SharePoint, and notifies the team in Slack.",
+  "whoItsFor": "Compliance Officers, Internal Audit Teams, Third-Party Risk Management",
+  "workflowSteps": [
+    "SOC 2 PDF uploaded by compliance analyst",
+    "Agent extracts control descriptions section by section",
+    "For each control: evaluates against FFIEC CUEC and URSIT criteria, assigns rating and confidence",
+    "Generates structured evaluation document with ratings, gaps, and remediation notes",
+    "Uploads completed evaluation to SharePoint in the correct audit folder",
+    "Posts summary notification to Slack compliance channel"
+  ],
+  "keyInsights": "The evaluation framework as a system prompt (not fine-tuning) is the key pattern. The agent needs to produce consistent, auditable ratings — the evaluation rubric must be versioned alongside the prompt, just like code.",
+  "relatedExams": [
+    {
+      "exam": "ccap",
+      "domain": 4,
+      "why": "Governance, Safety & Risk Management — compliance automation"
+    },
+    {
+      "exam": "ccdf",
+      "domain": 8,
+      "why": "Eval, Testing, and Debugging — LLM-as-evaluator pattern"
+    },
+    {
+      "exam": "ccarf",
+      "domain": 3,
+      "why": "Governance, Risk, and Responsible Use"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-eval-001"
+  ],
+  "examScenarioPotential": "high",
+  "blogPotential": "medium",
+  "mermaidDiagram": "flowchart TD\n  A([SOC 2 PDF Upload]) --> B[Extract Controls Section by Section]\n  B --> C[Evaluate vs FFIEC Framework]\n  C --> D{Rating per Control}\n  D -->|Pass| E[CUEC or URSIT Rating]\n  D -->|Gap Found| F[Flag + Remediation Note]\n  E & F --> G[Structured Evaluation Report]\n  G --> H([SharePoint Upload])\n  G --> I([Slack Notification])",
+  "architectureNotes": "The agent ingests a SOC 2 report PDF and an internal control catalog. For each control in the catalog it runs a targeted extraction pass to find the matching section in the report, then applies an evaluator model to score coverage (Met / Partial / Gap). A summary table is emitted alongside a risk narrative and recommended remediation items ordered by impact.",
+  "relatedUseCases": [
+    {
+      "id": "aml-parallel-hitl",
+      "label": "Anti-Money Laundering Agent",
+      "vertical": "Banking"
+    },
+    {
+      "id": "internal-audit-testing",
+      "label": "Internal Audit Testing Agent (Banking)",
+      "vertical": "Banking"
+    },
+    {
+      "id": "policy-qa-rag",
+      "label": "Insurance Policy Q&A Agent",
+      "vertical": "Insurance"
+    }
+  ]
+}

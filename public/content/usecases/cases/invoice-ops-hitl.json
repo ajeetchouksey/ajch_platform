@@ -1,0 +1,63 @@
+{
+  "id": "invoice-ops-hitl",
+  "title": "Invoice Operations Agent with HITL",
+  "vertical": "operations",
+  "patterns": [
+    "trigger-extract-validate-route",
+    "hitl-approval-gate"
+  ],
+  "problem": "Finance teams receive hundreds of invoices by email daily. Manual data entry into ERP systems is error-prone, slow, and a bottleneck for month-end close.",
+  "solution": "Email-triggered agent extracts invoice fields, validates against PO data, flags anomalies for human approval, then writes approved invoices to the ERP system — with full audit trail.",
+  "whoItsFor": "Finance Operations Teams, AP Departments",
+  "workflowSteps": [
+    "Email trigger fires on new invoice receipt",
+    "Document extraction LLM parses vendor, amount, line items, PO reference",
+    "Validation: cross-checks PO system for matching purchase order",
+    "If anomaly detected (amount mismatch, unknown vendor): pause → HITL approval gate",
+    "Human reviews, approves or modifies",
+    "On approval: writes entry to ERP (NetSuite, SAP), archives document, sends confirmation"
+  ],
+  "keyInsights": "The durable workflow pattern is essential here — a mid-run crash must not double-post an ERP entry. Idempotency keys on the ERP write activity prevent duplicate postings under retries.",
+  "relatedExams": [
+    {
+      "exam": "ab100",
+      "domain": 3,
+      "why": "Deploy AI-Powered Business Solutions — ERP integration and workflow automation"
+    },
+    {
+      "exam": "ccdf",
+      "domain": 3,
+      "why": "Agents and Workflows — durable execution, HITL"
+    },
+    {
+      "exam": "ccap",
+      "domain": 1,
+      "why": "Integration — ERP/finance system integration patterns"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-orch-002",
+    "q-hitl-001"
+  ],
+  "examScenarioPotential": "high",
+  "blogPotential": "high",
+  "mermaidDiagram": "flowchart LR\n  A([Email Trigger]) --> B[Extract Invoice Fields]\n  B --> C{Matches PO?}\n  C -->|Yes| D[Auto-Approve]\n  C -->|Anomaly| E[HITL Review Gate]\n  E -->|Approved| D\n  E -->|Rejected| F([Flag and Escalate])\n  D --> G([ERP Write + Idempotency Key])",
+  "architectureNotes": "The agent extracts structured fields (vendor, amount, line items) from raw invoice PDFs using an extraction model, then compares them against PO records. Matched invoices are auto-approved and written to the ERP with an idempotency key. Mismatches or low-confidence extractions are routed to a human reviewer via a structured task queue. The HITL gate prevents erroneous payments while keeping auto-approval rates high for routine invoices.",
+  "relatedUseCases": [
+    {
+      "id": "aml-parallel-hitl",
+      "label": "Anti-Money Laundering Agent",
+      "vertical": "Banking"
+    },
+    {
+      "id": "vendor-onboarding",
+      "label": "Vendor Onboarding Agent",
+      "vertical": "Finance & Ops"
+    },
+    {
+      "id": "internal-audit-testing",
+      "label": "Internal Audit Testing Agent (Banking)",
+      "vertical": "Banking"
+    }
+  ]
+}
