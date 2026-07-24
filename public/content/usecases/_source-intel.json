@@ -1,0 +1,462 @@
+{
+  "schema": "source-intel@1",
+  "generated": "2026-07-24",
+  "note": "Machine-readable briefing for all Aarya agents. NOT rendered on the platform. Agents MUST read this file before authoring exam MCQs, interview Q&A, blog posts, or study notes to ground content in real-world enterprise use cases.",
+  "source": {
+    "title": "AI Agents: 100+ Use Cases Transforming Enterprises",
+    "publisher": "Stack AI",
+    "pages": 118,
+    "acquired": "2026-07-24",
+    "coverage": "12 enterprise verticals, 100+ agent use cases with workflow diagrams"
+  },
+  "agentGuidance": {
+    "CurriculumEngineer": "Use featured use cases as scenario stems for MCQ questions. Map workflowSteps to exam domain objectives. Cite the use case id in the scenario context.",
+    "InterviewPrepEngineer": "Use featured use cases as realScenario material in bank questions. The aml-parallel-hitl, invoice-ops-hitl, and investor-helpdesk cases directly illustrate q-orch-001, q-orch-002, and q-hitl-001 respectively.",
+    "ContentLead": "The three core patterns (document-rag, trigger-extract-validate-route, research-synthesize-generate) each deserve a standalone practitioner blog post. Use specific use cases as the running example per post.",
+    "PrincipalMentor": "When teaching agentic patterns, cite these use cases to ground abstract concepts. E.g. when explaining bounded coordinator loops, reference the AML agent's parallel investigation + human-approval chain.",
+    "DocsEngineer": "Study notes for CCDF Domain 3 (Agents and Workflows) and CCA-P Domain 2 (Solution Design) should include at least one real use case example per major pattern.",
+    "AIResearcher": "When doing tooling radar runs, cross-reference findings against the vertical coverage here to identify gaps (verticals not yet on the platform) vs. overlaps (already covered)."
+  },
+  "patternTaxonomy": {
+    "document-rag": {
+      "description": "Document ingestion → chunking → vector index with RBAC → retrieval + freshness gate → grounded LLM answer with citations",
+      "keyDecisions": ["index-level RBAC vs post-hoc filtering", "freshness TTL and staleness disclaimers", "citation format for trust"],
+      "examDomains": ["ccdf:1", "ccdf:4", "ccap:1", "ccarf:6"],
+      "interviewQs": ["q-rag-001", "q-hr-grounding-001"],
+      "useCaseExamples": ["policy-qa-rag", "investor-helpdesk", "safety-ops-chatbot", "city-council-summary", "investment-proposal-drafting"]
+    },
+    "trigger-extract-validate-route": {
+      "description": "Event trigger (email/form/API) → document extraction → validation/enrichment → conditional routing → side effect (CRM write, email, ERP entry) with HITL gate on exceptions",
+      "keyDecisions": ["durable execution for crash safety", "idempotency keys on side effects", "typed routing conditions vs prose"],
+      "examDomains": ["ccdf:1", "ccdf:3", "ccap:1", "ab100:3"],
+      "interviewQs": ["q-orch-002", "q-hitl-001"],
+      "useCaseExamples": ["invoice-ops-hitl", "claim-processing", "aml-parallel-hitl", "vendor-onboarding", "inbound-lead-magnet"]
+    },
+    "research-synthesize-generate": {
+      "description": "Multi-source research (web, internal docs, DB, APIs) → synthesis via LLM → formatted structured output (PDF, memo, report, email) with style/compliance constraints",
+      "keyDecisions": ["parallel vs sequential source fetching", "source attribution in output", "compliance language constraints"],
+      "examDomains": ["ccdf:3", "ccdf:4", "ccap:2", "ccarf:2"],
+      "interviewQs": ["q-orch-001", "q-rag-001"],
+      "useCaseExamples": ["policy-memo-writer", "investment-proposal-drafting", "meeting-prep-agent", "soc2-compliance-eval", "credit-memo-drafting"]
+    },
+    "parallel-subagents": {
+      "description": "Coordinator dispatches multiple specialized subagents in parallel (e.g. CRM-LLM + Product-LLM, or public-profile + bank-account + policy-docs), merges typed results, formats unified output",
+      "keyDecisions": ["typed merge contract", "partial-failure handling", "token budget per subagent"],
+      "examDomains": ["ccdf:3", "ccap:2", "ccaf:1"],
+      "interviewQs": ["q-orch-001"],
+      "useCaseExamples": ["investor-helpdesk", "aml-parallel-hitl", "meeting-prep-agent"]
+    },
+    "hitl-approval-gate": {
+      "description": "Agent completes research/extraction/drafting → pauses at a typed approval gate → human reviews and approves/rejects/modifies → agent resumes and commits side effect with audit trail",
+      "keyDecisions": ["approval gate placement (before vs after LLM generation)", "timeout/escalation handling", "audit log format for compliance"],
+      "examDomains": ["ccdf:3", "ccap:4", "ccaf:1", "ab100:3"],
+      "interviewQs": ["q-hitl-001", "q-orch-002"],
+      "useCaseExamples": ["invoice-ops-hitl", "aml-parallel-hitl", "vendor-onboarding", "claim-processing"]
+    },
+    "document-eval-structured-output": {
+      "description": "Ingest document(s) → extract structured fields against a framework/schema → score/rate/flag → produce structured report (JSON + formatted output) → route to system and notify",
+      "keyDecisions": ["evaluation framework as prompt vs few-shot", "confidence thresholds for flags", "output schema validation"],
+      "examDomains": ["ccdf:8", "ccap:3", "ccarf:1"],
+      "interviewQs": ["q-eval-001"],
+      "useCaseExamples": ["soc2-compliance-eval", "internal-audit-testing", "regulatory-compliance-agent"]
+    }
+  },
+  "verticals": [
+    { "id": "insurance",         "label": "Insurance",          "useCaseCount": 11, "primaryPatterns": ["document-rag", "trigger-extract-validate-route", "hitl-approval-gate"] },
+    { "id": "government",        "label": "Government / Public Sector", "useCaseCount": 10, "primaryPatterns": ["document-rag", "research-synthesize-generate", "trigger-extract-validate-route"] },
+    { "id": "wealth-management", "label": "Wealth Management",  "useCaseCount": 9,  "primaryPatterns": ["document-rag", "parallel-subagents", "research-synthesize-generate"] },
+    { "id": "education",         "label": "Education",          "useCaseCount": 8,  "primaryPatterns": ["document-rag", "research-synthesize-generate"] },
+    { "id": "private-lending",   "label": "Private Lending",    "useCaseCount": 8,  "primaryPatterns": ["document-rag", "document-eval-structured-output", "trigger-extract-validate-route"] },
+    { "id": "banking",           "label": "Banking",            "useCaseCount": 10, "primaryPatterns": ["parallel-subagents", "hitl-approval-gate", "document-eval-structured-output"] },
+    { "id": "industrials",       "label": "Industrials / Construction", "useCaseCount": 13, "primaryPatterns": ["document-rag", "research-synthesize-generate"] },
+    { "id": "gtm",               "label": "Go-To-Market",       "useCaseCount": 15, "primaryPatterns": ["trigger-extract-validate-route", "research-synthesize-generate", "parallel-subagents"] },
+    { "id": "operations",        "label": "Operations",         "useCaseCount": 11, "primaryPatterns": ["trigger-extract-validate-route", "hitl-approval-gate"] },
+    { "id": "real-estate",       "label": "Real Estate",        "useCaseCount": 7,  "primaryPatterns": ["document-rag", "document-eval-structured-output"] },
+    { "id": "legal",             "label": "Legal Teams",        "useCaseCount": 7,  "primaryPatterns": ["document-rag", "document-eval-structured-output"] },
+    { "id": "compliance",        "label": "Compliance",         "useCaseCount": 7,  "primaryPatterns": ["document-eval-structured-output", "hitl-approval-gate"] }
+  ],
+  "featuredUseCases": [
+    {
+      "id": "invoice-ops-hitl",
+      "title": "Invoice Operations Agent with HITL",
+      "vertical": "operations",
+      "patterns": ["trigger-extract-validate-route", "hitl-approval-gate"],
+      "problem": "Finance teams receive hundreds of invoices by email daily. Manual data entry into ERP systems is error-prone, slow, and a bottleneck for month-end close.",
+      "solution": "Email-triggered agent extracts invoice fields, validates against PO data, flags anomalies for human approval, then writes approved invoices to the ERP system — with full audit trail.",
+      "whoItsFor": "Finance Operations Teams, AP Departments",
+      "workflowSteps": [
+        "Email trigger fires on new invoice receipt",
+        "Document extraction LLM parses vendor, amount, line items, PO reference",
+        "Validation: cross-checks PO system for matching purchase order",
+        "If anomaly detected (amount mismatch, unknown vendor): pause → HITL approval gate",
+        "Human reviews, approves or modifies",
+        "On approval: writes entry to ERP (NetSuite, SAP), archives document, sends confirmation"
+      ],
+      "keyInsights": "The durable workflow pattern is essential here — a mid-run crash must not double-post an ERP entry. Idempotency keys on the ERP write activity prevent duplicate postings under retries.",
+      "relatedExams": [
+        { "exam": "ab100", "domain": 3, "why": "Deploy AI-Powered Business Solutions — ERP integration and workflow automation" },
+        { "exam": "ccdf",  "domain": 3, "why": "Agents and Workflows — durable execution, HITL" },
+        { "exam": "ccap",  "domain": 1, "why": "Integration — ERP/finance system integration patterns" }
+      ],
+      "relatedInterviewQs": ["q-orch-002", "q-hitl-001"],
+      "examScenarioPotential": "high",
+      "blogPotential": "high"
+    },
+    {
+      "id": "aml-parallel-hitl",
+      "title": "Anti-Money Laundering Agent",
+      "vertical": "banking",
+      "patterns": ["parallel-subagents", "hitl-approval-gate", "trigger-extract-validate-route"],
+      "problem": "AML/compliance teams spend hours manually reviewing suspicious-activity emails, cross-checking customer records, and writing closure decisions — with high regulatory deadline pressure.",
+      "solution": "Email-triggered agent runs a parallel investigation (public profile, bank account lookup, AML policy retrieval), drafts a closure decision, sends to human for review, then commits the closure to the portal on approval.",
+      "whoItsFor": "AML Officers, Fraud & Risk Operations Analysts",
+      "workflowSteps": [
+        "Trigger fires on new AML notification email",
+        "Parallel subagents: (1) research public profile, (2) find matching bank account, (3) retrieve AML policy docs from SharePoint",
+        "Coordinator merges typed results into a draft closure decision",
+        "Sends draft + evidence to human reviewer via portal",
+        "If approved: logs decision, closes account in portal, archives",
+        "If rejected: records dissent, escalates to senior compliance officer"
+      ],
+      "keyInsights": "Classic parallel-subagent coordinator pattern. No account is closed without explicit human approval — HITL is a regulatory requirement, not just a safety preference. The typed merge contract across three parallel subagents is what makes this auditable.",
+      "relatedExams": [
+        { "exam": "ccdf",  "domain": 3, "why": "Agents and Workflows — parallel subagent coordination" },
+        { "exam": "ccap",  "domain": 4, "why": "Governance, Safety & Risk Management — regulated industry HITL requirements" },
+        { "exam": "ccarf", "domain": 3, "why": "Governance, Risk, and Responsible Use" }
+      ],
+      "relatedInterviewQs": ["q-orch-001", "q-hitl-001"],
+      "examScenarioPotential": "high",
+      "blogPotential": "medium"
+    },
+    {
+      "id": "investor-helpdesk",
+      "title": "Investor Helpdesk Agent",
+      "vertical": "wealth-management",
+      "patterns": ["parallel-subagents", "document-rag"],
+      "problem": "Wealth advisors field repetitive investor questions that require pulling from CRM history, product knowledge bases, and compliance-approved language — each from different systems.",
+      "solution": "A coordinator dispatches two specialized subagents in parallel (CRM-LLM for account history, Product-LLM for investment knowledge), merges their typed results, and a Formatter-LLM produces a compliant, personalized response.",
+      "whoItsFor": "Wealth Advisors, Client Service Teams at RIAs and Broker-Dealers",
+      "workflowSteps": [
+        "User query arrives (chat or email)",
+        "Coordinator identifies query type and dispatches parallel subagents",
+        "CRM-LLM: retrieves account history, past interactions, investor preferences",
+        "Product-LLM: retrieves relevant fund/product docs from knowledge base",
+        "Coordinator merges {status, result} from each subagent",
+        "Formatter-LLM: composes compliant response matching house tone and regulatory disclosure requirements"
+      ],
+      "keyInsights": "This is the clearest example of the multi-LLM coordinator pattern in the document. Each subagent is specialized (knows its data domain well), and the formatter is the compliance guardrail. The typed merge contract between subagents and coordinator is what prevents hallucinated cross-data blending.",
+      "relatedExams": [
+        { "exam": "ccdf",  "domain": 3, "why": "Agents and Workflows — multi-LLM orchestration" },
+        { "exam": "ccap",  "domain": 2, "why": "Solution Design & Architecture — parallel agent topologies" },
+        { "exam": "ccaf",  "domain": 1, "why": "Agentic Architecture & Orchestration" }
+      ],
+      "relatedInterviewQs": ["q-orch-001"],
+      "examScenarioPotential": "high",
+      "blogPotential": "high"
+    },
+    {
+      "id": "soc2-compliance-eval",
+      "title": "SOC 2 Report Evaluation Agent",
+      "vertical": "compliance",
+      "patterns": ["document-eval-structured-output"],
+      "problem": "Compliance teams manually review SOC 2 reports against FFIEC examination frameworks, rating User Entity Controls (UECs) and User Relevant Specified Criteria — a multi-day process prone to inconsistency.",
+      "solution": "Agent ingests a SOC 2 report, evaluates each control against the FFIEC framework (producing CUEC/URSIT ratings), generates a structured evaluation document, uploads to SharePoint, and notifies the team in Slack.",
+      "whoItsFor": "Compliance Officers, Internal Audit Teams, Third-Party Risk Management",
+      "workflowSteps": [
+        "SOC 2 PDF uploaded by compliance analyst",
+        "Agent extracts control descriptions section by section",
+        "For each control: evaluates against FFIEC CUEC and URSIT criteria, assigns rating and confidence",
+        "Generates structured evaluation document with ratings, gaps, and remediation notes",
+        "Uploads completed evaluation to SharePoint in the correct audit folder",
+        "Posts summary notification to Slack compliance channel"
+      ],
+      "keyInsights": "The evaluation framework as a system prompt (not fine-tuning) is the key pattern. The agent needs to produce consistent, auditable ratings — the evaluation rubric must be versioned alongside the prompt, just like code.",
+      "relatedExams": [
+        { "exam": "ccap",  "domain": 4, "why": "Governance, Safety & Risk Management — compliance automation" },
+        { "exam": "ccdf",  "domain": 8, "why": "Eval, Testing, and Debugging — LLM-as-evaluator pattern" },
+        { "exam": "ccarf", "domain": 3, "why": "Governance, Risk, and Responsible Use" }
+      ],
+      "relatedInterviewQs": ["q-eval-001"],
+      "examScenarioPotential": "high",
+      "blogPotential": "medium"
+    },
+    {
+      "id": "policy-qa-rag",
+      "title": "Insurance Policy Q&A Agent",
+      "vertical": "insurance",
+      "patterns": ["document-rag"],
+      "problem": "Policyholders and agents spend hours on hold or navigating PDFs to get answers about coverage, exclusions, and claim eligibility.",
+      "solution": "RAG agent over a versioned policy document knowledge base. Retrieves relevant policy sections, validates freshness, generates grounded answers with section citations.",
+      "whoItsFor": "Policyholders, Insurance Agents, Claims Teams",
+      "workflowSteps": [
+        "User submits natural language question about their policy",
+        "Query is embedded and run against the policy vector index",
+        "Pre-filter applies by policy type and policyholder entitlement",
+        "Top-k chunks retrieved, freshness checked against last-updated date",
+        "LLM generates answer grounded in retrieved sections with citations",
+        "Response includes policy section reference and last-updated date"
+      ],
+      "keyInsights": "Document freshness is critical in insurance — a stale exclusion clause answer can create liability. Freshness gate + 'policy last updated on X' disclaimer is mandatory, not optional.",
+      "relatedExams": [
+        { "exam": "ccdf",  "domain": 1, "why": "Applications and Integration — RAG pipeline design" },
+        { "exam": "ccdf",  "domain": 4, "why": "Prompt and Context Engineering — context window management" },
+        { "exam": "ccarf", "domain": 6, "why": "Configuration and Knowledge Management" }
+      ],
+      "relatedInterviewQs": ["q-rag-001"],
+      "examScenarioPotential": "high",
+      "blogPotential": "high"
+    },
+    {
+      "id": "policy-memo-writer",
+      "title": "Policy Memo Writer Agent",
+      "vertical": "government",
+      "patterns": ["research-synthesize-generate", "document-rag"],
+      "problem": "Government policy teams spend days manually researching prior memos, regulations, and stakeholder inputs before drafting a new policy memo.",
+      "solution": "Agent researches relevant prior memos, regulations, and public comments in parallel, synthesizes key points, then drafts a formatted policy memo in the agency's house style.",
+      "whoItsFor": "Policy Analysts, Legislative Staff, Government Communications Teams",
+      "workflowSteps": [
+        "Policy brief or topic inputted by analyst",
+        "Agent runs parallel searches: internal memo archive, regulatory database, public comment records",
+        "Synthesizes relevant findings into structured outline",
+        "Drafts memo in agency house style with executive summary, background, recommendations",
+        "Sends to supervisor for review; annotates sources for every claim"
+      ],
+      "keyInsights": "Source attribution is non-negotiable in government. Every claim in the memo must trace back to a retrievable document — this is the HITL + audit trail pattern applied to written output rather than a database transaction.",
+      "relatedExams": [
+        { "exam": "ccdf",  "domain": 4, "why": "Prompt and Context Engineering — structured output, house style" },
+        { "exam": "ccap",  "domain": 6, "why": "Claude Models, Prompting & Context Engineering" },
+        { "exam": "ccarf", "domain": 2, "why": "Workflow Integration and Solution Design" }
+      ],
+      "relatedInterviewQs": ["q-rag-001", "q-orch-001"],
+      "examScenarioPotential": "medium",
+      "blogPotential": "high"
+    },
+    {
+      "id": "inbound-lead-magnet",
+      "title": "Inbound Lead Magnet Agent",
+      "vertical": "gtm",
+      "patterns": ["trigger-extract-validate-route", "research-synthesize-generate"],
+      "problem": "Marketing teams want to convert inbound form fills into personalized, high-value content immediately — but manually creating custom deliverables at scale is impossible.",
+      "solution": "Form submission triggers an agent that researches the prospect's company and role, generates a personalized PDF deliverable, delivers it by email, and logs the enriched lead in HubSpot.",
+      "whoItsFor": "Demand Generation, Growth Marketing Teams",
+      "workflowSteps": [
+        "Form submission event triggers the workflow",
+        "Agent enriches lead data: web search for company news, LinkedIn company profile",
+        "Generates personalized PDF report/guide tailored to company size and industry",
+        "Sends PDF to prospect via email within minutes of form fill",
+        "Logs enriched lead record (company context, generated asset) to HubSpot CRM"
+      ],
+      "keyInsights": "The CRM write must be idempotent — form re-submissions must not create duplicate leads. This is the same idempotency-key pattern from invoice-ops-hitl, applied to a marketing automation context.",
+      "relatedExams": [
+        { "exam": "ccdf",  "domain": 1, "why": "Applications and Integration — CRM integration, webhook triggers" },
+        { "exam": "ccdf",  "domain": 3, "why": "Agents and Workflows — trigger-driven workflow" }
+      ],
+      "relatedInterviewQs": ["q-orch-002"],
+      "examScenarioPotential": "medium",
+      "blogPotential": "high"
+    },
+    {
+      "id": "city-council-summary",
+      "title": "City Council Meeting Summary Agent",
+      "vertical": "government",
+      "patterns": ["document-rag", "research-synthesize-generate"],
+      "problem": "Answering constituent and press questions spanning many past meetings requires searching scattered recordings and transcripts.",
+      "solution": "Agent ingests meeting recordings and transcripts, produces structured summaries (agenda items, decisions, dissents, quotes), and exposes a Q&A interface for the full meeting history.",
+      "whoItsFor": "Constituents, Reporters, City Staff Members",
+      "workflowSteps": [
+        "Meeting recording and transcript uploaded after each meeting",
+        "Transcription agent produces text; summary agent extracts agenda items, decisions, dissents, notable quotes",
+        "Structured summaries indexed into searchable knowledge base",
+        "Q&A interface allows natural language queries across full meeting history",
+        "Responses cite specific meeting, date, and speaker"
+      ],
+      "keyInsights": "Longitudinal institutional memory is the value proposition. The key design decision is whether to store structured summaries or raw transcripts in the vector index — structured summaries with metadata filters are more cost-efficient and produce higher-precision retrieval.",
+      "relatedExams": [
+        { "exam": "ccdf",  "domain": 1, "why": "Applications and Integration — multimodal (audio→text→RAG)" },
+        { "exam": "ccarf", "domain": 6, "why": "Configuration and Knowledge Management" }
+      ],
+      "relatedInterviewQs": ["q-rag-001"],
+      "examScenarioPotential": "medium",
+      "blogPotential": "medium"
+    },
+    {
+      "id": "internal-audit-testing",
+      "title": "Internal Audit Testing Agent (Banking)",
+      "vertical": "banking",
+      "patterns": ["document-eval-structured-output", "hitl-approval-gate"],
+      "problem": "Auditors manually review hundreds of loan files against audit objectives, extracting evidence and writing workpapers — a weeks-long process that scales poorly.",
+      "solution": "Agent reviews loan files against audit objectives, extracts evidence, maps it to audit criteria, produces draft workpapers with evidence citations, and routes to auditor for sign-off.",
+      "whoItsFor": "Internal Audit Teams, Credit Risk, Loan Review Officers",
+      "workflowSteps": [
+        "Audit lead specifies audit objectives and population of loan files",
+        "Agent ingests each file: extracts key fields (loan amount, borrower, collateral, approval chain)",
+        "Maps extracted data to each audit objective, flags exceptions",
+        "Drafts workpaper section per objective with evidence citations",
+        "Routes draft workpapers to auditor for review and sign-off",
+        "Auditor approves, modifies, or rejects; finalized workpapers archived"
+      ],
+      "keyInsights": "Every finding must be traceable to a source document page and paragraph — this is the compliance-grade citation requirement. The evaluation rubric (audit objectives) must be versioned and approved before the agent runs, not improvised per session.",
+      "relatedExams": [
+        { "exam": "ccap",  "domain": 4, "why": "Governance, Safety & Risk Management — audit trail requirements" },
+        { "exam": "ccdf",  "domain": 8, "why": "Eval, Testing, and Debugging — evaluation framework design" },
+        { "exam": "ab100", "domain": 3, "why": "Deploy AI-Powered Business Solutions — regulated industry deployment" }
+      ],
+      "relatedInterviewQs": ["q-eval-001", "q-hitl-001"],
+      "examScenarioPotential": "high",
+      "blogPotential": "medium"
+    },
+    {
+      "id": "vendor-onboarding",
+      "title": "Vendor Onboarding Agent",
+      "vertical": "operations",
+      "patterns": ["trigger-extract-validate-route", "hitl-approval-gate"],
+      "problem": "Ops teams manually collect documents, verify details, chase missing information, and email back and forth for weeks before a new vendor is ready to transact.",
+      "solution": "Agent intakes vendor information, runs parallel document parsing + extraction, sends a structured summary to a human for approval, then updates the vendor master system and notifies all parties.",
+      "whoItsFor": "Operations Teams, Procurement Operations Teams",
+      "workflowSteps": [
+        "Vendor submits onboarding form and uploads documents",
+        "Document parser + extraction LLM fire in parallel: extract entity, tax ID, banking details, certifications",
+        "Validation: checks for missing required fields, flags potential duplicates in vendor master",
+        "Summary sent to human approver with extracted fields and confidence scores",
+        "On approval: updates vendor master spreadsheet, emails vendor confirmation, emails admin",
+        "On rejection/missing info: emails vendor with specific request for missing data"
+      ],
+      "keyInsights": "The typed routing condition is critical: the agent must distinguish between 'missing information' (ask vendor), 'approved' (proceed), and 'disapproved' (reject with reason) — not route based on LLM prose interpretation.",
+      "relatedExams": [
+        { "exam": "ccdf",  "domain": 3, "why": "Agents and Workflows — conditional routing, HITL" },
+        { "exam": "ab100", "domain": 3, "why": "Deploy AI-Powered Business Solutions — procurement automation" }
+      ],
+      "relatedInterviewQs": ["q-hitl-001", "q-orch-001"],
+      "examScenarioPotential": "high",
+      "blogPotential": "medium"
+    },
+    {
+      "id": "investment-proposal-drafting",
+      "title": "Investment Proposal Drafting Agent",
+      "vertical": "wealth-management",
+      "patterns": ["research-synthesize-generate", "document-rag"],
+      "problem": "Every bake-off, DDQ, and consultant questionnaire pulls the same team away from clients to reconstruct answers that already exist somewhere in a past PowerPoint or ADV filing.",
+      "solution": "Agent classifies the incoming RFP/DDQ, searches past pitches, ADV filings, and firm narrative archives, drafts tone-unified sections with regulatory disclosures, and routes to the lead advisor for final review.",
+      "whoItsFor": "Sales, BD, and IR teams at RIAs",
+      "workflowSteps": [
+        "Incoming RFP/DDQ/bake-off request classified by request type",
+        "Agent searches: past pitch books, ADV filings, DDQ archives, firm narrative docs",
+        "Drafts each section matching house style and regulatory disclosure requirements (Form ADV, CRS)",
+        "Reviewer receives draft with source references for every section",
+        "Lead advisor approves, edits, and sends to prospect"
+      ],
+      "keyInsights": "RAG over 'past successful responses' is the core value pattern here. The key risk is that retrieved language may be from a deprecated filing — freshness metadata on every chunk and a 'last approved for use' date on firm narrative documents is essential.",
+      "relatedExams": [
+        { "exam": "ccdf",  "domain": 4, "why": "Prompt and Context Engineering — style constraints, compliance language" },
+        { "exam": "ccap",  "domain": 2, "why": "Solution Design & Architecture — RAG over proprietary document archives" }
+      ],
+      "relatedInterviewQs": ["q-rag-001"],
+      "examScenarioPotential": "medium",
+      "blogPotential": "medium"
+    },
+    {
+      "id": "safety-ops-chatbot",
+      "title": "Safety Ops Chatbot (Construction)",
+      "vertical": "industrials",
+      "patterns": ["document-rag"],
+      "problem": "Construction professionals struggle to quickly find, interpret, and apply the correct safety procedures — OSHA standards, company policies, and incident records are in different systems.",
+      "solution": "Multi-source RAG agent answers safety questions by searching OSHA standards, company safety policies, safety risk registers, and incident records — providing grounded, compliant answers with citations.",
+      "whoItsFor": "Safety Managers, Team Leads, Supervisors",
+      "workflowSteps": [
+        "Safety question submitted (optionally with uploaded photo or incident file)",
+        "Parallel retrieval across: OSHA safety standards, OSHA injury incident database, company safety risk register, safety health & environment policies",
+        "LLM synthesizes a compliant answer citing both regulatory and internal sources",
+        "User receives answer with source citations from each knowledge base consulted"
+      ],
+      "keyInsights": "Multi-source RAG where sources have different authority levels (OSHA regulation > company policy > incident record). The response must make the source hierarchy explicit so the reader knows what is regulatory vs. internal guidance.",
+      "relatedExams": [
+        { "exam": "ccdf",  "domain": 1, "why": "Applications and Integration — multi-source knowledge base design" },
+        { "exam": "ccarf", "domain": 6, "why": "Configuration and Knowledge Management" }
+      ],
+      "relatedInterviewQs": ["q-rag-001"],
+      "examScenarioPotential": "medium",
+      "blogPotential": "high"
+    },
+    {
+      "id": "meeting-prep-agent",
+      "title": "Meeting Prep Agent (GTM)",
+      "vertical": "gtm",
+      "patterns": ["parallel-subagents", "research-synthesize-generate"],
+      "problem": "Executives and AEs walk into meetings cold because assembling account notes and company news into a prep email is a manual, time-consuming task.",
+      "solution": "Coordinator runs simultaneous web, LinkedIn, and SharePoint searches about attendees and the company, then drafts a prep email with agenda, talking points, and suggested questions.",
+      "whoItsFor": "Demand Gen, Partner Marketing Teams, AEs",
+      "workflowSteps": [
+        "Intake: attendee list, company name, meeting context",
+        "Parallel searches: (1) web search for company news, (2) LinkedIn search for attendee profiles, (3) SharePoint search for past account interactions",
+        "Coordinator merges parallel results",
+        "Drafts prep email: agenda, talking points, suggested questions, account context",
+        "Sends to exec/AE ahead of meeting"
+      ],
+      "keyInsights": "Parallel search fan-out with a merge coordinator is the pattern. Token budget matters — three parallel searches can return large results; the coordinator must summarize each source to a token-bounded summary before merging, not pass raw results to the final LLM.",
+      "relatedExams": [
+        { "exam": "ccdf",  "domain": 3, "why": "Agents and Workflows — parallel subagent fan-out" },
+        { "exam": "ccap",  "domain": 6, "why": "Claude Models, Prompting & Context Engineering — context compression" }
+      ],
+      "relatedInterviewQs": ["q-orch-001"],
+      "examScenarioPotential": "medium",
+      "blogPotential": "high"
+    },
+    {
+      "id": "scholarship-matching",
+      "title": "Scholarship Matching Agent",
+      "vertical": "education",
+      "patterns": ["document-rag", "research-synthesize-generate"],
+      "problem": "Students miss out on scholarships because the matching process requires researching hundreds of programs and comparing eligibility criteria manually.",
+      "solution": "Agent ingests student profile and academic background, searches a scholarship knowledge base, scores matches on eligibility and fit, and produces a ranked list with application guidance for each.",
+      "whoItsFor": "Students, Academic Counselors, Financial Aid Offices",
+      "workflowSteps": [
+        "Student submits profile: GPA, major, demographics, interests, financial need",
+        "Agent searches scholarship knowledge base across multiple categories",
+        "Scores each match on: eligibility (hard filter), fit (semantic), deadline proximity",
+        "Produces ranked shortlist with eligibility summary, application steps, and deadline for each",
+        "Optionally: drafts first-pass personal statement outline for top matches"
+      ],
+      "keyInsights": "Hybrid search (hard eligibility filters + semantic fit scoring) is the key pattern. Pure semantic search returns false positives on eligibility-gated scholarships. The pre-filter-then-rank pattern from RAG/RBAC applies directly here.",
+      "relatedExams": [
+        { "exam": "ccdf",  "domain": 1, "why": "Applications and Integration — hybrid search, pre-filter patterns" },
+        { "exam": "ccarf", "domain": 4, "why": "Prompting and Task Execution — structured output, ranking" }
+      ],
+      "relatedInterviewQs": ["q-rag-001"],
+      "examScenarioPotential": "medium",
+      "blogPotential": "high"
+    }
+  ],
+  "catalogUseCases": [
+    { "id": "underwriting-assistant",         "title": "Underwriting Assistant",                  "vertical": "insurance",         "patterns": ["document-rag", "document-eval-structured-output"] },
+    { "id": "claim-processing",               "title": "Claim Processing Agent",                  "vertical": "insurance",         "patterns": ["trigger-extract-validate-route", "hitl-approval-gate"] },
+    { "id": "repair-quote-selection",         "title": "Automated Repair Quote Selection",        "vertical": "insurance",         "patterns": ["document-eval-structured-output"] },
+    { "id": "claims-filing-regulatory",       "title": "Claims Filing & Regulatory Submission",   "vertical": "insurance",         "patterns": ["trigger-extract-validate-route"] },
+    { "id": "regulatory-compliance-agent",    "title": "Regulatory Compliance Agent",             "vertical": "insurance",         "patterns": ["document-eval-structured-output", "document-rag"] },
+    { "id": "billing-payment-reconciliation", "title": "Billing and Payment Reconciliation",      "vertical": "insurance",         "patterns": ["trigger-extract-validate-route"] },
+    { "id": "meeting-call-summarizer",        "title": "Meeting and Call Summarizer",             "vertical": "insurance",         "patterns": ["research-synthesize-generate"] },
+    { "id": "permitting-agent",               "title": "Permitting Agent",                        "vertical": "government",        "patterns": ["trigger-extract-validate-route", "hitl-approval-gate"] },
+    { "id": "it-support-agent",               "title": "IT Support Agent",                        "vertical": "government",        "patterns": ["document-rag", "trigger-extract-validate-route"] },
+    { "id": "document-classification-agent",  "title": "Document Ingestion & Classification",     "vertical": "government",        "patterns": ["trigger-extract-validate-route"] },
+    { "id": "employee-onboarding-agent",      "title": "Employee Training & Onboarding Agent",    "vertical": "government",        "patterns": ["document-rag"] },
+    { "id": "budgeting-agent",                "title": "Budgeting Agent",                         "vertical": "government",        "patterns": ["document-rag", "research-synthesize-generate"] },
+    { "id": "language-access-agent",          "title": "Language Access Agent",                   "vertical": "government",        "patterns": ["research-synthesize-generate"] },
+    { "id": "portfolio-reporting-agent",      "title": "Portfolio Reporting Agent",               "vertical": "wealth-management", "patterns": ["document-rag", "research-synthesize-generate"] },
+    { "id": "curriculum-routine-check",       "title": "Curriculum Routine Check Agent",          "vertical": "education",         "patterns": ["document-eval-structured-output"] },
+    { "id": "admissions-qa-agent",            "title": "Admissions Q&A Agent",                    "vertical": "education",         "patterns": ["document-rag"] },
+    { "id": "loan-processing-agent",          "title": "Loan Processing Agent",                   "vertical": "private-lending",   "patterns": ["trigger-extract-validate-route", "hitl-approval-gate"] },
+    { "id": "credit-memo-drafting",           "title": "Credit Memo Drafting Agent",              "vertical": "private-lending",   "patterns": ["document-rag", "research-synthesize-generate"] },
+    { "id": "borrower-qa-agent",              "title": "Borrower Q&A Agent",                      "vertical": "private-lending",   "patterns": ["document-rag"] },
+    { "id": "kyc-agent",                      "title": "KYC / Know Your Customer Agent",          "vertical": "banking",           "patterns": ["document-eval-structured-output", "trigger-extract-validate-route"] },
+    { "id": "fraud-narrative-agent",          "title": "Fraud Case Narrative Agent",              "vertical": "banking",           "patterns": ["research-synthesize-generate"] },
+    { "id": "tender-analysis-agent",          "title": "Tender Analysis Agent",                   "vertical": "industrials",       "patterns": ["document-rag", "document-eval-structured-output"] },
+    { "id": "equipment-maintenance-qa",       "title": "Equipment Maintenance Q&A Agent",         "vertical": "industrials",       "patterns": ["document-rag"] },
+    { "id": "sdr-email-sequences",            "title": "SDR Email Sequence Agent",                "vertical": "gtm",               "patterns": ["research-synthesize-generate"] },
+    { "id": "support-ticket-triage",          "title": "Support Ticket Triage Agent",             "vertical": "operations",        "patterns": ["trigger-extract-validate-route"] },
+    { "id": "procurement-automation",         "title": "Procurement Automation Agent",            "vertical": "operations",        "patterns": ["trigger-extract-validate-route", "hitl-approval-gate"] },
+    { "id": "lease-abstraction-agent",        "title": "Lease Abstraction Agent",                 "vertical": "real-estate",       "patterns": ["document-eval-structured-output"] },
+    { "id": "property-valuation-agent",       "title": "Property Valuation Agent",                "vertical": "real-estate",       "patterns": ["research-synthesize-generate", "document-rag"] },
+    { "id": "contract-review-agent",          "title": "Contract Review Agent",                   "vertical": "legal",             "patterns": ["document-eval-structured-output"] },
+    { "id": "matter-intake-agent",            "title": "Matter Intake Agent",                     "vertical": "legal",             "patterns": ["trigger-extract-validate-route"] },
+    { "id": "litigation-research-agent",      "title": "Litigation Research Agent",               "vertical": "legal",             "patterns": ["document-rag", "research-synthesize-generate"] }
+  ]
+}
