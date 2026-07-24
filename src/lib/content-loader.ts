@@ -303,6 +303,7 @@ export interface FeaturedUseCase {
   whoItsFor?: string;
   workflowSteps?: string[];
   keyInsights?: string;
+  mermaidDiagram?: string;
   relatedExams?: UseCaseRelatedExam[];
   relatedInterviewQs?: string[];
   examScenarioPotential?: string;

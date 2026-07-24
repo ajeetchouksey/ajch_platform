@@ -7,6 +7,7 @@ import {
   BookOpen,
   MessageSquare,
   ChevronRight,
+  GitGraph,
 } from 'lucide-react';
 import {
   loadUseCaseById,
@@ -15,6 +16,7 @@ import {
 } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import { GlassCard, Badge, SectionHeader } from '@/components/ui';
+import MermaidDiagram from '@/components/MermaidDiagram';
 import {
   PATTERN_LABEL,
   PATTERN_BADGE,
@@ -149,6 +151,19 @@ export default function UseCaseDetail() {
                   </li>
                 ))}
               </ol>
+            </div>
+          )}
+
+          {/* Architecture diagram */}
+          {featured.mermaidDiagram && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <GitGraph size={14} className="text-violet-400" />
+                Architecture Diagram
+              </h2>
+              <GlassCard accent="violet" border="border-slate-700/40" className="p-4">
+                <MermaidDiagram chart={featured.mermaidDiagram} />
+              </GlassCard>
             </div>
           )}
 
