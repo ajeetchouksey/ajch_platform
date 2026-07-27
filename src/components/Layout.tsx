@@ -125,7 +125,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const [pageKey, setPageKey] = useState(location.pathname + location.search);
+  const pageKey = location.pathname + location.search;
   const [currentExam, setCurrentExam] = useState<ExamConfig | null>(null);
 
   const examIdMatch = location.pathname.match(/^\/(?:exams|skillup)\/([^/]+)/);
@@ -138,7 +138,6 @@ export default function Layout({ children }: { children: ReactNode }) {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSidebarOpen(false);
-    setPageKey(location.pathname + location.search);
     const mainEl = document.querySelector('main');
     if (mainEl) mainEl.scrollTop = 0;
   }, [location.pathname, location.search]);
