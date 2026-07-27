@@ -11,6 +11,8 @@ featured: true
 draft: false
 ---
 
+![RAG vs Agentic RAG — From Search & Answer to Reason & Act](/images/blog/rag-vs-agentic-rag.jpg)
+
 Every enterprise AI project eventually hits the same wall. The model is smart but it doesn't know anything about your business. It hallucates figures, invents policy details, and confidently answers questions using training data that is a year out of date.
 
 Retrieval-Augmented Generation — RAG — solved that problem at scale. Ground the model in your documents, your knowledge bases, your real data. Give it context at query time. Let it answer from what you know, not what it guesses.
@@ -20,6 +22,29 @@ That worked. Enterprises adopted RAG widely, and for good reason: grounded answe
 But the wall moved.
 
 Users started asking not just *what* the policy says, but *whether their case qualifies*, *what they should do next*, and *who they need to talk to*. Those questions require more than retrieval. They require reasoning, multi-step lookup, and sometimes action. That is the gap that Agentic RAG fills — and understanding the difference between the two architectures is now a practical necessity for anyone building enterprise AI systems.
+
+```mermaid
+flowchart LR
+  subgraph RAG["RAG — Search & Answer"]
+    direction TB
+    r1([Query]) --> r2[Embed]
+    r2 --> r3[(Vector Search)]
+    r3 --> r4[LLM: Generate]
+    r4 --> r5([Grounded Answer])
+  end
+
+  subgraph ARAG["Agentic RAG — Reason & Act"]
+    direction TB
+    a1([Query]) --> a2[Planner LLM]
+    a2 --> a3[Tool: Search]
+    a2 --> a4[Tool: API Call]
+    a2 --> a5[Tool: Validate]
+    a3 & a4 & a5 --> a6[Synthesize]
+    a6 --> a7{Goal Met?}
+    a7 -->|Re-plan| a2
+    a7 -->|Done| a8([Action + Answer])
+  end
+```
 
 ---
 
