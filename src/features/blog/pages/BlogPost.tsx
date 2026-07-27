@@ -7,7 +7,7 @@ import {
   Calendar, Clock, User, Tag, Share2, Check,
   Maximize2, Minimize2, List, X, BookOpen,
 } from 'lucide-react';
-import { loadBlogPost, loadBlogManifest } from '@/lib/content-loader';
+import { loadBlogPost, loadBlogManifest, hasCachedBlogManifest, hasCachedBlogPost } from '@/lib/content-loader';
 import { sharePost } from '@/lib/share';
 import GiscusComments from '@/components/GiscusComments';
 import RelatedContent from '@/components/RelatedContent';
@@ -320,7 +320,6 @@ export default function BlogPost() {
   const [readPct, setReadPct] = useState(0);
   const [showToc, setShowToc] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
-  const hasLoadedOnceRef = useRef(false); // skip skeleton on re-navigation
 
   const headings = useMemo(() => extractHeadings(content), [content]);
 
@@ -336,9 +335,9 @@ export default function BlogPost() {
     if (!slug) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setError(null); setActiveId(''); setReadPct(0);
-    // Only show skeleton on the very first load; subsequent navigations just fade
-    if (!hasLoadedOnceRef.current) setLoading(true);
-    setVisible(false);
+    const hasWarmCache = hasCachedBlogPost(slug) && hasCachedBlogManifest();
+    if (!hasWarmCache) setLoading(true);
+    setVisible(true);
     const mainEl = document.querySelector('main') as HTMLElement | null;
     if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     Promise.all([loadBlogPost(slug), loadBlogManifest()])
@@ -346,8 +345,7 @@ export default function BlogPost() {
         setContent(md.replace(/^---[\s\S]*?---\n*/, ''));
         setMeta(manifest.posts.find(p => p.slug === slug) ?? null);
         setLoading(false);
-        hasLoadedOnceRef.current = true;
-        setTimeout(() => setVisible(true), 30);
+        setVisible(true);
       })
       .catch(e => { setError(String(e)); setLoading(false); });
   }, [slug]);

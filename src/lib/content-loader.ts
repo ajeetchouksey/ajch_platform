@@ -4,6 +4,8 @@ const BASE = import.meta.env.BASE_URL;
 
 // ── Module-level registry cache (loaded once) ──────────────────────────────
 let _registryCache: ExamRegistry | null = null;
+let _blogManifestCache: BlogManifest | null = null;
+const _blogPostCache = new Map<string, string>();
 
 async function fetchJSON<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`);
@@ -24,11 +26,24 @@ async function fetchText(path: string): Promise<string> {
 }
 
 export async function loadBlogManifest(): Promise<BlogManifest> {
-  return fetchJSON<BlogManifest>('content/blog/index.json');
+  if (_blogManifestCache) return _blogManifestCache;
+  _blogManifestCache = await fetchJSON<BlogManifest>('content/blog/index.json');
+  return _blogManifestCache;
 }
 
 export async function loadBlogPost(slug: string): Promise<string> {
-  return fetchText(`content/blog/posts/${slug}.md`);
+  if (_blogPostCache.has(slug)) return _blogPostCache.get(slug)!;
+  const post = await fetchText(`content/blog/posts/${slug}.md`);
+  _blogPostCache.set(slug, post);
+  return post;
+}
+
+export function hasCachedBlogManifest(): boolean {
+  return _blogManifestCache !== null;
+}
+
+export function hasCachedBlogPost(slug: string): boolean {
+  return _blogPostCache.has(slug);
 }
 
 // ── Registry-driven loaders (exam-agnostic) ────────────────────────────────
@@ -252,38 +267,53 @@ interface _GistPayload {
   synced_at?: string;
 }
 
+let _platformStatsCache: PlatformStats | null = null;
+let _platformStatsInflight: Promise<PlatformStats> | null = null;
+
 export async function loadPlatformStats(): Promise<PlatformStats> {
-  const [baseResult, gistResult] = await Promise.allSettled([
+  if (_platformStatsCache) return _platformStatsCache;
+  if (_platformStatsInflight) return _platformStatsInflight;
+
+  _platformStatsInflight = (async () => {
+    const [baseResult, gistResult] = await Promise.allSettled([
     fetchJSONFresh<PlatformStats>('content/stats.json'),
     fetch(`${_GIST_RAW}?t=${Date.now()}`, { cache: 'no-store' })
       .then(r => r.ok ? (r.json() as Promise<_GistPayload>) : null)
       .catch(() => null),
-  ]);
+    ]);
 
-  const stats = baseResult.status === 'fulfilled'
-    ? baseResult.value
-    : ({} as PlatformStats);
-  const g = gistResult.status === 'fulfilled' ? gistResult.value : null;
+    const stats = baseResult.status === 'fulfilled'
+      ? baseResult.value
+      : ({} as PlatformStats);
+    const g = gistResult.status === 'fulfilled' ? gistResult.value : null;
 
-  // Overlay live Gist analytics on top of the build-time stats.json values
-  if (g?.page_views) {
-    stats.pageViews = {
-      dateFrom:                  g.page_views.date_from          ?? stats.pageViews?.dateFrom                  ?? '2026-05-01',
-      total:                     g.page_views.total              ?? stats.pageViews?.total                     ?? null,
-      avgEngagementDurationSecs: g.page_views.avg_engagement_secs ?? stats.pageViews?.avgEngagementDurationSecs ?? null,
-      byPath:                    g.page_views.by_path            ?? stats.pageViews?.byPath                    ?? {},
-      synced_at:                 g.synced_at                     ?? stats.pageViews?.synced_at                 ?? null,
-    };
-  }
-  if (g) {
-    stats.audience = {
-      users_today: g.users_today ?? stats.audience?.users_today ?? null,
-      users_28d:   g.users_28d   ?? stats.audience?.users_28d   ?? null,
-      synced_at:   g.synced_at   ?? stats.audience?.synced_at   ?? null,
-    };
-  }
+    // Overlay live Gist analytics on top of the build-time stats.json values
+    if (g?.page_views) {
+      stats.pageViews = {
+        dateFrom:                  g.page_views.date_from          ?? stats.pageViews?.dateFrom                  ?? '2026-05-01',
+        total:                     g.page_views.total              ?? stats.pageViews?.total                     ?? null,
+        avgEngagementDurationSecs: g.page_views.avg_engagement_secs ?? stats.pageViews?.avgEngagementDurationSecs ?? null,
+        byPath:                    g.page_views.by_path            ?? stats.pageViews?.byPath                    ?? {},
+        synced_at:                 g.synced_at                     ?? stats.pageViews?.synced_at                 ?? null,
+      };
+    }
+    if (g) {
+      stats.audience = {
+        users_today: g.users_today ?? stats.audience?.users_today ?? null,
+        users_28d:   g.users_28d   ?? stats.audience?.users_28d   ?? null,
+        synced_at:   g.synced_at   ?? stats.audience?.synced_at   ?? null,
+      };
+    }
 
-  return stats;
+    _platformStatsCache = stats;
+    _platformStatsInflight = null;
+    return stats;
+  })().catch((error) => {
+    _platformStatsInflight = null;
+    throw error;
+  });
+
+  return _platformStatsInflight;
 }
 
 // ── Use Cases (AI UseCases section) ────────────────────────────────────────
