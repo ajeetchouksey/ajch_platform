@@ -47,5 +47,94 @@
       "label": "Investor Helpdesk Agent",
       "vertical": "Investment Management"
     }
+  ],
+  "techStack": [
+    {
+      "category": "Lead Scoring",
+      "tools": [
+        "Claude classification (industry, company size, intent signals)",
+        "Clearbit / Apollo enrichment"
+      ]
+    },
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-haiku (lead scoring + email draft)",
+        "GPT-4o-mini (A/B variant generation)"
+      ]
+    },
+    {
+      "category": "CRM",
+      "tools": [
+        "Salesforce (CRM record creation)",
+        "HubSpot",
+        "Pipedrive"
+      ]
+    },
+    {
+      "category": "Email",
+      "tools": [
+        "SendGrid",
+        "AWS SES",
+        "Postmark (transactional)"
+      ]
+    },
+    {
+      "category": "Workflow",
+      "tools": [
+        "n8n / Zapier (trigger orchestration)",
+        "Custom FastAPI webhook handler"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "Lead enrichment returns stale company data (M&A, rebranding)",
+      "mitigation": "TTL cache on enrichment data (7 days); flag low-confidence enrichments for human QA; use multiple enrichment sources and take majority."
+    },
+    {
+      "mode": "Personalised email contains wrong company or role details",
+      "mitigation": "Template sanity check: verify all {{variables}} are populated before send; staging send to internal inbox for visual QA on first 50 leads."
+    },
+    {
+      "mode": "CRM duplicate created for returning lead",
+      "mitigation": "Upsert by email (dedupe key); check existing records before insert; merge logic for same-company different-contact scenarios."
+    },
+    {
+      "mode": "High-fit leads missed due to miscalibrated scoring model",
+      "mitigation": "Sales feedback loop: reps mark leads as 'should have been prioritised'; retrain scoring prompt monthly; track lead-to-opportunity conversion by score tier."
+    }
+  ],
+  "scalingConsiderations": [
+    "Enrichment cost: Clearbit ~$0.05–0.10/lead; for high-volume (10,000+ leads/month), gate enrichment behind score threshold to avoid enriching all spam.",
+    "Email send timing: personalised email within 5 minutes of form submit shows 3× higher open rates; prioritise queue processing for hot leads.",
+    "CRM sync latency: Salesforce API rate limits at 100 calls/s; use bulk upsert endpoint for batch processing; real-time upsert for high-priority leads only."
+  ],
+  "integrations": [
+    {
+      "system": "Web Form / Landing Page",
+      "type": "Trigger",
+      "note": "Webhook on form submit (Typeform, HubSpot forms, custom)"
+    },
+    {
+      "system": "Clearbit / Apollo / ZoomInfo",
+      "type": "Read",
+      "note": "Lead enrichment — company size, industry, tech stack"
+    },
+    {
+      "system": "CRM (Salesforce / HubSpot)",
+      "type": "Write",
+      "note": "Creates/updates lead record with score and context"
+    },
+    {
+      "system": "Email Platform (SendGrid / SES)",
+      "type": "Write",
+      "note": "Sends personalised nurture email"
+    },
+    {
+      "system": "Slack / Teams",
+      "type": "Write",
+      "note": "Notifies sales rep for high-score leads"
+    }
   ]
 }

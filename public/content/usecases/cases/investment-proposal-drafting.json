@@ -47,5 +47,90 @@
       "label": "Meeting Prep Agent (GTM)",
       "vertical": "Sales & GTM"
     }
+  ],
+  "techStack": [
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-sonnet (proposal narrative + suitability)",
+        "claude-3-haiku (data formatting)"
+      ]
+    },
+    {
+      "category": "Portfolio Analytics",
+      "tools": [
+        "FactSet",
+        "Bloomberg PORT",
+        "Custom Python portfolio optimizer"
+      ]
+    },
+    {
+      "category": "Suitability Engine",
+      "tools": [
+        "Rules-based suitability engine (MiFID II / Reg BI)",
+        "LLM suitability narrative generator"
+      ]
+    },
+    {
+      "category": "Document Generation",
+      "tools": [
+        "python-docx",
+        "LaTeX (PDF rendering)",
+        "DocuSign (e-signature)"
+      ]
+    },
+    {
+      "category": "Compliance Check",
+      "tools": [
+        "Compliance rulebook validator",
+        "Automated disclosure checker"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "Proposal recommends product outside client risk tolerance",
+      "mitigation": "Hard constraint layer pre-filters product universe by risk band BEFORE LLM drafts prose; compliance rule engine validates final recommendation independently."
+    },
+    {
+      "mode": "Required regulatory disclosures missing from final proposal",
+      "mitigation": "Disclosure checklist applied post-generation; each required disclosure has a presence check; proposal blocked from delivery if any disclosure absent."
+    },
+    {
+      "mode": "Portfolio return figures use wrong benchmark",
+      "mitigation": "Benchmark selection is a deterministic rule (client geography × asset class → benchmark ID); LLM receives pre-computed figures, never calculates returns independently."
+    }
+  ],
+  "scalingConsiderations": [
+    "Relationship manager productivity: typical RM spends 4–6 hours on a proposal; agent reduces to 30-minute review + sign-off — enables 5× more proposal throughput.",
+    "Regulatory variation: MiFID II (EU), Reg BI (US), MAS FAA (Singapore) have different disclosure requirements; parameterise by jurisdiction.",
+    "Proposal versioning: client may request multiple scenario variations (conservative / moderate / aggressive); agent generates all three in parallel for single review session."
+  ],
+  "integrations": [
+    {
+      "system": "CRM (Salesforce / Dynamics)",
+      "type": "Read",
+      "note": "Client profile, risk tolerance, investment objectives"
+    },
+    {
+      "system": "Portfolio Analytics (FactSet / Bloomberg)",
+      "type": "Read",
+      "note": "Historical performance, current holdings, benchmark data"
+    },
+    {
+      "system": "Product Catalog (internal)",
+      "type": "Read",
+      "note": "Approved investment products and their suitability profiles"
+    },
+    {
+      "system": "DocuSign / Adobe Sign",
+      "type": "Write",
+      "note": "Sends proposal for client and RM e-signature"
+    },
+    {
+      "system": "Document Management (SharePoint)",
+      "type": "Write",
+      "note": "Archives signed proposal with version history"
+    }
   ]
 }

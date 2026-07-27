@@ -54,5 +54,94 @@
       "label": "Inbound Lead Magnet Agent",
       "vertical": "Sales & GTM"
     }
+  ],
+  "techStack": [
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-haiku (document completeness check)",
+        "claude-3-5-sonnet (risk narrative)"
+      ]
+    },
+    {
+      "category": "Screening APIs",
+      "tools": [
+        "Dow Jones Risk & Compliance",
+        "LexisNexis WorldCompliance",
+        "Dun & Bradstreet Supplier Risk"
+      ]
+    },
+    {
+      "category": "Document Verification",
+      "tools": [
+        "Socure / Onfido (document AI)",
+        "Custom certificate parser (W-9, insurance certs)"
+      ]
+    },
+    {
+      "category": "Workflow",
+      "tools": [
+        "Temporal (parallel validation)",
+        "ServiceNow Vendor Management"
+      ]
+    },
+    {
+      "category": "ERP / Procurement",
+      "tools": [
+        "SAP Ariba",
+        "Coupa",
+        "Oracle Procurement Cloud"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "False sanctions match blocks legitimate vendor",
+      "mitigation": "Fuzzy match threshold tuning; human review gate for all sanctions hits before rejection; clear appeal process; log all matches with match score."
+    },
+    {
+      "mode": "Expired insurance certificate not detected",
+      "mitigation": "Certificate parser extracts explicit expiry date field; validation rejects certificates expiring within 30 days; renewal reminder automated at 60 days."
+    },
+    {
+      "mode": "ERP provisioning fails silently after approval",
+      "mitigation": "ERP API call wrapped in saga pattern; rollback on failure; status field tracks provisioning state; alert on any stalled 'provisioning' status > 24h."
+    },
+    {
+      "mode": "Parallel validation creates race condition on shared vendor record",
+      "mitigation": "Optimistic locking on vendor record; each validation agent writes to separate field; coordinator merges results atomically before status update."
+    }
+  ],
+  "scalingConsiderations": [
+    "Onboarding volume: enterprise procurement teams process 500–2000 new vendors/year; automated handling reduces time from 15 days to 2–3 days average.",
+    "Screening API cost: ~$5–15/vendor for comprehensive screen; gate expensive screens behind preliminary document completeness check.",
+    "ERP provisioning: SAP Ariba API rate limits vary; batch provisioning for non-urgent vendors; real-time for strategic/critical suppliers."
+  ],
+  "integrations": [
+    {
+      "system": "Vendor Portal / Intake Form",
+      "type": "Trigger",
+      "note": "Web form submission initiates onboarding workflow"
+    },
+    {
+      "system": "Sanctions / Risk Screening APIs",
+      "type": "Read",
+      "note": "Dow Jones, LexisNexis, OFAC SDN check"
+    },
+    {
+      "system": "Financial Data (D&B / Experian)",
+      "type": "Read",
+      "note": "Credit and financial health assessment"
+    },
+    {
+      "system": "ERP (SAP Ariba / Coupa)",
+      "type": "Write",
+      "note": "Creates approved vendor master record"
+    },
+    {
+      "system": "Procurement Review Queue (ServiceNow)",
+      "type": "HITL",
+      "note": "Medium-risk vendors routed for human approval"
+    }
   ]
 }

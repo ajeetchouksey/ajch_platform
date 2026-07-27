@@ -45,5 +45,88 @@
       "label": "Vendor Onboarding Agent",
       "vertical": "Finance & Ops"
     }
+  ],
+  "techStack": [
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-haiku (fast mobile response)",
+        "claude-3-5-sonnet (complex multi-regulation queries)"
+      ]
+    },
+    {
+      "category": "RAG",
+      "tools": [
+        "pgvector (safety manual embeddings)",
+        "Qdrant (incident database)"
+      ]
+    },
+    {
+      "category": "Alerting",
+      "tools": [
+        "PagerDuty (safety officer escalation)",
+        "Twilio SMS (site-wide emergency broadcast)"
+      ]
+    },
+    {
+      "category": "Mobile Interface",
+      "tools": [
+        "Progressive Web App (offline support)",
+        "React Native + offline SQLite fallback"
+      ]
+    },
+    {
+      "category": "Compliance",
+      "tools": [
+        "OSHA CFR Title 29 document corpus",
+        "ISO 45001 standards library"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "Worker asks hazard question offline (no network on site)",
+      "mitigation": "Critical safety procedures cached locally on device; offline mode serves cached answers with clear staleness warning; sync on reconnect."
+    },
+    {
+      "mode": "Chatbot gives wrong PPE recommendation for chemical exposure",
+      "mitigation": "Hazard queries routed to curated regulatory corpus only (SDS sheets + OSHA standards); no parametric model knowledge used for PPE recommendations; source citation required in every answer."
+    },
+    {
+      "mode": "Safety officer not alerted for high-severity incident report",
+      "mitigation": "Severity classification is rule-based (keyword match on injury/fatality/fire/chemical release); PagerDuty integration fires immediately on match regardless of LLM response path."
+    }
+  ],
+  "scalingConsiderations": [
+    "Site count: multi-site construction companies have 50–200 active projects; deploy shared corpus with project-specific addendum layer for site-specific procedures.",
+    "Query volume: 10–50 safety queries/day per active site; embedding corpus size manageable (<100K vectors for typical safety manual + incident database).",
+    "Regulatory update frequency: OSHA standards update infrequently; re-index quarterly or on published change notification."
+  ],
+  "integrations": [
+    {
+      "system": "Safety Manual (SharePoint / Procore)",
+      "type": "Read",
+      "note": "Source of site procedures, PPE requirements, emergency protocols"
+    },
+    {
+      "system": "Incident Management (Procore / Intelex)",
+      "type": "Read/Write",
+      "note": "Historical incident data for RAG; logs new incident reports"
+    },
+    {
+      "system": "OSHA / Regulatory Database",
+      "type": "Read",
+      "note": "CFR Title 29, state OSHA standards, SDS sheets"
+    },
+    {
+      "system": "PagerDuty / Twilio",
+      "type": "Write",
+      "note": "Real-time alerts for high-severity hazard queries"
+    },
+    {
+      "system": "Procore / Safety Culture",
+      "type": "Write",
+      "note": "Logs inspections and corrective actions"
+    }
   ]
 }

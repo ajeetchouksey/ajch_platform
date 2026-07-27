@@ -52,5 +52,92 @@
       "label": "Investment Proposal Drafting Agent",
       "vertical": "Investment Management"
     }
+  ],
+  "techStack": [
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-haiku (news summarization)",
+        "claude-3-5-sonnet (briefing synthesis + talking points)"
+      ]
+    },
+    {
+      "category": "Data Sources",
+      "tools": [
+        "LinkedIn Sales Navigator API",
+        "Clearbit Company API",
+        "NewsAPI / Bing News Search"
+      ]
+    },
+    {
+      "category": "CRM",
+      "tools": [
+        "Salesforce (opportunity context)",
+        "HubSpot CRM",
+        "Pipedrive"
+      ]
+    },
+    {
+      "category": "Delivery",
+      "tools": [
+        "SendGrid (email briefing)",
+        "Slack Bot (channel notification)",
+        "Salesforce Chatter"
+      ]
+    },
+    {
+      "category": "Scheduling Integration",
+      "tools": [
+        "Google Calendar API",
+        "Microsoft Graph (Outlook)",
+        "Calendly webhook"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "LinkedIn profile data not found for attendee",
+      "mitigation": "Graceful degradation: brief includes available data (CRM history, company news) and flags missing profile with manual lookup suggestion."
+    },
+    {
+      "mode": "News API returns irrelevant or negative articles about the company",
+      "mitigation": "Relevance filter (company name exact match + recency weight); sentiment classifier flags negative news for explicit inclusion with recommended framing."
+    },
+    {
+      "mode": "Briefing delivered too late (< 5 min before meeting)",
+      "mitigation": "Scheduled trigger fires 40 minutes before meeting start; SLA alert if briefing not delivered 30 minutes before; retry with degraded content if full run fails."
+    }
+  ],
+  "scalingConsiderations": [
+    "Sales team scale: enterprise sales teams of 50–200 reps each doing 3–5 meetings/day = 150–1000 briefings/day; async queue handles burst; priority for meetings starting within 2 hours.",
+    "Data freshness: LinkedIn data cached for 24h; company news fetched fresh for each meeting; CRM data always fetched live.",
+    "Cost profile: ~$0.15–0.30/briefing at claude-3-5-haiku for summarization + claude-3-5-sonnet for synthesis; < $50/day for 200 meetings."
+  ],
+  "integrations": [
+    {
+      "system": "Calendar (Google / Outlook)",
+      "type": "Trigger",
+      "note": "Meeting invite triggers briefing generation workflow"
+    },
+    {
+      "system": "LinkedIn Sales Navigator",
+      "type": "Read",
+      "note": "Attendee profiles, connections, recent activity"
+    },
+    {
+      "system": "CRM (Salesforce / HubSpot)",
+      "type": "Read",
+      "note": "Account history, open opportunities, previous interactions"
+    },
+    {
+      "system": "News APIs (NewsAPI / Bing)",
+      "type": "Read",
+      "note": "Recent company news, press releases, earnings"
+    },
+    {
+      "system": "Email / Slack",
+      "type": "Write",
+      "note": "Delivers formatted briefing 30 min before meeting"
+    }
   ]
 }

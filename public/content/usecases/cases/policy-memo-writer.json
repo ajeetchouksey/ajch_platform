@@ -53,5 +53,85 @@
       "label": "City Council Meeting Summary Agent",
       "vertical": "Policy & Government"
     }
+  ],
+  "techStack": [
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-sonnet (multi-pass summarization + memo drafting)",
+        "claude-3-haiku (structural pass)"
+      ]
+    },
+    {
+      "category": "Document Retrieval",
+      "tools": [
+        "Trafilatura (web scraping)",
+        "PyPDF2 (PDF parsing)",
+        "Requests + BeautifulSoup"
+      ]
+    },
+    {
+      "category": "Templating",
+      "tools": [
+        "Jinja2 (memo template rendering)",
+        "python-docx (Word output)"
+      ]
+    },
+    {
+      "category": "Fact Checking",
+      "tools": [
+        "Self-ask chain-of-thought",
+        "Citation extraction + source URL pinning"
+      ]
+    },
+    {
+      "category": "Output",
+      "tools": [
+        "Markdown → HTML",
+        "Microsoft Word export",
+        "Email delivery"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "LLM fabricates a statutory reference not in the source",
+      "mitigation": "Every factual claim must link to a direct quote from the parsed document; citation check step compares each claim against retrieved text before memo is released."
+    },
+    {
+      "mode": "Legislation website changes structure, breaking parser",
+      "mitigation": "Use multiple fallback parsers (Trafilatura → BeautifulSoup → PDF download); alert on parse failures; human review gate if primary parser fails."
+    },
+    {
+      "mode": "Multi-section synthesis loses nuance of exceptions and carve-outs",
+      "mitigation": "Preserve section-level summaries as structured data before synthesis; exceptions/carve-outs extracted with dedicated prompt pass."
+    }
+  ],
+  "scalingConsiderations": [
+    "Typical memo generation: 3–5 LLM calls (structural pass, section summaries, cross-section synthesis, compliance check, formatting); total ~30–60s at sonnet pricing.",
+    "For high-volume policy teams (50+ memos/month): pre-cache parsed document structure; only re-run synthesis when a new amendment is detected.",
+    "Multi-jurisdiction support: parameterise by jurisdiction (US federal, state, EU, UK); maintain jurisdiction-specific templates and citation styles."
+  ],
+  "integrations": [
+    {
+      "system": "Federal / State Legislative Portals",
+      "type": "Read",
+      "note": "Scrape or download bill text and regulatory filings"
+    },
+    {
+      "system": "Regulatory Database (Westlaw / LexisNexis)",
+      "type": "Read",
+      "note": "Cross-reference with existing case law and regulations"
+    },
+    {
+      "system": "Document Management (SharePoint)",
+      "type": "Write",
+      "note": "Archives final memo with version history"
+    },
+    {
+      "system": "Email / Teams",
+      "type": "Write",
+      "note": "Delivers memo to policy team for review"
+    }
   ]
 }

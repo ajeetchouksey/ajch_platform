@@ -60,5 +60,96 @@
       "label": "Internal Audit Testing Agent (Banking)",
       "vertical": "Banking"
     }
+  ],
+  "techStack": [
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-haiku (typology classification)",
+        "GPT-4o-mini (SAR narrative draft)"
+      ]
+    },
+    {
+      "category": "Rules Engine",
+      "tools": [
+        "NICE Actimize",
+        "Drools",
+        "custom Python rule evaluator"
+      ]
+    },
+    {
+      "category": "Watchlist API",
+      "tools": [
+        "OFAC SDN API",
+        "Dow Jones Risk & Compliance",
+        "Refinitiv World-Check"
+      ]
+    },
+    {
+      "category": "Workflow",
+      "tools": [
+        "Temporal (parallel activity dispatch)",
+        "Kafka (event streaming)"
+      ]
+    },
+    {
+      "category": "Case Management",
+      "tools": [
+        "Verint FICA",
+        "Oracle FCCM",
+        "custom PostgreSQL case store"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "Watchlist API timeout breaks parallel fan-out",
+      "mitigation": "Per-agent timeout with partial-result aggregation; flag transaction for deferred re-check rather than blocking the entire pipeline."
+    },
+    {
+      "mode": "High false-positive rate triggers alert fatigue",
+      "mitigation": "Calibrate threshold with monthly tuning loop; track precision/recall per rule; introduce feedback loop from analyst verdicts back into scoring weights."
+    },
+    {
+      "mode": "SAR narrative contains hallucinated transaction details",
+      "mitigation": "Narrative generation uses only structured fields passed in context (no retrieval); post-generation diff check against source data before submission."
+    },
+    {
+      "mode": "Regulatory deadline missed on SAR filing",
+      "mitigation": "30-day clock starts at alert creation; automated reminders at 20 and 25 days; hard escalation to compliance officer at day 28."
+    }
+  ],
+  "scalingConsiderations": [
+    "Parallel agent fan-out cuts latency from O(n) to O(1) for independent checks — critical for real-time card authorization use cases.",
+    "Throughput limit: watchlist APIs typically rate-limit at 100–500 req/s; use request pooling and local cache for repeat entity lookups within a 24h window.",
+    "Scoring model drift: retrain threshold monthly using analyst verdicts as ground truth; track false-positive rate as a platform SLO.",
+    "SAR volume compliance: most institutions file 500–5000 SARs/month; agent can handle 10× that with no human bottleneck on standard cases."
+  ],
+  "integrations": [
+    {
+      "system": "Core Banking System",
+      "type": "Read",
+      "note": "Transaction feed via Kafka or database CDC"
+    },
+    {
+      "system": "OFAC / Watchlist APIs",
+      "type": "Read",
+      "note": "Real-time sanctions and PEP screening"
+    },
+    {
+      "system": "Case Management (FCCM)",
+      "type": "Write",
+      "note": "Creates and updates AML alert cases"
+    },
+    {
+      "system": "FinCEN / Regulatory Portal",
+      "type": "Write",
+      "note": "SAR submission via BSA e-Filing API"
+    },
+    {
+      "system": "Analyst Workstation",
+      "type": "HITL",
+      "note": "Serves full transaction context and draft SAR for review"
+    }
   ]
 }
