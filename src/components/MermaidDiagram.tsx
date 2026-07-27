@@ -112,7 +112,21 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
     );
   }
 
-  if (!svg) return null;
+  // Reserve layout space while Mermaid renders — prevents the height-jump flicker
+  if (!svg) {
+    return (
+      <div
+        className="my-6 rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center"
+        style={{ minHeight: '180px' }}
+        aria-label="Loading diagram…"
+      >
+        <div className="flex items-center gap-2 text-[11px] text-slate-600">
+          <span className="w-3 h-3 rounded-full border-2 border-violet-600/40 border-t-violet-400 animate-spin" />
+          Loading diagram…
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

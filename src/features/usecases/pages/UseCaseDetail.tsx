@@ -69,8 +69,30 @@ export default function UseCaseDetail() {
 
   if (!uc) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center">
-        <p className="text-xs text-slate-500">Loading…</p>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 animate-pulse">
+        <div className="h-3 w-24 rounded bg-slate-800 mb-8" />
+        <div className="flex gap-2 mb-3">
+          <div className="h-5 w-20 rounded-full bg-slate-800" />
+          <div className="h-5 w-16 rounded-full bg-slate-800" />
+        </div>
+        <div className="h-7 w-2/3 rounded bg-slate-800 mb-6" />
+        <div className="rounded-xl border border-slate-800 p-6 space-y-3 mb-6">
+          <div className="h-3 w-16 rounded bg-slate-800" />
+          <div className="h-4 w-full rounded bg-slate-800" />
+          <div className="h-4 w-5/6 rounded bg-slate-800" />
+          <div className="h-3 w-16 rounded bg-slate-800 mt-4" />
+          <div className="h-4 w-full rounded bg-slate-800" />
+          <div className="h-4 w-4/5 rounded bg-slate-800" />
+        </div>
+        <div className="h-4 w-32 rounded bg-slate-800 mb-3" />
+        <div className="space-y-2">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex gap-3">
+              <div className="h-5 w-5 rounded-full bg-slate-800 shrink-0" />
+              <div className="h-4 rounded bg-slate-800 flex-1" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
