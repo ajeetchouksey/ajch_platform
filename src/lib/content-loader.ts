@@ -4,6 +4,8 @@ const BASE = import.meta.env.BASE_URL;
 
 // ── Module-level registry cache (loaded once) ──────────────────────────────
 let _registryCache: ExamRegistry | null = null;
+let _blogManifestCache: BlogManifest | null = null;
+const _blogPostCache = new Map<string, string>();
 
 async function fetchJSON<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`);
@@ -24,11 +26,24 @@ async function fetchText(path: string): Promise<string> {
 }
 
 export async function loadBlogManifest(): Promise<BlogManifest> {
-  return fetchJSON<BlogManifest>('content/blog/index.json');
+  if (_blogManifestCache) return _blogManifestCache;
+  _blogManifestCache = await fetchJSON<BlogManifest>('content/blog/index.json');
+  return _blogManifestCache;
 }
 
 export async function loadBlogPost(slug: string): Promise<string> {
-  return fetchText(`content/blog/posts/${slug}.md`);
+  if (_blogPostCache.has(slug)) return _blogPostCache.get(slug)!;
+  const post = await fetchText(`content/blog/posts/${slug}.md`);
+  _blogPostCache.set(slug, post);
+  return post;
+}
+
+export function hasCachedBlogManifest(): boolean {
+  return _blogManifestCache !== null;
+}
+
+export function hasCachedBlogPost(slug: string): boolean {
+  return _blogPostCache.has(slug);
 }
 
 // ── Registry-driven loaders (exam-agnostic) ────────────────────────────────
