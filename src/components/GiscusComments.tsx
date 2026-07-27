@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // ── Giscus config ─────────────────────────────────────────────────────────────
 // Public identifiers for the public ajeetchouksey/ajch_platform repo.
@@ -31,10 +31,13 @@ interface GiscusCommentsProps {
  */
 export default function GiscusComments({ slug: _slug, context = 'field-notes' }: GiscusCommentsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    setLoaded(false);
 
     const { category, categoryId } = GISCUS_CATEGORIES[context];
 
@@ -58,6 +61,7 @@ export default function GiscusComments({ slug: _slug, context = 'field-notes' }:
     script.setAttribute('data-loading', 'lazy');
     script.crossOrigin = 'anonymous';
     script.async = true;
+    script.addEventListener('load', () => setLoaded(true), { once: true });
 
     container.appendChild(script);
 
@@ -67,10 +71,23 @@ export default function GiscusComments({ slug: _slug, context = 'field-notes' }:
   }, [_slug, context]); // re-inject on every post/context change
 
   return (
-    <div
-      ref={containerRef}
-      className="giscus"
-      style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid rgba(71,85,105,0.18)' }}
-    />
+    <div style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid rgba(71,85,105,0.18)' }}>
+      {!loaded && (
+        <div
+          className="rounded-2xl animate-pulse"
+          style={{
+            minHeight: '320px',
+            background: 'rgba(15,23,42,0.55)',
+            border: '1px solid rgba(71,85,105,0.18)',
+          }}
+          aria-hidden="true"
+        />
+      )}
+      <div
+        ref={containerRef}
+        className="giscus"
+        style={{ minHeight: '320px', opacity: loaded ? 1 : 0, transition: 'opacity 180ms ease' }}
+      />
+    </div>
   );
 }
