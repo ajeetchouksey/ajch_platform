@@ -581,8 +581,14 @@ export default function BlogPost() {
                   if (mermaidNode) {
                     const el = mermaidNode as React.ReactElement<{ children?: React.ReactNode }>;
                     return (
-                      <Suspense fallback={<div className="text-slate-500 text-xs animate-pulse p-4 rounded-xl"
-                        style={{ border: '1px solid rgba(71,85,105,0.25)' }}>Loading diagram…</div>}>
+                      <Suspense fallback={
+                        <div className="my-6 rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center" style={{ minHeight: '180px' }}>
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                            <span className="w-3 h-3 rounded-full border-2 border-violet-600/40 border-t-violet-400 animate-spin" />
+                            Loading diagram…
+                          </div>
+                        </div>
+                      }>
                         <MermaidDiagram chart={String(el.props.children ?? '')} />
                       </Suspense>
                     );

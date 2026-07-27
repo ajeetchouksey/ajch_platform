@@ -61,12 +61,24 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
     return () => window.removeEventListener('keydown', h);
   }, [expanded]);
 
-  // Render chart
+  // Render chart — cancel stale renders on chart change or unmount
   useEffect(() => {
+    let cancelled = false;
     const id = `mermaid-${idCounter++}`;
     mermaid.render(id, chart.trim())
-      .then(({ svg }) => { setSvg(patchSvgFluid(svg)); setError(null); })
-      .catch(err => setError(String(err)));
+      .then(({ svg: rawSvg }) => {
+        // Remove the orphan element Mermaid v10+ leaves in the DOM after every render
+        document.getElementById(id)?.remove();
+        if (cancelled) return;
+        setSvg(patchSvgFluid(rawSvg));
+        setError(null);
+      })
+      .catch(err => {
+        document.getElementById(id)?.remove();
+        if (cancelled) return;
+        setError(String(err));
+      });
+    return () => { cancelled = true; };
   }, [chart]);
 
   // Patch inline SVG DOM after insertion (belt-and-suspenders)
