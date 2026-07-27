@@ -11,7 +11,8 @@
       "category": "AI Architecture",
       "readingTime": 9,
       "featured": true,
-      "draft": false
+      "draft": false,
+      "image": "/images/blog/rag-vs-agentic-rag.jpg"
     },
     {
       "slug": "llm-observability",
@@ -30,7 +31,8 @@
       "category": "LLMOps",
       "readingTime": 8,
       "featured": false,
-      "draft": false
+      "draft": false,
+      "image": "/images/blog/llm-observability.png"
     },
     {
       "slug": "context-budget-rule",
@@ -58,6 +60,7 @@
       "author": "Ajeet Chouksey",
       "date": "2026-06-15",
       "updated": null,
+      "image": "/images/blog/order-bot-domain-boundary.png",
       "tags": [
         "ai-architecture",
         "guardrails",
