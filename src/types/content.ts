@@ -135,6 +135,8 @@ export interface BlogPostMeta {
   readingTime: number;
   featured: boolean;
   draft: boolean;
+  /** Relative path to cover image, e.g. /images/blog/post.jpg — used for OG image */
+  image?: string;
 }
 
 export interface BlogManifest {

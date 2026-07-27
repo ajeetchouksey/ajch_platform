@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense, Children, isValidElement } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -190,25 +190,30 @@ export default function Docs() {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
               components={{
-                code({ className, children, ...props }) {
-                  const match = /language-mermaid/.exec(className ?? '');
-                  if (match) {
+                pre({ children }) {
+                  // Intercept mermaid code blocks — avoids wrapping diagram in a styled <pre>
+                  const nodeArray = Children.toArray(children);
+                  const firstChild = nodeArray[0];
+                  if (
+                    isValidElement(firstChild) &&
+                    ((firstChild.props as { className?: string }).className ?? '').includes('language-mermaid')
+                  ) {
                     return (
-                      <Suspense fallback={<div className="text-slate-500 text-sm py-2">Loading diagram…</div>}>
-                        <MermaidDiagram chart={String(children)} />
+                      <Suspense fallback={
+                        <div className="my-6 rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center" style={{ minHeight: '180px' }}>
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                            <span className="w-3 h-3 rounded-full border-2 border-violet-600/40 border-t-violet-400 animate-spin" />
+                            Loading diagram…
+                          </div>
+                        </div>
+                      }>
+                        <MermaidDiagram chart={String((firstChild.props as { children?: unknown }).children ?? '')} />
                       </Suspense>
                     );
                   }
-                  const isBlock = /language-/.test(className ?? '');
-                  if (isBlock) {
-                    return (
-                      <pre className="overflow-x-auto">
-                        <code className={`${className ?? ''} block`} {...props}>
-                          {children}
-                        </code>
-                      </pre>
-                    );
-                  }
+                  return <pre className="overflow-x-auto">{children}</pre>;
+                },
+                code({ className, children, ...props }) {
                   return (
                     <code className={className} {...props}>
                       {children}

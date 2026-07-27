@@ -357,6 +357,7 @@ export interface SourceIntel {
 export type AnyUseCase = FeaturedUseCase | CatalogUseCase;
 
 let _sourceIntelCache: SourceIntel | null = null;
+const _caseFileCache = new Map<string, FeaturedUseCase>();
 
 export async function loadSourceIntel(): Promise<SourceIntel> {
   if (_sourceIntelCache) return _sourceIntelCache;
@@ -372,10 +373,15 @@ export async function loadAllUseCases(): Promise<AnyUseCase[]> {
 }
 
 export async function loadUseCaseById(id: string): Promise<AnyUseCase | null> {
+  // Return from cache immediately — no network, no flicker
+  if (_caseFileCache.has(id)) return _caseFileCache.get(id)!;
   // Try the individual case file first (has architectureNotes + relatedUseCases)
   try {
     const caseFile = await fetchJSON<FeaturedUseCase>(`content/usecases/cases/${id}.json`);
-    if (caseFile?.id) return caseFile;
+    if (caseFile?.id) {
+      _caseFileCache.set(id, caseFile);
+      return caseFile;
+    }
   } catch {
     // fall through to source-intel
   }
