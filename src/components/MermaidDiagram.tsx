@@ -28,6 +28,29 @@ mermaid.initialize({
 
 let idCounter = 0;
 
+/**
+ * Mermaid v11 appends a *visible* temporary `<div id="d{id}">` to `document.body`
+ * to measure the diagram before returning the SVG string. That element sits in the
+ * normal page flow for a few hundred ms and flashes at the bottom of the content.
+ * Rendering into a hidden, off-screen sandbox keeps the measurement invisible.
+ * `visibility: hidden` (not `display: none`) preserves layout so text can be measured.
+ */
+let _sandbox: HTMLElement | null = null;
+function getSandbox(): HTMLElement {
+  if (_sandbox && document.body.contains(_sandbox)) return _sandbox;
+  const el = document.createElement('div');
+  el.setAttribute('aria-hidden', 'true');
+  el.style.position = 'absolute';
+  el.style.top = '-9999px';
+  el.style.left = '-9999px';
+  el.style.width = '900px';
+  el.style.visibility = 'hidden';
+  el.style.pointerEvents = 'none';
+  document.body.appendChild(el);
+  _sandbox = el;
+  return el;
+}
+
 /** Strip fixed dimensions from Mermaid SVG so it scales with its container */
 function patchSvgFluid(raw: string): string {
   return raw
@@ -65,16 +88,20 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
   useEffect(() => {
     let cancelled = false;
     const id = `mermaid-${idCounter++}`;
-    mermaid.render(id, chart.trim())
+    // Render into a hidden off-screen sandbox so Mermaid's temporary measurement
+    // element never flashes in the visible page flow.
+    mermaid.render(id, chart.trim(), getSandbox())
       .then(({ svg: rawSvg }) => {
-        // Remove the orphan element Mermaid v10+ leaves in the DOM after every render
+        // Belt-and-suspenders: remove any orphan Mermaid leaves behind (id + d-prefixed)
         document.getElementById(id)?.remove();
+        document.getElementById(`d${id}`)?.remove();
         if (cancelled) return;
         setSvg(patchSvgFluid(rawSvg));
         setError(null);
       })
       .catch(err => {
         document.getElementById(id)?.remove();
+        document.getElementById(`d${id}`)?.remove();
         if (cancelled) return;
         setError(String(err));
       });
@@ -147,6 +174,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
         <div
           ref={inlineRef}
           className="overflow-x-auto p-4 sm:p-6 [&>svg]:w-full [&>svg]:max-w-full [&>svg]:h-auto [&>svg]:block"
+          style={{ animation: 'fadeIn 200ms ease' }}
           dangerouslySetInnerHTML={{ __html: svg }}
         />
         {/* Expand button – visible on hover */}
