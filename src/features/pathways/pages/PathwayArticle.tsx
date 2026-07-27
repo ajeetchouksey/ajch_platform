@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useMemo, lazy, Suspense, Children, isValidElement } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -427,9 +427,22 @@ export default function PathwayArticle() {
                   strong: ({ children }) => (
                     <strong className="font-black text-white">{children}</strong>
                   ),
-                  code: ({ children, className }) => {
-                    const lang = className?.replace('language-', '') ?? '';
-                    if (lang === 'mermaid') {
+                  code: ({ children }) => (
+                    <code
+                      className="text-xs font-mono px-1.5 py-0.5 rounded-md"
+                      style={{ background: 'rgba(30,41,59,0.9)', color: meta.color, border: '1px solid rgba(71,85,105,0.25)' }}
+                    >
+                      {children}
+                    </code>
+                  ),
+                  pre: ({ children }) => {
+                    // Intercept mermaid code blocks — avoids wrapping in styled <pre>
+                    const nodeArray = Children.toArray(children);
+                    const firstChild = nodeArray[0];
+                    if (
+                      isValidElement(firstChild) &&
+                      ((firstChild.props as { className?: string }).className ?? '').includes('language-mermaid')
+                    ) {
                       return (
                         <Suspense fallback={
                           <div className="my-6 rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center" style={{ minHeight: '180px' }}>
@@ -439,27 +452,19 @@ export default function PathwayArticle() {
                             </div>
                           </div>
                         }>
-                          <MermaidDiagram chart={String(children).trim()} />
+                          <MermaidDiagram chart={String((firstChild.props as { children?: unknown }).children ?? '')} />
                         </Suspense>
                       );
                     }
                     return (
-                      <code
-                        className="text-xs font-mono px-1.5 py-0.5 rounded-md"
-                        style={{ background: 'rgba(30,41,59,0.9)', color: meta.color, border: '1px solid rgba(71,85,105,0.25)' }}
+                      <pre
+                        className="rounded-xl p-4 sm:p-5 text-xs sm:text-sm overflow-x-auto leading-relaxed font-mono my-5"
+                        style={{ background: 'rgba(2,6,23,0.98)', border: '1px solid rgba(71,85,105,0.28)', color: '#e2e8f0' }}
                       >
                         {children}
-                      </code>
+                      </pre>
                     );
                   },
-                  pre: ({ children }) => (
-                    <pre
-                      className="rounded-xl p-4 sm:p-5 text-xs sm:text-sm overflow-x-auto leading-relaxed font-mono my-5"
-                      style={{ background: 'rgba(2,6,23,0.98)', border: '1px solid rgba(71,85,105,0.28)', color: '#e2e8f0' }}
-                    >
-                      {children}
-                    </pre>
-                  ),
                   blockquote: ({ children }) => (
                     <blockquote
                       className="my-5 pl-4 py-1 italic text-slate-400 text-[15px] leading-relaxed"

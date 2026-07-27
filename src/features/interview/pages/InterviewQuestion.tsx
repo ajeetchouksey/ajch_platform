@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft, AlertTriangle, CheckCircle2, Lightbulb, Target, MessageCircleQuestion, Sparkles, GitGraph, Building2,
 } from 'lucide-react';
-import MermaidDiagram from '@/components/MermaidDiagram';
+
+const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import {
   loadInterviewBank, loadInterviewCompetencies, loadResolvedPackItems,
   type InterviewBankItem, type InterviewCompetency, type InterviewAddendum,
@@ -121,7 +122,16 @@ export default function InterviewQuestion() {
       {da && item.diagram && (
         <Section icon={GitGraph} title={item.diagram.caption} accent="#38bdf8">
           <div className="mt-1 rounded-xl overflow-hidden" style={{ background: 'rgba(10,15,25,0.7)', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem' }}>
-            <MermaidDiagram chart={item.diagram.chart} />
+            <Suspense fallback={
+              <div className="my-2 rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center" style={{ minHeight: '180px' }}>
+                <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                  <span className="w-3 h-3 rounded-full border-2 border-violet-600/40 border-t-violet-400 animate-spin" />
+                  Loading diagram…
+                </div>
+              </div>
+            }>
+              <MermaidDiagram chart={item.diagram.chart} />
+            </Suspense>
           </div>
         </Section>
       )}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -21,7 +21,7 @@ import {
 } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import { GlassCard, Badge, SectionHeader } from '@/components/ui';
-import MermaidDiagram from '@/components/MermaidDiagram';
+const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import {
   PATTERN_LABEL,
   PATTERN_BADGE,
@@ -189,7 +189,16 @@ export default function UseCaseDetail() {
                 Architecture Diagram
               </h2>
               <GlassCard accent="violet" border="border-slate-700/40" className="p-4">
-                <MermaidDiagram chart={featured.mermaidDiagram} />
+                <Suspense fallback={
+                  <div className="rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center" style={{ minHeight: '180px' }}>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                      <span className="w-3 h-3 rounded-full border-2 border-violet-600/40 border-t-violet-400 animate-spin" />
+                      Loading diagram…
+                    </div>
+                  </div>
+                }>
+                  <MermaidDiagram chart={featured.mermaidDiagram} />
+                </Suspense>
               </GlassCard>
               {featured.architectureNotes && (
                 <p className="mt-3 text-xs text-slate-400 leading-relaxed">

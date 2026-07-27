@@ -147,6 +147,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
         <div
           ref={inlineRef}
           className="overflow-x-auto p-4 sm:p-6 [&>svg]:w-full [&>svg]:max-w-full [&>svg]:h-auto [&>svg]:block"
+          style={{ animation: 'fadeIn 200ms ease' }}
           dangerouslySetInnerHTML={{ __html: svg }}
         />
         {/* Expand button – visible on hover */}
