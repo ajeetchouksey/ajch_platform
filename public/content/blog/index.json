@@ -1,6 +1,19 @@
 {
   "posts": [
     {
+      "slug": "rag-vs-agentic-rag",
+      "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
+      "excerpt": "RAG gave enterprise AI a memory. Agentic RAG gave it a mind. Here is how the two architectures compare, when to use each, and why the gap between them is wider than most teams expect.",
+      "author": "Ajeet Chouksey",
+      "date": "2026-07-27",
+      "updated": null,
+      "tags": ["rag", "agentic-ai", "enterprise-ai", "architecture", "llm", "agents"],
+      "category": "AI Architecture",
+      "readingTime": 9,
+      "featured": true,
+      "draft": false
+    },
+    {
       "slug": "llm-observability",
       "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
       "excerpt": "Your API returned 200 OK and your users were furious. Here's the three-signal observability model that tells you what actually happened inside the model call — before the bill arrives.",
