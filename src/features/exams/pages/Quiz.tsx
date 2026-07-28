@@ -23,6 +23,42 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+/** Parse a flat explanation string into per-option reasons.
+ *  Format: "[Letter]. [correct reason]... Incorrect: [A]. [reason] [B]. [reason]..."
+ */
+function parseExplanation(
+  explanation: string,
+  optionCount: number,
+  correctIdx: number
+): { correctReason: string; optionReasons: Record<number, string> } {
+  const [correctPart, incorrectPart = ''] = explanation.split(/Incorrect:\s*/i);
+
+  // Extract the reason for the correct answer (strip leading letter prefix e.g. "C. ")
+  const correctReason = correctPart.replace(/^[A-E]\.\s+/, '').trim();
+
+  const optionReasons: Record<number, string> = {};
+
+  // Map correct option to the correctReason
+  optionReasons[correctIdx] = correctReason;
+
+  // Parse wrong-answer reasons from the "Incorrect:" section
+  if (incorrectPart) {
+    // Split on letter+period boundaries: "A. ", "B. ", etc.
+    const parts = incorrectPart.split(/(?=[A-E]\.\s)/);
+    for (const part of parts) {
+      const m = part.match(/^([A-E])\.\s+([\s\S]+)/);
+      if (m) {
+        const idx = m[1].charCodeAt(0) - 65;
+        if (idx >= 0 && idx < optionCount && idx !== correctIdx) {
+          optionReasons[idx] = m[2].replace(/\s+/g, ' ').trim();
+        }
+      }
+    }
+  }
+
+  return { correctReason, optionReasons };
+}
+
 export default function Quiz() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
   const { user, login } = useAuth();
@@ -352,6 +388,7 @@ export default function Quiz() {
   // ── QUIZ ───────────────────────────────────────────────────────────────────
   const q = questions[current];
   const isCorrect = chosen === q.correct;
+  const parsedExpl = parseExplanation(q.explanation, q.options.length, q.correct);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -385,54 +422,90 @@ export default function Quiz() {
       <div className="text-white font-medium text-base">{q.question}</div>
 
       {/* Options */}
-      <div className="space-y-2">
+      <div className="space-y-2" ref={feedbackRef}>
         {q.options.map((opt, idx) => {
-          let cls =
+          const isCorrectOpt = idx === q.correct;
+          const isChosenOpt = chosen === idx;
+          const optReason = parsedExpl.optionReasons[idx];
+
+          let btnCls =
             'w-full text-left px-4 py-3 rounded-xl border text-sm transition-colors ';
           if (!revealed) {
-            cls +=
-              chosen === idx
+            btnCls +=
+              isChosenOpt
                 ? 'border-violet-500 bg-violet-900/30 text-white'
                 : 'border-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-800';
           } else {
-            if (idx === q.correct)
-              cls += 'border-emerald-500 bg-emerald-900/20 text-emerald-300';
-            else if (idx === chosen && !isCorrect)
-              cls += 'border-rose-500 bg-rose-900/20 text-rose-300';
-            else cls += 'border-slate-800 text-slate-500';
+            if (isCorrectOpt)
+              btnCls += 'border-emerald-500 bg-emerald-900/20 text-emerald-300';
+            else if (isChosenOpt && !isCorrect)
+              btnCls += 'border-rose-500 bg-rose-900/20 text-rose-300';
+            else
+              btnCls += 'border-slate-800 text-slate-500';
           }
+
           return (
-            <button key={idx} onClick={() => handleChoose(idx)} className={cls}>
-              <span className="font-mono text-xs mr-2 opacity-60">
-                {String.fromCharCode(65 + idx)}.
-              </span>
-              {opt}
-            </button>
+            <div key={idx}>
+              <button
+                onClick={() => handleChoose(idx)}
+                disabled={revealed}
+                className={btnCls}
+              >
+                <span className="font-mono text-xs mr-2 opacity-60">
+                  {String.fromCharCode(65 + idx)}.
+                </span>
+                {opt}
+                {revealed && isCorrectOpt && (
+                  <CheckCircle size={13} className="inline ml-2 text-emerald-400" />
+                )}
+                {revealed && !isCorrectOpt && isChosenOpt && (
+                  <XCircle size={13} className="inline ml-2 text-rose-400" />
+                )}
+              </button>
+
+              {/* Per-option reason — shown after reveal */}
+              {revealed && optReason && (
+                <div
+                  className={`mt-1 ml-1 mr-1 px-3 py-2 rounded-b-lg text-xs leading-relaxed ${
+                    isCorrectOpt
+                      ? 'bg-emerald-950/60 border border-t-0 border-emerald-800/40 text-emerald-200'
+                      : isChosenOpt
+                        ? 'bg-rose-950/60 border border-t-0 border-rose-800/40 text-rose-200'
+                        : 'bg-slate-800/40 border border-t-0 border-slate-700/40 text-slate-400'
+                  }`}
+                >
+                  <span className={`font-semibold mr-1 ${
+                    isCorrectOpt ? 'text-emerald-400' : 'text-rose-400'
+                  }`}>
+                    {isCorrectOpt ? '✓ Why correct:' : '✗ Why incorrect:'}
+                  </span>
+                  {optReason}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
 
-      {/* Explanation */}
+      {/* Summary banner + tags after reveal */}
       {revealed && (
         <div
-          ref={feedbackRef}
-          className={`rounded-xl p-4 text-sm border ${
-            isCorrect ? 'border-emerald-700 bg-emerald-900/10' : 'border-rose-700 bg-rose-900/10'
+          className={`rounded-xl px-4 py-3 text-sm border flex items-center justify-between gap-3 ${
+            isCorrect ? 'border-emerald-700/50 bg-emerald-900/10' : 'border-rose-700/50 bg-rose-900/10'
           }`}
         >
-          <div className="flex items-center gap-2 mb-2 font-semibold">
+          <div className="flex items-center gap-2 font-semibold">
             {isCorrect ? (
-              <CheckCircle size={15} className="text-emerald-400" />
+              <CheckCircle size={15} className="text-emerald-400 shrink-0" />
             ) : (
-              <XCircle size={15} className="text-rose-400" />
+              <XCircle size={15} className="text-rose-400 shrink-0" />
             )}
             <span className={isCorrect ? 'text-emerald-300' : 'text-rose-300'}>
-              {isCorrect ? 'Correct!' : 'Incorrect'}
+              {isCorrect ? 'Correct!' : `Incorrect — correct answer: ${String.fromCharCode(65 + q.correct)}`}
             </span>
           </div>
-          <p className="text-slate-300">{q.explanation}</p>
-          <div className="mt-2 flex flex-wrap gap-1">
-            {q.tags.map((t) => (
+          <div className="flex flex-wrap gap-1 justify-end">
+            {q.tags.slice(0, 3).map((t) => (
               <span key={t} className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded">
                 {t}
               </span>
