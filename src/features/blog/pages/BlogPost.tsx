@@ -551,7 +551,7 @@ export default function BlogPost() {
               prose-ul:my-4 prose-ol:my-4
               prose-hr:border-slate-800/60 prose-hr:my-8
               prose-strong:text-slate-100 prose-strong:font-bold
-              prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-xl
+              prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-xl prose-img:max-h-[480px] prose-img:w-auto prose-img:mx-auto
               prose-table:text-xs sm:prose-table:text-sm prose-th:text-slate-300 prose-td:text-slate-400
                 prose-td:border-slate-800 prose-th:border-slate-700
               [&_table]:block [&_table]:overflow-x-auto [&_table]:max-w-full
