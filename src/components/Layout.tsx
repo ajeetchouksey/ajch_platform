@@ -568,7 +568,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           )}
           <div className="flex-1 p-4 lg:p-8">
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
               <div key={pageKey} className="animate-[fadeIn_0.38s_cubic-bezier(0.22,1,0.36,1)_both]">
                 <Breadcrumbs />
                 {children}
@@ -580,7 +580,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             {/* Gradient separator — matches nav active-underline style */}
             <div className="h-px bg-gradient-to-r from-transparent via-violet-500/25 to-transparent mb-8" />
 
-            <div className="max-w-5xl mx-auto space-y-6">
+            <div className="max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto space-y-6">
               {/* Newsletter CTA — hidden on the /subscribe page itself to avoid duplication */}
               {location.pathname !== '/subscribe' && <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.04] backdrop-blur-sm p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <div className="flex-1 min-w-0">
