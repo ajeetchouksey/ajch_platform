@@ -233,10 +233,8 @@
     "question": "In the context of Copilot Chat, what does the term ‘multi-turn conversation’ refer to?",
     "options": [
       "The capability to ask Copilot Chat follow-up questions or have an extended dialogue on a topic.",
-      "The process of using different chat participants, like ‘'@vscode’ and ‘@terminal’, within the same chat",
-      "session.",
-      "The feature that allows Copilot Chat to access and process information from multiple files in your",
-      "workspace.",
+      "The process of using different chat participants, like ‘'@vscode’ and ‘@terminal’, within the same chat session.",
+      "The feature that allows Copilot Chat to access and process information from multiple files in your workspace.",
       "The ability to have Copilot Chat generate multiple code suggestions for a single prompt."
     ],
     "correct": 0,

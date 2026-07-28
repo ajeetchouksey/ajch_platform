@@ -444,11 +444,9 @@
     "question": "What does the ‘last_activity_at’ timestamp represent for a user with a GitHub Copilot seat?",
     "options": [
       "The last time the user opened an IDE or application where Copilot is installed and enabled.",
-      "The timestamp of the user's last commit in a repository where Copilot was utilized during the coding",
-      "session.",
+      "The timestamp of the user's last commit in a repository where Copilot was utilized during the coding session.",
       "The average time of day the user typically interacts with Copilot based on historical data.",
-      "The time of the user’s most recent interaction with any Copilot functionality, based on collected",
-      "telemetry.",
+      "The time of the user’s most recent interaction with any Copilot functionality, based on collected telemetry.",
       "The date the user’s Copilot license was initially assigned to their account."
     ],
     "correct": 0,

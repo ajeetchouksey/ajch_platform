@@ -680,10 +680,8 @@
     "question": "Which statement best reflects the limitations of Copilot Chat’s understanding?",
     "options": [
       "Copilot Chat’s knowledge is limited to the code and files within your current workspace.",
-      "Copilot Chat may not always grasp the nuances of human language or the specific intent behind your",
-      "questions.",
-      "Copilot Chat is unable to provide assistance with tasks beyond code generation, such as debugging or",
-      "testing.",
+      "Copilot Chat may not always grasp the nuances of human language or the specific intent behind your questions.",
+      "Copilot Chat is unable to provide assistance with tasks beyond code generation, such as debugging or testing.",
       "Copilot Chat has a limited vocabulary and can only understand simple coding-related terms."
     ],
     "correct": 1,
