@@ -23,28 +23,7 @@ But the wall moved.
 
 Users started asking not just *what* the policy says, but *whether their case qualifies*, *what they should do next*, and *who they need to talk to*. Those questions require more than retrieval. They require reasoning, multi-step lookup, and sometimes action. That is the gap that Agentic RAG fills — and understanding the difference between the two architectures is now a practical necessity for anyone building enterprise AI systems.
 
-```mermaid
-flowchart LR
-  subgraph RAG["RAG — Search & Answer"]
-    direction TB
-    r1([Query]) --> r2[Embed]
-    r2 --> r3[(Vector Search)]
-    r3 --> r4[LLM: Generate]
-    r4 --> r5([Grounded Answer])
-  end
-
-  subgraph ARAG["Agentic RAG — Reason & Act"]
-    direction TB
-    a1([Query]) --> a2[Planner LLM]
-    a2 --> a3[Tool: Search]
-    a2 --> a4[Tool: API Call]
-    a2 --> a5[Tool: Validate]
-    a3 & a4 & a5 --> a6[Synthesize]
-    a6 --> a7{Goal Met?}
-    a7 -->|Re-plan| a2
-    a7 -->|Done| a8([Action + Answer])
-  end
-```
+![RAG vs Agentic RAG — Architecture Comparison](/images/blog/rag-comparison-flowchart.png)
 
 ---
 
@@ -52,29 +31,7 @@ flowchart LR
 
 RAG is a two-stage architecture: retrieve relevant information, then generate an answer grounded in that information.
 
-```
-User Query
-    │
-    ▼
-┌─────────────────────┐
-│  Query Encoder      │  Converts question to vector embedding
-└────────┬────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  Vector Store       │  Searches for semantically similar chunks
-│  (semantic search)  │
-└────────┬────────────┘
-         │  Top-K chunks
-         ▼
-┌─────────────────────┐
-│  LLM                │  Generates answer using retrieved context
-│  (with context)     │
-└────────┬────────────┘
-         │
-         ▼
-    Grounded Answer
-```
+![RAG Pipeline — User Query to Grounded Answer](/images/blog/rag-pipeline.png)
 
 **How it works in practice:** A user asks "What is the maximum liability coverage for commercial property?" The query is embedded, the vector store finds the three most relevant policy sections, and the LLM synthesises a specific, cited answer from those chunks — rather than guessing from its training weights.
 
@@ -139,38 +96,7 @@ The key differences:
 
 The architecture extends the RAG pipeline with an orchestration layer:
 
-```
-User Request
-     │
-     ▼
-┌──────────────────────────────────────┐
-│  Planner Agent                       │
-│  Decomposes question into sub-tasks  │
-└──────────────┬───────────────────────┘
-               │
-     ┌─────────▼──────────┐
-     │  Retrieval Step     │  Adaptive: rewrites query if needed
-     │  (Vector + Keyword) │  Fetches from multiple sources
-     └─────────┬──────────┘
-               │
-     ┌─────────▼──────────┐
-     │  Evaluation Step   │  Is retrieved context sufficient?
-     │                    │  Confidence check + gap detection
-     └─────────┬──────────┘
-          ┌────┴─────┐
-          │          │
-     Sufficient  Insufficient
-          │          │
-          │     Re-retrieve or
-          │     call external tool
-          │          │
-          └────┬─────┘
-               │
-     ┌─────────▼──────────┐
-     │  Action/Generate   │  Answer, trigger workflow,
-     │                    │  or escalate to human
-     └────────────────────┘
-```
+![Agentic RAG Workflow — Planner Agent, Retrieval, Evaluation, Action/Generate](/images/blog/agentic-rag-workflow.png)
 
 **Planning:** The agent receives the question and decomposes it. "Is this vendor PEP-listed and does their contract meet our terms?" becomes three separate retrieval tasks: fetch vendor details, check against the PEP watchlist, retrieve and evaluate contract clauses.
 
@@ -262,10 +188,7 @@ Agentic RAG earns its complexity when:
 
 Enterprise AI architecture is moving through a predictable maturity curve:
 
-```
-LLM alone  →  RAG  →  Agentic RAG  →  Autonomous AI Agents
-  (smart)     (grounded)  (reasoning)      (operating)
-```
+![AI Architecture Evolution — LLM alone to Autonomous AI Agents](/images/blog/rag-evolution.png)
 
 Most enterprises today are in the RAG or early Agentic RAG phase. The shift to autonomous agents — systems that independently monitor, decide, and act across enterprise workflows with minimal human initiation — is underway in early adopters but carries significant governance, reliability, and oversight requirements before broad deployment.
 
