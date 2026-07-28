@@ -1,9 +1,9 @@
 {
   "schema": "1.0",
-  "generated": "2026-07-24",
+  "generated": "2026-07-28",
   "note": "Auto-updated by scripts/sync-stats.py. Run after any content agent write.",
   "platform": {
-    "blog_posts": 58,
+    "blog_posts": 59,
     "questions": 590,
     "exams": 4,
     "notes": 19,
