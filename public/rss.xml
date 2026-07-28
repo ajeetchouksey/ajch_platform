@@ -5,8 +5,17 @@
     <link>https://aaryaai.dev</link>
     <description>AI learning resources, exam prep, and engineering insights</description>
     <language>en-gb</language>
-    <lastBuildDate>Fri, 17 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 27 Jul 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://aaryaai.dev/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>RAG vs Agentic RAG: From Search &amp; Answer to Reason &amp; Act</title>
+      <link>https://aaryaai.dev/blog/rag-vs-agentic-rag</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/rag-vs-agentic-rag</guid>
+      <description>RAG gave enterprise AI a memory. Agentic RAG gave it a mind. Here is how the two architectures compare, when to use each, and why the gap between them is wider than most teams expect.</description>
+      <pubDate>Mon, 27 Jul 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>AI Architecture</category>
+    </item>
     <item>
       <title>Observability for LLMs: Logs, Traces, and the Token Meter</title>
       <link>https://aaryaai.dev/blog/llm-observability</link>
