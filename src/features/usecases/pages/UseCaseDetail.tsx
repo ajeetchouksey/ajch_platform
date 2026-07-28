@@ -58,7 +58,7 @@ export default function UseCaseDetail() {
 
   if (error) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+      <div className="max-w-5xl xl:max-w-6xl mx-auto px-4 py-16 text-center">
         <p className="text-rose-300 text-sm">{error}</p>
         <Link to="/usecases" className="mt-4 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200">
           <ArrowLeft size={12} /> Back to Use Cases
@@ -69,7 +69,7 @@ export default function UseCaseDetail() {
 
   if (!uc) {
     return (
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 animate-pulse">
+      <div className="max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 py-10 animate-pulse">
         <div className="h-3 w-24 rounded bg-slate-800 mb-8" />
         <div className="flex gap-2 mb-3">
           <div className="h-5 w-20 rounded-full bg-slate-800" />
@@ -101,7 +101,7 @@ export default function UseCaseDetail() {
   const accent = VERTICAL_ACCENT[uc.vertical] ?? 'slate';
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 py-10">
       {/* Back link */}
       <Link
         to="/usecases"
@@ -134,9 +134,11 @@ export default function UseCaseDetail() {
         className="mb-6"
       />
 
-      {/* Featured content */}
+      {/* Featured content — 2-col at xl+ */}
       {featured && (
-        <div className="space-y-6">
+        <div className="flex flex-col xl:flex-row gap-6 xl:gap-8 items-start">
+          {/* ── Left: main content ── */}
+          <div className="flex-1 min-w-0 space-y-6">
           {/* Problem / Solution / Who */}
           <GlassCard accent={accent} border="border-slate-700/40" className="p-6">
             <div className="space-y-4">
@@ -225,6 +227,54 @@ export default function UseCaseDetail() {
             </GlassCard>
           )}
 
+          {/* Scaling considerations */}
+          {featured.scalingConsiderations && featured.scalingConsiderations.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <TrendingUp size={14} className="text-emerald-400" />
+                Scaling Considerations
+              </h2>
+              <ul className="space-y-2">
+                {featured.scalingConsiderations.map((c, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-slate-300 leading-relaxed">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500/60 shrink-0" />
+                    {c}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Failure modes */}
+          {featured.failureModes && featured.failureModes.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <AlertTriangle size={14} className="text-rose-400" />
+                Failure Modes &amp; Mitigations
+              </h2>
+              <div className="space-y-3">
+                {featured.failureModes.map((fm, i) => (
+                  <div key={i}
+                    className="rounded-xl p-4"
+                    style={{ background: 'rgba(15,23,42,0.70)', border: '1px solid rgba(251,113,133,0.15)' }}>
+                    <p className="text-[11px] font-semibold text-rose-300 mb-1.5 flex items-center gap-1.5">
+                      <AlertTriangle size={11} className="shrink-0" /> {fm.mode}
+                    </p>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      <span className="text-emerald-400 font-semibold">Mitigation: </span>
+                      {fm.mitigation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          </div>{/* end left */}
+
+          {/* ── Right sidebar ── */}
+          <div className="w-full xl:w-72 2xl:w-80 shrink-0 space-y-5 xl:sticky xl:top-4 self-start">
+
           {/* Tech stack */}
           {featured.techStack && featured.techStack.length > 0 && (
             <div>
@@ -251,49 +301,6 @@ export default function UseCaseDetail() {
             </div>
           )}
 
-          {/* Scaling considerations */}
-          {featured.scalingConsiderations && featured.scalingConsiderations.length > 0 && (
-            <div>
-              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
-                <TrendingUp size={14} className="text-emerald-400" />
-                Scaling Considerations
-              </h2>
-              <ul className="space-y-2">
-                {featured.scalingConsiderations.map((c, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-slate-300 leading-relaxed">
-                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500/60 shrink-0" />
-                    {c}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Failure modes */}
-          {featured.failureModes && featured.failureModes.length > 0 && (
-            <div>
-              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
-                <AlertTriangle size={14} className="text-rose-400" />
-                Failure Modes & Mitigations
-              </h2>
-              <div className="space-y-3">
-                {featured.failureModes.map((fm, i) => (
-                  <div key={i}
-                    className="rounded-xl p-4"
-                    style={{ background: 'rgba(15,23,42,0.70)', border: '1px solid rgba(251,113,133,0.15)' }}>
-                    <p className="text-[11px] font-semibold text-rose-300 mb-1.5 flex items-center gap-1.5">
-                      <AlertTriangle size={11} className="shrink-0" /> {fm.mode}
-                    </p>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      <span className="text-emerald-400 font-semibold">Mitigation: </span>
-                      {fm.mitigation}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Integrations */}
           {featured.integrations && featured.integrations.length > 0 && (
             <div>
@@ -301,7 +308,7 @@ export default function UseCaseDetail() {
                 <Plug size={14} className="text-violet-400" />
                 System Integrations
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="space-y-2">
                 {featured.integrations.map((intg) => (
                   <div key={intg.system}
                     className="rounded-xl p-3"
@@ -388,7 +395,7 @@ export default function UseCaseDetail() {
                 <Layers size={14} className="text-emerald-400" />
                 Related Use Cases
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="space-y-2">
                 {featured.relatedUseCases.map((rel) => (
                   <Link
                     key={rel.id}
@@ -405,6 +412,8 @@ export default function UseCaseDetail() {
               </div>
             </div>
           )}
+
+          </div>{/* end right sidebar */}
         </div>
       )}
 
