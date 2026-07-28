@@ -5,7 +5,7 @@ import { saveSession } from '@/lib/storage';
 import { addQuizResult, useProgressSync } from '@/lib/useProgressSync';
 import { useAuth } from '@/lib/auth';
 import { type Question, type QuizSession, type DomainConfig } from '@/types/content';
-import { CheckCircle, XCircle, ChevronRight, RotateCcw, Filter, X } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X } from 'lucide-react';
 import QuizShareCard from '@/components/QuizShareCard';
 
 type Phase = 'setup' | 'quiz' | 'review';
@@ -77,6 +77,7 @@ export default function Quiz() {
   const [passThreshold, setPassThreshold] = useState(72);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
   const [examTotalQuestions, setExamTotalQuestions] = useState<number | null>(null);
+  const [showPalette, setShowPalette] = useState(false);
   // One-time-per-session nudge dismissal
   const [nudgeDismissed, setNudgeDismissed] = useState(() => {
     try { return !!sessionStorage.getItem(`nudge_dismissed_${examId}`); }
@@ -178,6 +179,25 @@ export default function Quiz() {
       setChosen(null);
       setRevealed(false);
     }
+  }
+
+  function handleBack() {
+    if (current <= 0) return;
+    const prevQ = questions[current - 1];
+    const prevChosen = answers[prevQ.id];
+    setCurrent((c) => c - 1);
+    setChosen(prevChosen !== undefined ? prevChosen : null);
+    setRevealed(prevChosen !== undefined);
+  }
+
+  function handleJump(idx: number) {
+    if (idx < 0 || idx >= questions.length || idx === current) return;
+    const targetQ = questions[idx];
+    const targetChosen = answers[targetQ.id];
+    setCurrent(idx);
+    setChosen(targetChosen !== undefined ? targetChosen : null);
+    setRevealed(targetChosen !== undefined);
+    setShowPalette(false);
   }
 
   // ── SETUP ──────────────────────────────────────────────────────────────────
@@ -400,7 +420,15 @@ export default function Quiz() {
           <span>
             Question {current + 1} of {questions.length}
           </span>
-          <span>D{q.domain} · {examDomains.find(d => d.id === q.domain)?.title ?? `Domain ${q.domain}`}</span>
+          <div className="flex items-center gap-3">
+            <span>D{q.domain} · {examDomains.find(d => d.id === q.domain)?.title ?? `Domain ${q.domain}`}</span>
+            <button
+              onClick={() => setShowPalette((v) => !v)}
+              className="text-xs text-violet-400 hover:text-violet-300 underline underline-offset-2 transition-colors"
+            >
+              {showPalette ? 'Hide' : 'Jump to question'}
+            </button>
+          </div>
         </div>
         <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
           <div
@@ -409,6 +437,40 @@ export default function Quiz() {
           />
         </div>
       </div>
+
+      {/* Question palette */}
+      {showPalette && (
+        <div className="glass-card rounded-xl p-3">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-2">
+            <span>Click a number to jump</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-emerald-700" /> correct</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-rose-800" /> wrong</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-slate-700" /> unanswered</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {questions.map((pq, idx) => {
+              const ans = answers[pq.id];
+              const isAnswered = ans !== undefined;
+              const isCorrectAns = isAnswered && ans === pq.correct;
+              const isCurrent = idx === current;
+              let cls = 'w-8 h-8 rounded-lg text-xs font-mono font-semibold transition-colors ';
+              if (isCurrent)
+                cls += 'ring-2 ring-violet-400 bg-violet-700 text-white';
+              else if (!isAnswered)
+                cls += 'bg-slate-700 text-slate-400 hover:bg-slate-600';
+              else if (isCorrectAns)
+                cls += 'bg-emerald-800/70 text-emerald-300 hover:bg-emerald-700/70';
+              else
+                cls += 'bg-rose-900/60 text-rose-300 hover:bg-rose-800/60';
+              return (
+                <button key={pq.id} onClick={() => handleJump(idx)} className={cls}>
+                  {idx + 1}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Scenario */}
       {q.scenario && (
@@ -518,6 +580,15 @@ export default function Quiz() {
 
       {/* Actions */}
       <div className="flex gap-3">
+        {current > 0 && (
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-1.5 border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
+          >
+            <ChevronLeft size={15} />
+            Back
+          </button>
+        )}
         {!revealed && (
           <button
             disabled={chosen === null}
