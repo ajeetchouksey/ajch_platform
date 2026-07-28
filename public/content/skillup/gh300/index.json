@@ -10,6 +10,7 @@
   "duration": "90 min",
   "passScore": "75%",
   "passThreshold": 75,
+  "mockExamSize": 134,
   "available": true,
   "accentColor": "#6b7280",
   "colorScheme": "gray",

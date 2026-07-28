@@ -76,6 +76,7 @@ export default function Quiz() {
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [passThreshold, setPassThreshold] = useState(72);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
+  const [mockExamSize, setMockExamSize] = useState(60);
   // One-time-per-session nudge dismissal
   const [nudgeDismissed, setNudgeDismissed] = useState(() => {
     try { return !!sessionStorage.getItem(`nudge_dismissed_${examId}`); }
@@ -97,6 +98,7 @@ export default function Quiz() {
         setExamDomains(exam.domains);
         setPassThreshold(exam.passThreshold);
         setExamShortTitle(exam.shortTitle);
+        if (exam.mockExamSize) setMockExamSize(exam.mockExamSize);
       }
     }).catch(() => {});
   }, [examId]);
@@ -106,7 +108,7 @@ export default function Quiz() {
     const qs = domainFilter
       ? await loadQuestionsByDomainForExam(examId, domainFilter)
       : await loadQuestionsForExam(examId);
-    const picked = shuffle(qs).slice(0, Math.min(qs.length, domainFilter ? 15 : 60));
+    const picked = shuffle(qs).slice(0, Math.min(qs.length, domainFilter ? 15 : mockExamSize));
     const newSession: QuizSession = {
       id: randomId(),
       skillId: examId,  // RC-4: scope session to this skill
@@ -187,7 +189,7 @@ export default function Quiz() {
 
         {/* Exam meta strip */}
         <div className="flex flex-wrap gap-4 text-sm text-slate-500">
-          <span><span className="text-slate-300 font-semibold">{domainFilter === null ? 60 : 15}</span> questions</span>
+          <span><span className="text-slate-300 font-semibold">{domainFilter === null ? mockExamSize : 15}</span> questions</span>
           <span><span className="text-slate-300 font-semibold">{passThreshold}%</span> to pass</span>
           <span>Scenario-based MCQ</span>
         </div>
@@ -206,7 +208,7 @@ export default function Quiz() {
                   : 'border-slate-700 text-slate-400 hover:border-slate-600'
               }`}
             >
-              <span className="font-semibold">All Domains</span> — 60 questions, full mock exam
+              <span className="font-semibold">All Domains</span> — {mockExamSize} questions, full mock exam
             </button>
             {examDomains.map((domain) => (
               <button

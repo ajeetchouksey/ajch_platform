@@ -25,6 +25,7 @@ export interface ExamConfig {
   duration: string;
   passScore: string;
   passThreshold: number; // numeric %, e.g. 72
+  mockExamSize?: number; // questions per full mock run (default 60)
   available: boolean;
   accentColor: string;
   colorScheme: string;   // key into EXAM_SCHEMES, e.g. "violet" | "blue"
