@@ -2,7 +2,6 @@ import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 
 // ── Home ──────────────────────────────────────────────────────────────────────
 import HomeV2 from '@/features/home/pages/HomeV2';
-import Learn from '@/features/home/pages/Learn';
 
 // ── Skill Up (Exams) ──────────────────────────────────────────────────────────
 import ExamCatalog from '@/features/exams/pages/ExamCatalog';
@@ -71,7 +70,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomeV2 />} />
-      <Route path="/learn" element={<Learn />} />
+      <Route path="/learn" element={<Navigate to="/horizons" replace />} />
 
       {/* Skill Up — primary routes */}
       <Route path="/skillup" element={<ExamCatalog />} />
