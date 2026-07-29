@@ -8,6 +8,7 @@ import { markNotesSeen } from '@/lib/storage';
 import type { DomainConfig, ExamConfig } from '@/types/content';
 import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
+import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -106,6 +107,7 @@ export default function Notes() {
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
   const [readPct, setReadPct] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const toc = content ? extractToc(content) : [];
 
@@ -246,6 +248,12 @@ export default function Notes() {
             <p className="text-base font-bold font-mono text-blue-400">{domainQCount}</p>
             <p className="text-[10px] text-slate-500 mt-0.5">Quiz questions</p>
           </div>
+          <div className="flex items-center justify-center px-2">
+            <KeywordHighlightToggle
+              enabled={highlightEnabled}
+              onToggle={() => setHighlightEnabled((v) => !v)}
+            />
+          </div>
         </div>
       )}
 
@@ -328,6 +336,12 @@ export default function Notes() {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
               components={{
+                p({ children }) {
+                  return <p>{highlightEnabled ? applyHighlighting(children) : children}</p>;
+                },
+                li({ children }) {
+                  return <li>{highlightEnabled ? applyHighlighting(children) : children}</li>;
+                },
                 h2({ children }) {
                   const text = String(children);
                   const id = slugify(text.replace(/`[^`]*`/g, ''));

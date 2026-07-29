@@ -8,6 +8,7 @@ import {
   Clock, Users, Tag, List, X,
 } from 'lucide-react';
 import { useMeta } from '@/lib/useMeta';
+import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -267,6 +268,7 @@ export default function PathwayArticle() {
   const [mounted, setMounted] = useState(false);
   const [showToc, setShowToc] = useState(false);
   const [activeId, setActiveId] = useState('');
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
   const articleRef = useRef<HTMLElement>(null);
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
@@ -359,7 +361,7 @@ export default function PathwayArticle() {
 
               {article && (
                 <p className="text-base text-slate-400 leading-relaxed mb-5 max-w-2xl">
-                  {article.excerpt}
+                  {highlightEnabled ? applyHighlighting(article.excerpt) : article.excerpt}
                 </p>
               )}
 
@@ -371,6 +373,10 @@ export default function PathwayArticle() {
                   <span className="flex items-center gap-1.5">
                     {new Date(article.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                   </span>
+                  <KeywordHighlightToggle
+                    enabled={highlightEnabled}
+                    onToggle={() => setHighlightEnabled((v) => !v)}
+                  />
                   {/* Mobile TOC toggle */}
                   <button
                     onClick={() => setShowToc(true)}
@@ -410,7 +416,9 @@ export default function PathwayArticle() {
                     );
                   },
                   p: ({ children }) => (
-                    <p className="text-slate-300 leading-relaxed mb-4 text-[15px]">{children}</p>
+                    <p className="text-slate-300 leading-relaxed mb-4 text-[15px]">
+                      {highlightEnabled ? applyHighlighting(children) : children}
+                    </p>
                   ),
                   ul: ({ children }) => (
                     <ul className="space-y-2 mb-4 pl-4">{children}</ul>
@@ -421,7 +429,7 @@ export default function PathwayArticle() {
                   li: ({ children }) => (
                     <li className="text-slate-300 text-[15px] leading-relaxed flex gap-2">
                       <span style={{ color: meta.color }} className="mt-1.5 shrink-0">▸</span>
-                      <span>{children}</span>
+                      <span>{highlightEnabled ? applyHighlighting(children) : children}</span>
                     </li>
                   ),
                   strong: ({ children }) => (

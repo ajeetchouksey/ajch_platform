@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Building2 } from 'lucide-react';
 import { loadAllUseCases, loadSourceIntel, type AnyUseCase } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
-import { GlassCard, Badge, SectionHeader } from '@/components/ui';
+import { GlassCard, Badge } from '@/components/ui';
 import {
   VERTICAL_LABEL,
   VERTICAL_ACCENT,
@@ -52,37 +52,61 @@ export default function UseCasesCatalog() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-      <SectionHeader
-        icon={Building2}
-        iconColor="text-blue-400"
-        badge="AI Use Cases"
-        badgeVariant="blue"
-        title="Enterprise AI Use Cases"
-        subtitle="Real-world agentic AI implementations across 12 industry verticals — sourced from Stack AI's 100+ Use Cases guide."
-      />
 
-      {/* Stats bar */}
-      <div className="flex flex-wrap gap-4 mb-8 text-xs text-slate-500">
-        <span>{totalCount}+ use cases</span>
-        <span className="text-slate-700">·</span>
-        <span>12 verticals</span>
-        <span className="text-slate-700">·</span>
-        <span>6 agentic patterns</span>
-        <span className="text-slate-700">·</span>
-        <span className="text-slate-600">Source: Stack AI</span>
+      {/* ── Page header ───────────────────────────────────────────────────── */}
+      <div className="mb-8">
+        {/* Icon + eyebrow */}
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.28)' }}>
+            <Building2 size={18} style={{ color: '#38bdf8' }} />
+          </div>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">
+            Enterprise · AI Use Cases
+          </p>
+        </div>
+
+        {/* Title with gradient accent */}
+        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-[1.06] mb-3">
+          Enterprise{' '}
+          <span style={{ background: 'linear-gradient(100deg, #38bdf8 0%, #a78bfa 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            AI Use Cases
+          </span>.
+        </h1>
+
+        <p className="text-sm text-slate-400 leading-relaxed mb-5 max-w-xl">
+          Real-world agentic AI implementations across 12 industry verticals — sourced from Stack AI's 100+ Use Cases guide.
+        </p>
+
+        {/* Stats row */}
+        <div className="flex flex-wrap items-center text-xs">
+          {[
+            { value: `${totalCount}+`, label: 'use cases',       color: '#38bdf8' },
+            { value: '12',            label: 'verticals',        color: '#a78bfa' },
+            { value: '6',             label: 'agentic patterns', color: '#34d399' },
+            { value: 'Stack AI',      label: 'source',           color: '#f59e0b' },
+          ].map(({ value, label, color }, i) => (
+            <div key={label} className="flex items-center">
+              {i > 0 && <span className="mx-3.5" style={{ color: 'rgba(71,85,105,0.40)' }}>|</span>}
+              <span className="font-black" style={{ color }}>{value}</span>
+              <span className="text-slate-600 ml-1.5">{label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Vertical filter */}
+      {/* ── Vertical filter ───────────────────────────────────────────────── */}
       <div className="mb-3">
-        <p className="text-[10px] uppercase tracking-wider text-slate-600 mb-2">By Vertical</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-600 mb-2">By Vertical</p>
         <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setActiveVertical(null)}
-            className={`px-2.5 py-1 rounded text-[10px] font-medium border transition-colors ${
-              activeVertical === null
-                ? 'bg-slate-700 text-slate-100 border-slate-600'
-                : 'text-slate-400 border-slate-700/60 hover:border-slate-600 hover:text-slate-300'
-            }`}
+            className="px-3 py-1 rounded-full text-[10px] font-bold border transition-all duration-150"
+            style={{
+              background: activeVertical === null ? 'rgba(56,189,248,0.14)' : 'rgba(15,23,42,0.60)',
+              color: activeVertical === null ? '#38bdf8' : '#64748b',
+              borderColor: activeVertical === null ? 'rgba(56,189,248,0.40)' : 'rgba(71,85,105,0.22)',
+            }}
           >
             All
           </button>
@@ -90,11 +114,12 @@ export default function UseCasesCatalog() {
             <button
               key={v}
               onClick={() => toggle(activeVertical, v, setActiveVertical)}
-              className={`px-2.5 py-1 rounded text-[10px] font-medium border transition-colors ${
-                activeVertical === v
-                  ? 'bg-slate-700 text-slate-100 border-slate-500'
-                  : 'text-slate-400 border-slate-700/60 hover:border-slate-600 hover:text-slate-300'
-              }`}
+              className="px-3 py-1 rounded-full text-[10px] font-bold border transition-all duration-150"
+              style={{
+                background: activeVertical === v ? 'rgba(56,189,248,0.14)' : 'rgba(15,23,42,0.60)',
+                color: activeVertical === v ? '#38bdf8' : '#64748b',
+                borderColor: activeVertical === v ? 'rgba(56,189,248,0.40)' : 'rgba(71,85,105,0.22)',
+              }}
             >
               {VERTICAL_LABEL[v]}
             </button>
@@ -102,17 +127,18 @@ export default function UseCasesCatalog() {
         </div>
       </div>
 
-      {/* Pattern filter */}
+      {/* ── Pattern filter ────────────────────────────────────────────────── */}
       <div className="mb-8">
-        <p className="text-[10px] uppercase tracking-wider text-slate-600 mb-2">By Pattern</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-600 mb-2">By Pattern</p>
         <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setActivePattern(null)}
-            className={`px-2.5 py-1 rounded text-[10px] font-medium border transition-colors ${
-              activePattern === null
-                ? 'bg-slate-700 text-slate-100 border-slate-600'
-                : 'text-slate-400 border-slate-700/60 hover:border-slate-600 hover:text-slate-300'
-            }`}
+            className="px-3 py-1 rounded-full text-[10px] font-bold border transition-all duration-150"
+            style={{
+              background: activePattern === null ? 'rgba(167,139,250,0.14)' : 'rgba(15,23,42,0.60)',
+              color: activePattern === null ? '#a78bfa' : '#64748b',
+              borderColor: activePattern === null ? 'rgba(167,139,250,0.40)' : 'rgba(71,85,105,0.22)',
+            }}
           >
             All
           </button>
@@ -120,11 +146,12 @@ export default function UseCasesCatalog() {
             <button
               key={p}
               onClick={() => toggle(activePattern, p, setActivePattern)}
-              className={`px-2.5 py-1 rounded text-[10px] font-medium border transition-colors ${
-                activePattern === p
-                  ? 'bg-slate-700 text-slate-100 border-slate-500'
-                  : 'text-slate-400 border-slate-700/60 hover:border-slate-600 hover:text-slate-300'
-              }`}
+              className="px-3 py-1 rounded-full text-[10px] font-bold border transition-all duration-150"
+              style={{
+                background: activePattern === p ? 'rgba(167,139,250,0.14)' : 'rgba(15,23,42,0.60)',
+                color: activePattern === p ? '#a78bfa' : '#64748b',
+                borderColor: activePattern === p ? 'rgba(167,139,250,0.40)' : 'rgba(71,85,105,0.22)',
+              }}
             >
               {PATTERN_LABEL[p]}
             </button>
@@ -172,7 +199,7 @@ export default function UseCasesCatalog() {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-sm font-semibold text-slate-100 leading-snug mb-2">
+                <h3 className="text-sm font-black text-slate-100 leading-snug mb-2">
                   {uc.title}
                 </h3>
 
@@ -183,7 +210,11 @@ export default function UseCasesCatalog() {
                   </p>
                 )}
 
-                <div className="mt-3 flex items-center gap-1 text-xs text-slate-500 group-hover:text-blue-400 transition-colors">
+                <div className="mt-4 flex items-center gap-1 text-[11px] font-semibold transition-colors"
+                  style={{ color: '#64748b' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#38bdf8')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
+                >
                   <span>View details</span>
                   <ArrowRight size={11} />
                 </div>
