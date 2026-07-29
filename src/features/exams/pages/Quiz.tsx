@@ -5,7 +5,7 @@ import { saveSession } from '@/lib/storage';
 import { addQuizResult, useProgressSync } from '@/lib/useProgressSync';
 import { useAuth } from '@/lib/auth';
 import { type Question, type QuizSession, type DomainConfig } from '@/types/content';
-import { CheckCircle, XCircle, ChevronRight, RotateCcw, Filter, X } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X } from 'lucide-react';
 import QuizShareCard from '@/components/QuizShareCard';
 
 type Phase = 'setup' | 'quiz' | 'review';
@@ -21,6 +21,42 @@ function shuffle<T>(arr: T[]): T[] {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+/** Parse a flat explanation string into per-option reasons.
+ *  Format: "[Letter]. [correct reason]... Incorrect: [A]. [reason] [B]. [reason]..."
+ */
+function parseExplanation(
+  explanation: string,
+  optionCount: number,
+  correctIdx: number
+): { correctReason: string; optionReasons: Record<number, string> } {
+  const [correctPart, incorrectPart = ''] = explanation.split(/Incorrect:\s*/i);
+
+  // Extract the reason for the correct answer (strip leading letter prefix e.g. "C. ")
+  const correctReason = correctPart.replace(/^[A-E]\.\s+/, '').trim();
+
+  const optionReasons: Record<number, string> = {};
+
+  // Map correct option to the correctReason
+  optionReasons[correctIdx] = correctReason;
+
+  // Parse wrong-answer reasons from the "Incorrect:" section
+  if (incorrectPart) {
+    // Split on letter+period boundaries: "A. ", "B. ", etc.
+    const parts = incorrectPart.split(/(?=[A-E]\.\s)/);
+    for (const part of parts) {
+      const m = part.match(/^([A-E])\.\s+([\s\S]+)/);
+      if (m) {
+        const idx = m[1].charCodeAt(0) - 65;
+        if (idx >= 0 && idx < optionCount && idx !== correctIdx) {
+          optionReasons[idx] = m[2].replace(/\s+/g, ' ').trim();
+        }
+      }
+    }
+  }
+
+  return { correctReason, optionReasons };
 }
 
 export default function Quiz() {
@@ -40,6 +76,8 @@ export default function Quiz() {
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [passThreshold, setPassThreshold] = useState(72);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
+  const [examTotalQuestions, setExamTotalQuestions] = useState<number | null>(null);
+  const [showPalette, setShowPalette] = useState(false);
   // One-time-per-session nudge dismissal
   const [nudgeDismissed, setNudgeDismissed] = useState(() => {
     try { return !!sessionStorage.getItem(`nudge_dismissed_${examId}`); }
@@ -61,6 +99,7 @@ export default function Quiz() {
         setExamDomains(exam.domains);
         setPassThreshold(exam.passThreshold);
         setExamShortTitle(exam.shortTitle);
+        setExamTotalQuestions(exam.questions);
       }
     }).catch(() => {});
   }, [examId]);
@@ -70,7 +109,7 @@ export default function Quiz() {
     const qs = domainFilter
       ? await loadQuestionsByDomainForExam(examId, domainFilter)
       : await loadQuestionsForExam(examId);
-    const picked = shuffle(qs).slice(0, Math.min(qs.length, domainFilter ? 15 : 60));
+    const picked = shuffle(qs).slice(0, domainFilter ? 15 : qs.length);
     const newSession: QuizSession = {
       id: randomId(),
       skillId: examId,  // RC-4: scope session to this skill
@@ -142,6 +181,25 @@ export default function Quiz() {
     }
   }
 
+  function handleBack() {
+    if (current <= 0) return;
+    const prevQ = questions[current - 1];
+    const prevChosen = answers[prevQ.id];
+    setCurrent((c) => c - 1);
+    setChosen(prevChosen !== undefined ? prevChosen : null);
+    setRevealed(prevChosen !== undefined);
+  }
+
+  function handleJump(idx: number) {
+    if (idx < 0 || idx >= questions.length || idx === current) return;
+    const targetQ = questions[idx];
+    const targetChosen = answers[targetQ.id];
+    setCurrent(idx);
+    setChosen(targetChosen !== undefined ? targetChosen : null);
+    setRevealed(targetChosen !== undefined);
+    setShowPalette(false);
+  }
+
   // ── SETUP ──────────────────────────────────────────────────────────────────
   if (phase === 'setup') {
     return (
@@ -151,7 +209,7 @@ export default function Quiz() {
 
         {/* Exam meta strip */}
         <div className="flex flex-wrap gap-4 text-sm text-slate-500">
-          <span><span className="text-slate-300 font-semibold">{domainFilter === null ? 60 : 15}</span> questions</span>
+          <span><span className="text-slate-300 font-semibold">{domainFilter === null ? (examTotalQuestions ?? '—') : 15}</span> questions</span>
           <span><span className="text-slate-300 font-semibold">{passThreshold}%</span> to pass</span>
           <span>Scenario-based MCQ</span>
         </div>
@@ -170,7 +228,7 @@ export default function Quiz() {
                   : 'border-slate-700 text-slate-400 hover:border-slate-600'
               }`}
             >
-              <span className="font-semibold">All Domains</span> — 60 questions, full mock exam
+              <span className="font-semibold">All Domains</span> — {examTotalQuestions ?? 'all'} questions, full mock exam
             </button>
             {examDomains.map((domain) => (
               <button
@@ -352,6 +410,7 @@ export default function Quiz() {
   // ── QUIZ ───────────────────────────────────────────────────────────────────
   const q = questions[current];
   const isCorrect = chosen === q.correct;
+  const parsedExpl = parseExplanation(q.explanation, q.options.length, q.correct);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -361,7 +420,15 @@ export default function Quiz() {
           <span>
             Question {current + 1} of {questions.length}
           </span>
-          <span>D{q.domain} · {examDomains.find(d => d.id === q.domain)?.title ?? `Domain ${q.domain}`}</span>
+          <div className="flex items-center gap-3">
+            <span>D{q.domain} · {examDomains.find(d => d.id === q.domain)?.title ?? `Domain ${q.domain}`}</span>
+            <button
+              onClick={() => setShowPalette((v) => !v)}
+              className="text-xs text-violet-400 hover:text-violet-300 underline underline-offset-2 transition-colors"
+            >
+              {showPalette ? 'Hide' : 'Jump to question'}
+            </button>
+          </div>
         </div>
         <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
           <div
@@ -370,6 +437,40 @@ export default function Quiz() {
           />
         </div>
       </div>
+
+      {/* Question palette */}
+      {showPalette && (
+        <div className="glass-card rounded-xl p-3">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-2">
+            <span>Click a number to jump</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-emerald-700" /> correct</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-rose-800" /> wrong</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-slate-700" /> unanswered</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {questions.map((pq, idx) => {
+              const ans = answers[pq.id];
+              const isAnswered = ans !== undefined;
+              const isCorrectAns = isAnswered && ans === pq.correct;
+              const isCurrent = idx === current;
+              let cls = 'w-8 h-8 rounded-lg text-xs font-mono font-semibold transition-colors ';
+              if (isCurrent)
+                cls += 'ring-2 ring-violet-400 bg-violet-700 text-white';
+              else if (!isAnswered)
+                cls += 'bg-slate-700 text-slate-400 hover:bg-slate-600';
+              else if (isCorrectAns)
+                cls += 'bg-emerald-800/70 text-emerald-300 hover:bg-emerald-700/70';
+              else
+                cls += 'bg-rose-900/60 text-rose-300 hover:bg-rose-800/60';
+              return (
+                <button key={pq.id} onClick={() => handleJump(idx)} className={cls}>
+                  {idx + 1}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Scenario */}
       {q.scenario && (
@@ -385,54 +486,90 @@ export default function Quiz() {
       <div className="text-white font-medium text-base">{q.question}</div>
 
       {/* Options */}
-      <div className="space-y-2">
+      <div className="space-y-2" ref={feedbackRef}>
         {q.options.map((opt, idx) => {
-          let cls =
+          const isCorrectOpt = idx === q.correct;
+          const isChosenOpt = chosen === idx;
+          const optReason = parsedExpl.optionReasons[idx];
+
+          let btnCls =
             'w-full text-left px-4 py-3 rounded-xl border text-sm transition-colors ';
           if (!revealed) {
-            cls +=
-              chosen === idx
+            btnCls +=
+              isChosenOpt
                 ? 'border-violet-500 bg-violet-900/30 text-white'
                 : 'border-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-800';
           } else {
-            if (idx === q.correct)
-              cls += 'border-emerald-500 bg-emerald-900/20 text-emerald-300';
-            else if (idx === chosen && !isCorrect)
-              cls += 'border-rose-500 bg-rose-900/20 text-rose-300';
-            else cls += 'border-slate-800 text-slate-500';
+            if (isCorrectOpt)
+              btnCls += 'border-emerald-500 bg-emerald-900/20 text-emerald-300';
+            else if (isChosenOpt && !isCorrect)
+              btnCls += 'border-rose-500 bg-rose-900/20 text-rose-300';
+            else
+              btnCls += 'border-slate-800 text-slate-500';
           }
+
           return (
-            <button key={idx} onClick={() => handleChoose(idx)} className={cls}>
-              <span className="font-mono text-xs mr-2 opacity-60">
-                {String.fromCharCode(65 + idx)}.
-              </span>
-              {opt}
-            </button>
+            <div key={idx}>
+              <button
+                onClick={() => handleChoose(idx)}
+                disabled={revealed}
+                className={btnCls}
+              >
+                <span className="font-mono text-xs mr-2 opacity-60">
+                  {String.fromCharCode(65 + idx)}.
+                </span>
+                {opt}
+                {revealed && isCorrectOpt && (
+                  <CheckCircle size={13} className="inline ml-2 text-emerald-400" />
+                )}
+                {revealed && !isCorrectOpt && isChosenOpt && (
+                  <XCircle size={13} className="inline ml-2 text-rose-400" />
+                )}
+              </button>
+
+              {/* Per-option reason — shown after reveal */}
+              {revealed && optReason && (
+                <div
+                  className={`mt-1 ml-1 mr-1 px-3 py-2 rounded-b-lg text-xs leading-relaxed ${
+                    isCorrectOpt
+                      ? 'bg-emerald-950/60 border border-t-0 border-emerald-800/40 text-emerald-200'
+                      : isChosenOpt
+                        ? 'bg-rose-950/60 border border-t-0 border-rose-800/40 text-rose-200'
+                        : 'bg-slate-800/40 border border-t-0 border-slate-700/40 text-slate-400'
+                  }`}
+                >
+                  <span className={`font-semibold mr-1 ${
+                    isCorrectOpt ? 'text-emerald-400' : 'text-rose-400'
+                  }`}>
+                    {isCorrectOpt ? '✓ Why correct:' : '✗ Why incorrect:'}
+                  </span>
+                  {optReason}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
 
-      {/* Explanation */}
+      {/* Summary banner + tags after reveal */}
       {revealed && (
         <div
-          ref={feedbackRef}
-          className={`rounded-xl p-4 text-sm border ${
-            isCorrect ? 'border-emerald-700 bg-emerald-900/10' : 'border-rose-700 bg-rose-900/10'
+          className={`rounded-xl px-4 py-3 text-sm border flex items-center justify-between gap-3 ${
+            isCorrect ? 'border-emerald-700/50 bg-emerald-900/10' : 'border-rose-700/50 bg-rose-900/10'
           }`}
         >
-          <div className="flex items-center gap-2 mb-2 font-semibold">
+          <div className="flex items-center gap-2 font-semibold">
             {isCorrect ? (
-              <CheckCircle size={15} className="text-emerald-400" />
+              <CheckCircle size={15} className="text-emerald-400 shrink-0" />
             ) : (
-              <XCircle size={15} className="text-rose-400" />
+              <XCircle size={15} className="text-rose-400 shrink-0" />
             )}
             <span className={isCorrect ? 'text-emerald-300' : 'text-rose-300'}>
-              {isCorrect ? 'Correct!' : 'Incorrect'}
+              {isCorrect ? 'Correct!' : `Incorrect — correct answer: ${String.fromCharCode(65 + q.correct)}`}
             </span>
           </div>
-          <p className="text-slate-300">{q.explanation}</p>
-          <div className="mt-2 flex flex-wrap gap-1">
-            {q.tags.map((t) => (
+          <div className="flex flex-wrap gap-1 justify-end">
+            {q.tags.slice(0, 3).map((t) => (
               <span key={t} className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded">
                 {t}
               </span>
@@ -443,6 +580,15 @@ export default function Quiz() {
 
       {/* Actions */}
       <div className="flex gap-3">
+        {current > 0 && (
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-1.5 border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
+          >
+            <ChevronLeft size={15} />
+            Back
+          </button>
+        )}
         {!revealed && (
           <button
             disabled={chosen === null}
