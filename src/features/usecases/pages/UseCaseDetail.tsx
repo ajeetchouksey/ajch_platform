@@ -21,6 +21,7 @@ import {
 } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import { GlassCard, Badge, SectionHeader } from '@/components/ui';
+import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import {
   PATTERN_LABEL,
@@ -37,6 +38,7 @@ export default function UseCaseDetail() {
   const { id } = useParams<{ id: string }>();
   const [uc, setUc] = useState<AnyUseCase | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
 
   useEffect(() => {
     if (!id) return;
@@ -126,6 +128,10 @@ export default function UseCaseDetail() {
             size="xs"
           />
         ))}
+        <KeywordHighlightToggle
+          enabled={highlightEnabled}
+          onToggle={() => setHighlightEnabled((v) => !v)}
+        />
       </div>
 
       <SectionHeader
@@ -144,20 +150,26 @@ export default function UseCaseDetail() {
             <div className="space-y-4">
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Problem</p>
-                <p className="text-sm text-slate-300 leading-relaxed">{featured.problem}</p>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  {highlightEnabled ? applyHighlighting(featured.problem) : featured.problem}
+                </p>
               </div>
 
               {featured.solution && (
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Solution</p>
-                  <p className="text-sm text-slate-300 leading-relaxed">{featured.solution}</p>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {highlightEnabled ? applyHighlighting(featured.solution) : featured.solution}
+                  </p>
                 </div>
               )}
 
               {featured.whoItsFor && (
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Who It's For</p>
-                  <p className="text-sm text-slate-400">{featured.whoItsFor}</p>
+                  <p className="text-sm text-slate-400">
+                    {highlightEnabled ? applyHighlighting(featured.whoItsFor) : featured.whoItsFor}
+                  </p>
                 </div>
               )}
             </div>
@@ -176,7 +188,9 @@ export default function UseCaseDetail() {
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-slate-800 border border-slate-700 text-[10px] font-semibold text-slate-400 inline-flex items-center justify-center mt-0.5">
                       {i + 1}
                     </span>
-                    <span className="leading-relaxed">{step}</span>
+                    <span className="leading-relaxed">
+                      {highlightEnabled ? applyHighlighting(step) : step}
+                    </span>
                   </li>
                 ))}
               </ol>
@@ -204,7 +218,7 @@ export default function UseCaseDetail() {
               </GlassCard>
               {featured.architectureNotes && (
                 <p className="mt-3 text-xs text-slate-400 leading-relaxed">
-                  {featured.architectureNotes}
+                  {highlightEnabled ? applyHighlighting(featured.architectureNotes) : featured.architectureNotes}
                 </p>
               )}
             </div>
@@ -221,7 +235,9 @@ export default function UseCaseDetail() {
                 <Lightbulb size={15} className="text-amber-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-amber-500/80 mb-1">Key Insight</p>
-                  <p className="text-sm text-slate-300 leading-relaxed">{featured.keyInsights}</p>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {highlightEnabled ? applyHighlighting(featured.keyInsights) : featured.keyInsights}
+                  </p>
                 </div>
               </div>
             </GlassCard>
@@ -238,7 +254,7 @@ export default function UseCaseDetail() {
                 {featured.scalingConsiderations.map((c, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm text-slate-300 leading-relaxed">
                     <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500/60 shrink-0" />
-                    {c}
+                    {highlightEnabled ? applyHighlighting(c) : c}
                   </li>
                 ))}
               </ul>
@@ -262,7 +278,7 @@ export default function UseCaseDetail() {
                     </p>
                     <p className="text-xs text-slate-400 leading-relaxed">
                       <span className="text-emerald-400 font-semibold">Mitigation: </span>
-                      {fm.mitigation}
+                      {highlightEnabled ? applyHighlighting(fm.mitigation) : fm.mitigation}
                     </p>
                   </div>
                 ))}
@@ -323,7 +339,9 @@ export default function UseCaseDetail() {
                         {intg.type}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 leading-relaxed">{intg.note}</p>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      {highlightEnabled ? applyHighlighting(intg.note) : intg.note}
+                    </p>
                   </div>
                 ))}
               </div>

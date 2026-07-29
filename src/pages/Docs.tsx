@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { BookOpen, Layers, Cpu, FileCode, Tag, Clock, FileText } from 'lucide-react';
+import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 
 const MermaidDiagram = lazy(() => import('../components/MermaidDiagram'));
 
@@ -43,6 +44,7 @@ export default function Docs() {
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
 
   const docId = searchParams.get('doc') ?? '';
 
@@ -150,15 +152,21 @@ export default function Docs() {
         {/* Doc identity header */}
         {selectedDoc && (
           <div className="flex items-start gap-4 pb-5 mb-6 border-b border-slate-800/70">
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h2 className="text-base font-black text-white mb-1">{selectedDoc.title}</h2>
               <p className="text-sm text-slate-500">{selectedDoc.description}</p>
-              {minutes !== null && (
-                <div className="flex items-center gap-1.5 mt-2 text-[11px] text-slate-600">
-                  <Clock size={11} />
-                  <span>{minutes} min read</span>
-                </div>
-              )}
+              <div className="flex items-center gap-3 mt-2">
+                {minutes !== null && (
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-600">
+                    <Clock size={11} />
+                    <span>{minutes} min read</span>
+                  </div>
+                )}
+                <KeywordHighlightToggle
+                  enabled={highlightEnabled}
+                  onToggle={() => setHighlightEnabled((v) => !v)}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -190,6 +198,12 @@ export default function Docs() {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
               components={{
+                p({ children }) {
+                  return <p>{highlightEnabled ? applyHighlighting(children) : children}</p>;
+                },
+                li({ children }) {
+                  return <li>{highlightEnabled ? applyHighlighting(children) : children}</li>;
+                },
                 pre({ children }) {
                   // Intercept mermaid code blocks — avoids wrapping diagram in a styled <pre>
                   const nodeArray = Children.toArray(children);

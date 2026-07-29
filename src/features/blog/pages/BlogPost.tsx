@@ -14,6 +14,7 @@ import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
+import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -317,6 +318,7 @@ export default function BlogPost() {
   const [copied, setCopied] = useState(false);
   const [visible, setVisible] = useState(false);
   const [activeId, setActiveId] = useState('');
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
   const [readPct, setReadPct] = useState(0);
   const [showToc, setShowToc] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
@@ -495,7 +497,7 @@ export default function BlogPost() {
                 {meta.title}
               </h1>
 
-              <p className="text-slate-400 text-sm sm:text-base xl:text-lg leading-relaxed mb-5">{meta.excerpt}</p>
+              <p className="text-slate-400 text-sm sm:text-base xl:text-lg leading-relaxed mb-5">{highlightEnabled ? applyHighlighting(meta.excerpt) : meta.excerpt}</p>
 
               {/* Meta row */}
               <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-500 pb-5"
@@ -507,6 +509,10 @@ export default function BlogPost() {
                 </span>
                 <span className="flex items-center gap-1.5"><Clock size={12} /> {meta.readingTime} min read</span>
                 <PageViewsBadge path={`/blog/${slug}`} />
+                <KeywordHighlightToggle
+                  enabled={highlightEnabled}
+                  onToggle={() => setHighlightEnabled((v) => !v)}
+                />
                 {/* Share — hide when sidebar (xl+) shows its own share button */}
                 <button onClick={handleShare}
                   className="ml-auto flex items-center gap-1.5 text-xs transition-colors xl:hidden"
@@ -563,6 +569,12 @@ export default function BlogPost() {
               rehypePlugins={[rehypeRaw]}
               children={content}
               components={{
+                p({ children }) {
+                  return <p>{highlightEnabled ? applyHighlighting(children) : children}</p>;
+                },
+                li({ children }) {
+                  return <li>{highlightEnabled ? applyHighlighting(children) : children}</li>;
+                },
                 h2({ children }) {
                   const text = React.Children.toArray(children).map(c => String(c)).join('');
                   return <h2 id={slugify(text)}>{children}</h2>;
