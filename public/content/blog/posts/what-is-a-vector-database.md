@@ -7,7 +7,7 @@ updated: null
 tags: ["vector-database", "rag", "embeddings", "llm", "semantic-search", "enterprise-ai"]
 category: "AI Engineering"
 readingTime: 5
-featured: false
+featured: true
 draft: false
 ---
 
