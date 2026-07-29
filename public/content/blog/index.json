@@ -1,6 +1,20 @@
 {
   "posts": [
     {
+      "slug": "what-is-a-vector-database",
+      "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
+      "excerpt": "LLMs are the brain. Vector databases are the memory. Without this layer, your enterprise AI is answering from guesswork — not from what your business actually knows.",
+      "author": "Ajeet Chouksey",
+      "date": "2026-07-29",
+      "updated": null,
+      "tags": ["vector-database", "rag", "embeddings", "llm", "semantic-search", "enterprise-ai"],
+      "category": "AI Engineering",
+      "readingTime": 5,
+      "featured": false,
+      "draft": false,
+      "image": "/images/blog/what-is-a-vector-database.jpg"
+    },
+    {
       "slug": "rag-vs-agentic-rag",
       "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
       "excerpt": "RAG gave enterprise AI a memory. Agentic RAG gave it a mind. Here is how the two architectures compare, when to use each, and why the gap between them is wider than most teams expect.",
