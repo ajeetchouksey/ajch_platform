@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { loadBlogPost, loadBlogManifest, hasCachedBlogManifest, hasCachedBlogPost } from '@/lib/content-loader';
 import { sharePost } from '@/lib/share';
+import { trackEvent } from '@/lib/analytics';
 import GiscusComments from '@/components/GiscusComments';
 import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
@@ -366,6 +367,12 @@ export default function BlogPost() {
       setReadPct(prev => {
         if (Math.abs(prev - pct) < 0.5) return prev; // skip micro-updates
         if (pct > 90 && slug) markAsRead(slug);
+        // fire scroll_depth GA4 event at 25/50/75/90 milestones (once per milestone per post)
+        for (const milestone of [25, 50, 75, 90]) {
+          if (prev < milestone && pct >= milestone && slug) {
+            trackEvent('scroll_depth', { post_slug: slug, pct: milestone });
+          }
+        }
         return pct;
       });
     };

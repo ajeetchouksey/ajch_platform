@@ -4,6 +4,7 @@ import { loadQuestionsForExam, loadQuestionsByDomainForExam, loadExamRegistry } 
 import { saveSession } from '@/lib/storage';
 import { addQuizResult, useProgressSync } from '@/lib/useProgressSync';
 import { useAuth } from '@/lib/auth';
+import { trackEvent } from '@/lib/analytics';
 import { type Question, type QuizSession, type DomainConfig } from '@/types/content';
 import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X } from 'lucide-react';
 import QuizShareCard from '@/components/QuizShareCard';
@@ -128,6 +129,7 @@ export default function Quiz() {
     setSession(newSession);
     setPhase('quiz');
     setLoading(false);
+    trackEvent('quiz_start', { exam_id: examId, domain: domainFilter ?? 'all' });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [domainFilter]);
 
@@ -139,6 +141,7 @@ export default function Quiz() {
       // Keep ccaf_progress in sync for Gist cloud backup
       addQuizResult(examId, String(finished.domainFilter ?? 'all'), finished.score, finished.total);
       void syncToGist(); // push to GitHub Gist if logged in (fire-and-forget)
+      trackEvent('quiz_complete', { exam_id: examId, score: finished.score, total: finished.total, pct: Math.round((finished.score / finished.total) * 100) });
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSession(finished);
     }
