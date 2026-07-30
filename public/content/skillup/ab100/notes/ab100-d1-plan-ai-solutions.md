@@ -4,7 +4,7 @@
 
 ## Overview
 
-Domain 1 covers the upfront strategic and architectural decisions for agentic AI initiatives — from identifying the right use cases and mapping them to Azure services, to estimating costs, aligning stakeholders, and satisfying regulatory requirements before a single line of code is written.
+**Domain 1** covers the upfront strategic and architectural decisions for agentic AI initiatives — from identifying the right use cases and mapping them to Azure services, to estimating costs, aligning stakeholders, and satisfying regulatory requirements before a single line of code is written.
 
 ---
 
@@ -14,18 +14,7 @@ Domain 1 covers the upfront strategic and architectural decisions for agentic AI
 
 Not every automation problem benefits from an AI agent. The decision tree:
 
-```mermaid
-graph TD
-    A[Business Problem] --> B{Structured & rules-based?}
-    B -->|Yes| C[RPA / Logic Apps]
-    B -->|No| D{Requires language understanding?}
-    D -->|No| E[Traditional ML / Azure ML]
-    D -->|Yes| F{Multi-step reasoning needed?}
-    F -->|No| G[Copilot Studio single-turn]
-    F -->|Yes| H{Autonomous tool use required?}
-    H -->|No| I[Azure OpenAI + prompt flow]
-    H -->|Yes| J[Agentic AI - AI Foundry / Agent Service]
-```
+![The Agentic AI Decision Framework](../../../../images/skill/ab_100_ai_decisiontree.png)
 
 ### ROI Calculation Factors
 - **Cost of current process**: FTE hours × hourly rate × volume
@@ -45,24 +34,14 @@ The exam often presents scenarios where Copilot Studio looks like the right answ
 
 ### Hub vs Project
 
-```mermaid
-graph TD
-    subgraph "Azure AI Foundry Hub"
-        H[Hub<br/>Shared governance layer]
-        H --> KC[Key Vault<br/>Shared secrets]
-        H --> SA[Storage Account<br/>Shared artifacts]
-        H --> CR[Container Registry<br/>Shared images]
-        H --> APPI[App Insights<br/>Shared monitoring]
-    end
-    subgraph "Projects"
-        P1[Project: HR Agent]
-        P2[Project: Finance Agent]
-        P3[Project: Customer Support]
-    end
-    H --> P1
-    H --> P2
-    H --> P3
-```
+For Azure AI Foundry, think of the relationship as:
+
+**Hub** = Shared platform & governance
+
+**Project** = Individual AI application/team workspace
+
+![Hub vs Project](../../../../images/skill/ab_100_ai_hub_project.png)
+
 
 | Concept | Hub | Project |
 |---------|-----|---------|
@@ -70,6 +49,10 @@ graph TD
 | Resources | Shared: Key Vault, Storage, ACR | Isolated: endpoints, deployments |
 | Access | IT/Governance team | Dev team |
 | Cost center | Allocated to projects | Per-project billing |
+
+> **Rule of Thumb**
+If you're talking about security, governance, networking, monitoring, and shared resources → Hub.
+If you're talking about agents, prompts, knowledge bases, evaluations, and deployments → Project.
 
 ### Key Hub Services
 - **Azure AI Services connection**: one connection = access to all cognitive services
@@ -82,17 +65,8 @@ graph TD
 
 ### Model Selection Decision Tree
 
-```mermaid
-graph LR
-    A[Task Type] --> B{Reasoning depth?}
-    B -->|Deep reasoning| C[GPT-4o / o1-series]
-    B -->|Standard| D{Latency priority?}
-    D -->|Low latency| E[GPT-4o-mini / Phi-3-mini]
-    D -->|Balanced| F[GPT-4o]
-    A --> G{Edge/embedded?}
-    G -->|Yes| H[Phi-3 / Phi-3.5]
-    G -->|No| B
-```
+![Model Selection Decision Tree](../../../../images/skill/ab_100_model_selection_decision_tree.png) 
+
 
 | Model | Best For | Context | Cost Tier |
 |-------|----------|---------|-----------|
@@ -126,13 +100,8 @@ graph LR
 
 ### Provisioned Throughput Units (PTU)
 
-```mermaid
-graph LR
-    A[Traffic estimate<br/>tokens/min] --> B{Peak sustained?}
-    B -->|Yes > 100K TPM| C[PTU<br/>Reserved capacity<br/>Predictable latency]
-    B -->|Spiky / variable| D[Pay-as-you-go<br/>S0 tier<br/>Shared capacity]
-    B -->|Both| E[PTU baseline +<br/>PAYG overflow]
-```
+![Provisioned Throughput Units (PTU)](../../../../images/skill/ab_100_ptu.png) 
+
 
 - **PTU**: billed by provisioned unit/hour regardless of usage — best when utilization > 60%
 - **PAYG**: billed per 1K tokens — best for dev/test and variable loads
@@ -175,16 +144,7 @@ graph LR
 
 ### Event-Driven Agent Trigger Patterns
 
-```mermaid
-graph TD
-    E1[Email arrives<br/>Exchange] -->|Logic Apps| OA[AI Agent<br/>AI Foundry]
-    E2[Form submitted<br/>Power Apps] -->|Power Automate| OA
-    E3[Queue message<br/>Service Bus] -->|Azure Function| OA
-    E4[Document uploaded<br/>Blob Storage] -->|Event Grid| OA
-    OA --> R1[Action: update CRM]
-    OA --> R2[Action: send response]
-    OA --> R3[Action: create ticket]
-```
+![Provisioned Throughput Units (PTU)](../../../../images/skill/ab_100_event_driven_agent_trigger_patterns.png) 
 
 | Trigger Pattern | Best For | Latency |
 |----------------|----------|---------|
