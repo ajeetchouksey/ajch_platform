@@ -45,6 +45,9 @@ import UseCaseDetail from '@/features/usecases/pages/UseCaseDetail';
 // ── Docs ──────────────────────────────────────────────────────────────────────
 import Docs from '@/features/docs/pages/Docs';
 
+// ── Monitoring ───────────────────────────────────────────────────────────────
+import Monitoring from '@/features/monitoring/pages/Monitoring';
+
 // ── Analytics / Maintainer ────────────────────────────────────────────────────
 import Analytics from '@/features/analytics/pages/Analytics';
 import Maintainer from '@/features/analytics/pages/Maintainer';
@@ -122,6 +125,9 @@ export default function AppRoutes() {
 
       {/* Docs */}
       <Route path="/docs" element={<Docs />} />
+
+      {/* Monitoring */}
+      <Route path="/monitoring" element={<Monitoring />} />
 
       {/* Analytics / Maintainer */}
       <Route path="/analytics" element={<Analytics />} />
