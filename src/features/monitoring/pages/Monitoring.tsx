@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
-import { Activity, BarChart2, BookOpen, Globe, Monitor, Lock, Pause, Play, Users, Eye, Clock, TrendingUp, Wifi } from 'lucide-react';
+import { Activity, BarChart2, BookOpen, Globe, Monitor, Lock, Pause, Play, Users, Eye, Clock, TrendingUp, Wifi, Link2, Unlink } from 'lucide-react';
 import { useGA4 } from '../hooks/useGA4';
 import { useGA4Realtime } from '../hooks/useGA4Realtime';
+import { useGA4Status } from '../hooks/useGA4Status';
 import { KpiCard } from '../components/KpiCard';
 import { HBarChart } from '../components/HBarChart';
 import { DonutChart } from '../components/DonutChart';
@@ -46,6 +47,49 @@ function SectionCard({ title, children, loading }: { title: string; children: Re
     <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
       <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">{title}</h3>
       {loading ? <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}</div> : children}
+    </div>
+  );
+}
+
+// ── Connect GA4 Banner ────────────────────────────────────────────────────────
+
+function ConnectGA4Banner({ onConnected }: { onConnected: () => void }) {
+  const { token } = useAuth();
+  const [connecting, setConnecting] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function handleConnect() {
+    if (!token) return;
+    setConnecting(true); setErr(null);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_GA4_PROXY_URL}/oauth/start`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Could not start OAuth (${res.status})`);
+      const { url } = (await res.json()) as { url: string };
+      window.location.href = url;
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Failed to start OAuth');
+      setConnecting(false);
+    }
+    void onConnected;
+  }
+
+  return (
+    <div className="rounded-xl p-5 mb-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+      style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)' }}>
+      <div className="w-9 h-9 rounded-lg bg-violet-500/15 border border-violet-500/30 flex items-center justify-center shrink-0">
+        <Link2 size={16} className="text-violet-400" />
+      </div>
+      <div className="flex-1">
+        <p className="text-sm font-semibold text-white mb-0.5">Connect Google Analytics</p>
+        <p className="text-xs text-slate-400">Authorise read-only access to GA4 so the dashboard can show real data. No billing required.</p>
+        {err && <p className="text-xs text-rose-400 mt-1">{err}</p>}
+      </div>
+      <button onClick={handleConnect} disabled={connecting}
+        className="shrink-0 px-4 py-2 rounded-lg text-xs font-semibold bg-violet-500 hover:bg-violet-400 text-white transition-colors disabled:opacity-50">
+        {connecting ? 'Redirecting…' : 'Connect Google Analytics'}
+      </button>
     </div>
   );
 }
@@ -457,12 +501,36 @@ function AudienceTab({ dateRange }: { dateRange: DateRange }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function Monitoring() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [mounted, setMounted] = useState(false);
   const [tab, setTab] = useState<Tab>('overview');
   const [dateRange, setDateRange] = useState<DateRange>('28d');
+  const [connectedToast, setConnectedToast] = useState(false);
+
+  const ga4Status = useGA4Status();
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
+
+  // Handle ?connected=true redirect from OAuth callback
+  useEffect(() => {
+    if (searchParams.get('connected') === 'true') {
+      setConnectedToast(true); // eslint-disable-line react-hooks/set-state-in-effect
+      setSearchParams({}, { replace: true });  
+      ga4Status.refetch();
+      setTimeout(() => setConnectedToast(false), 4000);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleDisconnect() {
+    if (!token) return;
+    await fetch(`${import.meta.env.VITE_GA4_PROXY_URL}/oauth/disconnect`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    ga4Status.refetch();
+  }
 
   const isOwner = user?.login === OWNER_LOGIN;
 
@@ -482,6 +550,13 @@ export default function Monitoring() {
 
   return (
     <div className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+      {/* Connected toast */}
+      {connectedToast && (
+        <div className="fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 shadow-lg">
+          ✓ Google Analytics connected
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -490,21 +565,40 @@ export default function Monitoring() {
             <Activity size={20} className="text-violet-400" />
             <h1 className="text-xl font-bold tracking-tight"><span className="heading-gradient">Monitoring</span></h1>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Owner</span>
+            {ga4Status.method === 'oauth' && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-violet-500/15 text-violet-300 border border-violet-500/30">OAuth</span>
+            )}
+            {ga4Status.method === 'service_account' && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-blue-500/15 text-blue-300 border border-blue-500/30">SA</span>
+            )}
           </div>
           <p className="text-sm text-slate-400">GA4 analytics — real-time + historical. Visible only to @{OWNER_LOGIN}.</p>
         </div>
 
-        {!import.meta.env.VITE_GA4_PROXY_URL && (
-          <div className="text-xs text-amber-400 border border-amber-500/30 rounded-lg px-3 py-2 bg-amber-500/10">
-            VITE_GA4_PROXY_URL not set — data unavailable
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {!import.meta.env.VITE_GA4_PROXY_URL && (
+            <div className="text-xs text-amber-400 border border-amber-500/30 rounded-lg px-3 py-2 bg-amber-500/10">
+              VITE_GA4_PROXY_URL not set — data unavailable
+            </div>
+          )}
+          {ga4Status.method === 'oauth' && (
+            <button onClick={handleDisconnect}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/40 transition-colors">
+              <Unlink size={11} /> Disconnect GA4
+            </button>
+          )}
+        </div>
       </div>
 
       {authLoading && <p className="text-slate-500 text-sm animate-pulse py-12 text-center">Checking auth…</p>}
 
       {!authLoading && isOwner && (
         <>
+          {/* Connect banner — shown when neither SA nor OAuth is configured */}
+          {!ga4Status.loading && !ga4Status.connected && import.meta.env.VITE_GA4_PROXY_URL && (
+            <ConnectGA4Banner onConnected={ga4Status.refetch} />
+          )}
+
           {/* Controls */}
           <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
             <div className="flex gap-1">

@@ -32,9 +32,11 @@ const GH_API = 'https://api.github.com';
 const TOKEN_SCOPES = 'https://www.googleapis.com/auth/analytics.readonly';
 
 export interface Env {
-  GA4_SERVICE_ACCOUNT_B64: string;
+  GA4_SERVICE_ACCOUNT_B64?: string; // optional when OAuth is used
   GA4_PROPERTY_ID: string;
   GA4_CACHE: KVNamespace;
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
 }
 
 // ── CORS helpers ──────────────────────────────────────────────────────────────
@@ -97,11 +99,9 @@ function b64url(buf: ArrayBuffer): string {
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
-async function getAccessToken(env: Env): Promise<string> {
-  const cached = await env.GA4_CACHE.get('ga4:access_token');
-  if (cached) return cached;
-
-  const saJson = atob(env.GA4_SERVICE_ACCOUNT_B64);
+// service-account JWT path (requires GA4_SERVICE_ACCOUNT_B64)
+async function getAccessTokenSA(env: Env): Promise<string> {
+  const saJson = atob(env.GA4_SERVICE_ACCOUNT_B64!);
   const sa: ServiceAccount = JSON.parse(saJson);
 
   const now = Math.floor(Date.now() / 1000);
@@ -116,7 +116,6 @@ async function getAccessToken(env: Env): Promise<string> {
 
   const sigInput = `${header}.${payload}`;
 
-  // Import the RSA private key (PKCS#8 PEM)
   const pemBody = sa.private_key.replace(/-----[^-]+-----/g, '').replace(/\s+/g, '');
   const der = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0));
   const key = await crypto.subtle.importKey('pkcs8', der, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
@@ -130,15 +129,42 @@ async function getAccessToken(env: Env): Promise<string> {
     body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
   });
 
-  if (!tokenRes.ok) {
-    const err = await tokenRes.text();
-    throw new Error(`GA4 token exchange failed: ${err}`);
-  }
+  if (!tokenRes.ok) throw new Error(`GA4 SA token exchange failed: ${await tokenRes.text()}`);
 
   const { access_token, expires_in } = await tokenRes.json<{ access_token: string; expires_in: number }>();
-  // Cache for 55 min (token is valid 60 min, give 5-min buffer)
   await env.GA4_CACHE.put('ga4:access_token', access_token, { expirationTtl: Math.min(expires_in - 300, 3300) });
   return access_token;
+}
+
+// OAuth user-account path (uses stored refresh token in KV)
+async function getAccessTokenOAuth(env: Env): Promise<string> {
+  const refreshToken = await env.GA4_CACHE.get('ga4:oauth_refresh_token');
+  if (!refreshToken) throw new Error('ga4_not_connected');
+
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: env.GOOGLE_CLIENT_ID!,
+      client_secret: env.GOOGLE_CLIENT_SECRET!,
+    }),
+  });
+
+  if (!res.ok) throw new Error(`OAuth token refresh failed: ${res.status}`);
+
+  const { access_token, expires_in } = await res.json<{ access_token: string; expires_in: number }>();
+  await env.GA4_CACHE.put('ga4:access_token', access_token, { expirationTtl: Math.min(expires_in - 300, 3300) });
+  return access_token;
+}
+
+// Orchestrator: service account wins if configured, otherwise OAuth
+async function getAccessToken(env: Env): Promise<string> {
+  const cached = await env.GA4_CACHE.get('ga4:access_token');
+  if (cached) return cached;
+  if (env.GA4_SERVICE_ACCOUNT_B64) return getAccessTokenSA(env);
+  return getAccessTokenOAuth(env);
 }
 
 // ── GA4 Realtime report ───────────────────────────────────────────────────────
@@ -219,7 +245,45 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
 
-    // Server-side auth gate (OWASP A01 — not just client-side)
+    // /oauth/callback is called by Google — no Bearer token, state param is the CSRF proof
+    if (url.pathname === '/oauth/callback' && request.method === 'GET') {
+      const code = url.searchParams.get('code');
+      const state = url.searchParams.get('state');
+      if (!code || !state) return new Response('Bad request', { status: 400 });
+
+      // Single-use state: delete before exchange to prevent replay (AppSec Req 1)
+      const stateKey = `oauth:state:${state}`;
+      const storedOrigin = await env.GA4_CACHE.get(stateKey);
+      if (!storedOrigin) return new Response('Invalid or expired state', { status: 403 });
+      await env.GA4_CACHE.delete(stateKey);
+
+      const workerBase = new URL(request.url).origin;
+      const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code,
+          client_id: env.GOOGLE_CLIENT_ID!,
+          client_secret: env.GOOGLE_CLIENT_SECRET!,
+          redirect_uri: `${workerBase}/oauth/callback`,
+          grant_type: 'authorization_code',
+        }),
+      });
+
+      if (!tokenRes.ok) {
+        return Response.redirect(`${storedOrigin}/monitoring?connected=error`, 302);
+      }
+
+      const tokens = await tokenRes.json<{ access_token: string; refresh_token?: string; expires_in: number }>();
+      if (tokens.refresh_token) {
+        // Stored silently — never echoed in any response (AppSec Req 2)
+        await env.GA4_CACHE.put('ga4:oauth_refresh_token', tokens.refresh_token);
+      }
+      await env.GA4_CACHE.put('ga4:access_token', tokens.access_token, { expirationTtl: Math.min(tokens.expires_in - 300, 3300) });
+      return Response.redirect(`${storedOrigin}/monitoring?connected=true`, 302);
+    }
+
+    // All other routes require owner GitHub token
     const authHeader = request.headers.get('Authorization') ?? '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
     if (!token) return json({ error: 'Unauthorized' }, 401, origin);
@@ -228,6 +292,46 @@ export default {
     if (!isOwner) return json({ error: 'Forbidden' }, 403, origin);
 
     try {
+      // GET /api/ga/status — returns connection method, never leaks tokens (AppSec Req 2)
+      if (url.pathname === '/api/ga/status' && request.method === 'GET') {
+        const hasSA = Boolean(env.GA4_SERVICE_ACCOUNT_B64);
+        const hasOAuth = Boolean(await env.GA4_CACHE.get('ga4:oauth_refresh_token'));
+        const method = hasSA ? 'service_account' : hasOAuth ? 'oauth' : 'none';
+        return json({ connected: hasSA || hasOAuth, method }, 200, origin);
+      }
+
+      // GET /oauth/start — returns Google consent URL for the owner to navigate to
+      if (url.pathname === '/oauth/start' && request.method === 'GET') {
+        if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
+          return json({ error: 'OAuth not configured — set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET' }, 501, origin);
+        }
+        // crypto.randomUUID() for high-entropy state (AppSec Req 1)
+        const state = crypto.randomUUID();
+        const frontendOrigin = (origin && ALLOWED_ORIGINS.has(origin)) ? origin : 'https://aaryaai.dev';
+        // TTL = 5 min; value = frontend origin for redirect-back (AppSec Req 1)
+        await env.GA4_CACHE.put(`oauth:state:${state}`, frontendOrigin, { expirationTtl: 300 });
+        const workerBase = new URL(request.url).origin;
+        const params = new URLSearchParams({
+          client_id: env.GOOGLE_CLIENT_ID,
+          redirect_uri: `${workerBase}/oauth/callback`,
+          response_type: 'code',
+          scope: TOKEN_SCOPES,
+          access_type: 'offline',
+          prompt: 'consent',
+          state,
+        });
+        return json({ url: `https://accounts.google.com/o/oauth2/v2/auth?${params}` }, 200, origin);
+      }
+
+      // POST /oauth/disconnect — remove stored OAuth tokens from KV
+      if (url.pathname === '/oauth/disconnect' && request.method === 'POST') {
+        await Promise.all([
+          env.GA4_CACHE.delete('ga4:oauth_refresh_token'),
+          env.GA4_CACHE.delete('ga4:access_token'),
+        ]);
+        return json({ ok: true }, 200, origin);
+      }
+
       if (url.pathname === '/api/ga/realtime' && request.method === 'GET') {
         const data = await runRealtimeReport(env);
         return json(data, 200, origin);
@@ -245,6 +349,8 @@ export default {
       return json({ error: 'Not found' }, 404, origin);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Internal error';
+      // ga4_not_connected → tell the UI to show the connect banner
+      if (msg === 'ga4_not_connected') return json({ error: 'ga4_not_connected' }, 503, origin);
       console.error('[ga4-proxy]', msg);
       return json({ error: 'GA4 request failed' }, 502, origin);
     }

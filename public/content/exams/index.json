@@ -103,38 +103,6 @@
         { "label": "Azure AI Foundry Docs", "url": "https://learn.microsoft.com/en-us/azure/ai-foundry/" },
         { "label": "Copilot Studio Docs", "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/" }
       ]
-    },
-    {
-      "id": "gh300",
-      "title": "GitHub Copilot Fundamentals",
-      "shortTitle": "GH-300",
-      "description": "Validate your understanding of GitHub Copilot's core features, prompt engineering principles, data pipeline, privacy and security controls, and administrator settings across plans.",
-      "questions": 134,
-      "duration": "90 min",
-      "passScore": "75%",
-      "passThreshold": 75,
-      "available": true,
-      "accentColor": "linear-gradient(90deg, #1f2937, #6b7280)",
-      "colorScheme": "gray",
-      "domains": [
-        { "id": 1, "title": "Prompt Engineering & Copilot Chat", "weight": 28, "color": "bg-sky-600" },
-        { "id": 2, "title": "AI Model, Data Pipeline & Core Concepts", "weight": 25, "color": "bg-violet-600" },
-        { "id": 3, "title": "Privacy, Security & Trust Center", "weight": 30, "color": "bg-rose-600" },
-        { "id": 4, "title": "IDE Integration & Developer Tools", "weight": 17, "color": "bg-emerald-600" }
-      ],
-      "questionFiles": [
-        "content/questions/gh300-domain1.json",
-        "content/questions/gh300-domain2.json",
-        "content/questions/gh300-domain3.json",
-        "content/questions/gh300-domain4.json"
-      ],
-      "scenarioFiles": [],
-      "resources": [
-        { "label": "GitHub Copilot Docs", "url": "https://docs.github.com/en/copilot" },
-        { "label": "GitHub Copilot Trust Center", "url": "https://resources.github.com/copilot-trust-center/" },
-        { "label": "Copilot Prompt Engineering", "url": "https://docs.github.com/en/copilot/using-github-copilot/best-practices-for-using-github-copilot" },
-        { "label": "Copilot Privacy FAQ", "url": "https://docs.github.com/en/site-policy/privacy-policies/github-copilot-privacy-statement" }
-      ]
     }
   ]
 }

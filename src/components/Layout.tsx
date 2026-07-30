@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown, Map, User, Briefcase, Building2, Activity } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown, User, Briefcase, Building2, Activity } from 'lucide-react';
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -36,7 +36,6 @@ const platformLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
   { to: '/skillup', label: 'Skill Up', icon: GraduationCap },
   { to: '/blog', label: 'Field Notes', icon: Newspaper },
-  { to: '/horizons', label: 'Learn', icon: Map },
   { to: '/interview', label: 'Interview Prep', icon: Briefcase },
   { to: '/usecases', label: 'Use Cases', icon: Building2 },
   { to: '/tools', label: 'Tools', icon: Wrench },

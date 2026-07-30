@@ -1,11 +1,12 @@
 ---
 name: Platform Engineer
-version: 1.0.0
-last_modified: "2026-05-29"
+version: 1.1.0
+last_modified: "2026-07-30"
 description: >
   Minimal routing specialist for Aarya — My AI Learning Hub. Exclusively manages
   App.tsx route definitions and Layout.tsx nav/sidebar entries. Never
   touches page components, business logic, or styling.
+model: ["GPT-4o mini (copilot)", "Claude Haiku 4.5 (copilot)"]
 tools: [read/readFile, edit/editFiles, search/fileSearch, search/listDirectory]
 ---
 

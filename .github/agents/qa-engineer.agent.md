@@ -1,13 +1,14 @@
 ﻿---
 name: QA Engineer
-version: 1.0.0
-last_modified: 2026-05-29
+version: 1.1.0
+last_modified: 2026-07-30
 description: >
   Validates Mermaid diagrams in markdown and MDX files against Aarya platform
   readability standards. Returns PASS ✅ or a structured list of VIOLATIONS ✗
   with exact line references and suggested fixes. Called by Platform Control
   Agent and Release Engineer before any blog post or study note is
   published. Read-only — never writes files.
+model: ["GPT-4o mini (copilot)", "Claude Haiku 4.5 (copilot)"]
 tools:
   - read_file
   - grep_search
