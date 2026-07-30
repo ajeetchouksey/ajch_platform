@@ -3,7 +3,7 @@
  * Platform-wide keyword dictionary for inline term highlighting.
  * All terms are statically defined — no user input, no external calls.
  *
- * Categories: architecture, cloud, ai-ml, devops, security, networking, cloudflare
+ * Categories: architecture, cloud, ai-ml, devops, security, networking, cloudflare, data
  *
  * Security note: escapeRegex() escapes all terms before regex construction
  * to handle special characters (e.g. C++, .NET, CI/CD) safely.
@@ -16,7 +16,8 @@ export type KeywordCategory =
   | 'devops'
   | 'security'
   | 'networking'
-  | 'cloudflare';
+  | 'cloudflare'
+  | 'data';
 
 export interface Keyword {
   term: string;
@@ -74,6 +75,12 @@ export const CATEGORY_STYLE: Record<KeywordCategory, CategoryStyle> = {
     border: 'rgba(249,115,22,0.30)',
     label: 'Cloudflare',
   },
+  data: {
+    color: '#facc15',
+    bg: 'rgba(250,204,21,0.12)',
+    border: 'rgba(250,204,21,0.30)',
+    label: 'Data',
+  }
 };
 
 export const KEYWORDS: Keyword[] = [
@@ -101,7 +108,16 @@ export const KEYWORDS: Keyword[] = [
   { term: 'canary deployment', category: 'architecture', description: 'Gradual traffic shift to a new version to detect issues before full rollout' },
   { term: 'sidecar pattern', category: 'architecture', description: 'Auxiliary container deployed alongside a main service to add cross-cutting concerns' },
   { term: 'strangler fig', category: 'architecture', description: 'Incremental migration: new functionality wraps the legacy system until it is replaced' },
-
+  { term: 'domain-driven design', category: 'architecture', description: 'Software design approach focused on business domains and bounded contexts' },
+  { term: 'bounded context', category: 'architecture', description: 'Logical boundary within a domain where a model applies consistently' },
+  { term: 'hexagonal architecture', category: 'architecture', description: 'Ports-and-adapters architecture separating business logic from external systems' },
+  { term: 'clean architecture', category: 'architecture', description: 'Layered architecture emphasizing separation of concerns and maintainability' },
+  { term: 'enterprise architecture', category: 'architecture', description: 'Strategic framework aligning business processes, applications, and technology' },
+  { term: 'EDA', category: 'architecture', description: 'Event-Driven Architecture for asynchronous distributed systems' },
+  { term: 'distributed systems', category: 'architecture', description: 'Multiple interconnected systems working together as one platform' },
+  { term: 'data mesh', category: 'architecture', description: 'Decentralized approach to data ownership and management' },
+  { term: 'data fabric', category: 'architecture', description: 'Unified data architecture connecting multiple data sources' },
+  { term: 'resilience', category: 'architecture', description: 'Ability of systems to recover from failures and continue operating' },
   // ── Cloud ────────────────────────────────────────────────────────────────────
   { term: 'Azure', category: 'cloud', description: 'Microsoft\'s cloud computing platform' },
   { term: 'Kubernetes', category: 'cloud', description: 'Container orchestration system (K8s) for automated deployment and scaling' },
@@ -124,7 +140,16 @@ export const KEYWORDS: Keyword[] = [
   { term: 'Logic Apps', category: 'cloud', description: 'Azure low-code workflow automation and integration service' },
   { term: 'Service Bus', category: 'cloud', description: 'Azure enterprise message broker with queues and topics' },
   { term: 'Event Hub', category: 'cloud', description: 'Azure big-data streaming and event ingestion service' },
-
+  { term: 'Azure AI Foundry', category: 'cloud', description: 'Microsoft platform for building, deploying, and managing AI solutions' },
+  { term: 'Azure OpenAI', category: 'cloud', description: 'Azure-hosted OpenAI models with enterprise security and governance' },
+  { term: 'Container Apps', category: 'cloud', description: 'Azure managed container platform for microservices and event-driven workloads' },
+  { term: 'Azure DevOps', category: 'cloud', description: 'Microsoft platform for source control, pipelines, boards, and testing' },
+  { term: 'Landing Zone', category: 'cloud', description: 'Predefined cloud foundation with governance, security, and networking' },
+  { term: 'FinOps', category: 'cloud', description: 'Practice of cloud cost optimization and financial accountability' },
+  { term: 'multi-cloud', category: 'cloud', description: 'Using services from multiple cloud providers' },
+  { term: 'hybrid cloud', category: 'cloud', description: 'Combining on-premises infrastructure with cloud services' },
+  { term: 'cloud-native', category: 'cloud', description: 'Applications designed specifically for cloud environments' },
+  { term: 'AKS Fleet', category: 'cloud', description: 'Azure service for managing multiple Kubernetes clusters' },
   // ── AI / ML ──────────────────────────────────────────────────────────────────
   { term: 'LLM', category: 'ai-ml', description: 'Large Language Model — deep learning model trained on vast text corpora' },
   { term: 'RAG', category: 'ai-ml', description: 'Retrieval-Augmented Generation — grounding LLM responses with external knowledge' },
@@ -149,7 +174,29 @@ export const KEYWORDS: Keyword[] = [
   { term: 'tool use', category: 'ai-ml', description: 'LLM calling external functions or APIs to extend its capabilities' },
   { term: 'temperature', category: 'ai-ml', description: 'Controls LLM output randomness — lower = more deterministic, higher = more creative' },
   { term: 'tokenisation', category: 'ai-ml', description: 'Breaking text into sub-word units (tokens) for LLM processing' },
-
+  { term: 'Agentic RAG', category: 'ai-ml', description: 'RAG enhanced with planning, tool-use, and multi-step reasoning' },
+  { term: 'AI Agent', category: 'ai-ml', description: 'Autonomous AI system capable of planning, reasoning, and action' },
+  { term: 'multi-agent system', category: 'ai-ml', description: 'Multiple AI agents collaborating to solve complex tasks' },
+  { term: 'reasoning model', category: 'ai-ml', description: 'AI model optimized for deliberate multi-step reasoning' },
+  { term: 'semantic search', category: 'ai-ml', description: 'Search based on meaning instead of exact keyword matching' },
+  { term: 'knowledge graph', category: 'ai-ml', description: 'Graph structure representing entities and relationships' },
+  { term: 'memory', category: 'ai-ml', description: 'Mechanism allowing agents to retain and recall information over time' },
+  { term: 'agent orchestration', category: 'ai-ml', description: 'Coordinating multiple agents, tools, and workflows' },
+  { term: 'function calling', category: 'ai-ml', description: 'Structured invocation of external APIs and tools by LLMs' },
+  { term: 'tool calling', category: 'ai-ml', description: 'Using external systems during AI execution to perform actions' },
+  { term: 'vector search', category: 'ai-ml', description: 'Similarity search over embeddings using nearest-neighbor algorithms' },
+  { term: 'reranking', category: 'ai-ml', description: 'Improving retrieval quality by reordering retrieved results' },
+  { term: 'chunking', category: 'ai-ml', description: 'Splitting documents into optimized retrieval segments' },
+  { term: 'evaluation', category: 'ai-ml', description: 'Measuring AI system quality, accuracy, and reliability' },
+  { term: 'LLMOps', category: 'ai-ml', description: 'Operational practices for managing large language models' },
+  { term: 'AI Governance', category: 'ai-ml', description: 'Processes ensuring AI compliance, risk management, and accountability' },
+  { term: 'Responsible AI', category: 'ai-ml', description: 'Framework for ethical, transparent, and trustworthy AI' },
+  { term: 'synthetic data', category: 'ai-ml', description: 'Artificially generated datasets used for training and testing' },
+  { term: 'in-context learning', category: 'ai-ml', description: 'Learning patterns from examples included directly in prompts' },
+  { term: 'prompt chaining', category: 'ai-ml', description: 'Linking multiple prompts together into a workflow' },
+  { term: 'AI workflow', category: 'ai-ml', description: 'Structured sequence of AI-driven tasks and decisions' },
+  { term: 'vector index', category: 'ai-ml', description: 'Data structure optimized for fast vector similarity searches' },
+  { term: 'MCP Server', category: 'ai-ml', description: 'Model Context Protocol endpoint exposing tools and context to AI agents' },
   // ── DevOps ───────────────────────────────────────────────────────────────────
   { term: 'CI/CD', category: 'devops', description: 'Continuous Integration / Continuous Deployment — automated build, test, and release pipeline' },
   { term: 'GitHub Actions', category: 'devops', description: 'GitHub\'s native CI/CD and workflow automation platform' },
@@ -166,7 +213,16 @@ export const KEYWORDS: Keyword[] = [
   { term: 'trunk-based development', category: 'devops', description: 'Developers integrate to the main branch frequently with short-lived feature branches' },
   { term: 'artifact', category: 'devops', description: 'Build output (binary, image, package) produced by a CI pipeline' },
   { term: 'rollback', category: 'devops', description: 'Reverting a deployment to a previously known-good version' },
-
+  { term: 'Platform Engineering', category: 'devops', description: 'Building internal developer platforms for self-service software delivery' },
+  { term: 'Internal Developer Platform', category: 'devops', description: 'Platform providing standardized developer tooling and workflows' },
+  { term: 'Golden Path', category: 'devops', description: 'Recommended developer workflow optimized for productivity and governance' },
+  { term: 'Backstage', category: 'devops', description: 'Open-source platform for developer portals and software catalogs' },
+  { term: 'ArgoCD', category: 'devops', description: 'GitOps continuous delivery tool for Kubernetes' },
+  { term: 'Helm', category: 'devops', description: 'Package manager for Kubernetes applications' },
+  { term: 'Kustomize', category: 'devops', description: 'Declarative customization of Kubernetes manifests' },
+  { term: 'OpenTelemetry', category: 'devops', description: 'Open standard for traces, metrics, and logs' },
+  { term: 'DevSecOps', category: 'devops', description: 'Integrating security into DevOps workflows and automation' },
+  { term: 'policy as code', category: 'devops', description: 'Managing governance and compliance policies as version-controlled code' },
   // ── Security ─────────────────────────────────────────────────────────────────
   { term: 'zero trust', category: 'security', description: 'Security model: never trust, always verify — no implicit network perimeter' },
   { term: 'OWASP', category: 'security', description: 'Open Web Application Security Project — standard web security guidelines and Top 10' },
@@ -181,7 +237,14 @@ export const KEYWORDS: Keyword[] = [
   { term: 'CSRF', category: 'security', description: 'Cross-Site Request Forgery — tricks an authenticated user into submitting unintended actions' },
   { term: 'penetration testing', category: 'security', description: 'Simulated cyberattack against a system to identify exploitable vulnerabilities' },
   { term: 'supply chain attack', category: 'security', description: 'Compromising software by targeting a less-secure upstream dependency or vendor' },
-
+  { term: 'DevSecOps', category: 'security', description: 'Embedding security practices throughout the software lifecycle' },
+  { term: 'least privilege', category: 'security', description: 'Granting only the minimum permissions required' },
+  { term: 'passwordless', category: 'security', description: 'Authentication without passwords using stronger identity methods' },
+  { term: 'threat modeling', category: 'security', description: 'Systematic analysis of potential security threats' },
+  { term: 'SBOM', category: 'security', description: 'Software Bill of Materials listing application dependencies' },
+  { term: 'SAST', category: 'security', description: 'Static Application Security Testing performed on source code' },
+  { term: 'DAST', category: 'security', description: 'Dynamic Application Security Testing performed against running applications' },
+  { term: 'supply chain security', category: 'security', description: 'Protecting software delivery pipelines and dependencies' },
   // ── Networking ───────────────────────────────────────────────────────────────
   { term: 'DNS', category: 'networking', description: 'Domain Name System — translates human-readable hostnames to IP addresses' },
   { term: 'TLS', category: 'networking', description: 'Transport Layer Security — cryptographic protocol encrypting data in transit' },
@@ -194,7 +257,12 @@ export const KEYWORDS: Keyword[] = [
   { term: 'TCP/IP', category: 'networking', description: 'The foundational communication protocol suite of the internet' },
   { term: 'HTTP/2', category: 'networking', description: 'Binary protocol with multiplexing, header compression, and server push' },
   { term: 'gRPC', category: 'networking', description: 'High-performance RPC framework using Protocol Buffers over HTTP/2' },
-
+  { term: 'CDN', category: 'networking', description: 'Content Delivery Network improving performance through edge caching' },
+  { term: 'IPv6', category: 'networking', description: 'Latest Internet Protocol standard supporting a large address space' },
+  { term: 'VPN', category: 'networking', description: 'Virtual Private Network providing secure encrypted connectivity' },
+  { term: 'latency', category: 'networking', description: 'Time required for data to travel between systems' },
+  { term: 'throughput', category: 'networking', description: 'Amount of data transferred within a given time period' },
+  { term: 'API Management', category: 'networking', description: 'Gateway and lifecycle management for APIs and integrations' },
   // ── Cloudflare ───────────────────────────────────────────────────────────────
   { term: 'Workers', category: 'cloudflare', description: 'Cloudflare serverless execution environment running code at 300+ edge locations' },
   { term: 'Durable Objects', category: 'cloudflare', description: 'Cloudflare stateful serverless primitives with strong consistency and WebSocket support' },
@@ -208,6 +276,20 @@ export const KEYWORDS: Keyword[] = [
   { term: 'Zero Trust Network Access', category: 'cloudflare', description: 'Cloudflare ZTNA — identity-aware, network-perimeter-free access control' },
   { term: 'Cloudflare Pages', category: 'cloudflare', description: 'Cloudflare JAMstack hosting with automatic deploys from Git' },
   { term: 'Vectorize', category: 'cloudflare', description: 'Cloudflare vector database for AI similarity search, native to Workers' },
+  { term: 'Cloudflare AI Gateway', category: 'cloudflare', description: 'AI traffic observability, caching, and routing service' },
+  { term: 'Cloudflare Tunnel', category: 'cloudflare', description: 'Secure outbound-only connectivity without exposing public IPs' },
+  { term: 'Cloudflare Access', category: 'cloudflare', description: 'Identity-aware application access without VPN requirements' },
+  { term: 'Cloudflare Images', category: 'cloudflare', description: 'Managed image storage, optimization, and delivery service' },
+  { term: 'Cloudflare Queues', category: 'cloudflare', description: 'Reliable message queue service for Workers applications' },
+  // ── Data ───────────────────────────────────────────────────────────────
+  { term: 'Data Lake', category: 'data', description: 'Centralized repository storing large volumes of raw structured and unstructured data' },
+  { term: 'Data Warehouse', category: 'data', description: 'Analytical repository optimized for business intelligence workloads' },
+  { term: 'ETL', category: 'data', description: 'Extract, Transform, Load data integration process' },
+  { term: 'ELT', category: 'data', description: 'Extract, Load, Transform modern cloud data processing pattern' },
+  { term: 'Apache Kafka', category: 'data', description: 'Distributed event streaming platform' },
+  { term: 'Delta Lake', category: 'data', description: 'Storage layer adding reliability and ACID transactions to data lakes' },
+  { term: 'Databricks', category: 'data', description: 'Unified analytics and AI platform built on Apache Spark' },
+  { term: 'Data Governance', category: 'data', description: 'Management of data quality, security, ownership, and compliance' }
 ];
 
 // ── Lazy-initialised regex and lookup map ─────────────────────────────────────
