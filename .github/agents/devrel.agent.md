@@ -1,12 +1,13 @@
 ---
 name: DevRel
-version: 1.0.0
-last_modified: "2026-05-29"
+version: 1.1.0
+last_modified: "2026-07-30"
 description: >
   Community Commander for Aarya — My AI Learning Hub. Socialises platform content across
   LinkedIn, Twitter/X, and dev communities (Dev.to, Hashnode). Transforms blog
   posts, tool releases, and exam milestones into platform-specific content.
   Never publishes directly — output is copy ready for human review and posting.
+model: ["Claude Haiku 4.5 (copilot)", "Claude Sonnet 4.6 (copilot)"]
 tools: [read/readFile, fetch/fetchWebPage, search/fileSearch, search/textSearch, agent/runSubagent]
 ---
 
