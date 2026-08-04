@@ -6,6 +6,7 @@ import { loadExamRegistry } from '@/lib/content-loader';
 import { useAuth } from '@/lib/auth';
 import { getSessions } from '@/lib/storage';
 import { loadPlan, nextIncompleteSession } from '@/lib/plan-generator';
+import { getStreak, getDomainCompletion } from '@/lib/study-tracker';
 import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import type { ExamConfig, DomainConfig, QuizSession } from '@/types/content';
@@ -372,6 +373,13 @@ export default function ExamHome() {
           style={{ '--accent-color': exam?.accentColor, transitionDelay: '150ms' } as React.CSSProperties}
         >
           <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500">Your Readiness</p>
+          {/* Streak badge */}
+          {(() => { const s = getStreak(examId ?? ''); return s > 0 ? (
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400">
+              <span>🔥</span>
+              <span>{s} day{s !== 1 ? 's' : ''} streak</span>
+            </div>
+          ) : null; })()}
 
           {/* Ring + domain bars */}
           <div className="flex items-start gap-4">
@@ -392,19 +400,25 @@ export default function ExamHome() {
               {/* Per-domain mini bars */}
               <div className="mt-2.5 space-y-1.5">
                 {exam?.domains.map((d) => {
-                  const dr = readiness.byDomain[d.id];
-                  return (
-                    <div key={d.id} className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono text-slate-600 w-5">D{d.id}</span>
-                      <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full rounded-full bg-violet-600 transition-all duration-700" style={{ width: `${dr?.pct ?? 0}%` }} />
-                      </div>
-                      <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${STATUS_CHIP[dr?.status ?? 'new']}`}>
-                        {STATUS_LABEL[dr?.status ?? 'new']}
-                      </span>
+                const dr = readiness.byDomain[d.id];
+                const sessions = getSessions();
+                const comp = getDomainCompletion(exam.id, d.id, sessions);
+                return (
+                  <div key={d.id} className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-slate-600 w-5">D{d.id}</span>
+                    <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full bg-violet-600 transition-all duration-700" style={{ width: `${dr?.pct ?? 0}%` }} />
                     </div>
-                  );
-                })}
+                    <div className="flex gap-0.5">
+                      <span title="Notes read" className={`text-[10px] ${comp.notesRead ? 'text-emerald-400' : 'text-slate-700'}`}>{comp.notesRead ? '📖' : '○'}</span>
+                      <span title={comp.quizPassed ? `Quiz ${comp.bestScore}%` : comp.quizAttempted ? `Quiz ${comp.bestScore}% (need 70%)` : 'Quiz not started'} className={`text-[10px] ${comp.quizPassed ? 'text-emerald-400' : comp.quizAttempted ? 'text-amber-400' : 'text-slate-700'}`}>{comp.quizPassed ? '✅' : comp.quizAttempted ? '⚠' : '○'}</span>
+                    </div>
+                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${STATUS_CHIP[dr?.status ?? 'new']}`}>
+                      {STATUS_LABEL[dr?.status ?? 'new']}
+                    </span>
+                  </div>
+                );
+              })}
               </div>
             </div>
           </div>

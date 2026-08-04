@@ -20,6 +20,7 @@ import {
   getWeakDomains,
 } from '@/lib/plan-generator';
 import type { DailyMinutes } from '@/lib/plan-generator';
+import { getDailyCard, exportStudyPlanAsIcal, getStreak, getReadinessScore } from '@/lib/study-tracker';
 import {
   callMentorPlan,
   callMentorChat,
@@ -541,6 +542,66 @@ export default function StudyPlan() {
           </div>
         ))}
       </div>
+
+      {/* Daily card + streak + readiness + iCal row */}
+      {exam && (() => {
+        const sessions = getSessions();
+        const card = getDailyCard(examId ?? '', exam.domains, sessions);
+        const streak = getStreak(examId ?? '');
+        const readiness = getReadinessScore(examId ?? '', exam.domains, sessions);
+        const ACTION_LABEL: Record<string, string> = {
+          'read-notes': '📖 Read Notes',
+          'take-quiz': '🎯 Take Quiz',
+          'retake-quiz': '🔄 Retake Quiz',
+          'all-done': '🏆 All Done',
+        };
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Daily card */}
+            {card && (
+              <div className="sm:col-span-2 glass-card glass-edge rounded-xl p-4 flex items-start gap-3">
+                <span className="text-xl mt-0.5">{card.action === 'all-done' ? '🏆' : '📌'}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">Today’s Focus</p>
+                  <p className="text-sm font-semibold text-white">D{card.domainId}: {card.domainTitle}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">{card.reason}</p>
+                </div>
+                <Link
+                  to={card.link}
+                  className="shrink-0 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-[11px] font-bold hover:bg-violet-500 transition-colors"
+                >
+                  {ACTION_LABEL[card.action] ?? 'Go →'}
+                </Link>
+              </div>
+            )}
+            {/* Streak + readiness + iCal */}
+            <div className="glass-card rounded-xl p-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🔥</span>
+                  <div>
+                    <p className="text-xs font-bold text-amber-400">{streak} day{streak !== 1 ? 's' : ''}</p>
+                    <p className="text-[10px] text-slate-500">Current streak</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-violet-400">{readiness}%</p>
+                  <p className="text-[10px] text-slate-500">Readiness</p>
+                </div>
+              </div>
+              {plan && (
+                <button
+                  onClick={() => exportStudyPlanAsIcal(plan, exam.title)}
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700/60 text-slate-300 text-[11px] font-semibold hover:bg-slate-700 hover:text-white transition-colors"
+                  title="Export study plan to Google/Apple Calendar"
+                >
+                  <CalendarDays size={12} /> Export to Calendar (.ics)
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Target date + time commitment */}
       <div className="glass-card glass-edge rounded-xl p-4 flex flex-wrap items-center gap-4">

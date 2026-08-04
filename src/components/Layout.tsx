@@ -124,6 +124,9 @@ function Breadcrumbs() {
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(() => {
+    try { return localStorage.getItem('sidebar_desktop_open') === '1'; } catch { return false; }
+  });
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
@@ -189,12 +192,22 @@ export default function Layout({ children }: { children: ReactNode }) {
       <header className="bg-slate-800/75 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50 relative">
         <div className="flex items-center h-14 px-6 w-full overflow-x-clip">
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden mr-3 p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200 active:scale-95"
+            onClick={() => {
+              if (window.innerWidth >= 1024 && hasSidebar) {
+                setDesktopSidebarOpen((v) => {
+                  const next = !v;
+                  try { localStorage.setItem('sidebar_desktop_open', next ? '1' : '0'); } catch { /* noop */ }
+                  return next;
+                });
+              } else {
+                setSidebarOpen((v) => !v);
+              }
+            }}
+            className={`${!hasSidebar ? 'lg:hidden' : ''} mr-3 p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200 active:scale-95`}
             aria-label="Toggle sidebar"
           >
             <div className="transition-transform duration-200">
-              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              {(sidebarOpen || (desktopSidebarOpen)) ? <X size={20} /> : <Menu size={20} />}
             </div>
           </button>
 
@@ -278,7 +291,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             fixed lg:static inset-y-0 left-0 z-40 w-64 bg-slate-900/30 backdrop-blur-xl border-r border-slate-700/20
             transform transition-all duration-300 ease-out
             ${sidebarOpen ? 'translate-x-0 shadow-2xl shadow-black/50' : '-translate-x-full shadow-none'}
-            ${hasSidebar ? 'lg:translate-x-0 lg:shadow-none lg:block' : 'lg:hidden'}
+            ${hasSidebar ? (desktopSidebarOpen ? 'lg:translate-x-0 lg:w-64 lg:shadow-none' : 'lg:-translate-x-full lg:w-0 lg:overflow-hidden lg:border-0') : 'lg:hidden'}
             top-14 pt-4 overflow-y-auto hide-scrollbar
           `}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
