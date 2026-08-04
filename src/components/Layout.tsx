@@ -39,9 +39,9 @@ const platformLinks = [
   { to: '/interview', label: 'Interview Prep', icon: Briefcase },
   { to: '/usecases', label: 'Use Cases', icon: Building2 },
   { to: '/tools', label: 'Tools', icon: Wrench },
-  { to: '/docs', label: 'Docs', icon: BookOpen },
-  { to: '/contribute', label: 'Contribute', icon: GitPullRequest },
-  { to: '/team', label: 'Team', icon: Users },
+  { to: '/docs', label: 'Docs', icon: BookOpen, topNavHidden: true },
+  { to: '/contribute', label: 'Contribute', icon: GitPullRequest, topNavHidden: true },
+  { to: '/team', label: 'Team', icon: Users, topNavHidden: true },
   { to: '/profile', label: 'Profile', icon: User, sidebarOnly: true },
   { to: '/dashboard', label: 'Dashboard', icon: BarChart2, sidebarOnly: true },
   { to: '/analytics', label: 'Analytics', icon: LineChart, sidebarOnly: true },
@@ -51,6 +51,9 @@ const platformLinks = [
 const footerLinks = [
   { href: '/subscribe', label: 'Subscribe', external: false },
   { href: '/dashboard', label: 'Dashboard', external: false },
+  { href: '/docs', label: 'Docs', external: false },
+  { href: '/contribute', label: 'Contribute', external: false },
+  { href: '/team', label: 'Team', external: false },
   { href: 'https://github.com/ajeetchouksey/ajch_platform', label: 'GitHub', external: true },
   { href: 'https://github.com/ajeetchouksey/ajch_platform/discussions', label: 'Discussions', external: true },
   { href: 'https://github.com/ajeetchouksey/ajch_platform/issues', label: 'Issues', external: true },
@@ -224,7 +227,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </NavLink>
 
           <nav className="hidden lg:flex flex-1 min-w-0 overflow-hidden items-center gap-0">
-            {platformLinks.filter((l) => !l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
+            {platformLinks.filter((l) => !l.sidebarOnly && !l.topNavHidden).map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -286,7 +289,30 @@ export default function Layout({ children }: { children: ReactNode }) {
               Platform
             </h3>
             <nav className="space-y-0.5">
-              {platformLinks.filter((l) => !l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
+              {platformLinks.filter((l) => !l.sidebarOnly && !l.topNavHidden).map(({ to, label, icon: Icon, end }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                      isActive
+                        ? 'bg-violet-500/15 text-violet-200 border-l-2 border-violet-400 ml-0 pl-2.5'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
+                    }`
+                  }
+                >
+                  <Icon size={16} />
+                  <span>{label}</span>
+                </NavLink>
+              ))}
+            </nav>
+            <div className="border-t border-slate-800/60 my-3 -mx-1" />
+            <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
+              Resources
+            </h3>
+            <nav className="space-y-0.5">
+              {platformLinks.filter((l) => l.topNavHidden && !l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
                   to={to}
