@@ -188,6 +188,8 @@ export interface FocusTimer {
   durationMs: number;
   pomodoros: number;
   examId: string;
+  paused?: boolean;
+  pausedRemainingMs?: number;
 }
 
 export function getFocusTimer(): FocusTimer | null {

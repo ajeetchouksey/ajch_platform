@@ -167,6 +167,9 @@ function buildActivities(
 const VALID_DAILY_MINS = [15, 30, 60] as const;
 export type DailyMinutes = 15 | 30 | 60;
 
+/** How many study sessions one domain needs at each daily-minute budget. */
+const SESSIONS_PER_DOMAIN: Record<DailyMinutes, number> = { 15: 3, 30: 2, 60: 1 };
+
 export function getDailyMinutesPref(examId: string): DailyMinutes {
   if (!isValidExamId(examId)) return 30;
   const raw = localStorage.getItem(`study_daily_mins_${examId}`);
@@ -236,40 +239,68 @@ export function generatePlan({
   // Sort domains by weight descending — highest weight domain = Day 1
   const sorted = [...domains].sort((a, b) => b.weight - a.weight);
 
-  // Days from today to targetDate (min 1)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(targetDate);
-  target.setHours(0, 0, 0, 0);
-  const daysAvailable = Math.max(1, Math.round((target.getTime() - today.getTime()) / 86_400_000));
+  const sessPerDomain = SESSIONS_PER_DOMAIN[dailyMinutes] ?? 1;
 
-  const sessionsNeeded = sorted.length;
-  const compress = daysAvailable < sessionsNeeded;
+  // Build all sessions: each domain gets sessPerDomain sessions
+  // with activities split across them, then assign sequential day numbers
+  const studySessions: StudySession[] = [];
+  let dayCounter = 1;
 
-  const studySessions: StudySession[] = sorted.map((domain, idx) => {
+  for (const domain of sorted) {
     const sc = scores[domain.id];
     const pct = sc.total > 0 ? Math.round((sc.correct / sc.total) * 100) : 0;
     const type = sessionType(pct, sc.total);
-    const activities = buildActivities(type, examId, domain, dailyMinutes);
-    const estimatedMinutes = activities.reduce((sum, a) => sum + a.estimatedMinutes, 0);
-    // compressed → 2 sessions/day; normal → one session per day starting Day 1
-    const day = compress ? Math.ceil((idx + 1) / 2) : idx + 1;
-    return {
-      day,
-      domainId: domain.id,
-      domainTitle: `D${domain.id}: ${domain.title}`,
-      activities,
-      completed: false,
-      estimatedMinutes,
-    };
-  });
 
-  return {
-    examId,
-    targetDate,
-    generatedAt: new Date().toISOString(),
-    sessions: studySessions,
-  };
+    if (sessPerDomain === 1) {
+      // 60 min: one rich session per domain
+      const activities = buildActivities(type, examId, domain, dailyMinutes);
+      studySessions.push({ day: dayCounter++, domainId: domain.id, domainTitle: `D${domain.id}: ${domain.title}`, activities, completed: false, estimatedMinutes: activities.reduce((s, a) => s + a.estimatedMinutes, 0) });
+    } else if (sessPerDomain === 2) {
+      // 30 min: session 1 = notes + light quiz; session 2 = full quiz + review
+      const n = domain.id;
+      const notesLink = `/skillup/${examId}/notes?d=${n}`;
+      const quizLink  = `/skillup/${examId}/quiz?domain=${n}`;
+      const trapsLink = `/skillup/${examId}/notes?d=${n}#traps`;
+      const sess1: Activity[] = [
+        { type: 'notes',  label: `Read D${n} Notes`,      link: notesLink, estimatedMinutes: 20, completed: false },
+        { type: 'quiz',   label: 'Quick quiz — 5 Qs',     link: quizLink,  estimatedMinutes: 10, completed: false },
+      ];
+      const sess2: Activity[] = [
+        { type: 'quiz',   label: 'Domain quiz — 15 Qs',   link: quizLink,  estimatedMinutes: 20, completed: false },
+        { type: 'review', label: 'Review Exam Traps',      link: trapsLink, estimatedMinutes: 10, completed: false },
+      ];
+      studySessions.push({ day: dayCounter++, domainId: domain.id, domainTitle: `D${domain.id}: ${domain.title} (1/2)`, activities: sess1, completed: false, estimatedMinutes: 30 });
+      studySessions.push({ day: dayCounter++, domainId: domain.id, domainTitle: `D${domain.id}: ${domain.title} (2/2)`, activities: sess2, completed: false, estimatedMinutes: 30 });
+    } else {
+      // 15 min: 3 sessions — read / quiz / review
+      const n = domain.id;
+      const notesLink = `/skillup/${examId}/notes?d=${n}`;
+      const quizLink  = `/skillup/${examId}/quiz?domain=${n}`;
+      const trapsLink = `/skillup/${examId}/notes?d=${n}#traps`;
+      const sess1: Activity[] = [{ type: 'notes',  label: `Read D${n} cheat-sheet`,  link: notesLink, estimatedMinutes: 15, completed: false }];
+      const sess2: Activity[] = [{ type: 'quiz',   label: 'Quick quiz — 5 Qs',       link: quizLink,  estimatedMinutes: 15, completed: false }];
+      const sess3: Activity[] = [
+        { type: 'review', label: 'Review Exam Traps',                   link: trapsLink, estimatedMinutes: 10, completed: false },
+        { type: 'review', label: 'Self-test: explain each trap aloud',  link: trapsLink, estimatedMinutes: 5,  completed: false },
+      ];
+      studySessions.push({ day: dayCounter++, domainId: domain.id, domainTitle: `D${domain.id}: ${domain.title} — Notes`,  activities: sess1, completed: false, estimatedMinutes: 15 });
+      studySessions.push({ day: dayCounter++, domainId: domain.id, domainTitle: `D${domain.id}: ${domain.title} — Quiz`,   activities: sess2, completed: false, estimatedMinutes: 15 });
+      studySessions.push({ day: dayCounter++, domainId: domain.id, domainTitle: `D${domain.id}: ${domain.title} — Review`, activities: sess3, completed: false, estimatedMinutes: 15 });
+    }
+  }
+
+  // If target date is very tight, compress (2 sessions/day)
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const target = new Date(targetDate); target.setHours(0, 0, 0, 0);
+  const daysAvailable = Math.max(1, Math.round((target.getTime() - today.getTime()) / 86_400_000));
+  const totalSessions = studySessions.length;
+
+  if (daysAvailable < totalSessions) {
+    // Repack: assign 2 sessions per day when tight
+    studySessions.forEach((s, i) => { s.day = Math.ceil((i + 1) / 2); });
+  }
+
+  return { examId, targetDate, generatedAt: new Date().toISOString(), sessions: studySessions };
 }
 
 /** Returns true when sessions were compressed (2/day) due to a tight target date. */

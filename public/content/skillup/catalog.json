@@ -337,6 +337,77 @@
           "url": "https://docs.github.com/copilot/about-github-copilot/plans-for-github-copilot"
         }
       ]
+    },
+    {
+      "schemaVersion": "1.0",
+      "id": "ab731",
+      "examCode": "AB-731",
+      "title": "Microsoft Certified: AI Transformation Leader",
+      "shortTitle": "AB-731",
+      "contentLevel": "101",
+      "description": "Designed for business decision-makers at all levels. Covers recognising AI transformation opportunities, selecting Microsoft 365 Copilot and Foundry Tools, planning responsible AI adoption, and driving innovation — no coding required.",
+      "questions": 36,
+      "duration": "45 min",
+      "passScore": "700/1000",
+      "passThreshold": 70,
+      "examFee": "$165 USD",
+      "available": true,
+      "accentColor": "#0078d4",
+      "colorScheme": "blue",
+      "domains": [
+        {
+          "id": 1,
+          "title": "Business Value of Generative AI",
+          "weight": 38,
+          "color": "bg-blue-600",
+          "notesFile": "content/skillup/ab731/notes/d1-business-value.md"
+        },
+        {
+          "id": 2,
+          "title": "Microsoft AI Apps & Services",
+          "weight": 38,
+          "color": "bg-cyan-600",
+          "notesFile": "content/skillup/ab731/notes/d2-microsoft-ai-services.md"
+        },
+        {
+          "id": 3,
+          "title": "Implementation & Adoption Strategy",
+          "weight": 24,
+          "color": "bg-violet-600",
+          "notesFile": "content/skillup/ab731/notes/d3-adoption-strategy.md"
+        }
+      ],
+      "questionFiles": [
+        "content/skillup/ab731/questions/ab731-domain1.json",
+        "content/skillup/ab731/questions/ab731-domain2.json",
+        "content/skillup/ab731/questions/ab731-domain3.json"
+      ],
+      "resources": [
+        {
+          "label": "AB-731 Study Guide",
+          "url": "https://aka.ms/ab731-StudyGuide"
+        },
+        {
+          "label": "Microsoft 365 Copilot Docs",
+          "url": "https://learn.microsoft.com/en-us/microsoft-365-copilot/"
+        },
+        {
+          "label": "Azure AI Foundry Docs",
+          "url": "https://learn.microsoft.com/en-us/azure/ai-foundry/"
+        },
+        {
+          "label": "Microsoft Copilot Studio Docs",
+          "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/"
+        },
+        {
+          "label": "Microsoft Responsible AI",
+          "url": "https://www.microsoft.com/en-us/ai/responsible-ai"
+        },
+        {
+          "label": "AB-731 Practice Assessment",
+          "url": "https://learn.microsoft.com/en-us/credentials/certifications/ai-transformation-leader/?practice-assessment-type=certification"
+        }
+      ]
     }
   ]
 }

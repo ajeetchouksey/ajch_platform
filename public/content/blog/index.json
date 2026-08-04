@@ -7,19 +7,12 @@
       "author": "Ajeet Chouksey",
       "date": "2026-07-29",
       "updated": null,
-      "tags": [
-        "vector-database",
-        "rag",
-        "embeddings",
-        "llm",
-        "semantic-search",
-        "enterprise-ai"
-      ],
+      "tags": ["vector-database", "rag", "embeddings", "llm", "semantic-search", "enterprise-ai"],
       "category": "AI Engineering",
       "readingTime": 5,
-      "featured": true,
+      "featured": false,
       "draft": false,
-      "image": "/images/blog/what-is-a-vector-database.jpg"
+      "image": "/images/blog/vector-database-memory-layer.png"
     },
     {
       "slug": "rag-vs-agentic-rag",
@@ -28,14 +21,7 @@
       "author": "Ajeet Chouksey",
       "date": "2026-07-27",
       "updated": null,
-      "tags": [
-        "rag",
-        "agentic-ai",
-        "enterprise-ai",
-        "architecture",
-        "llm",
-        "agents"
-      ],
+      "tags": ["rag", "agentic-ai", "enterprise-ai", "architecture", "llm", "agents"],
       "category": "AI Architecture",
       "readingTime": 9,
       "featured": true,

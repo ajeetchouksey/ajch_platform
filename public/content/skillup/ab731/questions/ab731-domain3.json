@@ -1,0 +1,182 @@
+[
+  {
+    "domain": 3,
+    "id": "ab731-d3-001",
+    "scenario": "An AI system used for employee performance reviews consistently gives lower scores to employees over age 50 compared to those under 35, despite similar performance metrics.",
+    "question": "Which Responsible AI principle is being violated?",
+    "options": [
+      "Transparency — employees are not told they are being evaluated by AI",
+      "Fairness — the AI is discriminating based on age, producing inequitable outcomes",
+      "Reliability — the AI produces inconsistent scores",
+      "Accountability — no human reviewed the AI's scoring"
+    ],
+    "correct": 1,
+    "explanation": "Fairness requires that AI treats all people equitably regardless of characteristics like age, race, or gender. An AI that systematically disadvantages a protected group (age 50+) is violating the Fairness principle. While Transparency (A) and Accountability (D) might also be relevant issues, the primary violation described — discriminatory outcomes based on age — is a Fairness violation.",
+    "tags": ["responsible-ai", "fairness", "bias", "ai-principles"]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-002",
+    "scenario": "A company deploys an AI-powered loan approval system. When a loan is denied, the customer is simply told 'AI decision: denied' with no further information. Customers and staff cannot understand why the decision was made.",
+    "question": "Which Responsible AI principle is being violated?",
+    "options": [
+      "Fairness — the AI may be denying loans based on protected characteristics",
+      "Transparency — users cannot understand how the AI made its decision",
+      "Privacy — customer financial data is being processed without consent",
+      "Accountability — the bank has removed human oversight from the process"
+    ],
+    "correct": 1,
+    "explanation": "Transparency requires that people understand when AI is making decisions that affect them and how those decisions are reached. A 'black box' denial with no explanation violates Transparency. Customers should be able to understand — at a high level — the factors that influenced the AI decision, especially in high-stakes contexts like financial services. (Note: Accountability (D) is also a concern, but the primary violation described is the lack of explainability = Transparency.)",
+    "tags": ["responsible-ai", "transparency", "explainability", "ai-principles"]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-003",
+    "scenario": "A company's legal team raised a concern: 'If our AI makes a wrong medical diagnosis recommendation and a patient is harmed, who is responsible?'",
+    "question": "How does the Responsible AI principle of Accountability address this?",
+    "options": [
+      "The AI vendor (Microsoft) is responsible for errors in their model",
+      "The AI itself is responsible — AI systems can have legal personhood",
+      "The humans and organisation deploying the AI retain accountability — AI does not absolve human responsibility",
+      "Responsibility is split equally between the AI vendor and the deploying organisation"
+    ],
+    "correct": 2,
+    "explanation": "Accountability in Microsoft's Responsible AI framework means humans and organisations that build and deploy AI systems remain accountable for their outcomes. AI cannot hold legal responsibility. The deploying organisation is responsible for ensuring appropriate use, human oversight, and for any harm caused. AI vendors share responsibility for the base model's safety, but the deployment context and use is the deployer's responsibility.",
+    "tags": ["responsible-ai", "accountability", "ai-principles", "governance"]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-004",
+    "scenario": "An organisation is about to deploy Microsoft 365 Copilot company-wide. The IT director wants to proceed immediately. The CHRO is concerned about employee fear of job loss. The CLO is concerned about data governance. The CFO wants to see ROI projections.",
+    "question": "What governance structure should be established BEFORE the rollout?",
+    "options": [
+      "Let IT lead the deployment and manage all stakeholder concerns as they arise",
+      "Establish an AI Council with cross-functional representation (IT, Legal, HR, Finance, Business) to align strategy, governance, and rollout",
+      "Create a separate data governance committee focused only on compliance",
+      "Postpone deployment until all concerns are fully resolved, which may take 6–12 months"
+    ],
+    "correct": 1,
+    "explanation": "An AI Council brings together all relevant stakeholders to address concerns holistically before deployment. IT alone cannot resolve HR, legal, and financial concerns. A cross-functional AI Council is the standard governance model — it sets policies, aligns on risks and ROI, and creates a shared deployment plan. A data-only committee (C) ignores change management and ROI issues. Indefinite postponement (D) blocks business value needlessly.",
+    "tags": ["ai-council", "governance", "cross-functional", "deployment"]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-005",
+    "scenario": "During a Microsoft 365 Copilot pilot programme, IT reports that only 20% of participants are actively using Copilot after 4 weeks. Interviews reveal employees feel they 'don't know where to start' and worry that using AI 'might make them look lazy.'",
+    "question": "What adoption barrier is primarily at play, and what is the best mitigation?",
+    "options": [
+      "Technical barrier — the Copilot licence is not fully configured. Re-provision licences.",
+      "Skills gap + cultural barrier — address through an AI champions programme where enthusiastic peer advocates coach colleagues",
+      "Security concern — employees don't trust Microsoft's data handling. Share Microsoft's privacy documentation.",
+      "Change fatigue — too many tools have been introduced. Remove other software tools first."
+    ],
+    "correct": 1,
+    "explanation": "Two barriers are present: (1) Skills gap ('don't know where to start') and (2) Cultural/social concern ('look lazy'). The AI champions programme is the proven mitigation — empowered peer advocates in each team provide hands-on coaching and normalise AI use. Champions are trusted colleagues, not IT, making them more effective at changing social norms. Technical issues (A) are not described. Privacy concerns (C) are different from what's described. Change fatigue (D) might be a factor but is not the primary barrier identified.",
+    "tags": ["adoption", "barriers", "champions-programme", "change-management"]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-006",
+    "scenario": "A company wants to run a 90-day pilot of Microsoft 365 Copilot with 50 users before deciding on a company-wide rollout of 2,000 users.",
+    "question": "Which Microsoft 365 Copilot licence model is most appropriate for the pilot?",
+    "options": [
+      "Annual commitment subscription at the full 2,000 user rate",
+      "Pay-as-you-go metered licensing for the 50 pilot users",
+      "Use the free Microsoft Copilot (Bing-based) for the pilot to avoid cost",
+      "Include Copilot at no extra cost because the company already pays for Microsoft 365"
+    ],
+    "correct": 1,
+    "explanation": "Pay-as-you-go is designed for variable workloads and pilots — you pay for actual usage without committing to a long-term subscription. This is ideal for a 50-user, 90-day pilot where the goal is to validate ROI before committing at scale. An annual commitment at 2,000 users (A) would mean paying for unused licences if the pilot fails. Free Copilot (C) lacks Microsoft Graph integration — it can't access org data, so the pilot would not represent real M365 Copilot value.",
+    "tags": ["licensing", "pay-as-you-go", "pilot", "copilot-licence"]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-007",
+    "scenario": "A company has been running Azure AI Foundry workloads in production for 6 months. The token consumption has been stable at approximately 500 million tokens per month. The finance team wants to reduce AI infrastructure costs.",
+    "question": "What subscription model change should be considered?",
+    "options": [
+      "Switch to pay-as-you-go — it's always the cheapest option",
+      "Move to a Foundry Tools commitment tier (provisioned throughput) — reserved capacity at a discounted rate is more cost-efficient for stable, predictable workloads",
+      "Reduce the model size to cut token costs",
+      "Switch to Microsoft 365 Copilot to replace Azure AI Foundry"
+    ],
+    "correct": 1,
+    "explanation": "When workloads are stable and predictable, commitment tiers (provisioned throughput) offer a lower per-unit cost than pay-as-you-go in exchange for committing to a minimum usage level. After 6 months of stable usage data, the company has the evidence needed to commit confidently. Pay-as-you-go (A) is more expensive per unit at scale — it's for variable/pilot workloads. Reducing model size (C) may affect output quality. M365 Copilot (D) is a different product — not a substitute for custom Azure AI Foundry workloads.",
+    "tags": ["foundry-tools", "commitment-tiers", "licensing", "cost-optimisation"]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-008",
+    "scenario": "A company wants to establish governance principles for AI use. They draft a policy that states: 'All AI-generated content used in external communications must be reviewed and approved by a human before publication.'",
+    "question": "Which Responsible AI principles does this policy primarily uphold?",
+    "options": [
+      "Fairness and Inclusiveness",
+      "Accountability and Reliability",
+      "Privacy and Security",
+      "Transparency and Fairness"
+    ],
+    "correct": 1,
+    "explanation": "Requiring human review before external publication upholds: (1) Accountability — humans remain responsible for AI outputs that go public; (2) Reliability — human review catches errors, hallucinations, or inconsistencies before they reach customers. Privacy/Security (C) relates to data handling. Fairness/Inclusiveness (A) relates to equitable treatment. Transparency (D) is about disclosing AI use, not review processes.",
+    "tags": ["responsible-ai", "accountability", "reliability", "governance-policy"]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-009",
+    "scenario": "An organisation wants to identify enthusiastic AI users across each of its 8 business departments who can serve as peer coaches for their colleagues during a Copilot rollout.",
+    "question": "What programme is being described?",
+    "options": [
+      "An AI Council — the governance body for AI strategy",
+      "An AI Champions programme — peer advocates embedded in each business unit",
+      "An AI Centre of Excellence — a centralised team of AI specialists",
+      "An AI Adoption Team — the programme management office for the rollout"
+    ],
+    "correct": 1,
+    "explanation": "An AI Champions programme places enthusiastic early adopters ('champions') in each business unit as peer coaches. They are distinct from the AI Council (A — governance/strategy), the Centre of Excellence (C — centralised experts who provide guidance and reusable assets), and the Adoption Team (D — programme management). Champions are the grassroots, peer-to-peer layer of adoption.",
+    "tags": ["champions-programme", "adoption", "change-management", "peer-coaching"]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-010",
+    "scenario": "An employee asks: 'Does Microsoft use the content I create with Microsoft 365 Copilot — like my emails and documents — to train the underlying AI models?'",
+    "question": "What is the correct answer, aligned with Microsoft's data privacy commitments?",
+    "options": [
+      "Yes — all Copilot usage data is used to improve the foundation models",
+      "No — Microsoft 365 Copilot does not use customer data (emails, documents, chats) to train foundation models",
+      "Only anonymised data is used for model training",
+      "It depends on the privacy settings configured by the IT administrator"
+    ],
+    "correct": 1,
+    "explanation": "Microsoft has committed that Microsoft 365 Copilot does not use customer data (the content of emails, documents, Teams chats, etc.) to train its foundation models (GPT-4). Tenant data stays within the tenant boundary. This is a core Microsoft privacy commitment frequently tested to ensure business leaders can reassure employees about data privacy.",
+    "tags": ["privacy", "data-training", "microsoft-commitments", "employee-trust"]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-011",
+    "scenario": "A business leader wants to deploy a generative AI tool that will automatically send personalised marketing emails to 50,000 customers without human review. The marketing team says this will save 20 hours per week.",
+    "question": "Which Responsible AI concern should the leader raise BEFORE approving this deployment?",
+    "options": [
+      "Token cost — 50,000 personalised emails will be expensive to generate",
+      "Accountability and Reliability — removing human review means errors, off-brand content, or inappropriate messages could reach 50,000 customers before anyone catches them",
+      "Privacy — customers have not consented to receiving AI-generated emails",
+      "Inclusiveness — the AI may generate content that doesn't work for all demographics"
+    ],
+    "correct": 1,
+    "explanation": "The critical concern is removing human oversight for customer-facing communications at scale. A single AI fabrication, off-brand message, or inappropriate output could reach 50,000 customers before anyone catches it — reputational and legal damage at scale. The Accountability principle requires humans to remain responsible for AI outputs, especially external communications. While privacy consent (C) is a valid concern, the primary Responsible AI risk described is the removal of human review from mass communications.",
+    "tags": ["accountability", "human-in-the-loop", "responsible-ai", "risk"]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-012",
+    "scenario": "A company is building an internal AI tool for HR that will help managers draft performance improvement plans. The HR director asks: 'What should we put in place to ensure this is used responsibly?'",
+    "question": "Which combination of measures best reflects a responsible AI deployment approach?",
+    "options": [
+      "Deploy and monitor — track usage and act if problems emerge",
+      "Establish a usage policy defining approved/prohibited use cases, require manager training, mandate human review of all AI-drafted PIPs before delivery, and include the tool in the AI Council's quarterly review",
+      "Use the most capable model available to maximise output quality",
+      "Restrict access to only senior HR managers and limit use to document summarisation"
+    ],
+    "correct": 1,
+    "explanation": "A responsible deployment of a high-stakes HR tool requires: (1) Clear policy (approved/prohibited uses), (2) Training (managers understand the tool's limits), (3) Human review (PIPs affect people's careers — accountability requires human sign-off), and (4) Governance oversight (AI Council quarterly review). 'Deploy and monitor' (A) is reactive — issues with HR content can cause legal and employee harm before monitoring catches them. Restricting access (D) doesn't address responsible use; it just limits scale.",
+    "tags": ["responsible-ai", "governance", "human-in-the-loop", "hr-ai", "accountability"]
+  }
+]
