@@ -1,4 +1,4 @@
-import { useReducer, useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import { useReducer, useState, useEffect, useRef, useCallback, lazy, Suspense, Children, isValidElement } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -8,6 +8,7 @@ import { markNotesSeen } from '@/lib/storage';
 import type { DomainConfig, ExamConfig } from '@/types/content';
 import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
+import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -106,6 +107,7 @@ export default function Notes() {
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
   const [readPct, setReadPct] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const toc = content ? extractToc(content) : [];
 
@@ -246,6 +248,12 @@ export default function Notes() {
             <p className="text-base font-bold font-mono text-blue-400">{domainQCount}</p>
             <p className="text-[10px] text-slate-500 mt-0.5">Quiz questions</p>
           </div>
+          <div className="flex items-center justify-center px-2">
+            <KeywordHighlightToggle
+              enabled={highlightEnabled}
+              onToggle={() => setHighlightEnabled((v) => !v)}
+            />
+          </div>
         </div>
       )}
 
@@ -328,6 +336,12 @@ export default function Notes() {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
               components={{
+                p({ children }) {
+                  return <p>{highlightEnabled ? applyHighlighting(children) : children}</p>;
+                },
+                li({ children }) {
+                  return <li>{highlightEnabled ? applyHighlighting(children) : children}</li>;
+                },
                 h2({ children }) {
                   const text = String(children);
                   const id = slugify(text.replace(/`[^`]*`/g, ''));
@@ -338,22 +352,33 @@ export default function Notes() {
                   const id = slugify(text.replace(/`[^`]*`/g, ''));
                   return <h3 id={id}>{children}</h3>;
                 },
-                code({ className, children, ...props }) {
-                  const match = /language-mermaid/.exec(className || '');
-                  if (match) {
+                pre({ children }) {
+                  // Intercept mermaid code blocks — avoids wrapping diagram in a styled <pre>
+                  const nodeArray = Children.toArray(children);
+                  const firstChild = nodeArray[0];
+                  if (
+                    isValidElement(firstChild) &&
+                    ((firstChild.props as { className?: string }).className ?? '').includes('language-mermaid')
+                  ) {
                     return (
-                      <Suspense fallback={<div className="text-slate-500 text-xs animate-pulse p-4">Loading diagram…</div>}>
-                        <MermaidDiagram chart={String(children)} />
+                      <Suspense fallback={
+                        <div className="my-6 rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center" style={{ minHeight: '180px' }}>
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                            <span className="w-3 h-3 rounded-full border-2 border-violet-600/40 border-t-violet-400 animate-spin" />
+                            Loading diagram…
+                          </div>
+                        </div>
+                      }>
+                        <MermaidDiagram chart={String((firstChild.props as { children?: unknown }).children ?? '')} />
                       </Suspense>
                     );
                   }
+                  return <pre>{children}</pre>;
+                },
+                code({ className, children, ...props }) {
                   const isBlock = className?.startsWith('language-');
                   if (isBlock) {
-                    return (
-                      <code className={`${className} block`} {...props}>
-                        {children}
-                      </code>
-                    );
+                    return <code className={`${className} block`} {...props}>{children}</code>;
                   }
                   return <code className={className} {...props}>{children}</code>;
                 },

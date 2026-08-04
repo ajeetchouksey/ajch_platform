@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -9,6 +9,10 @@ import {
   ChevronRight,
   GitGraph,
   Layers,
+  Cpu,
+  AlertTriangle,
+  TrendingUp,
+  Plug,
 } from 'lucide-react';
 import {
   loadUseCaseById,
@@ -17,7 +21,8 @@ import {
 } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import { GlassCard, Badge, SectionHeader } from '@/components/ui';
-import MermaidDiagram from '@/components/MermaidDiagram';
+import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
+const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import {
   PATTERN_LABEL,
   PATTERN_BADGE,
@@ -33,6 +38,7 @@ export default function UseCaseDetail() {
   const { id } = useParams<{ id: string }>();
   const [uc, setUc] = useState<AnyUseCase | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
 
   useEffect(() => {
     if (!id) return;
@@ -54,7 +60,7 @@ export default function UseCaseDetail() {
 
   if (error) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+      <div className="max-w-5xl xl:max-w-6xl mx-auto px-4 py-16 text-center">
         <p className="text-rose-300 text-sm">{error}</p>
         <Link to="/usecases" className="mt-4 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200">
           <ArrowLeft size={12} /> Back to Use Cases
@@ -65,8 +71,30 @@ export default function UseCaseDetail() {
 
   if (!uc) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center">
-        <p className="text-xs text-slate-500">Loading…</p>
+      <div className="max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 py-10 animate-pulse">
+        <div className="h-3 w-24 rounded bg-slate-800 mb-8" />
+        <div className="flex gap-2 mb-3">
+          <div className="h-5 w-20 rounded-full bg-slate-800" />
+          <div className="h-5 w-16 rounded-full bg-slate-800" />
+        </div>
+        <div className="h-7 w-2/3 rounded bg-slate-800 mb-6" />
+        <div className="rounded-xl border border-slate-800 p-6 space-y-3 mb-6">
+          <div className="h-3 w-16 rounded bg-slate-800" />
+          <div className="h-4 w-full rounded bg-slate-800" />
+          <div className="h-4 w-5/6 rounded bg-slate-800" />
+          <div className="h-3 w-16 rounded bg-slate-800 mt-4" />
+          <div className="h-4 w-full rounded bg-slate-800" />
+          <div className="h-4 w-4/5 rounded bg-slate-800" />
+        </div>
+        <div className="h-4 w-32 rounded bg-slate-800 mb-3" />
+        <div className="space-y-2">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex gap-3">
+              <div className="h-5 w-5 rounded-full bg-slate-800 shrink-0" />
+              <div className="h-4 rounded bg-slate-800 flex-1" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -75,7 +103,7 @@ export default function UseCaseDetail() {
   const accent = VERTICAL_ACCENT[uc.vertical] ?? 'slate';
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 py-10">
       {/* Back link */}
       <Link
         to="/usecases"
@@ -100,6 +128,10 @@ export default function UseCaseDetail() {
             size="xs"
           />
         ))}
+        <KeywordHighlightToggle
+          enabled={highlightEnabled}
+          onToggle={() => setHighlightEnabled((v) => !v)}
+        />
       </div>
 
       <SectionHeader
@@ -108,28 +140,36 @@ export default function UseCaseDetail() {
         className="mb-6"
       />
 
-      {/* Featured content */}
+      {/* Featured content — 2-col at xl+ */}
       {featured && (
-        <div className="space-y-6">
+        <div className="flex flex-col xl:flex-row gap-6 xl:gap-8 items-start">
+          {/* ── Left: main content ── */}
+          <div className="flex-1 min-w-0 space-y-6">
           {/* Problem / Solution / Who */}
           <GlassCard accent={accent} border="border-slate-700/40" className="p-6">
             <div className="space-y-4">
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Problem</p>
-                <p className="text-sm text-slate-300 leading-relaxed">{featured.problem}</p>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  {highlightEnabled ? applyHighlighting(featured.problem) : featured.problem}
+                </p>
               </div>
 
               {featured.solution && (
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Solution</p>
-                  <p className="text-sm text-slate-300 leading-relaxed">{featured.solution}</p>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {highlightEnabled ? applyHighlighting(featured.solution) : featured.solution}
+                  </p>
                 </div>
               )}
 
               {featured.whoItsFor && (
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Who It's For</p>
-                  <p className="text-sm text-slate-400">{featured.whoItsFor}</p>
+                  <p className="text-sm text-slate-400">
+                    {highlightEnabled ? applyHighlighting(featured.whoItsFor) : featured.whoItsFor}
+                  </p>
                 </div>
               )}
             </div>
@@ -148,7 +188,9 @@ export default function UseCaseDetail() {
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-slate-800 border border-slate-700 text-[10px] font-semibold text-slate-400 inline-flex items-center justify-center mt-0.5">
                       {i + 1}
                     </span>
-                    <span className="leading-relaxed">{step}</span>
+                    <span className="leading-relaxed">
+                      {highlightEnabled ? applyHighlighting(step) : step}
+                    </span>
                   </li>
                 ))}
               </ol>
@@ -163,11 +205,20 @@ export default function UseCaseDetail() {
                 Architecture Diagram
               </h2>
               <GlassCard accent="violet" border="border-slate-700/40" className="p-4">
-                <MermaidDiagram chart={featured.mermaidDiagram} />
+                <Suspense fallback={
+                  <div className="rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center" style={{ minHeight: '180px' }}>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                      <span className="w-3 h-3 rounded-full border-2 border-violet-600/40 border-t-violet-400 animate-spin" />
+                      Loading diagram…
+                    </div>
+                  </div>
+                }>
+                  <MermaidDiagram chart={featured.mermaidDiagram} />
+                </Suspense>
               </GlassCard>
               {featured.architectureNotes && (
                 <p className="mt-3 text-xs text-slate-400 leading-relaxed">
-                  {featured.architectureNotes}
+                  {highlightEnabled ? applyHighlighting(featured.architectureNotes) : featured.architectureNotes}
                 </p>
               )}
             </div>
@@ -184,10 +235,117 @@ export default function UseCaseDetail() {
                 <Lightbulb size={15} className="text-amber-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-amber-500/80 mb-1">Key Insight</p>
-                  <p className="text-sm text-slate-300 leading-relaxed">{featured.keyInsights}</p>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {highlightEnabled ? applyHighlighting(featured.keyInsights) : featured.keyInsights}
+                  </p>
                 </div>
               </div>
             </GlassCard>
+          )}
+
+          {/* Scaling considerations */}
+          {featured.scalingConsiderations && featured.scalingConsiderations.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <TrendingUp size={14} className="text-emerald-400" />
+                Scaling Considerations
+              </h2>
+              <ul className="space-y-2">
+                {featured.scalingConsiderations.map((c, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-slate-300 leading-relaxed">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500/60 shrink-0" />
+                    {highlightEnabled ? applyHighlighting(c) : c}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Failure modes */}
+          {featured.failureModes && featured.failureModes.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <AlertTriangle size={14} className="text-rose-400" />
+                Failure Modes &amp; Mitigations
+              </h2>
+              <div className="space-y-3">
+                {featured.failureModes.map((fm, i) => (
+                  <div key={i}
+                    className="rounded-xl p-4"
+                    style={{ background: 'rgba(15,23,42,0.70)', border: '1px solid rgba(251,113,133,0.15)' }}>
+                    <p className="text-[11px] font-semibold text-rose-300 mb-1.5 flex items-center gap-1.5">
+                      <AlertTriangle size={11} className="shrink-0" /> {fm.mode}
+                    </p>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      <span className="text-emerald-400 font-semibold">Mitigation: </span>
+                      {highlightEnabled ? applyHighlighting(fm.mitigation) : fm.mitigation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          </div>{/* end left */}
+
+          {/* ── Right sidebar ── */}
+          <div className="w-full xl:w-72 2xl:w-80 shrink-0 space-y-5 xl:sticky xl:top-4 self-start">
+
+          {/* Tech stack */}
+          {featured.techStack && featured.techStack.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <Cpu size={14} className="text-sky-400" />
+                Tech Stack
+              </h2>
+              <div className="space-y-3">
+                {featured.techStack.map((cat) => (
+                  <div key={cat.category}>
+                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">{cat.category}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {cat.tools.map((tool) => (
+                        <span key={tool}
+                          className="inline-block px-2.5 py-1 rounded-lg text-[11px] font-medium text-sky-300"
+                          style={{ background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.20)' }}>
+                          {tool}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Integrations */}
+          {featured.integrations && featured.integrations.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <Plug size={14} className="text-violet-400" />
+                System Integrations
+              </h2>
+              <div className="space-y-2">
+                {featured.integrations.map((intg) => (
+                  <div key={intg.system}
+                    className="rounded-xl p-3"
+                    style={{ background: 'rgba(15,23,42,0.70)', border: '1px solid rgba(71,85,105,0.25)' }}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-semibold text-slate-200">{intg.system}</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                        style={{
+                          color: intg.type === 'Write' ? '#34d399' : intg.type === 'Read' ? '#38bdf8' : intg.type === 'HITL' ? '#fb923c' : intg.type === 'Trigger' ? '#a78bfa' : '#94a3b8',
+                          background: intg.type === 'Write' ? 'rgba(52,211,153,0.12)' : intg.type === 'Read' ? 'rgba(56,189,248,0.12)' : intg.type === 'HITL' ? 'rgba(251,146,60,0.12)' : intg.type === 'Trigger' ? 'rgba(167,139,250,0.12)' : 'rgba(71,85,105,0.15)',
+                        }}>
+                        {intg.type}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      {highlightEnabled ? applyHighlighting(intg.note) : intg.note}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Related exams */}
@@ -255,7 +413,7 @@ export default function UseCaseDetail() {
                 <Layers size={14} className="text-emerald-400" />
                 Related Use Cases
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="space-y-2">
                 {featured.relatedUseCases.map((rel) => (
                   <Link
                     key={rel.id}
@@ -272,6 +430,8 @@ export default function UseCaseDetail() {
               </div>
             </div>
           )}
+
+          </div>{/* end right sidebar */}
         </div>
       )}
 

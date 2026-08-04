@@ -448,5 +448,65 @@
     "correct": 1,
     "explanation": "Fine-tuning via Microsoft Foundry + private network deployment (B) is the correct approach. Microsoft Foundry supports supervised fine-tuning (SFT) on customer data, allowing the pharmacological domain knowledge to be encoded in the model weights. Deploying to an Azure private endpoint within the company's network satisfies the data sovereignty requirement — inference happens on-premises or in a private Azure environment. GPT-4o with system prompt (A) cannot reliably encode 10 years of clinical interaction data — RAG would also be needed. Hugging Face (C) violates the data sovereignty requirement — proprietary clinical data cannot go to a public platform. RAG alone (D) may miss implicit knowledge patterns across the trial data that fine-tuning would capture.",
     "tags": ["custom-model", "fine-tuning", "Microsoft-Foundry", "data-sovereignty"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-031",
+    "scenario": "A sales operations team is building a Copilot Studio agent that processes unstructured customer feedback. As part of a conversation topic, the agent must transform raw feedback text into a structured output (sentiment, key issues, resolution tier) inline — before branching the conversation to the appropriate support queue. The team wants to use generative AI for this transformation without leaving the topic flow.",
+    "question": "Which Copilot Studio action type is designed for this inline AI text transformation within a conversation topic?",
+    "options": [
+      "Plugin action — calls an external REST API via a Power Platform connector to process the text",
+      "Prompt action — executes a configured generative AI prompt inline within the conversation topic, accepting input variables and returning structured AI-generated output without leaving the topic flow",
+      "Agent flow — triggers a multi-step Power Automate workflow that orchestrates the text transformation across multiple services",
+      "Connector action — invokes a prebuilt Azure Cognitive Services NLP connector"
+    ],
+    "correct": 1,
+    "explanation": "Prompt actions (B) are the correct choice for inline AI text transformation within a Copilot Studio conversation topic. A prompt action is a topic action that invokes a configured generative AI prompt — accepting defined input variables (e.g., feedback text) and returning structured output (e.g., sentiment, issues). The entire AI call happens within the topic branch, allowing the output to immediately drive topic logic (branching, variable assignment, routing). Plugin actions (A) call external REST APIs via connectors — designed for API integrations, not generative text transformation. Agent flows (C) are Power Automate-based workflows appropriate for complex multi-step orchestration — heavier than needed for a single AI transform. Connector actions (D) call prebuilt connectors for specific services, not configurable generative prompts.",
+    "tags": ["prompt-actions", "Copilot-Studio", "generative-AI", "text-transformation", "topic-design"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-032",
+    "scenario": "A healthcare provider is deploying a Copilot Studio agent to assist nurses during patient rounds. Nurses use a hands-free headset and need to query the agent verbally (e.g., 'What is the latest lab result for patient 4B?') and receive spoken responses — no screen or keyboard interaction. The agent accesses patient data via a secure MCP-connected EHR system.",
+    "question": "Which configuration enables the Copilot Studio agent to accept voice input and respond with synthesized speech?",
+    "options": [
+      "Connect the agent to the Telephony channel — voice is automatically enabled for all telephony-connected agents",
+      "Enable voice mode in the agent's behavior settings in Copilot Studio — this activates speech-to-text input processing and text-to-speech output synthesis; then connect the agent to a supported voice channel (Teams voice, telephony line, or embedded voice widget)",
+      "Voice is not natively supported in Copilot Studio — integrate Azure Cognitive Services Speech SDK directly into a custom bot framework",
+      "Set the agent's channel to 'Audio' in the Copilot Studio channel settings and upload TTS voice files"
+    ],
+    "correct": 1,
+    "explanation": "Enabling voice mode in agent behavior settings (B) is the correct approach. Copilot Studio natively supports voice mode as a configurable behavior: enabling it activates the speech-to-text (STT) pipeline for input and text-to-speech (TTS) pipeline for responses. The agent is then connected to a supported voice channel — Teams voice channel, telephony line, or an embedded voice widget. The STT/TTS infrastructure is managed by the platform; no direct Azure Cognitive Services SDK integration is required. Connecting to telephony channel alone (A) routes calls to the agent but does not automatically configure voice behavior — voice mode must be explicitly enabled in agent settings. Voice mode is a native Copilot Studio capability as of the July 2026 study guide (C is wrong). There is no 'Audio' channel type or TTS file upload mechanism (D is wrong).",
+    "tags": ["voice-mode", "Copilot-Studio", "speech-to-text", "text-to-speech", "channel-configuration"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-033",
+    "scenario": "A global manufacturing conglomerate uses Microsoft 365 Copilot for general productivity. They also have a specialized Copilot Studio agent for compliance queries and a D365 Supply Chain Management agent for logistics. Business users want to ask logistics questions from within M365 Copilot and receive answers that draw from both the SCM agent's live data and the compliance agent's policy knowledge — without switching applications.",
+    "question": "Which architectural pattern enables M365 Copilot to leverage these specialized agents as federated knowledge sources?",
+    "options": [
+      "Duplicate the SCM and compliance agents' knowledge bases into M365 Copilot's SharePoint knowledge configuration",
+      "Propose the specialized Copilot Studio agents as Microsoft 365 agents — once configured and published to the Microsoft 365 Copilot ecosystem, M365 Copilot can invoke them as agent tools to answer domain-specific queries, enabling agent-to-agent orchestration across the M365 and Copilot Studio boundary",
+      "Build a Power Automate flow that aggregates responses from all three agents into a single email digest",
+      "Configure the SCM and compliance agents as HTTP connector actions within M365 Copilot's admin settings"
+    ],
+    "correct": 1,
+    "explanation": "Proposing Copilot Studio agents as Microsoft 365 agents (B) is the correct architecture. When Copilot Studio agents are published to the Microsoft 365 ecosystem, they become available as callable tools within M365 Copilot — this is the agent-to-agent (A2A) interoperability pattern. M365 Copilot acts as the orchestrating agent; it identifies the right specialized agent for the query (SCM for logistics, compliance for policy), invokes it, and synthesizes a unified response. This enables cross-application agent federation without data duplication. Duplicating knowledge into SharePoint (A) creates stale copies and loses live data access. Power Automate email digest (C) is asynchronous — not a real-time conversational pattern. HTTP connector actions (D) is not how M365 Copilot agent orchestration works — agents are published via the Copilot extensibility framework, not admin HTTP connectors.",
+    "tags": ["A2A-interoperability", "M365-Copilot", "agent-orchestration", "Copilot-Studio", "agent-federation"]
+  },
+  {
+    "domain": 2,
+    "id": "ab100-d2-034",
+    "scenario": "A logistics company's warehouse staff use Dynamics 365 Supply Chain Management daily. They frequently ask in-app help questions about company-specific receiving procedures, hazardous materials handling, and custom workflows — but the built-in D365 help only covers standard product features. The IT team wants to add the company's internal SharePoint procedure library as a knowledge source for the in-app Copilot guidance in D365 SCM.",
+    "question": "What is the recommended process for adding a custom knowledge source to in-app help and guidance in Dynamics 365 Supply Chain Management?",
+    "options": [
+      "Deploy a custom Copilot Studio agent and embed it as an iframe in the D365 SCM help pane via Power Apps Component Framework",
+      "In the D365 Supply Chain Management admin settings, navigate to the Copilot configuration area, add the SharePoint site or Azure AI Search index as a knowledge source — the in-app Copilot guidance will then search both the product documentation and the company's custom knowledge source when answering user queries",
+      "Export SharePoint documents to D365 SCM knowledge articles using Power Automate, then enable the built-in knowledge article search",
+      "Submit a Microsoft support ticket to have custom documentation added to the official D365 help content"
+    ],
+    "correct": 1,
+    "explanation": "Configuring knowledge sources in D365 SCM admin settings (B) is the correct process. Dynamics 365 Supply Chain Management supports extending its in-app Copilot guidance by adding custom knowledge sources — specifically SharePoint sites and Azure AI Search indexes — directly in the Copilot configuration area of the D365 admin settings. Once configured, the in-app guidance searches both Microsoft's product documentation and the customer's custom knowledge base, returning contextually relevant answers to user queries. Custom PCF iframe (A) is a pro-code workaround that bypasses the platform's native knowledge source extensibility. Exporting to D365 knowledge articles (C) creates a data sync dependency, can introduce stale content, and requires ongoing maintenance. Microsoft manages its own official docs (D is wrong); customer-specific procedures must be added through the admin configuration path.",
+    "tags": ["D365-SCM", "in-app-help", "knowledge-sources", "Copilot-configuration", "Supply-Chain-Management"]
   }
 ]

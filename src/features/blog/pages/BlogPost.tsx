@@ -7,13 +7,15 @@ import {
   Calendar, Clock, User, Tag, Share2, Check,
   Maximize2, Minimize2, List, X, BookOpen,
 } from 'lucide-react';
-import { loadBlogPost, loadBlogManifest } from '@/lib/content-loader';
+import { loadBlogPost, loadBlogManifest, hasCachedBlogManifest, hasCachedBlogPost } from '@/lib/content-loader';
 import { sharePost } from '@/lib/share';
+import { trackEvent } from '@/lib/analytics';
 import GiscusComments from '@/components/GiscusComments';
 import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
+import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -317,10 +319,10 @@ export default function BlogPost() {
   const [copied, setCopied] = useState(false);
   const [visible, setVisible] = useState(false);
   const [activeId, setActiveId] = useState('');
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
   const [readPct, setReadPct] = useState(0);
   const [showToc, setShowToc] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
-  const hasLoadedOnceRef = useRef(false); // skip skeleton on re-navigation
 
   const headings = useMemo(() => extractHeadings(content), [content]);
 
@@ -328,6 +330,7 @@ export default function BlogPost() {
     title: meta?.title,
     description: meta?.excerpt ?? meta?.title,
     canonicalUrl: `https://aaryaai.dev/blog/${slug}`,
+    ogImage: meta?.image ? `https://aaryaai.dev${meta.image}` : undefined,
   });
 
   // Load post
@@ -335,9 +338,9 @@ export default function BlogPost() {
     if (!slug) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setError(null); setActiveId(''); setReadPct(0);
-    // Only show skeleton on the very first load; subsequent navigations just fade
-    if (!hasLoadedOnceRef.current) setLoading(true);
-    setVisible(false);
+    const hasWarmCache = hasCachedBlogPost(slug) && hasCachedBlogManifest();
+    if (!hasWarmCache) setLoading(true);
+    setVisible(true);
     const mainEl = document.querySelector('main') as HTMLElement | null;
     if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     Promise.all([loadBlogPost(slug), loadBlogManifest()])
@@ -345,8 +348,7 @@ export default function BlogPost() {
         setContent(md.replace(/^---[\s\S]*?---\n*/, ''));
         setMeta(manifest.posts.find(p => p.slug === slug) ?? null);
         setLoading(false);
-        hasLoadedOnceRef.current = true;
-        setTimeout(() => setVisible(true), 30);
+        setVisible(true);
       })
       .catch(e => { setError(String(e)); setLoading(false); });
   }, [slug]);
@@ -365,6 +367,12 @@ export default function BlogPost() {
       setReadPct(prev => {
         if (Math.abs(prev - pct) < 0.5) return prev; // skip micro-updates
         if (pct > 90 && slug) markAsRead(slug);
+        // fire scroll_depth GA4 event at 25/50/75/90 milestones (once per milestone per post)
+        for (const milestone of [25, 50, 75, 90]) {
+          if (prev < milestone && pct >= milestone && slug) {
+            trackEvent('scroll_depth', { post_slug: slug, pct: milestone });
+          }
+        }
         return pct;
       });
     };
@@ -496,7 +504,7 @@ export default function BlogPost() {
                 {meta.title}
               </h1>
 
-              <p className="text-slate-400 text-sm sm:text-base xl:text-lg leading-relaxed mb-5">{meta.excerpt}</p>
+              <p className="text-slate-400 text-sm sm:text-base xl:text-lg leading-relaxed mb-5">{highlightEnabled ? applyHighlighting(meta.excerpt) : meta.excerpt}</p>
 
               {/* Meta row */}
               <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-500 pb-5"
@@ -508,6 +516,10 @@ export default function BlogPost() {
                 </span>
                 <span className="flex items-center gap-1.5"><Clock size={12} /> {meta.readingTime} min read</span>
                 <PageViewsBadge path={`/blog/${slug}`} />
+                <KeywordHighlightToggle
+                  enabled={highlightEnabled}
+                  onToggle={() => setHighlightEnabled((v) => !v)}
+                />
                 {/* Share — hide when sidebar (xl+) shows its own share button */}
                 <button onClick={handleShare}
                   className="ml-auto flex items-center gap-1.5 text-xs transition-colors xl:hidden"
@@ -553,6 +565,8 @@ export default function BlogPost() {
               prose-hr:border-slate-800/60 prose-hr:my-8
               prose-strong:text-slate-100 prose-strong:font-bold
               prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-xl
+              prose-img:max-w-full prose-img:w-auto prose-img:mx-auto
+              prose-img:max-h-[400px] sm:prose-img:max-h-[480px] xl:prose-img:max-h-[640px] 2xl:prose-img:max-h-[800px]
               prose-table:text-xs sm:prose-table:text-sm prose-th:text-slate-300 prose-td:text-slate-400
                 prose-td:border-slate-800 prose-th:border-slate-700
               [&_table]:block [&_table]:overflow-x-auto [&_table]:max-w-full
@@ -562,6 +576,12 @@ export default function BlogPost() {
               rehypePlugins={[rehypeRaw]}
               children={content}
               components={{
+                p({ children }) {
+                  return <p>{highlightEnabled ? applyHighlighting(children) : children}</p>;
+                },
+                li({ children }) {
+                  return <li>{highlightEnabled ? applyHighlighting(children) : children}</li>;
+                },
                 h2({ children }) {
                   const text = React.Children.toArray(children).map(c => String(c)).join('');
                   return <h2 id={slugify(text)}>{children}</h2>;
@@ -581,8 +601,14 @@ export default function BlogPost() {
                   if (mermaidNode) {
                     const el = mermaidNode as React.ReactElement<{ children?: React.ReactNode }>;
                     return (
-                      <Suspense fallback={<div className="text-slate-500 text-xs animate-pulse p-4 rounded-xl"
-                        style={{ border: '1px solid rgba(71,85,105,0.25)' }}>Loading diagram…</div>}>
+                      <Suspense fallback={
+                        <div className="my-6 rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center" style={{ minHeight: '180px' }}>
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                            <span className="w-3 h-3 rounded-full border-2 border-violet-600/40 border-t-violet-400 animate-spin" />
+                            Loading diagram…
+                          </div>
+                        </div>
+                      }>
                         <MermaidDiagram chart={String(el.props.children ?? '')} />
                       </Suspense>
                     );

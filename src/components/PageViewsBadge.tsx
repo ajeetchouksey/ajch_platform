@@ -35,14 +35,16 @@ export default function PageViewsBadge({ path, className = '' }: Props) {
       .catch(() => {});
   }, [targetPath]);
 
-  if (count === null || count === 0) return null;
+  if (count === null || count === 0) {
+    return <span className={`inline-block min-w-[72px] ${className}`} aria-hidden="true" />;
+  }
 
   const display =
     count >= 1000 ? `${(count / 1000).toFixed(1)}k` : `${count}`;
 
   return (
     <span
-      className={`inline-flex items-center gap-1 text-[11px] text-slate-500 font-medium ${className}`}
+      className={`inline-flex min-w-[72px] items-center gap-1 text-[11px] text-slate-500 font-medium ${className}`}
     >
       <Eye size={11} className="text-slate-500" />
       {display} views

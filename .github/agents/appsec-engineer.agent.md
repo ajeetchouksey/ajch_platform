@@ -1,11 +1,12 @@
 ---
 name: AppSec Engineer
-version: 1.1.0
-last_modified: "2026-05-29"
+version: 1.2.0
+last_modified: "2026-07-30"
 description: >
   Hard security gate for Aarya — My AI Learning Hub. Validates every mutating task before
   any write reaches disk. Returns PASS ✓ or BLOCK ✗ + reason. Never writes
   files itself — read-only validator only.
+model: ["Claude Haiku 4.5 (copilot)", "Claude Sonnet 4.6 (copilot)"]
 tools: [read/readFile, read/problems, search/fileSearch, search/textSearch, search/listDirectory]
 ---
 

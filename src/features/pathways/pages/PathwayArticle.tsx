@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useMemo, lazy, Suspense, Children, isValidElement } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -8,6 +8,7 @@ import {
   Clock, Users, Tag, List, X,
 } from 'lucide-react';
 import { useMeta } from '@/lib/useMeta';
+import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -267,6 +268,7 @@ export default function PathwayArticle() {
   const [mounted, setMounted] = useState(false);
   const [showToc, setShowToc] = useState(false);
   const [activeId, setActiveId] = useState('');
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
   const articleRef = useRef<HTMLElement>(null);
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
@@ -359,7 +361,7 @@ export default function PathwayArticle() {
 
               {article && (
                 <p className="text-base text-slate-400 leading-relaxed mb-5 max-w-2xl">
-                  {article.excerpt}
+                  {highlightEnabled ? applyHighlighting(article.excerpt) : article.excerpt}
                 </p>
               )}
 
@@ -371,6 +373,10 @@ export default function PathwayArticle() {
                   <span className="flex items-center gap-1.5">
                     {new Date(article.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                   </span>
+                  <KeywordHighlightToggle
+                    enabled={highlightEnabled}
+                    onToggle={() => setHighlightEnabled((v) => !v)}
+                  />
                   {/* Mobile TOC toggle */}
                   <button
                     onClick={() => setShowToc(true)}
@@ -410,7 +416,9 @@ export default function PathwayArticle() {
                     );
                   },
                   p: ({ children }) => (
-                    <p className="text-slate-300 leading-relaxed mb-4 text-[15px]">{children}</p>
+                    <p className="text-slate-300 leading-relaxed mb-4 text-[15px]">
+                      {highlightEnabled ? applyHighlighting(children) : children}
+                    </p>
                   ),
                   ul: ({ children }) => (
                     <ul className="space-y-2 mb-4 pl-4">{children}</ul>
@@ -421,43 +429,50 @@ export default function PathwayArticle() {
                   li: ({ children }) => (
                     <li className="text-slate-300 text-[15px] leading-relaxed flex gap-2">
                       <span style={{ color: meta.color }} className="mt-1.5 shrink-0">▸</span>
-                      <span>{children}</span>
+                      <span>{highlightEnabled ? applyHighlighting(children) : children}</span>
                     </li>
                   ),
                   strong: ({ children }) => (
                     <strong className="font-black text-white">{children}</strong>
                   ),
-                  code: ({ children, className }) => {
-                    const lang = className?.replace('language-', '') ?? '';
-                    if (lang === 'mermaid') {
+                  code: ({ children }) => (
+                    <code
+                      className="text-xs font-mono px-1.5 py-0.5 rounded-md"
+                      style={{ background: 'rgba(30,41,59,0.9)', color: meta.color, border: '1px solid rgba(71,85,105,0.25)' }}
+                    >
+                      {children}
+                    </code>
+                  ),
+                  pre: ({ children }) => {
+                    // Intercept mermaid code blocks — avoids wrapping in styled <pre>
+                    const nodeArray = Children.toArray(children);
+                    const firstChild = nodeArray[0];
+                    if (
+                      isValidElement(firstChild) &&
+                      ((firstChild.props as { className?: string }).className ?? '').includes('language-mermaid')
+                    ) {
                       return (
                         <Suspense fallback={
-                          <div className="rounded-xl p-4 text-center text-slate-600 text-sm animate-pulse"
-                            style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(71,85,105,0.20)' }}>
-                            Loading diagram…
+                          <div className="my-6 rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center" style={{ minHeight: '180px' }}>
+                            <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                              <span className="w-3 h-3 rounded-full border-2 border-violet-600/40 border-t-violet-400 animate-spin" />
+                              Loading diagram…
+                            </div>
                           </div>
                         }>
-                          <MermaidDiagram chart={String(children).trim()} />
+                          <MermaidDiagram chart={String((firstChild.props as { children?: unknown }).children ?? '')} />
                         </Suspense>
                       );
                     }
                     return (
-                      <code
-                        className="text-xs font-mono px-1.5 py-0.5 rounded-md"
-                        style={{ background: 'rgba(30,41,59,0.9)', color: meta.color, border: '1px solid rgba(71,85,105,0.25)' }}
+                      <pre
+                        className="rounded-xl p-4 sm:p-5 text-xs sm:text-sm overflow-x-auto leading-relaxed font-mono my-5"
+                        style={{ background: 'rgba(2,6,23,0.98)', border: '1px solid rgba(71,85,105,0.28)', color: '#e2e8f0' }}
                       >
                         {children}
-                      </code>
+                      </pre>
                     );
                   },
-                  pre: ({ children }) => (
-                    <pre
-                      className="rounded-xl p-4 sm:p-5 text-xs sm:text-sm overflow-x-auto leading-relaxed font-mono my-5"
-                      style={{ background: 'rgba(2,6,23,0.98)', border: '1px solid rgba(71,85,105,0.28)', color: '#e2e8f0' }}
-                    >
-                      {children}
-                    </pre>
-                  ),
                   blockquote: ({ children }) => (
                     <blockquote
                       className="my-5 pl-4 py-1 italic text-slate-400 text-[15px] leading-relaxed"

@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown, User, Briefcase, Building2 } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown, User, Briefcase, Building2, Activity } from 'lucide-react';
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -45,6 +45,7 @@ const platformLinks = [
   { to: '/profile', label: 'Profile', icon: User, sidebarOnly: true },
   { to: '/dashboard', label: 'Dashboard', icon: BarChart2, sidebarOnly: true },
   { to: '/analytics', label: 'Analytics', icon: LineChart, sidebarOnly: true },
+  { to: '/monitoring', label: 'Monitoring', icon: Activity, sidebarOnly: true },
 ];
 
 const footerLinks = [
@@ -70,14 +71,15 @@ function Breadcrumbs() {
     exams:      'Skill Up',
     skillup:    'Skill Up',
     blog:       'Field Notes',
+    horizons:   'Learn',
     interview:  'Interview Prep',
     usecases:   'Use Cases',
     tools:      'Tools',
     docs:       'Docs',
-    learn:      'Learning Hub',
     team:       'Team',
-    analytics:  'Analytics',
-    maintainer: 'Maintainer',
+    analytics:   'Analytics',
+    monitoring:  'Monitoring',
+    maintainer:  'Maintainer',
     profile:    'Profile',
     dashboard:  'Dashboard',
     contribute: 'Contribute',
@@ -126,7 +128,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const [pageKey, setPageKey] = useState(location.pathname + location.search);
+  const pageKey = location.pathname + location.search;
   const [currentExam, setCurrentExam] = useState<ExamConfig | null>(null);
 
   const examIdMatch = location.pathname.match(/^\/(?:exams|skillup)\/([^/]+)/);
@@ -139,7 +141,6 @@ export default function Layout({ children }: { children: ReactNode }) {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSidebarOpen(false);
-    setPageKey(location.pathname + location.search);
     const mainEl = document.querySelector('main');
     if (mainEl) mainEl.scrollTop = 0;
   }, [location.pathname, location.search]);
@@ -593,7 +594,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           )}
           <div className="flex-1 p-4 lg:p-8">
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
               <div key={pageKey} className="animate-[fadeIn_0.38s_cubic-bezier(0.22,1,0.36,1)_both]">
                 <Breadcrumbs />
                 {children}
@@ -605,7 +606,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             {/* Gradient separator — matches nav active-underline style */}
             <div className="h-px bg-gradient-to-r from-transparent via-violet-500/25 to-transparent mb-8" />
 
-            <div className="max-w-5xl mx-auto space-y-6">
+            <div className="max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto space-y-6">
               {/* Newsletter CTA — hidden on the /subscribe page itself to avoid duplication */}
               {location.pathname !== '/subscribe' && <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.04] backdrop-blur-sm p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <div className="flex-1 min-w-0">

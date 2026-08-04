@@ -59,5 +59,97 @@
       "label": "Internal Audit Testing Agent (Banking)",
       "vertical": "Banking"
     }
+  ],
+  "techStack": [
+    {
+      "category": "Document AI",
+      "tools": [
+        "Azure Form Recognizer",
+        "AWS Textract",
+        "Google Document AI"
+      ]
+    },
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-haiku (extraction)",
+        "claude-3-5-sonnet (validation)"
+      ]
+    },
+    {
+      "category": "Workflow Engine",
+      "tools": [
+        "Temporal",
+        "AWS Step Functions",
+        "Prefect"
+      ]
+    },
+    {
+      "category": "Storage",
+      "tools": [
+        "PostgreSQL (audit log)",
+        "S3/Blob (documents)",
+        "Redis (idempotency keys)"
+      ]
+    },
+    {
+      "category": "ERP / Finance",
+      "tools": [
+        "SAP S/4HANA",
+        "Oracle NetSuite",
+        "Microsoft Dynamics 365"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "Extraction hallucination on low-quality scan",
+      "mitigation": "Confidence threshold gate — route to HITL if extraction score < 0.85; store raw OCR alongside structured output for audit."
+    },
+    {
+      "mode": "ERP write failure causes duplicate posting on retry",
+      "mitigation": "Idempotency key (invoice_id + fiscal_period) stored in Redis; ERP adapter checks key before posting and returns 200 if already applied."
+    },
+    {
+      "mode": "HITL queue backlog during month-end processing",
+      "mitigation": "Priority queue with SLA timer; auto-escalate to manager after 4 hours; route high-value invoices to dedicated reviewers."
+    },
+    {
+      "mode": "PO system unavailable during validation",
+      "mitigation": "Circuit breaker with fallback to cached PO snapshot (TTL 1h); mark invoice as 'pending PO validation' and retry async."
+    }
+  ],
+  "scalingConsiderations": [
+    "Use async email-to-queue fanout (SQS/Service Bus) to decouple ingestion from processing — handles burst at month-end without dropping invoices.",
+    "Batch extraction for PDF-to-structured jobs; single-pass models (Form Recognizer) are 3–5× cheaper than multi-turn LLM extraction for standard templates.",
+    "HITL queue capacity: plan for 15–20% manual review rate on first deployment; drops to 3–5% after 90 days of fine-tuning on company-specific invoice formats.",
+    "ERP write throughput: apply back-pressure — max 50 concurrent ERP writes to avoid lock contention on the GL tables."
+  ],
+  "integrations": [
+    {
+      "system": "Email / Mailbox",
+      "type": "Trigger",
+      "note": "Microsoft Exchange / Gmail via Graph API or IMAP listener"
+    },
+    {
+      "system": "ERP (SAP / NetSuite)",
+      "type": "Write",
+      "note": "BAPI or REST API for GL posting; must be idempotent"
+    },
+    {
+      "system": "PO / Procurement System",
+      "type": "Read",
+      "note": "Validates invoice against open purchase orders"
+    },
+    {
+      "system": "Document Storage (S3 / Blob)",
+      "type": "Write",
+      "note": "Archives raw PDF + structured JSON for audit"
+    },
+    {
+      "system": "Approval Workflow (ServiceNow / Jira)",
+      "type": "HITL",
+      "note": "Routes exceptions to human reviewers with full context"
+    }
   ]
 }

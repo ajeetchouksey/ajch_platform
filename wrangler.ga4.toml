@@ -1,0 +1,37 @@
+name            = "aarya-ga4-proxy"
+main            = "workers/ga4-proxy.ts"
+compatibility_date = "2026-06-05"
+workers_dev     = true
+
+# ── KV namespace — auth cache + GA4 response cache ───────────────────────────
+# One-time setup:
+#   1. wrangler kv namespace create GA4_CACHE --config wrangler.ga4.toml
+#   2. Paste the returned id below.
+[[kv_namespaces]]
+binding = "GA4_CACHE"
+id      = "REPLACE_WITH_GA4_CACHE_KV_ID"
+
+# ── Secrets — set via CLI, never commit values ────────────────────────────────
+#
+# Option A — Service Account (requires GCP billing):
+#   wrangler secret put GA4_SERVICE_ACCOUNT_B64 --config wrangler.ga4.toml
+#     → base64-encode your service-account JSON first:
+#       [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes('sa.json'))
+#
+# Option B — OAuth user account (no billing required):
+#   wrangler secret put GOOGLE_CLIENT_SECRET --config wrangler.ga4.toml
+#     → from Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client
+#   Add as plain var in wrangler.ga4.toml [vars]:
+#     GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID.apps.googleusercontent.com"
+#   Then open /monitoring and click "Connect Google Analytics"
+#
+# Both options also require:
+#   wrangler secret put GA4_PROPERTY_ID --config wrangler.ga4.toml
+#     → paste your numeric GA4 property ID (e.g. 123456789)
+#
+# ── Routes ────────────────────────────────────────────────────────────────────
+# After deploy, set in Vite:
+#   VITE_GA4_PROXY_URL=https://aarya-ga4-proxy.<subdomain>.workers.dev
+#
+# ── Deploy ────────────────────────────────────────────────────────────────────
+#   wrangler deploy --config wrangler.ga4.toml

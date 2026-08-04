@@ -2,7 +2,6 @@ import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 
 // ── Home ──────────────────────────────────────────────────────────────────────
 import HomeV2 from '@/features/home/pages/HomeV2';
-import Learn from '@/features/home/pages/Learn';
 
 // ── Skill Up (Exams) ──────────────────────────────────────────────────────────
 import ExamCatalog from '@/features/exams/pages/ExamCatalog';
@@ -46,6 +45,9 @@ import UseCaseDetail from '@/features/usecases/pages/UseCaseDetail';
 // ── Docs ──────────────────────────────────────────────────────────────────────
 import Docs from '@/features/docs/pages/Docs';
 
+// ── Monitoring ───────────────────────────────────────────────────────────────
+import Monitoring from '@/features/monitoring/pages/Monitoring';
+
 // ── Analytics / Maintainer ────────────────────────────────────────────────────
 import Analytics from '@/features/analytics/pages/Analytics';
 import Maintainer from '@/features/analytics/pages/Maintainer';
@@ -71,7 +73,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomeV2 />} />
-      <Route path="/learn" element={<Learn />} />
+      <Route path="/learn" element={<Navigate to="/horizons" replace />} />
 
       {/* Skill Up — primary routes */}
       <Route path="/skillup" element={<ExamCatalog />} />
@@ -123,6 +125,9 @@ export default function AppRoutes() {
 
       {/* Docs */}
       <Route path="/docs" element={<Docs />} />
+
+      {/* Monitoring */}
+      <Route path="/monitoring" element={<Monitoring />} />
 
       {/* Analytics / Maintainer */}
       <Route path="/analytics" element={<Analytics />} />

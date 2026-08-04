@@ -1,0 +1,179 @@
+{
+  "id": "employee-onboarding-agent",
+  "title": "Employee Onboarding Agent",
+  "vertical": "operations",
+  "patterns": [
+    "parallel-subagents",
+    "hitl-approval-gate",
+    "trigger-extract-validate-route"
+  ],
+  "problem": "New employee onboarding spans 6–10 systems — HRIS, Active Directory, benefits portal, document signing, calendar, and access control. HR teams manually coordinate each step, leading to delayed access provisioning (avg 3–5 days), missed benefits enrollments, and compliance gaps from incomplete documentation. Each error costs hours of back-and-forth between HR, IT, and Legal.",
+  "solution": "An orchestrator agent triggers on a signed offer letter event and fans out to four specialist subagents running in parallel: IdentityAgent (provisions Entra ID account + M365 licenses), BenefitsAgent (enrolls in health, 401k, stock plans), DocumentAgent (routes NDA and I-9 via DocuSign, archives signed copies), and CalendarAgent (schedules onboarding week using Microsoft Graph). Any compensation or equity adjustment requires explicit manager approval through a HITL gate before the IdentityAgent proceeds. Full onboarding state is persisted in a durable workflow — a mid-run failure retries from the last checkpoint, never duplicates a provisioning action.",
+  "whoItsFor": "HR Operations Teams, IT Provisioning, People Ops at mid-to-large enterprises",
+  "workflowSteps": [
+    "Trigger: signed offer letter event fires from HRIS (Workday/SAP SuccessFactors) or e-signature webhook",
+    "OrchestratorAgent reads employee record — extracts role, department, location, start date, compensation tier",
+    "If compensation tier requires equity grant: HITL approval gate — manager approves or modifies before parallel fan-out",
+    "Parallel fan-out to 4 specialist subagents (async, decoupled via message queue):",
+    "  IdentityAgent: provisions Entra ID account, assigns M365 licenses, sets department group memberships",
+    "  BenefitsAgent: enrolls employee in health plan, 401k, ESPP based on eligibility rules",
+    "  DocumentAgent: sends NDA + I-9 via DocuSign, monitors completion, archives signed PDFs to SharePoint",
+    "  CalendarAgent: schedules orientation day, manager 1:1, IT setup session via Microsoft Graph",
+    "OrchestratorAgent polls specialist status from Cosmos DB state store",
+    "On all-complete: sends welcome email with access credentials, benefits summary, and calendar links",
+    "On any failure: retries from last checkpoint (idempotency keys prevent duplicate provisioning); after 3 retries, escalates to HR ops queue"
+  ],
+  "keyInsights": "The HITL gate placement is critical — it must fire before any provisioning begins, not after. Placing it mid-workflow creates a partial-state problem where the employee has an AD account but no approved equity grant. The durable workflow pattern (Temporal/Azure Durable Functions) prevents the worst failure mode: a crash after AD provisioning but before benefits enrollment leaves the employee partially onboarded with no automated recovery. Idempotency keys on each provisioning action ensure retries are safe.",
+  "mermaidDiagram": "flowchart TD\n  A([Signed Offer Event]) --> B[OrchestratorAgent\\nRead employee record]\n  B --> C{Equity grant?}\n  C -->|Yes| D[HITL Gate\\nManager approval]\n  C -->|No| E[Parallel Fan-Out]\n  D -->|Approved| E\n  D -->|Rejected| F([Escalate to HR Ops])\n  E --> G[IdentityAgent\\nEntra ID + M365]\n  E --> H[BenefitsAgent\\nHealth + 401k + ESPP]\n  E --> I[DocumentAgent\\nNDA + I-9 via DocuSign]\n  E --> J[CalendarAgent\\nOrientation via Graph API]\n  G & H & I & J --> K{All complete?}\n  K -->|Yes| L([Welcome Email + Credentials])\n  K -->|Retry| M[Checkpoint Resume\\nIdempotency Key]",
+  "architectureNotes": "Deploy as a coordinator-specialist multi-agent system. The OrchestratorAgent (Azure AI Agent Service or LangGraph) reads the triggering employee record and fans out to specialist agents via Azure Service Bus topics — one topic per specialist, allowing each to consume and process independently. Cosmos DB acts as the saga state store: each specialist writes its completion status on success; the orchestrator polls and gates the final welcome-email step on all-complete status. The HITL approval gate uses a durable task pause (Temporal signal or Azure Durable Functions external event) so the workflow waits indefinitely without holding a thread. DocuSign webhook triggers the DocumentAgent on signature completion — the agent does not poll. All provisioning tools carry idempotency keys derived from the employee ID + action type, ensuring safe retries after partial failures.",
+  "techStack": [
+    {
+      "category": "Orchestration",
+      "tools": [
+        "Azure AI Agent Service (coordinator + specialists)",
+        "LangGraph (alternative — stateful workflow graph)",
+        "Temporal (alternative — durable execution engine)"
+      ]
+    },
+    {
+      "category": "HRIS / Source of Truth",
+      "tools": [
+        "Workday (webhook trigger + employee record API)",
+        "SAP SuccessFactors (alternative)"
+      ]
+    },
+    {
+      "category": "Identity & Access",
+      "tools": [
+        "Microsoft Entra ID (formerly Azure AD)",
+        "Microsoft Graph API (M365 license assignment, group membership)"
+      ]
+    },
+    {
+      "category": "Document Signing",
+      "tools": [
+        "DocuSign eSignature API",
+        "Adobe Acrobat Sign (alternative)"
+      ]
+    },
+    {
+      "category": "Calendar & Communication",
+      "tools": [
+        "Microsoft Graph API (calendar scheduling, email)",
+        "Google Workspace Calendar API (alternative)"
+      ]
+    },
+    {
+      "category": "State Store",
+      "tools": [
+        "Azure Cosmos DB (saga state + audit log)",
+        "PostgreSQL (alternative)"
+      ]
+    },
+    {
+      "category": "Message Queue",
+      "tools": [
+        "Azure Service Bus (specialist task decoupling)",
+        "Amazon SQS (alternative)"
+      ]
+    },
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-haiku (extraction, routing decisions)",
+        "claude-3-5-sonnet (document generation, welcome email)"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "AD provisioning succeeds but benefits enrollment fails",
+      "mitigation": "Saga state in Cosmos DB tracks each specialist status independently. On benefits failure, orchestrator retries BenefitsAgent with idempotency key — AD account is not re-provisioned."
+    },
+    {
+      "mode": "DocuSign webhook delivery failure",
+      "mitigation": "DocumentAgent polls DocuSign status API as fallback with exponential backoff. Signed documents are archived only after confirmed webhook or poll confirmation."
+    },
+    {
+      "mode": "HITL gate timeout — manager does not respond",
+      "mitigation": "Durable workflow sends reminder at 24h and 48h. After 72h, escalates to HR ops queue with a pre-filled approval form. Onboarding is blocked until explicit approval — no auto-approval fallback for equity grants."
+    },
+    {
+      "mode": "Employee record missing required fields (e.g. benefits eligibility tier)",
+      "mitigation": "OrchestratorAgent validates the employee record schema before fan-out. Missing required fields trigger an immediate escalation to HR ops with a structured error report — no partial provisioning begins."
+    }
+  ],
+  "scalingConsiderations": [
+    "At 100+ hires/month: use batch fan-out with Service Bus queues to prevent Entra ID provisioning rate limit (50 accounts/min). Distribute over time windows.",
+    "Multi-region: pin each employee's saga state to their hiring region's Cosmos DB partition to meet data residency requirements.",
+    "Union or regulatory environments: inject a configurable approval-rules engine (not hardcoded equity threshold) so HR can adjust approval triggers without code changes."
+  ],
+  "integrations": [
+    {
+      "system": "Workday",
+      "type": "trigger",
+      "notes": "Webhook on offer-accepted event; employee record fetch via Workday REST API"
+    },
+    {
+      "system": "Microsoft Entra ID",
+      "type": "action",
+      "notes": "Provision user account, assign licenses, set group memberships via Graph API"
+    },
+    {
+      "system": "DocuSign",
+      "type": "action + trigger",
+      "notes": "Send envelope via eSignature API; receive completion event via webhook"
+    },
+    {
+      "system": "Benefits Portal",
+      "type": "action",
+      "notes": "REST API enrollment for health, 401k, ESPP — idempotency key per plan per employee"
+    },
+    {
+      "system": "Microsoft Calendar",
+      "type": "action",
+      "notes": "Create calendar events for orientation, 1:1, IT setup via Microsoft Graph"
+    }
+  ],
+  "relatedExams": [
+    {
+      "exam": "ab100",
+      "domain": 3,
+      "why": "Deploy AI-Powered Business Solutions — multi-agent HRIS integration and workflow automation"
+    },
+    {
+      "exam": "ccdf",
+      "domain": 3,
+      "why": "Agents and Workflows — parallel subagents, durable execution, HITL gate patterns"
+    },
+    {
+      "exam": "ccap",
+      "domain": 2,
+      "why": "Solution Design — coordinator-specialist architecture, saga pattern for partial failure"
+    }
+  ],
+  "relatedInterviewQs": [
+    "q-orch-001",
+    "q-hitl-001",
+    "q-orch-002"
+  ],
+  "examScenarioPotential": "high",
+  "blogPotential": "high",
+  "relatedUseCases": [
+    {
+      "id": "vendor-onboarding",
+      "label": "Vendor Onboarding Agent",
+      "vertical": "Operations"
+    },
+    {
+      "id": "invoice-ops-hitl",
+      "label": "Invoice Operations Agent with HITL",
+      "vertical": "Operations"
+    },
+    {
+      "id": "aml-parallel-hitl",
+      "label": "Anti-Money Laundering Agent",
+      "vertical": "Banking"
+    }
+  ]
+}

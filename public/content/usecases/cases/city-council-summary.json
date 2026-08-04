@@ -47,5 +47,85 @@
       "label": "Policy Memo Writer Agent",
       "vertical": "Policy & Government"
     }
+  ],
+  "techStack": [
+    {
+      "category": "Transcription / Diarization",
+      "tools": [
+        "OpenAI Whisper-large-v3",
+        "AWS Transcribe (speaker diarization)",
+        "AssemblyAI (speaker labels)"
+      ]
+    },
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-haiku (per-segment topic tagging)",
+        "claude-3-5-sonnet (synthesis + minutes)"
+      ]
+    },
+    {
+      "category": "Topic Classification",
+      "tools": [
+        "Zero-shot classification with Claude",
+        "Custom fine-tuned BERT classifier"
+      ]
+    },
+    {
+      "category": "Output / Publishing",
+      "tools": [
+        "Markdown → HTML",
+        "CivicPlus / NovusAgenda integration",
+        "WordPress REST API"
+      ]
+    },
+    {
+      "category": "Storage",
+      "tools": [
+        "PostgreSQL (structured minutes)",
+        "S3 (audio archive)"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "Speaker diarization confuses multiple speakers with similar voices",
+      "mitigation": "Require meeting agenda with speaker list for pre-registration; post-process diarization with name-to-segment alignment using agenda timestamps."
+    },
+    {
+      "mode": "Action item captured incorrectly due to vague phrasing ('we should look into that')",
+      "mitigation": "Action item extraction uses structured prompt: requires explicit assignee + verb + deadline; vague items flagged for human confirmation."
+    },
+    {
+      "mode": "Technical audio quality too low for transcription accuracy",
+      "mitigation": "Audio quality check (SNR threshold) before processing; reject and alert if below threshold; fallback to manual transcript upload path."
+    }
+  ],
+  "scalingConsiderations": [
+    "Average city council meeting: 2–4 hours audio → 50,000–80,000 words transcript; process in 15-minute segments to stay within context window.",
+    "Multiple concurrent meetings (large city): queue-based processing with priority for live meetings; async for recordings.",
+    "Retention policy: audio archived for 7 years per most municipal retention schedules; structure storage accordingly."
+  ],
+  "integrations": [
+    {
+      "system": "Video Conferencing (Zoom / Teams / Webex)",
+      "type": "Read",
+      "note": "Auto-download recording via webhook after meeting ends"
+    },
+    {
+      "system": "Agenda Management (NovusAgenda / Granicus)",
+      "type": "Read",
+      "note": "Pre-meeting agenda for topic pre-seeding"
+    },
+    {
+      "system": "City Website / CMS",
+      "type": "Write",
+      "note": "Publishes minutes and action items to public portal"
+    },
+    {
+      "system": "Email (Mailchimp / GovDelivery)",
+      "type": "Write",
+      "note": "Sends summary digest to subscribed residents"
+    }
   ]
 }

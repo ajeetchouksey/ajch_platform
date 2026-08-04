@@ -72,14 +72,46 @@ def count_scenarios() -> int:
     return len(glob.glob("public/content/scenarios/*.json"))
 
 
+def count_questions_in_files(question_files: list) -> int:
+    """Count actual question objects across a list of question JSON paths."""
+    total = 0
+    for rel_path in question_files:
+        abs_path = os.path.join("public", rel_path)
+        if not os.path.exists(abs_path):
+            # Try without "public/" prefix (some paths already include it)
+            abs_path = rel_path
+        if os.path.exists(abs_path):
+            try:
+                with open(abs_path, encoding="utf-8") as f:
+                    total += len(json.load(f))
+            except Exception:
+                pass
+    return total
+
+
 def generate_catalog() -> None:
-    """Auto-discover skillup/*/index.json and write skillup/catalog.json.
+    """Auto-discover skillup/*/index.json, recount questions from actual files,
+    update each index.json in place, then write skillup/catalog.json.
     This is the single source of truth — never hand-edit catalog.json."""
     skill_files = sorted(glob.glob("public/content/skillup/*/index.json"))
     skills = []
     for path in skill_files:
         with open(path, encoding="utf-8") as f:
-            skills.append(json.load(f))
+            skill = json.load(f)
+
+        # Auto-recount questions from actual question JSON files
+        q_files = skill.get("questionFiles", [])
+        if q_files:
+            actual_count = count_questions_in_files(q_files)
+            if actual_count > 0 and skill.get("questions") != actual_count:
+                print(f"  [{skill['id']}] questions: {skill.get('questions', '?')} → {actual_count}")
+                skill["questions"] = actual_count
+                # Write corrected count back to the source index.json
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(skill, f, indent=2)
+
+        skills.append(skill)
+
     if not skills:
         return
     catalog = {

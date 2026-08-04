@@ -57,5 +57,87 @@
       "label": "Investor Helpdesk Agent",
       "vertical": "Investment Management"
     }
+  ],
+  "techStack": [
+    {
+      "category": "Embedding",
+      "tools": [
+        "text-embedding-3-small (cost-efficient for insurance corpus)",
+        "voyage-law-2 (domain-tuned)"
+      ]
+    },
+    {
+      "category": "Vector Store",
+      "tools": [
+        "pgvector",
+        "Qdrant (recommended for filter-heavy queries)"
+      ]
+    },
+    {
+      "category": "LLM",
+      "tools": [
+        "claude-3-5-haiku (query rewriting)",
+        "claude-3-5-sonnet (answer + citations)"
+      ]
+    },
+    {
+      "category": "Query Processing",
+      "tools": [
+        "Custom jargon normalizer",
+        "SpaCy NER for policy entity detection"
+      ]
+    },
+    {
+      "category": "Confidence Scoring",
+      "tools": [
+        "Custom logistic regression on retrieval scores",
+        "Self-ask chain-of-thought verification"
+      ]
+    }
+  ],
+  "failureModes": [
+    {
+      "mode": "Policy jargon in query not matched to indexed terminology",
+      "mitigation": "Query rewriter normalises: 'TPD' → 'total permanent disability'; maintain insurance term dictionary; test with real adjuster queries before go-live."
+    },
+    {
+      "mode": "Stale section retrieved after policy amendment",
+      "mitigation": "Section-level versioning with effective_date field; pre-filter retrieval to latest version by default; archived versions accessible with explicit flag."
+    },
+    {
+      "mode": "Low-confidence answer delivered without disclaimer",
+      "mitigation": "Confidence score gate: < 0.70 triggers 'I cannot confirm this — please consult the policy document directly' response template."
+    },
+    {
+      "mode": "Multi-policy query retrieves from wrong product line",
+      "mitigation": "Namespace isolation per product line (home, auto, life, commercial); query classifier routes to correct namespace before retrieval."
+    }
+  ],
+  "scalingConsiderations": [
+    "Policy corpus size: large insurer has 500–2000 policy documents; section-level chunking at ~800 tokens yields 50,000–200,000 vectors — manageable in pgvector with HNSW.",
+    "Query volume: claims adjuster use case sees 50–200 queries/day per user; embed caching for repeated queries reduces cost by 30–40%.",
+    "Policy amendment cadence: regulatory changes may require re-indexing 10–20% of corpus quarterly; design for incremental rather than full re-index."
+  ],
+  "integrations": [
+    {
+      "system": "Policy Administration System (Majesco / Guidewire)",
+      "type": "Read",
+      "note": "Source of truth for policy documents and amendments"
+    },
+    {
+      "system": "Claims Management System",
+      "type": "Serve",
+      "note": "Embedded Q&A widget in claims adjuster workflow"
+    },
+    {
+      "system": "Compliance Document Store",
+      "type": "Read",
+      "note": "Regulatory filings and state-specific endorsements"
+    },
+    {
+      "system": "SIEM / Audit Log",
+      "type": "Write",
+      "note": "All queries logged for E&O compliance"
+    }
   ]
 }

@@ -278,6 +278,49 @@
   ],
   "featuredUseCases": [
     {
+      "id": "employee-onboarding-agent",
+      "title": "Employee Onboarding Agent",
+      "vertical": "operations",
+      "patterns": [
+        "parallel-subagents",
+        "hitl-approval-gate",
+        "trigger-extract-validate-route"
+      ],
+      "problem": "New employee onboarding spans 6–10 systems — HRIS, Active Directory, benefits portal, document signing, calendar, and access control. HR teams manually coordinate each step, leading to delayed access provisioning (avg 3–5 days), missed benefits enrollments, and compliance gaps from incomplete documentation.",
+      "solution": "An orchestrator agent triggers on a signed offer letter event and fans out to four specialist subagents in parallel: IdentityAgent, BenefitsAgent, DocumentAgent, and CalendarAgent. Compensation or equity changes require manager HITL approval before provisioning begins. Full saga state in Cosmos DB enables crash recovery without duplicate actions.",
+      "whoItsFor": "HR Operations Teams, IT Provisioning, People Ops at mid-to-large enterprises",
+      "workflowSteps": [
+        "Trigger: signed offer letter event from HRIS (Workday webhook)",
+        "OrchestratorAgent reads employee record — extracts role, compensation tier, start date",
+        "If equity grant: HITL gate — manager approves before parallel fan-out",
+        "Parallel: IdentityAgent (Entra ID + M365), BenefitsAgent (health/401k/ESPP), DocumentAgent (NDA + I-9 via DocuSign), CalendarAgent (orientation via Graph API)",
+        "Orchestrator polls Cosmos DB state; on all-complete sends welcome email with credentials and calendar links",
+        "On failure: retry from last checkpoint with idempotency keys; after 3 retries escalate to HR ops queue"
+      ],
+      "keyInsights": "HITL gate must fire before any provisioning begins — placing it mid-workflow creates partial-state problems. Idempotency keys on each provisioning action make retries safe. The durable workflow pattern prevents the worst failure mode: partial provisioning with no automated recovery path.",
+      "relatedExams": [
+        {
+          "exam": "ab100",
+          "domain": 3,
+          "why": "Deploy AI-Powered Business Solutions — multi-agent HRIS integration and workflow automation"
+        },
+        {
+          "exam": "ccdf",
+          "domain": 3,
+          "why": "Agents and Workflows — parallel subagents, durable execution, HITL gate"
+        },
+        {
+          "exam": "ccap",
+          "domain": 2,
+          "why": "Solution Design — coordinator-specialist architecture, saga pattern for partial failure"
+        }
+      ],
+      "relatedInterviewQs": ["q-orch-001", "q-hitl-001", "q-orch-002"],
+      "examScenarioPotential": "high",
+      "blogPotential": "high",
+      "mermaidDiagram": "flowchart TD\n  A([Signed Offer Event]) --> B[OrchestratorAgent\\nRead employee record]\n  B --> C{Equity grant?}\n  C -->|Yes| D[HITL Gate\\nManager approval]\n  C -->|No| E[Parallel Fan-Out]\n  D -->|Approved| E\n  D -->|Rejected| F([Escalate to HR Ops])\n  E --> G[IdentityAgent\\nEntra ID + M365]\n  E --> H[BenefitsAgent\\nHealth + 401k + ESPP]\n  E --> I[DocumentAgent\\nNDA + I-9 via DocuSign]\n  E --> J[CalendarAgent\\nOrientation via Graph API]\n  G & H & I & J --> K{All complete?}\n  K -->|Yes| L([Welcome Email + Credentials])\n  K -->|Retry| M[Checkpoint Resume\\nIdempotency Key]"
+    },
+    {
       "id": "invoice-ops-hitl",
       "title": "Invoice Operations Agent with HITL",
       "vertical": "operations",
