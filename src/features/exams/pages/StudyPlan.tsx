@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useReducer } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { CalendarDays, ChevronDown, ChevronRight, BookOpen, Brain, AlertTriangle, CheckCircle2, Circle, RefreshCw, Clock, Zap, Sparkles, RotateCcw, MessageCircle, X } from 'lucide-react';
+import { CalendarDays, ChevronDown, ChevronRight, BookOpen, Brain, AlertTriangle, CheckCircle2, Circle, RefreshCw, Clock, Zap, Sparkles, RotateCcw, MessageCircle, X, LayoutList, Calendar, TrendingDown } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { getSessions } from '@/lib/storage';
 import {
@@ -15,7 +15,11 @@ import {
   nextIncompleteSession,
   defaultTargetDate,
   isValidExamId,
+  getDailyMinutesPref,
+  setDailyMinutesPref,
+  getWeakDomains,
 } from '@/lib/plan-generator';
+import type { DailyMinutes } from '@/lib/plan-generator';
 import {
   callMentorPlan,
   callMentorChat,
@@ -123,6 +127,94 @@ function AskMentorPanel({ examId, day, domainTitle }: AskMentorPanelProps) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Mini calendar view ────────────────────────────────────────────────────────
+
+interface PlanCalendarProps {
+  plan: import('@/lib/plan-generator').StudyPlan;
+  targetDate: string;
+  onDayClick: (day: number) => void;
+}
+
+function PlanCalendar({ plan, targetDate, onDayClick }: PlanCalendarProps) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(targetDate);
+  target.setHours(0, 0, 0, 0);
+
+  // Build map: calendar-date-string → session day numbers
+  const dayMap = new Map<string, number[]>();
+  for (const s of plan.sessions) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + s.day - 1);
+    const key = d.toISOString().split('T')[0];
+    const existing = dayMap.get(key) ?? [];
+    existing.push(s.day);
+    dayMap.set(key, existing);
+  }
+
+  // Build grid starting from today
+  const totalDays = Math.max(7, Math.round((target.getTime() - today.getTime()) / 86_400_000) + 1);
+  const cells: { date: Date; key: string }[] = [];
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + i);
+    cells.push({ date: d, key: d.toISOString().split('T')[0] });
+  }
+
+  const completedDays = new Set(plan.sessions.filter((s) => s.completed).map((s) => s.day));
+
+  return (
+    <div className="glass-card rounded-xl p-4">
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 mb-3">
+        Study Calendar — {totalDays} days to exam
+      </p>
+      <div className="grid grid-cols-7 gap-1">
+        {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d) => (
+          <div key={d} className="text-center text-[9px] font-bold text-slate-600 pb-1">{d}</div>
+        ))}
+        {/* Offset to correct weekday */}
+        {Array.from({ length: cells[0]?.date.getDay() ?? 0 }).map((_, i) => (
+          <div key={`pad-${i}`} />
+        ))}
+        {cells.map(({ date, key }) => {
+          const sessionDays = dayMap.get(key) ?? [];
+          const hasSession = sessionDays.length > 0;
+          const allDone = hasSession && sessionDays.every((d) => completedDays.has(d));
+          const isToday = key === today.toISOString().split('T')[0];
+          const isTarget = key === targetDate;
+          return (
+            <button
+              key={key}
+              onClick={() => hasSession && onDayClick(sessionDays[0])}
+              disabled={!hasSession}
+              className={`relative flex flex-col items-center justify-center rounded-lg aspect-square text-[11px] font-bold transition-all ${
+                hasSession ? 'cursor-pointer hover:-translate-y-0.5' : 'cursor-default opacity-30'
+              } ${isToday ? 'ring-1 ring-violet-500' : ''} ${
+                allDone
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  : hasSession
+                  ? 'bg-violet-500/15 text-violet-300 border border-violet-500/25 hover:bg-violet-500/25'
+                  : 'text-slate-700'
+              }`}
+              title={hasSession ? `Day ${sessionDays.join('+')} · click to jump` : undefined}
+            >
+              {date.getDate()}
+              {isTarget && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-400 border border-slate-900" title="Exam day" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex items-center gap-4 mt-3 text-[10px] text-slate-500">
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-violet-500/50 inline-block" />Study day</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500/50 inline-block" />Completed</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-400 inline-block" />Exam date</span>
+      </div>
     </div>
   );
 }
@@ -246,6 +338,9 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
 
 export default function StudyPlan() {
   const { examId } = useParams<{ examId: string }>();
+  // Validate examId early — needed by lazy useState initialisers below
+  const validId = isValidExamId(examId) ? examId : null;
+
   const [exam, setExam] = useState<ExamConfig | null>(null);
   const [{ plan, aiMode, staticPlan, targetDate }, dispatch] = useReducer(planReducer, {
     plan: null,
@@ -261,6 +356,12 @@ export default function StudyPlan() {
   const [mentorError, setMentorError] = useState<string | null>(null);
   const [coachNote, setCoachNote] = useState<string | null>(null);
 
+  // View + time commitment
+  const [viewMode, setViewMode] = useState<'timeline' | 'calendar'>('timeline');
+  const [dailyMinutes, setDailyMinutesState] = useState<DailyMinutes>(() =>
+    validId ? getDailyMinutesPref(validId) : 30,
+  );
+
   const CHIP_SUGGESTIONS = [
     'Focus on my weakest domains',
     'Give me a 5-day crash course',
@@ -269,9 +370,6 @@ export default function StudyPlan() {
 
   const sessions = useMemo(() => getSessions(), []);
   const { syncToGist } = useProgressSync();
-
-  // Validate examId on mount
-  const validId = isValidExamId(examId) ? examId : null;
 
   // Load exam config
   useEffect(() => {
@@ -295,11 +393,18 @@ export default function StudyPlan() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exam, validId]);
 
-  const regenerate = useCallback((newDate: string) => {
+  const regenerate = useCallback((newDate: string, mins: DailyMinutes = dailyMinutes) => {
     if (!validId || !exam) return;
-    const fresh = generatePlan({ examId: validId, domains: exam.domains, sessions, targetDate: newDate });
+    const fresh = generatePlan({ examId: validId, domains: exam.domains, sessions, targetDate: newDate, dailyMinutes: mins });
     if (fresh) { savePlan(fresh); dispatch({ type: 'regenerated', plan: fresh, targetDate: newDate }); }
-  }, [validId, exam, sessions]);
+  }, [validId, exam, sessions, dailyMinutes]);
+
+  const handleDailyMinutesChange = useCallback((mins: DailyMinutes) => {
+    if (!validId) return;
+    setDailyMinutesState(mins);
+    setDailyMinutesPref(validId, mins);
+    regenerate(targetDate, mins);
+  }, [validId, targetDate, regenerate]);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     regenerate(e.target.value);
@@ -366,6 +471,16 @@ export default function StudyPlan() {
   const completedSessions = plan?.sessions.filter((s) => s.completed).length ?? 0;
   const totalMinutes = plan?.sessions.reduce((sum, s) => sum + s.estimatedMinutes, 0) ?? 0;
 
+  const weakDomains = useMemo(
+    () => (exam ? getWeakDomains(validId ?? '', exam.domains, sessions) : []),
+    [exam, validId, sessions],
+  );
+
+  const scrollToDay = useCallback((day: number) => {
+    const el = document.getElementById(`session-day-${day}`);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setViewMode('timeline'); }
+  }, []);
+
   const daysUntil = useMemo(() => {
     const target = new Date(targetDate);
     const today = new Date();
@@ -427,8 +542,8 @@ export default function StudyPlan() {
         ))}
       </div>
 
-      {/* Target date picker */}
-      <div className="glass-card glass-edge rounded-xl p-4 flex items-center gap-4 flex-wrap">
+      {/* Target date + time commitment */}
+      <div className="glass-card glass-edge rounded-xl p-4 flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2 text-sm text-slate-300">
           <CalendarDays size={15} className="text-violet-400" />
           <span>Target exam date</span>
@@ -440,15 +555,53 @@ export default function StudyPlan() {
           onChange={handleDateChange}
           className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500"
         />
+        {/* Time commitment chips */}
+        <div className="flex items-center gap-1.5 ml-auto">
+          <Clock size={12} className="text-slate-500" />
+          {([15, 30, 60] as DailyMinutes[]).map((mins) => (
+            <button
+              key={mins}
+              onClick={() => handleDailyMinutesChange(mins)}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                dailyMinutes === mins
+                  ? 'bg-violet-600 text-white border border-violet-500'
+                  : 'bg-slate-800/60 text-slate-400 border border-slate-700/40 hover:text-white hover:border-slate-500'
+              }`}
+              title={`${mins} min/day`}
+            >
+              {mins}m
+            </button>
+          ))}
+        </div>
         <button
           onClick={() => regenerate(targetDate)}
-          className="ml-auto flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
           title="Regenerate plan"
         >
           <RefreshCw size={13} />
           Regenerate
         </button>
       </div>
+
+      {/* Weak domains alert */}
+      {weakDomains.length > 0 && (
+        <div className="flex items-start gap-3 px-4 py-3 rounded-xl border border-rose-800/40 bg-rose-950/30">
+          <TrendingDown size={15} className="text-rose-400 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-rose-300 mb-1">Weak domains — plan prioritises these</p>
+            <div className="flex flex-wrap gap-2">
+              {weakDomains.map((d) => (
+                <span
+                  key={d.domainId}
+                  className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-rose-900/40 text-rose-300 border border-rose-800/40"
+                >
+                  D{d.domainId}: {d.title} <span className="font-bold text-rose-400">{d.pct}%</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* AI Mentor panel */}
       <div className="glass-card glass-edge rounded-xl overflow-hidden border border-violet-800/20">
@@ -583,6 +736,35 @@ export default function StudyPlan() {
           <CheckCircle2 size={15} className="shrink-0" />
           <span><strong>Plan complete!</strong> You've finished all sessions. Ready to sit the exam?</span>
         </div>
+      )}
+
+      {/* View toggle + calendar / timeline */}
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+          {totalSessions} sessions · {totalMinutes} min total
+        </p>
+        <div className="flex items-center gap-1 bg-slate-900/60 rounded-lg p-0.5 border border-slate-800/60">
+          <button
+            onClick={() => setViewMode('timeline')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+              viewMode === 'timeline' ? 'bg-violet-700 text-white' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <LayoutList size={12} /> Timeline
+          </button>
+          <button
+            onClick={() => setViewMode('calendar')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+              viewMode === 'calendar' ? 'bg-violet-700 text-white' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Calendar size={12} /> Calendar
+          </button>
+        </div>
+      </div>
+
+      {viewMode === 'calendar' && (
+        <PlanCalendar plan={plan} targetDate={targetDate} onDayClick={scrollToDay} />
       )}
 
       {/* Session cards */}

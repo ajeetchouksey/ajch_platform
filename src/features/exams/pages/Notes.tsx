@@ -108,6 +108,9 @@ export default function Notes() {
   const [readPct, setReadPct] = useState(0);
   const [copied, setCopied] = useState(false);
   const [highlightEnabled, setHighlightEnabled] = useState(true);
+  const [handwritingMode, setHandwritingMode] = useState(() => {
+    try { return localStorage.getItem('notes_handwriting') === '1'; } catch { return false; }
+  });
   const observerRef = useRef<IntersectionObserver | null>(null);
   const toc = content ? extractToc(content) : [];
 
@@ -248,7 +251,22 @@ export default function Notes() {
             <p className="text-base font-bold font-mono text-blue-400">{domainQCount}</p>
             <p className="text-[10px] text-slate-500 mt-0.5">Quiz questions</p>
           </div>
-          <div className="flex items-center justify-center px-2">
+          <div className="flex items-center justify-center px-2 gap-2">
+            <button
+              onClick={() => setHandwritingMode((v) => {
+                const next = !v;
+                try { localStorage.setItem('notes_handwriting', next ? '1' : '0'); } catch { /* noop */ }
+                return next;
+              })}
+              title={handwritingMode ? 'Switch to digital mode' : 'Switch to handwriting mode'}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                handwritingMode
+                  ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                  : 'bg-slate-800/60 text-slate-500 border border-slate-700/40 hover:text-slate-300'
+              }`}
+            >
+              ✍️ Hand
+            </button>
             <KeywordHighlightToggle
               enabled={highlightEnabled}
               onToggle={() => setHighlightEnabled((v) => !v)}
@@ -331,7 +349,10 @@ export default function Notes() {
           <div className="text-rose-400 text-sm">Failed to load: {error}</div>
         )}
         {!loading && !error && (
-          <div className="prose prose-invert max-w-none prose-headings:text-white prose-a:text-violet-400 prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-blockquote:border-violet-500 prose-blockquote:text-slate-400 prose-p:text-[0.9375rem] prose-p:leading-7">
+          <div
+            className="prose prose-invert max-w-none prose-headings:text-white prose-a:text-violet-400 prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-blockquote:border-violet-500 prose-blockquote:text-slate-400 prose-p:text-[0.9375rem] prose-p:leading-7"
+            style={handwritingMode ? { fontFamily: "'Caveat', cursive", fontSize: '1.2rem', lineHeight: '2' } : undefined}
+          >
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
