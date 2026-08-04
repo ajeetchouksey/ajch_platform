@@ -5,8 +5,17 @@
     <link>https://aaryaai.dev</link>
     <description>AI learning resources, exam prep, and engineering insights</description>
     <language>en-gb</language>
-    <lastBuildDate>Mon, 27 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 29 Jul 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://aaryaai.dev/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>What is a Vector Database? The Memory Layer Behind Modern AI</title>
+      <link>https://aaryaai.dev/blog/what-is-a-vector-database</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/what-is-a-vector-database</guid>
+      <description>LLMs are the brain. Vector databases are the memory. Without this layer, your enterprise AI is answering from guesswork — not from what your business actually knows.</description>
+      <pubDate>Wed, 29 Jul 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>AI Engineering</category>
+    </item>
     <item>
       <title>RAG vs Agentic RAG: From Search &amp; Answer to Reason &amp; Act</title>
       <link>https://aaryaai.dev/blog/rag-vs-agentic-rag</link>

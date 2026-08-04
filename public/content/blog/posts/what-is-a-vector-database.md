@@ -7,7 +7,7 @@ updated: null
 tags: ["vector-database", "rag", "embeddings", "llm", "semantic-search", "enterprise-ai"]
 category: "AI Engineering"
 readingTime: 5
-featured: true
+featured: false
 draft: false
 ---
 
@@ -71,15 +71,26 @@ The database performs a nearest-neighbour search across millions or billions of 
 
 > **Key insight:** Vector databases don't search your documents. They search the *meaning* of your documents. That distinction is everything when your users ask questions in natural language and your documents were written by engineers.
 
-<mark>The query isn't "find documents containing these words." It's "find the content closest in meaning to this question." That shift is what makes enterprise AI actually useful.</mark>
-
 ---
 
 ## How It Fits Into a RAG Pipeline
 
 Vector databases are the retrieval engine inside every [RAG and Agentic RAG system](/blog/rag-vs-agentic-rag). The full pipeline looks like this:
 
-![RAG Pipeline: Indexing Pipeline (Offline) — Documents → Chunking → Embedding Model → Vector Database; Query & Retrieval Pipeline (Online) — User Question → Embedding Model → Query Vector → Vector Database → Similarity Search → Relevant Chunks → LLM → Grounded Answer. Key takeaway: LLM is the Brain, Vector Database is the Memory, RAG is the Intelligence.](/images/blog/vector-database-rag-pipeline.png)
+```mermaid
+flowchart TD
+    A[Documents] --> B[Chunking]
+    B --> C[Embedding Model]
+    C --> D[Vector Database]
+
+    E[User Question] --> F[Embedding Model]
+    F --> G[Query Vector]
+    G --> D
+    D --> H[Similarity Search]
+    H --> I[Relevant Chunks]
+    I --> J[LLM]
+    J --> K[Grounded Answer]
+```
 
 Two flows converge at the vector database. Your documents go in at indexing time. Your user's question arrives at query time. The database is where they meet.
 
@@ -122,8 +133,6 @@ With vector search in the pipeline:
 
 > The question isn't whether your enterprise AI needs a memory layer. It's whether you've built one yet.
 
-<mark>Without retrieval grounding, hallucination risk is structural — not incidental. There's nothing else for the model to answer from.</mark>
-
 ---
 
 ## Where You'll Use It
@@ -158,14 +167,16 @@ Pick based on your scale requirements, operational maturity, hybrid search needs
 
 ---
 
-## Key Takeaways
+## The One Thing to Take Away
 
-- **Vector databases find meaning, not words.** Keyword search matches strings. Vector search matches semantics — the geometric distance between concepts, not the overlap of vocabulary.
-- **Embeddings are the foundation.** Every vector database workflow starts with converting content into numbers. Similar content produces similar numbers. That property is what makes semantic retrieval possible.
-- **The vector database is the retrieval engine in every RAG pipeline.** It is where your documents and your user's question converge at query time. The LLM generates the answer; the vector database finds the knowledge.
-- **Enterprise AI without a retrieval layer is operating blind.** LLMs don't know your architecture docs, your HR policies, or your product manuals. Vector search makes that knowledge AI-accessible without retraining.
-- **Hybrid search is the production default.** Most enterprise deployments combine vector retrieval with keyword search. On Azure, that is AI Search. Elsewhere, evaluate based on scale, operational maturity, and existing infrastructure.
+> LLMs are the brain. Vector databases are the memory. RAG is the bridge that connects them.
+
+The shift from chatbots to copilots to autonomous agents is happening now in enterprise technology. Vector databases aren't a detail in that shift — they're the infrastructure layer the whole thing runs on.
 
 ---
 
-LLMs are the brain. Vector databases are the memory. RAG is the bridge that connects them — [see how in RAG vs Agentic RAG →](/blog/rag-vs-agentic-rag)
+## Further Reading
+
+- [RAG vs Agentic RAG: From Search & Answer to Reason & Act](/blog/rag-vs-agentic-rag) — how vector databases power both patterns, and when to move from one to the other
+- [Study Notes: Retrieval-Augmented Generation](/notes) — concise exam-ready summaries on RAG, embeddings, and vector search for CCA-F
+- Browse all [AI Engineering posts](/blog?category=AI+Engineering) for related deep dives
