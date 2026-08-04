@@ -115,12 +115,33 @@ function buildActivities(
   type: SessionType,
   examId: string,
   domain: DomainConfig,
+  dailyMinutes: number = 30,
 ): Activity[] {
   const n = domain.id;
   const notesLink = `/skillup/${examId}/notes?d=${n}`;
   const quizLink  = `/skillup/${examId}/quiz?domain=${n}`;
   const trapsLink = `/skillup/${examId}/notes?d=${n}#traps`;
 
+  // 15 min budget: notes cheat-sheet only, quick quiz if space
+  if (dailyMinutes <= 15) {
+    return [
+      { type: 'notes', label: `Read D${n} cheat-sheet`, link: notesLink, estimatedMinutes: 10, completed: false },
+      { type: 'quiz',  label: 'Quick quiz — 5 Qs',       link: quizLink,  estimatedMinutes: 5,  completed: false },
+    ];
+  }
+
+  // 60 min budget: full session with extra practice
+  if (dailyMinutes >= 60) {
+    return [
+      { type: 'notes',  label: `Read D${n} Notes (full)`,  link: notesLink, estimatedMinutes: 20, completed: false },
+      { type: 'quiz',   label: 'Domain quiz — 20 Qs',      link: quizLink,  estimatedMinutes: 15, completed: false },
+      { type: 'review', label: 'Review Exam Traps',         link: trapsLink, estimatedMinutes: 10, completed: false },
+      { type: 'quiz',   label: 'Timed practice — 10 Qs',   link: `${quizLink}&timed=1`, estimatedMinutes: 10, completed: false },
+      { type: 'review', label: 'Self-test: explain each trap aloud', link: trapsLink, estimatedMinutes: 5, completed: false },
+    ];
+  }
+
+  // 30 min budget (default): keep existing per-type logic
   if (type === 'review') {
     return [
       { type: 'notes',  label: `Read D${n} cheat-sheet`,  link: notesLink, estimatedMinutes: 10, completed: false },
@@ -134,7 +155,6 @@ function buildActivities(
       { type: 'review', label: 'Review Exam Traps',        link: trapsLink, estimatedMinutes: 5,  completed: false },
     ];
   }
-  // full
   return [
     { type: 'notes',  label: `Read D${n} Notes`,        link: notesLink, estimatedMinutes: 25, completed: false },
     { type: 'quiz',   label: 'Domain quiz — 15 Qs',     link: quizLink,  estimatedMinutes: 15, completed: false },
@@ -142,11 +162,57 @@ function buildActivities(
   ];
 }
 
+// ── Daily-minutes preference (localStorage) ──────────────────────────────────
+
+const VALID_DAILY_MINS = [15, 30, 60] as const;
+export type DailyMinutes = 15 | 30 | 60;
+
+export function getDailyMinutesPref(examId: string): DailyMinutes {
+  if (!isValidExamId(examId)) return 30;
+  const raw = localStorage.getItem(`study_daily_mins_${examId}`);
+  const n = Number(raw);
+  return (VALID_DAILY_MINS as readonly number[]).includes(n) ? (n as DailyMinutes) : 30;
+}
+
+export function setDailyMinutesPref(examId: string, mins: DailyMinutes): void {
+  if (!isValidExamId(examId)) return;
+  localStorage.setItem(`study_daily_mins_${examId}`, String(mins));
+}
+
+// ── Weak-domain detection ─────────────────────────────────────────────────────
+
+export interface WeakDomain {
+  domainId: number;
+  title: string;
+  pct: number; // 0–100 average score
+}
+
+export function getWeakDomains(
+  examId: string,
+  domains: DomainConfig[],
+  sessions: QuizSession[],
+): WeakDomain[] {
+  return domains
+    .map((d) => {
+      const domainSessions = sessions.filter(
+        (s) => s.skillId === examId && s.finishedAt && s.domainFilter === d.id,
+      );
+      if (domainSessions.length === 0) return null;
+      const correct = domainSessions.reduce((sum, s) => sum + s.score, 0);
+      const total   = domainSessions.reduce((sum, s) => sum + s.total, 0);
+      const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+      return pct < 70 ? { domainId: d.id, title: d.title, pct } : null;
+    })
+    .filter((d): d is WeakDomain => d !== null)
+    .sort((a, b) => a.pct - b.pct);
+}
+
 export interface GeneratePlanOptions {
   examId: string;
   domains: DomainConfig[];
   sessions: QuizSession[];
   targetDate: string; // YYYY-MM-DD
+  dailyMinutes?: DailyMinutes;
 }
 
 export function generatePlan({
@@ -154,6 +220,7 @@ export function generatePlan({
   domains,
   sessions,
   targetDate,
+  dailyMinutes = 30,
 }: GeneratePlanOptions): StudyPlan | null {
   if (!isValidExamId(examId)) return null;
 
@@ -183,7 +250,7 @@ export function generatePlan({
     const sc = scores[domain.id];
     const pct = sc.total > 0 ? Math.round((sc.correct / sc.total) * 100) : 0;
     const type = sessionType(pct, sc.total);
-    const activities = buildActivities(type, examId, domain);
+    const activities = buildActivities(type, examId, domain, dailyMinutes);
     const estimatedMinutes = activities.reduce((sum, a) => sum + a.estimatedMinutes, 0);
     // compressed → 2 sessions/day; normal → one session per day starting Day 1
     const day = compress ? Math.ceil((idx + 1) / 2) : idx + 1;

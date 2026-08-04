@@ -115,24 +115,24 @@
         },
         {
           "id": 2,
-          "title": "Tool Design & MCP Integration",
-          "weight": 18,
-          "color": "bg-amber-600",
-          "notesFile": "content/skillup/ccaf/notes/d4-tool-design-mcp.md"
-        },
-        {
-          "id": 3,
           "title": "Claude Code Configuration & Workflows",
           "weight": 20,
           "color": "bg-blue-600",
           "notesFile": "content/skillup/ccaf/notes/d2-claude-code-config.md"
         },
         {
-          "id": 4,
+          "id": 3,
           "title": "Prompt Engineering & Structured Output",
           "weight": 20,
           "color": "bg-emerald-600",
           "notesFile": "content/skillup/ccaf/notes/d3-prompt-engineering.md"
+        },
+        {
+          "id": 4,
+          "title": "Tool Design & MCP Integration",
+          "weight": 18,
+          "color": "bg-amber-600",
+          "notesFile": "content/skillup/ccaf/notes/d4-tool-design-mcp.md"
         },
         {
           "id": 5,
