@@ -1,7 +1,7 @@
 ---
 name: Docs Engineer
-version: 1.1.0
-last_modified: "2026-07-16"
+version: 1.1.1
+last_modified: "2026-08-05"
 description: >
   Domain markdown notes specialist. Writes and updates study notes in
   public/content/skillup/*/notes/ only. Produces structured markdown with Mermaid

@@ -1,7 +1,7 @@
 ---
 name: Assessment Engineer
-version: 1.0.0
-last_modified: "2026-05-29"
+version: 1.0.1
+last_modified: "2026-08-05"
 description: >
   MCQ generation specialist for CCA-F exam preparation. Wraps the
   question-generator.md skill. Generates schema-validated question JSON
