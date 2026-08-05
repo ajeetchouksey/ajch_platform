@@ -5,7 +5,7 @@
   "title": "Microsoft Certified: AI Transformation Leader",
   "shortTitle": "AB-731",
   "contentLevel": "101",
-  "description": "Designed for business decision-makers at all levels. Covers recognising AI transformation opportunities, selecting Microsoft 365 Copilot and Foundry Tools, planning responsible AI adoption, and driving innovation \u2014 no coding required.",
+  "description": "Designed for business decision-makers at all levels. Covers recognising AI transformation opportunities, selecting Microsoft 365 Copilot and Foundry Tools, planning responsible AI adoption, and driving innovation — no coding required.",
   "questions": 46,
   "duration": "45 min",
   "passScore": "700/1000",
@@ -67,5 +67,6 @@
       "label": "AB-731 Practice Assessment",
       "url": "https://learn.microsoft.com/en-us/credentials/certifications/ai-transformation-leader/?practice-assessment-type=certification"
     }
-  ]
+  ],
+  "taskStatementsFile": "content/skillup/ab731/task-statements.json"
 }

@@ -21,7 +21,22 @@
             "Adding tool results to conversation context between iterations so the model can incorporate new information into its reasoning",
             "Avoiding anti-patterns such as parsing natural language signals to determine loop termination, setting arbitrary iteration caps as the primary stopping mechanism, or checking for assistant text content as a completion indicator"
           ],
-          "questionIds": ["d1-001", "d1-003"]
+          "questionIds": [
+            "d1-001",
+            "d1-003",
+            "d1-009",
+            "d1-011",
+            "d1-012",
+            "d1-020",
+            "d1-022",
+            "d1-044",
+            "d1-046",
+            "d1-050",
+            "d1-055",
+            "d1-056",
+            "d1-058",
+            "d1-068"
+          ]
         },
         {
           "id": "1.2",
@@ -38,7 +53,35 @@
             "Implementing iterative refinement loops where the coordinator evaluates synthesis output for gaps, re-delegates with targeted queries, and re-invokes synthesis until coverage is sufficient",
             "Routing all subagent communication through the coordinator for observability, consistent error handling, and controlled information flow"
           ],
-          "questionIds": ["d1-002", "d1-007", "d1-008", "d1-016"]
+          "questionIds": [
+            "d1-002",
+            "d1-007",
+            "d1-008",
+            "d1-016",
+            "d1-010",
+            "d1-019",
+            "d1-021",
+            "d1-023",
+            "d1-024",
+            "d1-025",
+            "d1-026",
+            "d1-028",
+            "d1-036",
+            "d1-037",
+            "d1-038",
+            "d1-040",
+            "d1-042",
+            "d1-043",
+            "d1-045",
+            "d1-047",
+            "d1-049",
+            "d1-052",
+            "d1-054",
+            "d1-057",
+            "d1-061",
+            "d1-064",
+            "d1-067"
+          ]
         },
         {
           "id": "1.3",
@@ -55,7 +98,12 @@
             "Spawning parallel subagents by emitting multiple Task tool calls in a single coordinator response rather than across separate turns",
             "Designing coordinator prompts that specify research goals and quality criteria rather than step-by-step procedural instructions"
           ],
-          "questionIds": ["d1-005", "d1-006"]
+          "questionIds": [
+            "d1-005",
+            "d1-006",
+            "d1-029",
+            "d1-062"
+          ]
         },
         {
           "id": "1.4",
@@ -70,7 +118,15 @@
             "Decomposing multi-concern customer requests into distinct items, then investigating each in parallel using shared context before synthesising a unified resolution",
             "Compiling structured handoff summaries (customer ID, root cause, refund amount, recommended action) when escalating to human agents"
           ],
-          "questionIds": ["d1-004", "d1-014"]
+          "questionIds": [
+            "d1-004",
+            "d1-014",
+            "d1-027",
+            "d1-032",
+            "d1-039",
+            "d1-048",
+            "d1-066"
+          ]
         },
         {
           "id": "1.5",
@@ -85,7 +141,13 @@
             "Implementing tool call interception hooks that block policy-violating actions (e.g., refunds exceeding $500) and redirect to alternative workflows (e.g., human escalation)",
             "Choosing hooks over prompt-based enforcement when business rules require guaranteed compliance"
           ],
-          "questionIds": ["d1-001", "d1-013"]
+          "questionIds": [
+            "d1-001",
+            "d1-013",
+            "d1-030",
+            "d1-031",
+            "d1-063"
+          ]
         },
         {
           "id": "1.6",
@@ -100,7 +162,12 @@
             "Splitting large code reviews into per-file local analysis passes plus a separate cross-file integration pass to avoid attention dilution",
             "Decomposing open-ended tasks by first mapping structure, identifying high-impact areas, then creating a prioritised plan that adapts as dependencies are discovered"
           ],
-          "questionIds": ["d1-018"]
+          "questionIds": [
+            "d1-018",
+            "d1-033",
+            "d1-051",
+            "d1-065"
+          ]
         },
         {
           "id": "1.7",
@@ -117,7 +184,14 @@
             "Choosing between session resumption (when prior context is mostly valid) and starting fresh with injected summaries (when prior tool results are stale)",
             "Informing a resumed session about specific file changes for targeted re-analysis rather than requiring full re-exploration"
           ],
-          "questionIds": []
+          "questionIds": [
+            "d1-034",
+            "d1-035",
+            "d1-041",
+            "d1-053",
+            "d1-059",
+            "d1-060"
+          ]
         }
       ]
     },
@@ -141,7 +215,30 @@
             "Splitting generic tools into purpose-specific tools with defined input/output contracts",
             "Reviewing system prompts for keyword-sensitive instructions that might override well-written tool descriptions"
           ],
-          "questionIds": ["d4-001", "d4-016"]
+          "questionIds": [
+            "d4-001",
+            "d4-016",
+            "d4-014",
+            "d4-018",
+            "d4-019",
+            "d4-021",
+            "d4-022",
+            "d4-023",
+            "d4-024",
+            "d4-025",
+            "d4-026",
+            "d4-028",
+            "d4-029",
+            "d4-030",
+            "d4-031",
+            "d4-033",
+            "d4-034",
+            "d4-040",
+            "d4-042",
+            "d4-043",
+            "d4-044",
+            "d4-045"
+          ]
         },
         {
           "id": "2.2",
@@ -158,7 +255,13 @@
             "Implementing local error recovery within subagents for transient failures, propagating to the coordinator only errors that cannot be resolved locally",
             "Distinguishing between access failures (needing retry decisions) and valid empty results (representing successful queries with no matches)"
           ],
-          "questionIds": ["d1-002", "d1-017"]
+          "questionIds": [
+            "d1-002",
+            "d1-017",
+            "d4-004",
+            "d4-013",
+            "d4-020"
+          ]
         },
         {
           "id": "2.3",
@@ -176,7 +279,16 @@
             "Using tool_choice forced selection to ensure a specific tool is called first",
             "Setting tool_choice: 'any' to guarantee the model calls a tool rather than returning conversational text"
           ],
-          "questionIds": ["d4-002", "d4-003", "d4-017"]
+          "questionIds": [
+            "d4-002",
+            "d4-003",
+            "d4-017",
+            "d4-010",
+            "d4-011",
+            "d4-012",
+            "d4-027",
+            "d4-041"
+          ]
         },
         {
           "id": "2.4",
@@ -194,7 +306,12 @@
             "Choosing existing community MCP servers over custom implementations for standard integrations, reserving custom servers for team-specific workflows",
             "Exposing content catalogs as MCP resources to give agents visibility into available data without requiring exploratory tool calls"
           ],
-          "questionIds": ["d4-005", "d4-008"]
+          "questionIds": [
+            "d4-005",
+            "d4-008",
+            "d4-015",
+            "d4-032"
+          ]
         },
         {
           "id": "2.5",
@@ -212,7 +329,15 @@
             "Building codebase understanding incrementally: starting with Grep to find entry points, then using Read to follow imports and trace flows",
             "Tracing function usage across wrapper modules by first identifying all exported names, then searching for each name across the codebase"
           ],
-          "questionIds": ["d4-006", "d4-007"]
+          "questionIds": [
+            "d4-006",
+            "d4-007",
+            "d4-035",
+            "d4-036",
+            "d4-037",
+            "d4-038",
+            "d4-039"
+          ]
         }
       ]
     },
@@ -236,7 +361,28 @@
             "Splitting large CLAUDE.md files into focused topic-specific files in .claude/rules/",
             "Using the /memory command to verify which memory files are loaded and diagnose inconsistent behaviour across sessions"
           ],
-          "questionIds": ["d2-001", "d2-002", "d2-004"]
+          "questionIds": [
+            "d2-001",
+            "d2-002",
+            "d2-004",
+            "d2-007",
+            "d2-011",
+            "d2-012",
+            "d2-013",
+            "d2-022",
+            "d2-026",
+            "d2-031",
+            "d2-032",
+            "d2-033",
+            "d2-034",
+            "d2-035",
+            "d2-036",
+            "d2-040",
+            "d2-041",
+            "d2-045",
+            "d2-048",
+            "d2-050"
+          ]
         },
         {
           "id": "3.2",
@@ -254,7 +400,18 @@
             "Using argument-hint frontmatter to prompt developers for required parameters when they invoke the skill without arguments",
             "Choosing between skills (on-demand invocation for task-specific workflows) and CLAUDE.md (always-loaded universal standards)"
           ],
-          "questionIds": ["d2-014"]
+          "questionIds": [
+            "d2-014",
+            "d2-008",
+            "d2-018",
+            "d2-019",
+            "d2-020",
+            "d2-021",
+            "d2-023",
+            "d2-042",
+            "d2-043",
+            "d2-044"
+          ]
         },
         {
           "id": "3.3",
@@ -269,7 +426,15 @@
             "Using glob patterns in path-specific rules to apply conventions to files by type regardless of directory location (e.g., **/*.test.tsx for all test files)",
             "Choosing path-specific rules over subdirectory CLAUDE.md files when conventions must apply to files spread across the codebase"
           ],
-          "questionIds": ["d2-005", "d2-006", "d2-016"]
+          "questionIds": [
+            "d2-005",
+            "d2-006",
+            "d2-016",
+            "d2-024",
+            "d2-025",
+            "d2-046",
+            "d2-049"
+          ]
         },
         {
           "id": "3.4",
@@ -286,7 +451,12 @@
             "Using the Explore subagent for verbose discovery phases to prevent context window exhaustion during multi-phase tasks",
             "Combining plan mode for investigation with direct execution for implementation"
           ],
-          "questionIds": ["d2-015"]
+          "questionIds": [
+            "d2-015",
+            "d2-037",
+            "d2-038",
+            "d2-039"
+          ]
         },
         {
           "id": "3.5",
@@ -303,7 +473,13 @@
             "Using the interview pattern to surface design considerations (e.g., cache invalidation strategies, failure modes) before implementing solutions in unfamiliar domains",
             "Addressing multiple interacting issues in a single detailed message when fixes interact, versus sequential iteration for independent issues"
           ],
-          "questionIds": []
+          "questionIds": [
+            "d2-027",
+            "d2-028",
+            "d2-029",
+            "d2-030",
+            "d2-047"
+          ]
         },
         {
           "id": "3.6",
@@ -321,7 +497,12 @@
             "Providing existing test files in context so test generation avoids suggesting duplicate scenarios already covered by the test suite",
             "Documenting testing standards, valuable test criteria, and available fixtures in CLAUDE.md to improve test generation quality"
           ],
-          "questionIds": ["d2-003", "d2-009", "d2-010", "d2-017"]
+          "questionIds": [
+            "d2-003",
+            "d2-009",
+            "d2-010",
+            "d2-017"
+          ]
         }
       ]
     },
@@ -343,7 +524,21 @@
             "Temporarily disabling high false-positive categories to restore developer trust while improving prompts for those categories",
             "Defining explicit severity criteria with concrete code examples for each severity level to achieve consistent classification"
           ],
-          "questionIds": ["d3-010"]
+          "questionIds": [
+            "d3-010",
+            "d3-001",
+            "d3-002",
+            "d3-006",
+            "d3-012",
+            "d3-013",
+            "d3-014",
+            "d3-015",
+            "d3-027",
+            "d3-033",
+            "d3-037",
+            "d3-044",
+            "d3-047"
+          ]
         },
         {
           "id": "4.2",
@@ -361,7 +556,19 @@
             "Using few-shot examples to demonstrate correct handling of varied document structures",
             "Adding few-shot examples showing correct extraction from documents with varied formats to address empty/null extraction of required fields"
           ],
-          "questionIds": ["d3-003", "d3-005", "d3-007"]
+          "questionIds": [
+            "d3-003",
+            "d3-005",
+            "d3-007",
+            "d3-011",
+            "d3-016",
+            "d3-017",
+            "d3-018",
+            "d3-032",
+            "d3-034",
+            "d3-035",
+            "d3-036"
+          ]
         },
         {
           "id": "4.3",
@@ -379,7 +586,28 @@
             "Designing schema fields as optional (nullable) when source documents may not contain the information, preventing the model from fabricating values",
             "Adding enum values like 'unclear' for ambiguous cases and 'other' + detail fields for extensible categorisation"
           ],
-          "questionIds": ["d3-003", "d3-004", "d4-002", "d4-009"]
+          "questionIds": [
+            "d3-003",
+            "d3-004",
+            "d4-002",
+            "d4-009",
+            "d3-019",
+            "d3-020",
+            "d3-021",
+            "d3-022",
+            "d3-023",
+            "d3-024",
+            "d3-030",
+            "d3-038",
+            "d3-039",
+            "d3-040",
+            "d3-041",
+            "d3-043",
+            "d3-045",
+            "d3-048",
+            "d3-049",
+            "d3-050"
+          ]
         },
         {
           "id": "4.4",
@@ -396,7 +624,15 @@
             "Adding detected_pattern fields to structured findings to enable analysis of false positive patterns when developers dismiss findings",
             "Designing self-correction validation flows: extracting 'calculated_total' alongside 'stated_total' to flag discrepancies"
           ],
-          "questionIds": ["d3-009", "d5-006", "d5-007"]
+          "questionIds": [
+            "d3-009",
+            "d5-006",
+            "d5-007",
+            "d3-025",
+            "d3-026",
+            "d3-028",
+            "d3-046"
+          ]
         },
         {
           "id": "4.5",
@@ -413,7 +649,12 @@
             "Handling batch failures: resubmitting only failed documents (identified by custom_id) with appropriate modifications",
             "Using prompt refinement on a sample set before batch-processing large volumes to maximise first-pass success rates"
           ],
-          "questionIds": ["d5-016"]
+          "questionIds": [
+            "d5-016",
+            "d3-029",
+            "d3-031",
+            "d3-042"
+          ]
         },
         {
           "id": "4.6",
@@ -428,7 +669,10 @@
             "Splitting large multi-file reviews into focused per-file passes for local issues plus separate integration passes for cross-file data flow analysis",
             "Running verification passes where the model self-reports confidence alongside each finding to enable calibrated review routing"
           ],
-          "questionIds": ["d3-008", "d1-018"]
+          "questionIds": [
+            "d3-008",
+            "d1-018"
+          ]
         }
       ]
     },
@@ -453,7 +697,26 @@
             "Requiring subagents to include metadata (dates, source locations, methodological context) in structured outputs to support accurate downstream synthesis",
             "Modifying upstream agents to return structured data (key facts, citations, relevance scores) instead of verbose content and reasoning chains when downstream agents have limited context budgets"
           ],
-          "questionIds": ["d5-001", "d5-002", "d5-003", "d5-005"]
+          "questionIds": [
+            "d5-001",
+            "d5-002",
+            "d5-003",
+            "d5-005",
+            "d5-011",
+            "d5-012",
+            "d5-013",
+            "d5-014",
+            "d5-015",
+            "d5-017",
+            "d5-018",
+            "d5-019",
+            "d5-020",
+            "d5-029",
+            "d5-030",
+            "d5-031",
+            "d5-033",
+            "d5-036"
+          ]
         },
         {
           "id": "5.2",
@@ -470,7 +733,9 @@
             "Escalating when policy is ambiguous or silent on the customer's specific request",
             "Instructing the agent to ask for additional identifiers when tool results return multiple matches, rather than selecting based on heuristics"
           ],
-          "questionIds": ["d1-015"]
+          "questionIds": [
+            "d1-015"
+          ]
         },
         {
           "id": "5.3",
@@ -487,7 +752,10 @@
             "Having subagents implement local recovery for transient failures and only propagate errors they cannot resolve",
             "Structuring synthesis output with coverage annotations indicating which findings are well-supported versus which topic areas have gaps"
           ],
-          "questionIds": ["d1-002", "d1-017"]
+          "questionIds": [
+            "d1-002",
+            "d1-017"
+          ]
         },
         {
           "id": "5.4",
@@ -505,7 +773,10 @@
             "Designing crash recovery using structured agent state exports (manifests) that the coordinator loads on resume and injects into agent prompts",
             "Using /compact to reduce context usage during extended exploration sessions when context fills with verbose discovery output"
           ],
-          "questionIds": ["d5-003", "d5-004"]
+          "questionIds": [
+            "d5-003",
+            "d5-004"
+          ]
         },
         {
           "id": "5.5",
@@ -522,7 +793,17 @@
             "Having models output field-level confidence scores, then calibrating review thresholds using labelled validation sets",
             "Routing extractions with low model confidence or ambiguous/contradictory source documents to human review, prioritising limited reviewer capacity"
           ],
-          "questionIds": ["d5-007", "d5-008"]
+          "questionIds": [
+            "d5-007",
+            "d5-008",
+            "d5-021",
+            "d5-022",
+            "d5-023",
+            "d5-024",
+            "d5-032",
+            "d5-034",
+            "d5-037"
+          ]
         },
         {
           "id": "5.6",
@@ -540,7 +821,15 @@
             "Requiring subagents to include publication or data collection dates in structured outputs to enable correct temporal interpretation",
             "Rendering different content types appropriately in synthesis outputs — financial data as tables, news as prose, technical findings as structured lists"
           ],
-          "questionIds": ["d5-009", "d5-010"]
+          "questionIds": [
+            "d5-009",
+            "d5-010",
+            "d5-025",
+            "d5-026",
+            "d5-027",
+            "d5-028",
+            "d5-035"
+          ]
         }
       ]
     }

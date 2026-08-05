@@ -4,7 +4,7 @@
   "note": "Auto-updated by scripts/sync-stats.py. Run after any content agent write.",
   "platform": {
     "blog_posts": 60,
-    "questions": 774,
+    "questions": 908,
     "exams": 6,
     "notes": 22,
     "scenarios": 13,

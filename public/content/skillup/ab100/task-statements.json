@@ -25,7 +25,15 @@
             "Review data for grounding, including accuracy, relevance, timeliness, cleanliness, and availability",
             "Organize business solution data to be available for other AI systems"
           ],
-          "questionIds": ["ab100-d1-001", "ab100-d1-002", "ab100-d1-003"]
+          "questionIds": [
+            "ab100-d1-001",
+            "ab100-d1-002",
+            "ab100-d1-003",
+            "ab100-d1-017",
+            "ab100-d1-019",
+            "ab100-d1-022",
+            "ab100-d3-022"
+          ]
         },
         {
           "id": "1.2",
@@ -55,7 +63,24 @@
             "Include the elements of the Microsoft AI Center of Excellence",
             "Design AI solutions that use multiple Dynamics 365 apps"
           ],
-          "questionIds": ["ab100-d1-004", "ab100-d1-005", "ab100-d1-006", "ab100-d1-007", "ab100-d1-008", "ab100-d1-009", "ab100-d1-010"]
+          "questionIds": [
+            "ab100-d1-004",
+            "ab100-d1-005",
+            "ab100-d1-006",
+            "ab100-d1-007",
+            "ab100-d1-008",
+            "ab100-d1-009",
+            "ab100-d1-010",
+            "ab100-d1-016",
+            "ab100-d1-018",
+            "ab100-d1-021",
+            "ab100-d1-023",
+            "ab100-d1-027",
+            "ab100-d2-023",
+            "ab100-d3-012",
+            "ab100-d3-025",
+            "ab100-d3-030"
+          ]
         },
         {
           "id": "1.3",
@@ -72,7 +97,15 @@
             "Analyze whether to build, buy, or extend AI components for business solutions",
             "Implement a model router to intelligently route requests to the most suitable model"
           ],
-          "questionIds": ["ab100-d1-011", "ab100-d1-012", "ab100-d1-013", "ab100-d1-014", "ab100-d1-015"]
+          "questionIds": [
+            "ab100-d1-011",
+            "ab100-d1-012",
+            "ab100-d1-013",
+            "ab100-d1-014",
+            "ab100-d1-015",
+            "ab100-d1-020",
+            "ab100-d1-029"
+          ]
         }
       ]
     },
@@ -113,7 +146,36 @@
             "Design agents and agent flows with Copilot Studio",
             "Design prompt actions in Copilot Studio"
           ],
-          "questionIds": ["ab100-d2-001", "ab100-d2-002", "ab100-d2-003", "ab100-d2-004", "ab100-d2-005", "ab100-d2-006", "ab100-d2-007", "ab100-d2-008", "ab100-d2-009", "ab100-d2-010"]
+          "questionIds": [
+            "ab100-d2-001",
+            "ab100-d2-002",
+            "ab100-d2-003",
+            "ab100-d2-004",
+            "ab100-d2-005",
+            "ab100-d2-006",
+            "ab100-d2-007",
+            "ab100-d2-008",
+            "ab100-d2-009",
+            "ab100-d2-010",
+            "ab100-d1-024",
+            "ab100-d1-025",
+            "ab100-d1-026",
+            "ab100-d1-028",
+            "ab100-d1-030",
+            "ab100-d2-021",
+            "ab100-d2-022",
+            "ab100-d2-024",
+            "ab100-d2-025",
+            "ab100-d2-026",
+            "ab100-d2-027",
+            "ab100-d2-028",
+            "ab100-d2-029",
+            "ab100-d2-030",
+            "ab100-d2-031",
+            "ab100-d2-032",
+            "ab100-d2-033",
+            "ab100-d2-034"
+          ]
         },
         {
           "id": "2.2",
@@ -135,7 +197,13 @@
             "Design agent behaviors in Copilot Studio, including reasoning and voice mode",
             "Optimize solution design by using agents in Microsoft 365, including Teams and SharePoint"
           ],
-          "questionIds": ["ab100-d2-011", "ab100-d2-012", "ab100-d2-013", "ab100-d2-014", "ab100-d2-015"]
+          "questionIds": [
+            "ab100-d2-011",
+            "ab100-d2-012",
+            "ab100-d2-013",
+            "ab100-d2-014",
+            "ab100-d2-015"
+          ]
         },
         {
           "id": "2.3",
@@ -157,7 +225,13 @@
             "Design interoperability of the finance and operations agent chats to use additional knowledge sources",
             "Recommend the process of adding knowledge sources to in-app help and guidance for Dynamics 365 Finance or Dynamics 365 Supply Chain Management apps"
           ],
-          "questionIds": ["ab100-d2-016", "ab100-d2-017", "ab100-d2-018", "ab100-d2-019", "ab100-d2-020"]
+          "questionIds": [
+            "ab100-d2-016",
+            "ab100-d2-017",
+            "ab100-d2-018",
+            "ab100-d2-019",
+            "ab100-d2-020"
+          ]
         }
       ]
     },
@@ -184,7 +258,17 @@
             "Monitor agent performance and metrics",
             "Interpret telemetry data for performance and model tuning"
           ],
-          "questionIds": ["ab100-d3-001", "ab100-d3-002", "ab100-d3-003", "ab100-d4-014", "ab100-d4-024"]
+          "questionIds": [
+            "ab100-d3-001",
+            "ab100-d3-002",
+            "ab100-d3-003",
+            "ab100-d4-014",
+            "ab100-d4-024",
+            "ab100-d3-010",
+            "ab100-d3-011",
+            "ab100-d3-013",
+            "ab100-d3-029"
+          ]
         },
         {
           "id": "3.2",
@@ -203,7 +287,15 @@
             "Design end-to-end test scenarios of AI solutions that use multiple Dynamics 365 apps",
             "Build the strategy for creating test cases by using Copilot"
           ],
-          "questionIds": ["ab100-d3-004", "ab100-d3-005", "ab100-d3-006", "ab100-d4-020"]
+          "questionIds": [
+            "ab100-d3-004",
+            "ab100-d3-005",
+            "ab100-d3-006",
+            "ab100-d4-020",
+            "ab100-d3-019",
+            "ab100-d3-021",
+            "ab100-d3-027"
+          ]
         },
         {
           "id": "3.3",
@@ -224,7 +316,17 @@
             "Design the ALM process for AI in Dynamics 365 apps for finance and supply chain",
             "Design the ALM process for AI in Dynamics 365 apps for customer experience and service"
           ],
-          "questionIds": ["ab100-d3-007", "ab100-d3-008", "ab100-d3-009", "ab100-d4-004", "ab100-d4-008", "ab100-d4-015", "ab100-d4-023"]
+          "questionIds": [
+            "ab100-d3-007",
+            "ab100-d3-008",
+            "ab100-d3-009",
+            "ab100-d4-004",
+            "ab100-d4-008",
+            "ab100-d4-015",
+            "ab100-d4-023",
+            "ab100-d3-017",
+            "ab100-d3-023"
+          ]
         }
       ]
     },
@@ -260,12 +362,32 @@
             "Design audit trails for changes to models and data"
           ],
           "questionIds": [
-            "ab100-d4-001", "ab100-d4-002", "ab100-d4-003",
-            "ab100-d4-005", "ab100-d4-006", "ab100-d4-007",
-            "ab100-d4-009", "ab100-d4-010", "ab100-d4-011",
-            "ab100-d4-012", "ab100-d4-013", "ab100-d4-016",
-            "ab100-d4-017", "ab100-d4-018", "ab100-d4-019",
-            "ab100-d4-021", "ab100-d4-022", "ab100-d4-025"
+            "ab100-d4-001",
+            "ab100-d4-002",
+            "ab100-d4-003",
+            "ab100-d4-005",
+            "ab100-d4-006",
+            "ab100-d4-007",
+            "ab100-d4-009",
+            "ab100-d4-010",
+            "ab100-d4-011",
+            "ab100-d4-012",
+            "ab100-d4-013",
+            "ab100-d4-016",
+            "ab100-d4-017",
+            "ab100-d4-018",
+            "ab100-d4-019",
+            "ab100-d4-021",
+            "ab100-d4-022",
+            "ab100-d4-025",
+            "ab100-d3-014",
+            "ab100-d3-015",
+            "ab100-d3-016",
+            "ab100-d3-018",
+            "ab100-d3-020",
+            "ab100-d3-024",
+            "ab100-d3-026",
+            "ab100-d3-028"
           ]
         }
       ]
