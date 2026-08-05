@@ -178,5 +178,50 @@
     "correct": 1,
     "explanation": "RAG is the correct choice for this scenario for three reasons: (1) Monthly updates mean you'd need to fine-tune every month — expensive and slow; (2) RAG requires no ML training expertise — just indexing documents; (3) RAG grounds responses in actual document text, dramatically reducing hallucination. Fine-tuning (A) is better for teaching the model new skills or domain jargon, not for keeping up with frequently-changing facts. Legal language (C) is handled well by modern LLMs with proper context.",
     "tags": ["rag", "fine-tune-vs-rag", "grounding", "use-case-selection"]
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-013",
+    "scenario": "A financial services company wants to automatically monitor all incoming emails, extract action items, update a task management system, and send a daily digest to each employee's manager — all without human involvement at each step.",
+    "question": "Which AI capability should be used for this scenario?",
+    "options": [
+      "Microsoft 365 Copilot in Outlook — use Copilot to draft email summaries",
+      "An AI agent — capable of autonomous multi-step actions across email, task systems, and calendar without prompting each step",
+      "Azure AI Search — index all emails and allow managers to search for action items",
+      "A fine-tuned model — trained on company emails to predict action items"
+    ],
+    "correct": 1,
+    "explanation": "This scenario requires autonomous multi-step execution: read email → extract action items → update task system → send digest. This is agentic AI — it acts on a defined goal across multiple steps and systems without human prompting at each step. M365 Copilot in Outlook (A) requires a human to initiate each interaction. Azure AI Search (C) is a retrieval tool, not an executor. Fine-tuning (D) changes model behaviour but doesn't automate multi-step workflows.",
+    "tags": ["ai-agents", "agentic-ai", "automation", "copilot-vs-agent"]
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-014",
+    "scenario": "A company has identified 12 potential AI use cases across its operations. The AI steering committee must decide which 3 to fund in the next quarter. Use Case A has high business value and is technically straightforward. Use Case B has extremely high potential value but requires a 9-month data infrastructure project first. Use Case C has low value but can be implemented in 2 weeks.",
+    "question": "Using a value × feasibility prioritisation framework, which use case should be funded first?",
+    "options": [
+      "Use Case B — the highest long-term value always takes priority",
+      "Use Case A — high business value AND high feasibility makes it a Quick Win that delivers ROI fastest",
+      "Use Case C — the fastest to implement should always go first to demonstrate momentum",
+      "All three — fund them in parallel to maximise AI investment"
+    ],
+    "correct": 1,
+    "explanation": "The value × feasibility matrix places Use Case A in the 'Quick Win' quadrant: high business value + high feasibility = fastest ROI and confidence-building. Use Case B is a 'Strategic Bet' — high value but low feasibility (9-month dependency); plan it for later, not first. Use Case C is 'Incremental Gains' — easy but low value. Quick wins should be prioritised over strategic bets for the first funding cycle to prove AI ROI and build executive confidence.",
+    "tags": ["use-case-prioritisation", "value-feasibility", "roi", "ai-strategy"]
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-015",
+    "scenario": "A company is building a real-time customer service chatbot for their e-commerce platform. The chatbot handles simple FAQs (return policy, shipping times, store hours). Budget is tight and the solution must respond in under 1 second. A developer suggests using GPT-4o.",
+    "question": "What is the most appropriate model choice for this scenario?",
+    "options": [
+      "GPT-4o — the most capable model always produces the best user experience",
+      "A lightweight model such as Phi-3 — cost-effective, low latency, sufficient for simple FAQ tasks",
+      "A fine-tuned model — fine-tuning on company FAQs will produce the most accurate answers",
+      "Llama 3 — open source models are always the most cost-effective choice"
+    ],
+    "correct": 1,
+    "explanation": "For simple FAQ responses (return policy, store hours), a lightweight model like Phi-3 is the correct choice: it is cost-effective, has low inference latency (<1 second), and is more than capable of retrieving and stating simple factual answers. GPT-4o (A) is designed for complex reasoning and long contexts — it's expensive overkill for FAQs and may have higher latency. Fine-tuning (C) adds cost and time without clear benefit when RAG + a smaller model can handle the task. Open-source models (D) have infrastructure overhead and aren't always cheapest at scale.",
+    "tags": ["model-selection", "phi", "cost-optimisation", "latency", "foundry-models"]
   }
 ]

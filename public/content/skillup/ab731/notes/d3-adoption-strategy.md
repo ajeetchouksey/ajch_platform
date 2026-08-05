@@ -13,7 +13,7 @@
 
 ## 3.1 Microsoft's Responsible AI Principles
 
-Microsoft defines **6 core principles** plus 2 that are sometimes listed separately. Know all 8:
+Microsoft defines **6 guiding principles**. The exam tests all 6:
 
 ```mermaid
 mindmap
@@ -198,4 +198,120 @@ flowchart TD
 | "Monthly vs pay-as-you-go" | PAYG for pilots/variable; monthly for committed org rollout |
 | "Data used to train GPT?" | No — M365 Copilot does NOT use your data to train foundation models |
 | "Who is accountable for AI decisions?" | Humans — not the AI. Accountability is always with people (Responsible AI principle) |
+| "6 vs 8 principles" | Microsoft defines 6 canonical principles — Reliability & Safety count as ONE, Privacy & Security count as ONE |
+| "AI Council vs CoE" | Council = strategy + governance. Centre of Excellence = technical standards + reusable assets. Both needed. |
+| "AI failure root cause" | Culture and change management — NOT technology. The exam consistently picks people/process over tech failure. |
+| "First step for AI ROI" | Prove value with 2–3 focused pilots before scaling organisation-wide |
+
+---
+
+## 3.10 Business Strategy Alignment
+
+> **AI investments must map to business priorities — not technology trends.**
+
+The four business value categories AI should connect to:
+
+| Priority | What AI can do |
+|---|---|
+| **Revenue growth** | AI-powered products, personalised customer experiences, faster time to market |
+| **Cost reduction** | Automate high-volume tasks, reduce error rates, optimise operations |
+| **Customer experience** | Faster responses, personalisation, 24/7 availability via agents |
+| **Employee productivity** | Reduce admin burden, accelerate knowledge work, free experts for higher-value tasks |
+
+### How to align AI to business strategy
+
+```mermaid
+flowchart LR
+    A[Business Strategy<br/>Top 3 Priorities] --> B[Map to AI Opportunity<br/>Which task? Which tool?]
+    B --> C[Set KPIs<br/>Measurable outcomes]
+    C --> D[Executive Sponsorship<br/>Funding + endorsement]
+    D --> E[Pilot → Scale]
+```
+
+<div class="note-trap"><strong>Exam trap:</strong> "Which AI use case should be prioritised?" → Always the one that directly maps to a stated business priority with measurable outcomes. NOT the most technically impressive use case, and NOT the one IT finds most interesting.</div>
+
+<div class="note-scribble">The exam uses phrases like "aligns with strategic goals", "delivers measurable business value", and "supports business priorities." When you see these, the correct answer always starts from business need and works toward technology — never the other way around.</div>
+
+---
+
+## 3.11 Technology & Data Strategy
+
+> **AI quality = Data quality. You cannot build effective AI on fragmented, siloed data.**
+
+### The Unified Data Estate
+
+| Element | What it means |
+|---|---|
+| **Break down silos** | Connect data from CRM, ERP, HR, and operations into one accessible layer (Microsoft Fabric, Azure Synapse) |
+| **Data quality** | Deduplicate, validate, enrich data before feeding to AI — garbage in, garbage out |
+| **Data governance** | Classify data by sensitivity; know what can enter AI systems; enforce access controls |
+| **AI-ready infrastructure** | Azure cloud provides scalable compute, storage, and networking for enterprise AI |
+
+```mermaid
+graph TD
+    CRM[CRM Data] --> F[Microsoft Fabric<br/>Unified Data Layer]
+    ERP[ERP Data] --> F
+    HR[HR Data] --> F
+    OPS[Operations Data] --> F
+    F --> AI[AI Solutions<br/>Copilot / Foundry]
+    F --> GOV[Data Governance<br/>Sensitivity labels + Access controls]
+```
+
+<div class="note-important"><strong>Exam pattern:</strong> "A company's AI keeps producing wrong answers about inventory. What should be investigated first?" → Data quality and data connectivity. Blame the data pipeline before blaming the model.</div>
+
+---
+
+## 3.12 Organisation & Culture Change
+
+> **Technology alone doesn't drive AI adoption — people and culture determine success or failure.**
+
+### Culture change elements
+
+| Element | What it looks like in practice |
+|---|---|
+| **Leadership buy-in** | Executives visibly use and endorse AI tools — "do as I say, not as I do" fails |
+| **Reskilling** | Train employees in prompt engineering, AI literacy, new AI-augmented workflows |
+| **Resistance management** | Surface fears early (job loss, privacy, status); address with honest communication and evidence |
+| **Continuous learning** | AI evolves fast — create communities of practice, regular knowledge sharing, use case libraries |
+
+### Adoption curve for AI
+
+```mermaid
+flowchart LR
+    A[Awareness<br/>Leadership comms] --> B[Interest<br/>Demos + pilots]
+    B --> C[Trial<br/>Champions programme]
+    C --> D[Adoption<br/>Training + support]
+    D --> E[Advocacy<br/>Champions spread best practice]
+```
+
+<div class="note-important"><strong>Exam pattern:</strong> "What is the #1 risk for a company-wide AI rollout?" → Change management and employee adoption — NOT technical issues. The Microsoft Learn content explicitly states AI adoption failures are caused by culture and governance, not technology.</div>
+
+<div class="note-scribble">Reskilling ≠ just AI training. It means redesigning workflows so AI and humans collaborate effectively. Employees who learn to work with AI are MORE productive and more valuable — that's the message to counter job-loss fears.</div>
+
+---
+
+## 3.13 Scale AI Framework: From Pilot to Enterprise
+
+Microsoft's framework for scaling AI across an organisation follows four phases:
+
+```mermaid
+flowchart TD
+    P1[Phase 1: Unlock Value<br/>Prove ROI with 2–3 pilots<br/>Secure exec sponsorship<br/>Define KPIs] --> P2
+    P2[Phase 2: Organise for Success<br/>AI Council + CoE + BU AI Leads<br/>Clear roles: decide, build, govern] --> P3
+    P3[Phase 3: Empower Business Users<br/>Broad Copilot rollout<br/>Self-service with Copilot Studio<br/>Champions programme + training] --> P4
+    P4[Phase 4: Empower SMEs<br/>Subject matter experts build domain agents<br/>AI amplifies expertise<br/>CoE feedback loops]
+```
+
+### Governance structure at scale
+
+| Role | Purpose |
+|---|---|
+| **AI Council** | Sets strategy, approves high-risk use cases, owns responsible AI governance |
+| **Centre of Excellence (CoE)** | Centralised AI experts; build reusable assets, define standards, mentor business units |
+| **Business Unit AI Leads** | Embedded in each department; bridge CoE and business teams |
+| **AI Champions** | Peer coaches in each team; grassroots adoption layer |
+
+<div class="note-important"><strong>AI Council vs CoE — exam distinction:</strong><br/>Council = WHAT AI we do and SHOULD we do it (strategy + ethics)<br/>CoE = HOW we build it well (technical standards, reusable patterns, mentoring)</div>
+
+<div class="note-scribble">The "empower SMEs" phase is important: a legal expert using AI to build their own contract review agent is MORE powerful than IT building one for them. SMEs bring domain knowledge; AI brings speed and scale. Copilot Studio enables this without coding.</div>
 | "Commitment tiers" | Foundry Tools only — reserved throughput for production workloads |

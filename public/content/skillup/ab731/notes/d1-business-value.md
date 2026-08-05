@@ -50,7 +50,7 @@ graph LR
 | **Best for** | General tasks | Specialised domain (legal, medical, brand voice) |
 | **Requires** | Prompt engineering | Labelled training data |
 
-<div class="note-important"><strong>Exam trap:</strong> Fine-tuning is NOT the first thing you reach for. The exam tests whether you know to try prompt engineering + RAG FIRST before spending money on fine-tuning. Fine-tune only when the domain vocabulary is so specialised that a base model cannot learn it from context.</div>
+<div class="note-trap"><strong>Exam trap:</strong> Fine-tuning is NOT the first thing you reach for. The exam tests whether you know to try prompt engineering + RAG FIRST before spending money on fine-tuning. Fine-tune only when the domain vocabulary is so specialised that a base model cannot learn it from context.</div>
 
 <div class="note-scribble">Think of a pretrained model as hiring a Harvard MBA generalist. Fine-tuning is sending them to a 3-month specialised bootcamp in derivatives trading. Both useful — but the bootcamp costs money and time. First try just telling the generalist what they need to know (prompting).</div>
 
@@ -198,6 +198,100 @@ The exam tests that you know AI introduces **new** attack surfaces beyond tradit
 | **Data poisoning** | Corrupted training data manipulates model behaviour |
 | **Model extraction** | Attacker probes the model to replicate it |
 | **Sensitive data leakage** | Model outputs training data or user data from previous sessions |
+
+---
+
+## 1.10 AI Agents — Agentic AI vs Copilot
+
+> **Copilot assists. Agents act.**
+
+| | Microsoft Copilot | AI Agent |
+|---|---|---|
+| **Mode** | Assistive — responds when prompted | Autonomous — takes initiative, acts without being asked each step |
+| **Actions** | Text generation, summarisation, analysis | Multi-step workflows, tool use, triggering business processes |
+| **Memory** | Single-session context | Can maintain state and context across sessions and tasks |
+| **Examples** | Draft this email | Monitor my inbox, extract action items, update the CRM, send a summary |
+
+### How agents work
+
+```mermaid
+flowchart LR
+    G[Goal<br/>"Process all new contracts"] --> P[Plan<br/>Agent breaks into steps]
+    P --> A1[Step 1: Retrieve contract from SharePoint]
+    A1 --> A2[Step 2: Extract key terms]
+    A2 --> A3[Step 3: Flag non-standard clauses]
+    A3 --> A4[Step 4: Update tracking spreadsheet]
+    A4 --> O[Output: Summary report sent to legal]
+```
+
+**M365 agent examples:**
+- **Researcher agent** — autonomously researches a topic across web + your org data, synthesises a report
+- **Analyst agent** — writes and runs Python code to analyse data, generates charts and insights
+- **Custom agents** built in Copilot Studio — automate specific business workflows
+
+<div class="note-trap"><strong>Exam trap:</strong> "Which should be used to automatically categorise and route 500 support tickets per day without human prompting at each step?" → An <strong>AI agent</strong>, not Copilot. Copilot requires a human to prompt each interaction. Agents operate autonomously over a defined goal.</div>
+
+<div class="note-scribble">Think of Copilot as your AI assistant — you ask, it helps. Think of an agent as an AI employee — you give it a goal, it figures out the steps and executes them. The "agentic" trend is the biggest shift in enterprise AI right now.</div>
+
+---
+
+## 1.11 AI Use Case Prioritisation — Value × Feasibility
+
+Not all AI use cases are worth doing first. Prioritise using three dimensions:
+
+1. **Business value** — revenue impact, cost savings, customer experience improvement, employee productivity
+2. **Implementation feasibility** — data availability, technical complexity, change management effort required
+3. **Time to value** — how quickly you can see measurable results
+
+### The Value × Feasibility Matrix
+
+```mermaid
+quadrantChart
+    title AI Use Case Prioritisation Matrix
+    x-axis Low Feasibility --> High Feasibility
+    y-axis Low Business Value --> High Business Value
+    quadrant-1 Quick Wins — Do First
+    quadrant-2 Strategic Bets — Plan for Later
+    quadrant-3 Avoid
+    quadrant-4 Incremental Gains — Do if Capacity Allows
+```
+
+| Quadrant | Value | Feasibility | Action |
+|---|---|---|---|
+| **Quick Wins** | High | High (easy) | Do first — fast ROI, builds confidence |
+| **Strategic Bets** | High | Low (hard) | Plan carefully — high reward but needs investment |
+| **Incremental Gains** | Low | High (easy) | Do if time permits |
+| **Avoid** | Low | Low (hard) | Don't invest time or resources |
+
+### KPIs to measure AI success
+
+| KPI | What it measures |
+|---|---|
+| **Adoption rate** | % of target users actively using the tool weekly |
+| **Time saved** | Hours per week reclaimed from manual tasks |
+| **Error reduction** | % decrease in errors compared to pre-AI baseline |
+| **Cost per task** | Before vs after AI — total cost to complete a task |
+| **User satisfaction** | NPS or survey score from employees / customers |
+
+<div class="note-important"><strong>Exam pattern:</strong> "What should be measured to determine if an AI pilot was successful?" → KPIs like time saved, adoption rate, error reduction, cost per task. NOT "number of AI features deployed" or "how much the technology impressed users."</div>
+
+<div class="note-scribble">Quick wins matter because they build organisational confidence and executive trust. Even a small pilot that saves 2 hours/week across 50 people creates visible ROI (100 hours/week = £X saved) that funds the next, bigger investment.</div>
+
+---
+
+## 🎯 Domain 1 Exam Traps
+
+| Trap | Correct answer |
+|---|---|
+| "Generate" or "create" in scenario | → Generative AI |
+| "Classify", "categorise", "detect" | → Traditional ML / discriminative AI |
+| "Predict a number" | → Predictive ML / regression |
+| "Improve output quality — cheapest fix?" | → Prompt engineering first, before RAG or fine-tuning |
+| "Knowledge cutoff / private data" | → RAG, not fine-tuning |
+| "Frequently-changing facts" | → RAG (updateable without retraining) |
+| "Specialised domain vocabulary" | → Fine-tuning (when prompt + RAG can't bridge the gap) |
+| "Copilot vs Agent" | → Copilot = assistive (prompted). Agent = autonomous (acts on goals) |
+| "Pilot success metric" | → KPIs: time saved, adoption rate, error reduction |
 
 **Application security:** Validate and sanitise inputs. Use access controls. Don't pass raw user input directly to the model with full privileges.
 
