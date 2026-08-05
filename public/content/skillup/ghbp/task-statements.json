@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "1.0",
+  "examCode": "GH-BP",
+  "source": "GitHub Engineering Best Practices — internal SkillUp content",
+  "sourceUrl": "https://docs.github.com/en/repositories",
+  "domains": [
+    {
+      "id": 1,
+      "title": "Branch Management & Protection",
+      "weight": 33,
+      "officialWeight": "33%",
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Understand branch protection rules and repository rulesets",
+          "knowledge": [
+            "Branch protection rule settings (required reviews, status checks, restrictions)",
+            "Repository rulesets vs branch protection rules",
+            "CODEOWNERS file syntax and enforcement"
+          ],
+          "skills": [
+            "Configure branch protection for a production branch",
+            "Create a ruleset that enforces conventional commits",
+            "Set up CODEOWNERS for automated review assignment"
+          ],
+          "questionIds": []
+        },
+        {
+          "id": "1.2",
+          "title": "Apply Git branching strategies",
+          "knowledge": [
+            "Git Flow, trunk-based development, GitHub Flow patterns",
+            "Feature flags and short-lived branches",
+            "Merge strategies: merge commit, squash, rebase"
+          ],
+          "skills": [
+            "Choose the right branching strategy for a given team size and release cadence",
+            "Configure default merge strategy at repo level"
+          ],
+          "questionIds": []
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "GitHub Actions & CI/CD",
+      "weight": 33,
+      "officialWeight": "33%",
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Build and secure GitHub Actions workflows",
+          "knowledge": [
+            "Workflow syntax (on, jobs, steps, env, secrets)",
+            "Permissions and GITHUB_TOKEN scope minimisation",
+            "Third-party action pinning to SHAs",
+            "Concurrency groups and cancel-in-progress"
+          ],
+          "skills": [
+            "Write a CI workflow that runs tests, lints, and builds",
+            "Harden a workflow against script injection",
+            "Pin third-party actions to immutable commit SHAs"
+          ],
+          "questionIds": []
+        },
+        {
+          "id": "2.2",
+          "title": "Implement CD and release automation",
+          "knowledge": [
+            "Environments, deployment protection rules, required reviewers",
+            "Reusable workflows and composite actions",
+            "Caching strategies for faster pipelines"
+          ],
+          "skills": [
+            "Create a multi-environment deployment pipeline",
+            "Extract repeated logic into a reusable workflow"
+          ],
+          "questionIds": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Repository Security & Governance",
+      "weight": 34,
+      "officialWeight": "34%",
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Apply repository security features",
+          "knowledge": [
+            "Dependabot alerts, security updates, and version updates",
+            "Secret scanning and push protection",
+            "Code scanning with CodeQL",
+            "GitHub Advanced Security feature set"
+          ],
+          "skills": [
+            "Enable Dependabot version updates for a monorepo",
+            "Configure push protection to block credential leaks",
+            "Set up CodeQL analysis on every pull request"
+          ],
+          "questionIds": []
+        },
+        {
+          "id": "3.2",
+          "title": "Govern repository structure and collaboration",
+          "knowledge": [
+            "Repository templates and standardisation",
+            "Issue and PR templates",
+            "GitHub Projects for team tracking",
+            "Audit log and compliance reporting"
+          ],
+          "skills": [
+            "Create a repository template with required files",
+            "Write issue templates that capture structured information"
+          ],
+          "questionIds": []
+        }
+      ]
+    }
+  ]
+}

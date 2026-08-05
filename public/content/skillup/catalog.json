@@ -255,8 +255,9 @@
       "description": "Validate your understanding of GitHub Copilot core features, prompt engineering, data pipeline, privacy and security controls, and IDE integration. 134 scenario-based practice questions.",
       "questions": 134,
       "duration": "90 min",
-      "passScore": "75%",
+      "passScore": "750/1000",
       "passThreshold": 75,
+      "examFee": "Free",
       "available": true,
       "accentColor": "#6b7280",
       "colorScheme": "gray",
@@ -293,6 +294,7 @@
         "content/questions/gh300-domain4.json"
       ],
       "scenarioFiles": [],
+      "taskStatementsFile": "content/skillup/gh300/task-statements.json",
       "resources": [
         {
           "label": "GitHub Copilot Docs",
@@ -315,14 +317,16 @@
     {
       "schemaVersion": "1.0",
       "id": "ghbp",
+      "examCode": "GH-BP",
       "title": "GitHub Engineering Best Practices",
       "shortTitle": "GH-BP",
       "contentLevel": "101",
       "description": "Build expertise in GitHub repository governance, branch protection, GitHub Actions security, CI/CD best practices, and team collaboration workflows.",
       "questions": 75,
       "duration": "60 min",
-      "passScore": "75%",
+      "passScore": "750/1000",
       "passThreshold": 75,
+      "examFee": "Free",
       "available": true,
       "accentColor": "#16a34a",
       "colorScheme": "blue",
@@ -358,6 +362,7 @@
         "content/skillup/ghbp/scenarios/ghbp-securing-monorepo.json",
         "content/skillup/ghbp/scenarios/ghbp-migrating-jenkins-to-actions.json"
       ],
+      "taskStatementsFile": "content/skillup/ghbp/task-statements.json",
       "resources": [
         {
           "label": "GitHub Docs: Branch Protection",
