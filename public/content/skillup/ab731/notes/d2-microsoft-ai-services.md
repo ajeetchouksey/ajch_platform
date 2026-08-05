@@ -201,6 +201,8 @@ Not all models are equal. The exam tests your ability to match:
 | "Which Copilot for collaborative AI content?" | Copilot Pages — persistent, multi-user canvas (not a single-session Word draft) |
 | "Automate vs Augment first?" | Start with automatable tasks (meeting summaries, email drafts) for fastest ROI |
 | "Budget-sensitive edge deployment?" | Phi model family — lightweight, runs on-device or in constrained environments |
+| "Azure AI Search" | It's the retrieval/search layer for RAG — not just a search engine |
+| "Copilot sees all data" | Copilot respects existing M365 permissions — can't access what user can't access |
 
 ---
 
@@ -280,5 +282,3 @@ graph TD
 ```
 
 <div class="note-important"><strong>Exam trap:</strong> "Bigger model = always better" is WRONG. The exam tests that you match model capability to task complexity. Using GPT-4o for a simple FAQ chatbot is expensive overkill. Using Phi-3 for complex multi-document contract analysis will produce poor results.</div>
-| "Azure AI Search" | It's the retrieval/search layer for RAG — not just a search engine |
-| "Copilot sees all data" | Copilot respects existing M365 permissions — can't access what user can't access |
