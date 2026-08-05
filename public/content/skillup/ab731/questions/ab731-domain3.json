@@ -12,7 +12,12 @@
     ],
     "correct": 1,
     "explanation": "Fairness requires that AI treats all people equitably regardless of characteristics like age, race, or gender. An AI that systematically disadvantages a protected group (age 50+) is violating the Fairness principle. While Transparency (A) and Accountability (D) might also be relevant issues, the primary violation described — discriminatory outcomes based on age — is a Fairness violation.",
-    "tags": ["responsible-ai", "fairness", "bias", "ai-principles"]
+    "tags": [
+      "responsible-ai",
+      "fairness",
+      "bias",
+      "ai-principles"
+    ]
   },
   {
     "domain": 3,
@@ -27,7 +32,12 @@
     ],
     "correct": 1,
     "explanation": "Transparency requires that people understand when AI is making decisions that affect them and how those decisions are reached. A 'black box' denial with no explanation violates Transparency. Customers should be able to understand — at a high level — the factors that influenced the AI decision, especially in high-stakes contexts like financial services. (Note: Accountability (D) is also a concern, but the primary violation described is the lack of explainability = Transparency.)",
-    "tags": ["responsible-ai", "transparency", "explainability", "ai-principles"]
+    "tags": [
+      "responsible-ai",
+      "transparency",
+      "explainability",
+      "ai-principles"
+    ]
   },
   {
     "domain": 3,
@@ -42,7 +52,12 @@
     ],
     "correct": 2,
     "explanation": "Accountability in Microsoft's Responsible AI framework means humans and organisations that build and deploy AI systems remain accountable for their outcomes. AI cannot hold legal responsibility. The deploying organisation is responsible for ensuring appropriate use, human oversight, and for any harm caused. AI vendors share responsibility for the base model's safety, but the deployment context and use is the deployer's responsibility.",
-    "tags": ["responsible-ai", "accountability", "ai-principles", "governance"]
+    "tags": [
+      "responsible-ai",
+      "accountability",
+      "ai-principles",
+      "governance"
+    ]
   },
   {
     "domain": 3,
@@ -57,7 +72,12 @@
     ],
     "correct": 1,
     "explanation": "An AI Council brings together all relevant stakeholders to address concerns holistically before deployment. IT alone cannot resolve HR, legal, and financial concerns. A cross-functional AI Council is the standard governance model — it sets policies, aligns on risks and ROI, and creates a shared deployment plan. A data-only committee (C) ignores change management and ROI issues. Indefinite postponement (D) blocks business value needlessly.",
-    "tags": ["ai-council", "governance", "cross-functional", "deployment"]
+    "tags": [
+      "ai-council",
+      "governance",
+      "cross-functional",
+      "deployment"
+    ]
   },
   {
     "domain": 3,
@@ -72,7 +92,12 @@
     ],
     "correct": 1,
     "explanation": "Two barriers are present: (1) Skills gap ('don't know where to start') and (2) Cultural/social concern ('look lazy'). The AI champions programme is the proven mitigation — empowered peer advocates in each team provide hands-on coaching and normalise AI use. Champions are trusted colleagues, not IT, making them more effective at changing social norms. Technical issues (A) are not described. Privacy concerns (C) are different from what's described. Change fatigue (D) might be a factor but is not the primary barrier identified.",
-    "tags": ["adoption", "barriers", "champions-programme", "change-management"]
+    "tags": [
+      "adoption",
+      "barriers",
+      "champions-programme",
+      "change-management"
+    ]
   },
   {
     "domain": 3,
@@ -87,7 +112,12 @@
     ],
     "correct": 1,
     "explanation": "Pay-as-you-go is designed for variable workloads and pilots — you pay for actual usage without committing to a long-term subscription. This is ideal for a 50-user, 90-day pilot where the goal is to validate ROI before committing at scale. An annual commitment at 2,000 users (A) would mean paying for unused licences if the pilot fails. Free Copilot (C) lacks Microsoft Graph integration — it can't access org data, so the pilot would not represent real M365 Copilot value.",
-    "tags": ["licensing", "pay-as-you-go", "pilot", "copilot-licence"]
+    "tags": [
+      "licensing",
+      "pay-as-you-go",
+      "pilot",
+      "copilot-licence"
+    ]
   },
   {
     "domain": 3,
@@ -102,7 +132,12 @@
     ],
     "correct": 1,
     "explanation": "When workloads are stable and predictable, commitment tiers (provisioned throughput) offer a lower per-unit cost than pay-as-you-go in exchange for committing to a minimum usage level. After 6 months of stable usage data, the company has the evidence needed to commit confidently. Pay-as-you-go (A) is more expensive per unit at scale — it's for variable/pilot workloads. Reducing model size (C) may affect output quality. M365 Copilot (D) is a different product — not a substitute for custom Azure AI Foundry workloads.",
-    "tags": ["foundry-tools", "commitment-tiers", "licensing", "cost-optimisation"]
+    "tags": [
+      "foundry-tools",
+      "commitment-tiers",
+      "licensing",
+      "cost-optimisation"
+    ]
   },
   {
     "domain": 3,
@@ -117,7 +152,12 @@
     ],
     "correct": 1,
     "explanation": "Requiring human review before external publication upholds: (1) Accountability — humans remain responsible for AI outputs that go public; (2) Reliability — human review catches errors, hallucinations, or inconsistencies before they reach customers. Privacy/Security (C) relates to data handling. Fairness/Inclusiveness (A) relates to equitable treatment. Transparency (D) is about disclosing AI use, not review processes.",
-    "tags": ["responsible-ai", "accountability", "reliability", "governance-policy"]
+    "tags": [
+      "responsible-ai",
+      "accountability",
+      "reliability",
+      "governance-policy"
+    ]
   },
   {
     "domain": 3,
@@ -132,7 +172,12 @@
     ],
     "correct": 1,
     "explanation": "An AI Champions programme places enthusiastic early adopters ('champions') in each business unit as peer coaches. They are distinct from the AI Council (A — governance/strategy), the Centre of Excellence (C — centralised experts who provide guidance and reusable assets), and the Adoption Team (D — programme management). Champions are the grassroots, peer-to-peer layer of adoption.",
-    "tags": ["champions-programme", "adoption", "change-management", "peer-coaching"]
+    "tags": [
+      "champions-programme",
+      "adoption",
+      "change-management",
+      "peer-coaching"
+    ]
   },
   {
     "domain": 3,
@@ -147,7 +192,12 @@
     ],
     "correct": 1,
     "explanation": "Microsoft has committed that Microsoft 365 Copilot does not use customer data (the content of emails, documents, Teams chats, etc.) to train its foundation models (GPT-4). Tenant data stays within the tenant boundary. This is a core Microsoft privacy commitment frequently tested to ensure business leaders can reassure employees about data privacy.",
-    "tags": ["privacy", "data-training", "microsoft-commitments", "employee-trust"]
+    "tags": [
+      "privacy",
+      "data-training",
+      "microsoft-commitments",
+      "employee-trust"
+    ]
   },
   {
     "domain": 3,
@@ -162,7 +212,12 @@
     ],
     "correct": 1,
     "explanation": "The critical concern is removing human oversight for customer-facing communications at scale. A single AI fabrication, off-brand message, or inappropriate output could reach 50,000 customers before anyone catches it — reputational and legal damage at scale. The Accountability principle requires humans to remain responsible for AI outputs, especially external communications. While privacy consent (C) is a valid concern, the primary Responsible AI risk described is the removal of human review from mass communications.",
-    "tags": ["accountability", "human-in-the-loop", "responsible-ai", "risk"]
+    "tags": [
+      "accountability",
+      "human-in-the-loop",
+      "responsible-ai",
+      "risk"
+    ]
   },
   {
     "domain": 3,
@@ -177,6 +232,94 @@
     ],
     "correct": 1,
     "explanation": "A responsible deployment of a high-stakes HR tool requires: (1) Clear policy (approved/prohibited uses), (2) Training (managers understand the tool's limits), (3) Human review (PIPs affect people's careers — accountability requires human sign-off), and (4) Governance oversight (AI Council quarterly review). 'Deploy and monitor' (A) is reactive — issues with HR content can cause legal and employee harm before monitoring catches them. Restricting access (D) doesn't address responsible use; it just limits scale.",
-    "tags": ["responsible-ai", "governance", "human-in-the-loop", "hr-ai", "accountability"]
+    "tags": [
+      "responsible-ai",
+      "governance",
+      "human-in-the-loop",
+      "hr-ai",
+      "accountability"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-013",
+    "scenario": "An organisation's AI governance document states: 'We are committed to fairness, transparency, and accountability in all AI deployments.' The CTO asks: 'What needs to happen next to make this governance document meaningful?'",
+    "question": "What step converts governance principles into operational reality?",
+    "options": [
+      "A. Share the principles document with all employees via email",
+      "B. Translate principles into specific policies and controls: define what behaviours are permitted/prohibited, assign owners, and establish audit processes",
+      "C. Fine-tune the AI models to enforce the principles automatically",
+      "D. Hire an external AI ethics consultant to validate the document"
+    ],
+    "correct": "B",
+    "explanation": "Governance principles are aspirational statements — they become real only when translated into specific, enforceable policies and controls. For example: Fairness → 'All AI systems used in hiring must pass a bias audit before deployment.' Accountability → 'Every AI output used in a customer-facing decision must be reviewed by a named human owner.' The Microsoft Responsible AI framework explicitly describes the path from principle → policy → controls → monitoring. Sharing a document (A) creates awareness but not enforcement. AI models (C) cannot self-enforce governance principles. External validation (D) is useful but doesn't create internal operational processes.",
+    "tags": [
+      "ai-governance",
+      "responsible-ai",
+      "policies-controls",
+      "governance-framework"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-014",
+    "scenario": "A manufacturing company invested in three AI projects: (1) an AI that suggests marketing slogans — low business impact, easy to implement; (2) an AI that predicts equipment failures to prevent costly downtime — high business impact, moderate implementation effort; (3) an AI that redesigns the factory floor layout — extremely high potential, 18-month infrastructure project. The board asks: which should have been the top priority?",
+    "question": "Which project best represents an AI investment aligned to core business priorities?",
+    "options": [
+      "A. Project 1 — the easiest to implement should always go first to build AI momentum",
+      "B. Project 3 — the highest long-term value always justifies upfront investment regardless of timeline",
+      "C. Project 2 — high business value (preventing costly downtime) with achievable feasibility makes it the top priority",
+      "D. All three simultaneously — parallel AI investment maximises organisational learning"
+    ],
+    "correct": "C",
+    "explanation": "Project 2 maps directly to a core business priority (reducing operational costs by preventing downtime) and is achievable within a reasonable timeframe — this is the strategic sweet spot where value and feasibility align. Project 1 (A) is incremental — do it if capacity allows but don't prioritise it over high-value opportunities. Project 3 (B) is a legitimate strategic bet but an 18-month infrastructure dependency means no ROI this year. Parallel investment (D) dilutes focus and budget without ensuring the highest-value project receives the attention it needs.",
+    "tags": [
+      "business-strategy",
+      "ai-prioritisation",
+      "value-feasibility",
+      "strategic-alignment"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-015",
+    "scenario": "Six months into a company-wide Copilot rollout, adoption is at 28% — well below the 70% target. Interviews reveal three issues: (1) managers feel Copilot threatens their status as subject matter experts; (2) employees face unclear policies on permitted/prohibited uses; (3) IT training covered features but not how Copilot fits into daily workflows. The CEO asks for the top three remediation actions.",
+    "question": "Which combination of actions most directly addresses all three identified barriers?",
+    "options": [
+      "A. Upgrade to a more capable model, extend the rollout timeline, and schedule additional IT feature training",
+      "B. Leadership storytelling to reframe Copilot as amplifying expertise; publish a clear acceptable use policy; redesign training around actual daily workflows rather than features",
+      "C. Make Copilot usage mandatory with daily usage reporting and a leaderboard of top users",
+      "D. Roll back to a smaller pilot group until adoption metrics improve, then re-launch"
+    ],
+    "correct": "B",
+    "explanation": "Each action in option B directly targets an identified barrier: (1) Manager resistance → leadership storytelling reframes Copilot as amplifying expertise, not replacing it. (2) Unclear policies → an acceptable use policy removes ambiguity and builds confidence. (3) Feature-focused training → workflow-based training (e.g., 'How Copilot changes your Monday morning') creates practical understanding. Mandatory usage + leaderboards (C) creates compliance but not genuine adoption and typically increases resistance. Rolling back (D) signals failure and creates wider uncertainty about the AI programme.",
+    "tags": [
+      "adoption",
+      "culture-change",
+      "change-management",
+      "acceptable-use-policy",
+      "training"
+    ]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-016",
+    "scenario": "An organisation scaling AI beyond early pilots plans to create: (A) an AI Council to set strategy and approve high-risk use cases; (B) an AI Centre of Excellence (CoE) staffed with AI engineers who build reusable components and define technical standards; (C) AI Champions embedded in each of 12 business departments. The CEO asks: 'Do we need all three, or is this over-engineering?'",
+    "question": "Why does scaling AI at enterprise level typically require all three of these structures?",
+    "options": [
+      "A. They are redundant — the CoE can absorb the functions of both the AI Council and Champions",
+      "B. Each serves a distinct layer: the Council governs strategy and risk, the CoE ensures technical quality and reuse, and Champions drive grassroots adoption — removing any one layer creates a gap",
+      "C. The AI Council and CoE are sufficient — Champions form naturally without needing a formal programme",
+      "D. Only the Champions programme matters at scale — peer adoption is the only lever that works in large organisations"
+    ],
+    "correct": "B",
+    "explanation": "The three structures address three distinct challenges: (1) AI Council = WHAT to build and WHETHER to build it — strategy, governance, risk management. (2) CoE = HOW to build it well — technical standards, reusable assets, consistent quality across the organisation. (3) Champions = HOW to get people to use it — peer coaching, grassroots advocacy, surfacing real adoption barriers. Without the Council, AI investments drift from business priorities. Without the CoE, every team reinvents the wheel with inconsistent quality. Without Champions, adoption fails at the human layer. Microsoft's Scale AI framework recommends all three as complementary, not redundant.",
+    "tags": [
+      "scale-ai",
+      "ai-council",
+      "centre-of-excellence",
+      "champions",
+      "governance-structure"
+    ]
   }
 ]

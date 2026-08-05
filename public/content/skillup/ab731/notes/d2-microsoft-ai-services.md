@@ -198,5 +198,87 @@ Not all models are equal. The exam tests your ability to match:
 | "Copilot" vs "M365 Copilot" | M365 Copilot has Microsoft Graph access; base Copilot does not |
 | "Build vs Extend" | Try Copilot Studio extension before building from scratch in Foundry |
 | "Researcher vs Analyst" | Researcher = web/doc research; Analyst = data analysis with code |
+| "Which Copilot for collaborative AI content?" | Copilot Pages — persistent, multi-user canvas (not a single-session Word draft) |
+| "Automate vs Augment first?" | Start with automatable tasks (meeting summaries, email drafts) for fastest ROI |
+| "Budget-sensitive edge deployment?" | Phi model family — lightweight, runs on-device or in constrained environments |
+
+---
+
+## 2.11 Copilot Experiences — Pages, Chat, and Cross-App Features
+
+Beyond per-app Copilot features, M365 Copilot includes cross-app experiences:
+
+| Experience | What it is | Key differentiator |
+|---|---|---|
+| **Copilot Chat** (formerly Business Chat / BizChat) | Unified chat interface — query across all your work data (emails, docs, Teams, calendar) or web | Single place to ask anything about your work |
+| **Copilot Pages** | Collaborative AI canvas — Copilot populates it, multiple users can continue editing | Persistent, shareable AI-generated artifact (unlike a single-session chat) |
+| **Work / Web toggle** | In Copilot Chat, switch between your org data (Microsoft Graph) and Bing web search | Explicitly controls whether the AI searches your internal data or the public web |
+
+```mermaid
+graph LR
+    U[User] --> CC[Copilot Chat]
+    CC -->|Work toggle| G[Microsoft Graph<br/>Emails · Docs · Teams · Calendar]
+    CC -->|Web toggle| B[Bing<br/>Public internet]
+    CC -->|Create Page| P[Copilot Pages<br/>Collaborative canvas]
+    P -->|Multiple users| T[Team collaboration]
+```
+
+<div class="note-important"><strong>Exam trap — Pages vs Word:</strong> "A team needs a shared AI-populated document where multiple members can continue adding Copilot-generated research" → <strong>Copilot Pages</strong> (multi-user, persistent, AI-populated). NOT Word Copilot (single session, single user).</div>
+
+<div class="note-scribble">Copilot Chat is the power user's home base — if you need to ask "what did my team work on last week?" or "find all emails about Project X and summarise the key decisions", Copilot Chat with the Work toggle does this in one place. No need to open four apps.</div>
+
+---
+
+## 2.12 Mapping Business Processes to Copilot
+
+Not every task benefits equally from AI. Map each task type to the right Copilot approach:
+
+| Task type | AI benefit | Best Copilot application |
+|---|---|---|
+| **Automatable** | Highest — repetitive, structured, rule-based | Meeting summaries, email triage, invoice data extraction |
+| **Augmentable** | High — knowledge work where AI drafts and humans refine | Writing proposals, data analysis in Excel, research in Chat |
+| **Judgment-heavy** | Lower — deep expertise + ethics required | Complex legal interpretation, senior strategic decisions |
+| **Relationship-based** | Minimal — human connection IS the value | Client relationship management, counselling, coaching |
+
+### The mapping process
+
+```mermaid
+flowchart LR
+    A[List all tasks<br/>in the process] --> B[Classify each:<br/>Auto / Augment / Judgment / Relationship]
+    B --> C[Prioritise Auto + Augment<br/>for fastest ROI]
+    C --> D[Map to Copilot feature<br/>Teams / Excel / Chat / Agent]
+    D --> E[Measure KPIs<br/>Time saved · Error reduction]
+```
+
+<div class="note-important"><strong>Exam pattern:</strong> "Which tasks should be prioritised for Copilot deployment?" → Automatable tasks first (meeting summaries, email drafts, document extraction) — fastest, clearest ROI. Augmentable tasks (analysis, writing) second. Never start with judgment-heavy or relationship tasks.</div>
+
+---
+
+## 2.13 Choosing the Right Foundry Model
+
+The Foundry Model Catalog contains hundreds of models. The exam tests your ability to match business need to model type:
+
+| Scenario | Best model choice | Why |
+|---|---|---|
+| Complex legal reasoning, long documents | **GPT-4o** | High accuracy, large context window, strong reasoning |
+| Real-time customer chat at low cost | **Phi (Phi-3 mini/small)** | Lightweight, fast, cost-effective for simple tasks |
+| On-premise or edge deployment (no cloud) | **Phi-3 mini** | Small enough to run locally |
+| Budget-conscious, open-source preferred | **Llama / Mistral** | Open source = no per-token cost, customisable |
+| Domain-specific brand voice / jargon | **Fine-tuned model** | When base model cannot learn domain via prompting |
+| Image + text understanding | **GPT-4o (multimodal)** | Vision + language in one model |
+
+```mermaid
+graph TD
+    Q1{Is it complex reasoning<br/>or a long document?} -->|Yes| GPT4[GPT-4o]
+    Q1 -->|No| Q2{Budget-sensitive<br/>or edge deployment?}
+    Q2 -->|Yes| Phi[Phi-3<br/>lightweight]
+    Q2 -->|No| Q3{Open-source / cost control?}
+    Q3 -->|Yes| OS[Llama / Mistral]
+    Q3 -->|No| Q4{Needs domain fine-tuning?}
+    Q4 -->|Yes| FT[Fine-tuned model]
+    Q4 -->|No| GPT4
+```
+
+<div class="note-important"><strong>Exam trap:</strong> "Bigger model = always better" is WRONG. The exam tests that you match model capability to task complexity. Using GPT-4o for a simple FAQ chatbot is expensive overkill. Using Phi-3 for complex multi-document contract analysis will produce poor results.</div>
 | "Azure AI Search" | It's the retrieval/search layer for RAG — not just a search engine |
 | "Copilot sees all data" | Copilot respects existing M365 permissions — can't access what user can't access |

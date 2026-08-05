@@ -178,5 +178,50 @@
     "correct": 1,
     "explanation": "Microsoft Project is part of the Microsoft 365 ecosystem. M365 Copilot, via Microsoft Graph, can access Project data and generate status summaries without any custom development. This is the 'Buy' option in the Build/Buy/Extend framework — use the product as-is first. Custom development (A, D) is expensive, slower, and unnecessary when the out-of-box product covers the scenario. Fine-tuning (C) doesn't help with data access.",
     "tags": ["build-buy-extend", "m365-copilot", "microsoft-graph", "microsoft-project"]
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-013",
+    "scenario": "A project team is running a 3-week research sprint. Each team member is separately researching different aspects of the same market opportunity. They want a shared AI-populated document that multiple team members can continue adding to and editing throughout the sprint, with Copilot generating content as they go.",
+    "question": "Which Microsoft 365 Copilot feature is most suitable?",
+    "options": [
+      "Copilot in Word — each member creates their own Word document and shares it",
+      "Copilot Pages — a persistent, collaborative AI canvas that multiple users can populate and edit together",
+      "Copilot in Teams — use the meeting summary feature to capture research discussions",
+      "Copilot Chat with the web toggle — each member uses their own chat session"
+    ],
+    "correct": 1,
+    "explanation": "Copilot Pages is designed exactly for this scenario: a persistent, shareable AI-populated canvas that multiple team members can contribute to, edit, and extend with additional Copilot-generated content throughout the sprint. Word (A) creates isolated documents that require manual merging. Teams meeting summaries (C) capture spoken discussions, not asynchronous research. Individual Copilot Chat sessions (D) are not shared and produce isolated outputs with no collaboration capability.",
+    "tags": ["copilot-pages", "collaboration", "m365-copilot", "copilot-experiences"]
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-014",
+    "scenario": "A retail operations director is preparing to deploy Microsoft 365 Copilot across their 200-person team. She asks: 'Which daily tasks in our team should we focus on first to get the fastest return on our Copilot investment?'",
+    "question": "According to the business process mapping framework, which task category delivers the fastest Copilot ROI?",
+    "options": [
+      "Judgment-heavy tasks — performance reviews and strategic vendor negotiations",
+      "Relationship-based tasks — key account management and customer success calls",
+      "Automatable and augmentable tasks — meeting summaries, email drafts, report writing, and data analysis",
+      "Creative tasks — designing new store layouts and brand campaigns"
+    ],
+    "correct": 2,
+    "explanation": "Automatable tasks (meeting summaries, email triage, data extraction) and augmentable tasks (drafting reports, analysing data, writing proposals) deliver the fastest Copilot ROI because they are high-frequency, time-consuming, and directly reduced by AI assistance. Judgment-heavy tasks (A) require deep human expertise and carry high risk if AI errors go unreviewed. Relationship tasks (B) derive value from human connection — AI assistance here is minimal. Creative direction (D) is high-judgment work where AI augments ideation but cannot replace human creative decision-making.",
+    "tags": ["process-mapping", "automatable", "augmentable", "copilot-roi", "business-process"]
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-015",
+    "scenario": "A company has been running a custom AI solution on Azure AI Foundry for 4 months. Their monthly token consumption has stabilised at 300 million tokens. The head of engineering presents two options to the CFO: (A) continue pay-as-you-go, or (B) move to a provisioned throughput unit (PTU) commitment.",
+    "question": "What is the primary reason to switch from pay-as-you-go to provisioned throughput (PTU)?",
+    "options": [
+      "PTU provides access to newer, more capable models not available on pay-as-you-go",
+      "PTU offers a lower per-unit cost for predictable, high-volume workloads in exchange for a capacity commitment",
+      "Pay-as-you-go does not support enterprise security and compliance requirements",
+      "PTU is required once token usage exceeds 100 million tokens per month"
+    ],
+    "correct": 1,
+    "explanation": "Provisioned Throughput Units (PTU) reserve a fixed amount of model capacity at a discounted per-unit rate compared to pay-as-you-go, in exchange for committing to that capacity level. After 4 months of stable usage at 300M tokens/month, the company has the evidence needed to commit confidently and reduce cost. Model access (A) is the same on both plans. Security and compliance (C) apply to both billing models. There is no mandatory threshold (D) — the decision is business-driven based on usage predictability.",
+    "tags": ["foundry-tools", "ptu", "provisioned-throughput", "cost-optimisation", "licensing"]
   }
 ]
