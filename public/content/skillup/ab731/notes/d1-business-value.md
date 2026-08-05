@@ -216,7 +216,7 @@ The exam tests that you know AI introduces **new** attack surfaces beyond tradit
 
 ```mermaid
 flowchart LR
-    G[Goal<br/>"Process all new contracts"] --> P[Plan<br/>Agent breaks into steps]
+    G["Goal<br/>Process all new contracts"] --> P["Plan<br/>Agent breaks into steps"]
     P --> A1[Step 1: Retrieve contract from SharePoint]
     A1 --> A2[Step 2: Extract key terms]
     A2 --> A3[Step 3: Flag non-standard clauses]
