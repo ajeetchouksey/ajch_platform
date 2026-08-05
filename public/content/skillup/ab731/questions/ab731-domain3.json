@@ -321,5 +321,20 @@
       "champions",
       "governance-structure"
     ]
+  },
+  {
+    "domain": 3,
+    "id": "ab731-d3-017",
+    "scenario": "A Chief Data Officer at a large enterprise is presenting the data strategy to support their AI transformation roadmap. She argues that AI adoption will fail without addressing the underlying data foundation first. She recommends investing in a unified data estate before scaling AI across business units.",
+    "question": "Which Microsoft platform is specifically designed to provide a unified data estate that supports AI workloads at enterprise scale?",
+    "options": [
+      "Microsoft Teams — it centralises communication data across the organisation",
+      "Microsoft Fabric — an end-to-end analytics and data platform that unifies data engineering, data integration, data warehousing, and AI in one service",
+      "Azure AI Foundry — it stores and manages all AI training data centrally",
+      "Microsoft 365 Copilot — once deployed, it automatically creates a unified view of all org data"
+    ],
+    "correct": 1,
+    "explanation": "Microsoft Fabric is Microsoft's unified data platform that brings together data engineering, data integration, data warehousing, real-time analytics, and AI capabilities into a single SaaS solution. It creates a unified data estate — a single, governed platform for all data and AI workloads — which is the data infrastructure foundation that AI at scale requires. Teams (A) is a communication tool, not a data platform. Azure AI Foundry (C) is for building and deploying AI models, not for managing the enterprise data estate. M365 Copilot (D) surfaces existing data but does not create a unified data infrastructure.",
+    "tags": ["microsoft-fabric", "unified-data-estate", "data-strategy", "technology-strategy", "ai-adoption"]
   }
 ]

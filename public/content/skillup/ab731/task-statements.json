@@ -92,7 +92,7 @@
             "Identify when to use Researcher or Analyst in Copilot",
             "Identify when to build, buy, or extend"
           ],
-          "questionIds": ["ab731-d2-001", "ab731-d2-002", "ab731-d2-003", "ab731-d2-004", "ab731-d2-007", "ab731-d2-009", "ab731-d2-011", "ab731-d2-012", "ab731-d2-013", "ab731-d2-014"]
+          "questionIds": ["ab731-d2-001", "ab731-d2-002", "ab731-d2-003", "ab731-d2-004", "ab731-d2-007", "ab731-d2-009", "ab731-d2-011", "ab731-d2-012", "ab731-d2-013", "ab731-d2-014", "ab731-d2-016"]
         },
         {
           "id": "2.2",
@@ -156,7 +156,7 @@
             "Understand Copilot license types, including pay-as-you-go, monthly, and included with Microsoft 365 subscription",
             "Understand Foundry Tools subscription models, including pay-as-you-go and commitment tiers"
           ],
-          "questionIds": ["ab731-d3-003", "ab731-d3-004", "ab731-d3-005", "ab731-d3-007", "ab731-d3-008", "ab731-d3-009", "ab731-d3-014", "ab731-d3-015"]
+          "questionIds": ["ab731-d3-003", "ab731-d3-004", "ab731-d3-005", "ab731-d3-007", "ab731-d3-008", "ab731-d3-009", "ab731-d3-014", "ab731-d3-015", "ab731-d3-017"]
         }
       ]
     }

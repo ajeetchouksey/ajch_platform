@@ -223,5 +223,20 @@
     "correct": 1,
     "explanation": "Provisioned Throughput Units (PTU) reserve a fixed amount of model capacity at a discounted per-unit rate compared to pay-as-you-go, in exchange for committing to that capacity level. After 4 months of stable usage at 300M tokens/month, the company has the evidence needed to commit confidently and reduce cost. Model access (A) is the same on both plans. Security and compliance (C) apply to both billing models. There is no mandatory threshold (D) — the decision is business-driven based on usage predictability.",
     "tags": ["foundry-tools", "ptu", "provisioned-throughput", "cost-optimisation", "licensing"]
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-016",
+    "scenario": "A marketing manager opens Microsoft 365 Copilot Chat on her laptop. She needs to answer two questions back-to-back: (1) 'What is our current budget approval process?' — an internal question about company policy. (2) 'What are the top AI marketing trends in 2025?' — a public internet question.",
+    "question": "Which toggle setting in Copilot Chat should she use for each question?",
+    "options": [
+      "Use the Web toggle for both — it searches the internet for the most current information",
+      "Use the Work toggle for both — it provides more accurate results because it uses AI",
+      "Work toggle for the internal policy question (searches Microsoft Graph / org data); Web toggle for the market trends question (searches Bing / public internet)",
+      "There is no toggle — Copilot Chat automatically decides whether to search internal or external sources"
+    ],
+    "correct": 2,
+    "explanation": "Copilot Chat's Work/Web toggle explicitly controls the data source: Work toggle → queries Microsoft Graph (your organisation's emails, SharePoint, Teams, Calendar — your org data). Web toggle → queries Bing (public internet). The internal policy question needs the Work toggle because the answer exists in internal company documents. The market trends question needs the Web toggle because it's public internet information. Option D is incorrect — the toggle exists precisely to give users explicit control over which data source is searched.",
+    "tags": ["copilot-chat", "work-web-toggle", "microsoft-graph", "copilot-experiences", "m365-copilot"]
   }
 ]
