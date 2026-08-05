@@ -23,7 +23,25 @@
             "Create a ruleset that enforces conventional commits",
             "Set up CODEOWNERS for automated review assignment"
           ],
-          "questionIds": []
+          "questionIds": [
+            "ghbp-d1-001",
+            "ghbp-d1-002",
+            "ghbp-d1-003",
+            "ghbp-d1-004",
+            "ghbp-d1-007",
+            "ghbp-d1-008",
+            "ghbp-d1-009",
+            "ghbp-d1-011",
+            "ghbp-d1-013",
+            "ghbp-d1-014",
+            "ghbp-d1-015",
+            "ghbp-d1-018",
+            "ghbp-d1-019",
+            "ghbp-d1-020",
+            "ghbp-d1-021",
+            "ghbp-d1-023",
+            "ghbp-d1-024"
+          ]
         },
         {
           "id": "1.2",
@@ -37,7 +55,16 @@
             "Choose the right branching strategy for a given team size and release cadence",
             "Configure default merge strategy at repo level"
           ],
-          "questionIds": []
+          "questionIds": [
+            "ghbp-d1-005",
+            "ghbp-d1-006",
+            "ghbp-d1-010",
+            "ghbp-d1-012",
+            "ghbp-d1-016",
+            "ghbp-d1-017",
+            "ghbp-d1-022",
+            "ghbp-d1-025"
+          ]
         }
       ]
     },
@@ -61,7 +88,19 @@
             "Harden a workflow against script injection",
             "Pin third-party actions to immutable commit SHAs"
           ],
-          "questionIds": []
+          "questionIds": [
+            "ghbp-d2-002",
+            "ghbp-d2-003",
+            "ghbp-d2-004",
+            "ghbp-d2-006",
+            "ghbp-d2-008",
+            "ghbp-d2-011",
+            "ghbp-d2-014",
+            "ghbp-d2-016",
+            "ghbp-d2-019",
+            "ghbp-d2-020",
+            "ghbp-d2-021"
+          ]
         },
         {
           "id": "2.2",
@@ -75,7 +114,22 @@
             "Create a multi-environment deployment pipeline",
             "Extract repeated logic into a reusable workflow"
           ],
-          "questionIds": []
+          "questionIds": [
+            "ghbp-d2-001",
+            "ghbp-d2-005",
+            "ghbp-d2-007",
+            "ghbp-d2-009",
+            "ghbp-d2-010",
+            "ghbp-d2-012",
+            "ghbp-d2-013",
+            "ghbp-d2-015",
+            "ghbp-d2-017",
+            "ghbp-d2-018",
+            "ghbp-d2-022",
+            "ghbp-d2-023",
+            "ghbp-d2-024",
+            "ghbp-d2-025"
+          ]
         }
       ]
     },
@@ -99,7 +153,23 @@
             "Configure push protection to block credential leaks",
             "Set up CodeQL analysis on every pull request"
           ],
-          "questionIds": []
+          "questionIds": [
+            "ghbp-d3-001",
+            "ghbp-d3-003",
+            "ghbp-d3-007",
+            "ghbp-d3-008",
+            "ghbp-d3-011",
+            "ghbp-d3-012",
+            "ghbp-d3-013",
+            "ghbp-d3-014",
+            "ghbp-d3-016",
+            "ghbp-d3-017",
+            "ghbp-d3-018",
+            "ghbp-d3-022",
+            "ghbp-d3-023",
+            "ghbp-d3-024",
+            "ghbp-d3-025"
+          ]
         },
         {
           "id": "3.2",
@@ -114,7 +184,18 @@
             "Create a repository template with required files",
             "Write issue templates that capture structured information"
           ],
-          "questionIds": []
+          "questionIds": [
+            "ghbp-d3-002",
+            "ghbp-d3-004",
+            "ghbp-d3-005",
+            "ghbp-d3-006",
+            "ghbp-d3-009",
+            "ghbp-d3-010",
+            "ghbp-d3-015",
+            "ghbp-d3-019",
+            "ghbp-d3-020",
+            "ghbp-d3-021"
+          ]
         }
       ]
     }

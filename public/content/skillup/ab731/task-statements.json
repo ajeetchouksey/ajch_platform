@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "1.0",
+  "examCode": "AB-731",
+  "domains": [
+    {
+      "id": 1,
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Identify and evaluate generative AI use cases",
+          "questionIds": [
+            "ab731-d1-001",
+            "ab731-d1-007",
+            "ab731-d1-012"
+          ]
+        },
+        {
+          "id": "1.2",
+          "title": "Assess risks, limitations, and responsible AI factors",
+          "questionIds": [
+            "ab731-d1-003",
+            "ab731-d1-004",
+            "ab731-d1-008",
+            "ab731-d1-009",
+            "ab731-d1-011",
+            "ab731-d2-005",
+            "ab731-d3-001",
+            "ab731-d3-008",
+            "ab731-d3-010"
+          ]
+        },
+        {
+          "id": "1.3",
+          "title": "Calculate ROI, costs, and business value",
+          "questionIds": [
+            "ab731-d1-002",
+            "ab731-d1-006",
+            "ab731-d1-010",
+            "ab731-d1-014",
+            "ab731-d1-015",
+            "ab731-d2-008",
+            "ab731-d2-014",
+            "ab731-d2-015",
+            "ab731-d3-007"
+          ]
+        },
+        {
+          "id": "1.4",
+          "title": "Apply grounding, RAG, and contextualisation techniques",
+          "questionIds": [
+            "ab731-d1-005",
+            "ab731-d2-011"
+          ]
+        },
+        {
+          "id": "1.5",
+          "title": "Evaluate AI agents and agentic automation",
+          "questionIds": [
+            "ab731-d1-013"
+          ]
+        },
+        {
+          "id": "1.6",
+          "title": "Select AI models and address security considerations",
+          "questionIds": []
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Use Microsoft 365 Copilot features and experiences",
+          "questionIds": [
+            "ab731-d2-001",
+            "ab731-d2-002",
+            "ab731-d2-003",
+            "ab731-d2-004",
+            "ab731-d2-010",
+            "ab731-d2-012",
+            "ab731-d2-013"
+          ]
+        },
+        {
+          "id": "2.2",
+          "title": "Manage permissions, data access, and Microsoft Graph",
+          "questionIds": []
+        },
+        {
+          "id": "2.3",
+          "title": "Extend and build solutions with Copilot Studio and Azure AI",
+          "questionIds": [
+            "ab731-d2-006",
+            "ab731-d2-007",
+            "ab731-d2-009"
+          ]
+        },
+        {
+          "id": "2.4",
+          "title": "Optimise AI model costs, licensing, and selection",
+          "questionIds": [
+            "ab731-d3-006"
+          ]
+        },
+        {
+          "id": "2.5",
+          "title": "Map and automate business processes with AI",
+          "questionIds": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Apply Responsible AI principles and governance",
+          "questionIds": [
+            "ab731-d3-002",
+            "ab731-d3-003",
+            "ab731-d3-011",
+            "ab731-d3-012",
+            "ab731-d3-013"
+          ]
+        },
+        {
+          "id": "3.2",
+          "title": "Design AI governance structures and councils",
+          "questionIds": [
+            "ab731-d3-004",
+            "ab731-d3-016"
+          ]
+        },
+        {
+          "id": "3.3",
+          "title": "Lead AI adoption, champions programme, and change management",
+          "questionIds": [
+            "ab731-d3-005",
+            "ab731-d3-009",
+            "ab731-d3-015"
+          ]
+        },
+        {
+          "id": "3.4",
+          "title": "Manage AI licensing and deployment economics",
+          "questionIds": []
+        },
+        {
+          "id": "3.5",
+          "title": "Address privacy, data protection, and compliance",
+          "questionIds": []
+        },
+        {
+          "id": "3.6",
+          "title": "Scale AI initiatives with governance frameworks",
+          "questionIds": [
+            "ab731-d3-014"
+          ]
+        }
+      ]
+    }
+  ]
+}

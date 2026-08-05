@@ -25,7 +25,21 @@
             "Identify when AI suggestions may introduce risks or biases",
             "Make informed decisions about when to accept or reject Copilot suggestions"
           ],
-          "questionIds": ["ghc-d1-001", "ghc-d1-002", "ghc-d1-003", "ghc-d1-004", "ghc-d1-005", "ghc-d1-006", "ghc-d1-007", "ghc-d1-008", "ghc-d1-009", "ghc-d1-010", "ghc-d1-011", "ghc-d1-012", "ghc-d1-013"]
+          "questionIds": [
+            "ghc-d1-001",
+            "ghc-d1-002",
+            "ghc-d1-003",
+            "ghc-d1-004",
+            "ghc-d1-005",
+            "ghc-d1-006",
+            "ghc-d1-007",
+            "ghc-d1-008",
+            "ghc-d1-009",
+            "ghc-d1-010",
+            "ghc-d1-011",
+            "ghc-d1-012",
+            "ghc-d1-013"
+          ]
         },
         {
           "id": "d1-t2",
@@ -42,7 +56,20 @@
             "Operate Copilot as an assistant, maintaining developer oversight and accountability",
             "Establish validation workflows for AI-assisted development"
           ],
-          "questionIds": ["ghc-d1-014", "ghc-d1-015", "ghc-d1-016", "ghc-d1-017", "ghc-d1-018", "ghc-d1-019", "ghc-d1-020", "ghc-d1-021", "ghc-d1-022", "ghc-d1-023", "ghc-d1-024", "ghc-d1-025"]
+          "questionIds": [
+            "ghc-d1-014",
+            "ghc-d1-015",
+            "ghc-d1-016",
+            "ghc-d1-017",
+            "ghc-d1-018",
+            "ghc-d1-019",
+            "ghc-d1-020",
+            "ghc-d1-021",
+            "ghc-d1-022",
+            "ghc-d1-023",
+            "ghc-d1-024",
+            "ghc-d1-025"
+          ]
         }
       ]
     },
@@ -66,7 +93,15 @@
             "Interact with Copilot Chat using natural language and slash commands",
             "Invoke Agent Mode for complex multi-file editing tasks"
           ],
-          "questionIds": ["ghc-d2-001", "ghc-d2-002", "ghc-d2-003", "ghc-d2-004", "ghc-d2-005", "ghc-d2-006", "ghc-d2-007"]
+          "questionIds": [
+            "ghc-d2-001",
+            "ghc-d2-002",
+            "ghc-d2-003",
+            "ghc-d2-004",
+            "ghc-d2-005",
+            "ghc-d2-006",
+            "ghc-d2-007"
+          ]
         },
         {
           "id": "d2-t2",
@@ -83,7 +118,12 @@
             "Use `gh copilot suggest` to generate commands from natural language",
             "Generate scripts and command sequences using CLI assistance"
           ],
-          "questionIds": ["ghc-d2-008", "ghc-d2-009", "ghc-d2-010", "ghc-d2-011"]
+          "questionIds": [
+            "ghc-d2-008",
+            "ghc-d2-009",
+            "ghc-d2-010",
+            "ghc-d2-011"
+          ]
         },
         {
           "id": "d2-t3",
@@ -104,7 +144,16 @@
             "Set up copilot-instructions.md for team-wide context customization",
             "Generate PR summaries and request Copilot code reviews"
           ],
-          "questionIds": ["ghc-d2-012", "ghc-d2-013", "ghc-d2-014", "ghc-d2-015", "ghc-d2-016", "ghc-d2-017", "ghc-d2-018", "ghc-d2-019"]
+          "questionIds": [
+            "ghc-d2-012",
+            "ghc-d2-013",
+            "ghc-d2-014",
+            "ghc-d2-015",
+            "ghc-d2-016",
+            "ghc-d2-017",
+            "ghc-d2-018",
+            "ghc-d2-019"
+          ]
         },
         {
           "id": "d2-t4",
@@ -122,7 +171,14 @@
             "Assign and remove Copilot seats using the REST API or GitHub UI",
             "Monitor Copilot usage via audit logs and admin dashboards"
           ],
-          "questionIds": ["ghc-d2-020", "ghc-d2-021", "ghc-d2-022", "ghc-d2-023", "ghc-d2-024", "ghc-d2-025"]
+          "questionIds": [
+            "ghc-d2-020",
+            "ghc-d2-021",
+            "ghc-d2-022",
+            "ghc-d2-023",
+            "ghc-d2-024",
+            "ghc-d2-025"
+          ]
         }
       ]
     },
@@ -147,7 +203,22 @@
             "Identify where data is filtered and processed in the Copilot pipeline",
             "Apply knowledge of data handling to make informed privacy decisions"
           ],
-          "questionIds": ["ghc-d3-001", "ghc-d3-002", "ghc-d3-003", "ghc-d3-004", "ghc-d3-005", "ghc-d3-006", "ghc-d3-007", "ghc-d3-008", "ghc-d3-009", "ghc-d3-010", "ghc-d3-011", "ghc-d3-012", "ghc-d3-013"]
+          "questionIds": [
+            "ghc-d3-001",
+            "ghc-d3-002",
+            "ghc-d3-003",
+            "ghc-d3-004",
+            "ghc-d3-005",
+            "ghc-d3-006",
+            "ghc-d3-007",
+            "ghc-d3-008",
+            "ghc-d3-009",
+            "ghc-d3-010",
+            "ghc-d3-011",
+            "ghc-d3-012",
+            "ghc-d3-013",
+            "ghc-d3-030"
+          ]
         },
         {
           "id": "d3-t2",
@@ -164,7 +235,27 @@
             "Identify when Copilot suggestions are likely to be outdated or incorrect",
             "Use validation strategies to compensate for LLM limitations"
           ],
-          "questionIds": ["ghc-d3-014", "ghc-d3-015", "ghc-d3-016", "ghc-d3-017", "ghc-d3-018", "ghc-d3-019", "ghc-d3-020", "ghc-d3-021", "ghc-d3-022", "ghc-d3-023", "ghc-d3-024", "ghc-d3-025"]
+          "questionIds": [
+            "ghc-d3-014",
+            "ghc-d3-015",
+            "ghc-d3-016",
+            "ghc-d3-017",
+            "ghc-d3-018",
+            "ghc-d3-019",
+            "ghc-d3-020",
+            "ghc-d3-021",
+            "ghc-d3-022",
+            "ghc-d3-023",
+            "ghc-d3-024",
+            "ghc-d3-025",
+            "ghc-d3-026",
+            "ghc-d3-027",
+            "ghc-d3-028",
+            "ghc-d3-029",
+            "ghc-d3-031",
+            "ghc-d3-032",
+            "ghc-d3-033"
+          ]
         }
       ]
     },
@@ -189,7 +280,24 @@
             "Apply few-shot examples to teach Copilot non-standard patterns",
             "Structure comments to maximize Copilot suggestion quality"
           ],
-          "questionIds": ["ghc-d4-001", "ghc-d4-002", "ghc-d4-003", "ghc-d4-004", "ghc-d4-005", "ghc-d4-006", "ghc-d4-007", "ghc-d4-008", "ghc-d4-009", "ghc-d4-010", "ghc-d4-011", "ghc-d4-012", "ghc-d4-013"]
+          "questionIds": [
+            "ghc-d4-001",
+            "ghc-d4-002",
+            "ghc-d4-003",
+            "ghc-d4-004",
+            "ghc-d4-005",
+            "ghc-d4-006",
+            "ghc-d4-007",
+            "ghc-d4-008",
+            "ghc-d4-009",
+            "ghc-d4-010",
+            "ghc-d4-011",
+            "ghc-d4-012",
+            "ghc-d4-013",
+            "ghc-d4-035",
+            "ghc-d4-036",
+            "ghc-d4-037"
+          ]
         },
         {
           "id": "d4-t2",
@@ -206,7 +314,30 @@
             "Leverage chat history strategically within a Copilot Chat session",
             "Reference specific files and workspace context using `#file:` and `@workspace`"
           ],
-          "questionIds": ["ghc-d4-014", "ghc-d4-015", "ghc-d4-016", "ghc-d4-017", "ghc-d4-018", "ghc-d4-019", "ghc-d4-020", "ghc-d4-021", "ghc-d4-022", "ghc-d4-023", "ghc-d4-024", "ghc-d4-025"]
+          "questionIds": [
+            "ghc-d4-014",
+            "ghc-d4-015",
+            "ghc-d4-016",
+            "ghc-d4-017",
+            "ghc-d4-018",
+            "ghc-d4-019",
+            "ghc-d4-020",
+            "ghc-d4-021",
+            "ghc-d4-022",
+            "ghc-d4-023",
+            "ghc-d4-024",
+            "ghc-d4-025",
+            "ghc-d4-026",
+            "ghc-d4-027",
+            "ghc-d4-028",
+            "ghc-d4-029",
+            "ghc-d4-030",
+            "ghc-d4-031",
+            "ghc-d4-032",
+            "ghc-d4-033",
+            "ghc-d4-034",
+            "ghc-d4-038"
+          ]
         }
       ]
     },
@@ -234,7 +365,21 @@
             "Use Copilot as an in-IDE learning tool for unfamiliar frameworks and APIs",
             "Generate realistic test fixtures and mock data using Copilot"
           ],
-          "questionIds": ["ghc-d5-001", "ghc-d5-002", "ghc-d5-003", "ghc-d5-004", "ghc-d5-005", "ghc-d5-006", "ghc-d5-007", "ghc-d5-008", "ghc-d5-009", "ghc-d5-010", "ghc-d5-011", "ghc-d5-012", "ghc-d5-013"]
+          "questionIds": [
+            "ghc-d5-001",
+            "ghc-d5-002",
+            "ghc-d5-003",
+            "ghc-d5-004",
+            "ghc-d5-005",
+            "ghc-d5-006",
+            "ghc-d5-007",
+            "ghc-d5-008",
+            "ghc-d5-009",
+            "ghc-d5-010",
+            "ghc-d5-011",
+            "ghc-d5-012",
+            "ghc-d5-013"
+          ]
         },
         {
           "id": "d5-t2",
@@ -253,7 +398,20 @@
             "Use Copilot to identify and suggest security improvements",
             "Apply Copilot for performance optimization in algorithms and queries"
           ],
-          "questionIds": ["ghc-d5-014", "ghc-d5-015", "ghc-d5-016", "ghc-d5-017", "ghc-d5-018", "ghc-d5-019", "ghc-d5-020", "ghc-d5-021", "ghc-d5-022", "ghc-d5-023", "ghc-d5-024", "ghc-d5-025"]
+          "questionIds": [
+            "ghc-d5-014",
+            "ghc-d5-015",
+            "ghc-d5-016",
+            "ghc-d5-017",
+            "ghc-d5-018",
+            "ghc-d5-019",
+            "ghc-d5-020",
+            "ghc-d5-021",
+            "ghc-d5-022",
+            "ghc-d5-023",
+            "ghc-d5-024",
+            "ghc-d5-025"
+          ]
         }
       ]
     },
@@ -278,7 +436,28 @@
             "Apply content exclusions for credentials, proprietary algorithms, and PII-containing files",
             "Validate that content exclusions are working correctly after configuration"
           ],
-          "questionIds": ["ghc-d6-001", "ghc-d6-002", "ghc-d6-003", "ghc-d6-004", "ghc-d6-005", "ghc-d6-006", "ghc-d6-007", "ghc-d6-008", "ghc-d6-009", "ghc-d6-010", "ghc-d6-011", "ghc-d6-012", "ghc-d6-013"]
+          "questionIds": [
+            "ghc-d6-001",
+            "ghc-d6-002",
+            "ghc-d6-003",
+            "ghc-d6-004",
+            "ghc-d6-005",
+            "ghc-d6-006",
+            "ghc-d6-007",
+            "ghc-d6-008",
+            "ghc-d6-009",
+            "ghc-d6-010",
+            "ghc-d6-011",
+            "ghc-d6-012",
+            "ghc-d6-013",
+            "ghc-d6-028",
+            "ghc-d6-031",
+            "ghc-d6-034",
+            "ghc-d6-035",
+            "ghc-d6-036",
+            "ghc-d6-037",
+            "ghc-d6-039"
+          ]
         },
         {
           "id": "d6-t2",
@@ -296,7 +475,28 @@
             "Resolve content exclusion issues (reload IDE, verify glob patterns, check org policy priority)",
             "Monitor Copilot usage and policy changes using GitHub audit logs"
           ],
-          "questionIds": ["ghc-d6-014", "ghc-d6-015", "ghc-d6-016", "ghc-d6-017", "ghc-d6-018", "ghc-d6-019", "ghc-d6-020", "ghc-d6-021", "ghc-d6-022", "ghc-d6-023", "ghc-d6-024", "ghc-d6-025"]
+          "questionIds": [
+            "ghc-d6-014",
+            "ghc-d6-015",
+            "ghc-d6-016",
+            "ghc-d6-017",
+            "ghc-d6-018",
+            "ghc-d6-019",
+            "ghc-d6-020",
+            "ghc-d6-021",
+            "ghc-d6-022",
+            "ghc-d6-023",
+            "ghc-d6-024",
+            "ghc-d6-025",
+            "ghc-d6-026",
+            "ghc-d6-027",
+            "ghc-d6-029",
+            "ghc-d6-030",
+            "ghc-d6-032",
+            "ghc-d6-033",
+            "ghc-d6-038",
+            "ghc-d6-040"
+          ]
         }
       ]
     }

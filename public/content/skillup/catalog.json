@@ -158,7 +158,8 @@
           "label": "AB-731 Practice Assessment",
           "url": "https://learn.microsoft.com/en-us/credentials/certifications/ai-transformation-leader/?practice-assessment-type=certification"
         }
-      ]
+      ],
+      "taskStatementsFile": "content/skillup/ab731/task-statements.json"
     },
     {
       "schemaVersion": "1.0",
@@ -265,32 +266,36 @@
           "id": 1,
           "title": "Prompt Engineering & Copilot Chat",
           "weight": 28,
-          "color": "bg-sky-600"
+          "color": "bg-sky-600",
+          "notesFile": "content/skillup/gh300/notes/gh300-d1-prompt-engineering.md"
         },
         {
           "id": 2,
           "title": "AI Model, Data Pipeline & Core Concepts",
           "weight": 25,
-          "color": "bg-violet-600"
+          "color": "bg-violet-600",
+          "notesFile": "content/skillup/gh300/notes/gh300-d2-ai-model-data-pipeline.md"
         },
         {
           "id": 3,
           "title": "Privacy, Security & Trust Center",
           "weight": 30,
-          "color": "bg-rose-600"
+          "color": "bg-rose-600",
+          "notesFile": "content/skillup/gh300/notes/gh300-d3-privacy-security.md"
         },
         {
           "id": 4,
           "title": "IDE Integration & Developer Tools",
           "weight": 17,
-          "color": "bg-emerald-600"
+          "color": "bg-emerald-600",
+          "notesFile": "content/skillup/gh300/notes/gh300-d4-ide-integration.md"
         }
       ],
       "questionFiles": [
-        "content/questions/gh300-domain1.json",
-        "content/questions/gh300-domain2.json",
-        "content/questions/gh300-domain3.json",
-        "content/questions/gh300-domain4.json"
+        "content/skillup/gh300/questions/gh300-domain1.json",
+        "content/skillup/gh300/questions/gh300-domain2.json",
+        "content/skillup/gh300/questions/gh300-domain3.json",
+        "content/skillup/gh300/questions/gh300-domain4.json"
       ],
       "scenarioFiles": [],
       "taskStatementsFile": "content/skillup/gh300/task-statements.json",
@@ -385,7 +390,7 @@
       "shortTitle": "GH-300",
       "contentLevel": "201",
       "description": "Demonstrate expertise in using GitHub Copilot to improve software development productivity, quality, and security. Covers responsible AI use, prompt engineering, Copilot features across various plans, data architecture, and privacy safeguards.",
-      "questions": 150,
+      "questions": 284,
       "duration": "100 min",
       "passScore": "700/1000",
       "passThreshold": 70,
@@ -444,7 +449,11 @@
         "content/skillup/ghc/questions/ghc-domain3-data-architecture.json",
         "content/skillup/ghc/questions/ghc-domain4-prompt-engineering.json",
         "content/skillup/ghc/questions/ghc-domain5-productivity.json",
-        "content/skillup/ghc/questions/ghc-domain6-privacy-safeguards.json"
+        "content/skillup/ghc/questions/ghc-domain6-privacy-safeguards.json",
+        "content/skillup/ghc/questions/ghc-domain3-gh300.json",
+        "content/skillup/ghc/questions/ghc-domain4-gh300.json",
+        "content/skillup/ghc/questions/ghc-domain5-gh300.json",
+        "content/skillup/ghc/questions/ghc-domain6-gh300.json"
       ],
       "scenarioFiles": [
         "content/skillup/ghc/scenarios/ghc-enterprise-rollout.json",
