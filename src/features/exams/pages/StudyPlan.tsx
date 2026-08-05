@@ -18,8 +18,10 @@ import {
   getDailyMinutesPref,
   setDailyMinutesPref,
   getWeakDomains,
+  getQuizScoresByDomain,
+  autoSyncProgressToPlan,
 } from '@/lib/plan-generator';
-import type { DailyMinutes } from '@/lib/plan-generator';
+import type { DailyMinutes, DomainQuizScore } from '@/lib/plan-generator';
 import { getDailyCard, exportStudyPlanAsIcal, getStreak, getReadinessScore } from '@/lib/study-tracker';
 import {
   callMentorPlan,
@@ -227,12 +229,15 @@ interface SessionCardProps {
   examId: string;
   onToggle: (day: number, actIdx: number) => void;
   defaultOpen?: boolean;
+  domainScore?: DomainQuizScore;
 }
 
-function SessionCard({ session, examId, onToggle, defaultOpen = false }: SessionCardProps) {
+function SessionCard({ session, examId, onToggle, defaultOpen = false, domainScore }: SessionCardProps) {
   const [open, setOpen] = useState(defaultOpen);
   const doneCount = session.activities.filter((a) => a.completed).length;
   const total = session.activities.length;
+
+  const firstIncomplete = session.activities.find((a) => !a.completed);
 
   return (
     <div className={`glass-card rounded-xl overflow-hidden transition-all duration-300 ${session.completed ? 'opacity-60' : ''}`}>
@@ -252,9 +257,14 @@ function SessionCard({ session, examId, onToggle, defaultOpen = false }: Session
             <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Day {session.day}</span>
             <span className="text-sm font-semibold text-white truncate">{session.domainTitle}</span>
           </div>
-          <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500">
+          <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500 flex-wrap">
             <span className="flex items-center gap-1"><Clock size={10} />{session.estimatedMinutes} min</span>
             <span>{doneCount}/{total} done</span>
+            {domainScore && domainScore.attempts > 0 && (
+              <span className={`flex items-center gap-1 font-semibold ${domainScore.lastScore >= 70 ? 'text-emerald-400' : domainScore.lastScore >= 50 ? 'text-amber-400' : 'text-rose-400'}`}>
+                {domainScore.lastScore}% last quiz
+              </span>
+            )}
           </div>
         </div>
         {/* Mini progress bar */}
@@ -264,6 +274,17 @@ function SessionCard({ session, examId, onToggle, defaultOpen = false }: Session
             style={{ width: `${total > 0 ? Math.round((doneCount / total) * 100) : 0}%` }}
           />
         </div>
+        {/* Start button — only on incomplete sessions */}
+        {!session.completed && firstIncomplete && (
+          <Link
+            to={firstIncomplete.link}
+            onClick={(e) => e.stopPropagation()}
+            className="shrink-0 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-[11px] font-bold hover:bg-violet-500 transition-colors"
+            title="Start this session"
+          >
+            Start →
+          </Link>
+        )}
         {open ? <ChevronDown size={16} className="text-slate-500 shrink-0" /> : <ChevronRight size={16} className="text-slate-500 shrink-0" />}
       </button>
 
@@ -292,7 +313,17 @@ function SessionCard({ session, examId, onToggle, defaultOpen = false }: Session
               >
                 {activity.label}
               </Link>
-              <span className="text-xs text-slate-600 shrink-0">{activity.estimatedMinutes} min</span>
+              <span className="text-xs text-slate-500 shrink-0">{activity.estimatedMinutes} min</span>
+              {!activity.completed && (
+                <Link
+                  to={activity.link}
+                  className="shrink-0 text-slate-600 hover:text-violet-400 transition-colors ml-1"
+                  title="Open"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ChevronRight size={14} />
+                </Link>
+              )}
             </div>
           ))}
         </div>
@@ -372,6 +403,12 @@ export default function StudyPlan() {
   const sessions = useMemo(() => getSessions(), []);
   const { syncToGist } = useProgressSync();
 
+  // Per-domain quiz scores for progress display on session cards
+  const quizScoresByDomain = useMemo(
+    () => exam ? getQuizScoresByDomain(validId ?? '', exam.domains.map(d => d.id), sessions) : {},
+    [exam, validId, sessions],
+  );
+
   // Load exam config
   useEffect(() => {
     if (!validId) return;
@@ -393,6 +430,15 @@ export default function StudyPlan() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exam, validId]);
+
+  // Auto-sync quiz history into plan activities on load
+  useEffect(() => {
+    if (!validId || !plan || sessions.length === 0) return;
+    const updated = autoSyncProgressToPlan(validId, sessions);
+    if (updated) dispatch({ type: 'toggled', plan: updated });
+  // run once per plan identity change (not on every sessions change)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validId, plan?.examId]);
 
   const regenerate = useCallback((newDate: string, mins: DailyMinutes = dailyMinutes) => {
     if (!validId || !exam) return;
@@ -778,17 +824,33 @@ export default function StudyPlan() {
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-widest text-violet-400 mb-0.5">Up next — Day {next.day}</p>
             <p className="text-sm font-semibold text-white truncate">{next.domainTitle}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{next.activities.length} activities · {next.estimatedMinutes} min</p>
+            <p className="text-xs text-slate-500 mt-0.5">{next.activities.length} activities · {next.estimatedMinutes} min
+              {quizScoresByDomain[next.domainId]?.attempts > 0 && (
+                <span className={`ml-2 font-semibold ${quizScoresByDomain[next.domainId].lastScore >= 70 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  · {quizScoresByDomain[next.domainId].lastScore}% last quiz
+                </span>
+              )}
+            </p>
           </div>
-          <button
-            onClick={() => {
-              const el = document.getElementById(`session-day-${next.day}`);
-              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }}
-            className="btn-primary shrink-0 text-sm px-4 py-2"
-          >
-            Jump to session
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => {
+                const el = document.getElementById(`session-day-${next.day}`);
+                if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setViewMode('timeline'); }
+              }}
+              className="text-xs text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg border border-slate-700/60 hover:border-slate-500"
+            >
+              View plan
+            </button>
+            {next.activities[0] && (
+              <Link
+                to={next.activities.find(a => !a.completed)?.link ?? next.activities[0].link}
+                className="btn-primary text-sm px-4 py-2"
+              >
+                Start →
+              </Link>
+            )}
+          </div>
         </div>
       )}
 
@@ -837,6 +899,7 @@ export default function StudyPlan() {
               examId={validId}
               onToggle={handleToggle}
               defaultOpen={next?.day === session.day && next?.domainId === session.domainId}
+              domainScore={quizScoresByDomain[session.domainId]}
             />
           </div>
         ))}

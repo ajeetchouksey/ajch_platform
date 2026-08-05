@@ -210,6 +210,79 @@ export function getWeakDomains(
     .sort((a, b) => a.pct - b.pct);
 }
 
+export interface DomainQuizScore {
+  pct: number;
+  attempts: number;
+  lastScore: number; // most recent quiz raw score %
+}
+
+/** Compute per-domain quiz scores from session history. */
+export function getQuizScoresByDomain(
+  examId: string,
+  domainIds: number[],
+  sessions: QuizSession[],
+): Record<number, DomainQuizScore> {
+  const result: Record<number, DomainQuizScore> = {};
+  for (const id of domainIds) {
+    const ds = sessions.filter((s) => s.skillId === examId && s.finishedAt && s.domainFilter === id);
+    if (ds.length === 0) { result[id] = { pct: 0, attempts: 0, lastScore: 0 }; continue; }
+    const correct = ds.reduce((sum, s) => sum + s.score, 0);
+    const total   = ds.reduce((sum, s) => sum + s.total, 0);
+    const last = ds.sort((a, b) => (b.finishedAt ?? 0) - (a.finishedAt ?? 0))[0];
+    result[id] = {
+      pct: total > 0 ? Math.round((correct / total) * 100) : 0,
+      attempts: ds.length,
+      lastScore: last.total > 0 ? Math.round((last.score / last.total) * 100) : 0,
+    };
+  }
+  return result;
+}
+
+/**
+ * Scan quiz history and auto-mark plan activities as complete where evidence exists.
+ * - Quiz activities: auto-complete if domain has ≥1 finished quiz session (any score).
+ * - Notes activities: auto-complete if domain has ≥1 quiz attempt (implies notes were read).
+ * Returns updated plan if any activity changed, null otherwise.
+ */
+export function autoSyncProgressToPlan(
+  examId: string,
+  sessions: QuizSession[],
+): StudyPlan | null {
+  const plan = loadPlan(examId);
+  if (!plan) return null;
+  let changed = false;
+
+  for (const session of plan.sessions) {
+    const ds = sessions.filter(
+      (s) => s.skillId === examId && s.finishedAt && s.domainFilter === session.domainId,
+    );
+    if (ds.length === 0) continue;
+
+    const correct = ds.reduce((sum, s) => sum + s.score, 0);
+    const total   = ds.reduce((sum, s) => sum + s.total, 0);
+    const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+    for (const activity of session.activities) {
+      if (activity.completed) continue;
+      // Auto-complete quiz activities if any quiz taken for this domain
+      if (activity.type === 'quiz' && ds.length > 0) {
+        activity.completed = true;
+        changed = true;
+      }
+      // Auto-complete notes activities if quiz was taken (implies notes were read) with ≥50%
+      if (activity.type === 'notes' && pct >= 50) {
+        activity.completed = true;
+        changed = true;
+      }
+    }
+    session.completed = session.activities.every((a) => a.completed);
+  }
+
+  if (!changed) return null;
+  savePlan(plan);
+  return { ...plan };
+}
+
 export interface GeneratePlanOptions {
   examId: string;
   domains: DomainConfig[];
