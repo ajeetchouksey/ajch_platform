@@ -251,9 +251,9 @@ export default function HomeV2() {
 
             {/* Value prop */}
             <p className="text-base text-slate-300 max-w-xl leading-relaxed mb-5">
-              Structured, hands-on paths from fundamentals to production{' '}
-              <span className="text-white font-semibold">(101 → 310)</span>.
-              {' '}590+ practice scenarios, 31 enterprise AI use cases with architecture diagrams, and tools that actually ship.
+              A community built for engineers who want to go beyond theory —{' '}
+              <span className="text-white font-semibold">design, build, and ship real AI systems</span>.
+              {' '}From architecture patterns to production deployments, with the community behind every step.
             </p>
 
             {/* Intent fork */}
