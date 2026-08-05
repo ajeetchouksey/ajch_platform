@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "1.0",
+  "examCode": "AB-731",
+  "source": "Study guide for Exam AB-731: AI Transformation Leader — Microsoft Learn (effective July 22, 2026)",
+  "sourceUrl": "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-731",
+  "domains": [
+    {
+      "id": 1,
+      "title": "Identify the business value of generative AI solutions",
+      "weight": 38,
+      "officialWeight": "35–40%",
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Identify the foundational concepts of generative AI",
+          "knowledge": [
+            "The differences between generative AI and other types of AI",
+            "How to select a generative AI solution to meet a business need",
+            "The differences between AI models, including fine-tuned and pretrained models",
+            "The cost drivers in generative AI usage, including tokens and return-on-investment (ROI) considerations",
+            "The challenges of using generative AI solutions, including fabrications, reliability, and bias",
+            "When generative AI solutions can provide business value, including scalability and automation"
+          ],
+          "skills": [
+            "Describe the differences between generative AI and other types of AI",
+            "Select a generative AI solution to meet a business need",
+            "Describe the differences between AI models, including fine-tuned and pretrained models",
+            "Explain the cost drivers in generative AI usage, including tokens and ROI considerations",
+            "Identify the challenges of using generative AI solutions, including fabrications, reliability, and bias",
+            "Identify when generative AI solutions can provide business value, including scalability and automation"
+          ],
+          "questionIds": ["ab731-d1-001", "ab731-d1-003", "ab731-d1-005", "ab731-d1-006", "ab731-d1-007", "ab731-d1-010", "ab731-d1-013", "ab731-d1-014"]
+        },
+        {
+          "id": "1.2",
+          "title": "Identify benefits and capabilities of generative AI solutions",
+          "knowledge": [
+            "The impact of prompt engineering",
+            "Techniques of prompt engineering",
+            "Business requirements for grounding solutions",
+            "How retrieval-augmented generation (RAG) is used for AI solutions",
+            "The impact of data on AI solutions, including data type, data quality, and representative datasets",
+            "The importance of secure AI",
+            "Scenarios when machine learning adds value",
+            "The lifecycle of a machine learning solution",
+            "Security considerations for AI systems, including application security, data security, and authentication requirements"
+          ],
+          "skills": [
+            "Describe the impact of prompt engineering",
+            "Understand techniques of prompt engineering",
+            "Identify business requirements for grounding solutions",
+            "Understand how retrieval-augmented generation (RAG) is used for AI solutions",
+            "Understand the impact of data on AI solutions, including data type, data quality, and representative datasets",
+            "Describe the importance of secure AI",
+            "Identify scenarios when machine learning adds value",
+            "Describe the lifecycle of a machine learning solution",
+            "Identify security considerations for AI systems"
+          ],
+          "questionIds": ["ab731-d1-002", "ab731-d1-004", "ab731-d1-008", "ab731-d1-009", "ab731-d1-011", "ab731-d1-012", "ab731-d1-015"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Identify benefits, capabilities, and opportunities for Microsoft's AI apps and services",
+      "weight": 38,
+      "officialWeight": "35–40%",
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Identify benefits and capabilities of Microsoft 365 Copilot and Microsoft Copilot",
+          "knowledge": [
+            "How to map business processes and use cases to Copilot",
+            "Differences in capabilities between versions of Copilot",
+            "Capabilities of Microsoft 365 Copilot Chat web and mobile experiences",
+            "Capabilities of the Copilot experience in various Microsoft 365 apps",
+            "Capabilities of Microsoft Copilot Studio",
+            "Capabilities of Microsoft Graph",
+            "Benefits of an integrated Microsoft AI solution, including risk mitigation and safety benefits",
+            "When to use Researcher or Analyst in Copilot",
+            "When to build, buy, or extend, including the Microsoft 365 Copilot extensibility framework"
+          ],
+          "skills": [
+            "Map business processes and use cases to Copilot",
+            "Understand differences in capabilities between versions of Copilot",
+            "Understand capabilities of Microsoft 365 Copilot Chat web and mobile experiences",
+            "Understand capabilities of the Copilot experience in various Microsoft 365 apps",
+            "Understand capabilities of Microsoft Copilot Studio",
+            "Understand capabilities of Microsoft Graph",
+            "Identify benefits and capabilities of an integrated Microsoft AI solution",
+            "Map business processes and use cases to Microsoft's AI apps and services",
+            "Identify when to use Researcher or Analyst in Copilot",
+            "Identify when to build, buy, or extend"
+          ],
+          "questionIds": ["ab731-d2-001", "ab731-d2-002", "ab731-d2-003", "ab731-d2-004", "ab731-d2-007", "ab731-d2-009", "ab731-d2-011", "ab731-d2-012", "ab731-d2-013", "ab731-d2-014"]
+        },
+        {
+          "id": "2.2",
+          "title": "Identify benefits and capabilities of Foundry Tools",
+          "knowledge": [
+            "How to map business processes and use cases to Foundry Tools",
+            "Capabilities of Foundry Tools, including Azure Vision in Foundry Tools, Azure AI Search, and Microsoft Foundry",
+            "How to match an AI model to a business need",
+            "Benefits of Microsoft Foundry and Foundry Tools, including scalability and security",
+            "Foundry Tools subscription models, including pay-as-you-go and commitment tiers"
+          ],
+          "skills": [
+            "Map business processes and use cases to Foundry Tools",
+            "Identify capabilities of Foundry Tools, including Azure Vision in Foundry Tools, Azure AI Search, and Microsoft Foundry",
+            "Match an AI model to a business need",
+            "Identify the benefits of Microsoft Foundry and Foundry Tools, including scalability and security"
+          ],
+          "questionIds": ["ab731-d2-005", "ab731-d2-006", "ab731-d2-008", "ab731-d2-010", "ab731-d2-015"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Identify an implementation and adoption strategy for Microsoft's AI apps and services",
+      "weight": 24,
+      "officialWeight": "20–25%",
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Align an AI strategy with Microsoft responsible AI policies",
+          "knowledge": [
+            "The importance of responsible AI",
+            "How to establish governance principles for AI use",
+            "The role of an AI council to guide strategy, oversight, and cross-functional alignment",
+            "Responsible AI standards: fairness, reliability, safety, privacy, security, inclusiveness, transparency, and accountability"
+          ],
+          "skills": [
+            "Explain the importance of responsible AI",
+            "Establish governance principles for AI use",
+            "Establish an AI council to guide strategy, oversight, and cross-functional alignment",
+            "Ensure that AI solutions meet responsible AI standards, including fairness, reliability, safety, privacy, security, inclusiveness, transparency, and accountability"
+          ],
+          "questionIds": ["ab731-d3-001", "ab731-d3-002", "ab731-d3-006", "ab731-d3-010", "ab731-d3-011", "ab731-d3-012", "ab731-d3-013", "ab731-d3-016"]
+        },
+        {
+          "id": "3.2",
+          "title": "Plan for AI adoption across the organization",
+          "knowledge": [
+            "How to establish an adoption team",
+            "Common barriers to adoption",
+            "How to establish an AI champions program",
+            "Potential impacts to data, security, privacy, and cost",
+            "Copilot license types, including pay-as-you-go, monthly, and included with Microsoft 365 subscription",
+            "Foundry Tools subscription models, including pay-as-you-go and commitment tiers"
+          ],
+          "skills": [
+            "Establish an adoption team",
+            "Identify common barriers to adoption",
+            "Establish an AI champions program",
+            "Understand potential impacts to data, security, privacy, and cost",
+            "Understand Copilot license types, including pay-as-you-go, monthly, and included with Microsoft 365 subscription",
+            "Understand Foundry Tools subscription models, including pay-as-you-go and commitment tiers"
+          ],
+          "questionIds": ["ab731-d3-003", "ab731-d3-004", "ab731-d3-005", "ab731-d3-007", "ab731-d3-008", "ab731-d3-009", "ab731-d3-014", "ab731-d3-015"]
+        }
+      ]
+    }
+  ]
+}

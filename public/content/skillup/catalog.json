@@ -133,6 +133,7 @@
         "content/skillup/ab731/questions/ab731-domain2.json",
         "content/skillup/ab731/questions/ab731-domain3.json"
       ],
+      "taskStatementsFile": "content/skillup/ab731/task-statements.json",
       "resources": [
         {
           "label": "AB-731 Study Guide",
