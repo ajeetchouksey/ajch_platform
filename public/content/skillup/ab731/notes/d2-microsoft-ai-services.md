@@ -31,7 +31,7 @@ graph TD
 
 ## 2.2 Microsoft Copilot vs Microsoft 365 Copilot
 
-<div class="note-important"><strong>This is a favourite exam trap.</strong> These are two different products.</div>
+<div class="note-trap"><strong>This is a favourite exam trap.</strong> These are two different products.</div>
 
 | | **Microsoft Copilot** | **Microsoft 365 Copilot** |
 |---|---|---|
@@ -225,7 +225,7 @@ graph LR
     P -->|Multiple users| T[Team collaboration]
 ```
 
-<div class="note-important"><strong>Exam trap — Pages vs Word:</strong> "A team needs a shared AI-populated document where multiple members can continue adding Copilot-generated research" → <strong>Copilot Pages</strong> (multi-user, persistent, AI-populated). NOT Word Copilot (single session, single user).</div>
+<div class="note-trap"><strong>Exam trap — Pages vs Word:</strong> "A team needs a shared AI-populated document where multiple members can continue adding Copilot-generated research" → <strong>Copilot Pages</strong> (multi-user, persistent, AI-populated). NOT Word Copilot (single session, single user).</div>
 
 <div class="note-scribble">Copilot Chat is the power user's home base — if you need to ask "what did my team work on last week?" or "find all emails about Project X and summarise the key decisions", Copilot Chat with the Work toggle does this in one place. No need to open four apps.</div>
 
@@ -281,4 +281,4 @@ graph TD
     Q4 -->|No| GPT4
 ```
 
-<div class="note-important"><strong>Exam trap:</strong> "Bigger model = always better" is WRONG. The exam tests that you match model capability to task complexity. Using GPT-4o for a simple FAQ chatbot is expensive overkill. Using Phi-3 for complex multi-document contract analysis will produce poor results.</div>
+<div class="note-trap"><strong>Exam trap:</strong> "Bigger model = always better" is WRONG. The exam tests that you match model capability to task complexity. Using GPT-4o for a simple FAQ chatbot is expensive overkill. Using Phi-3 for complex multi-document contract analysis will produce poor results.</div>

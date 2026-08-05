@@ -228,7 +228,7 @@ flowchart LR
     D --> E[Pilot → Scale]
 ```
 
-<div class="note-important"><strong>Exam trap:</strong> "Which AI use case should be prioritised?" → Always the one that directly maps to a stated business priority with measurable outcomes. NOT the most technically impressive use case, and NOT the one IT finds most interesting.</div>
+<div class="note-trap"><strong>Exam trap:</strong> "Which AI use case should be prioritised?" → Always the one that directly maps to a stated business priority with measurable outcomes. NOT the most technically impressive use case, and NOT the one IT finds most interesting.</div>
 
 <div class="note-scribble">The exam uses phrases like "aligns with strategic goals", "delivers measurable business value", and "supports business priorities." When you see these, the correct answer always starts from business need and works toward technology — never the other way around.</div>
 

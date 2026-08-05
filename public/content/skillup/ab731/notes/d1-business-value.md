@@ -50,7 +50,7 @@ graph LR
 | **Best for** | General tasks | Specialised domain (legal, medical, brand voice) |
 | **Requires** | Prompt engineering | Labelled training data |
 
-<div class="note-important"><strong>Exam trap:</strong> Fine-tuning is NOT the first thing you reach for. The exam tests whether you know to try prompt engineering + RAG FIRST before spending money on fine-tuning. Fine-tune only when the domain vocabulary is so specialised that a base model cannot learn it from context.</div>
+<div class="note-trap"><strong>Exam trap:</strong> Fine-tuning is NOT the first thing you reach for. The exam tests whether you know to try prompt engineering + RAG FIRST before spending money on fine-tuning. Fine-tune only when the domain vocabulary is so specialised that a base model cannot learn it from context.</div>
 
 <div class="note-scribble">Think of a pretrained model as hiring a Harvard MBA generalist. Fine-tuning is sending them to a 3-month specialised bootcamp in derivatives trading. Both useful — but the bootcamp costs money and time. First try just telling the generalist what they need to know (prompting).</div>
 
@@ -229,7 +229,7 @@ flowchart LR
 - **Analyst agent** — writes and runs Python code to analyse data, generates charts and insights
 - **Custom agents** built in Copilot Studio — automate specific business workflows
 
-<div class="note-important"><strong>Exam trap:</strong> "Which should be used to automatically categorise and route 500 support tickets per day without human prompting at each step?" → An <strong>AI agent</strong>, not Copilot. Copilot requires a human to prompt each interaction. Agents operate autonomously over a defined goal.</div>
+<div class="note-trap"><strong>Exam trap:</strong> "Which should be used to automatically categorise and route 500 support tickets per day without human prompting at each step?" → An <strong>AI agent</strong>, not Copilot. Copilot requires a human to prompt each interaction. Agents operate autonomously over a defined goal.</div>
 
 <div class="note-scribble">Think of Copilot as your AI assistant — you ask, it helps. Think of an agent as an AI employee — you give it a goal, it figures out the steps and executes them. The "agentic" trend is the biggest shift in enterprise AI right now.</div>
 
