@@ -37,8 +37,8 @@ The following files are **exclusively owned** by specialist agents. The Staff En
 | `public/content/agents/registry.json` | **SRE** | Frozen by `release.yml` automatically |
 | `src/components/ui/*.tsx` | **Design Systems Engineer** | Any primitive change → route to DSE |
 | `public/content/blog/*.md` + `index.json` | **Release Engineer** | Any blog publish → route to Release Engineer |
-| `public/content/questions/**` | **Assessment Engineer** | Any MCQ write → route to Assessment Engineer |
-| `public/content/notes/**` | **Docs Engineer** | Any notes write → route to Docs Engineer |
+| `public/content/skillup/*/questions/**` | **Assessment Engineer** | Any MCQ write → route to Assessment Engineer |
+| `public/content/skillup/*/notes/**` | **Docs Engineer** | Any notes write → route to Docs Engineer |
 
 **Violation of these boundaries is a workflow breach.** If you catch yourself about to write to one of these files, STOP — call the owning agent instead.
 
