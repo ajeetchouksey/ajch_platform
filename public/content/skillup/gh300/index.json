@@ -8,8 +8,9 @@
   "description": "Validate your understanding of GitHub Copilot core features, prompt engineering, data pipeline, privacy and security controls, and IDE integration. 134 scenario-based practice questions.",
   "questions": 134,
   "duration": "90 min",
-  "passScore": "75%",
+  "passScore": "750/1000",
   "passThreshold": 75,
+  "examFee": "Free",
   "available": true,
   "accentColor": "#6b7280",
   "colorScheme": "gray",
@@ -46,6 +47,7 @@
     "content/questions/gh300-domain4.json"
   ],
   "scenarioFiles": [],
+  "taskStatementsFile": "content/skillup/gh300/task-statements.json",
   "resources": [
     {
       "label": "GitHub Copilot Docs",

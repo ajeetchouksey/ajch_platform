@@ -29,6 +29,12 @@
       "accentColor": "linear-gradient(90deg, #7c3aed, #a78bfa)",
       "questionCount": 8,
       "available": true,
+      "skillGroup": "AI Core",
+      "topSkills": [
+        { "id": "multi-agent-orchestration", "label": "Multi-Agent Systems", "group": "AI Core" },
+        { "id": "distributed-systems-workflow", "label": "Distributed Systems", "group": "Engineering" },
+        { "id": "responsible-ai-governance", "label": "Responsible AI", "group": "Governance" }
+      ],
       "jdFile": "content/interviews/roles/agentic-ai-platform-architect/jd.md",
       "packFile": "content/interviews/roles/agentic-ai-platform-architect/pack.json"
     },
@@ -55,6 +61,12 @@
       "accentColor": "linear-gradient(90deg, #059669, #34d399)",
       "questionCount": 8,
       "available": true,
+      "skillGroup": "Domain",
+      "topSkills": [
+        { "id": "domain-hr", "label": "HR & People Analytics", "group": "Domain" },
+        { "id": "responsible-ai-governance", "label": "Responsible AI", "group": "Governance" },
+        { "id": "rag-architecture", "label": "RAG Architecture", "group": "AI Core" }
+      ],
       "jdFile": "content/interviews/roles/hr-ai-lead/jd.md",
       "packFile": "content/interviews/roles/hr-ai-lead/pack.json"
     },
@@ -81,6 +93,12 @@
       "accentColor": "linear-gradient(90deg, #2563eb, #60a5fa)",
       "questionCount": 8,
       "available": true,
+      "skillGroup": "AI Core",
+      "topSkills": [
+        { "id": "multi-agent-orchestration", "label": "Multi-Agent Systems", "group": "AI Core" },
+        { "id": "agent-frameworks", "label": "Agent Frameworks", "group": "AI Core" },
+        { "id": "distributed-systems-workflow", "label": "Distributed Systems", "group": "Engineering" }
+      ],
       "jdFile": "content/interviews/roles/agentic-ai-platform-architect-v2/jd.md",
       "packFile": "content/interviews/roles/agentic-ai-platform-architect-v2/pack.json"
     }

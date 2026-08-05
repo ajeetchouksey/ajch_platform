@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "1.0",
+  "examCode": "GH-300",
+  "source": "GitHub Copilot Fundamentals — internal SkillUp content",
+  "sourceUrl": "https://docs.github.com/en/copilot",
+  "domains": [
+    {
+      "id": 1,
+      "title": "Prompt Engineering & Copilot Chat",
+      "weight": 28,
+      "officialWeight": "28%",
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Craft effective prompts for GitHub Copilot",
+          "knowledge": [
+            "Context window and how Copilot uses surrounding code",
+            "Prompt engineering techniques: zero-shot, few-shot, role assignment",
+            "Inline completions vs Copilot Chat differences"
+          ],
+          "skills": [
+            "Write prompts that produce accurate, contextual code completions",
+            "Use Copilot Chat slash commands (/explain, /fix, /tests)"
+          ],
+          "questionIds": []
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "AI Model, Data Pipeline & Core Concepts",
+      "weight": 25,
+      "officialWeight": "25%",
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Understand how Copilot works under the hood",
+          "knowledge": [
+            "LLM fundamentals (tokens, temperature, context window)",
+            "How Copilot retrieves context from open files and cursor position",
+            "Telemetry data collected vs. data used for training"
+          ],
+          "skills": [
+            "Explain the suggestion pipeline from keypress to rendered completion",
+            "Identify what data Copilot sends to the API"
+          ],
+          "questionIds": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Privacy, Security & Trust Center",
+      "weight": 30,
+      "officialWeight": "30%",
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Apply Copilot privacy and security controls",
+          "knowledge": [
+            "Content exclusion configuration (content-exclusion.yaml)",
+            "Copilot for Business vs Individual data retention policies",
+            "Public code matching / duplication detection filter",
+            "Vulnerability prevention filter"
+          ],
+          "skills": [
+            "Configure content exclusions for sensitive repositories",
+            "Explain differences in data handling across Copilot plans"
+          ],
+          "questionIds": []
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "IDE Integration & Developer Tools",
+      "weight": 17,
+      "officialWeight": "17%",
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "Use Copilot across IDE and CLI tooling",
+          "knowledge": [
+            "Supported editors: VS Code, JetBrains, Visual Studio, Neovim",
+            "Copilot CLI commands (gh copilot suggest, gh copilot explain)",
+            "GitHub.com Copilot Chat and Mobile integration"
+          ],
+          "skills": [
+            "Enable and configure Copilot in VS Code",
+            "Use gh copilot suggest to generate a shell command"
+          ],
+          "questionIds": []
+        }
+      ]
+    }
+  ]
+}
