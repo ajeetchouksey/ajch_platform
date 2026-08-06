@@ -1,7 +1,7 @@
 {
   "name": "ajch_platform",
   "private": true,
-  "version": "2.7.0",
+  "version": "3.4.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +11,10 @@
     "preview": "vite preview",
     "prepare": "husky || true",
     "validate-content": "node scripts/validate-content.mjs",
+    "health": "node scripts/content-health-report.mjs",
+    "domain-audit": "node scripts/domain-content-audit.mjs",
+    "render-diagrams": "node scripts/render-diagrams.mjs",
+    "optimize-images": "node scripts/optimize-images.mjs",
     "cli": "tsx cli/index.ts",
     "curator": "tsx cli/curator.ts",
     "curator:stats": "tsx cli/curator.ts stats",
