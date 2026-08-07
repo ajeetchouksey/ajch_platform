@@ -323,6 +323,12 @@ export default function ExamHome() {
           <span>{exam.passScore} to pass</span>
           <span>·</span>
           <span>{exam.domains.length} domains</span>
+          {exam.contentVersion && (
+            <>
+              <span>·</span>
+              <span className="font-mono text-violet-400/70">v{exam.contentVersion}</span>
+            </>
+          )}
         </p>
         <PageViewsBadge path={`/skillup/${examId}`} className="mt-1" />
       </div>
