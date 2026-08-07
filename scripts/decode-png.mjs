@@ -21,7 +21,7 @@ if (!match) {
     process.exit(1);
   }
 }
-const inner = match[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\').replace(/\\n/g, '\n');
+const inner = JSON.parse(`"${match[1]}"`);
 const data = JSON.parse(inner);
 writeAll(data, slug);
 
