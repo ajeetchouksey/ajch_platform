@@ -15,22 +15,7 @@
 
 Microsoft defines **6 guiding principles**. The exam tests all 6:
 
-```mermaid
-mindmap
-  root((Responsible AI))
-    Fairness
-      AI treats all people equitably
-    Reliability & Safety
-      Works as intended, fails safely
-    Privacy & Security
-      Protects personal data
-    Inclusiveness
-      Benefits everyone regardless of ability or background
-    Transparency
-      Users understand AI decisions
-    Accountability
-      Humans remain responsible for AI outcomes
-```
+![Diagram 1](/content/skillup/ab731/images/d3-adoption-strategy-01.png)
 
 | Principle | What it means for the exam |
 |---|---|
@@ -74,15 +59,7 @@ An **AI Council** (sometimes called an AI steering committee or AI governance bo
 
 ### Composition of an AI Council
 
-```mermaid
-graph TD
-    AC[AI Council] --> L[Business Leadership<br/>CEO / Division Heads]
-    AC --> IT[IT / Technology<br/>CTO / CISO]
-    AC --> L2[Legal & Compliance]
-    AC --> HR[HR / People]
-    AC --> EX[Business Function Experts<br/>Finance / Marketing / Operations]
-    AC --> RA[Responsible AI Lead<br/>or Ethics Officer]
-```
+![Diagram 2](/content/skillup/ab731/images/d3-adoption-strategy-02.png)
 
 <div class="note-scribble">Exam trick: the AI Council is cross-functional — it's NOT just IT. A council that's only IT misses the business, legal, and HR perspectives. The exam will make a "wrong" answer where the council is only technical people.</div>
 
@@ -118,13 +95,7 @@ An **AI champions programme** identifies enthusiastic early adopters in each bus
 - **Demonstrate** real use cases in their own work
 - Drive grassroots adoption bottom-up
 
-```mermaid
-flowchart TD
-    T[Adoption Team / IT] -->|Train & support| CH[AI Champions<br/>1–2 per business unit]
-    CH -->|Peer coaching| E[Employees]
-    E -->|Questions / feedback| CH
-    CH -->|Surface barriers| T
-```
+![Diagram 3](/content/skillup/ab731/images/d3-adoption-strategy-03.png)
 
 <div class="note-scribble">Champions are peers, not managers. People learn from their colleagues more readily than from top-down mandates. This is the single most effective adoption lever the exam tests.</div>
 
@@ -174,17 +145,7 @@ The exam tests **three Copilot licence models**:
 
 Before deploying any AI solution, a leader should verify:
 
-```mermaid
-flowchart TD
-    A[Identify use case] --> B{High risk?<br/>Health / Finance / HR / Legal}
-    B -->|Yes| C[Requires human review<br/>+ compliance sign-off]
-    B -->|No| D[Standard deployment]
-    C --> E[Define governance policy]
-    D --> E
-    E --> F[Document AI usage for employees]
-    F --> G[Establish feedback / incident channel]
-    G --> H[Quarterly AI council review]
-```
+![Diagram 4](/content/skillup/ab731/images/d3-adoption-strategy-04.png)
 
 ---
 
@@ -220,13 +181,7 @@ The four business value categories AI should connect to:
 
 ### How to align AI to business strategy
 
-```mermaid
-flowchart LR
-    A[Business Strategy<br/>Top 3 Priorities] --> B[Map to AI Opportunity<br/>Which task? Which tool?]
-    B --> C[Set KPIs<br/>Measurable outcomes]
-    C --> D[Executive Sponsorship<br/>Funding + endorsement]
-    D --> E[Pilot → Scale]
-```
+![Diagram 5](/content/skillup/ab731/images/d3-adoption-strategy-05.png)
 
 <div class="note-trap"><strong>Exam trap:</strong> "Which AI use case should be prioritised?" → Always the one that directly maps to a stated business priority with measurable outcomes. NOT the most technically impressive use case, and NOT the one IT finds most interesting.</div>
 
@@ -247,15 +202,7 @@ flowchart LR
 | **Data governance** | Classify data by sensitivity; know what can enter AI systems; enforce access controls |
 | **AI-ready infrastructure** | Azure cloud provides scalable compute, storage, and networking for enterprise AI |
 
-```mermaid
-graph TD
-    CRM[CRM Data] --> F[Microsoft Fabric<br/>Unified Data Layer]
-    ERP[ERP Data] --> F
-    HR[HR Data] --> F
-    OPS[Operations Data] --> F
-    F --> AI[AI Solutions<br/>Copilot / Foundry]
-    F --> GOV[Data Governance<br/>Sensitivity labels + Access controls]
-```
+![Diagram 6](/content/skillup/ab731/images/d3-adoption-strategy-06.png)
 
 <div class="note-important"><strong>Exam pattern:</strong> "A company's AI keeps producing wrong answers about inventory. What should be investigated first?" → Data quality and data connectivity. Blame the data pipeline before blaming the model.</div>
 
@@ -276,13 +223,7 @@ graph TD
 
 ### Adoption curve for AI
 
-```mermaid
-flowchart LR
-    A[Awareness<br/>Leadership comms] --> B[Interest<br/>Demos + pilots]
-    B --> C[Trial<br/>Champions programme]
-    C --> D[Adoption<br/>Training + support]
-    D --> E[Advocacy<br/>Champions spread best practice]
-```
+![Diagram 7](/content/skillup/ab731/images/d3-adoption-strategy-07.png)
 
 <div class="note-important"><strong>Exam pattern:</strong> "What is the #1 risk for a company-wide AI rollout?" → Change management and employee adoption — NOT technical issues. The Microsoft Learn content explicitly states AI adoption failures are caused by culture and governance, not technology.</div>
 
@@ -294,13 +235,7 @@ flowchart LR
 
 Microsoft's framework for scaling AI across an organisation follows four phases:
 
-```mermaid
-flowchart TD
-    P1[Phase 1: Unlock Value<br/>Prove ROI with 2–3 pilots<br/>Secure exec sponsorship<br/>Define KPIs] --> P2
-    P2[Phase 2: Organise for Success<br/>AI Council + CoE + BU AI Leads<br/>Clear roles: decide, build, govern] --> P3
-    P3[Phase 3: Empower Business Users<br/>Broad Copilot rollout<br/>Self-service with Copilot Studio<br/>Champions programme + training] --> P4
-    P4[Phase 4: Empower SMEs<br/>Subject matter experts build domain agents<br/>AI amplifies expertise<br/>CoE feedback loops]
-```
+![Diagram 8](/content/skillup/ab731/images/d3-adoption-strategy-08.png)
 
 ### Governance structure at scale
 
@@ -315,3 +250,60 @@ flowchart TD
 
 <div class="note-scribble">The "empower SMEs" phase is important: a legal expert using AI to build their own contract review agent is MORE powerful than IT building one for them. SMEs bring domain knowledge; AI brings speed and scale. Copilot Studio enables this without coding.</div>
 | "Commitment tiers" | Foundry Tools only — reserved throughput for production workloads |
+
+---
+
+## 3.14 AI Centre of Excellence (CoE) — Deep Dive
+
+The CoE is the *operational engine* behind the AI Council's strategy. While the Council sets policy, the CoE delivers capability.
+
+| CoE Function | Description | Exam signal |
+|---|---|---|
+| **Standards & Patterns** | Defines prompting guidelines, model selection criteria, safety checklists | "Who sets technical AI standards in the org?" → CoE |
+| **Reusable Asset Library** | Agents, plugins, connectors built centrally and shared across business units | "Reduce duplication in AI builds" → CoE |
+| **Mentoring & Enablement** | CoE engineers coach business unit developers (citizen developers) | "Empower SMEs to build AI tools" → CoE + Champions |
+| **Governance Gate** | Reviews AI solutions before production — security, responsible AI, data privacy | "Pre-production AI review" → CoE gate |
+| **Innovation Incubator** | Runs internal hackathons, POCs; surfaces promising use cases to the AI Council | "Bottom-up AI idea pipeline" → CoE incubation |
+
+<div class="note-important"><strong>CoE vs Council — quick test:</strong> If the scenario mentions <em>strategy, ethics, policy, budget approval</em> → AI Council. If it mentions <em>technical standards, build quality, patterns, developer mentoring</em> → AI CoE.</div>
+
+---
+
+## 3.15 Licensing Decision Framework
+
+The exam presents business scenarios and asks which Copilot licence applies. Use this framework:
+
+| Scenario | Licence | Rationale |
+|---|---|---|
+| Employee needs AI in Word, Excel, Teams daily | **Microsoft 365 Copilot** | Core productivity — deeply integrated in M365 apps |
+| Organisation needs AI across entire M365 tenant | **Microsoft 365 Copilot (org-wide deployment)** | Per-user, includes all M365 Copilot features |
+| Developer building a custom customer-facing chatbot | **Azure AI Foundry (pay-as-you-go)** | Code-first; not restricted to M365 ecosystem |
+| Low-code team building an internal HR agent | **Copilot Studio (standalone)** | Agent builder without needing M365 Copilot licence |
+| High-volume production AI workload needing guaranteed capacity | **Foundry Tools — commitment tier** | Reserved throughput; predictable cost and SLA |
+| External users (customers, partners) accessing AI agent | **Copilot Studio (messages/capacity)** | External-facing agents are billed per message or capacity |
+
+<div class="note-trap"><strong>Exam trap:</strong> Microsoft 365 Copilot requires a Microsoft 365 E3 or E5 base licence. You CANNOT deploy M365 Copilot to users who only have Exchange Online or Microsoft 365 Business Basic.</div>
+
+---
+
+## 📌 D3 Hard Question Patterns
+
+**Pattern 1 — Champions vs CoE vs Council**
+> *"A company wants to increase AI adoption at the team level, beyond the IT department. What programme is most appropriate?"*
+>
+> ✅ AI Champions programme — peer coaches in each team who drive grassroots adoption. The CoE enables them; Champions activate adoption on the ground.
+
+**Pattern 2 — Responsible AI principles mapping**
+> *"An AI system was found to perform differently for users of different ethnicities. Which Responsible AI principle was violated?"*
+>
+> ✅ **Fairness** — the system produces biased outcomes based on demographic characteristics. Don't confuse with Reliability (consistent performance) or Accountability (human oversight).
+
+**Pattern 3 — Governance before tools**
+> *"An organisation wants to scale from an AI pilot to enterprise-wide deployment. What should they establish FIRST?"*
+>
+> ✅ AI governance framework (Council, policies, responsible AI guidelines) — then technology. The exam tests that governance precedes scale, not the reverse.
+
+**Pattern 4 — Data strategy underpins AI strategy**
+> *"A company's AI assistant gives inconsistent answers about product inventory. What is the most likely root cause?"*
+>
+> ✅ Poor data quality / lack of unified data estate. AI can only be as good as the data it accesses. The fix is a data strategy (single source of truth, data governance), not a better AI model.

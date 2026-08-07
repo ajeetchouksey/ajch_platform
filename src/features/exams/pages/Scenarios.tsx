@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { loadScenariosForExam, loadExamRegistry } from '@/lib/content-loader';
+import { isRichScenario } from '@/types/content';
 import type { Scenario, ScenarioQuestion } from '@/types/content';
 import { ChevronDown, ChevronUp, Clock, Users, CheckCircle2, XCircle } from 'lucide-react';
 
@@ -61,7 +62,7 @@ export default function Scenarios() {
   const [open, setOpen] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
-  const [domainTitles, setDomainTitles] = useState<Record<number, string>>({});
+  const [, setDomainTitles] = useState<Record<number, string>>({});
 
   useEffect(() => {
     loadExamRegistry().then((r) => {
@@ -93,9 +94,6 @@ export default function Scenarios() {
       </div>
 
       {scenarios.map((s) => {
-        const isRich = !!s.scenario || (s.questions?.length ?? 0) > 0;
-        const patterns = s.key_patterns ?? [];
-        const questions = s.questions ?? [];
         return (
           <div key={s.id} className="glass-card rounded-xl overflow-hidden">
             <button
@@ -106,7 +104,7 @@ export default function Scenarios() {
                 <span className="font-semibold text-white block">{s.title}</span>
                 {open !== s.id && (
                   <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                    {isRich ? (
+                    {isRichScenario(s) ? (
                       <>
                         {s.difficulty && (
                           <span className={`text-[11px] px-2 py-0.5 rounded-full border capitalize ${DIFFICULTY_STYLES[s.difficulty] ?? 'bg-slate-800 text-slate-400 border-slate-700/50'}`}>
@@ -118,21 +116,21 @@ export default function Scenarios() {
                             <Clock size={11} /> ~{s.estimatedMinutes} min
                           </span>
                         )}
-                        {questions.length > 0 && (
+                        {s.questions.length > 0 && (
                           <span className="text-[11px] bg-slate-800 text-slate-400 border border-slate-700/50 px-2 py-0.5 rounded-full">
-                            {questions.length} questions
+                            {s.questions.length} questions
                           </span>
                         )}
                       </>
                     ) : (
                       <>
-                        {patterns.slice(0, 3).map((p) => (
+                        {(s.key_patterns ?? []).slice(0, 3).map((p) => (
                           <span key={p} className="text-[11px] bg-slate-800 text-slate-400 border border-slate-700/50 px-2 py-0.5 rounded-full">
                             {p}
                           </span>
                         ))}
-                        {patterns.length > 3 && (
-                          <span className="text-[11px] text-slate-600">+{patterns.length - 3} more</span>
+                        {(s.key_patterns?.length ?? 0) > 3 && (
+                          <span className="text-[11px] text-slate-600">+{(s.key_patterns?.length ?? 0) - 3} more</span>
                         )}
                       </>
                     )}
@@ -150,9 +148,9 @@ export default function Scenarios() {
               <div className="px-5 pb-5 space-y-4 border-t border-slate-700/40">
                 <p className="text-sm text-slate-300 pt-4">{s.description}</p>
 
-                {isRich ? (
+                {isRichScenario(s) ? (
                   <>
-                    {(s.difficulty || typeof s.estimatedMinutes === 'number' || (s.domains?.length ?? 0) > 0) && (
+                    {(s.difficulty || typeof s.estimatedMinutes === 'number' || s.domains.length > 0) && (
                       <div className="flex flex-wrap items-center gap-2">
                         {s.difficulty && (
                           <span className={`text-xs px-2 py-1 rounded border capitalize ${DIFFICULTY_STYLES[s.difficulty] ?? 'bg-slate-800 text-slate-400 border-slate-700/50'}`}>
@@ -164,28 +162,28 @@ export default function Scenarios() {
                             <Clock size={12} /> ~{s.estimatedMinutes} min
                           </span>
                         )}
-                        {(s.domains ?? []).map((d) => (
-                          <span key={d} className="text-xs bg-violet-900/40 text-violet-300 border border-violet-800 px-2 py-1 rounded">
-                            {domainTitles[d] ? `D${d} · ${domainTitles[d]}` : `Domain ${d}`}
+                        {s.domains.map((d) => (
+                          <span key={d} className="text-xs px-2 py-1 rounded border bg-slate-800 text-slate-400 border-slate-700/50">
+                            D{d}
                           </span>
                         ))}
                       </div>
                     )}
 
-                    {s.scenario?.background && (
+                    {s.scenario.background && (
                       <div>
                         <h3 className="text-xs font-semibold uppercase text-slate-500 tracking-wide mb-2">Background</h3>
                         <p className="text-sm text-slate-400 whitespace-pre-line">{s.scenario.background}</p>
                       </div>
                     )}
 
-                    {(s.scenario?.characters?.length ?? 0) > 0 && (
+                    {s.scenario.characters.length > 0 && (
                       <div>
                         <h3 className="text-xs font-semibold uppercase text-slate-500 tracking-wide mb-2 inline-flex items-center gap-1.5">
                           <Users size={13} /> Cast
                         </h3>
                         <div className="grid gap-2 sm:grid-cols-2">
-                          {s.scenario!.characters.map((c) => (
+                          {s.scenario.characters.map((c) => (
                             <div key={c.name} className="rounded-lg border border-slate-700/50 bg-slate-900/40 px-3 py-2">
                               <p className="text-sm font-medium text-slate-200">{c.name}</p>
                               <p className="text-xs text-violet-400">{c.role}</p>
@@ -196,22 +194,22 @@ export default function Scenarios() {
                       </div>
                     )}
 
-                    {questions.length > 0 && (
+                    {s.questions.length > 0 && (
                       <div>
                         <h3 className="text-xs font-semibold uppercase text-slate-500 tracking-wide mb-2">Walkthrough</h3>
                         <div className="space-y-3">
-                          {questions.map((q, i) => (
+                          {s.questions.map((q, i) => (
                             <ScenarioQuestionCard key={q.id} q={q} index={i} />
                           ))}
                         </div>
                       </div>
                     )}
 
-                    {(s.keyLearnings?.length ?? 0) > 0 && (
+                    {s.keyLearnings.length > 0 && (
                       <div>
                         <h3 className="text-xs font-semibold uppercase text-slate-500 tracking-wide mb-2">Key Takeaways</h3>
                         <ul className="list-disc list-inside space-y-1 text-sm text-slate-400">
-                          {s.keyLearnings!.map((k, i) => (
+                          {s.keyLearnings.map((k, i) => (
                             <li key={i}>{k}</li>
                           ))}
                         </ul>
@@ -226,11 +224,11 @@ export default function Scenarios() {
                         <p className="text-sm text-slate-400">{s.architecture_notes}</p>
                       </div>
                     )}
-                    {patterns.length > 0 && (
+                    {(s.key_patterns?.length ?? 0) > 0 && (
                       <div>
                         <h3 className="text-xs font-semibold uppercase text-slate-500 tracking-wide mb-2">Key Patterns</h3>
                         <div className="flex flex-wrap gap-2">
-                          {patterns.map((p) => (
+                          {(s.key_patterns ?? []).map((p) => (
                             <span key={p} className="text-xs bg-violet-900/40 text-violet-300 border border-violet-800 px-2 py-1 rounded">
                               {p}
                             </span>

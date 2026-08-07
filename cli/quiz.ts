@@ -5,7 +5,7 @@ import { select, confirm } from '@inquirer/prompts';
 import type { Question } from '../src/types/content.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const contentDir = join(__dirname, '..', 'public', 'content', 'questions');
+const contentDir = join(__dirname, '..', 'public', 'content', 'skillup', 'ccaf', 'questions');
 
 const DOMAIN_FILES: Record<number, string> = {
   1: 'domain1-agentic.json',

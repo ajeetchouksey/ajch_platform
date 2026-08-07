@@ -1,5 +1,18 @@
 {
   "schemaVersion": "1.0",
+  "contentVersion": "1.0.0",
+  "contentUpdatedAt": "2026-08-06",
+  "provider": "Microsoft",
+  "palette": {
+    "color": "#60a5fa",
+    "bg": "rgba(59,130,246,0.10)",
+    "border": "rgba(59,130,246,0.38)",
+    "glow": "rgba(59,130,246,0.18)",
+    "btn": "linear-gradient(135deg, #2563eb, #1d4ed8)"
+  },
+  "changelog": [
+    { "version": "1.0.0", "date": "2026-08-06", "type": "major", "summary": "Initial release — 4 domains, 119 questions" }
+  ],
   "id": "ab100",
   "examCode": "AB-100",
   "title": "Agentic AI Business Solutions Architect Expert",

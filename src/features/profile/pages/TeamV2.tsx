@@ -425,7 +425,7 @@ const ARCH_LAYERS = [
   { label: 'Dispatch Layer',      color: '#8b5cf6', agents: ['Staff Engineer', 'Product Manager'],                          count: 2  },
   { label: 'Domain Leads',        color: '#3b82f6', agents: ['Platform Architect', 'Content Lead', 'Curriculum Eng', 'Pair Programmer'], count: 4 },
   { label: 'Platform Foundation', color: '#f59e0b', agents: ['AppSec Engineer', 'Design Systems', 'SRE', 'DevRel'],         count: 4  },
-  { label: 'Specialists',         color: '#10b981', agents: ['14 sub-agents across all domain leads'],                      count: 14 },
+  { label: 'Specialists',         color: '#10b981', agents: ['19 sub-agents across all domain leads'],                      count: 19 },
 ];
 
 /* ─── Main page ──────────────────────────────────────────────────────────────── */
@@ -457,7 +457,7 @@ export default function TeamV2() {
       capabilities: ['Intent Classification', 'Security Pre-flight', 'Agent Routing', 'Synthesis'],
       status: 'active' as const,
       activeTask: 'Routing blog request → Content Lead',
-      model: 'Claude Sonnet', tools: 14, version: 'v2.4.0',
+      model: 'Claude Sonnet', tools: 14, version: 'v2.5.2',
       icon: Cpu, isNew: false, isLarge: true,
       profileFile: 'staff-engineer.agent.md',
     },
@@ -561,7 +561,7 @@ export default function TeamV2() {
       capabilities: ['CI/CD Pipelines', 'Semver Releases', 'Agent Versioning', 'CHANGELOG'],
       status: 'active' as const,
       activeTask: 'Monitoring deploy.yml — last deploy: main branch',
-      model: 'Claude Sonnet', tools: 7, version: 'v1.0.0',
+      model: 'Claude Sonnet', tools: 7, version: 'v1.3.0',
       icon: Zap, isNew: true, isLarge: false,
       profileFile: 'sre.agent.md',
     },
@@ -716,6 +716,41 @@ export default function TeamV2() {
           status: 'standby' as const, icon: Bot,
           profileFile: 'junior-dev.agent.md',
         },
+        {
+          id: 'exam-coach', name: 'Exam Coach', role: 'Mock Exam Specialist',
+          tagline: 'Timed. Scored. Debriefed. No shortcuts.',
+          capabilities: ['Mock Exams', 'Timed Sessions', 'Scoring', 'Post-exam Debrief'],
+          status: 'standby' as const, icon: Award,
+          profileFile: 'exam-coach.agent.md',
+        },
+        {
+          id: 'devils-advocate', name: "Devil's Advocate", role: 'Adversarial Teaching',
+          tagline: 'Wrong on purpose. Force you to find the flaw.',
+          capabilities: ['Adversarial Arguments', 'Flaw Detection', 'Counter-reasoning', 'Rebuttal Practice'],
+          status: 'standby' as const, icon: Brain,
+          profileFile: 'devils-advocate.agent.md',
+        },
+        {
+          id: 'performance-analyzer', name: 'Performance Analyzer', role: 'Gap Analysis',
+          tagline: 'Where are you weak? Here is the evidence.',
+          capabilities: ['Domain Gap Analysis', 'Distractor Patterns', 'Remediation Priorities', 'Session Data'],
+          status: 'standby' as const, icon: TrendingUp,
+          profileFile: 'performance-analyzer.agent.md',
+        },
+        {
+          id: 'learning-analytics', name: 'Learning Analytics', role: 'Content Analytics',
+          tagline: 'Coverage. Difficulty. Predicted readiness.',
+          capabilities: ['Domain Heatmaps', 'Difficulty Distribution', 'Tag Frequency', 'Readiness Curves'],
+          status: 'standby' as const, icon: Layers,
+          profileFile: 'learning-analytics.agent.md',
+        },
+        {
+          id: 'scenario-engineer', name: 'Scenario Engineer', role: 'Scenario Specialist',
+          tagline: 'RichScenario v2.0. Writes. Bumps contentVersion.',
+          capabilities: ['Scenario JSON', 'RichScenario v2.0', 'contentVersion Bump', 'Exam Scenarios'],
+          status: 'standby' as const, icon: ListChecks,
+          profileFile: 'scenario-engineer.agent.md',
+        },
       ],
     },
     {
@@ -775,7 +810,7 @@ export default function TeamV2() {
                 Meet the <span className="heading-gradient">Team</span>
               </h1>
               <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-1 font-medium">
-                One human. Twenty-four specialised AI agents.
+                One human. Twenty-nine specialised AI agents.
               </p>
               <p className="text-slate-400 text-sm leading-relaxed mb-8">
                 Every feature on this platform ships through a gated, seven-step pipeline —
@@ -864,7 +899,7 @@ export default function TeamV2() {
                 {/* Footer */}
                 <div className="px-4 py-2.5 border-t border-slate-800/40 flex items-center justify-between">
                   <span className="text-[10px] font-mono text-slate-600">total_agents</span>
-                  <span className="text-sm font-black font-mono" style={{ color: '#8b5cf6' }}>24</span>
+                  <span className="text-sm font-black font-mono" style={{ color: '#8b5cf6' }}>29</span>
                 </div>
               </div>
             </div>
@@ -876,7 +911,7 @@ export default function TeamV2() {
               { icon: Activity, label: '15 agents active',          color: '#10b981' },
               { icon: Radio,    label: '7 standby',                  color: '#64748b' },
               { icon: Command,  label: '3 orchestration layers',     color: '#8b5cf6' },
-              { icon: Boxes,    label: '24 total — all open-source', color: '#38bdf8' },
+              { icon: Boxes,    label: '29 total — all open-source', color: '#38bdf8' },
             ].map(({ icon: I, label, color }) => (
               <div key={label} className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium
                 bg-slate-800/60 border border-slate-700/40 text-slate-300">
@@ -1132,7 +1167,7 @@ export default function TeamV2() {
               </div>
               <div>
                 <p className="text-xs font-black text-white uppercase tracking-wider">The Agents</p>
-                <p className="text-[10px] text-slate-500">23 specialised AI agents</p>
+                <p className="text-[10px] text-slate-500">28 specialised AI agents</p>
               </div>
             </div>
             {[

@@ -1,5 +1,18 @@
 {
   "schemaVersion": "1.0",
+  "contentVersion": "1.0.0",
+  "contentUpdatedAt": "2026-08-06",
+  "provider": "Anthropic",
+  "palette": {
+    "color": "#a78bfa",
+    "bg": "rgba(139,92,246,0.10)",
+    "border": "rgba(139,92,246,0.38)",
+    "glow": "rgba(139,92,246,0.18)",
+    "btn": "linear-gradient(135deg, #7c3aed, #6d28d9)"
+  },
+  "changelog": [
+    { "version": "1.0.0", "date": "2026-08-06", "type": "major", "summary": "Initial release — 5 domains, 250 questions" }
+  ],
   "id": "ccaf",
   "examCode": "CCAR-F",
   "title": "Claude Certified Architect – Foundations",

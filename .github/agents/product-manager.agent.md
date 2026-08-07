@@ -368,10 +368,10 @@ If `PROJECT_NUMBER` or `PROJECT_ID` is `~` (not yet set), prompt the user to run
 **Steps**:
 
 1. Read current content state:
-   - `public/content/exams/index.json` — registered exams
+   - `public/content/skillup/*/index.json` — registered exams
    - `public/content/blog/index.json` — published posts
-   - List files in `public/content/notes/` — existing study notes
-   - List files in `public/content/questions/` — question packs
+   - List files in `public/content/skillup/*/notes/` — existing study notes
+   - List files in `public/content/skillup/*/questions/` — question packs
 
 2. Identify gaps:
    - Exams with no notes or questions
@@ -555,8 +555,8 @@ Cross-reference platform content vs industry certifications and popular topics.
 **Steps**:
 
 1. Read all registered content:
-   - List files in `public/content/questions/` — count question files per exam
-   - List files in `public/content/notes/` — count domain note files
+   - List files in `public/content/skillup/*/questions/` — count question files per exam
+   - List files in `public/content/skillup/*/notes/` — count domain note files
    - Read `public/content/blog/index.json` — count published posts per category
 
 2. Search GitHub for popular AI/cloud certification repos as demand signals:

@@ -13,19 +13,20 @@
 
 ## 2.1 The Microsoft AI Stack
 
-```mermaid
-graph TD
-    A[👤 Business User] --> B[Microsoft 365 Copilot<br/>AI in Word, Excel, Teams, Outlook]
-    A --> C[Microsoft Copilot<br/>Free / Bing / Consumer]
-    B --> D[Microsoft Graph<br/>Your org's data connector]
-    D --> E[SharePoint · Email · Calendar · Teams · OneDrive]
-    A --> F[Copilot Studio<br/>Build custom copilots / agents]
-    F --> D
-    G[👷 Developer / IT] --> H[Azure AI Foundry<br/>Build enterprise AI apps]
-    H --> I[Azure AI Search]
-    H --> J[Azure Vision in Foundry]
-    H --> K[Model Catalog<br/>GPT-4, Phi, Llama, Mistral...]
-```
+Microsoft's AI offering is structured in four layers, from raw infrastructure to end-user applications. Understanding which layer each product lives in is core to the exam.
+
+| Layer | What it provides | Key products |
+|---|---|---|
+| **1 — Foundation** | AI models + compute infrastructure | Azure OpenAI Service, Model Catalog (GPT-4o, Phi, Llama, Mistral) |
+| **2 — Platform** | Developer tools to build, evaluate, and deploy AI solutions | Azure AI Foundry, Azure AI Search, Azure Vision in Foundry Tools |
+| **3 — Extensibility** | Low-code/no-code agent and copilot builder | Microsoft Copilot Studio, M365 Copilot plugins, connectors |
+| **4 — Applications** | Ready-to-use AI embedded in productivity apps | Microsoft 365 Copilot, Microsoft Copilot (consumer), Copilot Chat |
+
+<div class="note-important"><strong>How the layers connect:</strong> Foundation models power the Platform tools. Platform tools power the Extensibility layer. Extensibility customises the Applications. Responsible AI principles span all four layers.</div>
+
+**Responsible AI spans all layers** — Microsoft's six principles (Fairness, Reliability, Privacy, Inclusiveness, Transparency, Accountability) are applied at every level, from model training to end-user UI.
+
+![Diagram 1](/content/skillup/ab731/images/d2-microsoft-ai-services-01.png)
 
 ---
 
@@ -49,16 +50,7 @@ graph TD
 
 Microsoft Graph is the **API layer that connects Copilot to your organisation's data** stored in Microsoft 365 services.
 
-```mermaid
-graph LR
-    C[M365 Copilot] --> G[Microsoft Graph API]
-    G --> SP[SharePoint]
-    G --> OL[Outlook / Email]
-    G --> CA[Calendar]
-    G --> TM[Teams Messages]
-    G --> OD[OneDrive]
-    G --> PL[Planner / Tasks]
-```
+![Diagram 2](/content/skillup/ab731/images/d2-microsoft-ai-services-02.png)
 
 **Why it matters for Copilot:**
 - When you ask Copilot "What are my action items from today's meetings?" — Graph pulls your Teams transcripts and calendar
@@ -124,13 +116,7 @@ Two specialised **Copilot agents** available in Microsoft 365:
 - Connect to third-party systems via connectors
 - Create custom agents for specific business functions (HR bot, IT helpdesk, sales assistant)
 
-```mermaid
-graph TD
-    CS[Copilot Studio] --> KB[Knowledge Base<br/>SharePoint · Websites · Docs]
-    CS --> PA[Power Automate<br/>Take actions in business systems]
-    CS --> CN[Connectors<br/>Salesforce · SAP · ServiceNow]
-    CS --> CH[Channels<br/>Teams · Website · Mobile · Email]
-```
+![Diagram 3](/content/skillup/ab731/images/d2-microsoft-ai-services-03.png)
 
 <div class="note-important"><strong>Build vs Buy vs Extend:</strong><br/><strong>Buy</strong> = Use M365 Copilot out-of-the-box (no customisation)<br/><strong>Extend</strong> = Use Copilot Studio to customise/extend M365 Copilot<br/><strong>Build</strong> = Use Azure AI Foundry to build a custom AI application from scratch</div>
 
@@ -216,14 +202,7 @@ Beyond per-app Copilot features, M365 Copilot includes cross-app experiences:
 | **Copilot Pages** | Collaborative AI canvas — Copilot populates it, multiple users can continue editing | Persistent, shareable AI-generated artifact (unlike a single-session chat) |
 | **Work / Web toggle** | In Copilot Chat, switch between your org data (Microsoft Graph) and Bing web search | Explicitly controls whether the AI searches your internal data or the public web |
 
-```mermaid
-graph LR
-    U[User] --> CC[Copilot Chat]
-    CC -->|Work toggle| G[Microsoft Graph<br/>Emails · Docs · Teams · Calendar]
-    CC -->|Web toggle| B[Bing<br/>Public internet]
-    CC -->|Create Page| P[Copilot Pages<br/>Collaborative canvas]
-    P -->|Multiple users| T[Team collaboration]
-```
+![Diagram 4](/content/skillup/ab731/images/d2-microsoft-ai-services-04.png)
 
 <div class="note-trap"><strong>Exam trap — Pages vs Word:</strong> "A team needs a shared AI-populated document where multiple members can continue adding Copilot-generated research" → <strong>Copilot Pages</strong> (multi-user, persistent, AI-populated). NOT Word Copilot (single session, single user).</div>
 
@@ -244,13 +223,7 @@ Not every task benefits equally from AI. Map each task type to the right Copilot
 
 ### The mapping process
 
-```mermaid
-flowchart LR
-    A[List all tasks<br/>in the process] --> B[Classify each:<br/>Auto / Augment / Judgment / Relationship]
-    B --> C[Prioritise Auto + Augment<br/>for fastest ROI]
-    C --> D[Map to Copilot feature<br/>Teams / Excel / Chat / Agent]
-    D --> E[Measure KPIs<br/>Time saved · Error reduction]
-```
+![Diagram 5](../images/d2-microsoft-ai-services-05.png)
 
 <div class="note-important"><strong>Exam pattern:</strong> "Which tasks should be prioritised for Copilot deployment?" → Automatable tasks first (meeting summaries, email drafts, document extraction) — fastest, clearest ROI. Augmentable tasks (analysis, writing) second. Never start with judgment-heavy or relationship tasks.</div>
 
@@ -269,16 +242,44 @@ The Foundry Model Catalog contains hundreds of models. The exam tests your abili
 | Domain-specific brand voice / jargon | **Fine-tuned model** | When base model cannot learn domain via prompting |
 | Image + text understanding | **GPT-4o (multimodal)** | Vision + language in one model |
 
-```mermaid
-graph TD
-    Q1{Is it complex reasoning<br/>or a long document?} -->|Yes| GPT4[GPT-4o]
-    Q1 -->|No| Q2{Budget-sensitive<br/>or edge deployment?}
-    Q2 -->|Yes| Phi[Phi-3<br/>lightweight]
-    Q2 -->|No| Q3{Open-source / cost control?}
-    Q3 -->|Yes| OS[Llama / Mistral]
-    Q3 -->|No| Q4{Needs domain fine-tuning?}
-    Q4 -->|Yes| FT[Fine-tuned model]
-    Q4 -->|No| GPT4
-```
+![Diagram 6](/content/skillup/ab731/images/d2-microsoft-ai-services-06.png)
 
 <div class="note-trap"><strong>Exam trap:</strong> "Bigger model = always better" is WRONG. The exam tests that you match model capability to task complexity. Using GPT-4o for a simple FAQ chatbot is expensive overkill. Using Phi-3 for complex multi-document contract analysis will produce poor results.</div>
+
+---
+
+## 2.14 Buy / Build / Extend Decision Framework
+
+The AB-731 exam often presents a scenario and asks: *"What is the MOST APPROPRIATE solution?"* Use this framework:
+
+| Approach | When to choose | Microsoft product |
+|---|---|---|
+| **Buy** | Need AI capability immediately, no customisation required | Microsoft 365 Copilot (out-of-box) |
+| **Extend** | Need to add org-specific data or workflows to existing Copilot | Copilot Studio (extend M365 Copilot via plugins, connectors) |
+| **Build** | Need fully custom AI experience, not based on M365 Copilot | Copilot Studio (standalone agent) or Azure AI Foundry |
+
+<div class="note-important"><strong>Exam rule:</strong> "Extend" is the answer when a business already has M365 Copilot and wants to add capabilities. "Build" from scratch (Foundry) is only justified when M365 Copilot cannot serve the use case at all (e.g., external-facing customer chatbot on a public website).</div>
+
+---
+
+## 📌 D2 Hard Question Patterns
+
+**Pattern 1 — Copilot vs Copilot Studio**
+> *"A company wants employees to have an AI assistant that answers HR policy questions. What is the QUICKEST path to value?"*
+>
+> ✅ Microsoft 365 Copilot + SharePoint connector (extend). NOT Copilot Studio build-from-scratch — that's overkill for internal staff who already have M365 licences.
+
+**Pattern 2 — Microsoft Graph powers Copilot**
+> *"Why can Microsoft 365 Copilot access a user's emails and calendar without extra configuration?"*
+>
+> ✅ Microsoft Graph — the unified API layer that Copilot uses to read/write across M365 apps. Graph respects existing permissions, so Copilot inherits the user's data access.
+
+**Pattern 3 — Foundry vs Studio scope**
+> *"A developer team wants to build an AI model trained on 5 years of internal sales data. Which tool is most appropriate?"*
+>
+> ✅ Azure AI Foundry — for custom model development, fine-tuning, and MLOps. Copilot Studio is low-code for building agents, not for training models.
+
+**Pattern 4 — Researcher / Analyst Copilot agents**
+> *"A business analyst needs to synthesise insights from 50 reports per week. Which Copilot capability addresses this?"*
+>
+> ✅ Analyst agent in Copilot (deep analysis, Python code execution, charts). Researcher agent handles broad web + org data synthesis. These are the two premium agentic features in M365 Copilot.

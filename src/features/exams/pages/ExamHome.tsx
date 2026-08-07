@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, CalendarDays, Clock, X, MessageSquare } from 'lucide-react';
+import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, CalendarDays, Clock, X, MessageSquare, CheckCircle2 } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { useAuth } from '@/lib/auth';
@@ -9,7 +9,8 @@ import { loadPlan, nextIncompleteSession } from '@/lib/plan-generator';
 import { getStreak, getDomainCompletion } from '@/lib/study-tracker';
 import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
-import type { ExamConfig, DomainConfig, QuizSession } from '@/types/content';
+import type { ExamConfig, DomainConfig, QuizSession, ContentType } from '@/types/content';
+import { recordExamVisit } from '@/lib/exam-stats';
 
 // ── Readiness helpers ─────────────────────────────────────────────────────────
 
@@ -132,42 +133,70 @@ function TodaysTask({ examId, mounted }: { examId: string; mounted: boolean }) {
   );
 }
 
-function examCards(examId: string) {
-  return [
-    {
-      to: `/skillup/${examId}/quiz`,
-      icon: Brain,
-      title: 'Practice Quiz',
-      desc: 'Mock exams or domain-focused drills — same scenario-based MCQ format as the real exam.',
-      cta: 'Start Quiz',
-    },
-    {
-      to: `/skillup/${examId}/notes`,
-      icon: BookOpen,
-      title: 'Study Notes',
-      desc: 'Structured reference notes for all exam domains. Key rules, mental models, and exam traps.',
-      cta: 'Open Notes',
-    },
-    {
-      to: `/skillup/${examId}/scenarios`,
-      icon: Layers,
-      title: 'Scenario Practice',
-      desc: 'Walk through exam scenarios: architecture patterns, decision points, and anti-patterns.',
-      cta: 'Browse Scenarios',
-    },
-    {
-      to: `/skillup/${examId}/progress`,
-      icon: BarChart2,
-      title: 'Progress',
-      desc: 'Track your scores by domain, spot weak areas, and see improvement over time.',
-      cta: 'View Progress',
-    },
-  ];
+// ── Content-type → card definition ───────────────────────────────────────────
+
+type CardDef = { to: string; icon: React.ElementType; title: string; desc: string; cta: string };
+
+const CONTENT_CARD: Record<ContentType, (examId: string) => CardDef> = {
+  mcq: (id) => ({
+    to: `/skillup/${id}/quiz`,
+    icon: Brain,
+    title: 'Practice Quiz',
+    desc: 'Mock exams or domain-focused drills — same scenario-based MCQ format as the real exam.',
+    cta: 'Start Quiz',
+  }),
+  notes: (id) => ({
+    to: `/skillup/${id}/notes`,
+    icon: BookOpen,
+    title: 'Study Notes',
+    desc: 'Structured reference notes for all exam domains. Key rules, mental models, and exam traps.',
+    cta: 'Open Notes',
+  }),
+  scenario: (id) => ({
+    to: `/skillup/${id}/scenarios`,
+    icon: Layers,
+    title: 'Scenario Practice',
+    desc: 'Walk through exam scenarios: architecture patterns, decision points, and anti-patterns.',
+    cta: 'Browse Scenarios',
+  }),
+  flashcard: (/* _id */) => ({
+    to: '#',
+    icon: Zap,
+    title: 'Flashcards',
+    desc: 'Rapid-fire concept cards for exam-day review.',
+    cta: 'Coming soon',
+  }),
+  lab: (/* _id */) => ({
+    to: '#',
+    icon: Zap,
+    title: 'Hands-on Lab',
+    desc: 'Interactive exercises to practice real-world configurations.',
+    cta: 'Coming soon',
+  }),
+};
+
+function buildContentCards(exam: ExamConfig, examId: string): CardDef[] {
+  // Fall back to the original 3 content types when the field is absent.
+  const types: ContentType[] = exam.contentTypes?.length
+    ? exam.contentTypes
+    : ['mcq', 'notes', 'scenario'];
+  const cards: CardDef[] = types
+    .filter((t) => t !== 'flashcard' && t !== 'lab') // skip unavailable future types
+    .map((t) => CONTENT_CARD[t](examId));
+  cards.push({
+    to: `/skillup/${examId}/progress`,
+    icon: BarChart2,
+    title: 'Progress',
+    desc: 'Track your scores by domain, spot weak areas, and see improvement over time.',
+    cta: 'View Progress',
+  });
+  return cards;
 }
 
 export default function ExamHome() {
   const { examId } = useParams<{ examId: string }>();
   const [exam, setExam] = useState<ExamConfig | null>(null);
+  const [prereqExams, setPrereqExams] = useState<ExamConfig[]>([]);
   const [mounted, setMounted] = useState(false);
   const { user, isLoading: authLoading, login } = useAuth();
   const sessions = useMemo(() => getSessions(), []);
@@ -201,8 +230,15 @@ export default function ExamHome() {
   useEffect(() => {
     if (!examId) return;
     loadExamRegistry()
-      .then((r) => setExam(r.exams.find((e) => e.id === examId) ?? null))
+      .then((r) => {
+        const found = r.exams.find((e) => e.id === examId) ?? null;
+        setExam(found);
+        if (found?.prerequisites?.length) {
+          setPrereqExams(r.exams.filter((e) => found.prerequisites!.includes(e.id)));
+        }
+      })
       .catch(() => {});
+    recordExamVisit(examId);
     requestAnimationFrame(() => setMounted(true));
   }, [examId]);
 
@@ -229,7 +265,7 @@ export default function ExamHome() {
     );
   }
 
-  const cards = examCards(examId!);
+  const cards = buildContentCards(exam, examId!);
 
   const BADGE: Record<string, string> = {
     violet: 'bg-violet-900/50 text-violet-300 border border-violet-700/50',
@@ -271,7 +307,6 @@ export default function ExamHome() {
           <GraduationCap size={12} />
           {exam.shortTitle} Certification Practice
         </span>
-        <p className="page-eyebrow">{exam.shortTitle} Exam</p>
         <h1 className="text-3xl font-bold tracking-tight">
           {titleAccent ? (
             <>{titleMain} <span className="heading-gradient">{titleAccent}</span></>
@@ -288,11 +323,40 @@ export default function ExamHome() {
           <span>{exam.passScore} to pass</span>
           <span>·</span>
           <span>{exam.domains.length} domains</span>
+          {exam.contentVersion && (
+            <>
+              <span>·</span>
+              <span className="font-mono text-violet-400/70">v{exam.contentVersion}</span>
+            </>
+          )}
         </p>
         <PageViewsBadge path={`/skillup/${examId}`} className="mt-1" />
       </div>
 
-      {/* ── Readiness Panel ─────────────────────────────────────────── */}
+      {/* Prerequisites */}
+      {prereqExams.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Prerequisites</span>
+          {prereqExams.map((prereq) => {
+            const pr = computeReadiness(sessions, prereq.id, prereq.domains);
+            const passed = pr.overall >= prereq.passThreshold;
+            return (
+              <Link
+                key={prereq.id}
+                to={`/skillup/${prereq.id}`}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                  passed
+                    ? 'bg-emerald-900/30 text-emerald-400 border-emerald-800 hover:bg-emerald-900/50'
+                    : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-600'
+                }`}
+              >
+                {passed ? <CheckCircle2 size={11} /> : <Lock size={11} />}
+                {prereq.shortTitle}
+              </Link>
+            );
+          })}
+        </div>
+      )}
       {authLoading ? (
         <div className="glass-card rounded-xl p-5 animate-pulse space-y-3">
           <div className="h-3 w-28 bg-slate-800 rounded-full" />

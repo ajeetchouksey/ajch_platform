@@ -18,6 +18,8 @@ export interface MentorPlanPayload {
   targetDate: string;
   domainScores: Record<string, number>;
   domainWeights: Record<string, number>;
+  /** Domain metadata so the Worker prompt is exam-agnostic. */
+  domains: Array<{ id: number; title: string; weight: number }>;
   request: string;
 }
 
@@ -44,6 +46,7 @@ export async function callMentorPlan(payload: MentorPlanPayload): Promise<Mentor
     targetDate: payload.targetDate,
     domainScores: payload.domainScores,
     domainWeights: payload.domainWeights,
+    domains: payload.domains,
     request: sanitizeInput(payload.request, 500),
   };
 
@@ -107,4 +110,112 @@ export function saveMentorChat(examId: string, day: number, answer: string): voi
   } catch {
     // localStorage unavailable — silently skip
   }
+}
+
+// ── Loop 2: cross-model answer validation ─────────────────────────────────────
+
+export interface MentorValidatePayload {
+  examId: string;
+  domain: number;
+  domainTitle: string;
+  questionStem: string;
+  options: string[];
+  correctIndex: number;
+  chosenIndex: number;
+  reasoning: string;
+}
+
+export interface MentorValidateResponse {
+  verdict: 'correct' | 'incorrect' | 'partially_correct';
+  /** Critique of the student's reasoning — not just the answer. */
+  critique: string;
+  /** One-sentence reinforcement of the key concept tested. */
+  keyTakeaway: string;
+}
+
+/**
+ * Loop 2 — validate the student's reasoning with a secondary model.
+ * The Worker routes this to a different model than /mentor/plan for cross-model validation.
+ */
+export async function callMentorValidate(
+  payload: MentorValidatePayload,
+): Promise<MentorValidateResponse> {
+  const body = {
+    examId: payload.examId,
+    domain: payload.domain,
+    domainTitle: sanitizeInput(payload.domainTitle, 80),
+    questionStem: sanitizeInput(payload.questionStem, 400),
+    options: payload.options.map((o) => sanitizeInput(o, 200)),
+    correctIndex: payload.correctIndex,
+    chosenIndex: payload.chosenIndex,
+    reasoning: sanitizeInput(payload.reasoning, 600),
+  };
+
+  const res = await fetch(`${WORKER_URL}/mentor/validate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(errData.error ?? `mentor_unavailable:${res.status}`);
+  }
+
+  return res.json() as Promise<MentorValidateResponse>;
+}
+
+// ── Readiness prescription ─────────────────────────────────────────────────────
+
+export interface MentorReadinessPayload {
+  examId: string;
+  examTitle: string;
+  overallScore: number;
+  domains: Array<{
+    domainId: number;
+    title: string;
+    score: number;
+    attempts: number;
+    trend: string;
+  }>;
+  targetDate: string;
+  daysRemaining: number;
+}
+
+export interface MentorReadinessResponse {
+  /** 2-3 sentence AI-generated study prescription. */
+  prescription: string;
+  /** Ordered list of recommended focus areas (domain titles). */
+  focusOrder: string[];
+}
+
+/** AI study prescription based on the ReadinessReport. */
+export async function callMentorReadiness(
+  payload: MentorReadinessPayload,
+): Promise<MentorReadinessResponse> {
+  const body = {
+    examId: payload.examId,
+    examTitle: sanitizeInput(payload.examTitle, 100),
+    overallScore: payload.overallScore,
+    domains: payload.domains.map((d) => ({
+      ...d,
+      title: sanitizeInput(d.title, 80),
+      trend: sanitizeInput(d.trend, 20),
+    })),
+    targetDate: payload.targetDate,
+    daysRemaining: payload.daysRemaining,
+  };
+
+  const res = await fetch(`${WORKER_URL}/mentor/readiness`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(errData.error ?? `mentor_unavailable:${res.status}`);
+  }
+
+  return res.json() as Promise<MentorReadinessResponse>;
 }

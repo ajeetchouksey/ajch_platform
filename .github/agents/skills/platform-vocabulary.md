@@ -123,7 +123,32 @@ The key principle: generic retries give the model no new information. Specific e
 
 ---
 
-## Usage Rules for All Agents
+## v3.x Platform Types (added 2026-08-06)
+
+Terms introduced in the SkillUp v3.x upgrade. Use these exact names in agent files, code comments, and content docs.
+
+### ContentType
+**Definition:** An enum of content modalities available for an exam: `'mcq' | 'notes' | 'scenario' | 'flashcard' | 'lab'`. Stored in `ExamConfig.contentTypes[]`. Drives which tabs render on ExamHome.
+
+### ExamPalette
+**Definition:** The per-exam CSS colour set stored in `index.json` as `palette: { color, bg, border, glow, btn }`. Values are raw CSS strings, not Tailwind classes. Tailwind class sets stay in `EXAM_SCHEMES` in `src/types/content.ts`.
+
+### RichScenario / LegacyScenario
+**Definition:** A discriminated union on `schemaVersion`. `LegacyScenario` has no `schemaVersion` field; `RichScenario` has `schemaVersion: "2.0"` and adds `domain`, `difficulty`, `steps[]`, and `keyTakeaways[]`. Always use the `isRichScenario()` type guard — never duck-type check.
+
+### QuestionAttempt
+**Definition:** A single recorded answer event: `{ questionId, examId, domain, chosenIndex, correct, timeSpentMs, attemptedAt, loop: 1|2, reasoning? }`. Stored under localStorage key `aarya_attempts_{examId}`. The atom of the adaptive quiz engine.
+
+### DomainReadiness
+**Definition:** The computed per-domain performance snapshot: `{ domainId, score, attempts, confidence, trend }`. Derived from `QuestionAttempt[]` by `computeReadiness()` in `src/lib/adaptive-quiz.ts`.
+
+### PrepLoop
+**Definition:** A two-phase study session: Loop 1 (broad knowledge check) gates Loop 2 (reasoning validation via AI cross-model critique). Stored under `aarya_preploop_{examId}`. A user must achieve ≥ 65% overall in Loop 1 before Loop 2 unlocks.
+
+### contentVersion
+**Definition:** The semver string in `index.json` tracking content state. Bumped on every content write by the authoring agent. Used by `StudyPlan.tsx` to detect staleness and prompt regeneration.
+
+---
 
 1. **Never create a synonym** for a defined term. Use the exact name every time.
 2. **Always link exam alignment** when a term maps to a CCA-F domain.

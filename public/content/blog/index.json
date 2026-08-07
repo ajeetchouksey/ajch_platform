@@ -1,6 +1,19 @@
 {
   "posts": [
     {
+      "slug": "ai-architecture-blueprint-multi-agent-privacy-first",
+      "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
+      "excerpt": "Most AI projects fail not because the model is weak—but because the architecture around it is under-designed. Here's the blueprint that fixes that.",
+      "author": "Ajeet Chouksey",
+      "date": "2026-08-07",
+      "updated": null,
+      "tags": ["ai-architecture", "multi-agent", "privacy", "production", "llm", "agents", "observability"],
+      "category": "Engineering",
+      "readingTime": 8,
+      "featured": false,
+      "draft": false
+    },
+    {
       "slug": "what-is-a-vector-database",
       "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
       "excerpt": "LLMs are the brain. Vector databases are the memory. Without this layer, your enterprise AI is answering from guesswork — not from what your business actually knows.",

@@ -1,5 +1,18 @@
 {
   "schemaVersion": "1.0",
+  "contentVersion": "1.0.0",
+  "contentUpdatedAt": "2026-08-06",
+  "provider": "GitHub",
+  "palette": {
+    "color": "#94a3b8",
+    "bg": "rgba(30,41,59,0.5)",
+    "border": "rgba(71,85,105,0.25)",
+    "glow": "transparent",
+    "btn": "#1e293b"
+  },
+  "changelog": [
+    { "version": "1.0.0", "date": "2026-08-06", "type": "major", "summary": "Initial release — 5 domains, 134 questions" }
+  ],
   "id": "gh300",
   "examCode": "GH-300",
   "title": "GitHub Copilot Fundamentals",

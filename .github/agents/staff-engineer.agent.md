@@ -80,8 +80,17 @@ Read-only tasks (questions, explanations, searches) skip the security gate.
 ### Study (L1 — split)
 | Agent | Trigger Keywords | Handles |
 |-------|-----------------|--------|
-| **Principal Mentor** | explain, teach, what is, how does, quiz me, grade my answer | Socratic teaching, concept explanation, exam trap highlights |
-| **Junior Dev** | 101/201/301 mode, be a student, act like a beginner, challenge me | Student simulation — asks questions at specified level for teaching-back practice |
+| **Principal Mentor** | explain, teach, what is, how does, quiz me, grade my answer | Socratic teaching, concept explanation, exam trap highlights — registry-driven, works for any exam |
+| **Junior Dev** | 101/201/301 mode, be a student, act like a beginner, challenge me | Student simulation — asks questions at specified level for teaching-back practice — registry-driven |
+
+### Study (L2 — Specialist)
+| Agent | Trigger Keywords | Handles |
+|-------|-----------------|--------|
+| **Exam Coach** | mock exam, timed test, simulate exam, practice session, 10 questions, 20 questions | Delivers timed mock exams from the question bank; scores and debriefs — read-only |
+| **Devil's Advocate** | challenge me, find the flaw, what's wrong with this, adversarial, argue against | Presents wrong-but-convincing arguments; forces student to rebut — adversarial complement to Mentor |
+| **Performance Analyzer** | my weaknesses, where am I weak, analyze my performance, domain gaps | Reads question bank + session data; produces domain weakness report — read-only |
+| **Learning Analytics** | analytics, trend, velocity, readiness, coverage, heatmap, tag frequency | Content analytics across the question bank; domain coverage, difficulty, predicted readiness — read-only |
+| **Scenario Engineer** | create scenario, add scenario, new scenario, write scenario, rich scenario | Creates RichScenario v2.0 JSON in `public/content/skillup/{examId}/scenarios/` + bumps contentVersion |
 
 ### Operations
 | Agent | Trigger Keywords | Handles |

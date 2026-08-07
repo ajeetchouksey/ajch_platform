@@ -24,14 +24,7 @@
 | **Predictive / Regression** | Forecasts a numeric outcome | Sales forecasting, demand prediction |
 | **Recommendation** | Surfaces relevant items | "Users like you also bought..." |
 
-```mermaid
-graph LR
-    A[Input Data] --> B{AI Type?}
-    B -->|"Generate new content"| C[Generative AI<br/>LLM / Diffusion]
-    B -->|"Classify or label"| D[Discriminative ML<br/>Random Forest / SVM]
-    B -->|"Predict a number"| E[Regression ML<br/>Linear / Neural]
-    B -->|"Surface relevant items"| F[Recommendation<br/>Collaborative Filtering]
-```
+![Diagram 1](/content/skillup/ab731/images/d1-business-value-01.png)
 
 <mark>Exam shortcut: The word "generate", "draft", "compose", or "create" always points to generative AI.</mark>
 
@@ -99,13 +92,7 @@ Training data reflects real-world human biases. If the training data over-repres
 - **Representation bias** — some groups under-represented in training data
 - **Measurement bias** — data collected inconsistently across groups
 
-```mermaid
-flowchart TD
-    A[Training Data] -->|Contains bias| B[Model learns bias]
-    B --> C[Biased outputs]
-    C --> D[Business / Legal / Ethical risk]
-    D --> E[Mitigation: Diverse data + RLHF + evaluation]
-```
+![Diagram 2](/content/skillup/ab731/images/d1-business-value-02.png)
 
 ---
 
@@ -152,16 +139,7 @@ A pretrained model's knowledge has a **cutoff date** and doesn't know about your
 
 ### The Solution: RAG
 
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant LLM as AI Model
-    participant DB as Your Data (SharePoint/DB)
-    U->>LLM: "What is our Q3 sales number?"
-    LLM->>DB: Retrieve relevant chunks
-    DB-->>LLM: "Q3 sales: $4.2M (from report)"
-    LLM-->>U: "Your Q3 sales were $4.2M, up 12% YoY"
-```
+![Diagram 3](/content/skillup/ab731/images/d1-business-value-03.png)
 
 **Grounding** = connecting the model's responses to authoritative, verified data sources so it doesn't fabricate.
 
@@ -214,15 +192,7 @@ The exam tests that you know AI introduces **new** attack surfaces beyond tradit
 
 ### How agents work
 
-```mermaid
-flowchart LR
-    G["Goal<br/>Process all new contracts"] --> P["Plan<br/>Agent breaks into steps"]
-    P --> A1[Step 1: Retrieve contract from SharePoint]
-    A1 --> A2[Step 2: Extract key terms]
-    A2 --> A3[Step 3: Flag non-standard clauses]
-    A3 --> A4[Step 4: Update tracking spreadsheet]
-    A4 --> O[Output: Summary report sent to legal]
-```
+![Diagram 4](/content/skillup/ab731/images/d1-business-value-04.png)
 
 **M365 agent examples:**
 - **Researcher agent** — autonomously researches a topic across web + your org data, synthesises a report
@@ -245,16 +215,7 @@ Not all AI use cases are worth doing first. Prioritise using three dimensions:
 
 ### The Value × Feasibility Matrix
 
-```mermaid
-quadrantChart
-    title AI Use Case Prioritisation Matrix
-    x-axis Low Feasibility --> High Feasibility
-    y-axis Low Business Value --> High Business Value
-    quadrant-1 Quick Wins — Do First
-    quadrant-2 Strategic Bets — Plan for Later
-    quadrant-3 Avoid
-    quadrant-4 Incremental Gains — Do if Capacity Allows
-```
+![Diagram 5](/content/skillup/ab731/images/d1-business-value-05.png)
 
 | Quadrant | Value | Feasibility | Action |
 |---|---|---|---|
@@ -310,3 +271,44 @@ quadrantChart
 | Hallucination mitigation | RAG + human review, NOT just better prompts |
 | ROI calculation | Think time savings + quality + scalability |
 | Bias types | Know historical, representation, and measurement bias by name |
+
+---
+
+## 1.2b RAG vs Fine-tune Decision Framework
+
+When the exam asks *"how should the business customise AI?"*, use this decision logic:
+
+| Question | If YES → | If NO → |
+|---|---|---|
+| Is the business problem about accessing current/private data? | **RAG** — ground the model in your documents | Continue to next question |
+| Does the model need a completely different writing style or domain vocabulary? | **Fine-tuning** — adjust model weights | Use prompt engineering first |
+| Is the cost of fine-tuning justified by the expected volume? | **Fine-tuning** | **RAG** — cheaper and more flexible |
+| Does the output require verifiable citations? | **RAG** — returns source references | Fine-tuning has no source traceability |
+
+<div class="note-important"><strong>Exam rule:</strong> RAG is ALWAYS the right first answer for "how do we use our company's own data with AI?" — fine-tuning is for vocabulary and style, not for injecting facts.</div>
+
+---
+
+## 📌 D1 Hard Question Patterns
+
+These patterns appear in harder exam questions. Knowing them prevents traps.
+
+**Pattern 1 — RAG before Fine-tune**
+> *"A company wants Copilot to answer questions using its internal HR policy documents. What should they do first?"*
+>
+> ✅ Use RAG / grounding to connect the LLM to the document store. Fine-tuning is NOT the answer — HR policies are data, not vocabulary.
+
+**Pattern 2 — Hallucinations need structural fix, not prompt fix**
+> *"Users report that the AI assistant sometimes gives wrong answers. What is the most effective mitigation?"*
+>
+> ✅ RAG (grounding) + human review workflow. "Write better prompts" alone is NOT sufficient — prompts cannot prevent hallucinations caused by knowledge gaps.
+
+**Pattern 3 — Token cost and context window**
+> *"A business wants to reduce AI costs. Which action has the most direct impact?"*
+>
+> ✅ Reduce context window / input token count. Both input AND output tokens cost money. Long system prompts + long documents = high cost.
+
+**Pattern 4 — AI value is multiplicative, not additive**
+> *"Where does generative AI provide the most business value?"*
+>
+> ✅ Tasks that are high-volume, time-consuming, and require human language (drafting, summarising, translating, coding). AI multiplies human capacity — it doesn't replace expert judgment in high-stakes decisions.
