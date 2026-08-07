@@ -40,7 +40,7 @@ The blueprint below addresses all three.
 
 Think of a production AI system as a governed stack of four layers. Each layer has a clear owner, a clear job, and a hard constraint on what it is allowed to do.
 
-![Enterprise AI Reference Architecture — Production-Ready Multi-Agent Platform](/content/blog/images/four_layer_stack.png)
+![Four Layer Stack](/content/blog/images/four_layer_stack.png)
 
 ### Layer 1 — Experience: Thin, Identity-Aware, Honest
 
@@ -96,32 +96,7 @@ An agent without a Contract is a domain boundary violation waiting to happen. Th
 
 A Supervisor Agent routes tasks to specialist agents. Each specialist is a bounded, contracted workload.
 
-```mermaid
-flowchart TD
-    Intent(["📨 User Intent"]):::intent --> SUP
-
-    subgraph SUP["Supervisor / Planner Agent"]
-        direction TB
-        S1["Goal Decomposition"]
-        S2["Task Assignment & Sequencing"]
-        S3["State Tracking & Result Aggregation"]
-    end
-
-    SUP -->|"task + context"| RA["🔍 Retrieval Agent"]
-    SUP -->|"task + context"| AA["⚙️ Action Agent"]
-    SUP -->|"task + context"| ANA["📊 Analysis Agent"]
-    SUP -->|"task + context"| CA["🛡️ Compliance Agent"]
-
-    RA -->|"chunks + confidence"| SUP
-    AA -->|"result + audit event"| SUP
-    ANA -->|"summary + rationale"| SUP
-    CA -->|"risk tier + verdict"| SUP
-
-    SUP --> OUT(["✅ Governed Response"]):::out
-
-    classDef intent fill:#4A90E2,color:#fff,stroke:none
-    classDef out fill:#27AE60,color:#fff,stroke:none
-```
+![Supervisor Orachestration Pattern](/content/blog/images/supervisor_orchestration_pattern.png)
 
 Use this topology when workflows are complex but must remain auditable — every handoff is a typed, logged event. The Compliance Agent deserves specific attention: its only job is to evaluate whether a proposed action clears policy and risk thresholds before the Action Agent executes it. That separation — decide separately from act — gives regulators a clear audit trail.
 
