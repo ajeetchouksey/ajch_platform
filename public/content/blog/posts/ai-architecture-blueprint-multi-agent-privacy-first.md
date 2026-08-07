@@ -12,10 +12,6 @@ featured: false
 draft: false
 ---
 
-# The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems
-
-*Most AI projects don't fail because the model is weak — they fail because the architecture around the model is under-designed.*
-
 You've seen it. A demo that wows the room on Tuesday falls apart in staging by Thursday. The model is fine. The architecture around it isn't: ownership is unclear, guardrails are absent, observability is an afterthought, and privacy is bolted on after someone raises a compliance concern. What looked like an AI problem was always an engineering problem.
 
 This is an opinionated blueprint for designing AI systems that survive contact with production — systems that are multi-agent by necessity, privacy-first by design, and governed by engineering discipline rather than optimism.
@@ -44,49 +40,7 @@ The blueprint below addresses all three.
 
 Think of a production AI system as a governed stack of four layers. Each layer has a clear owner, a clear job, and a hard constraint on what it is allowed to do.
 
-```mermaid
-flowchart TD
-    U(["👤 Users & External Systems"]):::userNode --> EL
-
-    subgraph EL["① Experience Layer"]
-        direction TB
-        E1["Web · Mobile · Teams · APIs"]
-        E2["AuthN / AuthZ"]
-        E3["Source Attribution UI"]
-        E4["Human Escalation Paths"]
-    end
-
-    EL --> OL
-
-    subgraph OL["② Orchestration Layer"]
-        direction TB
-        O1["Goal Decomposition & Routing"]
-        O2["Conversation + Business State"]
-        O3["Retries · Timeouts · Circuit Breakers"]
-        O4["Confidence Thresholds & Fallbacks"]
-        O5["Multi-Agent Coordination"]
-    end
-
-    OL --> TL
-
-    subgraph TL["③ Tool & Data Layer"]
-        direction TB
-        T1["Tool Gateway — Allow-list · RBAC · Audit Log"]
-        T2["RAG Pipelines — Domain-Scoped Indices"]
-        T3["Transactional Systems — CRM · ERP · Ledger"]
-    end
-
-    TL --> ML
-
-    subgraph ML["④ Model & Agent Layer"]
-        direction TB
-        M1["Base LLMs · Embeddings · Domain Models"]
-        M2["Agent Harness — Loop · Memory · Tool Calling"]
-        M3["Specialist Agents — Planner · Retriever · Analyst · Compliance"]
-    end
-
-    classDef userNode fill:#4A90E2,color:#fff,stroke:none
-```
+![Enterprise AI Reference Architecture — Production-Ready Multi-Agent Platform](/content/blog/images/four_layer_stack.png)
 
 ### Layer 1 — Experience: Thin, Identity-Aware, Honest
 
