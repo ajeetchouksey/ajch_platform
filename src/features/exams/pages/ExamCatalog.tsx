@@ -9,61 +9,12 @@ import { useMeta } from '@/lib/useMeta';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import type { ExamConfig } from '@/types/content';
 
-// ── Color palette ─────────────────────────────────────────────────────────────
-const EXAM_PALETTE: Record<string, {
-  color: string; bg: string; border: string; glow: string; btn: string;
-}> = {
-  violet: {
-    color: '#a78bfa',
-    bg: 'rgba(139,92,246,0.10)',
-    border: 'rgba(139,92,246,0.38)',
-    glow: 'rgba(139,92,246,0.18)',
-    btn: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-  },
-  blue: {
-    color: '#60a5fa',
-    bg: 'rgba(59,130,246,0.10)',
-    border: 'rgba(59,130,246,0.38)',
-    glow: 'rgba(59,130,246,0.18)',
-    btn: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-  },
-  amber: {
-    color: '#fbbf24',
-    bg: 'rgba(251,191,36,0.10)',
-    border: 'rgba(251,191,36,0.35)',
-    glow: 'rgba(251,191,36,0.12)',
-    btn: 'linear-gradient(135deg, #d97706, #b45309)',
-  },
-};
-const defaultPalette = {
-  color: '#94a3b8', bg: 'rgba(30,41,59,0.5)',
-  border: 'rgba(71,85,105,0.25)', glow: 'transparent',
-  btn: '#1e293b',
-};
-
-// ── Provider inference ──────────────────────────────────────────────────
-function deriveProvider(exam: ExamConfig): string {
-  const id = exam.id.toLowerCase();
-  if (id.startsWith('gh')) return 'GitHub';
-  if (id.startsWith('ab')) return 'Microsoft';
-  if (id.startsWith('cca')) return 'Anthropic';
-  if (id.startsWith('aws')) return 'AWS';
-  if (id.startsWith('gcp')) return 'Google';
-  const hay = `${exam.title} ${exam.description}`.toLowerCase();
-  if (/\bgithub\b|copilot/.test(hay)) return 'GitHub';
-  if (/\bazure\b|microsoft/.test(hay)) return 'Microsoft';
-  if (/\bclaude\b|anthropic/.test(hay)) return 'Anthropic';
-  if (/\baws\b|amazon/.test(hay)) return 'AWS';
-  if (/\bgoogle\b|gcp/.test(hay)) return 'Google';
-  return 'Other';
-}
-
 // ── Single exam card ──────────────────────────────────────────────────────────
 function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
   const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const pal = EXAM_PALETTE[exam.colorScheme] ?? defaultPalette;
+  const pal = exam.palette;
 
   useEffect(() => {
     const el = ref.current;
@@ -322,7 +273,7 @@ export default function ExamCatalog() {
   const totalDomains = exams.reduce((a, e) => a + e.domains.length, 0);
 
   const providers = useMemo(
-    () => Array.from(new Set(exams.map(deriveProvider))).sort(),
+    () => Array.from(new Set(exams.map((e) => e.provider))).sort(),
     [exams],
   );
   const levels = useMemo(
@@ -333,7 +284,7 @@ export default function ExamCatalog() {
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const list = exams.filter((e) => {
-      if (provider && deriveProvider(e) !== provider) return false;
+      if (provider && e.provider !== provider) return false;
       if (level && e.contentLevel !== level) return false;
       if (status === 'live' && !e.available) return false;
       if (status === 'soon' && e.available) return false;

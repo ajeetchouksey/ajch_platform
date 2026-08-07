@@ -32,6 +32,8 @@ function fail(file, msg) {
   errors++;
 }
 
+const VALID_DIFFICULTIES = new Set(['easy', 'medium', 'hard']);
+
 function validateQuestion(file, item, index) {
   const required = ['domain', 'id', 'question', 'options', 'correct', 'explanation', 'tags'];
   for (const field of required) {
@@ -48,6 +50,18 @@ function validateQuestion(file, item, index) {
     item.correct >= item.options.length
   ) {
     fail(file, `item[${index}] "correct" index ${item.correct} is out of range (${item.options.length} options)`);
+  }
+  // tags must be a non-empty array of strings
+  if ('tags' in item) {
+    if (!Array.isArray(item.tags) || item.tags.length === 0) {
+      fail(file, `item[${index}] "tags" must be a non-empty array`);
+    } else if (item.tags.some((t) => typeof t !== 'string')) {
+      fail(file, `item[${index}] "tags" entries must all be strings`);
+    }
+  }
+  // difficulty is optional but must be a recognised value when set
+  if ('difficulty' in item && !VALID_DIFFICULTIES.has(item.difficulty)) {
+    fail(file, `item[${index}] "difficulty" must be easy|medium|hard, got "${item.difficulty}"`);
   }
 }
 
@@ -83,6 +97,8 @@ const INDEX_REQUIRED = [
   'passScore', 'passThreshold', 'examFee',
   'available', 'accentColor', 'colorScheme',
   'domains', 'questionFiles', 'taskStatementsFile', 'resources',
+  // v3.0 content-versioning fields (required)
+  'contentVersion', 'contentUpdatedAt', 'provider', 'palette',
 ];
 
 function absContent(relativePath) {
@@ -93,6 +109,16 @@ function absContent(relativePath) {
 function validateExamIndex(file, data) {
   for (const f of INDEX_REQUIRED) {
     if (!(f in data)) fail(file, `missing required field "${f}"`);
+  }
+  // palette must have all five CSS sub-fields
+  if (data.palette && typeof data.palette === 'object') {
+    for (const pf of ['color', 'bg', 'border', 'glow', 'btn']) {
+      if (!(pf in data.palette)) fail(file, `palette missing required sub-field "${pf}"`);
+    }
+  }
+  // provider must be a non-empty string
+  if ('provider' in data && (typeof data.provider !== 'string' || !data.provider.trim())) {
+    fail(file, `"provider" must be a non-empty string`);
   }
   // Domain notesFile references
   if (Array.isArray(data.domains)) {
@@ -170,8 +196,15 @@ for (const rawPath of files) {
       if (!Array.isArray(data)) {
         fail(rawPath, 'Question file must be a JSON array');
       } else {
+        const seenIds = new Set();
         for (const [i, item] of items.entries()) {
           validateQuestion(rawPath, item, i);
+          if (item.id) {
+            if (seenIds.has(item.id)) {
+              fail(rawPath, `duplicate question id "${item.id}" at index ${i}`);
+            }
+            seenIds.add(item.id);
+          }
         }
       }
       continue;

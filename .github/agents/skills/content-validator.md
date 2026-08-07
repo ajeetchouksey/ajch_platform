@@ -22,17 +22,18 @@ Both gates must pass before content is written to disk.
 
 ## Question Validation
 
-### Schema Compliance
+### Schema Compliance (v3.x — exam-agnostic)
 ```typescript
 interface Question {
-  domain: 1 | 2 | 3 | 4 | 5;        // Must be integer 1-5
-  id: string;                          // Format: "d{N}-{NNN}"
-  scenario: string;                    // 1-4 sentences, realistic context
-  question: string;                    // Clear, unambiguous question
+  domain: number;              // Must match a domain.id in this exam's index.json
+  id: string;                  // Format: "{examId}-d{N}-{NNN}" — unique across all files for this exam
+  scenario?: string;           // Optional: 1-4 sentences of context (omit for direct recall Qs)
+  question: string;            // Clear, unambiguous stem
   options: [string, string, string, string];  // Exactly 4, similar length
-  correct: 0 | 1 | 2 | 3;            // Index into options array
-  explanation: string;                 // 2-5 sentences
-  tags: string[];                      // 2-4 tags from taxonomy
+  correct: 0 | 1 | 2 | 3;    // Index into options array
+  explanation: string;         // 2-5 sentences, 3-part skill-building format
+  tags: string[];              // 2-4 non-empty strings from the tag taxonomy
+  difficulty?: 'easy' | 'medium' | 'hard';   // REQUIRED on all new questions
 }
 ```
 
@@ -45,7 +46,9 @@ interface Question {
 6. **No trick questions** — Test knowledge, not reading comprehension
 7. **Explanation completeness** — Must address correct AND wrong answers
 
-### Anthropic Alignment Checks
+### Anthropic Alignment Checks (CCA-F specific)
+> These checks apply to CCA-F (`ccaf`) content only. For other exams, apply the
+> equivalent accuracy checks against that exam's official documentation.
 1. **API accuracy** — Parameter names, method signatures must be real
 2. **Feature existence** — Don't reference features that don't exist
 3. **Behavioral accuracy** — Model behavior claims must match docs

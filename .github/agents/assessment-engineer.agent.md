@@ -89,6 +89,15 @@ Note: `domain` field in the JSON is a `number`, not a union type — any integer
 
 Read the existing domain JSON file → parse the `questions` array → append new questions → write back the complete file. Never overwrite the whole file from scratch; always preserve existing questions.
 
+## Version Bump (required after every write)
+
+After writing or appending questions, update `public/content/skillup/{examId}/index.json`:
+1. Read the current `contentVersion` (semver string).
+2. Increment the **patch** digit (e.g. `"1.0.0"` → `"1.0.1"`).
+3. Set `contentUpdatedAt` to today’s date (YYYY-MM-DD).
+4. Append a `changelog` entry: `{ "version": "<new>", "date": "<today>", "type": "patch", "summary": "Added N questions to domain D{N}" }`.
+5. Write the updated `index.json` back.
+
 ## Wraps Skill
 
 This agent applies the patterns from `.github/agents/skills/question-generator.md`. Read that skill file before generating questions to ensure pattern compliance.

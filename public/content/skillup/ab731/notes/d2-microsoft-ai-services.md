@@ -13,6 +13,19 @@
 
 ## 2.1 The Microsoft AI Stack
 
+Microsoft's AI offering is structured in four layers, from raw infrastructure to end-user applications. Understanding which layer each product lives in is core to the exam.
+
+| Layer | What it provides | Key products |
+|---|---|---|
+| **1 — Foundation** | AI models + compute infrastructure | Azure OpenAI Service, Model Catalog (GPT-4o, Phi, Llama, Mistral) |
+| **2 — Platform** | Developer tools to build, evaluate, and deploy AI solutions | Azure AI Foundry, Azure AI Search, Azure Vision in Foundry Tools |
+| **3 — Extensibility** | Low-code/no-code agent and copilot builder | Microsoft Copilot Studio, M365 Copilot plugins, connectors |
+| **4 — Applications** | Ready-to-use AI embedded in productivity apps | Microsoft 365 Copilot, Microsoft Copilot (consumer), Copilot Chat |
+
+<div class="note-important"><strong>How the layers connect:</strong> Foundation models power the Platform tools. Platform tools power the Extensibility layer. Extensibility customises the Applications. Responsible AI principles span all four layers.</div>
+
+**Responsible AI spans all layers** — Microsoft's six principles (Fairness, Reliability, Privacy, Inclusiveness, Transparency, Accountability) are applied at every level, from model training to end-user UI.
+
 ![Diagram 1](/content/skillup/ab731/images/d2-microsoft-ai-services-01.png)
 
 ---
@@ -210,7 +223,7 @@ Not every task benefits equally from AI. Map each task type to the right Copilot
 
 ### The mapping process
 
-![Diagram 5](/content/skillup/ab731/images/d2-microsoft-ai-services-05.png)
+![Diagram 5](../images/d2-microsoft-ai-services-05.png)
 
 <div class="note-important"><strong>Exam pattern:</strong> "Which tasks should be prioritised for Copilot deployment?" → Automatable tasks first (meeting summaries, email drafts, document extraction) — fastest, clearest ROI. Augmentable tasks (analysis, writing) second. Never start with judgment-heavy or relationship tasks.</div>
 

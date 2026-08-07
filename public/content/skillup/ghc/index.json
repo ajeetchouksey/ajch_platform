@@ -1,12 +1,30 @@
 {
   "schemaVersion": "1.0",
+  "contentVersion": "1.0.0",
+  "contentUpdatedAt": "2026-08-06",
+  "provider": "GitHub",
+  "palette": {
+    "color": "#60a5fa",
+    "bg": "rgba(59,130,246,0.10)",
+    "border": "rgba(59,130,246,0.38)",
+    "glow": "rgba(59,130,246,0.18)",
+    "btn": "linear-gradient(135deg, #2563eb, #1d4ed8)"
+  },
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2026-08-06",
+      "type": "major",
+      "summary": "Initial release \u2014 5 domains, 284 questions"
+    }
+  ],
   "id": "ghc",
   "examCode": "GH-300",
   "title": "GitHub Copilot",
   "shortTitle": "GH-300",
   "contentLevel": "201",
   "description": "Demonstrate expertise in using GitHub Copilot to improve software development productivity, quality, and security. Covers responsible AI use, prompt engineering, Copilot features across various plans, data architecture, and privacy safeguards.",
-  "questions": 284,
+  "questions": 186,
   "duration": "100 min",
   "passScore": "700/1000",
   "passThreshold": 70,
@@ -62,13 +80,9 @@
   "questionFiles": [
     "content/skillup/ghc/questions/ghc-domain1-responsible-ai.json",
     "content/skillup/ghc/questions/ghc-domain2-copilot-features.json",
-    "content/skillup/ghc/questions/ghc-domain3-data-architecture.json",
-    "content/skillup/ghc/questions/ghc-domain4-prompt-engineering.json",
-    "content/skillup/ghc/questions/ghc-domain5-productivity.json",
-    "content/skillup/ghc/questions/ghc-domain6-privacy-safeguards.json",
     "content/skillup/ghc/questions/ghc-domain3-gh300.json",
     "content/skillup/ghc/questions/ghc-domain4-gh300.json",
-    "content/skillup/ghc/questions/ghc-domain5-gh300.json",
+    "content/skillup/ghc/questions/ghc-domain5-productivity.json",
     "content/skillup/ghc/questions/ghc-domain6-gh300.json"
   ],
   "scenarioFiles": [

@@ -14,8 +14,8 @@ This prompt is handled by **Curriculum Engineer** (Exam Commander).
 1. **Curriculum Engineer** fetches URL and extracts CCA-F concepts
 2. Deduplicates against existing `public/content/`
 3. Routes to sub-agents:
-   - MCQs → **Assessment Engineer Agent** (`public/content/questions/`)
-   - Notes → **Docs Engineer** (`public/content/notes/`)
+   - MCQs → **Assessment Engineer Agent** (`public/content/skillup/{examId}/questions/`)
+   - Notes → **Docs Engineer** (`public/content/skillup/{examId}/notes/`)
 4. **AppSec Engineer** validates schemas + file paths (hard gate)
 5. Sub-agents write their files on PASS ✓
 
@@ -31,6 +31,6 @@ This prompt is handled by **Curriculum Engineer** (Exam Commander).
 
 | Content type | Written by | Location |
 |-------------|-----------|----------|
-| MCQ questions | Assessment Engineer | `public/content/questions/d{N}-questions.json` |
-| Domain notes | Docs Engineer | `public/content/notes/d{N}-*.md` |
+| MCQ questions | Assessment Engineer | `public/content/skillup/{examId}/questions/{examId}-d{N}-questions.json` |
+| Domain notes | Docs Engineer | `public/content/skillup/{examId}/notes/d{N}-*.md` |
 

@@ -420,7 +420,7 @@ export default function Notes() {
         </div>
       )}
 
-      {/* Domain identity header */}
+      {/* Domain identity header — domain pills live here on the right */}
       {currentDomainConfig && (
         <div className="flex items-center gap-3 pb-5 mb-5 border-b border-slate-800/70">
           <div className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700/50 flex items-center justify-center shrink-0">
@@ -428,21 +428,32 @@ export default function Notes() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">
-              Domain {domain} of {examDomains.length}
+              Domain {domain} of {examDomains.length}{minutes ? <span className="normal-case not-italic"> · {minutes} min read</span> : null}
             </p>
             <h2 className="text-base font-semibold text-white truncate">{currentDomainConfig.title}</h2>
           </div>
-          <div className="hidden sm:flex items-center gap-2 shrink-0">
-            {minutes && (
-              <span className="flex items-center gap-1.5 text-xs text-slate-500">
-                <Clock size={11} />
-                {minutes} min read
-              </span>
-            )}
-            <span className="text-xs font-mono text-slate-500 bg-slate-800/60 border border-slate-700/40 px-2.5 py-1 rounded-full">
-              {currentDomainConfig.weight}% of exam
-            </span>
-          </div>
+          {/* Domain switcher pills — right side of header */}
+          {examDomains.length > 1 && (
+            <div className="flex gap-1 p-0.5 rounded-xl shrink-0 overflow-x-auto" style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(51,65,85,0.45)', scrollbarWidth: 'none' }}>
+              {examDomains.map((d) => (
+                <button
+                  key={d.id}
+                  onClick={() => goTo(d)}
+                  title={d.title}
+                  className={`flex flex-col items-center gap-0.5 py-1.5 px-2.5 rounded-lg transition-all min-w-[40px] ${
+                    domain === d.id
+                      ? 'bg-violet-700 text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/60'
+                  }`}
+                >
+                  <span className="font-mono font-bold text-[11px]">D{d.id}</span>
+                  <span className={`text-[8px] font-mono leading-none ${domain === d.id ? 'text-violet-300' : 'text-slate-700'}`}>
+                    {d.weight}%
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -506,27 +517,6 @@ export default function Notes() {
           </div>
         </div>
       )}
-
-      {/* Domain stepper — mobile only (desktop uses sidebar) */}
-      <div className="flex flex-wrap gap-2 mb-6 lg:hidden">
-        {examDomains.map((d) => (
-          <button
-            key={d.id}
-            onClick={() => goTo(d)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              domain === d.id
-                ? 'bg-violet-700 text-white'
-                : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-            }`}
-          >
-            <span className="font-mono text-xs">D{d.id}</span>
-            <span className="hidden sm:inline">{d.title}</span>
-            <span className={`text-[10px] font-mono ${domain === d.id ? 'text-violet-300' : 'text-slate-600'}`}>
-              {d.weight}%
-            </span>
-          </button>
-        ))}
-      </div>
 
       {/* Mobile TOC — collapsible strip */}
       {!loading && !error && toc.length > 0 && (
@@ -624,7 +614,7 @@ export default function Notes() {
         )}
         {!loading && !error && (
           <div
-            className={`prose prose-invert max-w-none prose-a:text-violet-400 prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-blockquote:border-violet-500 prose-blockquote:text-slate-400 prose-p:text-[0.9375rem] prose-p:leading-7 ${
+            className={`prose prose-invert max-w-none prose-a:text-violet-400 prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-blockquote:border-violet-500 prose-blockquote:text-slate-400 prose-p:text-[0.9375rem] prose-p:leading-7 [&_img]:block [&_img]:mx-auto [&_img]:h-auto [&_img]:w-full [&_img]:max-w-[680px] [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-700/40 [&_img]:shadow-lg ${
               handwritingMode
                 ? '[&_h1]:text-white [&_h2]:text-white [&_h3]:text-white prose-headings:font-bold'
                 : 'prose-headings:text-white'
@@ -701,6 +691,36 @@ export default function Notes() {
 
           {/* Circular reading progress */}
           {minutes && <CircularProgress pct={readPct} readTime={minutes} />}
+
+          {/* Domain switcher */}
+          {examDomains.length > 1 && (
+            <div className="rounded-xl p-3"
+              style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
+              <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Domains</p>
+              <div className="flex flex-col gap-1">
+                {examDomains.map((d) => (
+                  <button
+                    key={d.id}
+                    onClick={() => goTo(d)}
+                    className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-left transition-all"
+                    style={{
+                      background: domain === d.id ? 'rgba(139,92,246,0.15)' : 'transparent',
+                      border: domain === d.id ? '1px solid rgba(139,92,246,0.35)' : '1px solid transparent',
+                      color: domain === d.id ? '#a78bfa' : '#64748b',
+                    }}
+                    onMouseEnter={e => { if (domain !== d.id) { e.currentTarget.style.background = 'rgba(30,41,59,0.6)'; e.currentTarget.style.color = '#94a3b8'; } }}
+                    onMouseLeave={e => { if (domain !== d.id) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; } }}
+                  >
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <span className="font-mono text-[10px] font-bold shrink-0">D{d.id}</span>
+                      <span className="text-[11px] truncate">{d.title}</span>
+                    </span>
+                    <span className="text-[9px] font-mono shrink-0 opacity-60">{d.weight}%</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* In This Article TOC */}
           <div className="rounded-xl p-4"

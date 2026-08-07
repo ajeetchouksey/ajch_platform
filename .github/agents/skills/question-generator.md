@@ -23,7 +23,7 @@ Scenario: Real-world situation requiring a design choice
 Question: "Which approach best [achieves goal]?"
 Options: 4 valid-sounding approaches, only 1 is optimal
 Correct: The Anthropic-recommended pattern
-Explanation: Why correct wins + why each distractor fails
+Explanation: See 3-part standard below
 ```
 
 ### Pattern 2: "What happens when..." (Behavior Prediction)
@@ -32,7 +32,7 @@ Scenario: Specific technical configuration described
 Question: "What happens when [condition]?"
 Options: 4 plausible outcomes
 Correct: The actual documented behavior
-Explanation: Technical reason for the behavior
+Explanation: See 3-part standard below
 ```
 
 ### Pattern 3: "What is the issue with..." (Debugging)
@@ -41,7 +41,7 @@ Scenario: Code or config with a subtle bug
 Question: "What is the primary issue?"
 Options: 4 potential issues (only 1 is the real problem)
 Correct: The actual root cause
-Explanation: How to identify and fix it
+Explanation: See 3-part standard below
 ```
 
 ### Pattern 4: "Which is true/false about..." (Fact Check)
@@ -50,8 +50,39 @@ Scenario: Context about a feature/concept
 Question: "Which statement is TRUE about [concept]?"
 Options: 3 common misconceptions + 1 truth (or vice versa)
 Correct: The factually accurate statement
-Explanation: Reference to documentation/specification
+Explanation: See 3-part standard below
 ```
+
+## Explanation Standard (REQUIRED — 3-part skill-building format)
+
+Every explanation must follow this structure. The goal is transferable skill, not answer recognition.
+A reader who already knows the correct answer must still learn something from the explanation.
+
+```
+**The principle**: [1–2 sentences stating the underlying design or architectural truth this
+question tests. Frame it as a universal rule that applies beyond this specific scenario —
+not exam language like "Anthropic recommends" but engineering language like "this pattern
+exists because...". This is the sentence a practitioner would cite in a design review.]
+
+**Why [correct option] is correct**: [Reasoning tied to the principle above. Explain the
+causal chain — not just that it works, but WHY it works and what would happen if it didn't.]
+
+**Why the distractors fail**:
+- [Option A]: [Specific failure mode — what breaks in a real system, not just "less reliable"]
+- [Option C]: [Same — concrete consequence, not exam-language]
+- [Option D]: [Same]
+
+**In practice**: [1–2 sentences connecting this to real engineering decisions. Answer at least
+one of: What breaks in production if you get this wrong? What question do senior engineers ask
+themselves when facing this choice? When would you choose differently if the requirement shifted?]
+```
+
+### Explanation Anti-patterns (reject these)
+
+- Starting with "The correct answer is B because..." — puts exam before understanding
+- Distractor explanations that only say "less reliable" or "not recommended" — must state the failure mode
+- Missing the **In practice** section — this is what separates skill-building from exam-pointing
+- Citing "Anthropic recommends" as the sole justification — always explain the engineering reason behind the recommendation
 
 ## Distractor Engineering
 
@@ -78,8 +109,8 @@ Examples:
 - AB-100 Domain 3: `ab100-d3-002`
 
 **`domain` is a `number`** — not a string union. Any positive integer is valid.
-- Domain 1: d1-001 through d1-NNN
-- Domain 2: d2-001 through d2-NNN
+- Domain 1: {examId}-d1-001 through {examId}-d1-NNN  (e.g. ccaf-d1-001, ab731-d1-015)
+- Domain 2: {examId}-d2-001 through {examId}-d2-NNN
 - etc.
 
 Always use the next sequential number after the highest existing ID.
@@ -120,10 +151,11 @@ rate-limiting, exponential-backoff, token-budget, escalation
 Before outputting a question, verify:
 - [ ] Exactly 4 options (no more, no less)
 - [ ] `correct` index (0-3) points to the right answer
+- [ ] `difficulty` is set to `easy`, `medium`, or `hard` (required on all new questions)
 - [ ] Explanation covers why correct answer wins
 - [ ] Explanation mentions why at least 2 distractors fail
 - [ ] Scenario is realistic (not contrived)
 - [ ] No two options are functionally identical
 - [ ] Tags are from the approved taxonomy
-- [ ] ID follows sequential pattern
+- [ ] ID follows sequential pattern: `{examId}-d{N}-{NNN}`
 - [ ] Domain number matches the topic

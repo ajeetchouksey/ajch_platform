@@ -425,7 +425,7 @@ export default function StudyPlan() {
     if (saved) {
       dispatch({ type: 'loaded', plan: saved });
     } else {
-      const fresh = generatePlan({ examId: validId, domains: exam.domains, sessions, targetDate });
+      const fresh = generatePlan({ examId: validId, domains: exam.domains, sessions, targetDate, contentVersion: exam.contentVersion });
       if (fresh) { savePlan(fresh); dispatch({ type: 'loaded', plan: fresh }); }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -442,7 +442,7 @@ export default function StudyPlan() {
 
   const regenerate = useCallback((newDate: string, mins: DailyMinutes = dailyMinutes) => {
     if (!validId || !exam) return;
-    const fresh = generatePlan({ examId: validId, domains: exam.domains, sessions, targetDate: newDate, dailyMinutes: mins });
+    const fresh = generatePlan({ examId: validId, domains: exam.domains, sessions, targetDate: newDate, dailyMinutes: mins, contentVersion: exam.contentVersion });
     if (fresh) { savePlan(fresh); dispatch({ type: 'regenerated', plan: fresh, targetDate: newDate }); }
   }, [validId, exam, sessions, dailyMinutes]);
 
@@ -485,9 +485,10 @@ export default function StudyPlan() {
         targetDate,
         domainScores,
         domainWeights,
+        domains: exam.domains.map((d) => ({ id: d.id, title: d.title, weight: d.weight })),
         request: planRequest || 'Build me a focused study plan highlighting my weak domains',
       });
-      const aiPlan = buildAIPlan(validId, exam.domains, resp.sessions, targetDate);
+      const aiPlan = buildAIPlan(validId, exam.domains, resp.sessions, targetDate, exam.contentVersion);
       if (aiPlan) {
         savePlan(aiPlan);
         void syncToGist();
@@ -560,6 +561,9 @@ export default function StudyPlan() {
 
   const daysUntilStr = daysUntil > 0 ? `${daysUntil}d` : 'Today!';
 
+  // Plan was generated against an older content version → prompt the user to regenerate
+  const isStale = !!plan.contentVersion && !!exam.contentVersion && plan.contentVersion !== exam.contentVersion;
+
   return (
     <div className={`space-y-6 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
 
@@ -574,6 +578,25 @@ export default function StudyPlan() {
           Personalised day-by-day prep schedule based on your quiz scores.
         </p>
       </div>
+
+      {/* Content-staleness warning */}
+      {isStale && (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-700/50 bg-amber-900/10 px-4 py-3">
+          <AlertTriangle size={15} className="text-amber-400 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-amber-300">Exam content updated since this plan was generated</p>
+            <p className="text-xs text-amber-400/70 mt-0.5">
+              Plan: v{plan.contentVersion} · Current: v{exam.contentVersion}
+            </p>
+          </div>
+          <button
+            onClick={() => regenerate(targetDate)}
+            className="text-xs text-amber-300 hover:text-amber-100 border border-amber-700/60 hover:border-amber-500 rounded-lg px-2.5 py-1 transition-colors shrink-0"
+          >
+            Regenerate
+          </button>
+        </div>
+      )}
 
       {/* Stats strip */}
       <div className="grid grid-cols-3 gap-3">

@@ -34,11 +34,11 @@ All exam routes use a single generic `:examId` param. **Never add per-exam route
 <Route path="/exams/:examId/progress" element={<Progress />} />
 ```
 
-When a new exam is added to `public/content/exams/index.json`, NO routing changes are required.
+When a new exam is added to `public/content/skillup/{examId}/index.json`, NO routing changes are required.
 
 ## Sidebar Context (Registry-Driven)
 
-The exam sidebar in Layout.tsx is registry-driven. It reads `public/content/exams/index.json` and renders the current exam’s domains/weights/resources dynamically. **Never add a hardcoded per-exam sidebar block.**
+The exam sidebar in Layout.tsx is registry-driven. It reads `public/content/skillup/{examId}/index.json` and renders the current exam's domains/weights/resources dynamically. **Never add a hardcoded per-exam sidebar block.**
 
 For non-exam features (blog, team, tools), the existing pattern applies:
 

@@ -26,7 +26,7 @@ whether each diagram meets the platform's visual and readability standards.
 You are called with one of:
 
 - A single file path (e.g., `public/content/blog/posts/my-post.md`)
-- A glob pattern (e.g., `public/content/notes/*.md`)
+- A glob pattern (e.g., `public/content/skillup/*/notes/*.md`)
 - A raw Mermaid chart string passed directly
 
 ## Standards Checklist
@@ -119,7 +119,7 @@ Validate all Mermaid diagrams in public/content/blog/posts/guardrails-ai.md
 
 ### Check all study notes
 ```
-Run diagram validation across public/content/notes/*.md
+Run diagram validation across public/content/skillup/*/notes/*.md
 ```
 
 ### Check raw chart string

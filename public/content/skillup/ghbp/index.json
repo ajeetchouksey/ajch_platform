@@ -1,5 +1,18 @@
 {
   "schemaVersion": "1.0",
+  "contentVersion": "1.0.0",
+  "contentUpdatedAt": "2026-08-06",
+  "provider": "GitHub",
+  "palette": {
+    "color": "#4ade80",
+    "bg": "rgba(22,163,74,0.10)",
+    "border": "rgba(22,163,74,0.38)",
+    "glow": "rgba(22,163,74,0.18)",
+    "btn": "linear-gradient(135deg, #16a34a, #15803d)"
+  },
+  "changelog": [
+    { "version": "1.0.0", "date": "2026-08-06", "type": "major", "summary": "Initial release — 3 domains, 75 questions" }
+  ],
   "id": "ghbp",
   "examCode": "GH-BP",
   "title": "GitHub Engineering Best Practices",

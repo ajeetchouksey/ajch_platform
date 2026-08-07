@@ -61,8 +61,9 @@ Do not approve raw Tailwind badge/card/stat patterns in PRs — redirect to Comp
 ## Registry Architecture Rule
 
 The platform uses a **registry-driven exam framework**. Adding a new exam requires ONLY:
-1. Content files (`public/content/questions/`, `notes/`, `scenarios/`)
-2. One JSON entry in `public/content/exams/index.json`
+1. Content files under `public/content/skillup/{examId}/`
+2. One `index.json` per exam at `public/content/skillup/{examId}/index.json`
+3. Register in `public/content/skillup/catalog.json`
 3. Zero TypeScript changes, zero new page components, zero new routes
 
 **NEVER approve:**
