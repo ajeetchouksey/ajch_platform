@@ -10,6 +10,7 @@ import { getNotesSeen } from '@/lib/storage';
 import { EXAM_SCHEMES } from '@/types/content';
 import type { ExamConfig } from '@/types/content';
 import { SubscribeForm } from './SubscribeForm';
+import { GrowthPrompt } from './GrowthPrompt';
 
 const EXAM_NAV = [
   { slug: '',          label: 'Overview',    icon: GraduationCap, end: true },
@@ -677,6 +678,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </main>
       </div>
 
+      <GrowthPrompt />
     </div>
   );
 }

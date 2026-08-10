@@ -101,24 +101,38 @@
   "agentRecommendations": [
     {
       "severity": "critical",
-      "title": "Video content is the weakest MVP signal",
-      "desc": "Only 3 of 100 target videos published. Start an Azure AI Foundry playlist immediately — video is the fastest community growth lever.",
+      "title": "Enable GitHub Discussions — community surface is missing",
+      "desc": "GitHub Discussions is zero-cost community infrastructure. Enable it now, create 4 pinned threads (start-here, study-group, architecture-review, weekly-reading), and post a welcome message. GrowthPrompt is already deployed to drive first visitors to the Discussions tab.",
+      "action": "Enable on GitHub repo settings",
+      "issueNumber": null
+    },
+    {
+      "severity": "critical",
+      "title": "Ship Issue #336 — Azure AI Foundry Hub is 10 weeks overdue",
+      "desc": "Q1 closed without this P1 item. At 12% coverage, Azure AI Foundry is the single biggest domain gap. Need 3 blog posts, 1 exam track, and 1 architecture diagram this week to move from 12% → ~30%.",
+      "action": "Open issue #336",
+      "issueNumber": 336
+    },
+    {
+      "severity": "critical",
+      "title": "Record first video this week — 0 of 20 target",
+      "desc": "Screen-capture the platform walkthrough (5 min, narrate as you go). No camera needed. Upload to YouTube and cross-post on LinkedIn. Every week without video is a missed compounding signal for the nomination.",
       "action": "Open issue #340",
       "issueNumber": 340
     },
     {
       "severity": "warning",
-      "title": "Blog velocity needs to reach 8 posts/month",
-      "desc": "At ~2/month the projected total by Aug 2027 is 38. Need to 4× cadence by Q1 to have any chance of hitting 100.",
-      "action": "View content backlog",
+      "title": "Blog cadence: need 2 posts/week to reach 100 by Apr 2027",
+      "desc": "At current pace (62 posts, ~2/month) the projected total is ~77. Need to double to 2/week minimum. Turn every exam study session and architecture build into a post — the Field Notes backlog already has 50+ scoped issues.",
+      "action": "View blog backlog",
       "issueNumber": null
     },
     {
-      "severity": "ok",
-      "title": "AI Engineering coverage is solid",
-      "desc": "The Field Notes series (50+ queued issues) is strong, credible evidence of practical depth — exactly what nomination reviewers look for.",
-      "action": "Ensure posts are published",
-      "issueNumber": null
+      "severity": "warning",
+      "title": "Use Case Library almost done — close issue #339 early",
+      "desc": "45 of 50 use cases are published — 90% complete. Adding 5 more (Manufacturing, Banking, Retail, HR, Technology) closes this Q2 epic ahead of schedule and frees focus for GitHub Copilot Hub (#337).",
+      "action": "Open issue #339",
+      "issueNumber": 339
     }
   ],
   "agentLastRun": "2026-08-10",
