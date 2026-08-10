@@ -67,7 +67,7 @@ Use fetched data to validate that platform targets align with the current MVP aw
 | Blog | https://aaryaai.dev/blog | `public/content/blog/index.json` |
 | Use Cases | https://aaryaai.dev/usecases | `public/content/usecases/index.json` |
 | Tools | https://aaryaai.dev/tools | `src/pages/Tools.tsx` (hardcoded, 9 tools) |
-| Interview Prep | https://aaryaai.dev/interview | `public/content/interviews/index.json` |
+| Interview Prep | https://aaryaai.dev/roleprep | `public/content/interviews/index.json` |
 | Skillup / Exams | https://aaryaai.dev/skillup | `public/content/skillup/catalog.json` |
 
 ## Output Schema — `agentRecommendations[]`
