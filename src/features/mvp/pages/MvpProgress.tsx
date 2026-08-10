@@ -118,8 +118,8 @@ const SEV_BORDER: Record<string, string> = {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-const METRICS: { key: string; label: string; color: string; fill: string }[] = [
-  { key: 'blogs',        label: '✎ Blogs',          color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)' },
+const METRICS: { key: string; label: string; color: string; fill: string; live?: boolean }[] = [
+  { key: 'blogs',        label: '✎ Blogs',          color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)', live: true },
   { key: 'videos',       label: '▶ Videos',          color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' },
   { key: 'architectures',label: '⬡ Architectures',   color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)' },
   { key: 'useCases',     label: '🏭 Use Cases',      color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)' },
@@ -128,17 +128,23 @@ const METRICS: { key: string; label: string; color: string; fill: string }[] = [
   { key: 'speaking',     label: '🎤 Speaking',        color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)' },
   { key: 'mentoring',    label: '🧑‍🏫 Mentoring',    color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)' },
   { key: 'ossRepos',     label: '📦 OSS Repos',       color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)' },
-  { key: 'githubStars',  label: '⭐ GitHub Stars',   color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' },
+  { key: 'githubStars',  label: '⭐ GitHub Stars',   color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)', live: true },
 ];
 
-function MetricCard({ label, current, target, color, fill }: {
-  label: string; current: number; target: number; color: string; fill: string;
+function MetricCard({ label, current, target, color, fill, live }: {
+  label: string; current: number; target: number; color: string; fill: string; live?: boolean;
 }) {
   const p = pct(current, target);
   return (
     <div className="rounded-xl p-4 transition-all duration-200 hover:scale-[1.02]"
       style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-      <p className="text-[11px] text-slate-500 mb-2">{label}</p>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-[11px] text-slate-500">{label}</p>
+        {live && (
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium"
+            style={{ color: '#34d399', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)' }}>live</span>
+        )}
+      </div>
       <div className="flex items-baseline gap-1 mb-2.5">
         <span className="text-2xl font-bold" style={{ color }}>{fmtNum(current)}</span>
         <span className="text-xs text-slate-500">/ {fmtNum(target)}</span>
@@ -269,13 +275,33 @@ function GrowthCard({ item, current, target, expanded, onToggle }: {
 
 export default function MvpProgress() {
   const { user, isLoading: authLoading } = useAuth();
-  const [data, setData]       = useState<MvpData | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const [data, setData]         = useState<MvpData | null>(null);
+  const [mounted, setMounted]   = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  // live-fetched overrides (blog count from index, stars from GH API)
+  const [liveOverrides, setLiveOverrides] = useState<Record<string, number>>({});
 
   const isOwner = user?.login === OWNER_LOGIN;
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
+
+  useEffect(() => {
+    // blog count from the content index (source of truth)
+    fetch('/content/blog/index.json')
+      .then(r => r.json())
+      .then((d: { posts: { draft?: boolean }[] }) => {
+        const count = d.posts.filter(p => !p.draft).length;
+        setLiveOverrides(prev => ({ ...prev, blogs: count }));
+      })
+      .catch(() => {});
+    // GitHub stars from public API (no auth needed for public repos)
+    fetch(`https://api.github.com/repos/${REPO}`)
+      .then(r => r.json())
+      .then((d: { stargazers_count: number }) => {
+        setLiveOverrides(prev => ({ ...prev, githubStars: d.stargazers_count }));
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch('/content/mvp-progress.json')
@@ -306,7 +332,9 @@ export default function MvpProgress() {
     );
   }
 
-  const { targets, current, quarters, domainCoverage, agentRecommendations, agentLastRun, agentNextRun, growthPlaybook, pipeline } = data;
+  const { targets, current: staticCurrent, quarters, domainCoverage, agentRecommendations, agentLastRun, agentNextRun, growthPlaybook, pipeline } = data;
+  // merge live-fetched values over the static JSON values
+  const current = { ...staticCurrent, ...liveOverrides };
 
   return (
     <div className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
@@ -347,6 +375,7 @@ export default function MvpProgress() {
               target={targets[m.key] ?? 1}
               color={m.color}
               fill={m.fill}
+              live={m.live}
             />
           ))}
         </div>
