@@ -40,7 +40,7 @@ Architecture content exists ACROSS multiple sources — do NOT limit to blog pos
 
 | Source | Counts as Architecture when… | How to detect |
 |---|---|---|
-| Blog posts | Primary topic is system design or architecture | tags include `ai-architecture`, `architecture`, `system-design`, `multi-agent`, `rag` |
+| Blog posts | Primary topic is system design or architecture | tags include `ai-architecture` or `system-design` only — do NOT use generic `architecture` tag (matches Azure/infra posts) |
 | Use cases | ALL use cases count | every case in `public/content/usecases/cases/*.json` has a `patterns[]` field = architectural pattern reference |
 | Interviews | Role is architect-focused | `public/content/interviews/index.json` → roles where title contains "Architect" or topSkills include `rag-architecture`, `multi-agent-orchestration` |
 | Tools | Tool is architecture-supporting | Tools with id: `mcp-scaffold`, `rag-chunk-visualizer`, `context-visualizer`, `tool-schema-builder` |
@@ -55,7 +55,7 @@ Architecture content exists ACROSS multiple sources — do NOT limit to blog pos
 
 1. Read public/content/blog/index.json
    → blogCount = posts where draft: false
-   → archBlogCount = posts where tags include ai-architecture|architecture|system-design
+   → archBlogCount = posts where tags includes 'ai-architecture' OR 'system-design' (strict — NOT generic 'architecture')
 
 2. Read public/content/usecases/index.json
    → useCaseCount = totalCount
@@ -75,12 +75,9 @@ Architecture content exists ACROSS multiple sources — do NOT limit to blog pos
 4. Read public/content/skillup/catalog.json
    → skillupExamCount = exams.length
 
-5. Count tools from src/pages/Tools.tsx
-   → toolsCount = 9 (System Prompt Builder, Token Counter, Context Visualizer,
-     MCP Scaffold, Model Cost Calculator, Tool Schema Builder,
-     RAG Chunk Visualizer, Prompt Tester, Prompt Library)
-   → archToolsCount = 4 (Context Visualizer, MCP Scaffold,
-     RAG Chunk Visualizer, Tool Schema Builder)
+5. Read public/content/tools/index.json  ← source of truth, synced with Tools.tsx
+   → toolsCount = tools.length
+   → archToolsCount = tools where id in [context-visualizer, mcp-scaffold, rag-chunk-visualizer, tool-schema-builder]
 
 6. Aggregate architecture total:
    totalArchitecture = archBlogCount + useCaseArchCount + archInterviewCount + archToolsCount

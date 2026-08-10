@@ -51,7 +51,7 @@ Use fetched data to validate that platform targets align with the current MVP aw
 3. Read public/content/usecases/index.json         → totalCount + verticals + patterns
 4. Read public/content/interviews/index.json        → role count + architect roles
 5. Read public/content/skillup/catalog.json         → exam count
-6. Count src/pages/Tools.tsx TOOLS array            → tool count (currently 9)
+6. Read public/content/tools/index.json            → tool count (source of truth, synced with Tools.tsx)
 7. Read public/content/stats.json                   → platform totals
 8. Call Content Gap Analyst                         → full domain coverage report across all 5 sources
 9. Call Community Tracker                           → community metric update
@@ -66,7 +66,7 @@ Use fetched data to validate that platform targets align with the current MVP aw
 |---|---|---|
 | Blog | https://aaryaai.dev/blog | `public/content/blog/index.json` |
 | Use Cases | https://aaryaai.dev/usecases | `public/content/usecases/index.json` |
-| Tools | https://aaryaai.dev/tools | `src/pages/Tools.tsx` (hardcoded, 9 tools) |
+| Tools | https://aaryaai.dev/tools | `public/content/tools/index.json` |
 | Interview Prep | https://aaryaai.dev/roleprep | `public/content/interviews/index.json` |
 | Skillup / Exams | https://aaryaai.dev/skillup | `public/content/skillup/catalog.json` |
 

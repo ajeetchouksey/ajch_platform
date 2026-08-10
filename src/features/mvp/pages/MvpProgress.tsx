@@ -121,11 +121,11 @@ const SEV_BORDER: Record<string, string> = {
 const METRICS: { key: string; label: string; color: string; fill: string; live?: boolean }[] = [
   { key: 'blogs',         label: '✎ Blogs',           color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)', live: true },
   { key: 'videos',        label: '▶ Videos',           color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' },
-  { key: 'architectures', label: '⬡ Architectures',    color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)' },
+  { key: 'architectures', label: '⬡ Architectures',    color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)', live: true },
   { key: 'useCases',      label: '🏭 Use Cases',       color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)', live: true },
   { key: 'interviewQuestions', label: '🧑‍💼 Interviews', color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)', live: true },
   { key: 'skillupExams',  label: '📚 Skillup Exams',   color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)', live: true },
-  { key: 'aiTools',       label: '🛠 AI Tools',         color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)' },
+  { key: 'aiTools',       label: '🛠 AI Tools',         color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)', live: true },
   { key: 'linkedin',      label: '🔗 LinkedIn',         color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)' },
   { key: 'community',     label: '👥 Community',       color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' },
   { key: 'speaking',      label: '🎤 Speaking',         color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)' },
@@ -324,6 +324,22 @@ export default function MvpProgress() {
       .then(r => r.json())
       .then((d: { exams: unknown[] }) => {
         setLiveOverrides(prev => ({ ...prev, skillupExams: d.exams.length }));
+      })
+      .catch(() => {});
+    // ai tools count from manifest (source of truth alongside Tools.tsx)
+    fetch('/content/tools/index.json')
+      .then(r => r.json())
+      .then((d: { tools: unknown[] }) => {
+        setLiveOverrides(prev => ({ ...prev, aiTools: d.tools.length }));
+      })
+      .catch(() => {});
+    // architecture blogs: only posts tagged ai-architecture or system-design
+    fetch('/content/blog/index.json')
+      .then(r => r.json())
+      .then((d: { posts: { draft?: boolean; tags?: string[] }[] }) => {
+        const ARCH_TAGS = new Set(['ai-architecture', 'system-design']);
+        const count = d.posts.filter(p => !p.draft && p.tags?.some(t => ARCH_TAGS.has(t))).length;
+        setLiveOverrides(prev => ({ ...prev, architectures: count }));
       })
       .catch(() => {});
   }, []);
