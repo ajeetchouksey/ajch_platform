@@ -34,6 +34,8 @@ ADLC accepts these realities and builds process around them rather than pretendi
 
 ## The Six Stages
 
+![The ADLC — Six Stages](/content/blog/images/adlc_siy_stages.png)
+
 ### Stage 1 — Design: The Agent Contract
 
 Everything in ADLC begins with the **Agent Contract** — a five-field declaration that every agent must specify before a single line of prompt is written:
@@ -72,6 +74,8 @@ Evaluation is where ADLC diverges most sharply from SDLC, and where most teams u
 
 **Threshold gates.** Evaluation must produce a binary ship/no-ship signal. A score of "pretty good" is not a deployment decision. Define pass/fail thresholds before you run evaluation — not after you see the results.
 
+![Evaluation Stage Flow](/content/blog/images/adlc_evaluation_stage_flow.png)
+
 ### Stage 4 — Deploy: Version Everything
 
 Deployment in ADLC must treat prompts, Agent Contracts, tool schemas, and model versions as first-class release artefacts — not implementation details.
@@ -107,6 +111,8 @@ In SDLC, iteration means a new sprint. In ADLC, iteration means a change to a no
 ---
 
 ## ADLC vs SDLC: The Key Differences
+
+![ADLC vs SDLC](/content/blog/images/adlc_vs_sdlv.png)
 
 | Dimension | SDLC | ADLC |
 |-----------|------|------|
