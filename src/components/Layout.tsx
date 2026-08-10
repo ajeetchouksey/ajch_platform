@@ -34,7 +34,6 @@ const TOOL_NAV = [
 
 const platformLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
-  { to: '/discovery', label: 'Discovery', icon: Compass },
   { to: '/skillup', label: 'Skill Up', icon: GraduationCap },
   { to: '/blog', label: 'Field Notes', icon: Newspaper },
   { to: '/roleprep', label: 'Role Prep', icon: Briefcase },
@@ -42,6 +41,7 @@ const platformLinks = [
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/docs', label: 'Docs', icon: BookOpen, topNavHidden: true },
   { to: '/contribute', label: 'Contribute', icon: GitPullRequest, topNavHidden: true },
+  { to: '/discovery', label: 'Discovery', icon: Compass },
   { to: '/team', label: 'Team', icon: Users },
   { to: '/profile', label: 'Profile', icon: User, sidebarOnly: true },
   { to: '/dashboard', label: 'Dashboard', icon: BarChart2, sidebarOnly: true },
