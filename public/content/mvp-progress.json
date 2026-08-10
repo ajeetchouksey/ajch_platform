@@ -1,0 +1,124 @@
+{
+  "schema": "1.0",
+  "lastUpdated": "2026-08-10",
+  "targetDate": "2027-08-31",
+  "targets": {
+    "blogs": 100,
+    "videos": 100,
+    "architectures": 50,
+    "useCases": 100,
+    "linkedin": 5000,
+    "community": 1000,
+    "speaking": 12,
+    "mentoring": 12,
+    "ossRepos": 10,
+    "githubStars": 500
+  },
+  "current": {
+    "blogs": 14,
+    "videos": 3,
+    "architectures": 2,
+    "useCases": 0,
+    "linkedin": 1200,
+    "community": 0,
+    "speaking": 0,
+    "mentoring": 0,
+    "ossRepos": 1,
+    "githubStars": 12
+  },
+  "quarters": [
+    {
+      "id": "Q1",
+      "label": "Foundation",
+      "start": "2026-09-01",
+      "end": "2026-11-30",
+      "color": "violet",
+      "issueNumbers": [336, 337],
+      "issueLabels": ["Azure AI Foundry Hub", "GitHub Copilot Hub"],
+      "status": "active",
+      "openCount": 2,
+      "closedCount": 0
+    },
+    {
+      "id": "Q2",
+      "label": "Scale Learning",
+      "start": "2026-12-01",
+      "end": "2027-02-28",
+      "color": "cyan",
+      "issueNumbers": [338, 339],
+      "issueLabels": ["Certification Academy", "Use Case Library"],
+      "status": "planned",
+      "openCount": 2,
+      "closedCount": 0
+    },
+    {
+      "id": "Q3",
+      "label": "Community Leadership",
+      "start": "2027-03-01",
+      "end": "2027-05-31",
+      "color": "amber",
+      "issueNumbers": [340, 341],
+      "issueLabels": ["AaryaAI TV playlists", "Community Programs"],
+      "status": "planned",
+      "openCount": 2,
+      "closedCount": 0
+    },
+    {
+      "id": "Q4",
+      "label": "MVP Portfolio",
+      "start": "2027-06-01",
+      "end": "2027-08-31",
+      "color": "green",
+      "issueNumbers": [342, 343],
+      "issueLabels": ["Architecture Library", "Open Source repos"],
+      "status": "planned",
+      "openCount": 2,
+      "closedCount": 0
+    }
+  ],
+  "domainCoverage": [
+    { "domain": "Azure AI Foundry", "pct": 12, "status": "critical" },
+    { "domain": "GitHub Copilot",   "pct": 18, "status": "critical" },
+    { "domain": "Agentic AI",       "pct": 35, "status": "low"      },
+    { "domain": "AI Architecture",  "pct": 28, "status": "low"      },
+    { "domain": "AI Engineering",   "pct": 62, "status": "good"     },
+    { "domain": "Community",        "pct": 5,  "status": "critical" },
+    { "domain": "Video Content",    "pct": 3,  "status": "critical" },
+    { "domain": "Open Source",      "pct": 10, "status": "critical" }
+  ],
+  "agentRecommendations": [
+    {
+      "severity": "critical",
+      "title": "Video content is the weakest MVP signal",
+      "desc": "Only 3 of 100 target videos published. Start an Azure AI Foundry playlist immediately — video is the fastest community growth lever.",
+      "action": "Open issue #340",
+      "issueNumber": 340
+    },
+    {
+      "severity": "warning",
+      "title": "Blog velocity needs to reach 8 posts/month",
+      "desc": "At ~2/month the projected total by Aug 2027 is 38. Need to 4× cadence by Q1 to have any chance of hitting 100.",
+      "action": "View content backlog",
+      "issueNumber": null
+    },
+    {
+      "severity": "ok",
+      "title": "AI Engineering coverage is solid",
+      "desc": "The Field Notes series (50+ queued issues) is strong, credible evidence of practical depth — exactly what nomination reviewers look for.",
+      "action": "Ensure posts are published",
+      "issueNumber": null
+    }
+  ],
+  "agentLastRun": "2026-08-10",
+  "agentNextRun": "2026-08-17",
+  "pipeline": [
+    { "issueNumber": 336, "title": "Azure AI Foundry Hub — learning path, architecture, labs, certification, video playlist", "quarter": "Q1", "priority": "P1" },
+    { "issueNumber": 337, "title": "GitHub Copilot Hub — learning path, prompt engineering, certification, enterprise guide",  "quarter": "Q1", "priority": "P1" },
+    { "issueNumber": 338, "title": "Certification Academy — AI-900, AI-102, GH Foundations, GH Copilot tracks",               "quarter": "Q2", "priority": "P2" },
+    { "issueNumber": 339, "title": "Use Case Library — Manufacturing, Banking, Retail, HR, Technology",                        "quarter": "Q2", "priority": "P2" },
+    { "issueNumber": 340, "title": "AaryaAI TV — Foundry, Copilot, Agentic AI, AI Leadership playlists",                      "quarter": "Q3", "priority": "P1" },
+    { "issueNumber": 341, "title": "Community Programs — monthly webinar, architecture reviews, office hours",                  "quarter": "Q3", "priority": "P2" },
+    { "issueNumber": 342, "title": "Architecture Library — RAG, Agentic RAG, Multi-Agent, AI Platform, Security architectures","quarter": "Q4", "priority": "P2" },
+    { "issueNumber": 343, "title": "Open Source repos — AI Foundry Labs, GitHub Copilot, Agentic AI, Reference Architectures", "quarter": "Q4", "priority": "P2" }
+  ]
+}
