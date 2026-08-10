@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Star, MessageCircle, X } from 'lucide-react';
 
 const REPO        = 'https://github.com/ajeetchouksey/ajch_platform';
 const LINKEDIN    = 'https://www.linkedin.com/in/ajeet-chouksey-bb365138/';
-const DISCUSS     = 'https://github.com/ajeetchouksey/ajch_platform/discussions';
 const SESSION_KEY = 'aarya_gp_seen';
 const NEVER_KEY   = 'aarya_gp_never';
 // show after 25 s — user has read something meaningful by then
@@ -88,19 +88,18 @@ export function GrowthPrompt() {
           <span className="text-[10px] text-slate-600 group-hover:text-blue-500/70 transition-colors">↗</span>
         </a>
 
-        <a
-          href={DISCUSS}
-          target="_blank"
-          rel="noreferrer"
+        <Link
+          to="/contribute"
+          onClick={() => dismiss()}
           className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-violet-500/10 border border-slate-700/50 hover:border-violet-500/30 transition-all group"
         >
           <MessageCircle size={14} className="text-violet-400 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-[12px] font-medium text-white leading-tight">Share your thoughts</p>
-            <p className="text-[10px] text-slate-500">What would you like to see next?</p>
+            <p className="text-[10px] text-slate-500">Suggest a feature or content idea</p>
           </div>
-          <span className="text-[10px] text-slate-600 group-hover:text-violet-400/70 transition-colors">↗</span>
-        </a>
+          <span className="text-[10px] text-slate-600 group-hover:text-violet-400/70 transition-colors">→</span>
+        </Link>
       </div>
 
       <div className="flex items-center justify-between">
