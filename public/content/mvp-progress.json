@@ -4,9 +4,13 @@
   "targetDate": "2027-08-31",
   "targets": {
     "blogs": 100,
-    "videos": 100,
-    "architectures": 50,
-    "useCases": 100,
+    "videos": 20,
+    "architectures": 30,
+    "useCases": 50,
+    "interviewQuestions": 50,
+    "skillupExams": 10,
+    "aiTools": 15,
+    "communityArticles": 40,
     "linkedin": 5000,
     "community": 1000,
     "speaking": 12,
@@ -15,16 +19,20 @@
     "githubStars": 500
   },
   "current": {
-    "blogs": 14,
-    "videos": 3,
+    "blogs": 62,
+    "videos": 0,
     "architectures": 2,
-    "useCases": 0,
-    "linkedin": 1200,
+    "useCases": 45,
+    "interviewQuestions": 24,
+    "skillupExams": 6,
+    "aiTools": 9,
+    "communityArticles": 12,
+    "linkedin": 0,
     "community": 0,
     "speaking": 0,
     "mentoring": 0,
     "ossRepos": 1,
-    "githubStars": 12
+    "githubStars": 1
   },
   "quarters": [
     {

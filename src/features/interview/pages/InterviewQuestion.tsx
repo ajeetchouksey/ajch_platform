@@ -82,7 +82,7 @@ export default function InterviewQuestion() {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
         <p className="text-sm text-rose-300">{error}</p>
-        <Link to="/interview" className="mt-4 inline-flex items-center gap-1 text-sm text-violet-300">
+        <Link to="/roleprep" className="mt-4 inline-flex items-center gap-1 text-sm text-violet-300">
           <ArrowLeft size={14} /> Back to Interview Prep
         </Link>
       </div>
@@ -94,7 +94,7 @@ export default function InterviewQuestion() {
   }
 
   const da = item.detailedAnswer;
-  const backHref = roleId ? `/interview/${roleId}` : '/interview';
+  const backHref = roleId ? `/roleprep/${roleId}` : '/roleprep';
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">

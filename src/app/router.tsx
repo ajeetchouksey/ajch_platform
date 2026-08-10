@@ -76,7 +76,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomeV2 />} />
-      <Route path="/learn" element={<Navigate to="/horizons" replace />} />
+      <Route path="/learn" element={<Navigate to="/discovery" replace />} />
 
       {/* Skill Up — primary routes */}
       <Route path="/skillup" element={<ExamCatalog />} />
@@ -96,10 +96,10 @@ export default function AppRoutes() {
       <Route path="/exams/:examId/scenarios" element={<ExamSubRedirect sub="scenarios" />} />
       <Route path="/exams/:examId/progress" element={<ExamSubRedirect sub="progress" />} />
 
-      {/* Horizons */}
-      <Route path="/horizons" element={<Pathways />} />
-      <Route path="/horizons/:track" element={<PathwayTrack />} />
-      <Route path="/horizons/:track/:slug" element={<PathwayArticle />} />
+      {/* Discovery */}
+      <Route path="/discovery" element={<Pathways />} />
+      <Route path="/discovery/:track" element={<PathwayTrack />} />
+      <Route path="/discovery/:track/:slug" element={<PathwayArticle />} />
 
       {/* Field Notes */}
       <Route path="/blog" element={<Blog />} />
@@ -118,9 +118,9 @@ export default function AppRoutes() {
       <Route path="/tools/prompt-library" element={<PromptLibrary />} />
 
       {/* Interview Prep */}
-      <Route path="/interview" element={<InterviewCatalog />} />
-      <Route path="/interview/q/:id" element={<InterviewQuestion />} />
-      <Route path="/interview/:roleId" element={<InterviewPack />} />
+      <Route path="/roleprep" element={<InterviewCatalog />} />
+      <Route path="/roleprep/q/:id" element={<InterviewQuestion />} />
+      <Route path="/roleprep/:roleId" element={<InterviewPack />} />
 
       {/* AI Use Cases */}
       <Route path="/usecases" element={<UseCasesCatalog />} />

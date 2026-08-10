@@ -319,7 +319,7 @@ export default function Pathways() {
 
                       {/* CTA (SkillUp gradient button) */}
                       <Link
-                        to={`/horizons/${track.id}`}
+                        to={`/discovery/${track.id}`}
                         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
                         style={{
                           background: `linear-gradient(135deg, ${track.color}, ${track.color}cc)`,
@@ -477,7 +477,7 @@ export default function Pathways() {
               <GraduationCap size={15} /> Start Exam Prep <ArrowRight size={15} />
             </Link>
             <Link
-              to="/horizons/safety"
+              to="/discovery/safety"
               className="inline-flex items-center gap-2 px-7 py-3 text-sm font-bold rounded-2xl text-slate-300 hover:text-white transition-all hover:-translate-y-0.5"
               style={{ background: 'rgba(30,41,59,0.6)', border: '1px solid rgba(71,85,105,0.35)' }}
             >

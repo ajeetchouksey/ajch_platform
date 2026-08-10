@@ -395,7 +395,7 @@ export default function UseCaseDetail() {
                 {featured.relatedInterviewQs.map((qid) => (
                   <Link
                     key={qid}
-                    to={`/interview/q/${qid}`}
+                    to={`/roleprep/q/${qid}`}
                     className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300 hover:border-blue-500/40 hover:text-blue-300 transition-colors"
                   >
                     {qid}

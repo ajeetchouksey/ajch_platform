@@ -121,7 +121,7 @@ export function buildInterviewDocs(items: Array<{
     type: 'interview' as SearchDocType,
     title: q.question,
     excerpt: q.detailedAnswer?.summary ?? '',
-    url: `/interview/q/${q.id}`,
+    url: `/roleprep/q/${q.id}`,
     tags: [...(q.tags ?? []), q.type, q.difficulty],
     category: q.competency,
   }));

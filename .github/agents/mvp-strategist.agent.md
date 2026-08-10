@@ -1,6 +1,6 @@
 ---
 name: MVP Strategist
-version: 1.0.0
+version: 1.1.0
 last_modified: "2026-08-10"
 description: >
   Growth Orchestrator for Aarya — My AI Learning Hub. Owns the MVP & Growth
@@ -48,13 +48,29 @@ Use fetched data to validate that platform targets align with the current MVP aw
 
 1. Read public/content/mvp-progress.json          → load current targets + actuals
 2. Read public/content/blog/index.json             → count published blog posts
-3. Read public/content/stats.json                  → platform totals
-4. Call Content Gap Analyst                         → domain coverage report
-5. Call Community Tracker                           → community metric update
-6. Call Evidence Curator                            → closed MSMVPAI issue count
-7. Synthesize → produce agentRecommendations[]
-8. Write updated sections to mvp-progress.json
+3. Read public/content/usecases/index.json         → totalCount + verticals + patterns
+4. Read public/content/interviews/index.json        → role count + architect roles
+5. Read public/content/skillup/catalog.json         → exam count
+6. Read public/content/tools/index.json            → tool count (source of truth, synced with Tools.tsx)
+7. Read public/content/pathways/catalog.json        → discovery tracks: communityArticles + architectures from Discovery
+8. Read public/content/stats.json                   → platform totals
+9. Call Content Gap Analyst                         → full domain coverage report across all 6 sources
+10. Call Community Tracker                          → community metric update
+11. Call Evidence Curator                           → closed MSMVPAI issue count
+12. Synthesize → produce agentRecommendations[]
+13. Write updated sections to mvp-progress.json
 ```
+
+## Platform Content URLs
+
+| Page | URL | Content source |
+|---|---|---|
+| Blog | https://aaryaai.dev/blog | `public/content/blog/index.json` |
+| Use Cases | https://aaryaai.dev/usecases | `public/content/usecases/index.json` |
+| Tools | https://aaryaai.dev/tools | `public/content/tools/index.json` |
+| Interview Prep | https://aaryaai.dev/roleprep | `public/content/interviews/index.json` |
+| Skillup / Exams | https://aaryaai.dev/skillup | `public/content/skillup/catalog.json` |
+| Discovery | https://aaryaai.dev/discovery | `public/content/pathways/catalog.json` |
 
 ## Output Schema — `agentRecommendations[]`
 

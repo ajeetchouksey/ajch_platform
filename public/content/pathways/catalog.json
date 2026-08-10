@@ -1,0 +1,34 @@
+{
+  "totalTracks": 4,
+  "totalArticles": 12,
+  "tracks": [
+    {
+      "id": "safety",
+      "label": "AI Safety & Responsibility",
+      "audience": "Teens 13–18",
+      "categories": ["community"],
+      "articleCount": 3
+    },
+    {
+      "id": "applied",
+      "label": "Applied AI for Practitioners",
+      "audience": "Finance & Data Professionals",
+      "categories": ["community"],
+      "articleCount": 3
+    },
+    {
+      "id": "ethics",
+      "label": "AI Ethics & Bias",
+      "audience": "Students 16+",
+      "categories": ["community"],
+      "articleCount": 3
+    },
+    {
+      "id": "productivity",
+      "label": "AI Productivity",
+      "audience": "Students & Professionals",
+      "categories": ["community"],
+      "articleCount": 3
+    }
+  ]
+}

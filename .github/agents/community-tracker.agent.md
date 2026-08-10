@@ -1,6 +1,6 @@
 ---
 name: Community Tracker
-version: 1.0.0
+version: 1.1.0
 last_modified: "2026-08-10"
 description: >
   Community Intelligence agent for Aarya — My AI Learning Hub. Reads
@@ -37,6 +37,7 @@ Check that tracked metrics (speaking, mentoring, open source, community forums) 
 | Mentoring Sessions | `current.mentoring` in mvp-progress.json | 12 |
 | GitHub Stars | `current.githubStars` in mvp-progress.json | 500 |
 | OSS Repos | `current.ossRepos` in mvp-progress.json | 10 |
+| Community Articles | `current.communityArticles` in mvp-progress.json | 40 |
 
 ## Analysis Workflow
 
@@ -59,11 +60,12 @@ Check that tracked metrics (speaking, mentoring, open source, community forums) 
 ```json
 {
   "communityHealth": [
-    { "metric": "LinkedIn Followers", "current": 1200, "target": 5000, "pct": 24, "status": "warning" },
-    { "metric": "GitHub Stars",       "current": 12,   "target": 500,  "pct": 2,  "status": "critical" }
+    { "metric": "LinkedIn Followers",  "current": 0,  "target": 5000, "pct": 0, "status": "critical" },
+    { "metric": "GitHub Stars",         "current": 1,  "target": 500,  "pct": 0, "status": "critical" },
+    { "metric": "Community Articles",   "current": 12, "target": 40,   "pct": 30, "status": "warning" }
   ],
   "topAction": "Submit a talk proposal to an Azure community event — 0 of 12 speaking sessions done.",
-  "currentValues": { "linkedin": 1200, "community": 0, "speaking": 0, "mentoring": 0, "githubStars": 12, "ossRepos": 1 }
+  "currentValues": { "linkedin": 0, "community": 0, "speaking": 0, "mentoring": 0, "githubStars": 1, "ossRepos": 1, "communityArticles": 12 }
 }
 ```
 
