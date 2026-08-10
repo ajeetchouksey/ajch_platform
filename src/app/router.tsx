@@ -48,6 +48,9 @@ import Docs from '@/features/docs/pages/Docs';
 // ── Monitoring ───────────────────────────────────────────────────────────────
 import Monitoring from '@/features/monitoring/pages/Monitoring';
 
+// ── MVP Progress ─────────────────────────────────────────────────────────────
+import MvpProgress from '@/features/mvp/pages/MvpProgress';
+
 // ── Analytics / Maintainer ────────────────────────────────────────────────────
 import Analytics from '@/features/analytics/pages/Analytics';
 import Maintainer from '@/features/analytics/pages/Maintainer';
@@ -128,6 +131,9 @@ export default function AppRoutes() {
 
       {/* Monitoring */}
       <Route path="/monitoring" element={<Monitoring />} />
+
+      {/* MVP Progress — owner-only */}
+      <Route path="/mvp-progress" element={<MvpProgress />} />
 
       {/* Analytics / Maintainer */}
       <Route path="/analytics" element={<Analytics />} />
