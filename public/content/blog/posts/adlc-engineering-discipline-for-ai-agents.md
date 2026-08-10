@@ -8,7 +8,7 @@ excerpt: "SDLC gave software engineering its rigour. AI agents need the same tre
 tags: ["adlc", "agents", "llmops", "production", "ai-engineering", "evaluation", "observability"]
 category: "Engineering"
 readingTime: 9
-featured: false
+featured: true
 draft: false
 ---
 
