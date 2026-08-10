@@ -111,6 +111,111 @@
   ],
   "agentLastRun": "2026-08-10",
   "agentNextRun": "2026-08-17",
+  "growthPlaybook": [
+    {
+      "metric": "linkedin",
+      "label": "LinkedIn Network",
+      "color": "#22d3ee",
+      "weeklyAction": "Write a LinkedIn post summarising the ADLC methodology — link the blog, share 3 key takeaways, tag 2–3 AI engineers for their view.",
+      "tactics": [
+        "Post 3× per week: 1 technical insight, 1 platform update, 1 open question to the community",
+        "Comment meaningfully on 5–10 posts/day in Azure AI, GitHub Copilot, and AI Engineering feeds",
+        "Share every new blog post as a short native text post with 3 key takeaways and a link",
+        "Use consistent hashtags: #AzureAI #GitHubCopilot #AgenticAI #AIEngineering #MicrosoftMVP",
+        "Tag Microsoft or GitHub when you share their tools — increases reach significantly",
+        "Post a weekly 'TIL' (Today I Learned) about something from your exam or blog work",
+        "Engage with Microsoft MVPs and Developer Advocates — they amplify community content"
+      ]
+    },
+    {
+      "metric": "videos",
+      "label": "Video Content",
+      "color": "#8b5cf6",
+      "weeklyAction": "Record a 5-minute Azure AI Foundry 'Getting Started' screen-capture — no editing needed, just narrate as you go.",
+      "tactics": [
+        "Start with screen-capture walkthroughs — no camera, just narrate what you build",
+        "One playlist per domain: Azure AI Foundry, GitHub Copilot, Agentic AI, AI Architecture",
+        "Repurpose each blog post into a 3-minute explainer video",
+        "YouTube Shorts (< 60 sec) for single tips — e.g., 'What is ADLC in 45 seconds'",
+        "Link every video in the corresponding blog post and exam notes page",
+        "Cross-post YouTube links on LinkedIn — video posts get 3× the organic reach of text",
+        "Batch-record 3–4 videos per session to maintain cadence without daily effort"
+      ]
+    },
+    {
+      "metric": "blogs",
+      "label": "Blog Posts",
+      "color": "#22d3ee",
+      "weeklyAction": "Publish one post from the Field Notes backlog (#229, #230, #231) — they are already scoped, just write.",
+      "tactics": [
+        "Target 2 posts/week minimum — 1 deep technical, 1 shorter field note or TIL",
+        "Turn every exam study session into a blog post: 'What I learned from CCA-F domain X'",
+        "Repurpose architecture diagrams into standalone explainer posts",
+        "Write a 'Week in AI' digest post each Friday — low effort, high cadence signal",
+        "Cross-post to Dev.to and Hashnode with canonical URL pointing to aaryaai.dev",
+        "Submit to Azure Friday newsletter or Microsoft Tech Community blog",
+        "Each post should link to a related exam track — drives study traffic"
+      ]
+    },
+    {
+      "metric": "speaking",
+      "label": "Speaking Sessions",
+      "color": "#34d399",
+      "weeklyAction": "Submit one CFP to a Global AI Community or Azure User Group event — CFPs take 15 minutes, close many weeks out.",
+      "tactics": [
+        "Track CFP deadlines: Global AI Community, AI Summit, Microsoft AI Tour, Local Azure UGs",
+        "Start with virtual events — lower barrier, wider audience, recorded for YouTube",
+        "Repurpose a blog post as a 20-minute talk: ADLC, AI Architecture Blueprint, Agentic AI",
+        "Offer to co-present with a Microsoft MVP or Developer Advocate for instant credibility",
+        "Lightning talks (5–10 min) count toward nomination — target local meetups first",
+        "Record every talk and upload to YouTube — doubles the evidence for your nomination",
+        "Submit to Microsoft Reactor community speakers programme"
+      ]
+    },
+    {
+      "metric": "community",
+      "label": "Community Members",
+      "color": "#8b5cf6",
+      "weeklyAction": "Enable GitHub Discussions on this repo and post a welcome thread linking to the platform.",
+      "tactics": [
+        "Launch GitHub Discussions as the primary community space — zero infrastructure cost",
+        "Create a monthly 'AI Architecture Review' thread where members share designs",
+        "Pin a 'Start here' post that links to exam tracks, blog, and how to contribute",
+        "Announce each new blog/video on LinkedIn with a CTA to join the community",
+        "Host a monthly 30-minute virtual office hours session — record and post",
+        "Create a 'Study Group' channel for each exam — peer accountability drives retention",
+        "Register on ADPList to attract mentees who become community members"
+      ]
+    },
+    {
+      "metric": "githubStars",
+      "label": "GitHub Stars",
+      "color": "#8b5cf6",
+      "weeklyAction": "Add a '⭐ Star this repo' CTA at the end of every blog post and in the platform footer.",
+      "tactics": [
+        "Add a 'Star on GitHub' button to the platform homepage and every blog post",
+        "Share the repo link when posting on LinkedIn, Dev.to, Hashnode, and Reddit r/MachineLearning",
+        "Submit to awesome-* lists: awesome-azure-ai, awesome-github-copilot, etc.",
+        "Post a 'What I built' repo showcase on LinkedIn every 2 weeks",
+        "Engage in GitHub Discussions on related repos — your profile links back to this repo",
+        "Add the repo to your LinkedIn featured section and GitHub profile README"
+      ]
+    },
+    {
+      "metric": "mentoring",
+      "label": "Mentoring Sessions",
+      "color": "#f59e0b",
+      "weeklyAction": "Register on ADPList (adplist.org) — profile takes 10 minutes, first booking usually comes within a week.",
+      "tactics": [
+        "Register on ADPList — largest free mentoring platform for tech professionals",
+        "Offer 30-minute 'AI Career Clarity' sessions: how to pivot into AI engineering",
+        "Post 'DM me for a free AI architecture review' on LinkedIn once a month",
+        "Add a 'Book a session' link to your LinkedIn profile and the platform About page",
+        "Mentor students preparing for AI-900, AI-102, or GitHub Copilot certifications",
+        "Each session = MVP evidence — log date, topic, outcome in a private note"
+      ]
+    }
+  ],
   "pipeline": [
     { "issueNumber": 336, "title": "Azure AI Foundry Hub — learning path, architecture, labs, certification, video playlist", "quarter": "Q1", "priority": "P1" },
     { "issueNumber": 337, "title": "GitHub Copilot Hub — learning path, prompt engineering, certification, enterprise guide",  "quarter": "Q1", "priority": "P1" },
