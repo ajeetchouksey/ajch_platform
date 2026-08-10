@@ -45,7 +45,8 @@
       "issueLabels": ["Azure AI Foundry Hub", "GitHub Copilot Hub"],
       "status": "active",
       "openCount": 2,
-      "closedCount": 0
+      "closedCount": 0,
+      "contentTargets": { "blogs": 80, "skillupExams": 8, "aiTools": 12, "useCases": 40 }
     },
     {
       "id": "Q2",
@@ -57,7 +58,8 @@
       "issueLabels": ["Certification Academy", "Use Case Library"],
       "status": "planned",
       "openCount": 2,
-      "closedCount": 0
+      "closedCount": 0,
+      "contentTargets": { "blogs": 90, "useCases": 50, "interviewQuestions": 40, "communityArticles": 25 }
     },
     {
       "id": "Q3",
@@ -69,7 +71,8 @@
       "issueLabels": ["AaryaAI TV playlists", "Community Programs"],
       "status": "planned",
       "openCount": 2,
-      "closedCount": 0
+      "closedCount": 0,
+      "contentTargets": { "videos": 10, "speaking": 6, "mentoring": 6, "linkedin": 1000, "communityArticles": 40 }
     },
     {
       "id": "Q4",
@@ -81,7 +84,8 @@
       "issueLabels": ["Architecture Library", "Open Source repos"],
       "status": "planned",
       "openCount": 2,
-      "closedCount": 0
+      "closedCount": 0,
+      "contentTargets": { "blogs": 100, "architectures": 30, "ossRepos": 10, "githubStars": 500 }
     }
   ],
   "domainCoverage": [
