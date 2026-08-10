@@ -356,7 +356,7 @@ export default function MvpProgress() {
         setLiveOverrides(prev => ({
           ...prev,
           communityArticles: community,
-          // add Horizons architecture articles on top of blog architecture count
+          // add Discovery architecture articles on top of blog architecture count
           architectures: (prev.architectures ?? 0) + arch,
         }));
       })

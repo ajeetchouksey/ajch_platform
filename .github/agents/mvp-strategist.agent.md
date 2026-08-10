@@ -1,6 +1,6 @@
 ---
 name: MVP Strategist
-version: 1.0.0
+version: 1.1.0
 last_modified: "2026-08-10"
 description: >
   Growth Orchestrator for Aarya — My AI Learning Hub. Owns the MVP & Growth
