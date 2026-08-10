@@ -1,7 +1,7 @@
 ---
 name: Staff Engineer
-version: 2.5.2
-last_modified: "2026-08-05"
+version: 2.5.3
+last_modified: "2026-08-10"
 description: >
   Central orchestration agent for Aarya — My AI Learning Hub. Analyzes user requests,
   triggers security gate pre-flight for mutations, determines the correct
