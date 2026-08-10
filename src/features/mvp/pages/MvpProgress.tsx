@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth';
 import {
   Trophy, BarChart2, Users, FileCheck, Lock,
   AlertTriangle, CheckCircle, AlertCircle,
-  ExternalLink, RefreshCw,
+  ExternalLink, RefreshCw, ChevronDown, ChevronUp,
 } from 'lucide-react';
 
 const OWNER_LOGIN = 'ajeetchouksey';
@@ -22,6 +22,7 @@ interface MvpData {
   agentRecommendations: Recommendation[];
   agentLastRun: string;
   agentNextRun: string;
+  growthPlaybook: GrowthItem[];
   pipeline: PipelineItem[];
 }
 
@@ -57,6 +58,14 @@ interface PipelineItem {
   title: string;
   quarter: string;
   priority: string;
+}
+
+interface GrowthItem {
+  metric: string;
+  label: string;
+  color: string;
+  weeklyAction: string;
+  tactics: string[];
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -216,12 +225,53 @@ const P_TAG_STYLE: Record<string, React.CSSProperties> = {
   P2: { color: '#fbbf24', borderColor: 'rgba(251,191,36,0.3)',  background: 'rgba(251,191,36,0.07)'  },
 };
 
-// ── Main page ─────────────────────────────────────────────────────────────────
+function GrowthCard({ item, current, target, expanded, onToggle }: {
+  item: GrowthItem; current: number; target: number; expanded: boolean; onToggle: () => void;
+}) {
+  const p = pct(current, target);
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${item.color}22` }}>
+      <button onClick={onToggle} className="w-full text-left p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-bold" style={{ color: item.color }}>{item.label}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono" style={{ color: p < 20 ? '#ef4444' : p < 50 ? '#f59e0b' : '#34d399' }}>
+              {fmtNum(current)}/{fmtNum(target)}
+            </span>
+            {expanded ? <ChevronUp size={13} className="text-slate-500" /> : <ChevronDown size={13} className="text-slate-500" />}
+          </div>
+        </div>
+        <div className="h-1 rounded-full bg-slate-800 overflow-hidden mb-3">
+          <div className="h-full rounded-full transition-all duration-700" style={{ width: `${p}%`, background: item.color, opacity: 0.7 }} />
+        </div>
+        <div className="flex items-start gap-2 p-2.5 rounded-lg"
+          style={{ background: `${item.color}10`, border: `1px solid ${item.color}25` }}>
+          <span className="text-[10px] font-bold flex-shrink-0 mt-0.5" style={{ color: item.color }}>⚡ THIS WEEK</span>
+          <p className="text-[11px] text-slate-300 leading-relaxed">{item.weeklyAction}</p>
+        </div>
+      </button>
+      {expanded && (
+        <div className="px-4 pb-4 border-t border-slate-800/40">
+          <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-3 mb-2">Growth Tactics</p>
+          <ul className="space-y-2">
+            {item.tactics.map((t, i) => (
+              <li key={i} className="flex items-start gap-2 text-[11px] text-slate-400 leading-relaxed">
+                <span className="w-1 h-1 rounded-full mt-1.5 flex-shrink-0" style={{ background: item.color }} />
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function MvpProgress() {
   const { user, isLoading: authLoading } = useAuth();
-  const [data, setData] = useState<MvpData | null>(null);
+  const [data, setData]       = useState<MvpData | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   const isOwner = user?.login === OWNER_LOGIN;
 
@@ -256,7 +306,7 @@ export default function MvpProgress() {
     );
   }
 
-  const { targets, current, quarters, domainCoverage, agentRecommendations, agentLastRun, agentNextRun, pipeline } = data;
+  const { targets, current, quarters, domainCoverage, agentRecommendations, agentLastRun, agentNextRun, growthPlaybook, pipeline } = data;
 
   return (
     <div className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
@@ -373,7 +423,25 @@ export default function MvpProgress() {
           <p className="text-[10px] text-slate-600 mt-4">Next run: {agentNextRun} · Update `mvp-progress.json` to refresh</p>
         </div>
       </section>
-
+      {/* ── Growth Playbook ─────────────────────────────────────────────── */}
+      <section className="mb-8">
+        <div className="mb-4">
+          <h2 className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Growth Playbook</h2>
+          <p className="text-xs text-slate-600 mt-1">One action per metric this week. Expand for the full tactics list.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {(growthPlaybook ?? []).map(item => (
+            <GrowthCard
+              key={item.metric}
+              item={item}
+              current={current[item.metric] ?? 0}
+              target={targets[item.metric] ?? 1}
+              expanded={expanded === item.metric}
+              onToggle={() => setExpanded(expanded === item.metric ? null : item.metric)}
+            />
+          ))}
+        </div>
+      </section>
       {/* ── Content pipeline ─────────────────────────────────────────────── */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-4">
