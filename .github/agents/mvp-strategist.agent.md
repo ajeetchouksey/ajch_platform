@@ -48,13 +48,27 @@ Use fetched data to validate that platform targets align with the current MVP aw
 
 1. Read public/content/mvp-progress.json          → load current targets + actuals
 2. Read public/content/blog/index.json             → count published blog posts
-3. Read public/content/stats.json                  → platform totals
-4. Call Content Gap Analyst                         → domain coverage report
-5. Call Community Tracker                           → community metric update
-6. Call Evidence Curator                            → closed MSMVPAI issue count
-7. Synthesize → produce agentRecommendations[]
-8. Write updated sections to mvp-progress.json
+3. Read public/content/usecases/index.json         → totalCount + verticals + patterns
+4. Read public/content/interviews/index.json        → role count + architect roles
+5. Read public/content/skillup/catalog.json         → exam count
+6. Count src/pages/Tools.tsx TOOLS array            → tool count (currently 9)
+7. Read public/content/stats.json                   → platform totals
+8. Call Content Gap Analyst                         → full domain coverage report across all 5 sources
+9. Call Community Tracker                           → community metric update
+10. Call Evidence Curator                           → closed MSMVPAI issue count
+11. Synthesize → produce agentRecommendations[]
+12. Write updated sections to mvp-progress.json
 ```
+
+## Platform Content URLs
+
+| Page | URL | Content source |
+|---|---|---|
+| Blog | https://aaryaai.dev/blog | `public/content/blog/index.json` |
+| Use Cases | https://aaryaai.dev/usecases | `public/content/usecases/index.json` |
+| Tools | https://aaryaai.dev/tools | `src/pages/Tools.tsx` (hardcoded, 9 tools) |
+| Interview Prep | https://aaryaai.dev/interview | `public/content/interviews/index.json` |
+| Skillup / Exams | https://aaryaai.dev/skillup | `public/content/skillup/catalog.json` |
 
 ## Output Schema — `agentRecommendations[]`
 

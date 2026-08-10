@@ -119,16 +119,19 @@ const SEV_BORDER: Record<string, string> = {
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 const METRICS: { key: string; label: string; color: string; fill: string; live?: boolean }[] = [
-  { key: 'blogs',        label: '✎ Blogs',          color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)', live: true },
-  { key: 'videos',       label: '▶ Videos',          color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' },
-  { key: 'architectures',label: '⬡ Architectures',   color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)' },
-  { key: 'useCases',     label: '🏭 Use Cases',      color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)' },
-  { key: 'linkedin',     label: '🔗 LinkedIn',        color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)' },
-  { key: 'community',    label: '👥 Community',      color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' },
-  { key: 'speaking',     label: '🎤 Speaking',        color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)' },
-  { key: 'mentoring',    label: '🧑‍🏫 Mentoring',    color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)' },
-  { key: 'ossRepos',     label: '📦 OSS Repos',       color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)' },
-  { key: 'githubStars',  label: '⭐ GitHub Stars',   color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)', live: true },
+  { key: 'blogs',         label: '✎ Blogs',           color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)', live: true },
+  { key: 'videos',        label: '▶ Videos',           color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' },
+  { key: 'architectures', label: '⬡ Architectures',    color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)' },
+  { key: 'useCases',      label: '🏭 Use Cases',       color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)', live: true },
+  { key: 'interviewRoles',label: '🧑‍💼 Interviews',    color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)', live: true },
+  { key: 'skillupExams',  label: '📚 Skillup Exams',   color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)', live: true },
+  { key: 'aiTools',       label: '🛠 AI Tools',         color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)' },
+  { key: 'linkedin',      label: '🔗 LinkedIn',         color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)' },
+  { key: 'community',     label: '👥 Community',       color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' },
+  { key: 'speaking',      label: '🎤 Speaking',         color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)' },
+  { key: 'mentoring',     label: '🧑‍🏫 Mentoring',     color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)' },
+  { key: 'ossRepos',      label: '📦 OSS Repos',        color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)' },
+  { key: 'githubStars',   label: '⭐ GitHub Stars',    color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)', live: true },
 ];
 
 function MetricCard({ label, current, target, color, fill, live }: {
@@ -301,6 +304,27 @@ export default function MvpProgress() {
         setLiveOverrides(prev => ({ ...prev, githubStars: d.stargazers_count }));
       })
       .catch(() => {});
+    // use case count from index
+    fetch('/content/usecases/index.json')
+      .then(r => r.json())
+      .then((d: { totalCount: number }) => {
+        setLiveOverrides(prev => ({ ...prev, useCases: d.totalCount }));
+      })
+      .catch(() => {});
+    // interview role count from index
+    fetch('/content/interviews/index.json')
+      .then(r => r.json())
+      .then((d: { roles: unknown[] }) => {
+        setLiveOverrides(prev => ({ ...prev, interviewRoles: d.roles.length }));
+      })
+      .catch(() => {});
+    // skillup exam count from catalog
+    fetch('/content/skillup/catalog.json')
+      .then(r => r.json())
+      .then((d: { exams: unknown[] }) => {
+        setLiveOverrides(prev => ({ ...prev, skillupExams: d.exams.length }));
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -367,7 +391,7 @@ export default function MvpProgress() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Success Metrics — Target {data.targetDate}</h2>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {METRICS.map(m => (
             <MetricCard key={m.key}
               label={m.label}
