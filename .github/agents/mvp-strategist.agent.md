@@ -52,12 +52,13 @@ Use fetched data to validate that platform targets align with the current MVP aw
 4. Read public/content/interviews/index.json        → role count + architect roles
 5. Read public/content/skillup/catalog.json         → exam count
 6. Read public/content/tools/index.json            → tool count (source of truth, synced with Tools.tsx)
-7. Read public/content/stats.json                   → platform totals
-8. Call Content Gap Analyst                         → full domain coverage report across all 5 sources
-9. Call Community Tracker                           → community metric update
-10. Call Evidence Curator                           → closed MSMVPAI issue count
-11. Synthesize → produce agentRecommendations[]
-12. Write updated sections to mvp-progress.json
+7. Read public/content/pathways/catalog.json        → horizons tracks: communityArticles + architectures from Horizons
+8. Read public/content/stats.json                   → platform totals
+9. Call Content Gap Analyst                         → full domain coverage report across all 6 sources
+10. Call Community Tracker                          → community metric update
+11. Call Evidence Curator                           → closed MSMVPAI issue count
+12. Synthesize → produce agentRecommendations[]
+13. Write updated sections to mvp-progress.json
 ```
 
 ## Platform Content URLs
@@ -69,6 +70,7 @@ Use fetched data to validate that platform targets align with the current MVP aw
 | Tools | https://aaryaai.dev/tools | `public/content/tools/index.json` |
 | Interview Prep | https://aaryaai.dev/roleprep | `public/content/interviews/index.json` |
 | Skillup / Exams | https://aaryaai.dev/skillup | `public/content/skillup/catalog.json` |
+| Horizons | https://aaryaai.dev/horizons | `public/content/pathways/catalog.json` |
 
 ## Output Schema — `agentRecommendations[]`
 
