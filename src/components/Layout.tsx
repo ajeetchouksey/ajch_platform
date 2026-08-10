@@ -71,7 +71,7 @@ function Breadcrumbs() {
     exams:      'Skill Up',
     skillup:    'Skill Up',
     blog:       'Field Notes',
-    horizons:   'Learn',
+    discovery:  'Learn',
     roleprep:   'Role Prep',
     usecases:   'Use Cases',
     tools:      'Tools',

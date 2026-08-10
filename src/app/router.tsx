@@ -76,7 +76,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomeV2 />} />
-      <Route path="/learn" element={<Navigate to="/horizons" replace />} />
+      <Route path="/learn" element={<Navigate to="/discovery" replace />} />
 
       {/* Skill Up — primary routes */}
       <Route path="/skillup" element={<ExamCatalog />} />
@@ -96,10 +96,10 @@ export default function AppRoutes() {
       <Route path="/exams/:examId/scenarios" element={<ExamSubRedirect sub="scenarios" />} />
       <Route path="/exams/:examId/progress" element={<ExamSubRedirect sub="progress" />} />
 
-      {/* Horizons */}
-      <Route path="/horizons" element={<Pathways />} />
-      <Route path="/horizons/:track" element={<PathwayTrack />} />
-      <Route path="/horizons/:track/:slug" element={<PathwayArticle />} />
+      {/* Discovery */}
+      <Route path="/discovery" element={<Pathways />} />
+      <Route path="/discovery/:track" element={<PathwayTrack />} />
+      <Route path="/discovery/:track/:slug" element={<PathwayArticle />} />
 
       {/* Field Notes */}
       <Route path="/blog" element={<Blog />} />

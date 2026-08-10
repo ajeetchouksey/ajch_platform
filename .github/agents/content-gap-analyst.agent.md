@@ -33,7 +33,7 @@ If Microsoft has updated domain categories since last run, adjust the Domain Map
 | | `public/content/interviews/bank/questions.json` | bank question count + follow-up depth |
 | Skillup | `public/content/skillup/catalog.json` | `.exams[]` array length |
 | Tools | `src/pages/Tools.tsx` (hardcoded array) | count `TOOLS` array entries |
-| Horizons | `public/content/pathways/catalog.json` | `.tracks[]` — sum `articleCount` by `categories[]` |
+| Discovery | `public/content/pathways/catalog.json` | `.tracks[]` — sum `articleCount` by `categories[]` |
 
 ## Architecture Content Detection
 
@@ -45,7 +45,7 @@ Architecture content exists ACROSS multiple sources — do NOT limit to blog pos
 | Use cases | ALL use cases count | every case in `public/content/usecases/cases/*.json` has a `patterns[]` field = architectural pattern reference |
 | Interviews | Role is architect-focused | `public/content/interviews/index.json` → roles where title contains "Architect" or topSkills include `rag-architecture`, `multi-agent-orchestration` |
 | Tools | Tool is architecture-supporting | Tools with id: `mcp-scaffold`, `rag-chunk-visualizer`, `context-visualizer`, `tool-schema-builder` |
-| Horizons | Track categories includes `architecture` | `public/content/pathways/catalog.json` → tracks where categories includes 'architecture' |
+| Discovery | Track categories includes `architecture` | `public/content/pathways/catalog.json` → tracks where categories includes 'architecture' |
 
 ## Analysis Workflow
 
@@ -80,12 +80,12 @@ Architecture content exists ACROSS multiple sources — do NOT limit to blog pos
    → toolsCount = tools.length
    → archToolsCount = tools where id in [context-visualizer, mcp-scaffold, rag-chunk-visualizer, tool-schema-builder]
 
-6. Read public/content/pathways/catalog.json  ← Horizons learning tracks
+6. Read public/content/pathways/catalog.json  ← Discovery learning tracks
    → communityArticles = sum of tracks[].articleCount where categories includes 'community'
-   → archHorizonsCount  = sum of tracks[].articleCount where categories includes 'architecture'
+   → archDiscoveryCount = sum of tracks[].articleCount where categories includes 'architecture'
 
 7. Aggregate architecture total:
-   totalArchitecture = archBlogCount + useCaseArchCount + archInterviewCount + archToolsCount + archHorizonsCount
+   totalArchitecture = archBlogCount + useCaseArchCount + archInterviewCount + archToolsCount + archDiscoveryCount
 
 8. Map counts to domain coverage percentages
 9. Return report to MVP Strategist
@@ -98,13 +98,13 @@ Architecture content exists ACROSS multiple sources — do NOT limit to blog pos
 | Azure AI Foundry | blog tags: `azure-ai`, `ai-foundry`; skillup ab731 exam | 20 posts |
 | GitHub Copilot | blog tags: `copilot`, `github-copilot`; skillup gh300/ghbp/ghc exams | 20 posts |
 | Agentic AI | blog tags: `agentic-ai`, `agents`; ALL use cases | 20 posts |
-| AI Architecture | archBlogCount + useCaseArchCount + archInterviewCount + archHorizonsCount | 30 items |
+| AI Architecture | archBlogCount + useCaseArchCount + archInterviewCount + archDiscoveryCount | 30 items |
 | AI Engineering | blog tags: `ai-engineering`, `llmops`, `evaluation`, `observability` | 15 posts |
 | Use Cases | useCaseCount across all verticals | 50 cases |
 | Interviews | interviewQuestions (sum of roles[].questionCount) + followUpDepth | 50 questions |
 | Skillup Exams | skillupExamCount | 10 exams |
 | Tools | toolsCount | 15 tools |
-| Community Articles | communityArticles (Horizons tracks tagged 'community') | 40 articles |
+| Community Articles | communityArticles (Discovery tracks tagged 'community') | 40 articles |
 | Community | speaking + mentoring (from mvp-progress.json current) | 24 sessions |
 | Video Content | blog tags: `video`; YouTube links | 20 videos |
 | Open Source | ossRepos from mvp-progress.json | 10 repos |
