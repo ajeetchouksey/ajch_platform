@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Star, MessageCircle, X } from 'lucide-react';
 
 const REPO        = 'https://github.com/ajeetchouksey/ajch_platform';
@@ -88,18 +87,25 @@ export function GrowthPrompt() {
           <span className="text-[10px] text-slate-600 group-hover:text-blue-500/70 transition-colors">↗</span>
         </a>
 
-        <Link
-          to="/contribute"
-          onClick={() => dismiss()}
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-violet-500/10 border border-slate-700/50 hover:border-violet-500/30 transition-all group"
+        <button
+          onClick={() => {
+            dismiss();
+            // scroll to giscus widget on current page if present
+            const el = document.querySelector<HTMLElement>('.giscus');
+            const main = document.querySelector<HTMLElement>('main');
+            if (el && main) {
+              main.scrollBy({ top: el.getBoundingClientRect().top - main.getBoundingClientRect().top - 20, behavior: 'smooth' });
+            }
+          }}
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-violet-500/10 border border-slate-700/50 hover:border-violet-500/30 transition-all group text-left"
         >
           <MessageCircle size={14} className="text-violet-400 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-[12px] font-medium text-white leading-tight">Share your thoughts</p>
-            <p className="text-[10px] text-slate-500">Suggest a feature or content idea</p>
+            <p className="text-[10px] text-slate-500">Jump to community discussion</p>
           </div>
-          <span className="text-[10px] text-slate-600 group-hover:text-violet-400/70 transition-colors">→</span>
-        </Link>
+          <span className="text-[10px] text-slate-600 group-hover:text-violet-400/70 transition-colors">↓</span>
+        </button>
       </div>
 
       <div className="flex items-center justify-between">

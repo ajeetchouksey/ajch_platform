@@ -13,6 +13,8 @@ import { trackEvent } from '@/lib/analytics';
 import GiscusComments from '@/components/GiscusComments';
 import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
+import { StarRepo } from '@/components/StarRepo';
+import { ContentStar } from '@/components/ContentStar';
 import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
@@ -215,6 +217,8 @@ function TocSidebar({
             {copied ? <Check size={11} /> : <Share2 size={11} />}
             {copied ? 'Copied!' : 'Share'}
           </button>
+          <StarRepo />
+          <ContentStar contentId={`blog-${meta.slug}`} />
         </div>
 
         {/* Tags */}

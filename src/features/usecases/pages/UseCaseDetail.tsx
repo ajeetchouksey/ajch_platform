@@ -1,3 +1,4 @@
+import { ContentStar } from '@/components/ContentStar';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -290,6 +291,9 @@ export default function UseCaseDetail() {
 
           {/* ── Right sidebar ── */}
           <div className="w-full xl:w-72 2xl:w-80 shrink-0 space-y-5 xl:sticky xl:top-4 self-start">
+
+          {/* Star */}
+          <ContentStar contentId={`usecase-${id ?? ''}`} />
 
           {/* Tech stack */}
           {featured.techStack && featured.techStack.length > 0 && (
