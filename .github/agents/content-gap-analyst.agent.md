@@ -29,7 +29,8 @@ If Microsoft has updated domain categories since last run, adjust the Domain Map
 |---|---|---|
 | Blog | `public/content/blog/index.json` | `.posts[]` where `draft: false` |
 | Use Cases | `public/content/usecases/index.json` | `.totalCount` field |
-| Interviews | `public/content/interviews/index.json` | `.roles[]` array length |
+| Interviews | `public/content/interviews/index.json` | sum of `roles[].questionCount` (role-specific Q+A packs) |
+| | `public/content/interviews/bank/questions.json` | bank question count + follow-up depth |
 | Skillup | `public/content/skillup/catalog.json` | `.exams[]` array length |
 | Tools | `src/pages/Tools.tsx` (hardcoded array) | count `TOOLS` array entries |
 
@@ -64,7 +65,12 @@ Architecture content exists ACROSS multiple sources — do NOT limit to blog pos
 
 3. Read public/content/interviews/index.json
    → interviewRoleCount = roles.length
+   → interviewQuestions = sum of roles[].questionCount  ← this is the real content metric
    → archInterviewCount = roles where title contains "Architect"
+   Read public/content/interviews/bank/questions.json
+   → bankQuestions = array.length (currently 11, each with deep answer + real scenario + worked example)
+   → followUpDepth  = sum of questions[].followUps.length (currently 25)
+   → total Q&A depth = interviewQuestions + followUpDepth
 
 4. Read public/content/skillup/catalog.json
    → skillupExamCount = exams.length
@@ -93,7 +99,7 @@ Architecture content exists ACROSS multiple sources — do NOT limit to blog pos
 | AI Architecture | archBlogCount + useCaseArchCount + archInterviewCount | 30 items |
 | AI Engineering | blog tags: `ai-engineering`, `llmops`, `evaluation`, `observability` | 15 posts |
 | Use Cases | useCaseCount across all verticals | 50 cases |
-| Interviews | interviewRoleCount | 10 roles |
+| Interviews | interviewQuestions (sum of roles[].questionCount) + followUpDepth | 50 questions |
 | Skillup Exams | skillupExamCount | 10 exams |
 | Tools | toolsCount | 15 tools |
 | Community | speaking + mentoring (from mvp-progress.json current) | 24 sessions |

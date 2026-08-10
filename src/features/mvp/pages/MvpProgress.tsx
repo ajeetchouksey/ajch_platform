@@ -123,7 +123,7 @@ const METRICS: { key: string; label: string; color: string; fill: string; live?:
   { key: 'videos',        label: '▶ Videos',           color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' },
   { key: 'architectures', label: '⬡ Architectures',    color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)' },
   { key: 'useCases',      label: '🏭 Use Cases',       color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)', live: true },
-  { key: 'interviewRoles',label: '🧑‍💼 Interviews',    color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)', live: true },
+  { key: 'interviewQuestions', label: '🧑‍💼 Interviews', color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)', live: true },
   { key: 'skillupExams',  label: '📚 Skillup Exams',   color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)', live: true },
   { key: 'aiTools',       label: '🛠 AI Tools',         color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)' },
   { key: 'linkedin',      label: '🔗 LinkedIn',         color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)' },
@@ -311,11 +311,12 @@ export default function MvpProgress() {
         setLiveOverrides(prev => ({ ...prev, useCases: d.totalCount }));
       })
       .catch(() => {});
-    // interview role count from index
+    // interview question count = bank questions × role addendums (from interviews index)
     fetch('/content/interviews/index.json')
       .then(r => r.json())
-      .then((d: { roles: unknown[] }) => {
-        setLiveOverrides(prev => ({ ...prev, interviewRoles: d.roles.length }));
+      .then((d: { roles: { questionCount: number }[] }) => {
+        const total = d.roles.reduce((s, r) => s + (r.questionCount ?? 0), 0);
+        setLiveOverrides(prev => ({ ...prev, interviewQuestions: total }));
       })
       .catch(() => {});
     // skillup exam count from catalog
