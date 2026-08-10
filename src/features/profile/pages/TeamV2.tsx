@@ -578,11 +578,24 @@ export default function TeamV2() {
       icon: Megaphone, isNew: true, isLarge: false,
       profileFile: 'devrel.agent.md',
     },
+    {
+      id: 'mvp-strategy',
+      name: 'MVP Strategist',
+      role: 'Growth Lead',
+      tagline: 'Gaps. Targets. Priority actions. Every week.',
+      description: 'Owns the MVP & Growth strategy layer. Runs weekly analysis across content, community, and evidence metrics. Delegates to Content Gap Analyst, Community Tracker, and Evidence Curator.',
+      capabilities: ['Gap Analysis', 'Strategy Brief', 'Recommendations', 'Evidence Package'],
+      status: 'active' as const,
+      activeTask: 'Weekly MVP analysis — last run Aug 10 2026',
+      model: 'Claude Sonnet', tools: 6, version: 'v1.0.0',
+      icon: Trophy, isNew: true, isLarge: false,
+      profileFile: 'mvp-strategist.agent.md',
+    },
   ];
 
   const l0Agents  = agents.filter(a => ['orchestrator', 'product-owner'].includes(a.id));
   const l1Agents  = agents.filter(a => ['platform-control', 'blog', 'exam-content', 'study-companion'].includes(a.id));
-  const opsAgents = agents.filter(a => ['security-governance', 'ux-framework', 'devops', 'social-media'].includes(a.id));
+  const opsAgents = agents.filter(a => ['security-governance', 'ux-framework', 'devops', 'social-media', 'mvp-strategy'].includes(a.id));
 
   const subAgentGroups = [
     {
@@ -772,13 +785,6 @@ export default function TeamV2() {
       parentName: 'MVP Strategist',
       parentColor: '#8b5cf6',
       agents: [
-        {
-          id: 'mvp-strategist', name: 'MVP Strategist', role: 'Growth Orchestrator',
-          tagline: 'Weekly strategy. Gaps. Priority actions.',
-          capabilities: ['Gap Analysis', 'Strategy Brief', 'Recommendations JSON', 'Weekly Run'],
-          status: 'active' as const, icon: Trophy,
-          profileFile: 'mvp-strategist.agent.md',
-        },
         {
           id: 'content-gap-analyst', name: 'Content Gap Analyst', role: 'Coverage Tracker',
           tagline: 'Tracks blogs, videos, diagrams vs targets by domain.',
