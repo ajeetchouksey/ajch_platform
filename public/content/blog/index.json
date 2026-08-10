@@ -1,6 +1,19 @@
 {
   "posts": [
     {
+      "slug": "adlc-engineering-discipline-for-ai-agents",
+      "title": "The ADLC: A Software Engineering Discipline for AI Agents",
+      "excerpt": "SDLC gave software engineering its rigour. AI agents need the same treatment. Here's the Agent Development Life Cycle — six stages that turn agent building from craft into discipline.",
+      "author": "Ajeet Chouksey",
+      "date": "2026-08-10",
+      "updated": null,
+      "tags": ["adlc", "agents", "llmops", "production", "ai-engineering", "evaluation", "observability"],
+      "category": "Engineering",
+      "readingTime": 9,
+      "featured": false,
+      "draft": false
+    },
+    {
       "slug": "ai-architecture-blueprint-multi-agent-privacy-first",
       "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
       "excerpt": "Most AI projects fail not because the model is weak—but because the architecture around it is under-designed. Here's the blueprint that fixes that.",
