@@ -37,6 +37,7 @@ interface Quarter {
   status: 'active' | 'planned' | 'complete';
   openCount: number;
   closedCount: number;
+  contentTargets?: Record<string, number>;
 }
 
 interface DomainCoverage {
@@ -184,11 +185,29 @@ function RingChart({ pct: p, color, track }: { pct: number; color: string; track
   );
 }
 
-function QuarterCard({ q }: { q: Quarter }) {
+function QuarterCard({ q, current }: { q: Quarter; current: Record<string, number> }) {
   const color = QUARTER_COLORS[q.color] ?? '#8b5cf6';
   const track = QUARTER_TRACK[q.color]  ?? 'rgba(139,92,246,0.12)';
+
+  // content progress = average % across this quarter's target metrics
+  const contentEntries = Object.entries(q.contentTargets ?? {});
+  const contentPct = contentEntries.length > 0
+    ? Math.round(contentEntries.reduce((sum, [k, t]) => sum + Math.min(100, ((current[k] ?? 0) / t) * 100), 0) / contentEntries.length)
+    : 0;
+
+  // issue progress (fallback when content has no targets)
   const total = q.openCount + q.closedCount;
-  const p = total > 0 ? Math.round((q.closedCount / total) * 100) : 0;
+  const issuePct = total > 0 ? Math.round((q.closedCount / total) * 100) : 0;
+
+  // ring shows content progress if targets defined, else issue progress
+  const ringPct = contentEntries.length > 0 ? contentPct : issuePct;
+
+  const METRIC_LABELS: Record<string, string> = {
+    blogs: 'Blogs', skillupExams: 'Exams', aiTools: 'Tools', useCases: 'Use Cases',
+    interviewQuestions: 'Interviews', communityArticles: 'Community Art.', videos: 'Videos',
+    speaking: 'Speaking', mentoring: 'Mentoring', linkedin: 'LinkedIn',
+    architectures: 'Architecture', ossRepos: 'OSS Repos', githubStars: 'Stars',
+  };
 
   const statusBadge = q.status === 'active'
     ? <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(139,92,246,0.15)', color, border: `1px solid ${color}40` }}>Active</span>
@@ -202,9 +221,35 @@ function QuarterCard({ q }: { q: Quarter }) {
         <span className="text-xs font-bold" style={{ color }}>{q.id} — {q.label}</span>
         {statusBadge}
       </div>
-      <RingChart pct={p} color={color} track={track} />
+      <RingChart pct={ringPct} color={color} track={track} />
       <p className="text-[10px] text-slate-500 text-center mb-3">{q.start} → {q.end}</p>
-      <div className="space-y-1.5">
+
+      {/* content progress chips */}
+      {contentEntries.length > 0 && (
+        <div className="space-y-1.5 mb-3">
+          {contentEntries.map(([k, t]) => {
+            const c = current[k] ?? 0;
+            const p = Math.min(100, Math.round((c / t) * 100));
+            const done = p >= 100;
+            return (
+              <div key={k}>
+                <div className="flex justify-between text-[10px] mb-0.5">
+                  <span className="text-slate-400">{METRIC_LABELS[k] ?? k}</span>
+                  <span style={{ color: done ? '#34d399' : p > 50 ? color : '#f59e0b' }}>
+                    {c}/{t} {done ? '✓' : `${p}%`}
+                  </span>
+                </div>
+                <div className="h-0.5 rounded-full bg-slate-800">
+                  <div className="h-full rounded-full" style={{ width: `${p}%`, background: done ? '#34d399' : color, transition: 'width 0.6s ease' }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* epic issues */}
+      <div className="space-y-1.5 pt-2 border-t border-slate-800/40">
         {q.issueLabels.map((label, i) => (
           <a key={i} href={`https://github.com/${REPO}/issues/${q.issueNumbers[i]}`}
             target="_blank" rel="noopener noreferrer"
@@ -452,7 +497,7 @@ export default function MvpProgress() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {quarters.map(q => (
-            <QuarterCard key={q.id} q={q} />
+            <QuarterCard key={q.id} q={q} current={current} />
           ))}
         </div>
       </section>
