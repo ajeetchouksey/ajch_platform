@@ -1,7 +1,7 @@
 {
   "schema": "1.0",
   "lastUpdated": "2026-08-10",
-  "targetDate": "2027-08-31",
+  "targetDate": "2027-04-30",
   "targets": {
     "blogs": 100,
     "videos": 20,
@@ -38,12 +38,12 @@
     {
       "id": "Q1",
       "label": "Foundation",
-      "start": "2026-09-01",
-      "end": "2026-11-30",
+      "start": "2026-05-01",
+      "end": "2026-07-31",
       "color": "violet",
       "issueNumbers": [336, 337],
       "issueLabels": ["Azure AI Foundry Hub", "GitHub Copilot Hub"],
-      "status": "active",
+      "status": "complete",
       "openCount": 2,
       "closedCount": 0,
       "contentTargets": { "blogs": 80, "skillupExams": 8, "aiTools": 12, "useCases": 40 }
@@ -51,12 +51,12 @@
     {
       "id": "Q2",
       "label": "Scale Learning",
-      "start": "2026-12-01",
-      "end": "2027-02-28",
+      "start": "2026-08-01",
+      "end": "2026-10-31",
       "color": "cyan",
       "issueNumbers": [338, 339],
       "issueLabels": ["Certification Academy", "Use Case Library"],
-      "status": "planned",
+      "status": "active",
       "openCount": 2,
       "closedCount": 0,
       "contentTargets": { "blogs": 90, "useCases": 50, "interviewQuestions": 40, "communityArticles": 25 }
@@ -64,8 +64,8 @@
     {
       "id": "Q3",
       "label": "Community Leadership",
-      "start": "2027-03-01",
-      "end": "2027-05-31",
+      "start": "2026-11-01",
+      "end": "2027-01-31",
       "color": "amber",
       "issueNumbers": [340, 341],
       "issueLabels": ["AaryaAI TV playlists", "Community Programs"],
@@ -77,8 +77,8 @@
     {
       "id": "Q4",
       "label": "MVP Portfolio",
-      "start": "2027-06-01",
-      "end": "2027-08-31",
+      "start": "2027-02-01",
+      "end": "2027-04-30",
       "color": "green",
       "issueNumbers": [342, 343],
       "issueLabels": ["Architecture Library", "Open Source repos"],
