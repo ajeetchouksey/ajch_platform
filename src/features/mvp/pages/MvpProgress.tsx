@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import {
   Trophy, BarChart2, Users, FileCheck, Lock,
   AlertTriangle, CheckCircle, AlertCircle,
   ExternalLink, RefreshCw, ChevronDown, ChevronUp,
+  Activity,
 } from 'lucide-react';
 
 const OWNER_LOGIN = 'ajeetchouksey';
@@ -59,6 +60,15 @@ interface PipelineItem {
   title: string;
   quarter: string;
   priority: string;
+}
+
+interface GHIssue {
+  number: number;
+  title: string;
+  state: string;
+  html_url: string;
+  labels: { name: string; color: string }[];
+  closed_at: string | null;
 }
 
 interface GrowthItem {
@@ -322,17 +332,97 @@ function GrowthCard({ item, current, target, expanded, onToggle }: {
   );
 }
 
+const ONE_HOUR = 60 * 60 * 1000;
+
+function SprintColumn({ label, subtitle, icon, color, issues, filter, emptyText, repo }: {
+  label: string;
+  subtitle: string;
+  icon: React.ReactNode;
+  color: string;
+  issues: GHIssue[];
+  filter: (i: GHIssue) => boolean;
+  emptyText: string;
+  repo: string;
+}) {
+  const filtered = issues.filter(filter).slice(0, 8);
+  return (
+    <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex items-center gap-1.5 mb-0.5" style={{ color }}>
+        {icon}
+        <span className="text-xs font-semibold">{label}</span>
+      </div>
+      <p className="text-[10px] text-slate-600 mb-3">{subtitle}</p>
+      {filtered.length === 0 ? (
+        <p className="text-[11px] text-slate-600 italic">{emptyText}</p>
+      ) : (
+        <div className="space-y-1.5">
+          {filtered.map(issue => (
+            <a
+              key={issue.number}
+              href={issue.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-2 px-3 py-2 rounded-lg hover:bg-slate-700/30 transition-colors group"
+              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}
+            >
+              <span className="text-[10px] font-mono text-slate-600 mt-0.5 shrink-0 w-8">#{issue.number}</span>
+              <span className="flex-1 text-[12px] text-slate-300 group-hover:text-white transition-colors leading-snug">{issue.title}</span>
+              <span
+                className="text-[9px] px-1.5 py-0.5 rounded-full shrink-0 mt-0.5 font-medium"
+                style={issue.state === 'open'
+                  ? { background: 'rgba(52,211,153,0.12)', color: '#34d399', border: '1px solid rgba(52,211,153,0.25)' }
+                  : { background: 'rgba(139,92,246,0.12)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.25)' }
+                }
+              >
+                {issue.state}
+              </span>
+            </a>
+          ))}
+          <a
+            href={`https://github.com/${repo}/issues?labels=MSMVPAI`}
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1 text-[10px] text-slate-600 hover:text-slate-400 transition-colors mt-2 pl-1"
+          >
+            View all on GitHub <ExternalLink size={9} />
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function MvpProgress() {
   const { user, isLoading: authLoading } = useAuth();
   const [data, setData]         = useState<MvpData | null>(null);
   const [mounted, setMounted]   = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
-  // live-fetched overrides (blog count from index, stars from GH API)
   const [liveOverrides, setLiveOverrides] = useState<Record<string, number>>({});
+  const [weekIssues, setWeekIssues] = useState<GHIssue[]>([]);
+  // incremented every hour (and on manual refresh) to re-trigger all fetches
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
+  const refreshingRef = useRef(false);
 
   const isOwner = user?.login === OWNER_LOGIN;
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
+
+  // hourly auto-refresh
+  useEffect(() => {
+    const id = setInterval(() => {
+      setRefreshKey(k => k + 1);
+      setLastRefreshed(new Date());
+    }, ONE_HOUR);
+    return () => clearInterval(id);
+  }, []);
+
+  const manualRefresh = () => {
+    if (refreshingRef.current) return;
+    refreshingRef.current = true;
+    setRefreshKey(k => k + 1);
+    setLastRefreshed(new Date());
+    setTimeout(() => { refreshingRef.current = false; }, 2000);
+  };
 
   useEffect(() => {
     // blog count from the content index (source of truth)
@@ -406,14 +496,23 @@ export default function MvpProgress() {
         }));
       })
       .catch(() => {});
-  }, []);
+   
+  }, [refreshKey]);
 
   useEffect(() => {
     fetch('/content/mvp-progress.json')
       .then(r => r.json())
       .then(setData)
       .catch(console.error);
-  }, []);
+  }, [refreshKey]);
+
+  // live issue status from GitHub API (no auth required for public repos)
+  useEffect(() => {
+    fetch(`https://api.github.com/repos/${REPO}/issues?labels=MSMVPAI&state=all&per_page=30&sort=updated&direction=desc`)
+      .then(r => r.json())
+      .then((issues: GHIssue[]) => setWeekIssues(Array.isArray(issues) ? issues : []))
+      .catch(() => {});
+  }, [refreshKey]);
 
   if (!authLoading && !user) {
     return (
@@ -463,7 +562,15 @@ export default function MvpProgress() {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
             Updated {agentLastRun}
           </div>
-          <span className="text-xs text-slate-600">Next run: {agentNextRun}</span>
+          <span className="text-xs text-slate-600">Next agent run: {agentNextRun}</span>
+          <button
+            onClick={manualRefresh}
+            title="Refresh now"
+            className="flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-full text-slate-400 hover:text-white border border-slate-700/60 hover:border-slate-500 transition-all"
+          >
+            <RefreshCw size={11} />
+            <span className="hidden sm:inline">{lastRefreshed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          </button>
         </div>
       </div>
 
@@ -499,6 +606,39 @@ export default function MvpProgress() {
           {quarters.map(q => (
             <QuarterCard key={q.id} q={q} current={current} />
           ))}
+        </div>
+      </section>
+
+      {/* ── Sprint Board ─────────────────────────────────────────────────── */}
+      <section className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Sprint Board</h2>
+          <span className="text-[10px] text-slate-600">Live from GitHub · auto-refreshes hourly</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <SprintColumn
+            label="This Week"
+            subtitle={`Q${quarters.find(q => q.status === 'active')?.id?.replace('Q','') ?? '2'} · Scale Learning`}
+            icon={<Activity size={11} />}
+            color="#8b5cf6"
+            issues={weekIssues}
+            filter={i => i.state === 'open'}
+            emptyText="No open issues — all done!"
+            repo={REPO}
+          />
+          <SprintColumn
+            label="Done Recently"
+            subtitle="closed in the last 14 days"
+            icon={<CheckCircle size={11} />}
+            color="#34d399"
+            issues={weekIssues}
+            filter={i => {
+              if (i.state !== 'closed' || !i.closed_at) return false;
+              return Date.now() - new Date(i.closed_at).getTime() < 14 * 24 * 60 * 60 * 1000;
+            }}
+            emptyText="Nothing closed yet this fortnight"
+            repo={REPO}
+          />
         </div>
       </section>
 
