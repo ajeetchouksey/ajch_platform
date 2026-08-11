@@ -48,7 +48,7 @@ export function GrowthPrompt() {
   return (
     <div
       role="dialog"
-      aria-label="Help Aarya to Grow"
+      aria-label="Help Aarya AI to Grow"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -80,7 +80,7 @@ export function GrowthPrompt() {
         }}
       >
         <p style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)', fontSize: '7px', fontWeight: 700, color: 'rgba(167,139,250,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', userSelect: 'none', lineHeight: 1 }}>
-          Help Aarya to Grow
+          Help Aarya AI to Grow
         </p>
         <Star size={14} className="text-yellow-400/70" />
         {LI_SVG}
@@ -91,7 +91,7 @@ export function GrowthPrompt() {
       <div style={{ display: hovered ? 'flex' : 'none', flexDirection: 'column', padding: '14px 14px 12px' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-          <p style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(167,139,250,0.9)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Help Aarya to Grow</p>
+          <p style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(167,139,250,0.9)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Help Aarya AI to Grow</p>
           <button onClick={() => dismiss()} aria-label="Dismiss" style={{ color: 'rgba(100,116,139,0.8)', lineHeight: 1 }} className="hover:text-slate-300 transition-colors">
             <X size={11} />
           </button>
