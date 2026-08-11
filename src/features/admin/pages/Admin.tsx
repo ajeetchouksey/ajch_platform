@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
-import { BarChart2, Activity, Video, GitPullRequest, Lock, ChevronRight, ShieldAlert } from 'lucide-react';
+import { BarChart2, Activity, Video, GitPullRequest, Lock, ChevronRight, ShieldAlert, KeyRound, CheckCircle2, LogOut } from 'lucide-react';
 
 const OWNER_LOGIN = 'ajeetchouksey';
 const DEV_BYPASS = import.meta.env.VITE_BYPASS_ADMIN_AUTH === 'true';
@@ -45,7 +46,19 @@ const PAGES = [
 ];
 
 export default function Admin() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, token, isLoading: authLoading, loginWithToken, logout } = useAuth();
+  const [pat, setPat] = useState('');
+  const [patError, setPatError] = useState<string | null>(null);
+  const [patLoading, setPatLoading] = useState(false);
+
+  const handlePat = async () => {
+    setPatLoading(true);
+    setPatError(null);
+    const ok = await loginWithToken(pat.trim());
+    if (!ok) setPatError('Invalid token or GitHub API error.');
+    setPat('');
+    setPatLoading(false);
+  };
 
   if (authLoading) {
     return (
@@ -65,7 +78,50 @@ export default function Admin() {
           owner-only
         </span>
       </div>
-      <p className="text-slate-500 text-sm mb-8 ml-6">Visible only to @{OWNER_LOGIN}</p>
+      <p className="text-slate-500 text-sm mb-6 ml-6">Visible only to @{OWNER_LOGIN}</p>
+
+      {/* Token status / PAT login */}
+      {token ? (
+        <div className="flex items-center gap-2.5 mb-6 px-4 py-3 rounded-xl"
+          style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
+          <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
+          <span className="text-xs text-emerald-300 font-medium">
+            Authenticated{user ? ` as @${user.login}` : ''}
+          </span>
+          <span className="text-[10px] text-slate-500 ml-1">— write ops enabled</span>
+          <button onClick={logout} className="ml-auto flex items-center gap-1 text-[10px] text-slate-500 hover:text-slate-300 transition-colors">
+            <LogOut size={11} /> Sign out
+          </button>
+        </div>
+      ) : (
+        <div className="mb-6 rounded-xl p-4"
+          style={{ background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.18)' }}>
+          <div className="flex items-center gap-2 text-amber-400 text-xs font-semibold mb-2">
+            <KeyRound size={13} /> Login with GitHub PAT
+          </div>
+          <p className="text-[11px] text-slate-400 mb-3">
+            Enter a PAT with <code className="px-1 rounded bg-slate-800 text-slate-300">public_repo</code> +
+            <code className="ml-1 px-1 rounded bg-slate-800 text-slate-300">read:user</code> scope to enable write ops across all admin pages.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={pat}
+              onChange={e => setPat(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && pat.trim() && handlePat()}
+              placeholder="ghp_..."
+              className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 outline-none focus:border-amber-600"
+            />
+            <button
+              disabled={!pat.trim() || patLoading}
+              onClick={handlePat}
+              className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-amber-700/40 text-amber-300 disabled:opacity-40 hover:bg-amber-700/60 transition-colors">
+              {patLoading ? 'Checking...' : 'Login'}
+            </button>
+          </div>
+          {patError && <p className="mt-2 text-xs text-red-400">{patError}</p>}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {PAGES.map(({ to, icon: Icon, label, desc, color, bg, border }) => (

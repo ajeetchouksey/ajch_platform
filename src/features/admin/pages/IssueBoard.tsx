@@ -12,7 +12,6 @@ import {
 const OWNER_LOGIN = 'ajeetchouksey';
 const DEV_BYPASS = import.meta.env.VITE_BYPASS_ADMIN_AUTH === 'true';
 const REPO = 'ajeetchouksey/ajch_platform';
-const ADMIN_TOKEN_KEY = 'admin_gh_token';
 const PER_PAGE = 30;
 
 // -- GitHub types --------------------------------------------------------------
@@ -70,35 +69,6 @@ function apiHeaders(token?: string | null): Record<string, string> {
   return h;
 }
 
-// -- PAT prompt ---------------------------------------------------------------
-function PatInput({ onSave }: { onSave: (t: string) => void }) {
-  const [val, setVal] = useState('');
-  return (
-    <div className="rounded-xl p-4 flex flex-col gap-3 mb-4"
-      style={{ background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.18)' }}>
-      <div className="flex items-center gap-2 text-amber-400 text-xs font-semibold">
-        <KeyRound size={13} /> PAT required for write operations
-      </div>
-      <div className="flex gap-2">
-        <input
-          type="password"
-          value={val}
-          onChange={e => setVal(e.target.value)}
-          placeholder="ghp_... (public_repo scope)"
-          className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 outline-none focus:border-amber-600"
-        />
-        <button
-          disabled={!val.trim()}
-          onClick={() => { sessionStorage.setItem(ADMIN_TOKEN_KEY, val.trim()); onSave(val.trim()); }}
-          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-700/40 text-amber-300 disabled:opacity-40 hover:bg-amber-700/60 transition-colors"
-        >
-          Save
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // -- Safe Markdown renderer (no rehype-raw -- XSS-safe) -----------------------
 function SafeMarkdown({ children }: { children: string }) {
   return (
@@ -116,10 +86,8 @@ function SafeMarkdown({ children }: { children: string }) {
 
 // -- Main component -----------------------------------------------------------
 export default function IssueBoard() {
-  const { user, isLoading: authLoading } = useAuth();
-  const [adminToken, setAdminToken] = useState<string | null>(
-    () => sessionStorage.getItem(ADMIN_TOKEN_KEY),
-  );
+  const { user, token, isLoading: authLoading } = useAuth();
+  const adminToken = token;
 
   const [issues, setIssues] = useState<GhIssue[]>([]);
   const [loading, setLoading] = useState(true);
@@ -282,7 +250,17 @@ export default function IssueBoard() {
       </div>
       <p className="text-slate-500 text-sm mb-5 ml-7">GitHub issues -- filter, view, close/reopen, comment</p>
 
-      {!adminToken && <PatInput onSave={setAdminToken} />}
+      {!adminToken && (
+        <div className="mb-4 rounded-xl px-4 py-3 flex items-center gap-2.5"
+          style={{ background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.18)' }}>
+          <KeyRound size={13} className="text-amber-400 shrink-0" />
+          <p className="text-xs text-slate-400">
+            No token — read-only mode.{' '}
+            <Link to="/admin" className="text-amber-400 hover:underline">Login via Admin</Link>
+            {' '}to enable write ops (close, comment).
+          </p>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-4 items-center" ref={dropdownRef}>
@@ -548,7 +526,10 @@ export default function IssueBoard() {
               </div>
             ) : (
               <div className="px-5 py-4">
-                <PatInput onSave={setAdminToken} />
+                <p className="text-xs text-slate-500">
+                  <Link to="/admin" className="text-amber-400 hover:underline">Login via Admin</Link>
+                  {' '}to enable commenting.
+                </p>
               </div>
             )}
           </div>

@@ -7,17 +7,15 @@ import {
   loadAllUseCases,
   type AnyUseCase,
 } from '@/lib/content-loader';
-import type { ExamConfig } from '@/types/content';
-import type { BlogPostMeta } from '@/types/content';
+import type { ExamConfig, BlogPostMeta } from '@/types/content';
 import {
   Video, Lock, CheckCircle2, XCircle, ExternalLink,
-  RefreshCw, Plus, Eye, KeyRound, ChevronLeft, Loader2,
+  RefreshCw, Plus, Eye, ChevronLeft, Loader2, KeyRound,
 } from 'lucide-react';
 
 const OWNER_LOGIN = 'ajeetchouksey';
 const DEV_BYPASS = import.meta.env.VITE_BYPASS_ADMIN_AUTH === 'true';
 const REPO = 'ajeetchouksey/ajch_platform';
-const ADMIN_TOKEN_KEY = 'admin_gh_token';
 
 const TOOLS = [
   'Token Counter', 'Context Visualizer', 'MCP Scaffold', 'RAG Chunk Visualizer',
@@ -42,13 +40,25 @@ interface GhIssue {
   state: 'open' | 'closed';
 }
 
+const AREA_LABELS: Record<ContentArea, string> = {
+  'exam-domain': 'Exam Domain',
+  blog: 'Blog Post',
+  usecase: 'Use Case',
+  tool: 'Tool',
+};
+const AREA_COLORS: Record<ContentArea, string> = {
+  'exam-domain': 'bg-violet-900/30 text-violet-300',
+  blog: 'bg-sky-900/30 text-sky-300',
+  usecase: 'bg-amber-900/30 text-amber-300',
+  tool: 'bg-emerald-900/30 text-emerald-300',
+};
+
 function buildItems(
   exams: ExamConfig[],
   posts: BlogPostMeta[],
   usecases: AnyUseCase[],
 ): ContentItem[] {
   const items: ContentItem[] = [];
-
   for (const exam of exams) {
     if (!exam.available) continue;
     for (const domain of exam.domains) {
@@ -120,7 +130,7 @@ async function createGhIssue(item: ContentItem, token: string): Promise<GhIssue 
     `**Title**: ${item.title}`,
     ``,
     `### Purpose`,
-    `Create a YouTube video covering this content to fill the platform's video gap and align with MVP reach objectives.`,
+    `Create a YouTube video covering this content to fill the platform video gap and align with MVP reach objectives.`,
     ``,
     `### MVP Alignment`,
     item.mvpDomain ? `Domain: ${item.mvpDomain}` : `General platform content`,
@@ -145,75 +155,26 @@ async function createGhIssue(item: ContentItem, token: string): Promise<GhIssue 
   return res.json() as Promise<GhIssue>;
 }
 
-// ── Area labels ───────────────────────────────────────────────────────────────
-const AREA_LABELS: Record<ContentArea, string> = {
-  'exam-domain': 'Exam Domain',
-  blog: 'Blog Post',
-  usecase: 'Use Case',
-  tool: 'Tool',
-};
-const AREA_COLORS: Record<ContentArea, string> = {
-  'exam-domain': 'bg-violet-900/30 text-violet-300',
-  blog: 'bg-sky-900/30 text-sky-300',
-  usecase: 'bg-amber-900/30 text-amber-300',
-  tool: 'bg-emerald-900/30 text-emerald-300',
-};
-
-// ── PAT prompt ────────────────────────────────────────────────────────────────
-function PatPrompt({ onSave }: { onSave: (pat: string) => void }) {
-  const [val, setVal] = useState('');
-  return (
-    <div className="rounded-xl p-4 flex flex-col gap-3"
-      style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}>
-      <div className="flex items-center gap-2 text-amber-400 text-xs font-semibold">
-        <KeyRound size={13} /> PAT required for write ops
-      </div>
-      <p className="text-xs text-slate-400">
-        Enter a GitHub PAT with <code className="px-1 rounded bg-slate-800 text-slate-300">public_repo</code> scope to create issues.
-      </p>
-      <div className="flex gap-2">
-        <input
-          type="password"
-          value={val}
-          onChange={e => setVal(e.target.value)}
-          placeholder="ghp_..."
-          className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 outline-none focus:border-amber-600"
-        />
-        <button
-          disabled={!val.trim()}
-          onClick={() => { sessionStorage.setItem(ADMIN_TOKEN_KEY, val.trim()); onSave(val.trim()); }}
-          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-700/40 text-amber-300 disabled:opacity-40 hover:bg-amber-700/60 transition-colors"
-        >
-          Save
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ── Main component ─────────────────────────────────────────────────────────────
+// -- Main component -----------------------------------------------------------
 export default function YoutubeTracker() {
-  const { user, isLoading: authLoading } = useAuth();
-  const [adminToken, setAdminToken] = useState<string | null>(
-    () => sessionStorage.getItem(ADMIN_TOKEN_KEY),
-  );
+  const { user, token, isLoading: authLoading } = useAuth();
 
   const [items, setItems] = useState<ContentItem[]>([]);
   const [ghIssues, setGhIssues] = useState<GhIssue[]>([]);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState<string | null>(null); // item.id being created
+  const [creating, setCreating] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'missing' | 'covered'>('all');
   const [areaFilter, setAreaFilter] = useState<ContentArea | 'all'>('all');
   const [error, setError] = useState<string | null>(null);
   const [refreshTick, setRefreshTick] = useState(0);
 
-  // all setState calls are in .then() callbacks — not synchronously in effect body
+  // all setState in .then() callbacks -- not synchronously in effect body
   useEffect(() => {
     Promise.all([
       loadExamRegistry(),
       loadBlogManifest(),
       loadAllUseCases(),
-      fetchYoutubeIssues(adminToken),
+      fetchYoutubeIssues(token),
     ])
       .then(([registry, manifest, usecases, issues]) => {
         setItems(buildItems(registry.exams, manifest.posts, usecases));
@@ -225,7 +186,7 @@ export default function YoutubeTracker() {
         setError('Failed to load content or GitHub issues.');
         setLoading(false);
       });
-  }, [adminToken, refreshTick]);
+  }, [token, refreshTick]);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -233,24 +194,23 @@ export default function YoutubeTracker() {
   }, []);
 
   const handleCreate = useCallback(async (item: ContentItem) => {
-    if (!adminToken) return;
+    if (!token) return;
     setCreating(item.id);
-    const newIssue = await createGhIssue(item, adminToken);
+    const newIssue = await createGhIssue(item, token);
     if (newIssue) setGhIssues(prev => [...prev, newIssue]);
-    else setError('Failed to create issue — check your PAT has public_repo scope.');
+    else setError('Failed to create issue — check your PAT has public_repo scope. Login via /admin.');
     setCreating(null);
-  }, [adminToken]);
+  }, [token]);
 
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <span className="text-slate-500 text-sm animate-pulse">Checking auth…</span>
+        <span className="text-slate-500 text-sm animate-pulse">Checking auth...</span>
       </div>
     );
   }
   if (!DEV_BYPASS && (!user || user.login !== OWNER_LOGIN)) return <Navigate to="/" replace />;
 
-  // Map issue titles → GhIssue for fast lookup
   const issueByTitle = new Map(ghIssues.map(i => [i.title, i]));
   const getMatch = (item: ContentItem) => issueByTitle.get(item.issueTitle);
 
@@ -270,7 +230,6 @@ export default function YoutubeTracker() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Header */}
       <div className="flex items-center gap-2 mb-1">
         <Link to="/admin" className="text-slate-500 hover:text-slate-300 transition-colors">
           <ChevronLeft size={16} />
@@ -280,6 +239,19 @@ export default function YoutubeTracker() {
         <Lock size={12} className="text-slate-600 ml-1" />
       </div>
       <p className="text-slate-500 text-sm mb-6 ml-7">Content coverage — which items need YouTube video issues</p>
+
+      {/* No token warning */}
+      {!token && (
+        <div className="mb-5 rounded-xl px-4 py-3 flex items-center gap-2.5"
+          style={{ background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.18)' }}>
+          <KeyRound size={13} className="text-amber-400 shrink-0" />
+          <p className="text-xs text-slate-400">
+            No token — read-only mode.{' '}
+            <Link to="/admin" className="text-amber-400 hover:underline">Login via Admin</Link>
+            {' '}to enable issue creation.
+          </p>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
@@ -295,13 +267,6 @@ export default function YoutubeTracker() {
           </div>
         ))}
       </div>
-
-      {/* PAT prompt */}
-      {!adminToken && (
-        <div className="mb-5">
-          <PatPrompt onSave={setAdminToken} />
-        </div>
-      )}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-4">
@@ -335,7 +300,6 @@ export default function YoutubeTracker() {
         <div className="mb-4 rounded-lg px-4 py-3 text-xs text-red-300 bg-red-900/20 border border-red-800/40">{error}</div>
       )}
 
-      {/* Table */}
       {loading ? (
         <div className="flex items-center justify-center py-16">
           <Loader2 size={20} className="text-slate-500 animate-spin" />
@@ -388,7 +352,7 @@ export default function YoutubeTracker() {
                           className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors">
                           <Eye size={12} /> View <ExternalLink size={10} />
                         </a>
-                      ) : adminToken ? (
+                      ) : token ? (
                         <button
                           disabled={creating === item.id}
                           onClick={() => handleCreate(item)}
@@ -399,7 +363,7 @@ export default function YoutubeTracker() {
                           Create Issue
                         </button>
                       ) : (
-                        <span className="text-slate-600 text-[10px]">PAT needed</span>
+                        <span className="text-slate-600 text-[10px]">Login needed</span>
                       )}
                     </td>
                   </tr>
