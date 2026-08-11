@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
-import { ThumbsUp, ThumbsDown, Star, ChevronLeft, Lock, Trash2, BarChart2 } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Star, ChevronLeft, Lock, Trash2, BarChart2, TrendingUp } from 'lucide-react';
 
 const OWNER_LOGIN = 'ajeetchouksey';
 const DEV_BYPASS = import.meta.env.VITE_BYPASS_ADMIN_AUTH === 'true';
+const WORKER_URL = (import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined) ?? '';
 
 type Vote = 'up' | 'down';
 type ContentType = 'blog' | 'usecase' | 'exam-notes' | 'exam' | 'tools' | 'other';
@@ -72,6 +73,15 @@ export default function Reactions() {
   const { user, isLoading: authLoading } = useAuth();
   // lazy init reads localStorage once on mount — no effect needed
   const [entries, setEntries] = useState<ReactionEntry[]>(() => readLocalData());
+  const [signalData, setSignalData] = useState<{ total: number; byContent: Record<string, number> } | null>(null);
+  useEffect(() => {
+    if (WORKER_URL) {
+      fetch(`${WORKER_URL}/api/signal/total`)
+        .then(r => r.json() as Promise<{ total: number; byContent: Record<string, number> }>)
+        .then(setSignalData)
+        .catch(() => {});
+    }
+  }, []);
 
   const clear = (entry: ReactionEntry) => {
     localStorage.removeItem(`aarya_fb_${entry.contentId}`);
@@ -170,6 +180,73 @@ export default function Reactions() {
           </table>
         </div>
       )}
+      {/* ── Platform Signal Analytics (from Worker Gist) ── */}
+      <div className="mt-10">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp size={15} className="text-pink-400" />
+          <h2 className="text-sm font-bold text-slate-200 tracking-tight">Platform Signal Analytics</h2>
+          <span className="text-[10px] text-slate-600 ml-1">all users · from Worker Gist</span>
+          {signalData && (
+            <span className="ml-auto text-[11px] font-semibold text-pink-300">
+              {signalData.total} total helpful signals
+            </span>
+          )}
+        </div>
+
+        {!signalData ? (
+          <p className="text-xs text-slate-600 py-4">{WORKER_URL ? 'Loading…' : 'VITE_SUBSCRIBE_WORKER_URL not set'}</p>
+        ) : Object.keys(signalData.byContent).length === 0 ? (
+          <p className="text-xs text-slate-600 py-4">No signals recorded yet.</p>
+        ) : (
+          <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(244,114,182,0.15)' }}>
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ background: 'rgba(15,23,42,0.8)', borderBottom: '1px solid rgba(244,114,182,0.12)' }}>
+                  <th className="text-left px-4 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Content</th>
+                  <th className="text-left px-3 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Type</th>
+                  <th className="text-right px-4 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Helpful ♥</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(signalData.byContent)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([contentId, count], i, arr) => {
+                    const { type, href, label } = parseContentId(contentId);
+                    const pct = signalData.total > 0 ? Math.round((count / signalData.total) * 100) : 0;
+                    return (
+                      <tr key={contentId}
+                        style={{
+                          background: i % 2 === 0 ? 'rgba(15,23,42,0.4)' : 'rgba(15,23,42,0.6)',
+                          borderBottom: i < arr.length - 1 ? '1px solid rgba(71,85,105,0.1)' : undefined,
+                        }}>
+                        <td className="px-4 py-2.5">
+                          <Link to={href}
+                            className="text-xs text-slate-300 hover:text-pink-300 transition-colors font-medium truncate block max-w-[260px]">
+                            {label.replace(/-/g, ' ')}
+                          </Link>
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <span className="text-[10px] px-2 py-0.5 rounded-lg text-slate-400"
+                            style={{ background: 'rgba(71,85,105,0.2)', border: '1px solid rgba(71,85,105,0.2)' }}>
+                            {TYPE_LABEL[type]}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <div className="w-16 h-1 rounded-full bg-slate-800 overflow-hidden">
+                              <div className="h-full rounded-full bg-pink-500" style={{ width: `${pct}%` }} />
+                            </div>
+                            <span className="text-xs font-bold text-pink-300 w-5 text-right">{count}</span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
