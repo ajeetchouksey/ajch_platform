@@ -19,9 +19,15 @@ export function ContentFeedback({ contentId, compact = false }: ContentFeedbackP
   );
 
   const cast = (v: 'up' | 'down') => {
-    if (vote === v) return; // already voted
+    if (vote === v) return;
     setVote(v);
     localStorage.setItem(storageKey(contentId), v);
+    // thumbs-up also sets the star key so bookmark count stays consistent
+    if (v === 'up') {
+      localStorage.setItem(`aarya_star_${contentId}`, '1');
+    } else {
+      localStorage.removeItem(`aarya_star_${contentId}`);
+    }
   };
 
   if (compact) {

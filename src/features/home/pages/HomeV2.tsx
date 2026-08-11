@@ -365,7 +365,7 @@ export default function HomeV2() {
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § PAGE VIEWS — GA4 activity strip
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      {pStats?.pageViews?.total != null && pStats.pageViews.total > 0 && (
+      {(pStats?.pageViews?.total ?? 0) > 0 || ghRepo != null || localStars > 0 ? (
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
         style={{ transitionDelay: '80ms' }}>
         <div className="rounded-2xl px-6 py-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
@@ -374,18 +374,20 @@ export default function HomeV2() {
             border: '1px solid rgba(139,92,246,0.15)',
           }}>
           {/* Page views since May 1 */}
-          <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
-            <Eye size={13} className="text-violet-400" />
-            <span className="text-white font-bold">{pStats.pageViews.total.toLocaleString()}</span>
-            &nbsp;views
-          </span>
+          {(pStats?.pageViews?.total ?? 0) > 0 && (
+            <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+              <Eye size={13} className="text-violet-400" />
+              <span className="text-white font-bold">{(pStats?.pageViews?.total ?? 0).toLocaleString()}</span>
+              &nbsp;views
+            </span>
+          )}
           {ghRepo != null && ghRepo.stars > 0 && (
             <>
-              <span className="text-slate-600 text-[12px]">·</span>
+              {(pStats?.pageViews?.total ?? 0) > 0 && <span className="text-slate-600 text-[12px]">·</span>}
               <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
                 <span style={{ color: '#fbbf24' }}>⭐</span>
                 <span className="text-white font-bold">{ghRepo.stars.toLocaleString()}</span>
-                &nbsp;stars
+                &nbsp;GitHub stars
               </span>
             </>
           )}
@@ -411,7 +413,7 @@ export default function HomeV2() {
           )}
         </div>
       </section>
-      )}
+      ) : null}
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § FEATURES — what's on the platform

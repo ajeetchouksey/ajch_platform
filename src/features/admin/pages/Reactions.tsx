@@ -48,27 +48,12 @@ function readLocalData(): ReactionEntry[] {
 
   for (let i = 0; i < localStorage.length; i++) {
     const lsKey = localStorage.key(i);
-    if (!lsKey) continue;
+    if (!lsKey?.startsWith('aarya_fb_')) continue;
 
-    if (lsKey.startsWith('aarya_fb_')) {
-      const contentId = lsKey.slice('aarya_fb_'.length);
-      const vote = localStorage.getItem(lsKey) as Vote;
-      const parsed = parseContentId(contentId);
-      const existing = map.get(contentId);
-      map.set(contentId, { ...parsed, key: lsKey, contentId, vote, starred: existing?.starred });
-    } else if (lsKey.startsWith('aarya_star_')) {
-      const contentId = lsKey.slice('aarya_star_'.length);
-      const starred = localStorage.getItem(lsKey) === '1';
-      if (starred) {
-        const parsed = parseContentId(contentId);
-        const existing = map.get(contentId);
-        if (existing) {
-          existing.starred = true;
-        } else {
-          map.set(contentId, { ...parsed, key: `aarya_star_${contentId}`, contentId, starred });
-        }
-      }
-    }
+    const contentId = lsKey.slice('aarya_fb_'.length);
+    const vote = localStorage.getItem(lsKey) as Vote;
+    const parsed = parseContentId(contentId);
+    map.set(contentId, { ...parsed, key: lsKey, contentId, vote, starred: vote === 'up' });
   }
 
   return Array.from(map.values()).sort((a, b) => a.type.localeCompare(b.type) || a.label.localeCompare(b.label));
