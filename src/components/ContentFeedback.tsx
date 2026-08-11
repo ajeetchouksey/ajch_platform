@@ -1,5 +1,8 @@
 import { ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
+import { useGitHubStar } from '@/hooks/useGitHubStar';
+
+const WORKER_URL = (import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined) ?? '';
 
 interface ContentFeedbackProps {
   contentId: string;
@@ -17,14 +20,25 @@ export function ContentFeedback({ contentId, compact = false }: ContentFeedbackP
   const [vote, setVote] = useState<Vote>(
     () => (localStorage.getItem(storageKey(contentId)) as Vote) ?? null
   );
+  const { starRepo } = useGitHubStar();
+
+  const postSignal = (id: string) =>
+    WORKER_URL
+      ? fetch(`${WORKER_URL}/api/signal`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contentId: id }),
+        }).catch(() => {})
+      : Promise.resolve();
 
   const cast = (v: 'up' | 'down') => {
     if (vote === v) return;
     setVote(v);
     localStorage.setItem(storageKey(contentId), v);
-    // thumbs-up also sets the star key so bookmark count stays consistent
     if (v === 'up') {
       localStorage.setItem(`aarya_star_${contentId}`, '1');
+      void postSignal(contentId); // anonymous signal to Worker (all users)
+      void starRepo();             // real GitHub star (auth users only, no-op otherwise)
     } else {
       localStorage.removeItem(`aarya_star_${contentId}`);
     }

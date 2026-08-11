@@ -192,6 +192,16 @@ export default function HomeV2() {
       .filter(k => k?.startsWith('aarya_star_') && localStorage.getItem(k!) === '1').length
   );
 
+  const [signalTotal, setSignalTotal] = useState<number | null>(null);
+  useEffect(() => {
+    const url = import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined;
+    if (!url) return;
+    fetch(`${url}/api/signal/total`)
+      .then(r => r.json() as Promise<{ total: number }>)
+      .then(d => setSignalTotal(d.total))
+      .catch(() => {});
+  }, []);
+
   const [sessions, setSessions] = useState<ReturnType<typeof getSessions>>([]);
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setSessions(getSessions().filter(s => !!s.finishedAt)); }, []);
@@ -365,7 +375,7 @@ export default function HomeV2() {
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § PAGE VIEWS — GA4 activity strip
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      {(pStats?.pageViews?.total ?? 0) > 0 || ghRepo != null || localStars > 0 ? (
+      {(pStats?.pageViews?.total ?? 0) > 0 || ghRepo != null || localStars > 0 || (signalTotal ?? 0) > 0 ? (
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
         style={{ transitionDelay: '80ms' }}>
         <div className="rounded-2xl px-6 py-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
@@ -408,6 +418,16 @@ export default function HomeV2() {
                 <span style={{ color: '#fbbf24' }}>🔖</span>
                 <span className="text-white font-bold">{localStars}</span>
                 &nbsp;bookmarked by you
+              </span>
+            </>
+          )}
+          {(signalTotal ?? 0) > 0 && (
+            <>
+              <span className="text-slate-600 text-[12px]">·</span>
+              <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+                <span style={{ color: '#f472b6' }}>♥</span>
+                <span className="text-white font-bold">{signalTotal}</span>
+                &nbsp;found helpful
               </span>
             </>
           )}
