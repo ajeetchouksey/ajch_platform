@@ -1,5 +1,19 @@
 import { ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useGitHubStar } from '@/hooks/useGitHubStar';
+
+const WORKER_URL = (import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined) ?? '';
+
+// module-level cache — all ContentFeedback instances share one fetch per page load
+let _signalCachePromise: Promise<Record<string, number>> | null = null;
+function getSignalCounts(): Promise<Record<string, number>> {
+  if (!WORKER_URL) return Promise.resolve({});
+  _signalCachePromise ??= fetch(`${WORKER_URL}/api/signal/total`)
+    .then(r => r.json() as Promise<{ byContent: Record<string, number> }>)
+    .then(d => d.byContent ?? {})
+    .catch(() => ({}));
+  return _signalCachePromise;
+}
 
 interface ContentFeedbackProps {
   contentId: string;
@@ -17,14 +31,29 @@ export function ContentFeedback({ contentId, compact = false }: ContentFeedbackP
   const [vote, setVote] = useState<Vote>(
     () => (localStorage.getItem(storageKey(contentId)) as Vote) ?? null
   );
+  const { starRepo } = useGitHubStar();
+  const [signalCount, setSignalCount] = useState(0);
+  useEffect(() => {
+    getSignalCounts().then(counts => setSignalCount(counts[contentId] ?? 0)).catch(() => {});
+  }, [contentId]);
+
+  const postSignal = (id: string) =>
+    WORKER_URL
+      ? fetch(`${WORKER_URL}/api/signal`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contentId: id }),
+        }).catch(() => {})
+      : Promise.resolve();
 
   const cast = (v: 'up' | 'down') => {
     if (vote === v) return;
     setVote(v);
     localStorage.setItem(storageKey(contentId), v);
-    // thumbs-up also sets the star key so bookmark count stays consistent
     if (v === 'up') {
       localStorage.setItem(`aarya_star_${contentId}`, '1');
+      void postSignal(contentId); // anonymous signal to Worker (all users)
+      void starRepo();             // real GitHub star (auth users only, no-op otherwise)
     } else {
       localStorage.removeItem(`aarya_star_${contentId}`);
     }
@@ -62,6 +91,9 @@ export function ContentFeedback({ contentId, compact = false }: ContentFeedbackP
         {vote && (
           <span className="text-[10px] text-slate-600 ml-1">Thanks!</span>
         )}
+        {!vote && signalCount > 0 && (
+          <span className="text-[10px] text-slate-600 ml-1">{signalCount} helpful</span>
+        )}
       </div>
     );
   }
@@ -73,7 +105,12 @@ export function ContentFeedback({ contentId, compact = false }: ContentFeedbackP
 
       {!vote ? (
         <>
-          <p className="text-sm font-medium text-slate-300 mr-2">Was this helpful?</p>
+          <div>
+            <p className="text-sm font-medium text-slate-300">Was this helpful?</p>
+            {signalCount > 0 && (
+              <p className="text-[11px] text-slate-600 mt-0.5">{signalCount} {signalCount === 1 ? 'person' : 'people'} found this helpful</p>
+            )}
+          </div>
           <div className="flex gap-2">
             <button
               onClick={() => cast('up')}
@@ -96,7 +133,11 @@ export function ContentFeedback({ contentId, compact = false }: ContentFeedbackP
           <ThumbsUp size={20} className="text-emerald-400 fill-emerald-400 shrink-0" />
           <div>
             <p className="text-sm font-semibold text-emerald-300">Glad it helped!</p>
-            <p className="text-xs text-slate-500 mt-0.5">Your feedback helps us keep improving the platform.</p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {signalCount > 1
+                ? `${signalCount} people found this helpful — thanks for the signal!`
+                : 'Your feedback helps us keep improving the platform.'}
+            </p>
           </div>
         </>
       ) : (

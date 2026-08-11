@@ -11,6 +11,9 @@ import { EXAM_SCHEMES } from '@/types/content';
 import type { ExamConfig } from '@/types/content';
 import { SubscribeForm } from './SubscribeForm';
 import { GrowthPrompt } from './GrowthPrompt';
+import { useAuth } from '@/lib/auth';
+
+const OWNER_LOGIN = 'ajeetchouksey';
 
 const EXAM_NAV = [
   { slug: '',          label: 'Overview',    icon: GraduationCap, end: true },
@@ -130,6 +133,32 @@ function Breadcrumbs() {
   return <Breadcrumb items={items} />;
 }
 
+/** Renders an Admin nav link only for the platform owner. */
+function AdminNavItem() {
+  const { user } = useAuth();
+  if (!user || user.login !== OWNER_LOGIN) return null;
+  return (
+    <NavLink
+      to="/admin"
+      className={({ isActive }) =>
+        `relative flex items-center gap-1 px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-medium transition-all duration-200 ${
+          isActive ? 'text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800/50'
+        }`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <Lock size={13} className={isActive ? 'text-violet-400' : 'text-slate-600'} />
+          <span>Admin</span>
+          {isActive && (
+            <span className="absolute bottom-0 left-2 right-2 xl:left-3 xl:right-3 h-0.5 bg-gradient-to-r from-violet-400 to-fuchsia-400 rounded-full" />
+          )}
+        </>
+      )}
+    </NavLink>
+  );
+}
+
 export default function Layout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(() => {
@@ -137,6 +166,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   });
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { user } = useAuth();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const pageKey = location.pathname + location.search;
@@ -273,6 +303,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 )}
               </NavLink>
             ))}
+            <AdminNavItem />
           </nav>
 
           <div className="ml-auto flex items-center gap-2 shrink-0">
@@ -328,6 +359,25 @@ export default function Layout({ children }: { children: ReactNode }) {
                 </NavLink>
               ))}
             </nav>
+            {/* Admin link — owner only */}
+            {user?.login === OWNER_LOGIN && (
+              <>
+                <div className="border-t border-slate-800/60 my-3 -mx-1" />
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                      isActive
+                        ? 'bg-violet-500/15 text-violet-200 border-l-2 border-violet-400 ml-0 pl-2.5'
+                        : 'text-slate-500 hover:text-white hover:bg-slate-800/70'
+                    }`
+                  }
+                >
+                  <Lock size={15} />
+                  <span>Admin</span>
+                </NavLink>
+              </>
+            )}
             <div className="border-t border-slate-800/60 my-3 -mx-1" />
             <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
               Resources
