@@ -186,6 +186,12 @@ export default function HomeV2() {
   const [ghRepo, setGhRepo] = useState<GitHubRepoStats | null>(null);
   useEffect(() => { fetchGitHubRepo().then(setGhRepo).catch(() => {}); }, []);
 
+  // count aarya_star_* keys the visitor has set in this browser
+  const [localStars] = useState(() =>
+    Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i))
+      .filter(k => k?.startsWith('aarya_star_') && localStorage.getItem(k!) === '1').length
+  );
+
   const [sessions, setSessions] = useState<ReturnType<typeof getSessions>>([]);
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setSessions(getSessions().filter(s => !!s.finishedAt)); }, []);
@@ -390,6 +396,16 @@ export default function HomeV2() {
                 <span style={{ color: '#38bdf8' }}>👀</span>
                 <span className="text-white font-bold">{ghRepo.watchers.toLocaleString()}</span>
                 &nbsp;watching
+              </span>
+            </>
+          )}
+          {localStars > 0 && (
+            <>
+              <span className="text-slate-600 text-[12px]">·</span>
+              <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+                <span style={{ color: '#fbbf24' }}>🔖</span>
+                <span className="text-white font-bold">{localStars}</span>
+                &nbsp;bookmarked by you
               </span>
             </>
           )}

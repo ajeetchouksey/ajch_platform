@@ -1,4 +1,5 @@
 import { ContentStar } from '@/components/ContentStar';
+import { ContentFeedback } from '@/components/ContentFeedback';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -294,6 +295,9 @@ export default function UseCaseDetail() {
 
           {/* Star */}
           <ContentStar contentId={`usecase-${id ?? ''}`} />
+
+          {/* Feedback */}
+          <ContentFeedback contentId={`usecase-${id ?? ''}`} compact />
 
           {/* Tech stack */}
           {featured.techStack && featured.techStack.length > 0 && (

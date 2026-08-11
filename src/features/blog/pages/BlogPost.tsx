@@ -15,6 +15,7 @@ import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import { StarRepo } from '@/components/StarRepo';
 import { ContentStar } from '@/components/ContentStar';
+import { ContentFeedback } from '@/components/ContentFeedback';
 import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
@@ -219,6 +220,7 @@ function TocSidebar({
           </button>
           <StarRepo />
           <ContentStar contentId={`blog-${meta.slug}`} />
+          <ContentFeedback contentId={`blog-${meta.slug}`} compact />
         </div>
 
         {/* Tags */}
@@ -626,7 +628,8 @@ export default function BlogPost() {
             />
           </article>
 
-
+          {/* ── Feedback ──────────────────────────────────────────────────── */}
+          {meta && <ContentFeedback contentId={`blog-${meta.slug}`} />}
 
           {/* ── Comments ──────────────────────────────────────────────────── */}
           <GiscusComments slug={slug ?? ''} context="field-notes" />
