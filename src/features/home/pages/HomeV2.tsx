@@ -186,12 +186,6 @@ export default function HomeV2() {
   const [ghRepo, setGhRepo] = useState<GitHubRepoStats | null>(null);
   useEffect(() => { fetchGitHubRepo().then(setGhRepo).catch(() => {}); }, []);
 
-  // count aarya_star_* keys the visitor has set in this browser
-  const [localStars] = useState(() =>
-    Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i))
-      .filter(k => k?.startsWith('aarya_star_') && localStorage.getItem(k!) === '1').length
-  );
-
   const [signalTotal, setSignalTotal] = useState<number | null>(null);
   useEffect(() => {
     const url = import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined;
@@ -375,7 +369,7 @@ export default function HomeV2() {
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § PAGE VIEWS — GA4 activity strip
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      {(pStats?.pageViews?.total ?? 0) > 0 || ghRepo != null || localStars > 0 || (signalTotal ?? 0) > 0 ? (
+      {(pStats?.pageViews?.total ?? 0) > 0 || ghRepo != null || signalTotal != null ? (
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
         style={{ transitionDelay: '80ms' }}>
         <div className="rounded-2xl px-6 py-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
@@ -411,17 +405,7 @@ export default function HomeV2() {
               </span>
             </>
           )}
-          {localStars > 0 && (
-            <>
-              <span className="text-slate-600 text-[12px]">·</span>
-              <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
-                <span style={{ color: '#fbbf24' }}>🔖</span>
-                <span className="text-white font-bold">{localStars}</span>
-                &nbsp;bookmarked by you
-              </span>
-            </>
-          )}
-          {(signalTotal ?? 0) > 0 && (
+          {signalTotal != null && (
             <>
               <span className="text-slate-600 text-[12px]">·</span>
               <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
