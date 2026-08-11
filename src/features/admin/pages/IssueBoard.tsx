@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 
 const OWNER_LOGIN = 'ajeetchouksey';
+const DEV_BYPASS = import.meta.env.VITE_BYPASS_ADMIN_AUTH === 'true';
 const REPO = 'ajeetchouksey/ajch_platform';
 const ADMIN_TOKEN_KEY = 'admin_gh_token';
 const PER_PAGE = 30;
@@ -262,7 +263,7 @@ export default function IssueBoard() {
       </div>
     );
   }
-  if (!user || user.login !== OWNER_LOGIN) return <Navigate to="/" replace />;
+  if (!DEV_BYPASS && (!user || user.login !== OWNER_LOGIN)) return <Navigate to="/" replace />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

@@ -3,6 +3,7 @@ import { useAuth } from '@/lib/auth';
 import { BarChart2, Activity, Video, GitPullRequest, Lock, ChevronRight, ShieldAlert } from 'lucide-react';
 
 const OWNER_LOGIN = 'ajeetchouksey';
+const DEV_BYPASS = import.meta.env.VITE_BYPASS_ADMIN_AUTH === 'true';
 
 const PAGES = [
   {
@@ -53,7 +54,7 @@ export default function Admin() {
       </div>
     );
   }
-  if (!user || user.login !== OWNER_LOGIN) return <Navigate to="/" replace />;
+  if (!DEV_BYPASS && (!user || user.login !== OWNER_LOGIN)) return <Navigate to="/" replace />;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
