@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown, User, Briefcase, Building2, Activity, Compass } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown, User, Briefcase, Building2, Activity, Compass, Lock } from 'lucide-react';
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -48,6 +48,7 @@ const platformLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: BarChart2, sidebarOnly: true },
   { to: '/analytics', label: 'Analytics', icon: LineChart, sidebarOnly: true },
   { to: '/monitoring', label: 'Monitoring', icon: Activity, sidebarOnly: true },
+  { to: '/admin', label: 'Admin', icon: Lock, sidebarOnly: true },
 ];
 
 const footerLinks = [
@@ -82,6 +83,10 @@ function Breadcrumbs() {
     analytics:   'Analytics',
     monitoring:  'Monitoring',
     maintainer:  'Maintainer',
+    admin:       'Admin',
+    youtube:     'YouTube Tracker',
+    issues:      'Issue Board',
+    mvp:         'MVP Dashboard',
     profile:    'Profile',
     dashboard:  'Dashboard',
     contribute: 'Contribute',

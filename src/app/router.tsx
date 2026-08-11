@@ -51,6 +51,11 @@ import Monitoring from '@/features/monitoring/pages/Monitoring';
 // ── MVP Progress ─────────────────────────────────────────────────────────────
 import MvpProgress from '@/features/mvp/pages/MvpProgress';
 
+// ── Admin ─────────────────────────────────────────────────────────────────────
+import Admin from '@/features/admin/pages/Admin';
+import YoutubeTracker from '@/features/admin/pages/YoutubeTracker';
+import IssueBoard from '@/features/admin/pages/IssueBoard';
+
 // ── Analytics / Maintainer ────────────────────────────────────────────────────
 import Analytics from '@/features/analytics/pages/Analytics';
 import Maintainer from '@/features/analytics/pages/Maintainer';
@@ -132,8 +137,15 @@ export default function AppRoutes() {
       {/* Monitoring */}
       <Route path="/monitoring" element={<Monitoring />} />
 
-      {/* MVP Progress — owner-only */}
-      <Route path="/mvp-progress" element={<MvpProgress />} />
+      {/* Admin — owner-only section */}
+      <Route path="/admin" element={<Admin />} />
+      <Route path="/admin/mvp" element={<MvpProgress />} />
+      <Route path="/admin/monitoring" element={<Monitoring />} />
+      <Route path="/admin/youtube" element={<YoutubeTracker />} />
+      <Route path="/admin/issues" element={<IssueBoard />} />
+
+      {/* Legacy redirects */}
+      <Route path="/mvp-progress" element={<Navigate to="/admin/mvp" replace />} />
 
       {/* Analytics / Maintainer */}
       <Route path="/analytics" element={<Analytics />} />
