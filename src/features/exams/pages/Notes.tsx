@@ -876,7 +876,6 @@ export default function Notes() {
           <div className="flex items-center gap-2 mb-6">
             <MessageSquare size={16} className="text-violet-400" />
             <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Community Discussion</h2>
-            <div className="ml-auto"><ContentFeedback contentId={`${examId}-domain-${domain}`} compact /></div>
           </div>
           <ContentFeedback contentId={`${examId}-domain-${domain}`} />
           <GiscusComments
