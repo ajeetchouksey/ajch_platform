@@ -55,6 +55,7 @@ import MvpProgress from '@/features/mvp/pages/MvpProgress';
 import Admin from '@/features/admin/pages/Admin';
 import YoutubeTracker from '@/features/admin/pages/YoutubeTracker';
 import IssueBoard from '@/features/admin/pages/IssueBoard';
+import Reactions from '@/features/admin/pages/Reactions';
 
 // ── Analytics / Maintainer ────────────────────────────────────────────────────
 import Analytics from '@/features/analytics/pages/Analytics';
@@ -143,6 +144,7 @@ export default function AppRoutes() {
       <Route path="/admin/monitoring" element={<Monitoring />} />
       <Route path="/admin/youtube" element={<YoutubeTracker />} />
       <Route path="/admin/issues" element={<IssueBoard />} />
+      <Route path="/admin/reactions" element={<Reactions />} />
 
       {/* Legacy redirects */}
       <Route path="/mvp-progress" element={<Navigate to="/admin/mvp" replace />} />

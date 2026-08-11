@@ -220,6 +220,7 @@ function TocSidebar({
           </button>
           <StarRepo />
           <ContentStar contentId={`blog-${meta.slug}`} />
+          <ContentFeedback contentId={`blog-${meta.slug}`} compact />
         </div>
 
         {/* Tags */}

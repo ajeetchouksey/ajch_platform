@@ -43,6 +43,15 @@ const PAGES = [
     bg: 'rgba(16,185,129,0.08)',
     border: 'rgba(16,185,129,0.22)',
   },
+  {
+    to: '/admin/reactions',
+    icon: BarChart2,
+    label: 'Content Reactions',
+    desc: 'See which content you liked, needs work, or bookmarked — your personal engagement dashboard.',
+    color: 'text-violet-400',
+    bg: 'rgba(139,92,246,0.08)',
+    border: 'rgba(139,92,246,0.22)',
+  },
 ];
 
 export default function Admin() {

@@ -86,6 +86,7 @@ function Breadcrumbs() {
     admin:       'Admin',
     youtube:     'YouTube Tracker',
     issues:      'Issue Board',
+    reactions:   'Content Reactions',
     mvp:         'MVP Dashboard',
     profile:    'Profile',
     dashboard:  'Dashboard',
