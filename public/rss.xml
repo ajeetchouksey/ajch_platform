@@ -5,8 +5,26 @@
     <link>https://aaryaai.dev</link>
     <description>AI learning resources, exam prep, and engineering insights</description>
     <language>en-gb</language>
-    <lastBuildDate>Wed, 29 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 10 Aug 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://aaryaai.dev/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>The ADLC: A Software Engineering Discipline for AI Agents</title>
+      <link>https://aaryaai.dev/blog/adlc-engineering-discipline-for-ai-agents</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/adlc-engineering-discipline-for-ai-agents</guid>
+      <description>SDLC gave software engineering its rigour. AI agents need the same treatment. Here&apos;s the Agent Development Life Cycle — six stages that turn agent building from craft into discipline.</description>
+      <pubDate>Mon, 10 Aug 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Engineering</category>
+    </item>
+    <item>
+      <title>The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems</title>
+      <link>https://aaryaai.dev/blog/ai-architecture-blueprint-multi-agent-privacy-first</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/ai-architecture-blueprint-multi-agent-privacy-first</guid>
+      <description>Most AI projects fail not because the model is weak—but because the architecture around it is under-designed. Here&apos;s the blueprint that fixes that.</description>
+      <pubDate>Fri, 07 Aug 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>Engineering</category>
+    </item>
     <item>
       <title>What is a Vector Database? The Memory Layer Behind Modern AI</title>
       <link>https://aaryaai.dev/blog/what-is-a-vector-database</link>

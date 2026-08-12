@@ -1,0 +1,141 @@
+name: Promote Content
+
+on:
+  workflow_dispatch:
+    inputs:
+      vertical:
+        description: Vertical to promote
+        required: true
+        type: choice
+        options:
+          - blog
+          - skillup
+          - usecases
+          - interviews
+          - pathways
+      repo:
+        description: GitHub repo slug in owner/name form
+        required: true
+        type: string
+      sha:
+        description: Pinned commit SHA to promote
+        required: true
+        type: string
+      base_url:
+        description: CDN base URL for the promoted repo
+        required: false
+        default: https://cdn.jsdelivr.net/gh
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  promote:
+    name: Promote content manifest entry
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate repo and SHA exist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERTICAL: ${{ inputs.vertical }}
+          REPO: ${{ inputs.repo }}
+          SHA: ${{ inputs.sha }}
+        run: |
+          set -euo pipefail
+
+          if ! curl -fsSL \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/commits/${SHA}" > /tmp/commit.json; then
+            echo "::error::Could not find commit ${SHA} in ${REPO}."
+            exit 1
+          fi
+
+          case "${VERTICAL}" in
+            blog|usecases|interviews|pathways) remote_path="index.json" ;;
+            skillup) remote_path="catalog.json" ;;
+            *) echo "::error::Unsupported vertical: ${VERTICAL}"; exit 1 ;;
+          esac
+
+          curl -fsSL "https://raw.githubusercontent.com/${REPO}/${SHA}/${remote_path}" > /tmp/vertical.json
+
+          node - <<'NODE'
+          const fs = require('fs');
+          const payload = JSON.parse(fs.readFileSync('/tmp/vertical.json', 'utf8'));
+          const declared = payload.schemaVersion ?? payload.schema ?? null;
+          const match = String(declared ?? '').match(/\d+/);
+          const version = match ? Number(match[0]) : null;
+          if (!Number.isInteger(version) || version < 1) {
+            throw new Error(`Missing supported schemaVersion in fetched content; found ${String(declared)}`);
+          }
+          if (![1].includes(version)) {
+            throw new Error(`Unsupported schemaVersion ${version}; supported versions: 1`);
+          }
+          NODE
+
+      - name: Update content-manifest.json
+        env:
+          VERTICAL: ${{ inputs.vertical }}
+          REPO: ${{ inputs.repo }}
+          SHA: ${{ inputs.sha }}
+          BASE_URL: ${{ inputs.base_url }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from datetime import datetime, timezone
+
+          path = 'content-manifest.json'
+          with open(path, encoding='utf-8') as f:
+              data = json.load(f)
+
+          data["${VERTICAL}"] = {
+              "repo": "${REPO}",
+              "sha": "${SHA}",
+              "baseUrl": "${BASE_URL}",
+              "schemaVersion": 1,
+              "promotedAt": datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+          }
+
+          with open(path, 'w', encoding='utf-8') as f:
+              json.dump(data, f, indent=2)
+              f.write('\n')
+          PY
+
+      - name: Open promotion PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERTICAL: ${{ inputs.vertical }}
+          SHA: ${{ inputs.sha }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          branch="chore/promote-${VERTICAL}-${SHA:0:12}"
+          git checkout -B "${branch}"
+          git add content-manifest.json
+
+          if git diff --cached --quiet; then
+            echo "No manifest change to promote."
+            exit 0
+          fi
+
+          git commit -m "chore(content): promote ${VERTICAL} to ${SHA}"
+          git push --set-upstream origin "${branch}"
+          gh pr create \
+            --base main \
+            --head "${branch}" \
+            --title "chore(content): promote ${VERTICAL} to ${SHA}" \
+            --body "Promotes ${VERTICAL} to commit ${SHA} via the content promotion workflow."

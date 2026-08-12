@@ -222,7 +222,40 @@ async function inviteCollaborator(handle: string, env: Env): Promise<void> {
   }
 }
 
-// ── Rate limiting (Workers KV — 5 req per 15 min per IP) ─────────────────────
+// ── Rate limiting (Workers KV — configurable windowed counters) ─────────────
+
+interface WindowRateLimitOptions {
+  windowMs: number;
+  max: number;
+  ttlSeconds?: number;
+}
+
+/**
+ * Generic windowed rate limiter used by subscribe and mentor endpoints.
+ * Keeps the same key format pattern as the previous logic so variable key
+ * prefixes remain compatible with the underlying KV bucket strategy.
+ */
+async function checkWindowedRateLimit(
+  env: Env,
+  keyPrefix: string,
+  ip: string,
+  { windowMs, max, ttlSeconds }: WindowRateLimitOptions,
+): Promise<boolean> {
+  const bucket = Math.floor(Date.now() / windowMs);
+  const key = `${keyPrefix}:${ip}:${bucket}`;
+  const ttl = ttlSeconds ?? Math.max(60, Math.ceil(windowMs / 1000) * 2);
+
+  try {
+    const raw = await env.RATE_LIMITER.get(key);
+    const count = raw ? parseInt(raw, 10) : 0;
+    if (count >= max) return false;
+    await env.RATE_LIMITER.put(key, String(count + 1), { expirationTtl: ttl });
+    return true;
+  } catch {
+    // KV unavailable — fail open; rely on Cloudflare zone-level rules
+    return true;
+  }
+}
 
 /**
  * Returns false if the IP has exceeded 5 POST requests in the current 15-min
@@ -231,18 +264,11 @@ async function inviteCollaborator(handle: string, env: Env): Promise<void> {
  * Cloudflare rate limiting should be configured as the primary defence.
  */
 async function checkRateLimit(env: Env, ip: string): Promise<boolean> {
-  const bucket = Math.floor(Date.now() / (15 * 60 * 1000));
-  const key = `rl:${ip}:${bucket}`;
-  try {
-    const raw = await env.RATE_LIMITER.get(key);
-    const count = raw ? parseInt(raw, 10) : 0;
-    if (count >= 5) return false;
-    await env.RATE_LIMITER.put(key, String(count + 1), { expirationTtl: 1800 });
-    return true;
-  } catch {
-    // KV unavailable — fail open; rely on Cloudflare zone-level rules
-    return true;
-  }
+  return checkWindowedRateLimit(env, 'rl', ip, {
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    ttlSeconds: 1800,
+  });
 }
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
@@ -406,7 +432,11 @@ async function handleSignalPost(request: Request, env: Env, origin: string): Pro
 
 // 2 req / 15 min per IP (AI calls are expensive) — same key format (`ml:${ip}:${bucket}`) as before consolidation
 function checkMentorRateLimit(env: Env, ip: string): Promise<boolean> {
-  return checkWindowedRateLimit(env, 'ml', ip, { max: 2 });
+  return checkWindowedRateLimit(env, 'ml', ip, {
+    windowMs: 15 * 60 * 1000,
+    max: 2,
+    ttlSeconds: 1800,
+  });
 }
 
 // ── ExamId validation (mirrors src/lib/plan-generator.ts) ────────────────────
