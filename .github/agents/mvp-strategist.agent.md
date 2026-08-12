@@ -1,7 +1,7 @@
 ---
 name: MVP Strategist
-version: 1.1.0
-last_modified: "2026-08-10"
+version: 1.1.1
+last_modified: "2026-08-12"
 description: >
   Growth Orchestrator for Aarya — My AI Learning Hub. Owns the MVP & Growth
   strategy layer. Runs weekly analysis across content, community, and evidence
@@ -9,6 +9,7 @@ description: >
   public/content/mvp-progress.json. Delegates deep analysis to Content Gap
   Analyst, Community Tracker, and Evidence Curator.
 model: ["Claude Sonnet 4.6 (copilot)"]
+mode: plan
 tools: [read/readFile, search/fileSearch, search/textSearch, search/listDirectory, agent/runSubagent, edit/editFiles, fetch/fetchWebPage]
 ---
 
