@@ -133,7 +133,7 @@ async function signGitHubAppJWT(appId: string, pemKey: string): Promise<string> 
   const pkcs8 = pemKey.includes('RSA PRIVATE KEY') ? pkcs1ToPkcs8(der) : der;
 
   const key = await crypto.subtle.importKey(
-    'pkcs8', pkcs8,
+    'pkcs8', pkcs8 as BufferSource, // Uint8Array.from() types as ArrayBufferLike; never a SharedArrayBuffer here
     { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
     false, ['sign'],
   );
@@ -404,19 +404,9 @@ async function handleSignalPost(request: Request, env: Env, origin: string): Pro
   return json({ status: 'ok', count: data.signals[contentId] }, 200, origin);
 }
 
-// ── Mentor rate limiting (2 req / 15 min per IP — AI calls are expensive) ────
-async function checkMentorRateLimit(env: Env, ip: string): Promise<boolean> {
-  const bucket = Math.floor(Date.now() / (15 * 60 * 1000));
-  const key = `ml:${ip}:${bucket}`;
-  try {
-    const raw = await env.RATE_LIMITER.get(key);
-    const count = raw ? parseInt(raw, 10) : 0;
-    if (count >= 2) return false;
-    await env.RATE_LIMITER.put(key, String(count + 1), { expirationTtl: 1800 });
-    return true;
-  } catch {
-    return true; // fail open
-  }
+// 2 req / 15 min per IP (AI calls are expensive) — same key format (`ml:${ip}:${bucket}`) as before consolidation
+function checkMentorRateLimit(env: Env, ip: string): Promise<boolean> {
+  return checkWindowedRateLimit(env, 'ml', ip, { max: 2 });
 }
 
 // ── ExamId validation (mirrors src/lib/plan-generator.ts) ────────────────────
