@@ -78,6 +78,11 @@ interface PublicStats {
   synced_at: string;
 }
 
+interface Signals {
+  signals: Record<string, number>;
+  lastUpdated: string;
+}
+
 // ── DER helpers — PKCS#1 RSA key → PKCS#8 (required by Web Crypto API) ───────
 
 function derLength(n: number): number[] {
@@ -245,7 +250,7 @@ async function checkRateLimit(env: Env, ip: string): Promise<boolean> {
 function corsHeadersFor(origin: string): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400',
   };
@@ -328,6 +333,77 @@ async function callAnthropic(system: string, userContent: string, apiKey: string
   return text;
 }
 
+// ── Signal rate limiting — 1 per IP per contentId per 7 days ───────────────
+async function checkSignalRateLimit(env: Env, ip: string, contentId: string): Promise<boolean> {
+  const key = `sg:${ip}:${contentId}`;
+  try {
+    const exists = await env.RATE_LIMITER.get(key);
+    if (exists !== null) return false;
+    await env.RATE_LIMITER.put(key, '1', { expirationTtl: 604800 });
+    return true;
+  } catch {
+    return true; // fail open
+  }
+}
+
+async function handleSignalGet(env: Env, origin: string): Promise<Response> {
+  let data: Signals;
+  try {
+    data = await readGist<Signals>(env.PUBLIC_STATS_GIST_ID, 'signals.json', env.GIST_TOKEN);
+    if (!data || typeof data.signals !== 'object') data = { signals: {}, lastUpdated: '' };
+  } catch {
+    data = { signals: {}, lastUpdated: '' };
+  }
+  const total = Object.values(data.signals).reduce((a, b) => a + b, 0);
+  return new Response(JSON.stringify({ total, byContent: data.signals }), {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': ALLOWED_ORIGINS.has(origin) ? origin : ALLOWED_ORIGIN,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, max-age=300',
+    },
+  });
+}
+
+async function handleSignalPost(request: Request, env: Env, origin: string): Promise<Response> {
+  let body: { contentId?: unknown };
+  try {
+    body = await request.json() as { contentId?: unknown };
+  } catch {
+    return json({ error: 'Invalid JSON' }, 400, origin);
+  }
+
+  const { contentId } = body;
+  if (typeof contentId !== 'string' || !CONTENT_ID_RE.test(contentId)) {
+    return json({ error: 'Invalid contentId' }, 400, origin);
+  }
+
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  if (!(await checkSignalRateLimit(env, ip, contentId))) {
+    return json({ status: 'already_voted' }, 409, origin);
+  }
+
+  let data: Signals;
+  try {
+    data = await readGist<Signals>(env.PUBLIC_STATS_GIST_ID, 'signals.json', env.GIST_TOKEN);
+    if (!data || typeof data.signals !== 'object') data = { signals: {}, lastUpdated: '' };
+  } catch {
+    data = { signals: {}, lastUpdated: '' };
+  }
+
+  data.signals[contentId] = (data.signals[contentId] ?? 0) + 1;
+  data.lastUpdated = new Date().toISOString();
+
+  try {
+    await writeGist(env.PUBLIC_STATS_GIST_ID, 'signals.json', data, env.GIST_TOKEN);
+  } catch (err) {
+    console.error('signal-write-failed:', (err as Error).message);
+    return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  }
+
+  return json({ status: 'ok', count: data.signals[contentId] }, 200, origin);
+}
+
 // ── Mentor rate limiting (2 req / 15 min per IP — AI calls are expensive) ────
 async function checkMentorRateLimit(env: Env, ip: string): Promise<boolean> {
   const bucket = Math.floor(Date.now() / (15 * 60 * 1000));
@@ -345,6 +421,8 @@ async function checkMentorRateLimit(env: Env, ip: string): Promise<boolean> {
 
 // ── ExamId validation (mirrors src/lib/plan-generator.ts) ────────────────────
 const VALID_EXAM_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// contentId: blog slug, exam+domain ID, use-case ID — allow dots for blog paths
+const CONTENT_ID_RE = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,98}[a-zA-Z0-9]$|^[a-zA-Z0-9]$/;
 function isValidExamId(id: unknown): id is string {
   return typeof id === 'string' && VALID_EXAM_ID.test(id);
 }
@@ -604,6 +682,12 @@ export default {
       return handleOAuthCallback(request, env);
     }
 
+    // Signal total — simple GET, no preflight; open to allowed origins only
+    if (pathname === '/api/signal/total' && request.method === 'GET') {
+      if (!ALLOWED_ORIGINS.has(origin)) return new Response('Forbidden', { status: 403 });
+      return handleSignalGet(env, origin);
+    }
+
     if (request.method !== 'POST') {
       return new Response('Method Not Allowed', { status: 405 });
     }
@@ -618,6 +702,7 @@ export default {
     if (pathname === '/mentor/chat') return handleMentorChat(request, env, origin);
     if (pathname === '/oauth/device-code') return handleOAuthDeviceCode(request, origin);
     if (pathname === '/oauth/token') return handleOAuthToken(request, origin);
+    if (pathname === '/api/signal') return handleSignalPost(request, env, origin);
     if (pathname !== '/subscribe') return new Response('Not Found', { status: 404 });
 
     // Per-IP rate limiting (5 req / 15 min)
