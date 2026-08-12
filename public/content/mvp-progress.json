@@ -1,0 +1,255 @@
+{
+  "schema": "1.0",
+  "lastUpdated": "2026-08-10",
+  "targetDate": "2027-04-30",
+  "targets": {
+    "blogs": 100,
+    "videos": 20,
+    "architectures": 30,
+    "useCases": 50,
+    "interviewQuestions": 50,
+    "skillupExams": 10,
+    "aiTools": 15,
+    "communityArticles": 40,
+    "linkedin": 5000,
+    "community": 1000,
+    "speaking": 12,
+    "mentoring": 12,
+    "ossRepos": 10,
+    "githubStars": 500
+  },
+  "current": {
+    "blogs": 62,
+    "videos": 0,
+    "architectures": 2,
+    "useCases": 45,
+    "interviewQuestions": 24,
+    "skillupExams": 6,
+    "aiTools": 9,
+    "communityArticles": 12,
+    "linkedin": 0,
+    "community": 0,
+    "speaking": 0,
+    "mentoring": 0,
+    "ossRepos": 1,
+    "githubStars": 1
+  },
+  "quarters": [
+    {
+      "id": "Q1",
+      "label": "Foundation",
+      "start": "2026-05-01",
+      "end": "2026-07-31",
+      "color": "violet",
+      "issueNumbers": [336, 337],
+      "issueLabels": ["Azure AI Foundry Hub", "GitHub Copilot Hub"],
+      "status": "complete",
+      "openCount": 2,
+      "closedCount": 0,
+      "contentTargets": { "blogs": 80, "skillupExams": 8, "aiTools": 12, "useCases": 40 }
+    },
+    {
+      "id": "Q2",
+      "label": "Scale Learning",
+      "start": "2026-08-01",
+      "end": "2026-10-31",
+      "color": "cyan",
+      "issueNumbers": [338, 339],
+      "issueLabels": ["Certification Academy", "Use Case Library"],
+      "status": "active",
+      "openCount": 2,
+      "closedCount": 0,
+      "contentTargets": { "blogs": 90, "useCases": 50, "interviewQuestions": 40, "communityArticles": 25 }
+    },
+    {
+      "id": "Q3",
+      "label": "Community Leadership",
+      "start": "2026-11-01",
+      "end": "2027-01-31",
+      "color": "amber",
+      "issueNumbers": [340, 341],
+      "issueLabels": ["AaryaAI TV playlists", "Community Programs"],
+      "status": "planned",
+      "openCount": 2,
+      "closedCount": 0,
+      "contentTargets": { "videos": 10, "speaking": 6, "mentoring": 6, "linkedin": 1000, "communityArticles": 40 }
+    },
+    {
+      "id": "Q4",
+      "label": "MVP Portfolio",
+      "start": "2027-02-01",
+      "end": "2027-04-30",
+      "color": "green",
+      "issueNumbers": [342, 343],
+      "issueLabels": ["Architecture Library", "Open Source repos"],
+      "status": "planned",
+      "openCount": 2,
+      "closedCount": 0,
+      "contentTargets": { "blogs": 100, "architectures": 30, "ossRepos": 10, "githubStars": 500 }
+    }
+  ],
+  "domainCoverage": [
+    { "domain": "Azure AI Foundry", "pct": 12, "status": "critical" },
+    { "domain": "GitHub Copilot",   "pct": 18, "status": "critical" },
+    { "domain": "Agentic AI",       "pct": 35, "status": "low"      },
+    { "domain": "AI Architecture",  "pct": 28, "status": "low"      },
+    { "domain": "AI Engineering",   "pct": 62, "status": "good"     },
+    { "domain": "Community",        "pct": 5,  "status": "critical" },
+    { "domain": "Video Content",    "pct": 3,  "status": "critical" },
+    { "domain": "Open Source",      "pct": 10, "status": "critical" }
+  ],
+  "agentRecommendations": [
+    {
+      "severity": "critical",
+      "title": "Enable GitHub Discussions — community surface is missing",
+      "desc": "GitHub Discussions is zero-cost community infrastructure. Enable it now, create 4 pinned threads (start-here, study-group, architecture-review, weekly-reading), and post a welcome message. GrowthPrompt is already deployed to drive first visitors to the Discussions tab.",
+      "action": "Enable on GitHub repo settings",
+      "issueNumber": null
+    },
+    {
+      "severity": "critical",
+      "title": "Ship Issue #336 — Azure AI Foundry Hub is 10 weeks overdue",
+      "desc": "Q1 closed without this P1 item. At 12% coverage, Azure AI Foundry is the single biggest domain gap. Need 3 blog posts, 1 exam track, and 1 architecture diagram this week to move from 12% → ~30%.",
+      "action": "Open issue #336",
+      "issueNumber": 336
+    },
+    {
+      "severity": "critical",
+      "title": "Record first video this week — 0 of 20 target",
+      "desc": "Screen-capture the platform walkthrough (5 min, narrate as you go). No camera needed. Upload to YouTube and cross-post on LinkedIn. Every week without video is a missed compounding signal for the nomination.",
+      "action": "Open issue #340",
+      "issueNumber": 340
+    },
+    {
+      "severity": "warning",
+      "title": "Blog cadence: need 2 posts/week to reach 100 by Apr 2027",
+      "desc": "At current pace (62 posts, ~2/month) the projected total is ~77. Need to double to 2/week minimum. Turn every exam study session and architecture build into a post — the Field Notes backlog already has 50+ scoped issues.",
+      "action": "View blog backlog",
+      "issueNumber": null
+    },
+    {
+      "severity": "warning",
+      "title": "Use Case Library almost done — close issue #339 early",
+      "desc": "45 of 50 use cases are published — 90% complete. Adding 5 more (Manufacturing, Banking, Retail, HR, Technology) closes this Q2 epic ahead of schedule and frees focus for GitHub Copilot Hub (#337).",
+      "action": "Open issue #339",
+      "issueNumber": 339
+    }
+  ],
+  "agentLastRun": "2026-08-10",
+  "agentNextRun": "2026-08-17",
+  "growthPlaybook": [
+    {
+      "metric": "linkedin",
+      "label": "LinkedIn Network",
+      "color": "#22d3ee",
+      "weeklyAction": "Write a LinkedIn post summarising the ADLC methodology — link the blog, share 3 key takeaways, tag 2–3 AI engineers for their view.",
+      "tactics": [
+        "Post 3× per week: 1 technical insight, 1 platform update, 1 open question to the community",
+        "Comment meaningfully on 5–10 posts/day in Azure AI, GitHub Copilot, and AI Engineering feeds",
+        "Share every new blog post as a short native text post with 3 key takeaways and a link",
+        "Use consistent hashtags: #AzureAI #GitHubCopilot #AgenticAI #AIEngineering #MicrosoftMVP",
+        "Tag Microsoft or GitHub when you share their tools — increases reach significantly",
+        "Post a weekly 'TIL' (Today I Learned) about something from your exam or blog work",
+        "Engage with Microsoft MVPs and Developer Advocates — they amplify community content"
+      ]
+    },
+    {
+      "metric": "videos",
+      "label": "Video Content",
+      "color": "#8b5cf6",
+      "weeklyAction": "Record a 5-minute Azure AI Foundry 'Getting Started' screen-capture — no editing needed, just narrate as you go.",
+      "tactics": [
+        "Start with screen-capture walkthroughs — no camera, just narrate what you build",
+        "One playlist per domain: Azure AI Foundry, GitHub Copilot, Agentic AI, AI Architecture",
+        "Repurpose each blog post into a 3-minute explainer video",
+        "YouTube Shorts (< 60 sec) for single tips — e.g., 'What is ADLC in 45 seconds'",
+        "Link every video in the corresponding blog post and exam notes page",
+        "Cross-post YouTube links on LinkedIn — video posts get 3× the organic reach of text",
+        "Batch-record 3–4 videos per session to maintain cadence without daily effort"
+      ]
+    },
+    {
+      "metric": "blogs",
+      "label": "Blog Posts",
+      "color": "#22d3ee",
+      "weeklyAction": "Publish one post from the Field Notes backlog (#229, #230, #231) — they are already scoped, just write.",
+      "tactics": [
+        "Target 2 posts/week minimum — 1 deep technical, 1 shorter field note or TIL",
+        "Turn every exam study session into a blog post: 'What I learned from CCA-F domain X'",
+        "Repurpose architecture diagrams into standalone explainer posts",
+        "Write a 'Week in AI' digest post each Friday — low effort, high cadence signal",
+        "Cross-post to Dev.to and Hashnode with canonical URL pointing to aaryaai.dev",
+        "Submit to Azure Friday newsletter or Microsoft Tech Community blog",
+        "Each post should link to a related exam track — drives study traffic"
+      ]
+    },
+    {
+      "metric": "speaking",
+      "label": "Speaking Sessions",
+      "color": "#34d399",
+      "weeklyAction": "Submit one CFP to a Global AI Community or Azure User Group event — CFPs take 15 minutes, close many weeks out.",
+      "tactics": [
+        "Track CFP deadlines: Global AI Community, AI Summit, Microsoft AI Tour, Local Azure UGs",
+        "Start with virtual events — lower barrier, wider audience, recorded for YouTube",
+        "Repurpose a blog post as a 20-minute talk: ADLC, AI Architecture Blueprint, Agentic AI",
+        "Offer to co-present with a Microsoft MVP or Developer Advocate for instant credibility",
+        "Lightning talks (5–10 min) count toward nomination — target local meetups first",
+        "Record every talk and upload to YouTube — doubles the evidence for your nomination",
+        "Submit to Microsoft Reactor community speakers programme"
+      ]
+    },
+    {
+      "metric": "community",
+      "label": "Community Members",
+      "color": "#8b5cf6",
+      "weeklyAction": "Enable GitHub Discussions on this repo and post a welcome thread linking to the platform.",
+      "tactics": [
+        "Launch GitHub Discussions as the primary community space — zero infrastructure cost",
+        "Create a monthly 'AI Architecture Review' thread where members share designs",
+        "Pin a 'Start here' post that links to exam tracks, blog, and how to contribute",
+        "Announce each new blog/video on LinkedIn with a CTA to join the community",
+        "Host a monthly 30-minute virtual office hours session — record and post",
+        "Create a 'Study Group' channel for each exam — peer accountability drives retention",
+        "Register on ADPList to attract mentees who become community members"
+      ]
+    },
+    {
+      "metric": "githubStars",
+      "label": "GitHub Stars",
+      "color": "#8b5cf6",
+      "weeklyAction": "Add a '⭐ Star this repo' CTA at the end of every blog post and in the platform footer.",
+      "tactics": [
+        "Add a 'Star on GitHub' button to the platform homepage and every blog post",
+        "Share the repo link when posting on LinkedIn, Dev.to, Hashnode, and Reddit r/MachineLearning",
+        "Submit to awesome-* lists: awesome-azure-ai, awesome-github-copilot, etc.",
+        "Post a 'What I built' repo showcase on LinkedIn every 2 weeks",
+        "Engage in GitHub Discussions on related repos — your profile links back to this repo",
+        "Add the repo to your LinkedIn featured section and GitHub profile README"
+      ]
+    },
+    {
+      "metric": "mentoring",
+      "label": "Mentoring Sessions",
+      "color": "#f59e0b",
+      "weeklyAction": "Register on ADPList (adplist.org) — profile takes 10 minutes, first booking usually comes within a week.",
+      "tactics": [
+        "Register on ADPList — largest free mentoring platform for tech professionals",
+        "Offer 30-minute 'AI Career Clarity' sessions: how to pivot into AI engineering",
+        "Post 'DM me for a free AI architecture review' on LinkedIn once a month",
+        "Add a 'Book a session' link to your LinkedIn profile and the platform About page",
+        "Mentor students preparing for AI-900, AI-102, or GitHub Copilot certifications",
+        "Each session = MVP evidence — log date, topic, outcome in a private note"
+      ]
+    }
+  ],
+  "pipeline": [
+    { "issueNumber": 336, "title": "Azure AI Foundry Hub — learning path, architecture, labs, certification, video playlist", "quarter": "Q1", "priority": "P1" },
+    { "issueNumber": 337, "title": "GitHub Copilot Hub — learning path, prompt engineering, certification, enterprise guide",  "quarter": "Q1", "priority": "P1" },
+    { "issueNumber": 338, "title": "Certification Academy — AI-900, AI-102, GH Foundations, GH Copilot tracks",               "quarter": "Q2", "priority": "P2" },
+    { "issueNumber": 339, "title": "Use Case Library — Manufacturing, Banking, Retail, HR, Technology",                        "quarter": "Q2", "priority": "P2" },
+    { "issueNumber": 340, "title": "AaryaAI TV — Foundry, Copilot, Agentic AI, AI Leadership playlists",                      "quarter": "Q3", "priority": "P1" },
+    { "issueNumber": 341, "title": "Community Programs — monthly webinar, architecture reviews, office hours",                  "quarter": "Q3", "priority": "P2" },
+    { "issueNumber": 342, "title": "Architecture Library — RAG, Agentic RAG, Multi-Agent, AI Platform, Security architectures","quarter": "Q4", "priority": "P2" },
+    { "issueNumber": 343, "title": "Open Source repos — AI Foundry Labs, GitHub Copilot, Agentic AI, Reference Architectures", "quarter": "Q4", "priority": "P2" }
+  ]
+}

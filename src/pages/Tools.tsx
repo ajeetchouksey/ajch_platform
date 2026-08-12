@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import RelatedContent from '@/components/RelatedContent';
 import GiscusComments from '@/components/GiscusComments';
+import { ContentFeedback } from '@/components/ContentFeedback';
 import { MessageSquare } from 'lucide-react';
 
 interface ToolDef {
@@ -272,6 +273,7 @@ export default function Tools() {
         <div className="flex items-center gap-2 mb-6">
           <MessageSquare size={16} className="text-violet-400" />
           <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Ideas &amp; Feedback</h2>
+          <div className="ml-auto"><ContentFeedback contentId="tools" compact /></div>
         </div>
         <GiscusComments
           slug="tools-index"

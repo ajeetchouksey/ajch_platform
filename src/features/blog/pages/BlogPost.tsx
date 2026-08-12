@@ -13,6 +13,7 @@ import { trackEvent } from '@/lib/analytics';
 import GiscusComments from '@/components/GiscusComments';
 import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
+import { ContentFeedback } from '@/components/ContentFeedback';
 import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
@@ -215,6 +216,7 @@ function TocSidebar({
             {copied ? <Check size={11} /> : <Share2 size={11} />}
             {copied ? 'Copied!' : 'Share'}
           </button>
+          <ContentFeedback contentId={`blog-${meta.slug}`} compact />
         </div>
 
         {/* Tags */}
@@ -622,7 +624,8 @@ export default function BlogPost() {
             />
           </article>
 
-
+          {/* ── Feedback ──────────────────────────────────────────────────── */}
+          {meta && <ContentFeedback contentId={`blog-${meta.slug}`} />}
 
           {/* ── Comments ──────────────────────────────────────────────────── */}
           <GiscusComments slug={slug ?? ''} context="field-notes" />

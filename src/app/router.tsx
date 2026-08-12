@@ -48,6 +48,15 @@ import Docs from '@/features/docs/pages/Docs';
 // ── Monitoring ───────────────────────────────────────────────────────────────
 import Monitoring from '@/features/monitoring/pages/Monitoring';
 
+// ── MVP Progress ─────────────────────────────────────────────────────────────
+import MvpProgress from '@/features/mvp/pages/MvpProgress';
+
+// ── Admin ─────────────────────────────────────────────────────────────────────
+import Admin from '@/features/admin/pages/Admin';
+import YoutubeTracker from '@/features/admin/pages/YoutubeTracker';
+import IssueBoard from '@/features/admin/pages/IssueBoard';
+import Reactions from '@/features/admin/pages/Reactions';
+
 // ── Analytics / Maintainer ────────────────────────────────────────────────────
 import Analytics from '@/features/analytics/pages/Analytics';
 import Maintainer from '@/features/analytics/pages/Maintainer';
@@ -73,7 +82,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomeV2 />} />
-      <Route path="/learn" element={<Navigate to="/horizons" replace />} />
+      <Route path="/learn" element={<Navigate to="/discovery" replace />} />
 
       {/* Skill Up — primary routes */}
       <Route path="/skillup" element={<ExamCatalog />} />
@@ -93,10 +102,10 @@ export default function AppRoutes() {
       <Route path="/exams/:examId/scenarios" element={<ExamSubRedirect sub="scenarios" />} />
       <Route path="/exams/:examId/progress" element={<ExamSubRedirect sub="progress" />} />
 
-      {/* Horizons */}
-      <Route path="/horizons" element={<Pathways />} />
-      <Route path="/horizons/:track" element={<PathwayTrack />} />
-      <Route path="/horizons/:track/:slug" element={<PathwayArticle />} />
+      {/* Discovery */}
+      <Route path="/discovery" element={<Pathways />} />
+      <Route path="/discovery/:track" element={<PathwayTrack />} />
+      <Route path="/discovery/:track/:slug" element={<PathwayArticle />} />
 
       {/* Field Notes */}
       <Route path="/blog" element={<Blog />} />
@@ -115,9 +124,9 @@ export default function AppRoutes() {
       <Route path="/tools/prompt-library" element={<PromptLibrary />} />
 
       {/* Interview Prep */}
-      <Route path="/interview" element={<InterviewCatalog />} />
-      <Route path="/interview/q/:id" element={<InterviewQuestion />} />
-      <Route path="/interview/:roleId" element={<InterviewPack />} />
+      <Route path="/roleprep" element={<InterviewCatalog />} />
+      <Route path="/roleprep/q/:id" element={<InterviewQuestion />} />
+      <Route path="/roleprep/:roleId" element={<InterviewPack />} />
 
       {/* AI Use Cases */}
       <Route path="/usecases" element={<UseCasesCatalog />} />
@@ -128,6 +137,17 @@ export default function AppRoutes() {
 
       {/* Monitoring */}
       <Route path="/monitoring" element={<Monitoring />} />
+
+      {/* Admin — owner-only section */}
+      <Route path="/admin" element={<Admin />} />
+      <Route path="/admin/mvp" element={<MvpProgress />} />
+      <Route path="/admin/monitoring" element={<Monitoring />} />
+      <Route path="/admin/youtube" element={<YoutubeTracker />} />
+      <Route path="/admin/issues" element={<IssueBoard />} />
+      <Route path="/admin/reactions" element={<Reactions />} />
+
+      {/* Legacy redirects */}
+      <Route path="/mvp-progress" element={<Navigate to="/admin/mvp" replace />} />
 
       {/* Analytics / Maintainer */}
       <Route path="/analytics" element={<Analytics />} />

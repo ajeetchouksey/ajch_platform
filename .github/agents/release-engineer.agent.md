@@ -1,12 +1,13 @@
 ---
 name: Release Engineer
-version: 1.1.0
-last_modified: "2026-07-30"
+version: 1.1.2
+last_modified: "2026-08-12"
 description: >
   Blog manifest and frontmatter specialist. Manages public/content/blog/ only.
   Writes .md post files and updates index.json manifest. Receives validated
   content from Blog Lead after Security Gate PASS. Never writes outside blog/.
 model: ["Claude Haiku 4.5 (copilot)", "Claude Sonnet 4.6 (copilot)"]
+mode: plan
 tools: [read/readFile, edit/createFile, edit/editFiles, search/fileSearch, search/listDirectory]
 ---
 

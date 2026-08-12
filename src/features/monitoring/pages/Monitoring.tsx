@@ -272,7 +272,7 @@ function ContentTab({ dateRange }: { dateRange: DateRange }) {
     orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }], limit: 20 });
 
   const [prefixFilter, setPrefixFilter] = useState('all');
-  const FILTERS = ['all', '/blog', '/skillup', '/tools', '/horizons'];
+  const FILTERS = ['all', '/blog', '/skillup', '/tools', '/discovery'];
 
   const filteredPages = useMemo(() => {
     const rows = topPagesQ.data?.rows ?? [];
