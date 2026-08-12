@@ -1,7 +1,7 @@
 ---
 name: Product Manager
-version: 1.2.0
-last_modified: "2026-07-30"
+version: 1.2.1
+last_modified: "2026-08-12"
 description: >
   AI Product Owner for Aarya — My AI Learning Hub. Drives platform and content roadmap,
   generates structured GitHub Issues, manages backlog prioritization with RICE
@@ -10,6 +10,7 @@ description: >
   (Projects v2 GraphQL API). Positioned as L0 peer of the Orchestrator —
   owns the "what and when" while Orchestrator owns the "how".
 model: ["Claude Haiku 4.5 (copilot)", "Claude Sonnet 4.6 (copilot)"]
+mode: plan
 tools: [vscode/askQuestions, read/readFile, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, edit/editFiles, edit/runCommand, agent/runSubagent, web/fetch, web/githubRepo, web/githubTextSearch, browser/openBrowserPage, browser/readPage, todo]
 ---
 
@@ -368,10 +369,10 @@ If `PROJECT_NUMBER` or `PROJECT_ID` is `~` (not yet set), prompt the user to run
 **Steps**:
 
 1. Read current content state:
-   - `public/content/exams/index.json` — registered exams
+   - `public/content/skillup/*/index.json` — registered exams
    - `public/content/blog/index.json` — published posts
-   - List files in `public/content/notes/` — existing study notes
-   - List files in `public/content/questions/` — question packs
+   - List files in `public/content/skillup/*/notes/` — existing study notes
+   - List files in `public/content/skillup/*/questions/` — question packs
 
 2. Identify gaps:
    - Exams with no notes or questions
@@ -555,8 +556,8 @@ Cross-reference platform content vs industry certifications and popular topics.
 **Steps**:
 
 1. Read all registered content:
-   - List files in `public/content/questions/` — count question files per exam
-   - List files in `public/content/notes/` — count domain note files
+   - List files in `public/content/skillup/*/questions/` — count question files per exam
+   - List files in `public/content/skillup/*/notes/` — count domain note files
    - Read `public/content/blog/index.json` — count published posts per category
 
 2. Search GitHub for popular AI/cloud certification repos as demand signals:

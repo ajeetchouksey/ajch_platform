@@ -1,0 +1,316 @@
+[
+  {
+    "domain": 2,
+    "id": "ab731-d2-001",
+    "scenario": "A sales manager wants to ask questions about their company's Q3 pipeline, which is stored in SharePoint, and get AI-generated summaries without leaving their workflow.",
+    "question": "Which Microsoft AI product is designed for this use case?",
+    "options": [
+      "Microsoft Copilot (free) — use Bing to search for pipeline information",
+      "Microsoft 365 Copilot — grounded in Microsoft Graph, it can access SharePoint and internal data",
+      "Azure AI Foundry — build a custom RAG solution connected to SharePoint",
+      "Copilot Studio — build a SharePoint Q&A agent"
+    ],
+    "correct": 1,
+    "explanation": "Microsoft 365 Copilot is purpose-built for this scenario. It connects to your organisation's Microsoft 365 data (SharePoint, Teams, Outlook, OneDrive) through Microsoft Graph and can answer natural language questions about internal data. The free Microsoft Copilot (A) only searches the public web — it cannot access private SharePoint. Azure AI Foundry (C) and Copilot Studio (D) would work but are overkill for a standard business user scenario and require technical setup.",
+    "tags": [
+      "m365-copilot",
+      "microsoft-graph",
+      "sharepoint",
+      "use-case-mapping"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-002",
+    "scenario": "An executive missed a 90-minute board meeting that was held in Microsoft Teams. She needs a concise summary of decisions made and action items assigned to her.",
+    "question": "Which Microsoft 365 Copilot capability should she use?",
+    "options": [
+      "Copilot in Word — paste the transcript and ask for a summary",
+      "Copilot in Teams — view the AI-generated meeting recap with decisions and action items",
+      "Copilot in Outlook — search her emails for meeting follow-ups",
+      "Microsoft Copilot Chat — upload the meeting recording and ask for a summary"
+    ],
+    "correct": 1,
+    "explanation": "Copilot in Teams automatically generates meeting recaps for recorded/transcribed meetings, including a summary, key decisions, and action items attributed to specific people — directly within the Teams interface. Copilot in Word (A) requires manually exporting the transcript. Outlook (C) only sees email, not meeting content. Copilot Chat (D) requires the user to manually upload the recording, which is cumbersome.",
+    "tags": [
+      "copilot-teams",
+      "meeting-recap",
+      "m365-apps"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-003",
+    "scenario": "A business analyst receives a large Excel spreadsheet with 50,000 rows of sales data. She wants to identify the top 5 product categories by revenue growth and visualise the trend.",
+    "question": "Which specialised Copilot capability is most appropriate?",
+    "options": [
+      "Researcher in Copilot — research industry benchmarks for comparison",
+      "Analyst in Copilot — analyse the spreadsheet data and generate visualisations using code",
+      "Copilot in PowerPoint — generate a presentation from the data",
+      "Copilot in Excel — use standard Excel Copilot to analyse the data"
+    ],
+    "correct": 1,
+    "explanation": "Analyst in Copilot is specifically designed for complex data analysis — it can run Python code to process large datasets, perform statistical analysis, and generate visualisations. It's significantly more powerful than standard Copilot in Excel for complex analytical tasks. Researcher (A) is for web/document research, not data analysis. Copilot in Excel (D) handles simpler analysis; Analyst handles complex programmatic analysis at scale.",
+    "tags": [
+      "analyst-copilot",
+      "researcher-vs-analyst",
+      "data-analysis"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-004",
+    "scenario": "A product team wants to research the competitive landscape for a new product category. They need a comprehensive report combining recent news, academic papers, and internal strategy documents.",
+    "question": "Which Copilot capability is designed for this task?",
+    "options": [
+      "Analyst in Copilot — analyse structured data from competitor datasets",
+      "Researcher in Copilot — deep research combining web sources and internal org data",
+      "Copilot in Word — draft a report based on a brief outline",
+      "Copilot in Teams — search Teams messages for competitive intelligence"
+    ],
+    "correct": 1,
+    "explanation": "Researcher in Copilot is designed for deep research tasks — it combines Bing web search with your organisation's internal data (via Microsoft Graph) to produce comprehensive, cited research reports. This is exactly the multi-source research + internal context scenario. Analyst (A) is for data analysis, not research synthesis. Copilot in Word (C) drafts documents but doesn't do research. Teams search (D) only covers Teams messages.",
+    "tags": [
+      "researcher-copilot",
+      "researcher-vs-analyst",
+      "deep-research"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-005",
+    "scenario": "A company wants to ensure their employees can only access AI-generated answers about topics relevant to their role — for example, HR staff see HR data, finance staff see financial data.",
+    "question": "What governs this data access boundary in Microsoft 365 Copilot?",
+    "options": [
+      "Copilot needs to be configured with custom filters for each role",
+      "Microsoft Graph respects existing Microsoft 365 permissions — Copilot only surfaces data the user is already authorised to see",
+      "A Copilot Studio agent must be built for each role with restricted knowledge sources",
+      "The IT team must manually approve each Copilot query before it retrieves data"
+    ],
+    "correct": 1,
+    "explanation": "Microsoft 365 Copilot inherits and enforces existing Microsoft 365 permissions through Microsoft Graph. If a user doesn't have permission to access a SharePoint site or Teams channel, Copilot cannot retrieve data from there either. This is a key security design principle — Copilot doesn't bypass security. No additional role-based filtering needs to be configured (A) because permissions already exist in M365.",
+    "tags": [
+      "microsoft-graph",
+      "permissions",
+      "security",
+      "data-access"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-006",
+    "scenario": "A financial services company wants to extend Microsoft 365 Copilot to answer questions from their internal compliance knowledge base hosted in a legacy system, without rebuilding the whole AI stack.",
+    "question": "What is the most appropriate approach using the M365 extensibility framework?",
+    "options": [
+      "Fine-tune GPT-4 on the compliance knowledge base documents",
+      "Build a declarative agent in Copilot Studio that uses a connector to the compliance system as its knowledge source",
+      "Ask employees to copy compliance content into SharePoint so Copilot can find it",
+      "Deploy Azure AI Foundry and build a completely separate AI application"
+    ],
+    "correct": 1,
+    "explanation": "Copilot Studio's declarative agents are designed exactly for this scenario — they extend M365 Copilot with a custom knowledge source (the legacy compliance system via a connector), scoped to specific topics. This is the 'Extend' option in the Build/Buy/Extend framework. Fine-tuning (A) doesn't help with dynamic, query-time knowledge retrieval. Copying to SharePoint (C) is a data management workaround, not a sustainable solution. Building a separate application (D) is overkill when extending Copilot is available.",
+    "tags": [
+      "copilot-studio",
+      "extensibility",
+      "build-buy-extend",
+      "declarative-agent"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-007",
+    "scenario": "An e-commerce company wants to build an AI solution that can analyse product images uploaded by customers, identify the product, and suggest compatible accessories from the catalogue.",
+    "question": "Which combination of Foundry Tools is most appropriate?",
+    "options": [
+      "Microsoft 365 Copilot + Microsoft Graph",
+      "Azure Vision in Foundry Tools (image analysis) + Azure AI Search (catalogue retrieval)",
+      "Copilot Studio + SharePoint connector",
+      "Azure AI Search alone (search the catalogue by product name)"
+    ],
+    "correct": 1,
+    "explanation": "This requires two capabilities: (1) Understanding what's in the uploaded image (Azure Vision in Foundry Tools — computer vision), and (2) Finding matching/compatible accessories in the catalogue (Azure AI Search — vector/semantic search for retrieval). M365 Copilot (A) doesn't process customer-uploaded images in e-commerce flows. Copilot Studio (C) doesn't handle image analysis. Azure AI Search alone (D) requires text input — it can't analyse an image.",
+    "tags": [
+      "foundry-tools",
+      "azure-vision",
+      "azure-ai-search",
+      "use-case-mapping"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-008",
+    "scenario": "A startup is evaluating AI models for a customer service chatbot. They need low latency responses (under 1 second), very low cost, and the chatbot will only answer simple, structured FAQs.",
+    "question": "Which model selection approach is most appropriate?",
+    "options": [
+      "Use GPT-4o — it's the most capable model so it will produce the best answers",
+      "Use a smaller, faster, cost-efficient model (such as Phi) — the task is simple and doesn't require large model reasoning",
+      "Use fine-tuned GPT-4 on the FAQ dataset to maximise accuracy",
+      "Use Azure Vision in Foundry Tools — it can process customer queries as visual inputs"
+    ],
+    "correct": 1,
+    "explanation": "For simple FAQ retrieval with strict latency and cost requirements, a small, fast model is the right choice. GPT-4o (A) is optimised for complex reasoning — it's significantly more expensive and slower for simple FAQ tasks. Fine-tuning GPT-4 (C) compounds the cost problem. Azure Vision (D) is for image analysis, not text FAQ. The key exam principle: match model capability to task complexity — don't over-engineer.",
+    "tags": [
+      "model-selection",
+      "cost-optimisation",
+      "phi",
+      "business-need"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-009",
+    "scenario": "A company wants to build a customer-facing helpdesk agent that can: (1) answer questions from a knowledge base, (2) look up order status via an API, and (3) escalate unresolved issues to a human agent in Dynamics 365. No developer coding budget.",
+    "question": "Which Microsoft tool is most appropriate?",
+    "options": [
+      "Azure AI Foundry — build a custom AI application with all integrations",
+      "Microsoft Copilot Studio — low-code agent builder with connectors to external systems and human handoff",
+      "Microsoft 365 Copilot — configure it for customer-facing use",
+      "Power BI — create dashboards showing common customer questions"
+    ],
+    "correct": 1,
+    "explanation": "Copilot Studio is the low-code/no-code platform for building conversational agents with knowledge sources, API connectors (for order status), and human escalation (Dynamics 365 handoff). All three requirements can be met without developer coding. Azure AI Foundry (A) requires developers and is appropriate for more complex custom solutions. M365 Copilot (C) is internal-facing productivity, not customer-facing agent building. Power BI (D) is business intelligence, not agent building.",
+    "tags": [
+      "copilot-studio",
+      "no-code",
+      "customer-facing",
+      "connectors"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-010",
+    "scenario": "A company already has Microsoft 365 and wants to deploy M365 Copilot. Their concern is about sensitive financial documents in SharePoint being surfaced by Copilot to employees who shouldn't see them.",
+    "question": "What is the correct approach?",
+    "options": [
+      "Disable Copilot for all users until SharePoint permissions are audited and corrected",
+      "Review and correct SharePoint permissions BEFORE deploying Copilot — Copilot inherits existing M365 permissions, so over-permissioned data will be accessible via Copilot",
+      "Configure Copilot to exclude financial SharePoint sites",
+      "Deploy Copilot first, then audit permissions reactively as issues arise"
+    ],
+    "correct": 1,
+    "explanation": "Since Copilot respects and enforces existing M365 permissions, any SharePoint data that is over-permissioned (shared more broadly than intended) will be accessible via Copilot to those over-permissioned users. The correct pre-deployment step is to audit and fix SharePoint permissions. Disabling Copilot entirely (A) blocks all value. Copilot doesn't have a separate content exclusion per-site configuration (C) — it works through M365 permissions. Reactively fixing (D) means sensitive data exposure has already occurred.",
+    "tags": [
+      "m365-copilot",
+      "permissions",
+      "pre-deployment",
+      "sharepoint"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-011",
+    "scenario": "A team is building a new AI application that needs to search through 10 million internal support tickets to find the most semantically relevant documents for a given customer query.",
+    "question": "Which Foundry Tool is purpose-built for this retrieval requirement?",
+    "options": [
+      "Microsoft Foundry — use its model catalog to run queries",
+      "Azure AI Search — provides vector and semantic search over large document collections",
+      "Azure Vision in Foundry Tools — analyse the visual content of support tickets",
+      "Copilot Studio — connect to the ticket database via a connector"
+    ],
+    "correct": 1,
+    "explanation": "Azure AI Search is Microsoft's enterprise search service with vector and semantic search capabilities — it's the purpose-built retrieval layer for RAG architectures. It can index millions of documents and return semantically similar results, not just keyword matches. Microsoft Foundry (A) is the project management hub, not a search tool. Azure Vision (C) handles images, not text retrieval. Copilot Studio (D) can surface individual records via connectors but isn't designed for 10M-document semantic search.",
+    "tags": [
+      "azure-ai-search",
+      "rag",
+      "foundry-tools",
+      "semantic-search"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-012",
+    "scenario": "A business leader wants to understand the difference between building a custom AI solution vs simply using Microsoft 365 Copilot out of the box. Their use case is generating weekly status reports from project management data in Microsoft Project.",
+    "question": "What is the most appropriate recommendation?",
+    "options": [
+      "Build a custom AI solution using Azure AI Foundry — for full control over the output format",
+      "Use M365 Copilot with Copilot in Microsoft 365 apps — it can access Microsoft Project data via Microsoft Graph without custom development",
+      "Fine-tune a custom model on historical status report examples",
+      "Hire a developer to build a dedicated reporting tool"
+    ],
+    "correct": 1,
+    "explanation": "Microsoft Project is part of the Microsoft 365 ecosystem. M365 Copilot, via Microsoft Graph, can access Project data and generate status summaries without any custom development. This is the 'Buy' option in the Build/Buy/Extend framework — use the product as-is first. Custom development (A, D) is expensive, slower, and unnecessary when the out-of-box product covers the scenario. Fine-tuning (C) doesn't help with data access.",
+    "tags": [
+      "build-buy-extend",
+      "m365-copilot",
+      "microsoft-graph",
+      "microsoft-project"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-013",
+    "scenario": "A project team is running a 3-week research sprint. Each team member is separately researching different aspects of the same market opportunity. They want a shared AI-populated document that multiple team members can continue adding to and editing throughout the sprint, with Copilot generating content as they go.",
+    "question": "Which Microsoft 365 Copilot feature is most suitable?",
+    "options": [
+      "Copilot in Word — each member creates their own Word document and shares it",
+      "Copilot Pages — a persistent, collaborative AI canvas that multiple users can populate and edit together",
+      "Copilot in Teams — use the meeting summary feature to capture research discussions",
+      "Copilot Chat with the web toggle — each member uses their own chat session"
+    ],
+    "correct": 1,
+    "explanation": "Copilot Pages is designed exactly for this scenario: a persistent, shareable AI-populated canvas that multiple team members can contribute to, edit, and extend with additional Copilot-generated content throughout the sprint. Word (A) creates isolated documents that require manual merging. Teams meeting summaries (C) capture spoken discussions, not asynchronous research. Individual Copilot Chat sessions (D) are not shared and produce isolated outputs with no collaboration capability.",
+    "tags": [
+      "copilot-pages",
+      "collaboration",
+      "m365-copilot",
+      "copilot-experiences"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-014",
+    "scenario": "A retail operations director is preparing to deploy Microsoft 365 Copilot across their 200-person team. She asks: 'Which daily tasks in our team should we focus on first to get the fastest return on our Copilot investment?'",
+    "question": "According to the business process mapping framework, which task category delivers the fastest Copilot ROI?",
+    "options": [
+      "Judgment-heavy tasks — performance reviews and strategic vendor negotiations",
+      "Relationship-based tasks — key account management and customer success calls",
+      "Automatable and augmentable tasks — meeting summaries, email drafts, report writing, and data analysis",
+      "Creative tasks — designing new store layouts and brand campaigns"
+    ],
+    "correct": 2,
+    "explanation": "Automatable tasks (meeting summaries, email triage, data extraction) and augmentable tasks (drafting reports, analysing data, writing proposals) deliver the fastest Copilot ROI because they are high-frequency, time-consuming, and directly reduced by AI assistance. Judgment-heavy tasks (A) require deep human expertise and carry high risk if AI errors go unreviewed. Relationship tasks (B) derive value from human connection — AI assistance here is minimal. Creative direction (D) is high-judgment work where AI augments ideation but cannot replace human creative decision-making.",
+    "tags": [
+      "process-mapping",
+      "automatable",
+      "augmentable",
+      "copilot-roi",
+      "business-process"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "domain": 2,
+    "id": "ab731-d2-015",
+    "scenario": "A company has been running a custom AI solution on Azure AI Foundry for 4 months. Their monthly token consumption has stabilised at 300 million tokens. The head of engineering presents two options to the CFO: (A) continue pay-as-you-go, or (B) move to a provisioned throughput unit (PTU) commitment.",
+    "question": "What is the primary reason to switch from pay-as-you-go to provisioned throughput (PTU)?",
+    "options": [
+      "PTU provides access to newer, more capable models not available on pay-as-you-go",
+      "PTU offers a lower per-unit cost for predictable, high-volume workloads in exchange for a capacity commitment",
+      "Pay-as-you-go does not support enterprise security and compliance requirements",
+      "PTU is required once token usage exceeds 100 million tokens per month"
+    ],
+    "correct": 1,
+    "explanation": "Provisioned Throughput Units (PTU) reserve a fixed amount of model capacity at a discounted per-unit rate compared to pay-as-you-go, in exchange for committing to that capacity level. After 4 months of stable usage at 300M tokens/month, the company has the evidence needed to commit confidently and reduce cost. Model access (A) is the same on both plans. Security and compliance (C) apply to both billing models. There is no mandatory threshold (D) — the decision is business-driven based on usage predictability.",
+    "tags": [
+      "foundry-tools",
+      "ptu",
+      "provisioned-throughput",
+      "cost-optimisation",
+      "licensing"
+    ],
+    "difficulty": "hard"
+  }
+]

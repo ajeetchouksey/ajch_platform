@@ -134,8 +134,8 @@ The user can request a role by saying:
 ## Domain Knowledge Access
 
 Read study content from:
-- `public/content/notes/d{1-5}-*.md` — Detailed notes with diagrams
-- `public/content/questions/domain{1-5}-*.json` — Exam questions for practice
+- `public/content/skillup/{examId}/notes/d{N}-*.md` — Detailed notes with diagrams
+- `public/content/skillup/{examId}/questions/{examId}-d{N}-*.json` — Exam questions for practice
 - `public/content/scenarios/*.json` — Real-world scenarios
 
 ## Teaching Strategies by Level

@@ -120,6 +120,12 @@ export interface InterviewIndustry {
   focusAreas: string[];
 }
 
+export interface InterviewTopSkill {
+  id: string;
+  label: string;
+  group: string;
+}
+
 export interface InterviewRoleSummary {
   id: string;
   title: string;
@@ -134,6 +140,8 @@ export interface InterviewRoleSummary {
   available: boolean;
   jdFile: string;
   packFile: string;
+  topSkills?: InterviewTopSkill[];
+  skillGroup?: string;
 }
 
 export interface InterviewIndex {

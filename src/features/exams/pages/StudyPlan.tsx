@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useReducer } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { CalendarDays, ChevronDown, ChevronRight, BookOpen, Brain, AlertTriangle, CheckCircle2, Circle, RefreshCw, Clock, Zap, Sparkles, RotateCcw, MessageCircle, X } from 'lucide-react';
+import { CalendarDays, ChevronDown, ChevronRight, BookOpen, Brain, AlertTriangle, CheckCircle2, Circle, RefreshCw, Clock, Zap, Sparkles, RotateCcw, MessageCircle, X, LayoutList, Calendar, TrendingDown } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { getSessions } from '@/lib/storage';
 import {
@@ -15,7 +15,14 @@ import {
   nextIncompleteSession,
   defaultTargetDate,
   isValidExamId,
+  getDailyMinutesPref,
+  setDailyMinutesPref,
+  getWeakDomains,
+  getQuizScoresByDomain,
+  autoSyncProgressToPlan,
 } from '@/lib/plan-generator';
+import type { DailyMinutes, DomainQuizScore } from '@/lib/plan-generator';
+import { getDailyCard, exportStudyPlanAsIcal, getStreak, getReadinessScore } from '@/lib/study-tracker';
 import {
   callMentorPlan,
   callMentorChat,
@@ -127,6 +134,94 @@ function AskMentorPanel({ examId, day, domainTitle }: AskMentorPanelProps) {
   );
 }
 
+// ── Mini calendar view ────────────────────────────────────────────────────────
+
+interface PlanCalendarProps {
+  plan: import('@/lib/plan-generator').StudyPlan;
+  targetDate: string;
+  onDayClick: (day: number) => void;
+}
+
+function PlanCalendar({ plan, targetDate, onDayClick }: PlanCalendarProps) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(targetDate);
+  target.setHours(0, 0, 0, 0);
+
+  // Build map: calendar-date-string → session day numbers
+  const dayMap = new Map<string, number[]>();
+  for (const s of plan.sessions) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + s.day - 1);
+    const key = d.toISOString().split('T')[0];
+    const existing = dayMap.get(key) ?? [];
+    existing.push(s.day);
+    dayMap.set(key, existing);
+  }
+
+  // Build grid starting from today
+  const totalDays = Math.max(7, Math.round((target.getTime() - today.getTime()) / 86_400_000) + 1);
+  const cells: { date: Date; key: string }[] = [];
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + i);
+    cells.push({ date: d, key: d.toISOString().split('T')[0] });
+  }
+
+  const completedDays = new Set(plan.sessions.filter((s) => s.completed).map((s) => s.day));
+
+  return (
+    <div className="glass-card rounded-xl p-4">
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 mb-3">
+        Study Calendar — {totalDays} days to exam
+      </p>
+      <div className="grid grid-cols-7 gap-1">
+        {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d) => (
+          <div key={d} className="text-center text-[9px] font-bold text-slate-600 pb-1">{d}</div>
+        ))}
+        {/* Offset to correct weekday */}
+        {Array.from({ length: cells[0]?.date.getDay() ?? 0 }).map((_, i) => (
+          <div key={`pad-${i}`} />
+        ))}
+        {cells.map(({ date, key }) => {
+          const sessionDays = dayMap.get(key) ?? [];
+          const hasSession = sessionDays.length > 0;
+          const allDone = hasSession && sessionDays.every((d) => completedDays.has(d));
+          const isToday = key === today.toISOString().split('T')[0];
+          const isTarget = key === targetDate;
+          return (
+            <button
+              key={key}
+              onClick={() => hasSession && onDayClick(sessionDays[0])}
+              disabled={!hasSession}
+              className={`relative flex flex-col items-center justify-center rounded-lg aspect-square text-[11px] font-bold transition-all ${
+                hasSession ? 'cursor-pointer hover:-translate-y-0.5' : 'cursor-default opacity-30'
+              } ${isToday ? 'ring-1 ring-violet-500' : ''} ${
+                allDone
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  : hasSession
+                  ? 'bg-violet-500/15 text-violet-300 border border-violet-500/25 hover:bg-violet-500/25'
+                  : 'text-slate-700'
+              }`}
+              title={hasSession ? `Day ${sessionDays.join('+')} · click to jump` : undefined}
+            >
+              {date.getDate()}
+              {isTarget && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-400 border border-slate-900" title="Exam day" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex items-center gap-4 mt-3 text-[10px] text-slate-500">
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-violet-500/50 inline-block" />Study day</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500/50 inline-block" />Completed</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-400 inline-block" />Exam date</span>
+      </div>
+    </div>
+  );
+}
+
 // ── Session card ──────────────────────────────────────────────────────────────
 
 interface SessionCardProps {
@@ -134,12 +229,15 @@ interface SessionCardProps {
   examId: string;
   onToggle: (day: number, actIdx: number) => void;
   defaultOpen?: boolean;
+  domainScore?: DomainQuizScore;
 }
 
-function SessionCard({ session, examId, onToggle, defaultOpen = false }: SessionCardProps) {
+function SessionCard({ session, examId, onToggle, defaultOpen = false, domainScore }: SessionCardProps) {
   const [open, setOpen] = useState(defaultOpen);
   const doneCount = session.activities.filter((a) => a.completed).length;
   const total = session.activities.length;
+
+  const firstIncomplete = session.activities.find((a) => !a.completed);
 
   return (
     <div className={`glass-card rounded-xl overflow-hidden transition-all duration-300 ${session.completed ? 'opacity-60' : ''}`}>
@@ -159,9 +257,14 @@ function SessionCard({ session, examId, onToggle, defaultOpen = false }: Session
             <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Day {session.day}</span>
             <span className="text-sm font-semibold text-white truncate">{session.domainTitle}</span>
           </div>
-          <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500">
+          <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500 flex-wrap">
             <span className="flex items-center gap-1"><Clock size={10} />{session.estimatedMinutes} min</span>
             <span>{doneCount}/{total} done</span>
+            {domainScore && domainScore.attempts > 0 && (
+              <span className={`flex items-center gap-1 font-semibold ${domainScore.lastScore >= 70 ? 'text-emerald-400' : domainScore.lastScore >= 50 ? 'text-amber-400' : 'text-rose-400'}`}>
+                {domainScore.lastScore}% last quiz
+              </span>
+            )}
           </div>
         </div>
         {/* Mini progress bar */}
@@ -171,6 +274,17 @@ function SessionCard({ session, examId, onToggle, defaultOpen = false }: Session
             style={{ width: `${total > 0 ? Math.round((doneCount / total) * 100) : 0}%` }}
           />
         </div>
+        {/* Start button — only on incomplete sessions */}
+        {!session.completed && firstIncomplete && (
+          <Link
+            to={firstIncomplete.link}
+            onClick={(e) => e.stopPropagation()}
+            className="shrink-0 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-[11px] font-bold hover:bg-violet-500 transition-colors"
+            title="Start this session"
+          >
+            Start →
+          </Link>
+        )}
         {open ? <ChevronDown size={16} className="text-slate-500 shrink-0" /> : <ChevronRight size={16} className="text-slate-500 shrink-0" />}
       </button>
 
@@ -199,7 +313,17 @@ function SessionCard({ session, examId, onToggle, defaultOpen = false }: Session
               >
                 {activity.label}
               </Link>
-              <span className="text-xs text-slate-600 shrink-0">{activity.estimatedMinutes} min</span>
+              <span className="text-xs text-slate-500 shrink-0">{activity.estimatedMinutes} min</span>
+              {!activity.completed && (
+                <Link
+                  to={activity.link}
+                  className="shrink-0 text-slate-600 hover:text-violet-400 transition-colors ml-1"
+                  title="Open"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ChevronRight size={14} />
+                </Link>
+              )}
             </div>
           ))}
         </div>
@@ -246,6 +370,9 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
 
 export default function StudyPlan() {
   const { examId } = useParams<{ examId: string }>();
+  // Validate examId early — needed by lazy useState initialisers below
+  const validId = isValidExamId(examId) ? examId : null;
+
   const [exam, setExam] = useState<ExamConfig | null>(null);
   const [{ plan, aiMode, staticPlan, targetDate }, dispatch] = useReducer(planReducer, {
     plan: null,
@@ -261,6 +388,12 @@ export default function StudyPlan() {
   const [mentorError, setMentorError] = useState<string | null>(null);
   const [coachNote, setCoachNote] = useState<string | null>(null);
 
+  // View + time commitment
+  const [viewMode, setViewMode] = useState<'timeline' | 'calendar'>('timeline');
+  const [dailyMinutes, setDailyMinutesState] = useState<DailyMinutes>(() =>
+    validId ? getDailyMinutesPref(validId) : 30,
+  );
+
   const CHIP_SUGGESTIONS = [
     'Focus on my weakest domains',
     'Give me a 5-day crash course',
@@ -270,8 +403,11 @@ export default function StudyPlan() {
   const sessions = useMemo(() => getSessions(), []);
   const { syncToGist } = useProgressSync();
 
-  // Validate examId on mount
-  const validId = isValidExamId(examId) ? examId : null;
+  // Per-domain quiz scores for progress display on session cards
+  const quizScoresByDomain = useMemo(
+    () => exam ? getQuizScoresByDomain(validId ?? '', exam.domains.map(d => d.id), sessions) : {},
+    [exam, validId, sessions],
+  );
 
   // Load exam config
   useEffect(() => {
@@ -289,17 +425,33 @@ export default function StudyPlan() {
     if (saved) {
       dispatch({ type: 'loaded', plan: saved });
     } else {
-      const fresh = generatePlan({ examId: validId, domains: exam.domains, sessions, targetDate });
+      const fresh = generatePlan({ examId: validId, domains: exam.domains, sessions, targetDate, contentVersion: exam.contentVersion });
       if (fresh) { savePlan(fresh); dispatch({ type: 'loaded', plan: fresh }); }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exam, validId]);
 
-  const regenerate = useCallback((newDate: string) => {
+  // Auto-sync quiz history into plan activities on load
+  useEffect(() => {
+    if (!validId || !plan || sessions.length === 0) return;
+    const updated = autoSyncProgressToPlan(validId, sessions);
+    if (updated) dispatch({ type: 'toggled', plan: updated });
+  // run once per plan identity change (not on every sessions change)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validId, plan?.examId]);
+
+  const regenerate = useCallback((newDate: string, mins: DailyMinutes = dailyMinutes) => {
     if (!validId || !exam) return;
-    const fresh = generatePlan({ examId: validId, domains: exam.domains, sessions, targetDate: newDate });
+    const fresh = generatePlan({ examId: validId, domains: exam.domains, sessions, targetDate: newDate, dailyMinutes: mins, contentVersion: exam.contentVersion });
     if (fresh) { savePlan(fresh); dispatch({ type: 'regenerated', plan: fresh, targetDate: newDate }); }
-  }, [validId, exam, sessions]);
+  }, [validId, exam, sessions, dailyMinutes]);
+
+  const handleDailyMinutesChange = useCallback((mins: DailyMinutes) => {
+    if (!validId) return;
+    setDailyMinutesState(mins);
+    setDailyMinutesPref(validId, mins);
+    regenerate(targetDate, mins);
+  }, [validId, targetDate, regenerate]);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     regenerate(e.target.value);
@@ -333,9 +485,10 @@ export default function StudyPlan() {
         targetDate,
         domainScores,
         domainWeights,
+        domains: exam.domains.map((d) => ({ id: d.id, title: d.title, weight: d.weight })),
         request: planRequest || 'Build me a focused study plan highlighting my weak domains',
       });
-      const aiPlan = buildAIPlan(validId, exam.domains, resp.sessions, targetDate);
+      const aiPlan = buildAIPlan(validId, exam.domains, resp.sessions, targetDate, exam.contentVersion);
       if (aiPlan) {
         savePlan(aiPlan);
         void syncToGist();
@@ -365,6 +518,16 @@ export default function StudyPlan() {
   const totalSessions = plan?.sessions.length ?? 0;
   const completedSessions = plan?.sessions.filter((s) => s.completed).length ?? 0;
   const totalMinutes = plan?.sessions.reduce((sum, s) => sum + s.estimatedMinutes, 0) ?? 0;
+
+  const weakDomains = useMemo(
+    () => (exam ? getWeakDomains(validId ?? '', exam.domains, sessions) : []),
+    [exam, validId, sessions],
+  );
+
+  const scrollToDay = useCallback((day: number) => {
+    const el = document.getElementById(`session-day-${day}`);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setViewMode('timeline'); }
+  }, []);
 
   const daysUntil = useMemo(() => {
     const target = new Date(targetDate);
@@ -398,6 +561,9 @@ export default function StudyPlan() {
 
   const daysUntilStr = daysUntil > 0 ? `${daysUntil}d` : 'Today!';
 
+  // Plan was generated against an older content version → prompt the user to regenerate
+  const isStale = !!plan.contentVersion && !!exam.contentVersion && plan.contentVersion !== exam.contentVersion;
+
   return (
     <div className={`space-y-6 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
 
@@ -413,6 +579,25 @@ export default function StudyPlan() {
         </p>
       </div>
 
+      {/* Content-staleness warning */}
+      {isStale && (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-700/50 bg-amber-900/10 px-4 py-3">
+          <AlertTriangle size={15} className="text-amber-400 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-amber-300">Exam content updated since this plan was generated</p>
+            <p className="text-xs text-amber-400/70 mt-0.5">
+              Plan: v{plan.contentVersion} · Current: v{exam.contentVersion}
+            </p>
+          </div>
+          <button
+            onClick={() => regenerate(targetDate)}
+            className="text-xs text-amber-300 hover:text-amber-100 border border-amber-700/60 hover:border-amber-500 rounded-lg px-2.5 py-1 transition-colors shrink-0"
+          >
+            Regenerate
+          </button>
+        </div>
+      )}
+
       {/* Stats strip */}
       <div className="grid grid-cols-3 gap-3">
         {[
@@ -427,8 +612,68 @@ export default function StudyPlan() {
         ))}
       </div>
 
-      {/* Target date picker */}
-      <div className="glass-card glass-edge rounded-xl p-4 flex items-center gap-4 flex-wrap">
+      {/* Daily card + streak + readiness + iCal row */}
+      {exam && (() => {
+        const sessions = getSessions();
+        const card = getDailyCard(examId ?? '', exam.domains, sessions);
+        const streak = getStreak(examId ?? '');
+        const readiness = getReadinessScore(examId ?? '', exam.domains, sessions);
+        const ACTION_LABEL: Record<string, string> = {
+          'read-notes': '📖 Read Notes',
+          'take-quiz': '🎯 Take Quiz',
+          'retake-quiz': '🔄 Retake Quiz',
+          'all-done': '🏆 All Done',
+        };
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Daily card */}
+            {card && (
+              <div className="sm:col-span-2 glass-card glass-edge rounded-xl p-4 flex items-start gap-3">
+                <span className="text-xl mt-0.5">{card.action === 'all-done' ? '🏆' : '📌'}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">Today’s Focus</p>
+                  <p className="text-sm font-semibold text-white">D{card.domainId}: {card.domainTitle}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">{card.reason}</p>
+                </div>
+                <Link
+                  to={card.link}
+                  className="shrink-0 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-[11px] font-bold hover:bg-violet-500 transition-colors"
+                >
+                  {ACTION_LABEL[card.action] ?? 'Go →'}
+                </Link>
+              </div>
+            )}
+            {/* Streak + readiness + iCal */}
+            <div className="glass-card rounded-xl p-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🔥</span>
+                  <div>
+                    <p className="text-xs font-bold text-amber-400">{streak} day{streak !== 1 ? 's' : ''}</p>
+                    <p className="text-[10px] text-slate-500">Current streak</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-violet-400">{readiness}%</p>
+                  <p className="text-[10px] text-slate-500">Readiness</p>
+                </div>
+              </div>
+              {plan && (
+                <button
+                  onClick={() => exportStudyPlanAsIcal(plan, exam.title)}
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700/60 text-slate-300 text-[11px] font-semibold hover:bg-slate-700 hover:text-white transition-colors"
+                  title="Export study plan to Google/Apple Calendar"
+                >
+                  <CalendarDays size={12} /> Export to Calendar (.ics)
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Target date + time commitment */}
+      <div className="glass-card glass-edge rounded-xl p-4 flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2 text-sm text-slate-300">
           <CalendarDays size={15} className="text-violet-400" />
           <span>Target exam date</span>
@@ -440,15 +685,53 @@ export default function StudyPlan() {
           onChange={handleDateChange}
           className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500"
         />
+        {/* Time commitment chips */}
+        <div className="flex items-center gap-1.5 ml-auto">
+          <Clock size={12} className="text-slate-500" />
+          {([15, 30, 60] as DailyMinutes[]).map((mins) => (
+            <button
+              key={mins}
+              onClick={() => handleDailyMinutesChange(mins)}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                dailyMinutes === mins
+                  ? 'bg-violet-600 text-white border border-violet-500'
+                  : 'bg-slate-800/60 text-slate-400 border border-slate-700/40 hover:text-white hover:border-slate-500'
+              }`}
+              title={`${mins} min/day`}
+            >
+              {mins}m
+            </button>
+          ))}
+        </div>
         <button
           onClick={() => regenerate(targetDate)}
-          className="ml-auto flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
           title="Regenerate plan"
         >
           <RefreshCw size={13} />
           Regenerate
         </button>
       </div>
+
+      {/* Weak domains alert */}
+      {weakDomains.length > 0 && (
+        <div className="flex items-start gap-3 px-4 py-3 rounded-xl border border-rose-800/40 bg-rose-950/30">
+          <TrendingDown size={15} className="text-rose-400 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-rose-300 mb-1">Weak domains — plan prioritises these</p>
+            <div className="flex flex-wrap gap-2">
+              {weakDomains.map((d) => (
+                <span
+                  key={d.domainId}
+                  className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-rose-900/40 text-rose-300 border border-rose-800/40"
+                >
+                  D{d.domainId}: {d.title} <span className="font-bold text-rose-400">{d.pct}%</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* AI Mentor panel */}
       <div className="glass-card glass-edge rounded-xl overflow-hidden border border-violet-800/20">
@@ -564,17 +847,33 @@ export default function StudyPlan() {
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-widest text-violet-400 mb-0.5">Up next — Day {next.day}</p>
             <p className="text-sm font-semibold text-white truncate">{next.domainTitle}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{next.activities.length} activities · {next.estimatedMinutes} min</p>
+            <p className="text-xs text-slate-500 mt-0.5">{next.activities.length} activities · {next.estimatedMinutes} min
+              {quizScoresByDomain[next.domainId]?.attempts > 0 && (
+                <span className={`ml-2 font-semibold ${quizScoresByDomain[next.domainId].lastScore >= 70 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  · {quizScoresByDomain[next.domainId].lastScore}% last quiz
+                </span>
+              )}
+            </p>
           </div>
-          <button
-            onClick={() => {
-              const el = document.getElementById(`session-day-${next.day}`);
-              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }}
-            className="btn-primary shrink-0 text-sm px-4 py-2"
-          >
-            Jump to session
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => {
+                const el = document.getElementById(`session-day-${next.day}`);
+                if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setViewMode('timeline'); }
+              }}
+              className="text-xs text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg border border-slate-700/60 hover:border-slate-500"
+            >
+              View plan
+            </button>
+            {next.activities[0] && (
+              <Link
+                to={next.activities.find(a => !a.completed)?.link ?? next.activities[0].link}
+                className="btn-primary text-sm px-4 py-2"
+              >
+                Start →
+              </Link>
+            )}
+          </div>
         </div>
       )}
 
@@ -583,6 +882,35 @@ export default function StudyPlan() {
           <CheckCircle2 size={15} className="shrink-0" />
           <span><strong>Plan complete!</strong> You've finished all sessions. Ready to sit the exam?</span>
         </div>
+      )}
+
+      {/* View toggle + calendar / timeline */}
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+          {totalSessions} sessions · {totalMinutes} min total
+        </p>
+        <div className="flex items-center gap-1 bg-slate-900/60 rounded-lg p-0.5 border border-slate-800/60">
+          <button
+            onClick={() => setViewMode('timeline')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+              viewMode === 'timeline' ? 'bg-violet-700 text-white' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <LayoutList size={12} /> Timeline
+          </button>
+          <button
+            onClick={() => setViewMode('calendar')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+              viewMode === 'calendar' ? 'bg-violet-700 text-white' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Calendar size={12} /> Calendar
+          </button>
+        </div>
+      </div>
+
+      {viewMode === 'calendar' && (
+        <PlanCalendar plan={plan} targetDate={targetDate} onDayClick={scrollToDay} />
       )}
 
       {/* Session cards */}
@@ -594,6 +922,7 @@ export default function StudyPlan() {
               examId={validId}
               onToggle={handleToggle}
               defaultOpen={next?.day === session.day && next?.domainId === session.domainId}
+              domainScore={quizScoresByDomain[session.domainId]}
             />
           </div>
         ))}

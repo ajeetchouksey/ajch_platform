@@ -38,7 +38,7 @@ This prompt is handled by **Curriculum Engineer** (Exam Commander).
 - [ ] No factual errors or contradictions with official docs
 - [ ] No deprecated features presented as current
 - [ ] Domain weights still match official exam guide
-- [ ] All question IDs follow `d{N}-{NNN}` format
+- [ ] All question IDs follow `{examId}-d{N}-{NNN}` format (e.g. `ccaf-d1-042`, `ab731-d2-015`)
 
 - [ ] Code examples are runnable (not pseudocode)
 - [ ] Mermaid diagrams render correctly

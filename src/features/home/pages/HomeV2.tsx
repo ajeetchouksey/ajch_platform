@@ -6,11 +6,11 @@ import {
   Zap, ShieldCheck, Terminal,
   CheckCircle2,
   FileSearch, MessageSquare, Bot, Server, GitPullRequest, Eye,
+  Building2, ChevronRight,
 } from 'lucide-react';
 import {
   PulsingDot,
 } from '@/components/ui';
-import { StarRepo } from '@/components/StarRepo';
 
 
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
@@ -69,7 +69,7 @@ const features = [
     color: '#e879f9',
     bg: 'rgba(232,121,249,0.10)',
     border: 'rgba(232,121,249,0.28)',
-    badge: 'NEW',
+    badge: 'OPEN',
     badgeColor: '#e879f9',
     title: 'Architecture & Notes',
     subtitle: 'System Design · Study Notes · Docs',
@@ -77,7 +77,49 @@ const features = [
     bullets: ['5+ domain study guides', 'Architecture decision records', 'Platform docs & runbooks'],
     cta: 'Explore Notes',
   },
+  {
+    to: '/usecases',
+    icon: Building2,
+    color: '#34d399',
+    bg: 'rgba(52,211,153,0.10)',
+    border: 'rgba(52,211,153,0.28)',
+    badge: 'NEW',
+    badgeColor: '#34d399',
+    title: 'Enterprise AI Use Cases',
+    subtitle: '31 Use Cases · 12 Verticals · 6 Patterns',
+    desc: 'Real enterprise AI deployments across finance, banking, insurance, legal, and more — with architecture diagrams, workflow breakdowns, and cross-links to interview questions.',
+    bullets: ['31 production AI blueprints', 'Mermaid architecture diagrams', 'Linked to interview prep'],
+    cta: 'Browse Use Cases',
+  },
 ];
+
+// ── Enterprise use case spotlight ─────────────────────────────────────────────
+const spotlightUseCases = [
+  {
+    id: 'invoice-ops-hitl',
+    title: 'Invoice Operations Agent with HITL',
+    vertical: 'Finance & Ops',
+    patterns: ['HITL', 'Document Processing'],
+    summary: 'Extracts invoice fields, validates against POs, auto-approves matches — routes exceptions to human review via structured task queue.',
+    color: '#a78bfa',
+  },
+  {
+    id: 'aml-parallel-hitl',
+    title: 'Anti-Money Laundering Agent',
+    vertical: 'Banking',
+    patterns: ['Parallel Agents', 'HITL', 'Risk Scoring'],
+    summary: 'Three risk-check agents run in parallel (velocity, watchlist, typology). Aggregated score triggers SAR draft or routes to analyst for review.',
+    color: '#38bdf8',
+  },
+  {
+    id: 'policy-qa-rag',
+    title: 'Insurance Policy Q&A Agent',
+    vertical: 'Insurance',
+    patterns: ['RAG', 'Query Rewriting'],
+    summary: 'Section-level chunking, insurance jargon rewriting, reranking for freshness — grounded answers with citations, low-confidence queries escalated.',
+    color: '#fb923c',
+  },
+] as const;
 
 // ── What you'll build ─────────────────────────────────────────────────────────
 const buildProjects = [
@@ -142,6 +184,16 @@ export default function HomeV2() {
 
   const [ghRepo, setGhRepo] = useState<GitHubRepoStats | null>(null);
   useEffect(() => { fetchGitHubRepo().then(setGhRepo).catch(() => {}); }, []);
+
+  const [signalTotal, setSignalTotal] = useState<number | null>(null);
+  useEffect(() => {
+    const url = import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined;
+    if (!url) return;
+    fetch(`${url}/api/signal/total`)
+      .then(r => r.json() as Promise<{ total: number }>)
+      .then(d => setSignalTotal(d.total))
+      .catch(() => {});
+  }, []);
 
   const [sessions, setSessions] = useState<ReturnType<typeof getSessions>>([]);
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -208,9 +260,9 @@ export default function HomeV2() {
 
             {/* Value prop */}
             <p className="text-base text-slate-300 max-w-xl leading-relaxed mb-5">
-              Structured, hands-on paths from fundamentals to production{' '}
-              <span className="text-white font-semibold">(101 → 310)</span>.
-              {' '}Build real tools, contribute to real projects, and develop skills that actually ship.
+              A community built for engineers who want to go beyond theory —{' '}
+              <span className="text-white font-semibold">design, build, and ship real AI systems</span>.
+              {' '}From architecture patterns to production deployments, with the community behind every step.
             </p>
 
             {/* Intent fork */}
@@ -253,7 +305,6 @@ export default function HomeV2() {
                 style={{ background: 'rgba(30,41,59,0.6)', border: '1px solid rgba(71,85,105,0.35)' }}>
                 <BookOpen size={15} /> See the Builder Roadmap
               </button>
-              <StarRepo />
             </div>
 
 
@@ -316,7 +367,7 @@ export default function HomeV2() {
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § PAGE VIEWS — GA4 activity strip
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      {pStats?.pageViews?.total != null && pStats.pageViews.total > 0 && (
+      {(pStats?.pageViews?.total ?? 0) > 0 || ghRepo != null || signalTotal != null ? (
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
         style={{ transitionDelay: '80ms' }}>
         <div className="rounded-2xl px-6 py-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
@@ -325,18 +376,20 @@ export default function HomeV2() {
             border: '1px solid rgba(139,92,246,0.15)',
           }}>
           {/* Page views since May 1 */}
-          <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
-            <Eye size={13} className="text-violet-400" />
-            <span className="text-white font-bold">{pStats.pageViews.total.toLocaleString()}</span>
-            &nbsp;views
-          </span>
+          {(pStats?.pageViews?.total ?? 0) > 0 && (
+            <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+              <Eye size={13} className="text-violet-400" />
+              <span className="text-white font-bold">{(pStats?.pageViews?.total ?? 0).toLocaleString()}</span>
+              &nbsp;views
+            </span>
+          )}
           {ghRepo != null && ghRepo.stars > 0 && (
             <>
-              <span className="text-slate-600 text-[12px]">·</span>
+              {(pStats?.pageViews?.total ?? 0) > 0 && <span className="text-slate-600 text-[12px]">·</span>}
               <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
                 <span style={{ color: '#fbbf24' }}>⭐</span>
                 <span className="text-white font-bold">{ghRepo.stars.toLocaleString()}</span>
-                &nbsp;stars
+                &nbsp;GitHub stars
               </span>
             </>
           )}
@@ -350,9 +403,19 @@ export default function HomeV2() {
               </span>
             </>
           )}
+          {signalTotal != null && (
+            <>
+              <span className="text-slate-600 text-[12px]">·</span>
+              <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+                <span style={{ color: '#f472b6' }}>♥</span>
+                <span className="text-white font-bold">{signalTotal}</span>
+                &nbsp;found helpful
+              </span>
+            </>
+          )}
         </div>
       </section>
-      )}
+      ) : null}
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § FEATURES — what's on the platform
@@ -365,7 +428,7 @@ export default function HomeV2() {
           <p className="text-sm text-slate-500 mt-1">Four pillars. One mission: build real systems, not finish fake exercises.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5">
           {dynamicFeatures.map(({ to, icon: Icon, color, bg, border, badge, title, subtitle, tagline, desc, bullets, cta }, idx) => (
             <div
               key={to}
@@ -443,6 +506,102 @@ export default function HomeV2() {
               </Link>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          § ENTERPRISE USE CASES SPOTLIGHT
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
+      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        style={{ transitionDelay: '220ms' }}>
+        <div className="rounded-2xl overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(52,211,153,0.06) 0%, rgba(15,23,42,0.98) 100%)',
+            border: '1px solid rgba(52,211,153,0.15)',
+          }}>
+          <div className="p-6 sm:p-8">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#34d399' }}>
+                  NEW · Enterprise AI Use Cases
+                </p>
+                <h2 className="text-xl font-black text-white">What AI Agents Are Doing in Production</h2>
+                <p className="text-sm text-slate-500 mt-1">
+                  31 real enterprise blueprints — architecture diagrams, workflow breakdowns, linked to interview prep.
+                </p>
+              </div>
+              <Link to="/usecases"
+                className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-black rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+                style={{ background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.28)', color: '#34d399' }}>
+                Browse all 31 <ChevronRight size={13} />
+              </Link>
+            </div>
+
+            {/* Use case cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {spotlightUseCases.map((uc) => (
+                <Link
+                  key={uc.id}
+                  to={`/usecases/${uc.id}`}
+                  className="group rounded-xl p-4 block transition-all duration-200 hover:-translate-y-1"
+                  style={{
+                    background: 'rgba(6,12,24,0.80)',
+                    border: '1px solid rgba(71,85,105,0.22)',
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = `${uc.color}40`;
+                    (e.currentTarget as HTMLElement).style.boxShadow = `0 6px 30px -10px ${uc.color}30`;
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(71,85,105,0.22)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                  }}
+                >
+                  {/* Vertical + patterns */}
+                  <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                    <span className="text-[9px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-full"
+                      style={{ color: uc.color, background: `${uc.color}14`, border: `1px solid ${uc.color}28` }}>
+                      {uc.vertical}
+                    </span>
+                    {uc.patterns.map((p) => (
+                      <span key={p} className="text-[9px] text-slate-500 px-1.5 py-0.5 rounded-full"
+                        style={{ background: 'rgba(71,85,105,0.15)', border: '1px solid rgba(71,85,105,0.20)' }}>
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-sm font-black text-white leading-snug mb-2">{uc.title}</h3>
+
+                  {/* Summary */}
+                  <p className="text-[11px] text-slate-500 leading-relaxed mb-3">{uc.summary}</p>
+
+                  {/* CTA */}
+                  <div className="flex items-center gap-1 text-[11px] font-black transition-all duration-200 group-hover:gap-2"
+                    style={{ color: uc.color }}>
+                    View blueprint <ChevronRight size={11} className="transition-transform group-hover:translate-x-0.5" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Bottom row: stats strip */}
+            <div className="mt-5 pt-4 flex flex-wrap gap-x-6 gap-y-1" style={{ borderTop: '1px solid rgba(52,211,153,0.10)' }}>
+              {[
+                ['31', 'AI use case blueprints'],
+                ['12', 'Enterprise verticals'],
+                ['6', 'Agent patterns'],
+                ['14', 'With architecture diagrams'],
+                ['5', 'Interview Q cross-links'],
+              ].map(([n, label]) => (
+                <span key={label} className="text-[11px] text-slate-500">
+                  <span className="font-black text-slate-300">{n}</span> {label}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -708,7 +867,6 @@ export default function HomeV2() {
                     style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.28)', color: '#34d399' }}>
                     <GitBranch size={12} /> Fork on GitHub
                   </a>
-                  <StarRepo />
                   <a href="https://github.com/ajeetchouksey/ajch_platform/subscription" target="_blank" rel="noreferrer"
                     className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-black rounded-xl transition-all duration-200 hover:-translate-y-0.5"
                     style={{ background: 'rgba(56,189,248,0.10)', border: '1px solid rgba(56,189,248,0.25)', color: '#38bdf8' }}>
@@ -781,6 +939,11 @@ export default function HomeV2() {
                 className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-bold rounded-2xl text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
                 style={{ background: 'rgba(30,41,59,0.7)', border: '1px solid rgba(71,85,105,0.35)' }}>
                 <Newspaper size={16} /> Browse Articles
+              </Link>
+              <Link to="/usecases"
+                className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-bold rounded-2xl text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+                style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.25)', color: '#34d399' }}>
+                <Building2 size={16} /> Explore Use Cases
               </Link>
             </div>
 

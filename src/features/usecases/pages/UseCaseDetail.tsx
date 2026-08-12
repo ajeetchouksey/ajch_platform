@@ -1,3 +1,4 @@
+import { ContentFeedback } from '@/components/ContentFeedback';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -291,6 +292,9 @@ export default function UseCaseDetail() {
           {/* ── Right sidebar ── */}
           <div className="w-full xl:w-72 2xl:w-80 shrink-0 space-y-5 xl:sticky xl:top-4 self-start">
 
+          {/* Feedback — replaces the old star bookmark */}
+          <ContentFeedback contentId={`usecase-${id ?? ''}`} compact />
+
           {/* Tech stack */}
           {featured.techStack && featured.techStack.length > 0 && (
             <div>
@@ -395,7 +399,7 @@ export default function UseCaseDetail() {
                 {featured.relatedInterviewQs.map((qid) => (
                   <Link
                     key={qid}
-                    to={`/interview/q/${qid}`}
+                    to={`/roleprep/q/${qid}`}
                     className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300 hover:border-blue-500/40 hover:text-blue-300 transition-colors"
                   >
                     {qid}

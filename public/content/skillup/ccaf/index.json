@@ -1,5 +1,18 @@
 {
   "schemaVersion": "1.0",
+  "contentVersion": "1.0.0",
+  "contentUpdatedAt": "2026-08-06",
+  "provider": "Anthropic",
+  "palette": {
+    "color": "#a78bfa",
+    "bg": "rgba(139,92,246,0.10)",
+    "border": "rgba(139,92,246,0.38)",
+    "glow": "rgba(139,92,246,0.18)",
+    "btn": "linear-gradient(135deg, #7c3aed, #6d28d9)"
+  },
+  "changelog": [
+    { "version": "1.0.0", "date": "2026-08-06", "type": "major", "summary": "Initial release — 5 domains, 250 questions" }
+  ],
   "id": "ccaf",
   "examCode": "CCAR-F",
   "title": "Claude Certified Architect – Foundations",
@@ -16,9 +29,9 @@
   "colorScheme": "violet",
   "domains": [
     { "id": 1, "title": "Agentic Architecture & Orchestration", "weight": 27, "color": "bg-violet-600", "notesFile": "content/skillup/ccaf/notes/d1-agentic-architecture.md" },
-    { "id": 2, "title": "Tool Design & MCP Integration", "weight": 18, "color": "bg-amber-600", "notesFile": "content/skillup/ccaf/notes/d4-tool-design-mcp.md" },
-    { "id": 3, "title": "Claude Code Configuration & Workflows", "weight": 20, "color": "bg-blue-600", "notesFile": "content/skillup/ccaf/notes/d2-claude-code-config.md" },
-    { "id": 4, "title": "Prompt Engineering & Structured Output", "weight": 20, "color": "bg-emerald-600", "notesFile": "content/skillup/ccaf/notes/d3-prompt-engineering.md" },
+    { "id": 2, "title": "Claude Code Configuration & Workflows", "weight": 20, "color": "bg-blue-600", "notesFile": "content/skillup/ccaf/notes/d2-claude-code-config.md" },
+    { "id": 3, "title": "Prompt Engineering & Structured Output", "weight": 20, "color": "bg-emerald-600", "notesFile": "content/skillup/ccaf/notes/d3-prompt-engineering.md" },
+    { "id": 4, "title": "Tool Design & MCP Integration", "weight": 18, "color": "bg-amber-600", "notesFile": "content/skillup/ccaf/notes/d4-tool-design-mcp.md" },
     { "id": 5, "title": "Context Management & Reliability", "weight": 15, "color": "bg-rose-600", "notesFile": "content/skillup/ccaf/notes/d5-context-management.md" }
   ],
   "questionFiles": [

@@ -234,7 +234,7 @@ Activated when global search work begins.
 
 #### Build-time script (scripts/build-search-index.mjs)
 
-- Reads: `public/content/blog/index.json`, `public/content/exams/index.json`, all `questions/*.json`, all `notes/*.md`
+- Reads: `public/content/blog/index.json`, `public/content/skillup/*/index.json`, all `skillup/*/questions/*.json`, all `skillup/*/notes/*.md`
 - Outputs: `public/content/search-index.json`
 - Entry schema:
   ```typescript

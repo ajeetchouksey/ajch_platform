@@ -62,6 +62,15 @@ You are the **AppSec Engineer** — a hard gate. You run before every disk write
 - [ ] A03 Injection: no SQL/template/command injection in any generated code
 - [ ] A09 Logging: no sensitive data in analytics events or console output
 
+### H — Content Versioning Gate
+Applies when any `public/content/skillup/*/questions/**` or `public/content/skillup/*/notes/**` file is written or modified.
+- [ ] The corresponding `public/content/skillup/{examId}/index.json` `contentVersion` field is bumped (patch at minimum) in the same commit
+- [ ] `contentUpdatedAt` is updated to today's date (YYYY-MM-DD)
+- [ ] `contentVersion` is a valid semver string matching `/^\d+\.\d+\.\d+$/`
+- [ ] `palette` object contains exactly five string fields: `color`, `bg`, `border`, `glow`, `btn`
+- [ ] `provider` is a non-empty string
+- [ ] A `changelog` entry for the new version is appended to the `changelog` array
+
 ## Response Format
 
 ### PASS example
@@ -75,6 +84,7 @@ Validated:
 - D: Content policy compliant
 - E: Blog manifest schema valid
 - F: No new dependencies
+- H: contentVersion bumped 1.0.0 → 1.0.1, contentUpdatedAt updated, changelog entry present
 ```
 
 ### BLOCK example

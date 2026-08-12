@@ -1,19 +1,24 @@
 ---
 name: content-analysis
 description: >
-  Analyze web content or documents to extract CCA-F exam-relevant concepts.
-  Classifies content into domains, identifies key patterns, and determines
-  what's new vs already covered.
+  Analyze web content or documents to extract exam-relevant concepts.
+  Classifies content into exam domains, identifies key patterns, and determines
+  what's new vs already covered. Exam-agnostic: domain list is loaded from
+  public/content/skillup/{examId}/index.json at runtime.
 ---
 
 # Content Analysis Skill
 
 ## Purpose
 Given raw content (from a URL, document, or paste), analyze it to:
-1. Identify concepts relevant to the CCA-F exam
-2. Classify each concept into Domain 1-5
+1. Identify concepts relevant to the target exam
+2. Classify each concept into the correct domain (read `index.json` — never assume CCA-F D1–5)
 3. Determine novelty (new vs already in our content)
 4. Rate exam-relevance (high/medium/low)
+
+> **Registry-first rule:** Always read `public/content/skillup/{examId}/index.json` to get the
+> real domain list before classifying. The example below uses CCA-F; other exams have
+> different domain counts, weights, and titles.
 
 ## Analysis Framework
 

@@ -1,0 +1,315 @@
+[
+  {
+    "domain": 1,
+    "id": "ab731-d1-001",
+    "scenario": "A retail company wants to automatically flag customer emails as 'complaint', 'order query', or 'general enquiry' to route them to the right team.",
+    "question": "Which type of AI is most appropriate for this task?",
+    "options": [
+      "Generative AI — use an LLM to categorise each email",
+      "Discriminative / classification ML — trained on labelled email examples",
+      "Recommendation AI — surface related products to the customer",
+      "Generative AI with RAG — retrieve policy documents before classifying"
+    ],
+    "correct": 1,
+    "explanation": "This is a classification task — assigning a label from a fixed set of categories. Discriminative ML (trained classifier) is purpose-built for this and is more efficient and reliable than using a generative LLM. Generative AI (A, D) would work but is overkill and more expensive. Recommendation AI (C) is irrelevant — the task is routing, not surfacing products.",
+    "tags": [
+      "gen-ai-vs-ml",
+      "classification",
+      "use-case-selection"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-002",
+    "scenario": "A marketing manager uses Microsoft 365 Copilot to draft campaign proposals but finds the output is generic and doesn't reflect the company's brand voice.",
+    "question": "What is the most cost-effective first step to improve the output quality?",
+    "options": [
+      "Fine-tune a custom language model on previous campaign documents",
+      "Improve the prompt — provide brand guidelines, tone examples, and specific instructions",
+      "Switch to Azure AI Foundry and build a custom solution",
+      "Request IT to implement RAG over all company documents"
+    ],
+    "correct": 1,
+    "explanation": "Prompt engineering is always the cheapest and fastest improvement. Providing brand voice guidelines, a tone description, and 1-2 example paragraphs in the prompt (few-shot) will dramatically improve output quality at zero additional cost. Fine-tuning (A) requires labelled data and weeks of work. Building a custom solution (C) is extreme overkill. RAG (D) helps with factual grounding, not tone/style.",
+    "tags": [
+      "prompt-engineering",
+      "few-shot",
+      "cost-efficiency"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-003",
+    "scenario": "A healthcare company is evaluating generative AI to assist doctors in drafting patient discharge summaries. A key concern is the model stating incorrect medical facts with high confidence.",
+    "question": "What is this risk called, and what is the primary mitigation?",
+    "options": [
+      "Bias — mitigate by using a diverse training dataset",
+      "Fabrication (hallucination) — mitigate by grounding the model on verified medical records and requiring human physician review",
+      "Prompt injection — mitigate by sanitising user input before sending to the model",
+      "Reliability — mitigate by using a larger, more expensive model"
+    ],
+    "correct": 1,
+    "explanation": "When an AI confidently states incorrect facts, this is called fabrication or hallucination. In healthcare, this is especially dangerous. The two-part mitigation is: (1) Grounding — connect the model to the patient's actual records so it generates from verified data (RAG), and (2) Human-in-the-loop — a physician reviews before the summary is finalised. Larger models (D) still hallucinate. A diverse dataset (A) reduces bias but doesn't eliminate fabrication.",
+    "tags": [
+      "hallucination",
+      "fabrication",
+      "grounding",
+      "rag",
+      "human-in-the-loop"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-004",
+    "scenario": "A company trained an AI hiring tool on 10 years of historical hiring data. The model recommends significantly fewer female candidates for senior roles.",
+    "question": "What type of AI risk does this represent?",
+    "options": [
+      "Reliability risk — the model is inconsistent across users",
+      "Historical bias — the training data reflects past discriminatory patterns",
+      "Prompt injection — a user has manipulated the model's output",
+      "Overfitting — the model is too closely tuned to training data"
+    ],
+    "correct": 1,
+    "explanation": "The model learned from historical data where senior roles were predominantly filled by men. This is historical bias — the AI perpetuates and scales past human discrimination. This is a Fairness violation under Microsoft's Responsible AI principles. The mitigation requires auditing training data for representational imbalance and applying fairness-aware model evaluation techniques.",
+    "tags": [
+      "bias",
+      "historical-bias",
+      "responsible-ai",
+      "fairness"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-005",
+    "scenario": "A company has deployed an LLM for customer support. They want to add the ability to answer questions from their private product documentation (which changes weekly) without retraining the model.",
+    "question": "What is the best approach?",
+    "options": [
+      "Fine-tune the model monthly with updated documentation",
+      "Implement RAG — retrieve relevant documentation chunks at runtime and provide them as context",
+      "Expand the system prompt to include all product documentation",
+      "Use a larger pretrained model that likely has seen similar documentation"
+    ],
+    "correct": 1,
+    "explanation": "RAG (Retrieval-Augmented Generation) retrieves relevant sections of your private documentation at query time and provides them as context to the model. This means you can update the documentation and the model automatically uses the latest version — no retraining required. Fine-tuning (A) is expensive, slow, and needs to be repeated every time docs change. Putting all docs in the system prompt (C) will exceed context limits for large documentation sets. A larger pretrained model (D) has no knowledge of your private internal documentation.",
+    "tags": [
+      "rag",
+      "grounding",
+      "fine-tune-vs-rag",
+      "knowledge-cutoff"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-006",
+    "scenario": "A business analyst wants to understand why the organisation's AI solution costs more to run this month versus last month despite similar usage volume. They look at the API billing.",
+    "question": "What is the primary unit that drives AI API cost?",
+    "options": [
+      "Number of users who logged in",
+      "Number of tokens processed (input + output combined)",
+      "Number of API endpoints called",
+      "Storage used by the model"
+    ],
+    "correct": 1,
+    "explanation": "LLM API pricing is based on tokens — both input tokens (your prompt) and output tokens (the model's response). If prompts became longer this month, or if the model was instructed to produce longer responses, costs increase. Understanding token consumption is the foundation of AI cost management. Users (A) is irrelevant to inference cost. API endpoints (C) is not how LLM billing works. Model storage (D) is a fixed infrastructure cost, not the variable cost driver.",
+    "tags": [
+      "tokens",
+      "cost",
+      "roi",
+      "api-billing"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-007",
+    "scenario": "A logistics company wants to predict which shipments are likely to be delayed based on weather, carrier performance, and historical data.",
+    "question": "Which AI approach is most appropriate?",
+    "options": [
+      "Generative AI — prompt an LLM with shipment details and ask it to predict delay risk",
+      "Predictive ML — train a model on historical shipment data to forecast delay probability",
+      "Generative AI with RAG — retrieve weather forecasts and ask the LLM to analyse them",
+      "Computer vision — analyse images of packages to predict delay risk"
+    ],
+    "correct": 1,
+    "explanation": "Predicting a numeric outcome (delay probability score) from structured historical data is a classic predictive ML / regression problem. A dedicated ML model trained on historical patterns will significantly outperform an LLM for structured tabular prediction tasks. LLMs (A, C) can reason about text but are not optimised for tabular data prediction. Computer vision (D) analyses images, not logistics data.",
+    "tags": [
+      "gen-ai-vs-ml",
+      "predictive-ml",
+      "use-case-selection"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-008",
+    "scenario": "An organisation wants to use AI to generate a monthly executive report from operational data. The AI sometimes produces slightly different summaries for the same data on different runs.",
+    "question": "What AI characteristic does this describe?",
+    "options": [
+      "Bias — the model is unfairly summarising certain data points",
+      "Non-determinism — LLMs are probabilistic and can produce different outputs for the same input",
+      "Hallucination — the model is inventing facts",
+      "Context overflow — the input data exceeds the model's capacity"
+    ],
+    "correct": 1,
+    "explanation": "LLMs use a temperature parameter that introduces randomness — this is by design to enable creative, varied text. The same prompt can produce different (but equivalent) outputs. This is non-determinism, not a bug. For business reports requiring consistency, the fix is to set temperature to 0 (deterministic mode) and specify an exact output format. Hallucination (C) means factual errors, not variation. Bias (A) is systematic unfairness, not variation.",
+    "tags": [
+      "reliability",
+      "non-determinism",
+      "temperature",
+      "business-use-case"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-009",
+    "scenario": "A company's AI solution is performing poorly for users who communicate in regional dialects and non-English languages.",
+    "question": "What type of bias is most likely responsible?",
+    "options": [
+      "Historical bias — past data encoded discrimination",
+      "Representation bias — certain languages and dialects were underrepresented in training data",
+      "Measurement bias — data collection was inconsistent",
+      "Selection bias — the wrong users were chosen for the pilot"
+    ],
+    "correct": 1,
+    "explanation": "If the model performs poorly for certain languages or dialects, the training data did not include sufficient representative examples of those language patterns. This is representation bias. The mitigation is to either fine-tune on more diverse multilingual data or use a model specifically optimised for multilingual use. Historical bias (A) relates to encoded discrimination in past decisions. Measurement bias (C) is about inconsistent data collection methods.",
+    "tags": [
+      "bias",
+      "representation-bias",
+      "multilingual",
+      "fairness"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-010",
+    "scenario": "A product manager is evaluating whether to adopt AI for customer feedback analysis. The team currently receives 500 feedback items per week and manually tags each one — a process that takes 3 analyst hours per week.",
+    "question": "Which consideration is LEAST relevant when calculating ROI for this use case?",
+    "options": [
+      "The hourly cost of analyst time currently spent on manual tagging",
+      "The accuracy of AI tagging compared to human tagging",
+      "The number of tokens the AI will consume per feedback item",
+      "The brand colour scheme of the AI dashboard"
+    ],
+    "correct": 3,
+    "explanation": "ROI calculation requires cost (analyst hours × rate), quality (AI accuracy vs human accuracy), and operational cost (token/API cost). UI/brand aesthetics of a dashboard have zero bearing on the financial or quality ROI of the solution. This is a trick question to test whether candidates understand the real ROI levers: time savings, quality, and cost of the AI itself.",
+    "tags": [
+      "roi",
+      "cost-benefit",
+      "business-value"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-011",
+    "scenario": "A company wants to implement an AI solution that has access to customer financial data to generate personalised investment summaries. A security review is required.",
+    "question": "Which security consideration is MOST critical for this scenario?",
+    "options": [
+      "The AI model must be open source so the company can audit the code",
+      "Authentication must be enforced so only authorised users can access their own financial summaries — the AI must not expose one customer's data to another",
+      "The AI should be trained on public financial data to avoid bias",
+      "The UI should have a clear 'AI-generated' disclaimer"
+    ],
+    "correct": 1,
+    "explanation": "In a multi-tenant financial data scenario, the most critical security requirement is data isolation — ensuring Customer A's AI outputs cannot ever include Customer B's data. This requires proper authentication and authorisation at both the application layer and the data retrieval layer. Cross-tenant data leakage would be a catastrophic privacy and compliance failure. Open source (A) doesn't inherently improve security. Training data (C) is a different concern. Disclaimers (D) are good practice but not the most critical security control here.",
+    "tags": [
+      "security",
+      "authentication",
+      "data-isolation",
+      "privacy"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-012",
+    "scenario": "A team is deciding between fine-tuning a model vs using RAG for a legal document Q&A system. The legal documents are updated monthly and the team has limited ML expertise.",
+    "question": "Which approach is most appropriate and why?",
+    "options": [
+      "Fine-tuning — it permanently embeds document knowledge into the model so no retrieval is needed",
+      "RAG — documents can be updated without retraining, lower ML expertise required, and grounding reduces hallucination",
+      "Fine-tuning — RAG cannot handle legal language accurately",
+      "Neither — only a purpose-built legal AI product should be used for legal documents"
+    ],
+    "correct": 1,
+    "explanation": "RAG is the correct choice for this scenario for three reasons: (1) Monthly updates mean you'd need to fine-tune every month — expensive and slow; (2) RAG requires no ML training expertise — just indexing documents; (3) RAG grounds responses in actual document text, dramatically reducing hallucination. Fine-tuning (A) is better for teaching the model new skills or domain jargon, not for keeping up with frequently-changing facts. Legal language (C) is handled well by modern LLMs with proper context.",
+    "tags": [
+      "rag",
+      "fine-tune-vs-rag",
+      "grounding",
+      "use-case-selection"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-013",
+    "scenario": "A financial services company wants to automatically monitor all incoming emails, extract action items, update a task management system, and send a daily digest to each employee's manager — all without human involvement at each step.",
+    "question": "Which AI capability should be used for this scenario?",
+    "options": [
+      "Microsoft 365 Copilot in Outlook — use Copilot to draft email summaries",
+      "An AI agent — capable of autonomous multi-step actions across email, task systems, and calendar without prompting each step",
+      "Azure AI Search — index all emails and allow managers to search for action items",
+      "A fine-tuned model — trained on company emails to predict action items"
+    ],
+    "correct": 1,
+    "explanation": "This scenario requires autonomous multi-step execution: read email → extract action items → update task system → send digest. This is agentic AI — it acts on a defined goal across multiple steps and systems without human prompting at each step. M365 Copilot in Outlook (A) requires a human to initiate each interaction. Azure AI Search (C) is a retrieval tool, not an executor. Fine-tuning (D) changes model behaviour but doesn't automate multi-step workflows.",
+    "tags": [
+      "ai-agents",
+      "agentic-ai",
+      "automation",
+      "copilot-vs-agent"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-014",
+    "scenario": "A company has identified 12 potential AI use cases across its operations. The AI steering committee must decide which 3 to fund in the next quarter. Use Case A has high business value and is technically straightforward. Use Case B has extremely high potential value but requires a 9-month data infrastructure project first. Use Case C has low value but can be implemented in 2 weeks.",
+    "question": "Using a value × feasibility prioritisation framework, which use case should be funded first?",
+    "options": [
+      "Use Case B — the highest long-term value always takes priority",
+      "Use Case A — high business value AND high feasibility makes it a Quick Win that delivers ROI fastest",
+      "Use Case C — the fastest to implement should always go first to demonstrate momentum",
+      "All three — fund them in parallel to maximise AI investment"
+    ],
+    "correct": 1,
+    "explanation": "The value × feasibility matrix places Use Case A in the 'Quick Win' quadrant: high business value + high feasibility = fastest ROI and confidence-building. Use Case B is a 'Strategic Bet' — high value but low feasibility (9-month dependency); plan it for later, not first. Use Case C is 'Incremental Gains' — easy but low value. Quick wins should be prioritised over strategic bets for the first funding cycle to prove AI ROI and build executive confidence.",
+    "tags": [
+      "use-case-prioritisation",
+      "value-feasibility",
+      "roi",
+      "ai-strategy"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "domain": 1,
+    "id": "ab731-d1-015",
+    "scenario": "A company is building a real-time customer service chatbot for their e-commerce platform. The chatbot handles simple FAQs (return policy, shipping times, store hours). Budget is tight and the solution must respond in under 1 second. A developer suggests using GPT-4o.",
+    "question": "What is the most appropriate model choice for this scenario?",
+    "options": [
+      "GPT-4o — the most capable model always produces the best user experience",
+      "A lightweight model such as Phi-3 — cost-effective, low latency, sufficient for simple FAQ tasks",
+      "A fine-tuned model — fine-tuning on company FAQs will produce the most accurate answers",
+      "Llama 3 — open source models are always the most cost-effective choice"
+    ],
+    "correct": 1,
+    "explanation": "For simple FAQ responses (return policy, store hours), a lightweight model like Phi-3 is the correct choice: it is cost-effective, has low inference latency (<1 second), and is more than capable of retrieving and stating simple factual answers. GPT-4o (A) is designed for complex reasoning and long contexts — it's expensive overkill for FAQs and may have higher latency. Fine-tuning (C) adds cost and time without clear benefit when RAG + a smaller model can handle the task. Open-source models (D) have infrastructure overhead and aren't always cheapest at scale.",
+    "tags": [
+      "model-selection",
+      "phi",
+      "cost-optimisation",
+      "latency",
+      "foundry-models"
+    ],
+    "difficulty": "medium"
+  }
+]

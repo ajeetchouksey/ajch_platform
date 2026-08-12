@@ -1,0 +1,68 @@
+name: Content Health Check
+# Runs weekly to catch content drift: duplicate IDs, missing tags, domain gaps, difficulty coverage.
+# Can also be triggered manually from the Actions tab.
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'   # every Sunday at 00:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: content-health
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: write   # needed to create/update the tracker issue on failure
+
+jobs:
+  health:
+    name: Content Health Report
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5.1.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      - name: Run content health report
+        id: report
+        run: node scripts/content-health-report.mjs 2>&1 | tee health-report.txt
+        continue-on-error: true   # capture output before deciding to fail
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: content-health-report
+          path: health-report.txt
+          retention-days: 30
+
+      - name: Create or update tracking issue on failure
+        if: steps.report.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REPORT=$(cat health-report.txt)
+          TITLE="⚠️ Content Health Check Failed — $(date -u +'%Y-%m-%d')"
+          BODY="## Content Health Check Failed\n\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\n\`\`\`\n${REPORT}\n\`\`\`\n\n**Fix the errors above and re-run the workflow.**"
+
+          # Close any existing open content-health issues before opening a new one
+          gh issue list --label content-health --state open --json number --jq '.[].number' \
+            | xargs -r -I{} gh issue close {} --comment "Superseded by a newer health check run."
+
+          gh issue create \
+            --title "$TITLE" \
+            --body "$BODY" \
+            --label content-health \
+            --assignee "" \
+            || true   # don't fail the workflow if issue creation fails (e.g. label doesn't exist yet)
+
+      - name: Fail workflow if report found errors
+        if: steps.report.outcome == 'failure'
+        run: |
+          echo "Content health check failed. See health-report.txt artifact."
+          exit 1

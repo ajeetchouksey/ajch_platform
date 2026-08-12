@@ -1,11 +1,14 @@
 const GIST_FILENAME = 'ccaf-progress.json';
 const GIST_DESCRIPTION = 'Aarya — AI Learning Hub Progress';
 
-import type { QuizSession } from '../types/content';
+import type { QuizSession, QuestionAttempt, PrepLoop } from '../types/content';
 import type { StudyPlan } from './plan-generator';
 import { getSessions } from './storage';
 import { getNotesSeen } from './storage';
 import { getAllStudyPlans } from './plan-generator';
+import { getAllAttempts } from './adaptive-quiz';
+import { getAllPrepLoops } from './prep-loop';
+import { getAllExamStats, type ExamStats } from './exam-stats';
 
 interface ProgressData {
   quizHistory: Array<{ date: string; skillId?: string; domain: string; score: number; total: number }>;
@@ -17,6 +20,10 @@ interface ProgressData {
   notesSeen?: Record<string, string>;
   /** Study plans keyed by examId. */
   studyPlans?: Record<string, StudyPlan>;
+  // v3.x: adaptive quiz engine + prep loop + exam visit stats
+  adaptiveAttempts?: Record<string, QuestionAttempt[]>;
+  prepLoops?: Record<string, PrepLoop>;
+  examStats?: Record<string, ExamStats>;
 }
 
 export async function findProgressGist(token: string): Promise<string | null> {
@@ -46,12 +53,15 @@ export async function loadProgress(token: string): Promise<ProgressData | null> 
 
 export async function saveProgress(token: string, data: ProgressData): Promise<boolean> {
   const gistId = await findProgressGist(token);
-  // Include raw sessions, notes, and study plans so all devices can sync
+  // Include raw sessions, notes, study plans, and v3.x adaptive data so all devices can sync
   const payload: ProgressData = {
     ...data,
     sessions: getSessions(),
     notesSeen: getNotesSeen(),
     studyPlans: getAllStudyPlans(),
+    adaptiveAttempts: getAllAttempts(),
+    prepLoops: getAllPrepLoops(),
+    examStats: getAllExamStats(),
   };
   const body = JSON.stringify({
     description: GIST_DESCRIPTION,

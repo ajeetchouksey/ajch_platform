@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown, User, Briefcase, Building2, Activity } from 'lucide-react';
+import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, LineChart, Search, GitPullRequest, CalendarDays, ChevronDown, User, Briefcase, Building2, Activity, Compass, Lock } from 'lucide-react';
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { GithubLogin } from './GithubLogin';
 import { StarRepo } from './StarRepo';
@@ -10,6 +10,10 @@ import { getNotesSeen } from '@/lib/storage';
 import { EXAM_SCHEMES } from '@/types/content';
 import type { ExamConfig } from '@/types/content';
 import { SubscribeForm } from './SubscribeForm';
+import { GrowthPrompt } from './GrowthPrompt';
+import { useAuth } from '@/lib/auth';
+
+const OWNER_LOGIN = 'ajeetchouksey';
 
 const EXAM_NAV = [
   { slug: '',          label: 'Overview',    icon: GraduationCap, end: true },
@@ -36,21 +40,26 @@ const platformLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
   { to: '/skillup', label: 'Skill Up', icon: GraduationCap },
   { to: '/blog', label: 'Field Notes', icon: Newspaper },
-  { to: '/interview', label: 'Interview Prep', icon: Briefcase },
+  { to: '/roleprep', label: 'Role Prep', icon: Briefcase },
   { to: '/usecases', label: 'Use Cases', icon: Building2 },
   { to: '/tools', label: 'Tools', icon: Wrench },
-  { to: '/docs', label: 'Docs', icon: BookOpen },
-  { to: '/contribute', label: 'Contribute', icon: GitPullRequest },
+  { to: '/docs', label: 'Docs', icon: BookOpen, topNavHidden: true },
+  { to: '/contribute', label: 'Contribute', icon: GitPullRequest, topNavHidden: true },
+  { to: '/discovery', label: 'Discovery', icon: Compass },
   { to: '/team', label: 'Team', icon: Users },
   { to: '/profile', label: 'Profile', icon: User, sidebarOnly: true },
   { to: '/dashboard', label: 'Dashboard', icon: BarChart2, sidebarOnly: true },
   { to: '/analytics', label: 'Analytics', icon: LineChart, sidebarOnly: true },
   { to: '/monitoring', label: 'Monitoring', icon: Activity, sidebarOnly: true },
+  { to: '/admin', label: 'Admin', icon: Lock, sidebarOnly: true },
 ];
 
 const footerLinks = [
   { href: '/subscribe', label: 'Subscribe', external: false },
   { href: '/dashboard', label: 'Dashboard', external: false },
+  { href: '/docs', label: 'Docs', external: false },
+  { href: '/contribute', label: 'Contribute', external: false },
+  { href: '/team', label: 'Team', external: false },
   { href: 'https://github.com/ajeetchouksey/ajch_platform', label: 'GitHub', external: true },
   { href: 'https://github.com/ajeetchouksey/ajch_platform/discussions', label: 'Discussions', external: true },
   { href: 'https://github.com/ajeetchouksey/ajch_platform/issues', label: 'Issues', external: true },
@@ -68,8 +77,8 @@ function Breadcrumbs() {
     exams:      'Skill Up',
     skillup:    'Skill Up',
     blog:       'Field Notes',
-    horizons:   'Learn',
-    interview:  'Interview Prep',
+    discovery:  'Learn',
+    roleprep:   'Role Prep',
     usecases:   'Use Cases',
     tools:      'Tools',
     docs:       'Docs',
@@ -77,6 +86,11 @@ function Breadcrumbs() {
     analytics:   'Analytics',
     monitoring:  'Monitoring',
     maintainer:  'Maintainer',
+    admin:       'Admin',
+    youtube:     'YouTube Tracker',
+    issues:      'Issue Board',
+    reactions:   'Content Reactions',
+    mvp:         'MVP Dashboard',
     profile:    'Profile',
     dashboard:  'Dashboard',
     contribute: 'Contribute',
@@ -119,10 +133,40 @@ function Breadcrumbs() {
   return <Breadcrumb items={items} />;
 }
 
+/** Renders an Admin nav link only for the platform owner. */
+function AdminNavItem() {
+  const { user } = useAuth();
+  if (!user || user.login !== OWNER_LOGIN) return null;
+  return (
+    <NavLink
+      to="/admin"
+      className={({ isActive }) =>
+        `relative flex items-center gap-1 px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-medium transition-all duration-200 ${
+          isActive ? 'text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800/50'
+        }`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <Lock size={13} className={isActive ? 'text-violet-400' : 'text-slate-600'} />
+          <span>Admin</span>
+          {isActive && (
+            <span className="absolute bottom-0 left-2 right-2 xl:left-3 xl:right-3 h-0.5 bg-gradient-to-r from-violet-400 to-fuchsia-400 rounded-full" />
+          )}
+        </>
+      )}
+    </NavLink>
+  );
+}
+
 export default function Layout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(() => {
+    try { return localStorage.getItem('sidebar_desktop_open') === '1'; } catch { return false; }
+  });
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { user } = useAuth();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const pageKey = location.pathname + location.search;
@@ -186,12 +230,22 @@ export default function Layout({ children }: { children: ReactNode }) {
       <header className="bg-slate-800/75 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50 relative">
         <div className="flex items-center h-14 px-6 w-full overflow-x-clip">
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden mr-3 p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200 active:scale-95"
+            onClick={() => {
+              if (window.innerWidth >= 1024 && hasSidebar) {
+                setDesktopSidebarOpen((v) => {
+                  const next = !v;
+                  try { localStorage.setItem('sidebar_desktop_open', next ? '1' : '0'); } catch { /* noop */ }
+                  return next;
+                });
+              } else {
+                setSidebarOpen((v) => !v);
+              }
+            }}
+            className={`${!hasSidebar ? 'lg:hidden' : ''} mr-3 p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200 active:scale-95`}
             aria-label="Toggle sidebar"
           >
             <div className="transition-transform duration-200">
-              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              {(sidebarOpen || (desktopSidebarOpen)) ? <X size={20} /> : <Menu size={20} />}
             </div>
           </button>
 
@@ -224,7 +278,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </NavLink>
 
           <nav className="hidden lg:flex flex-1 min-w-0 overflow-hidden items-center gap-0">
-            {platformLinks.filter((l) => !l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
+            {platformLinks.filter((l) => !l.sidebarOnly && !l.topNavHidden).map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -249,6 +303,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 )}
               </NavLink>
             ))}
+            <AdminNavItem />
           </nav>
 
           <div className="ml-auto flex items-center gap-2 shrink-0">
@@ -275,7 +330,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             fixed lg:static inset-y-0 left-0 z-40 w-64 bg-slate-900/30 backdrop-blur-xl border-r border-slate-700/20
             transform transition-all duration-300 ease-out
             ${sidebarOpen ? 'translate-x-0 shadow-2xl shadow-black/50' : '-translate-x-full shadow-none'}
-            ${hasSidebar ? 'lg:translate-x-0 lg:shadow-none lg:block' : 'lg:hidden'}
+            ${hasSidebar ? (desktopSidebarOpen ? 'lg:translate-x-0 lg:w-64 lg:shadow-none' : 'lg:-translate-x-full lg:w-0 lg:overflow-hidden lg:border-0') : 'lg:hidden'}
             top-14 pt-4 overflow-y-auto hide-scrollbar
           `}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -286,7 +341,49 @@ export default function Layout({ children }: { children: ReactNode }) {
               Platform
             </h3>
             <nav className="space-y-0.5">
-              {platformLinks.filter((l) => !l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
+              {platformLinks.filter((l) => !l.sidebarOnly && !l.topNavHidden).map(({ to, label, icon: Icon, end }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                      isActive
+                        ? 'bg-violet-500/15 text-violet-200 border-l-2 border-violet-400 ml-0 pl-2.5'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
+                    }`
+                  }
+                >
+                  <Icon size={16} />
+                  <span>{label}</span>
+                </NavLink>
+              ))}
+            </nav>
+            {/* Admin link — owner only */}
+            {user?.login === OWNER_LOGIN && (
+              <>
+                <div className="border-t border-slate-800/60 my-3 -mx-1" />
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                      isActive
+                        ? 'bg-violet-500/15 text-violet-200 border-l-2 border-violet-400 ml-0 pl-2.5'
+                        : 'text-slate-500 hover:text-white hover:bg-slate-800/70'
+                    }`
+                  }
+                >
+                  <Lock size={15} />
+                  <span>Admin</span>
+                </NavLink>
+              </>
+            )}
+            <div className="border-t border-slate-800/60 my-3 -mx-1" />
+            <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
+              Resources
+            </h3>
+            <nav className="space-y-0.5">
+              {platformLinks.filter((l) => l.topNavHidden && !l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -637,6 +734,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </main>
       </div>
 
+      <GrowthPrompt />
     </div>
   );
 }
