@@ -11,7 +11,6 @@ import {
 import {
   PulsingDot,
 } from '@/components/ui';
-import { StarRepo } from '@/components/StarRepo';
 
 
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
@@ -306,7 +305,6 @@ export default function HomeV2() {
                 style={{ background: 'rgba(30,41,59,0.6)', border: '1px solid rgba(71,85,105,0.35)' }}>
                 <BookOpen size={15} /> See the Builder Roadmap
               </button>
-              <StarRepo />
             </div>
 
 
@@ -869,7 +867,6 @@ export default function HomeV2() {
                     style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.28)', color: '#34d399' }}>
                     <GitBranch size={12} /> Fork on GitHub
                   </a>
-                  <StarRepo />
                   <a href="https://github.com/ajeetchouksey/ajch_platform/subscription" target="_blank" rel="noreferrer"
                     className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-black rounded-xl transition-all duration-200 hover:-translate-y-0.5"
                     style={{ background: 'rgba(56,189,248,0.10)', border: '1px solid rgba(56,189,248,0.25)', color: '#38bdf8' }}>

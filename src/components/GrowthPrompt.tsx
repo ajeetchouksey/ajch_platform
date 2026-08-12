@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Star, MessageCircle, X } from 'lucide-react';
+import { onContentHelpful } from '@/lib/engagement-events';
 
 const REPO        = 'https://github.com/ajeetchouksey/ajch_platform';
 const LINKEDIN    = 'https://www.linkedin.com/in/ajeet-chouksey-bb365138/';
 const SESSION_KEY = 'aarya_gp_seen';
 const NEVER_KEY   = 'aarya_gp_never';
-// show after 25 s — user has read something meaningful by then
-const DELAY_MS    = 25_000;
 
 const LI_SVG = (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400 shrink-0" aria-hidden="true">
@@ -21,11 +20,34 @@ export function GrowthPrompt() {
 
   useEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(NEVER_KEY)) return;
-    const id = setTimeout(() => {
+
+    const show = () => {
+      if (sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(NEVER_KEY)) return;
       setMounted(true);
       requestAnimationFrame(() => setVisible(true));
-    }, DELAY_MS);
-    return () => clearTimeout(id);
+    };
+
+    // Fallback: reward genuine engagement (scrolled halfway) after a minimum
+    // dwell time, for pages/users that never touch ContentFeedback.
+    const start = Date.now();
+    const onScroll = () => {
+      const scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight || 1);
+      if (scrolled >= 0.5 && Date.now() - start >= 15_000) {
+        show();
+        window.removeEventListener('scroll', onScroll);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Earned trigger: user just said this content was helpful.
+    const unsubscribe = onContentHelpful(() => {
+      setTimeout(show, 1_200); // small delay so it doesn't feel like an interruption
+    });
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      unsubscribe();
+    };
   }, []);
 
   if (!mounted) return null;

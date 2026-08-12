@@ -1,6 +1,6 @@
 import { ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useGitHubStar } from '@/hooks/useGitHubStar';
+import { emitContentHelpful } from '@/lib/engagement-events';
 
 const WORKER_URL = (import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined) ?? '';
 
@@ -31,7 +31,6 @@ export function ContentFeedback({ contentId, compact = false }: ContentFeedbackP
   const [vote, setVote] = useState<Vote>(
     () => (localStorage.getItem(storageKey(contentId)) as Vote) ?? null
   );
-  const { starRepo } = useGitHubStar();
   const [signalCount, setSignalCount] = useState(0);
   useEffect(() => {
     getSignalCounts().then(counts => setSignalCount(counts[contentId] ?? 0)).catch(() => {});
@@ -53,7 +52,7 @@ export function ContentFeedback({ contentId, compact = false }: ContentFeedbackP
     if (v === 'up') {
       localStorage.setItem(`aarya_star_${contentId}`, '1');
       void postSignal(contentId); // anonymous signal to Worker (all users)
-      void starRepo();             // real GitHub star (auth users only, no-op otherwise)
+      emitContentHelpful(contentId); // notify GrowthPrompt — no silent external side effects
     } else {
       localStorage.removeItem(`aarya_star_${contentId}`);
     }
