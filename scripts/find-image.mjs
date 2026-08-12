@@ -1,9 +1,12 @@
-import { readFileSync, writeFileSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from 'fs';
 
-const transcript = 'C:/Users/ajeet.k.chouksey/AppData/Roaming/Code/User/workspaceStorage/135f5ebb0b0e3a3e8a3e078f8aad70fa/GitHub.copilot-chat/transcripts/1bd9ff6f-58f6-43ce-b6de-e38e52b74ba9.jsonl';
-const lines = readFileSync(transcript, 'utf8').trim().split('\n');
+const transcript = process.argv[2];
+if (!transcript) {
+  console.error('Usage: node scripts/find-image.mjs <path-to-transcript.jsonl>');
+  process.exit(1);
+}
 
+const lines = readFileSync(transcript, 'utf8').trim().split('\n');
 for (let i = lines.length - 1; i >= 0; i--) {
   const obj = JSON.parse(lines[i]);
   const raw = lines[i];
