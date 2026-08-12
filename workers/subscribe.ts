@@ -19,15 +19,15 @@
  *   ANTHROPIC_API_KEY      Anthropic API key — powers /mentor/* endpoints
  */
 
-// Allowed origins — prod + local dev
-const ALLOWED_ORIGINS = new Set([
-  'https://aaryaai.dev',
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:4173',
-]);
+// Allowed origins — prod + any local dev port (Vite falls back to 5174, 5175...
+// whenever the default port is busy, so a fixed port list breaks CORS locally).
+const PROD_ORIGIN = 'https://aaryaai.dev';
+const LOCALHOST_RE = /^http:\/\/localhost:\d+$/;
+function isAllowedOrigin(origin: string): boolean {
+  return origin === PROD_ORIGIN || LOCALHOST_RE.test(origin);
+}
 // Keep scalar for backward-compatible default in json() helper
-const ALLOWED_ORIGIN = 'https://aaryaai.dev';
+const ALLOWED_ORIGIN = PROD_ORIGIN;
 const REPO_OWNER = 'ajeetchouksey';
 const REPO_NAME = 'ajch_platform';
 const GH_API = 'https://api.github.com';
@@ -358,7 +358,7 @@ async function handleSignalGet(env: Env, origin: string): Promise<Response> {
   return new Response(JSON.stringify({ total, byContent: data.signals }), {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': ALLOWED_ORIGINS.has(origin) ? origin : ALLOWED_ORIGIN,
+      'Access-Control-Allow-Origin': isAllowedOrigin(origin) ? origin : ALLOWED_ORIGIN,
       'Content-Type': 'application/json',
       'Cache-Control': 'public, max-age=300',
     },
@@ -672,7 +672,7 @@ export default {
 
     // Handle preflight
     if (request.method === 'OPTIONS') {
-      if (!ALLOWED_ORIGINS.has(origin)) return new Response(null, { status: 403 });
+      if (!isAllowedOrigin(origin)) return new Response(null, { status: 403 });
       return new Response(null, { status: 204, headers: corsHeadersFor(origin) });
     }
 
@@ -684,7 +684,7 @@ export default {
 
     // Signal total — simple GET, no preflight; open to allowed origins only
     if (pathname === '/api/signal/total' && request.method === 'GET') {
-      if (!ALLOWED_ORIGINS.has(origin)) return new Response('Forbidden', { status: 403 });
+      if (!isAllowedOrigin(origin)) return new Response('Forbidden', { status: 403 });
       return handleSignalGet(env, origin);
     }
 
@@ -693,7 +693,7 @@ export default {
     }
 
     // CORS enforcement (browser clients only; servers always bypass CORS)
-    if (!ALLOWED_ORIGINS.has(origin)) {
+    if (!isAllowedOrigin(origin)) {
       return new Response('Forbidden', { status: 403 });
     }
 
