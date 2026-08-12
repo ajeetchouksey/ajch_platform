@@ -1,6 +1,10 @@
 import type { Question, Scenario, ExamRegistry, BlogManifest } from '../types/content';
-
-const BASE = import.meta.env.BASE_URL;
+import {
+  ensureContentManifestLoaded,
+  resolveContentUrl,
+  validateSchemaCompatibility,
+  verticalFromContentPath,
+} from './content-manifest';
 
 // ── Module-level registry cache (loaded once) ──────────────────────────────
 let _registryCache: ExamRegistry | null = null;
@@ -8,19 +12,29 @@ let _blogManifestCache: BlogManifest | null = null;
 const _blogPostCache = new Map<string, string>();
 
 async function fetchJSON<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`);
+  await ensureContentManifestLoaded();
+  const url = resolveContentUrl(path);
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
-  return res.json() as Promise<T>;
+  const json = await res.json() as T;
+  validateSchemaCompatibility(verticalFromContentPath(path), json);
+  return json;
 }
 
 async function fetchJSONFresh<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, { cache: 'no-store' });
+  await ensureContentManifestLoaded();
+  const url = resolveContentUrl(path);
+  const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
-  return res.json() as Promise<T>;
+  const json = await res.json() as T;
+  validateSchemaCompatibility(verticalFromContentPath(path), json);
+  return json;
 }
 
 async function fetchText(path: string): Promise<string> {
-  const res = await fetch(`${BASE}${path}`);
+  await ensureContentManifestLoaded();
+  const url = resolveContentUrl(path);
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
   return res.text();
 }

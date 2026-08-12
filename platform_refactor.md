@@ -23,12 +23,12 @@ Tracks execution against this plan. Update as items land.
 |---|---|---|---|
 | 2026-08-12 | `workers/subscribe.ts` given its own `tsconfig.worker.json` (ES2022 lib, `@cloudflare/workers-types`) instead of inheriting the app's DOM-lib config; fixed `KVNamespace`/`BufferSource` type errors | C (adjacent hardening) | ✅ Done — pending `npm install` to fetch the new devDependency |
 | 2026-08-12 | Resolved all 3 open questions (interview build-script placement, Pathways/Platform Docs staying in core, Track D announcement readiness criteria) | B / D | ✅ Done |
-| 2026-08-12 | C2 rate-limiter consolidation — merged `checkRateLimit` + `checkMentorRateLimit` into one `checkWindowedRateLimit(env, keyPrefix, ip, {max})`. `checkSignalRateLimit` left untouched (structurally different: existence-based dedup lock, not a windowed counter — forcing it into the same shape would add a mode flag, not remove duplication). Zero call-site changes; same KV key format/TTL/thresholds preserved | C | ✅ Done |
+| 2026-08-12 | C2 rate-limiter consolidation — merged `checkRateLimit` + `checkMentorRateLimit` into one `checkWindowedRateLimit(env, keyPrefix, ip, {max})`. `checkSignalRateLimit` left untouched (structurally different: existence-based dedup lock, not a windowed counter — forcing it into the same shape would add a mode flag, not remove duplication). Zero call-site changes; same KV key format/TTL/thresholds preserved, and the worker build is now green | C | ✅ Done |
 | 2026-08-12 | Formalized `schemaVersion` architecture (integer not semver; dual-location in vertical content + manifest; loader hard-checks live fetched content, not just manifest copy) into Track B step 2 and Track C, C5 | B / C | ✅ Done |
 | 2026-08-12 | Added Release Plan section — this initiative ships as **v4.0.0**, tracked via `refactor_v4`-labeled issues under a `v4.0.0` milestone | — | ✅ Doc updated — issue/label/milestone creation pending GitHub write-tool access |
 | 2026-08-12 | Created `refactor_v4` label, `v4.0.0` milestone (#10), and filed all 5 Phase 0 issues (#389–393) | B | ✅ Done |
-| — | Track B Phase 0 foundation (manifest, resolver, sync script, promote action) | B | Not started |
-| — | C6 ADRs (`docs/adr/`) | C | Not started |
+| 2026-08-12 | Completed Track B Phase 0 foundation: root `content-manifest.json`, resolver hydration + schema guard, sync script, promotion workflow, and ADR record | B | ✅ Done |
+| 2026-08-12 | Added first ADR: `docs/adr/0001-content-split-cdn-fetch.md` | C | ✅ Done |
 
 ---
 
@@ -276,8 +276,10 @@ flowchart TD
 
 - `content-manifest.json` — new, root of `ajch_platform`
 - `src/lib/content-loader.ts` — per-vertical base resolver + schema version check
+- `src/lib/content-manifest.ts` — runtime manifest hydration + supported-version guard
 - `scripts/validate-content.mjs` — becomes the canonical synced copy
 - `scripts/sync-vertical-repo.mjs` — new, agent + tooling sync
+- `.github/workflows/promote-content.yml` — new promotion workflow for pinned-SHA content promotion
 - `workers/subscribe.ts` — rate-limiter consolidation, concern-based file split
 - `.github/CODEOWNERS` — add `content-manifest.json`, remove migrated verticals' old lines
 - `.github/workflows/agents-validate.yml` — extend to cross-repo agent registry aggregation
