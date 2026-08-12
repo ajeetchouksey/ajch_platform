@@ -28,28 +28,37 @@ export function GrowthPrompt() {
     };
 
     // Fallback: reward genuine engagement (scrolled halfway) after a minimum
-    // dwell time, for pages/users that never touch ContentFeedback.
+    // dwell time, for pages/users that never touch ContentFeedback. The scroll
+    // position and the dwell timer are checked independently so a user who
+    // scrolls past 50% early and then stops still triggers the prompt once
+    // the dwell time elapses.
     const start = Date.now();
+    let scrolledPast50 = false;
     const onScroll = () => {
       const scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight || 1);
-      if (scrolled >= 0.5 && Date.now() - start >= 15_000) {
-        show();
-        window.removeEventListener('scroll', onScroll);
+      if (scrolled >= 0.5) {
+        scrolledPast50 = true;
+        if (Date.now() - start >= 15_000) {
+          show();
+          window.removeEventListener('scroll', onScroll);
+        }
       }
     };
     window.addEventListener('scroll', onScroll, { passive: true });
+    const dwellTimeout = window.setTimeout(() => {
+      if (scrolledPast50) {
+        show();
+        window.removeEventListener('scroll', onScroll);
+      }
+    }, 15_000);
 
     // Earned trigger: user just said this content was helpful.
-    let earnedTimeout: number | undefined;
     const unsubscribe = onContentHelpful(() => {
-      earnedTimeout = window.setTimeout(() => {
-        show();
-        window.removeEventListener('scroll', onScroll);
-      }, 1_200); // small delay so it doesn't feel like an interruption
+      window.setTimeout(show, 1_200); // small delay so it doesn't feel like an interruption
     });
 
     return () => {
-      if (earnedTimeout) window.clearTimeout(earnedTimeout);
+      window.clearTimeout(dwellTimeout);
       window.removeEventListener('scroll', onScroll);
       unsubscribe();
     };
