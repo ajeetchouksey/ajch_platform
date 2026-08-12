@@ -420,11 +420,12 @@ Write-Host "Created issues: $($createdNumbers -join ', ')"
 Write-Host "Now linking as sub-issues of #$PARENT..."
 
 foreach ($n in $createdNumbers) {
+  $id = (gh api "repos/$Repo/issues/$n" --jq '.id').Trim()
   $result = gh api `
     --method POST `
     "repos/$Repo/issues/$PARENT/sub_issues" `
-    -f sub_issue_id=$n 2>&1
-  Write-Host "  Linked #$n → parent #$PARENT : $result"
+    -f sub_issue_id=$id 2>&1
+  Write-Host "  Linked #$n (db_id=$id) → parent #$PARENT : $result"
   Start-Sleep -Milliseconds 300
 }
 
