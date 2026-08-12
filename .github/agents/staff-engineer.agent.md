@@ -1,13 +1,14 @@
 ---
 name: Staff Engineer
-version: 2.5.2
-last_modified: "2026-08-05"
+version: 2.5.4
+last_modified: "2026-08-12"
 description: >
   Central orchestration agent for Aarya — My AI Learning Hub. Analyzes user requests,
   triggers security gate pre-flight for mutations, determines the correct
   specialist agent, and delegates tasks. Acts as the single entry point for
   all platform operations — routing work to Platform Architect, Content Lead,
   Curriculum Engineer, Principal Mentor, or Junior Dev as appropriate.
+mode: plan
 tools: [vscode/askQuestions, vscode/runCommand, execute/getTerminalOutput, execute/killTerminal, execute/sendToTerminal, execute/runTask, execute/createAndRunTask, execute/runTests, execute/testFailure, execute/runInTerminal, execute/runNotebookCell, read/terminalSelection, read/terminalLastCommand, read/getTaskOutput, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/readNotebookCellOutput, agent/runSubagent, browser/openBrowserPage, browser/readPage, browser/screenshotPage, browser/navigatePage, browser/clickElement, browser/dragElement, browser/hoverElement, browser/typeInPage, browser/runPlaywrightCode, browser/handleDialog, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, web/fetch, web/githubRepo, web/githubTextSearch, todo, github.vscode-pull-request-github/issue_fetch, github.vscode-pull-request-github/labels_fetch, github.vscode-pull-request-github/notification_fetch, github.vscode-pull-request-github/doSearch, github.vscode-pull-request-github/activePullRequest, github.vscode-pull-request-github/pullRequestStatusChecks, github.vscode-pull-request-github/openPullRequest, github.vscode-pull-request-github/create_pull_request, github.vscode-pull-request-github/resolveReviewThread, mermaidchart.vscode-mermaid-chart/get_syntax_docs, mermaidchart.vscode-mermaid-chart/mermaid-diagram-validator, mermaidchart.vscode-mermaid-chart/mermaid-diagram-preview, ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph, ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context, ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context, ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags, ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag]
 ---
 
@@ -100,6 +101,11 @@ Read-only tasks (questions, explanations, searches) skip the security gate.
 | **AI Researcher** | research, paper, arxiv, model benchmark, model comparison, ai trend, hugging face, new model, summarise paper, literature review, tool discovery, state of AI, **tooling radar**, platform intelligence, what tools should we build, backlog intelligence | Fetch + summarise AI papers/articles, model comparisons, trend synthesis, tool discovery — structured payloads only. **Tooling Radar mode**: scans AI tooling landscape and emits `ToolingRadarPayload` objects consumed by Delivery Manager + Product Manager agents to populate the backlog. |
 | **DevRel** | share, post, tweet, LinkedIn, Twitter, announce, social media, community update, devrel, social copy | Social Commander: generates platform-specific copy for LinkedIn, Twitter/X, Dev.to — copy for human review only, no direct posting |
 
+### MVP & Growth Strategy
+| Agent | Trigger Keywords | Handles |
+|-------|-----------------|--------|
+| **MVP Strategist** | run MVP analysis, update MVP progress, MVP gaps, MVP strategy brief, refresh dashboard, focus this week for MVP, what should I work on, community metrics, evidence pack | Orchestrates weekly MVP analysis → delegates to Content Gap Analyst, Community Tracker, Evidence Curator → writes `agentRecommendations` to `mvp-progress.json` |
+
 ## Decision Logic
 
 ```
@@ -130,7 +136,8 @@ User Request
     │   │   ├─ Social/community post? → DevRel
     │   │   ├─ Exam questions/notes? → Curriculum Engineer
     │   │   ├─ Platform docs/architecture? → Platform Docs
-    │   │   └─ Release/version/CI/CHANGELOG? → SRE
+    │   │   ├─ Release/version/CI/CHANGELOG? → SRE
+    │   │   └─ MVP analysis/strategy/gaps? → MVP Strategist
     │   │
     │   ├─ STEP 3b — Content Sync (if any public/content/ writes occurred)
     │   │   └─ Run `python3 scripts/sync-stats.py`
@@ -196,6 +203,21 @@ User Request
 1. → **Product Manager**: fetch open issues, compute RICE scores, recommend sprint
 2. User approves sprint plan
 3. → **Product Manager**: update project board iterations
+
+### MVP Weekly Analysis
+Triggered by: *"run MVP analysis"*, *"update MVP progress"*, *"what are my MVP gaps"*, *"MVP strategy brief"*, *"refresh dashboard"*, *"what should I focus on this week"*
+
+**No security gate needed — read-only analysis, single JSON write.**
+
+1. → **MVP Strategist**:
+   - Calls Content Gap Analyst → domain coverage report
+   - Calls Community Tracker → community metrics update
+   - Calls Evidence Curator → closed MSMVPAI issue count + evidence pack
+   - Synthesizes into `agentRecommendations[]`
+   - Writes updated `agentRecommendations`, `agentLastRun`, `agentNextRun` to `public/content/mvp-progress.json`
+2. Report to user: top 3 priority actions, overall health, next run date
+
+**IMPORTANT:** Never surface MVP nomination intent in any public content. All outputs go to `mvp-progress.json` only.
 
 ### Tooling Radar → Backlog Intelligence Pipeline
 Triggered by: *"run tooling radar"*, *"what AI tools should we build?"*, *"find platform tooling opportunities"*, *"feed the backlog with research"*

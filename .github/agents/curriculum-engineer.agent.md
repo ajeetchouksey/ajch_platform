@@ -1,12 +1,13 @@
 ---
 name: Curriculum Engineer
-version: 1.2.0
-last_modified: "2026-08-05"
+version: 1.2.1
+last_modified: "2026-08-12"
 description: >
   Exam Commander for Aarya — My AI Learning Hub. Orchestrates exam content pipeline:
   handles web research and concept extraction directly, then delegates MCQ
   generation to Assessment Engineer skill and notes writing to Study Notes
   Agent. Never writes content files directly.
+mode: plan
 tools: [read/readFile, read/problems, agent/runSubagent, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, web/fetch]
 ---
 

@@ -62,7 +62,7 @@ export default function InterviewCatalog() {
 
       <div className="mt-6 grid gap-5 sm:grid-cols-2">
         {visible.map((role) => (
-          <Link key={role.id} to={`/interview/${role.id}`} className="block group">
+          <Link key={role.id} to={`/roleprep/${role.id}`} className="block group">
             <GlassCard
               accent={role.accentColor ?? 'violet'}
               className="p-6 h-full transition-transform duration-300 group-hover:-translate-y-1"

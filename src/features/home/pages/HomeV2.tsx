@@ -11,7 +11,6 @@ import {
 import {
   PulsingDot,
 } from '@/components/ui';
-import { StarRepo } from '@/components/StarRepo';
 
 
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
@@ -186,6 +185,16 @@ export default function HomeV2() {
   const [ghRepo, setGhRepo] = useState<GitHubRepoStats | null>(null);
   useEffect(() => { fetchGitHubRepo().then(setGhRepo).catch(() => {}); }, []);
 
+  const [signalTotal, setSignalTotal] = useState<number | null>(null);
+  useEffect(() => {
+    const url = import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined;
+    if (!url) return;
+    fetch(`${url}/api/signal/total`)
+      .then(r => r.json() as Promise<{ total: number }>)
+      .then(d => setSignalTotal(d.total))
+      .catch(() => {});
+  }, []);
+
   const [sessions, setSessions] = useState<ReturnType<typeof getSessions>>([]);
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setSessions(getSessions().filter(s => !!s.finishedAt)); }, []);
@@ -296,7 +305,6 @@ export default function HomeV2() {
                 style={{ background: 'rgba(30,41,59,0.6)', border: '1px solid rgba(71,85,105,0.35)' }}>
                 <BookOpen size={15} /> See the Builder Roadmap
               </button>
-              <StarRepo />
             </div>
 
 
@@ -359,7 +367,7 @@ export default function HomeV2() {
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § PAGE VIEWS — GA4 activity strip
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      {pStats?.pageViews?.total != null && pStats.pageViews.total > 0 && (
+      {(pStats?.pageViews?.total ?? 0) > 0 || ghRepo != null || signalTotal != null ? (
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
         style={{ transitionDelay: '80ms' }}>
         <div className="rounded-2xl px-6 py-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
@@ -368,18 +376,20 @@ export default function HomeV2() {
             border: '1px solid rgba(139,92,246,0.15)',
           }}>
           {/* Page views since May 1 */}
-          <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
-            <Eye size={13} className="text-violet-400" />
-            <span className="text-white font-bold">{pStats.pageViews.total.toLocaleString()}</span>
-            &nbsp;views
-          </span>
+          {(pStats?.pageViews?.total ?? 0) > 0 && (
+            <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+              <Eye size={13} className="text-violet-400" />
+              <span className="text-white font-bold">{(pStats?.pageViews?.total ?? 0).toLocaleString()}</span>
+              &nbsp;views
+            </span>
+          )}
           {ghRepo != null && ghRepo.stars > 0 && (
             <>
-              <span className="text-slate-600 text-[12px]">·</span>
+              {(pStats?.pageViews?.total ?? 0) > 0 && <span className="text-slate-600 text-[12px]">·</span>}
               <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
                 <span style={{ color: '#fbbf24' }}>⭐</span>
                 <span className="text-white font-bold">{ghRepo.stars.toLocaleString()}</span>
-                &nbsp;stars
+                &nbsp;GitHub stars
               </span>
             </>
           )}
@@ -393,9 +403,19 @@ export default function HomeV2() {
               </span>
             </>
           )}
+          {signalTotal != null && (
+            <>
+              <span className="text-slate-600 text-[12px]">·</span>
+              <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+                <span style={{ color: '#f472b6' }}>♥</span>
+                <span className="text-white font-bold">{signalTotal}</span>
+                &nbsp;found helpful
+              </span>
+            </>
+          )}
         </div>
       </section>
-      )}
+      ) : null}
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § FEATURES — what's on the platform
@@ -847,7 +867,6 @@ export default function HomeV2() {
                     style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.28)', color: '#34d399' }}>
                     <GitBranch size={12} /> Fork on GitHub
                   </a>
-                  <StarRepo />
                   <a href="https://github.com/ajeetchouksey/ajch_platform/subscription" target="_blank" rel="noreferrer"
                     className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-black rounded-xl transition-all duration-200 hover:-translate-y-0.5"
                     style={{ background: 'rgba(56,189,248,0.10)', border: '1px solid rgba(56,189,248,0.25)', color: '#38bdf8' }}>

@@ -13,6 +13,7 @@ import type { FocusTimer } from '@/lib/study-tracker';
 import type { DomainConfig, ExamConfig } from '@/types/content';
 import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
+import { ContentFeedback } from '@/components/ContentFeedback';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
@@ -876,6 +877,7 @@ export default function Notes() {
             <MessageSquare size={16} className="text-violet-400" />
             <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Community Discussion</h2>
           </div>
+          <ContentFeedback contentId={`${examId}-domain-${domain}`} />
           <GiscusComments
             slug={`${examId}-domain-${domain}`}
             context="skill-up"

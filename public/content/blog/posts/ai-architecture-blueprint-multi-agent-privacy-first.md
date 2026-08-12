@@ -8,7 +8,7 @@ excerpt: "Most AI projects fail not because the model is weak—but because the 
 tags: ["ai-architecture", "multi-agent", "privacy", "production", "llm", "agents", "observability"]
 category: "Engineering"
 readingTime: 8
-featured: false
+featured: true
 draft: false
 ---
 

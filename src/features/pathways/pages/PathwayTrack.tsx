@@ -320,7 +320,7 @@ function ArticleCard({
 
         {/* ── CTA button (SkillUp-style gradient button) */}
         <Link
-          to={`/horizons/${track}/${article.slug}`}
+          to={`/discovery/${track}/${article.slug}`}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
           style={{
             background: `linear-gradient(135deg, ${trackColor}, ${trackColor}cc)`,
@@ -349,7 +349,7 @@ export default function PathwayTrack() {
   const Icon = meta.icon;
 
   useMeta({
-    title: `${meta.label} — Horizons`,
+    title: `${meta.label} — Discovery`,
     description: meta.description,
   });
 
@@ -440,7 +440,7 @@ export default function PathwayTrack() {
             Want to explore a different audience track?
           </p>
           <Link
-            to="/horizons"
+            to="/discovery"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all hover:-translate-y-0.5"
             style={{
               color: meta.color,
@@ -448,7 +448,7 @@ export default function PathwayTrack() {
               border: `1px solid ${meta.border}`,
             }}
           >
-            All Horizons <ArrowRight size={13} />
+            All Discovery <ArrowRight size={13} />
           </Link>
         </div>
       </section>

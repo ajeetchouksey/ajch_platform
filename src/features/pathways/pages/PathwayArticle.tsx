@@ -289,7 +289,7 @@ export default function PathwayArticle() {
   const displayTitle = article?.title ?? fallbackTitle;
 
   useMeta({
-    title: `${displayTitle} — Horizons`,
+    title: `${displayTitle} — Discovery`,
     description: article?.excerpt,
   });
 
@@ -333,7 +333,7 @@ export default function PathwayArticle() {
               {/* Track + difficulty badges */}
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 <Link
-                  to={`/horizons/${trackId}`}
+                  to={`/discovery/${trackId}`}
                   className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-full transition-opacity hover:opacity-80"
                   style={{ color: meta.color, background: meta.bg, border: `1px solid ${meta.border}` }}
                 >
@@ -531,7 +531,7 @@ export default function PathwayArticle() {
               style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid ${meta.border}` }}>
               <div className="h-[2px] rounded-full mb-3" style={{ background: `linear-gradient(90deg,${meta.color},transparent)` }} />
               <Link
-                to={`/horizons/${trackId}`}
+                to={`/discovery/${trackId}`}
                 className="flex items-center gap-2 mb-3 group"
               >
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center"
@@ -627,7 +627,7 @@ export default function PathwayArticle() {
                   {article.related.map(rel => (
                     <Link
                       key={rel.slug}
-                      to={`/horizons/${rel.track}/${rel.slug}`}
+                      to={`/discovery/${rel.track}/${rel.slug}`}
                       className="block text-[11px] leading-snug text-slate-400 hover:text-white transition-colors py-1"
                     >
                       {rel.title}
