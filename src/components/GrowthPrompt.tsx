@@ -40,11 +40,16 @@ export function GrowthPrompt() {
     window.addEventListener('scroll', onScroll, { passive: true });
 
     // Earned trigger: user just said this content was helpful.
+    let earnedTimeout: number | undefined;
     const unsubscribe = onContentHelpful(() => {
-      setTimeout(show, 1_200); // small delay so it doesn't feel like an interruption
+      earnedTimeout = window.setTimeout(() => {
+        show();
+        window.removeEventListener('scroll', onScroll);
+      }, 1_200); // small delay so it doesn't feel like an interruption
     });
 
     return () => {
+      if (earnedTimeout) window.clearTimeout(earnedTimeout);
       window.removeEventListener('scroll', onScroll);
       unsubscribe();
     };
