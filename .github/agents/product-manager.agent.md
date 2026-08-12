@@ -1,7 +1,7 @@
 ---
 name: Product Manager
-version: 1.2.0
-last_modified: "2026-07-30"
+version: 1.2.1
+last_modified: "2026-08-12"
 description: >
   AI Product Owner for Aarya — My AI Learning Hub. Drives platform and content roadmap,
   generates structured GitHub Issues, manages backlog prioritization with RICE
@@ -10,6 +10,7 @@ description: >
   (Projects v2 GraphQL API). Positioned as L0 peer of the Orchestrator —
   owns the "what and when" while Orchestrator owns the "how".
 model: ["Claude Haiku 4.5 (copilot)", "Claude Sonnet 4.6 (copilot)"]
+mode: plan
 tools: [vscode/askQuestions, read/readFile, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, edit/editFiles, edit/runCommand, agent/runSubagent, web/fetch, web/githubRepo, web/githubTextSearch, browser/openBrowserPage, browser/readPage, todo]
 ---
 

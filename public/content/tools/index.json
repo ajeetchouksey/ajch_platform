@@ -1,0 +1,13 @@
+{
+  "tools": [
+    { "id": "system-prompt-builder", "label": "System Prompt Builder", "category": "prompting", "href": "/tools/system-prompt-builder" },
+    { "id": "token-counter",         "label": "Token Counter",          "category": "tokens",    "href": "/tools/token-counter" },
+    { "id": "context-visualizer",    "label": "Context Visualizer",     "category": "tokens",    "href": "/tools/context-visualizer" },
+    { "id": "mcp-scaffold",          "label": "MCP Scaffold",           "category": "mcp",       "href": "/tools/mcp-scaffold" },
+    { "id": "model-cost-calc",       "label": "Model Cost Calculator",  "category": "cost",      "href": "/tools/model-cost-calc" },
+    { "id": "tool-schema-builder",   "label": "Tool Schema Builder",    "category": "mcp",       "href": "/tools/tool-schema-builder" },
+    { "id": "rag-chunk-visualizer",  "label": "RAG Chunk Visualizer",   "category": "tokens",    "href": "/tools/rag-chunk-visualizer" },
+    { "id": "prompt-tester",         "label": "Prompt Tester",          "category": "prompting", "href": "/tools/prompt-tester" },
+    { "id": "prompt-library",        "label": "Prompt Library",         "category": "prompting", "href": "/tools/prompt-library" }
+  ]
+}

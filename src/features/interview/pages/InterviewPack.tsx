@@ -89,7 +89,7 @@ export default function InterviewPack() {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <p className="text-sm text-rose-300">{error}</p>
-        <Link to="/interview" className="mt-4 inline-flex items-center gap-1 text-sm text-violet-300">
+        <Link to="/roleprep" className="mt-4 inline-flex items-center gap-1 text-sm text-violet-300">
           <ArrowLeft size={14} /> Back to Interview Prep
         </Link>
       </div>
@@ -100,7 +100,7 @@ export default function InterviewPack() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-      <Link to="/interview" className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200 mb-6">
+      <Link to="/roleprep" className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200 mb-6">
         <ArrowLeft size={13} /> Interview Prep
       </Link>
 
@@ -214,7 +214,7 @@ export default function InterviewPack() {
       {/* Question list */}
       <div className="space-y-3">
         {filtered.map((item) => (
-          <Link key={item.id} to={`/interview/q/${item.id}`} className="block group">
+          <Link key={item.id} to={`/roleprep/q/${item.id}`} className="block group">
             <GlassCard className="p-5 transition-transform duration-200 group-hover:-translate-y-0.5" border="border-slate-700/40">
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <Badge label={item.type} variant={TYPE_VARIANT[item.type] ?? 'slate'} size="xs" uppercase />
