@@ -20,7 +20,7 @@ import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordH
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
-// Known portal authors → internal profile route; others fall back to GitHub search
+// Known portal authors → internal profile route; used only when authorGitHub is absent
 const AUTHOR_PORTAL: Record<string, string> = {
   'Ajeet Chouksey': '/profile',
   'Ajeet Kumar Chouksey': '/profile',
@@ -131,7 +131,7 @@ function TocSidebar({
 }) {
   const pal = CAT_PALETTE[meta.category] ?? { color: '#94a3b8', bg: 'rgba(30,41,59,0.5)', border: 'rgba(71,85,105,0.3)' };
   const activeIdx = headings.findIndex(h => h.id === activeId);
-  const authorHref = AUTHOR_PORTAL[meta.author];
+  const authorHref = !meta.authorGitHub ? AUTHOR_PORTAL[meta.author] : undefined;
   return (
     <aside className="hidden lg:flex flex-col w-[200px] xl:w-[220px] 2xl:w-[240px] shrink-0 sticky top-4 self-start max-h-[calc(100vh-5rem)]">
       <div className="flex flex-col gap-3 overflow-y-auto pb-4"
@@ -183,24 +183,46 @@ function TocSidebar({
             </span>
           )}
           <div className="flex items-center gap-2">
-            <User size={10} className="shrink-0 text-slate-500" />
-            {authorHref ? (
-              <Link to={authorHref}
-                className="text-[11px] transition-colors"
-                style={{ color: '#94a3b8' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#a78bfa')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#94a3b8')}>
-                {meta.author}
-              </Link>
+            {meta.authorGitHub ? (
+              <>
+                <img
+                  src={`https://github.com/${meta.authorGitHub}.png?size=32`}
+                  alt=""
+                  className="w-5 h-5 rounded-full shrink-0"
+                  loading="lazy"
+                />
+                <a href={`https://github.com/${meta.authorGitHub}`}
+                  target="_blank" rel="noopener noreferrer"
+                  className="text-[11px] transition-colors"
+                  style={{ color: '#94a3b8' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#a78bfa')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#94a3b8')}>
+                  {meta.author}
+                </a>
+              </>
+            ) : authorHref ? (
+              <>
+                <User size={10} className="shrink-0 text-slate-500" />
+                <Link to={authorHref}
+                  className="text-[11px] transition-colors"
+                  style={{ color: '#94a3b8' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#a78bfa')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#94a3b8')}>
+                  {meta.author}
+                </Link>
+              </>
             ) : (
-              <a href={`https://github.com/search?q=${encodeURIComponent(meta.author)}&type=users`}
-                target="_blank" rel="noopener noreferrer"
-                className="text-[11px] transition-colors"
-                style={{ color: '#94a3b8' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#38bdf8')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#94a3b8')}>
-                {meta.author}
-              </a>
+              <>
+                <User size={10} className="shrink-0 text-slate-500" />
+                <a href={`https://github.com/search?q=${encodeURIComponent(meta.author)}&type=users`}
+                  target="_blank" rel="noopener noreferrer"
+                  className="text-[11px] transition-colors"
+                  style={{ color: '#94a3b8' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#38bdf8')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#94a3b8')}>
+                  {meta.author}
+                </a>
+              </>
             )}
           </div>
           <div className="flex items-center gap-2 text-slate-500">
@@ -511,7 +533,22 @@ export default function BlogPost() {
               {/* Meta row */}
               <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-500 pb-5"
                 style={{ borderBottom: '1px solid rgba(71,85,105,0.20)' }}>
-                <span className="flex items-center gap-1.5"><User size={12} /> {meta.author}</span>
+                {meta.authorGitHub ? (
+                  <a
+                    href={`https://github.com/${meta.authorGitHub}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 hover:text-violet-400 transition-colors">
+                    <img
+                      src={`https://github.com/${meta.authorGitHub}.png?size=32`}
+                      alt=""
+                      className="w-5 h-5 rounded-full"
+                      loading="lazy"
+                    />
+                    {meta.author}
+                  </a>
+                ) : (
+                  <span className="flex items-center gap-1.5"><User size={12} /> {meta.author}</span>
+                )}
                 <span className="flex items-center gap-1.5">
                   <Calendar size={12} />
                   {new Date(meta.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}

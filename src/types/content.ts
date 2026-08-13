@@ -166,6 +166,8 @@ export interface BlogPostMeta {
   title: string;
   excerpt: string;
   author: string;
+  /** GitHub username — used for avatar and profile link */
+  authorGitHub?: string;
   date: string;
   updated: string | null;
   tags: string[];

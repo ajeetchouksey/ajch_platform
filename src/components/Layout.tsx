@@ -44,7 +44,7 @@ const platformLinks = [
   { to: '/usecases', label: 'Use Cases', icon: Building2 },
   { to: '/tools', label: 'Tools', icon: Wrench },
   { to: '/docs', label: 'Docs', icon: BookOpen, topNavHidden: true },
-  { to: '/contribute', label: 'Contribute', icon: GitPullRequest, topNavHidden: true },
+  { to: '/contribute', label: 'Contribute', icon: GitPullRequest },
   { to: '/discovery', label: 'Discovery', icon: Compass },
   { to: '/team', label: 'Team', icon: Users },
   { to: '/profile', label: 'Profile', icon: User, sidebarOnly: true },

@@ -5,9 +5,18 @@
       "title": "The ADLC: A Software Engineering Discipline for AI Agents",
       "excerpt": "SDLC gave software engineering its rigour. AI agents need the same treatment. Here's the Agent Development Life Cycle — six stages that turn agent building from craft into discipline.",
       "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "date": "2026-08-10",
       "updated": null,
-      "tags": ["adlc", "agents", "llmops", "production", "ai-engineering", "evaluation", "observability"],
+      "tags": [
+        "adlc",
+        "agents",
+        "llmops",
+        "production",
+        "ai-engineering",
+        "evaluation",
+        "observability"
+      ],
       "category": "Engineering",
       "readingTime": 9,
       "featured": true,
@@ -18,9 +27,18 @@
       "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
       "excerpt": "Most AI projects fail not because the model is weak—but because the architecture around it is under-designed. Here's the blueprint that fixes that.",
       "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "date": "2026-08-07",
       "updated": null,
-      "tags": ["ai-architecture", "multi-agent", "privacy", "production", "llm", "agents", "observability"],
+      "tags": [
+        "ai-architecture",
+        "multi-agent",
+        "privacy",
+        "production",
+        "llm",
+        "agents",
+        "observability"
+      ],
       "category": "Engineering",
       "readingTime": 8,
       "featured": true,
@@ -31,9 +49,17 @@
       "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
       "excerpt": "LLMs are the brain. Vector databases are the memory. Without this layer, your enterprise AI is answering from guesswork — not from what your business actually knows.",
       "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "date": "2026-07-29",
       "updated": null,
-      "tags": ["vector-database", "rag", "embeddings", "llm", "semantic-search", "enterprise-ai"],
+      "tags": [
+        "vector-database",
+        "rag",
+        "embeddings",
+        "llm",
+        "semantic-search",
+        "enterprise-ai"
+      ],
       "category": "AI Engineering",
       "readingTime": 5,
       "featured": false,
@@ -45,9 +71,17 @@
       "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
       "excerpt": "RAG gave enterprise AI a memory. Agentic RAG gave it a mind. Here is how the two architectures compare, when to use each, and why the gap between them is wider than most teams expect.",
       "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "date": "2026-07-27",
       "updated": null,
-      "tags": ["rag", "agentic-ai", "enterprise-ai", "architecture", "llm", "agents"],
+      "tags": [
+        "rag",
+        "agentic-ai",
+        "enterprise-ai",
+        "architecture",
+        "llm",
+        "agents"
+      ],
       "category": "AI Architecture",
       "readingTime": 9,
       "featured": true,
@@ -59,6 +93,7 @@
       "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
       "excerpt": "Your API returned 200 OK and your users were furious. Here's the three-signal observability model that tells you what actually happened inside the model call — before the bill arrives.",
       "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "date": "2026-07-17",
       "updated": null,
       "tags": [
@@ -79,6 +114,7 @@
       "title": "You're Wasting 60% of Your Context Window",
       "excerpt": "Your agent isn't hallucinating. It's starving. Here's why — and the three-rule fix that engineers actually ship.",
       "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "date": "2026-06-16",
       "updated": null,
       "tags": [
@@ -98,6 +134,7 @@
       "title": "When Your Burger Bot Goes Rogue: A Production Wake-Up Call",
       "excerpt": "Your AI assistant has no idea what its job is — and that's your fault. Here is what broke when an ordering bot started writing Python, and the architecture that stops it.",
       "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "date": "2026-06-15",
       "updated": null,
       "image": "/images/blog/order-bot-domain-boundary.png",
@@ -118,6 +155,7 @@
       "title": "GitHub Governance Isn't a Settings Page — It's a System",
       "excerpt": "Most teams treat GitHub governance as a settings page. The teams that ship safely treat it as a system — versioned, automated, and audited.",
       "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "date": "2025-07-07",
       "updated": null,
       "tags": [
@@ -137,6 +175,7 @@
       "title": "Guardrails Are Not Constraints — They Are the Operating Model",
       "excerpt": "Most AI failures don't start with bad models. They start with good intentions and no guardrails. Here's why accountability is your real operating model.",
       "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "date": "2026-05-22",
       "updated": null,
       "tags": [
@@ -156,6 +195,7 @@
       "title": "Agents Aren't a Feature — They're a New Execution Layer",
       "excerpt": "Most software waits. Agents break that contract. Here's why treating agents as a feature instead of a new execution layer is the most common architectural mistake.",
       "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "date": "2026-05-22",
       "updated": null,
       "tags": [
@@ -170,55 +210,62 @@
       "draft": false
     },
     {
+      "slug": "sqconfig",
+      "title": "Deploy and Configure SonarQube",
+      "excerpt": "Deploy and Configure Sonarqube",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 2,
       "tags": [
         "sonarqube"
       ],
-      "slug": "sqconfig",
       "date": "2020-07-15",
-      "excerpt": "Deploy and Configure Sonarqube",
-      "title": "Deploy and Configure SonarQube",
       "featured": false
     },
     {
+      "slug": "azurebastion",
+      "title": "Azure Bastion",
+      "excerpt": "Private and fully managed remote access to your virtual machines",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 4,
       "tags": [
         "azure",
         "azureexam"
       ],
-      "slug": "azurebastion",
       "date": "2020-05-21",
-      "excerpt": "Private and fully managed remote access to your virtual machines",
-      "title": "Azure Bastion",
       "featured": false
     },
     {
+      "slug": "devopsattitude",
+      "title": "DevOps Attitude",
+      "excerpt": "Concepts and Principal that helps to lay the foundation for success",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 3,
       "tags": [
         "devops"
       ],
-      "slug": "devopsattitude",
       "date": "2020-05-20",
-      "excerpt": "Concepts and Principal that helps to lay the foundation for success",
-      "title": "DevOps Attitude",
       "featured": false
     },
     {
+      "slug": "secazdopipelines",
+      "title": "Secure Secrets in Azure DevOps Pipelines",
+      "excerpt": "Securing Azure DevOps Pipelines using Key Vault",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 4,
       "tags": [
@@ -228,16 +275,17 @@
         "az-400",
         "devsecops"
       ],
-      "slug": "secazdopipelines",
       "date": "2020-04-27",
-      "excerpt": "Securing Azure DevOps Pipelines using Key Vault",
-      "title": "Secure Secrets in Azure DevOps Pipelines",
       "featured": false
     },
     {
+      "slug": "secnwaz",
+      "title": "Securing Azure Network - 101",
+      "excerpt": "Azure Network Security Design Fundamentals",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 6,
       "tags": [
@@ -247,32 +295,34 @@
         "network",
         "architecture"
       ],
-      "slug": "secnwaz",
       "date": "2019-12-02",
-      "excerpt": "Azure Network Security Design Fundamentals",
-      "title": "Securing Azure Network - 101",
       "featured": false
     },
     {
+      "slug": "terrafaform1",
+      "title": "Learn Terraform - 1",
+      "excerpt": "Terraform Learning Notes",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 2,
       "tags": [
         "terraform",
         "iac"
       ],
-      "slug": "terrafaform1",
       "date": "2019-11-27",
-      "excerpt": "Terraform Learning Notes",
-      "title": "Learn Terraform - 1",
       "featured": false
     },
     {
+      "slug": "azdovar",
+      "title": "Manage Azure DevOps Pipelines Variables",
+      "excerpt": "Manage your Azure DevOps pipelines Variables",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 3,
       "tags": [
@@ -280,47 +330,50 @@
         "azure-devops",
         "vsts"
       ],
-      "slug": "azdovar",
       "date": "2019-07-05",
-      "excerpt": "Manage your Azure DevOps pipelines Variables",
-      "title": "Manage Azure DevOps Pipelines Variables",
       "featured": false
     },
     {
+      "slug": "managedeploymenthistory",
+      "title": "Resource Group Deployment History",
+      "excerpt": "Manage Azure Resource Group Deployment History",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
         "arm"
       ],
-      "slug": "managedeploymenthistory",
       "date": "2019-04-15",
-      "excerpt": "Manage Azure Resource Group Deployment History",
-      "title": "Resource Group Deployment History",
       "featured": false
     },
     {
+      "slug": "cibranch",
+      "title": "Enable CI against all Branches",
+      "excerpt": "Enable CI against all Branches",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
         "ci",
         "devops"
       ],
-      "slug": "cibranch",
       "date": "2018-12-29",
-      "excerpt": "Enable CI against all Branches",
-      "title": "Enable CI against all Branches",
       "featured": false
     },
     {
+      "slug": "sqasazurewebapps",
+      "title": "Deploy SonarQube as Azure Web App Container",
+      "excerpt": "Deploy SonarQube as Azure Web App Container",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
@@ -329,32 +382,34 @@
         "azure-sql",
         "iac"
       ],
-      "slug": "sqasazurewebapps",
       "date": "2018-11-13",
-      "excerpt": "Deploy SonarQube as Azure Web App Container",
-      "title": "Deploy SonarQube as Azure Web App Container",
       "featured": false
     },
     {
+      "slug": "vstsextensionsoapui",
+      "title": "VSTS Extension - SOAP UI Test",
+      "excerpt": "VSTS Extension - SOAP UI Test",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 2,
       "tags": [
         "vsts",
         "soap-ui"
       ],
-      "slug": "vstsextensionsoapui",
       "date": "2018-05-31",
-      "excerpt": "VSTS Extension - SOAP UI Test",
-      "title": "VSTS Extension - SOAP UI Test",
       "featured": false
     },
     {
+      "slug": "designscomputeinfra-3",
+      "title": "Design VM Scale Sets - 1",
+      "excerpt": "Design Compute Infrastructure-   Design solutions using virtual machines - design VM Scale Sets",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 4,
       "tags": [
@@ -363,16 +418,17 @@
         "70-533",
         "vm-scale-set"
       ],
-      "slug": "designscomputeinfra-3",
       "date": "2018-04-22",
-      "excerpt": "Design Compute Infrastructure-   Design solutions using virtual machines - design VM Scale Sets",
-      "title": "Design VM Scale Sets - 1",
       "featured": false
     },
     {
+      "slug": "pestertestinvstsci",
+      "title": "Pester Tests in VSTS Build",
+      "excerpt": "IaC Unit Test using Pester Test",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
@@ -380,16 +436,17 @@
         "iac",
         "pestertest"
       ],
-      "slug": "pestertestinvstsci",
       "date": "2018-03-29",
-      "excerpt": "IaC Unit Test using Pester Test",
-      "title": "Pester Tests in VSTS Build",
       "featured": false
     },
     {
+      "slug": "designscomputeinfra-1",
+      "title": "Azure VM Design - 1",
+      "excerpt": "Design Compute Infrastructure-   Design solutions using virtual machines",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 5,
       "tags": [
@@ -397,16 +454,17 @@
         "70-535",
         "70-533"
       ],
-      "slug": "designscomputeinfra-1",
       "date": "2018-03-28",
-      "excerpt": "Design Compute Infrastructure-   Design solutions using virtual machines",
-      "title": "Azure VM Design - 1",
       "featured": false
     },
     {
+      "slug": "designscomputeinfra-2",
+      "title": "Azure VM Design - 2",
+      "excerpt": "Design Compute Infrastructure-   Design solutions using virtual machine",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 4,
       "tags": [
@@ -414,16 +472,17 @@
         "70-535",
         "70-533"
       ],
-      "slug": "designscomputeinfra-2",
       "date": "2018-03-28",
-      "excerpt": "Design Compute Infrastructure-   Design solutions using virtual machine",
-      "title": "Azure VM Design - 2",
       "featured": false
     },
     {
+      "slug": "iacunittestpester",
+      "title": "IaC Unit Test using Pester Test",
+      "excerpt": "IaC Unit Test using Pester Test",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 2,
       "tags": [
@@ -431,16 +490,17 @@
         "iac",
         "pestertest"
       ],
-      "slug": "iacunittestpester",
       "date": "2018-03-26",
-      "excerpt": "IaC Unit Test using Pester Test",
-      "title": "IaC Unit Test using Pester Test",
       "featured": false
     },
     {
+      "slug": "3pdevops-5",
+      "title": "DevOps SonarQube Assessment - 2",
+      "excerpt": "DevOps - Have a look -5",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 4,
       "tags": [
@@ -449,16 +509,17 @@
         "codequality",
         "sonarqube"
       ],
-      "slug": "3pdevops-5",
       "date": "2018-03-20",
-      "excerpt": "DevOps - Have a look -5",
-      "title": "DevOps SonarQube Assessment - 2",
       "featured": false
     },
     {
+      "slug": "3pdevops-4",
+      "title": "DevOps SonarQube Assessment - 1",
+      "excerpt": "DevOps - SonarQube Tool Assessment- 1",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 7,
       "tags": [
@@ -467,16 +528,17 @@
         "codequality",
         "sonarqube"
       ],
-      "slug": "3pdevops-4",
       "date": "2018-03-19",
-      "excerpt": "DevOps - SonarQube Tool Assessment- 1",
-      "title": "DevOps SonarQube Assessment - 1",
       "featured": false
     },
     {
+      "slug": "vstsbuildrel",
+      "title": "VSTS Build and Release Agents",
+      "excerpt": "VSTS Build and Release Agents",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Cloud",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 3,
       "tags": [
@@ -485,16 +547,17 @@
         "vsts",
         "cicd"
       ],
-      "slug": "vstsbuildrel",
       "date": "2018-03-05",
-      "excerpt": "VSTS Build and Release Agents",
-      "title": "VSTS Build and Release Agents",
       "featured": false
     },
     {
+      "slug": "3pdevops-3",
+      "title": "DevOps: Build & Release",
+      "excerpt": "DevOps - Have a look -1",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Cloud",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 4,
       "tags": [
@@ -503,16 +566,17 @@
         "devops",
         "newit"
       ],
-      "slug": "3pdevops-3",
       "date": "2018-02-23",
-      "excerpt": "DevOps - Have a look -1",
-      "title": "DevOps: Build & Release",
       "featured": false
     },
     {
+      "slug": "iaccicdgithub",
+      "title": "IaC Deployment using VSTS Release and GitRepo",
+      "excerpt": "IaC Deployment using VSTS Release and GitRepo",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Cloud",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
@@ -521,64 +585,68 @@
         "vsts",
         "cicd"
       ],
-      "slug": "iaccicdgithub",
       "date": "2018-02-19",
-      "excerpt": "IaC Deployment using VSTS Release and GitRepo",
-      "title": "IaC Deployment using VSTS Release and GitRepo",
       "featured": false
     },
     {
+      "slug": "3pdevops-2",
+      "title": "DevOps Principles - 2",
+      "excerpt": "People, Process, Product  - DevOps",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
         "devops",
         "newit"
       ],
-      "slug": "3pdevops-2",
       "date": "2018-01-31",
-      "excerpt": "People, Process, Product  - DevOps",
-      "title": "DevOps Principles - 2",
       "featured": false
     },
     {
+      "slug": "3pdevops-1",
+      "title": "DevOps Principles - 1",
+      "excerpt": "People, Process, Product  - DevOps",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 5,
       "tags": [
         "devops",
         "newit"
       ],
-      "slug": "3pdevops-1",
       "date": "2018-01-29",
-      "excerpt": "People, Process, Product  - DevOps",
-      "title": "DevOps Principles - 1",
       "featured": false
     },
     {
+      "slug": "vmbackup",
+      "title": "Integration of Azure Backup into VM create experience",
+      "excerpt": "Integration of Azure Backup into VM create experience",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Cloud",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 2,
       "tags": [
         "azure",
         "backup"
       ],
-      "slug": "vmbackup",
       "date": "2018-01-25",
-      "excerpt": "Integration of Azure Backup into VM create experience",
-      "title": "Integration of Azure Backup into VM create experience",
       "featured": false
     },
     {
+      "slug": "azurearchivestoragega",
+      "title": "Azure Archive Storage",
+      "excerpt": "Archive Storage General Availability",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Cloud",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 3,
       "tags": [
@@ -586,16 +654,17 @@
         "storage",
         "backup"
       ],
-      "slug": "azurearchivestoragega",
       "date": "2018-01-19",
-      "excerpt": "Archive Storage General Availability",
-      "title": "Azure Archive Storage",
       "featured": false
     },
     {
+      "slug": "docker-3",
+      "title": "My First Docker Container",
+      "excerpt": "My First Docker Container",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Cloud",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 4,
       "tags": [
@@ -603,96 +672,102 @@
         "docker",
         "azure"
       ],
-      "slug": "docker-3",
       "date": "2018-01-18",
-      "excerpt": "My First Docker Container",
-      "title": "My First Docker Container",
       "featured": false
     },
     {
+      "slug": "vscode-tips",
+      "title": "Manage Azure Virtual Machine in VS Code",
+      "excerpt": "Virtual Machine in VS Code",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Cloud",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
         "vscode",
         "iac"
       ],
-      "slug": "vscode-tips",
       "date": "2018-01-05",
-      "excerpt": "Virtual Machine in VS Code",
-      "title": "Manage Azure Virtual Machine in VS Code",
       "featured": false
     },
     {
+      "slug": "autoshutdownarmvm",
+      "title": "Auto-shutdown RM VM",
+      "excerpt": "Auto-shutdown RM VM",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Cloud",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
         "azure",
         "iac"
       ],
-      "slug": "autoshutdownarmvm",
       "date": "2018-01-04",
-      "excerpt": "Auto-shutdown RM VM",
-      "title": "Auto-shutdown RM VM",
       "featured": false
     },
     {
+      "slug": "docker-2",
+      "title": "Docker Definitions and Taxonomy",
+      "excerpt": "Docker Terminology",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Cloud",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 8,
       "tags": [
         "container",
         "docker"
       ],
-      "slug": "docker-2",
       "date": "2017-12-27",
-      "excerpt": "Docker Terminology",
-      "title": "Docker Definitions and Taxonomy",
       "featured": false
     },
     {
+      "slug": "docker-1",
+      "title": "Docker Overview",
+      "excerpt": "My First Docker Container",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Cloud",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 3,
       "tags": [
         "container",
         "docker"
       ],
-      "slug": "docker-1",
       "date": "2017-12-22",
-      "excerpt": "My First Docker Container",
-      "title": "Docker Overview",
       "featured": false
     },
     {
+      "slug": "dockerforwindows",
+      "title": "Setting up Docker on Windows environment",
+      "excerpt": "Docker for Windows",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
         "docker",
         "container"
       ],
-      "slug": "dockerforwindows",
       "date": "2017-12-22",
-      "excerpt": "Docker for Windows",
-      "title": "Setting up Docker on Windows environment",
       "featured": false
     },
     {
+      "slug": "newit",
+      "title": "NewIT",
+      "excerpt": "NewIT",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 3,
       "tags": [
@@ -700,16 +775,17 @@
         "azure",
         "devops"
       ],
-      "slug": "newit",
       "date": "2017-12-20",
-      "excerpt": "NewIT",
-      "title": "NewIT",
       "featured": false
     },
     {
+      "slug": "container",
+      "title": "Container - It’s all about Application",
+      "excerpt": "Container - It’s all about Application",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 6,
       "tags": [
@@ -718,16 +794,17 @@
         "azure",
         "newit"
       ],
-      "slug": "container",
       "date": "2017-12-20",
-      "excerpt": "Container - It’s all about Application",
-      "title": "Container - It’s all about Application",
       "featured": false
     },
     {
+      "slug": "devopsproject",
+      "title": "DevOps Project in Azure (Public Preview)",
+      "excerpt": "DevOps Project in Azure (Public Preview)",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 2,
       "tags": [
@@ -736,16 +813,17 @@
         "webapps",
         "vsts"
       ],
-      "slug": "devopsproject",
       "date": "2017-12-08",
-      "excerpt": "DevOps Project in Azure (Public Preview)",
-      "title": "DevOps Project in Azure (Public Preview)",
       "featured": false
     },
     {
+      "slug": "iac101-3",
+      "title": "IaC: ARM Template Deployment",
+      "excerpt": "IaC - ARM Template Deployment",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 2,
       "tags": [
@@ -753,31 +831,33 @@
         "iac",
         "devops"
       ],
-      "slug": "iac101-3",
       "date": "2017-12-04",
-      "excerpt": "IaC - ARM Template Deployment",
-      "title": "IaC: ARM Template Deployment",
       "featured": false
     },
     {
+      "slug": "newazurefreeaccount",
+      "title": "New Azure Free Account",
+      "excerpt": "New Azure Free Account",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
         "azure"
       ],
-      "slug": "newazurefreeaccount",
       "date": "2017-12-02",
-      "excerpt": "New Azure Free Account",
-      "title": "New Azure Free Account",
       "featured": false
     },
     {
+      "slug": "iac101-2",
+      "title": "IaC: Deploy-AzureResourceGroup.ps1",
+      "excerpt": "IaC - Deploy-AzureResourceGroup.ps1",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 3,
       "tags": [
@@ -785,16 +865,17 @@
         "iac",
         "devops"
       ],
-      "slug": "iac101-2",
       "date": "2017-11-02",
-      "excerpt": "IaC - Deploy-AzureResourceGroup.ps1",
-      "title": "IaC: Deploy-AzureResourceGroup.ps1",
       "featured": false
     },
     {
+      "slug": "iac101-1",
+      "title": "IaC: Understanding ARM Templates",
+      "excerpt": "IaC - Understand ARM Template",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 7,
       "tags": [
@@ -802,48 +883,51 @@
         "iac",
         "devops"
       ],
-      "slug": "iac101-1",
       "date": "2017-10-17",
-      "excerpt": "IaC - Understand ARM Template",
-      "title": "IaC: Understanding ARM Templates",
       "featured": false
     },
     {
+      "slug": "powershellincloudshell",
+      "title": "PowerShell in CloudShell",
+      "excerpt": "PowerShell in CloudShell",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 5,
       "tags": [
         "azure",
         "powershell"
       ],
-      "slug": "powershellincloudshell",
       "date": "2017-08-31",
-      "excerpt": "PowerShell in CloudShell",
-      "title": "PowerShell in CloudShell",
       "featured": false
     },
     {
+      "slug": "gitvstfvc",
+      "title": "Git v/s TFVC",
+      "excerpt": "Git",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 9,
       "tags": [
         "git",
         "devops"
       ],
-      "slug": "gitvstfvc",
       "date": "2017-08-04",
-      "excerpt": "Git",
-      "title": "Git v/s TFVC",
       "featured": false
     },
     {
+      "slug": "gitwithvsts-1",
+      "title": "Git with VSTS - Part 2- Git Repo",
+      "excerpt": "Git and VSTS",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
@@ -851,31 +935,33 @@
         "git",
         "devops"
       ],
-      "slug": "gitwithvsts-1",
       "date": "2017-08-02",
-      "excerpt": "Git and VSTS",
-      "title": "Git with VSTS - Part 2- Git Repo",
       "featured": false
     },
     {
+      "slug": "psserviceregion",
+      "title": "PowerShell to find service availability across the regions",
+      "excerpt": "PowerShell to find service availability across the regions",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
         "powershell"
       ],
-      "slug": "psserviceregion",
       "date": "2017-07-30",
-      "excerpt": "PowerShell to find service availability across the regions",
-      "title": "PowerShell to find service availability across the regions",
       "featured": false
     },
     {
+      "slug": "gitwithvsts",
+      "title": "Git with VSTS - Part 1",
+      "excerpt": "Git and VSTS",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 4,
       "tags": [
@@ -883,32 +969,34 @@
         "git",
         "devops"
       ],
-      "slug": "gitwithvsts",
       "date": "2017-07-27",
-      "excerpt": "Git and VSTS",
-      "title": "Git with VSTS - Part 1",
       "featured": false
     },
     {
+      "slug": "armtemplates101",
+      "title": "IaC: ARM Templates Fundamentals",
+      "excerpt": "IaC - ARM Templates Fundamentals",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 3,
       "tags": [
         "iac",
         "devops"
       ],
-      "slug": "armtemplates101",
       "date": "2017-07-12",
-      "excerpt": "IaC - ARM Templates Fundamentals",
-      "title": "IaC: ARM Templates Fundamentals",
       "featured": false
     },
     {
+      "slug": "azurevnetusingcli",
+      "title": "Azure VNET provisioning using CLI",
+      "excerpt": "Azure VNET provisioning using CLI",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
@@ -916,16 +1004,17 @@
         "cli",
         "70-533"
       ],
-      "slug": "azurevnetusingcli",
       "date": "2017-07-04",
-      "excerpt": "Azure VNET provisioning using CLI",
-      "title": "Azure VNET provisioning using CLI",
       "featured": false
     },
     {
+      "slug": "azuresqlusingcli",
+      "title": "Azure SQL provisionig using CLI",
+      "excerpt": "Azure SQL provisionig using CLI",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
@@ -933,31 +1022,33 @@
         "cli",
         "70-533"
       ],
-      "slug": "azuresqlusingcli",
       "date": "2017-07-04",
-      "excerpt": "Azure SQL provisionig using CLI",
-      "title": "Azure SQL provisionig using CLI",
       "featured": false
     },
     {
+      "slug": "petyaransomware",
+      "title": "Guidance Concerning Petya Ransomware",
+      "excerpt": "Guidance Concerning Petya Ransomware",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 3,
       "tags": [
         "ransomware"
       ],
-      "slug": "petyaransomware",
       "date": "2017-07-03",
-      "excerpt": "Guidance Concerning Petya Ransomware",
-      "title": "Guidance Concerning Petya Ransomware",
       "featured": false
     },
     {
+      "slug": "dscconfiguration101",
+      "title": "PowerShell DSC - Part 2",
+      "excerpt": "DSC Configuration 101",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
@@ -965,16 +1056,17 @@
         "configuration-management",
         "devops"
       ],
-      "slug": "dscconfiguration101",
       "date": "2016-12-01",
-      "excerpt": "DSC Configuration 101",
-      "title": "PowerShell DSC - Part 2",
       "featured": false
     },
     {
+      "slug": "vsts101",
+      "title": "VSTS 101",
+      "excerpt": "VSTS 101",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "DevOps",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 3,
       "tags": [
@@ -982,31 +1074,33 @@
         "git",
         "devops"
       ],
-      "slug": "vsts101",
       "date": "2016-12-01",
-      "excerpt": "VSTS 101",
-      "title": "VSTS 101",
       "featured": false
     },
     {
+      "slug": "azureapiversions",
+      "title": "Azure API Versions",
+      "excerpt": "Azure API Versions",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
         "powershell"
       ],
-      "slug": "azureapiversions",
       "date": "2016-12-01",
-      "excerpt": "Azure API Versions",
-      "title": "Azure API Versions",
       "featured": false
     },
     {
+      "slug": "iac-vnet",
+      "title": "IaC - 101 - VNET",
+      "excerpt": "VNET provisioning using ARM",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 1,
       "tags": [
@@ -1014,16 +1108,17 @@
         "iac",
         "devops"
       ],
-      "slug": "iac-vnet",
       "date": "2016-10-14",
-      "excerpt": "VNET provisioning using ARM",
-      "title": "IaC - 101 - VNET",
       "featured": false
     },
     {
+      "slug": "psdsc",
+      "title": "PowerShell DSC - Part 1",
+      "excerpt": "PowerShell Desired State Configuration",
+      "author": "Ajeet Chouksey",
+      "authorGitHub": "ajeetchouksey",
       "category": "Azure",
       "updated": null,
-      "author": "Ajeet Chouksey",
       "draft": false,
       "readingTime": 7,
       "tags": [
@@ -1031,10 +1126,7 @@
         "configuration-management",
         "devops"
       ],
-      "slug": "psdsc",
       "date": "2016-07-26",
-      "excerpt": "PowerShell Desired State Configuration",
-      "title": "PowerShell DSC - Part 1",
       "featured": false
     }
   ]
