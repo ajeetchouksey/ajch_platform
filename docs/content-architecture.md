@@ -85,6 +85,18 @@ Once each vertical is independently governed and promoted through the manifest, 
 - Local content remains valid until a vertical is deliberately moved.
 - No vertical is migrated without the manifest + schema validation path being proven first.
 
+## Vertical-agent sync policy
+
+Vertical repos should treat agent instructions and validator files as generated mirrors, not as independent source files.
+
+- The canonical definitions live in the central platform repo, under `.github/agents/` and the synced validator scripts.
+- Each vertical repo receives only the relevant subset via `scripts/sync-vertical-repo.mjs`.
+- Direct edits in a vertical repo are temporary and should be treated as drift; the sync process should overwrite them.
+- Any behavior change or new rule is made once in the central repo, reviewed there, and then propagated out.
+- The vertical repo’s CI should verify that the mirrored files still match the approved central version to prevent duplication and drift.
+
+This keeps one source of truth for agent behavior and ensures the same standards are enforced across all content tracks without copying logic into multiple repos.
+
 ## Summary
 
 The architecture intentionally keeps the existing app working while creating a clear path toward independent, community-friendly content repos. The key idea is simple: nothing becomes live until the manifest says so, and that manifest is always promoted through a reviewed PR.
