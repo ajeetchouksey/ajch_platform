@@ -22,6 +22,8 @@ We will split each vertical into its own public GitHub repository and serve it t
 
 This gives us a single, clear promotion point without requiring submodules, rebuilds, or a repo-wide cutover.
 
+We also treat vertical agent instructions and validator files as generated mirrors rather than independent source files. The canonical definitions live in the central platform repo and are synced into each vertical repo via the standard sync script. This avoids duplicated logic, drift, and conflicting standards across multiple track repos.
+
 ## Consequences
 
 ### Positive

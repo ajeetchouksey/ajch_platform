@@ -225,29 +225,52 @@ async function inviteCollaborator(handle: string, env: Env): Promise<void> {
 // ── Rate limiting (Workers KV — configurable windowed counters) ─────────────
 
 interface WindowRateLimitOptions {
+  keyPrefix: string;
   windowMs: number;
   max: number;
   ttlSeconds?: number;
 }
 
+const RATE_LIMIT_POLICIES = {
+  subscribe: {
+    keyPrefix: 'rl',
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    ttlSeconds: 1800,
+  },
+  mentor: {
+    keyPrefix: 'ml',
+    windowMs: 15 * 60 * 1000,
+    max: 2,
+    ttlSeconds: 1800,
+  },
+  signal: {
+    keyPrefix: 'sg',
+    windowMs: 7 * 24 * 60 * 60 * 1000,
+    max: 1,
+    ttlSeconds: 7 * 24 * 60 * 60,
+  },
+} satisfies Record<string, WindowRateLimitOptions>;
+
 /**
- * Generic windowed rate limiter used by subscribe and mentor endpoints.
- * Keeps the same key format pattern as the previous logic so variable key
- * prefixes remain compatible with the underlying KV bucket strategy.
+ * Generic windowed rate limiter for worker endpoints.
+ * The key uses the same bucket pattern as the legacy implementation, while the
+ * policy itself is centralized so every endpoint enforces a documented limit.
  */
 async function checkWindowedRateLimit(
   env: Env,
-  keyPrefix: string,
   ip: string,
-  { windowMs, max, ttlSeconds }: WindowRateLimitOptions,
+  { keyPrefix, windowMs, max, ttlSeconds }: WindowRateLimitOptions,
+  suffix?: string,
 ): Promise<boolean> {
   const bucket = Math.floor(Date.now() / windowMs);
-  const key = `${keyPrefix}:${ip}:${bucket}`;
+  const key = suffix ? `${keyPrefix}:${ip}:${suffix}:${bucket}` : `${keyPrefix}:${ip}:${bucket}`;
   const ttl = ttlSeconds ?? Math.max(60, Math.ceil(windowMs / 1000) * 2);
 
   try {
     const raw = await env.RATE_LIMITER.get(key);
-    const count = raw ? parseInt(raw, 10) : 0;
+    const parsed = raw !== null && raw !== undefined ? Number(raw) : 0;
+    const count = Number.isFinite(parsed) ? parsed : 0;
     if (count >= max) return false;
     await env.RATE_LIMITER.put(key, String(count + 1), { expirationTtl: ttl });
     return true;
@@ -264,11 +287,7 @@ async function checkWindowedRateLimit(
  * Cloudflare rate limiting should be configured as the primary defence.
  */
 async function checkRateLimit(env: Env, ip: string): Promise<boolean> {
-  return checkWindowedRateLimit(env, 'rl', ip, {
-    windowMs: 15 * 60 * 1000,
-    max: 5,
-    ttlSeconds: 1800,
-  });
+  return checkWindowedRateLimit(env, ip, RATE_LIMIT_POLICIES.subscribe);
 }
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
@@ -361,15 +380,7 @@ async function callAnthropic(system: string, userContent: string, apiKey: string
 
 // ── Signal rate limiting — 1 per IP per contentId per 7 days ───────────────
 async function checkSignalRateLimit(env: Env, ip: string, contentId: string): Promise<boolean> {
-  const key = `sg:${ip}:${contentId}`;
-  try {
-    const exists = await env.RATE_LIMITER.get(key);
-    if (exists !== null) return false;
-    await env.RATE_LIMITER.put(key, '1', { expirationTtl: 604800 });
-    return true;
-  } catch {
-    return true; // fail open
-  }
+  return checkWindowedRateLimit(env, ip, RATE_LIMIT_POLICIES.signal, contentId);
 }
 
 async function handleSignalGet(env: Env, origin: string): Promise<Response> {
@@ -432,11 +443,7 @@ async function handleSignalPost(request: Request, env: Env, origin: string): Pro
 
 // 2 req / 15 min per IP (AI calls are expensive) — same key format (`ml:${ip}:${bucket}`) as before consolidation
 function checkMentorRateLimit(env: Env, ip: string): Promise<boolean> {
-  return checkWindowedRateLimit(env, 'ml', ip, {
-    windowMs: 15 * 60 * 1000,
-    max: 2,
-    ttlSeconds: 1800,
-  });
+  return checkWindowedRateLimit(env, ip, RATE_LIMIT_POLICIES.mentor);
 }
 
 // ── ExamId validation (mirrors src/lib/plan-generator.ts) ────────────────────
