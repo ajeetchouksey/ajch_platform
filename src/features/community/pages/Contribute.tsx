@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { GitPullRequest, ExternalLink, Info, ChevronRight, GraduationCap, Newspaper, Wrench, Download, Eye, EyeOff, Lock, BookMarked } from 'lucide-react';
+import { GitPullRequest, ExternalLink, Info, ChevronRight, GraduationCap, Newspaper, Wrench, Lock, BookMarked, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { GithubLogin } from '@/components/GithubLogin';
 
@@ -180,190 +178,112 @@ function SubmitRow({ canSubmit }: { canSubmit: boolean }) {
   );
 }
 
-// ── Blog helpers ───────────────────────────────────────────────────────────
-function toSlug(t: string): string {
-  return t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-}
-function calcReadingTime(text: string): number {
-  const words = text.trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
-}
-function downloadMd(filename: string, content: string) {
-  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
-}
-
 // ── Tab: Blog ─────────────────────────────────────────────────────────────
-interface BlogDraft {
-  title: string; slug: string; slugManual: boolean;
-  author: string; category: string; tags: string; excerpt: string; content: string;
+interface BlogRequest {
+  title: string; category: string; summary: string; audience: string; whyNow: string; references: string;
 }
-const EMPTY_B: BlogDraft = {
-  title: '', slug: '', slugManual: false, author: '', category: BLOG_CATEGORIES[0],
-  tags: '', excerpt: '', content: '',
-};
+const EMPTY_BR: BlogRequest = { title: '', category: BLOG_CATEGORIES[0], summary: '', audience: '', whyNow: '', references: '' };
 
 function BlogTab({ authorName }: { authorName: string }) {
-  const [d, setD] = useState<BlogDraft>({ ...EMPTY_B, author: authorName });
-  const [preview, setPreview] = useState(false);
+  const [f, setF] = useState<BlogRequest>(EMPTY_BR);
+  const [submitted, setSubmitted] = useState(false);
+  const set = (k: keyof BlogRequest, v: string) => setF(p => ({ ...p, [k]: v }));
 
-  const set = (k: keyof BlogDraft, v: string) =>
-    setD(prev => {
-      const next = { ...prev, [k]: v };
-      if (k === 'title' && !prev.slugManual) next.slug = toSlug(v);
-      if (k === 'slug') next.slugManual = true;
-      return next;
-    });
+  const canSubmit =
+    f.title.trim().length >= 10 &&
+    f.summary.trim().length >= 50 &&
+    f.audience.trim().length >= 5 &&
+    f.whyNow.trim().length >= 20;
 
-  const today = new Date().toISOString().slice(0, 10);
-  const readingTime = calcReadingTime(d.content);
-  const wordCount = d.content.trim().split(/\s+/).filter(Boolean).length;
-  const tagArr = d.tags.split(',').map(t => t.trim()).filter(Boolean);
-  const autoExcerpt = d.excerpt || d.content.replace(/^#+.*$/m, '').trim().split(/\n\n/)[0]?.slice(0, 200) || '';
-  const canAct = d.title.trim().length >= 5 && d.slug.length >= 3 && d.content.trim().length >= 100;
-
-  function buildFrontmatter(): string {
-    const tagsYaml = tagArr.map(t => `"${t}"`).join(', ');
-    return [
-      '---',
-      `title: "${d.title.replace(/"/g, "'")}"`,
-      `date: "${today}"`,
-      `slug: ${d.slug}`,
-      `excerpt: "${autoExcerpt.replace(/"/g, "'").slice(0, 200)}"`,
-      `tags: [${tagsYaml}]`,
-      `category: "${d.category}"`,
-      `readingTime: ${readingTime}`,
-      `author: "${d.author}"`,
-      `draft: true`,
-      '---',
-      '',
-    ].join('\n');
-  }
-
-  function handleDownload() {
-    downloadMd(`${d.slug}.md`, buildFrontmatter() + d.content);
-  }
-
-  function handleIssue() {
-    const fm = buildFrontmatter();
-    const preview100 = d.content.slice(0, 1800) + (d.content.length > 1800 ? '\n\n*[truncated — download the file for full content]*' : '');
+  function handleSubmit() {
     const body = [
-      '## Blog Post Submission', '',
-      `**Target file**: \`public/content/blog/posts/${d.slug}.md\``,
-      `**Author**: ${d.author}  **Category**: ${d.category}  **Tags**: ${tagArr.join(', ')}`,
-      '', '### Generated Frontmatter', '```yaml', fm, '```',
-      '', '### Content Preview', '', preview100,
-      '', '---',
-      '- [ ] Content is original and not copy-pasted verbatim',
-      '- [ ] At least one code block, diagram, or concrete example included',
-      '- [ ] Linked sources / references are accurate',
+      '## Blog Post Request', '',
+      '| Field | Value |', '|---|---|',
+      `| **Submitted by** | @${authorName} |`,
+      `| **Proposed Title** | ${f.title} |`,
+      `| **Category** | ${f.category} |`,
+      '', '### Summary', '', f.summary,
+      '', '### Target Audience', '', f.audience,
+      '', '### Why Now', '', f.whyNow,
+      ...(f.references ? ['', '### References', '', f.references] : []),
+      '', '---', '',
+      '**Maintainer checklist:**',
+      '- [ ] Topic not covered by existing posts',
+      '- [ ] Fits platform content scope',
+      '- [ ] Add label `status:approved` to approve — contributor will be guided to create a branch in the blog repo',
     ].join('\n');
-    openIssue(`[Blog] ${d.title}`, body, 'blog-submission');
+    openIssue(`[Blog Request] ${f.title}`, body, 'contribution-request');
+    setSubmitted(true);
+  }
+
+  if (submitted) {
+    return (
+      <div className="rounded-2xl p-8 text-center space-y-5" style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.2)' }}>
+        <CheckCircle2 size={36} className="mx-auto text-emerald-400" />
+        <div>
+          <p className="text-white font-semibold text-lg">Request opened on GitHub</p>
+          <p className="text-slate-400 text-sm mt-1 max-w-sm mx-auto">Complete the issue in the GitHub tab that just opened. A maintainer will review and approve your proposal.</p>
+        </div>
+        <div className="rounded-xl p-4 text-left space-y-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <p className="text-xs font-semibold text-slate-300 mb-2">Once approved, you will:</p>
+          <ol className="text-xs text-slate-400 space-y-1.5 list-decimal list-inside">
+            <li>Receive a comment on your issue with instructions</li>
+            <li>Create a branch in the blog repo: <code className="text-slate-300">blog/your-slug</code></li>
+            <li>Write your post and open a PR referencing the issue number</li>
+            <li>PR passes CI validation → merge → post goes live</li>
+          </ol>
+        </div>
+        <button type="button" onClick={() => { setF(EMPTY_BR); setSubmitted(false); }}
+          className="text-xs px-4 py-2 rounded-xl transition-colors"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}>
+          Submit another proposal
+        </button>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between">
-        <span className={labelCls}>Blog Post Editor</span>
-        <button type="button" onClick={() => setPreview(p => !p)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors"
-          style={{ background: preview ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${preview ? 'rgba(167,139,250,0.4)' : 'rgba(255,255,255,0.08)'}`, color: preview ? '#c4b5fd' : '#94a3b8' }}>
-          {preview ? <><EyeOff size={12} /> Editor</> : <><Eye size={12} /> Preview</>}
-        </button>
-      </div>
-
-      {/* Metadata fields */}
-      <div className="grid sm:grid-cols-2 gap-3">
+    <form className="space-y-4" onSubmit={e => { e.preventDefault(); if (canSubmit) handleSubmit(); }}>
+      <div className="grid sm:grid-cols-2 gap-4">
         <label className="space-y-1.5 block sm:col-span-2">
-          <span className={labelCls}>Title</span>
-          <input type="text" placeholder="e.g. How SM-2 spaced repetition maps to AI cert prep" className={inputCls} value={d.title} onChange={e => set('title', e.target.value)} />
-        </label>
-        <label className="space-y-1.5 block">
-          <span className={labelCls}>Slug <span className="normal-case text-slate-600">(auto-derived)</span></span>
-          <input type="text" placeholder="how-sm2-maps-to-cert-prep" className={inputCls} value={d.slug} onChange={e => set('slug', e.target.value)} />
-        </label>
-        <label className="space-y-1.5 block">
-          <span className={labelCls}>Author</span>
-          <input type="text" placeholder="Your Name" className={inputCls} value={d.author} onChange={e => set('author', e.target.value)} />
+          <span className={labelCls}>Proposed Title <span className="normal-case text-slate-600">(working title)</span></span>
+          <input type="text" placeholder="e.g. Why Most Agentic Loops Fail at Step 3" className={inputCls} value={f.title} onChange={e => set('title', e.target.value)} maxLength={120} />
         </label>
         <label className="space-y-1.5 block">
           <span className={labelCls}>Category</span>
-          <select className={selectCls} value={d.category} onChange={e => set('category', e.target.value)}>
+          <select className={selectCls} value={f.category} onChange={e => set('category', e.target.value)}>
             {BLOG_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </label>
         <label className="space-y-1.5 block">
-          <span className={labelCls}>Tags <span className="normal-case text-slate-600">(comma-separated)</span></span>
-          <input type="text" placeholder="mcp, agents, prompt-engineering" className={inputCls} value={d.tags} onChange={e => set('tags', e.target.value)} />
+          <span className={labelCls}>Target Audience</span>
+          <input type="text" placeholder="e.g. AI engineers building production agents" className={inputCls} value={f.audience} onChange={e => set('audience', e.target.value)} maxLength={200} />
         </label>
         <label className="space-y-1.5 block sm:col-span-2">
-          <span className={labelCls}>Excerpt <span className="normal-case text-slate-600">(optional — auto-derived from first paragraph)</span></span>
-          <textarea rows={2} className={textareaCls} value={d.excerpt} onChange={e => set('excerpt', e.target.value)} placeholder="One-line summary shown in the blog listing…" />
+          <span className={labelCls}>Summary <span className="normal-case text-slate-600">(key points and reader takeaway)</span></span>
+          <textarea rows={4} className={textareaCls} placeholder="Describe the concept, what it covers, and what the reader will take away..." value={f.summary} onChange={e => set('summary', e.target.value)} maxLength={1000} />
+        </label>
+        <label className="space-y-1.5 block sm:col-span-2">
+          <span className={labelCls}>Why Now</span>
+          <textarea rows={2} className={textareaCls} placeholder="Why is this timely? What gap does it fill in the current content?" value={f.whyNow} onChange={e => set('whyNow', e.target.value)} maxLength={500} />
+        </label>
+        <label className="space-y-1.5 block sm:col-span-2">
+          <span className={labelCls}>References <span className="normal-case text-slate-600">(optional)</span></span>
+          <input type="text" placeholder="Links, papers, or docs you'll draw from" className={inputCls} value={f.references} onChange={e => set('references', e.target.value)} maxLength={500} />
         </label>
       </div>
-
-      {/* Editor / Preview toggle */}
-      {preview ? (
-        <div className="rounded-xl p-5 min-h-[400px] overflow-auto prose prose-invert prose-sm max-w-none" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          {d.title && <h1 style={{ color: '#f1f5f9', marginTop: 0 }}>{d.title}</h1>}
-          <div className="text-xs text-slate-500 mb-6 flex gap-4">
-            {d.author && <span>by {d.author}</span>}
-            <span>{today}</span>
-            <span>~{readingTime} min read</span>
-          </div>
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {d.content || '*Nothing to preview yet…*'}
-          </ReactMarkdown>
-        </div>
-      ) : (
-        <label className="space-y-1.5 block">
-          <span className={labelCls}>Content (Markdown)</span>
-          <textarea
-            rows={20}
-            placeholder={'## Introduction\n\nWrite your post here using Markdown.\n\n## Section 1\n\n...\n\n## Conclusion'}
-            className={textareaCls}
-            style={{ fontFamily: 'ui-monospace, monospace', fontSize: '13px', lineHeight: '1.6' }}
-            value={d.content}
-            onChange={e => set('content', e.target.value)}
-          />
-        </label>
-      )}
-
-      {/* Stats bar */}
-      <div className="flex gap-4 text-xs text-slate-600">
-        <span>{wordCount} words</span>
-        <span>~{readingTime} min read</span>
-        {d.slug && <span className="text-slate-700">→ {d.slug}.md</span>}
-      </div>
-
-      {/* Actions */}
-      <div className="flex flex-wrap gap-3 pt-1">
-        <button type="button" onClick={handleDownload} disabled={!canAct}
+      <div className="flex items-center gap-4 pt-2">
+        <button type="submit" disabled={!canSubmit}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
-          style={{ background: canAct ? 'rgba(52,211,153,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${canAct ? 'rgba(52,211,153,0.4)' : 'rgba(255,255,255,0.08)'}`, color: canAct ? '#6ee7b7' : '#475569', cursor: canAct ? 'pointer' : 'not-allowed' }}>
-          <Download size={15} />
-          Download .md
-        </button>
-        <button type="button" onClick={handleIssue} disabled={!canAct}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
-          style={{ background: canAct ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${canAct ? 'rgba(167,139,250,0.4)' : 'rgba(255,255,255,0.08)'}`, color: canAct ? '#c4b5fd' : '#475569', cursor: canAct ? 'pointer' : 'not-allowed' }}>
+          style={{ background: canSubmit ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${canSubmit ? 'rgba(167,139,250,0.4)' : 'rgba(255,255,255,0.08)'}`, color: canSubmit ? '#c4b5fd' : '#475569', cursor: canSubmit ? 'pointer' : 'not-allowed' }}>
           <GitPullRequest size={15} />
-          Open Review Issue
+          Propose Post
+          <ChevronRight size={13} />
         </button>
+        {!canSubmit && <span className="text-xs text-slate-600">Fill in all required fields to continue.</span>}
       </div>
-      {canAct && (
-        <p className="text-xs text-slate-600">
-          Download the file → place it in{' '}
-          <code className="text-slate-500">public/content/blog/posts/</code>{' '}
-          → update <code className="text-slate-500">index.json</code> → open a PR.
-        </p>
-      )}
-      {!canAct && <span className="text-xs text-slate-600">Fill in title, slug, and at least 100 characters of content to continue.</span>}
-    </div>
+      <p className="text-xs text-slate-600">Opens a pre-filled GitHub issue for maintainer approval. No post is written until approved.</p>
+    </form>
   );
 }
 
@@ -496,7 +416,7 @@ function CourseTab({ authorName }: { authorName: string }) {
 type TabId = 'question' | 'blog' | 'tool' | 'course';
 const TABS: { id: TabId; label: string; icon: typeof GraduationCap; color: string; hint: string }[] = [
   { id: 'question', label: 'Exam Question', icon: GraduationCap, color: '#34d399', hint: 'Add a practice MCQ to an exam domain' },
-  { id: 'blog',     label: 'Blog Post',     icon: Newspaper,    color: '#a78bfa', hint: 'Write a Field Notes article' },
+  { id: 'blog',     label: 'Blog Post',     icon: Newspaper,    color: '#a78bfa', hint: 'Propose a post for review' },
   { id: 'tool',     label: 'Tool Idea',     icon: Wrench,       color: '#60a5fa', hint: 'Suggest a new AI tool' },
   { id: 'course',   label: 'New Course',    icon: BookMarked,   color: '#fb923c', hint: 'Propose a new exam to add' },
 ];
