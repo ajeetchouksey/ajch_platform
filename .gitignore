@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Wrangler local dev state (D1 simulation, cache) — machine-local, not source
+.wrangler
+
 # Local secrets — never commit
 gh_po_token.env
 *.env

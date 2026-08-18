@@ -31,7 +31,7 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
     <div
       ref={ref}
       onClick={() => { if (exam.available) navigate(`/skillup/${exam.id}`); }}
-      className={`group relative rounded-2xl overflow-hidden transition-all duration-500 ${
+      className={`group relative flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-500 ${
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       } ${exam.available ? 'cursor-pointer' : 'opacity-55 cursor-not-allowed'}`}
       style={{
@@ -65,7 +65,7 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
         />
       )}
 
-      <div className="relative p-6 sm:p-8">
+      <div className="relative flex flex-col flex-1 p-6 sm:p-8">
         {/* Top row: badge + status + pass score */}
         <div className="flex flex-wrap items-center gap-2 mb-5">
           <span
@@ -152,9 +152,10 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
           )}
         </div>
 
-        {/* CTA row */}
+        {/* CTA row — mt-auto docks it to the bottom of the (now equal-height,
+            grid-stretched) card regardless of description/domain-pill count above it */}
         {exam.available ? (
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 mt-auto">
             <Link
               to={`/skillup/${exam.id}`}
               onClick={e => e.stopPropagation()}
@@ -176,7 +177,7 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
           </div>
         ) : (
           <span
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-slate-600 text-sm font-bold rounded-xl"
+            className="self-start inline-flex items-center gap-2 px-5 py-2.5 text-slate-600 text-sm font-bold rounded-xl mt-auto"
             style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(71,85,105,0.15)' }}
           >
             <Lock size={13} /> Coming Soon
@@ -493,7 +494,7 @@ export default function ExamCatalog() {
             <GraduationCap size={12} className="text-violet-400" />
             Available Now
           </p>
-          <div className="space-y-5">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
             {available.map((exam, idx) => (
               <ExamCard key={exam.id} exam={exam} idx={idx} />
             ))}

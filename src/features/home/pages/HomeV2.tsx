@@ -6,7 +6,7 @@ import {
   Zap, ShieldCheck, Terminal,
   CheckCircle2,
   FileSearch, MessageSquare, Bot, Server, GitPullRequest, Eye,
-  Building2, ChevronRight,
+  Building2, ChevronRight, MapPin, GitFork, Globe2, Globe,
 } from 'lucide-react';
 import {
   PulsingDot,
@@ -17,6 +17,7 @@ import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
 import { fetchGitHubRepo, type GitHubRepoStats } from '@/lib/github-stats';
 import { getSessions } from '@/lib/storage';
 import { useMeta } from '@/lib/useMeta';
+import { maintainer } from '@/data/maintainer';
 
 // ── Platform feature cards ────────────────────────────────────────────────────
 const features = [
@@ -121,13 +122,13 @@ const spotlightUseCases = [
   },
 ] as const;
 
-// ── What you'll build ─────────────────────────────────────────────────────────
+// ── What you'll build — compressed to a single tag row under Platform ────────
 const buildProjects = [
-  { icon: FileSearch,    color: '#a78bfa', title: 'AI Document Processing System',   desc: 'OCR, entity extraction, and summarization on any document format.' },
-  { icon: MessageSquare, color: '#38bdf8', title: 'Retrieval Knowledge Assistant',    desc: 'Vector search + LLM answer generation from your own data.' },
-  { icon: GitBranch,     color: '#2dd4bf', title: 'Multi-Step AI Pipelines',          desc: 'Chain validation, transformation, and enrichment steps end-to-end.' },
-  { icon: Bot,           color: '#fb923c', title: 'Autonomous Agents & Workflows',    desc: 'Tool-using agents that plan, act, and iterate toward a goal.' },
-  { icon: Server,        color: '#34d399', title: 'Production-Ready AI Services',     desc: 'Deployed, observable, and scalable APIs serving real traffic.' },
+  { color: '#a78bfa', title: 'Document Processing' },
+  { color: '#38bdf8', title: 'Retrieval Assistant' },
+  { color: '#2dd4bf', title: 'Multi-Step Pipelines' },
+  { color: '#fb923c', title: 'Autonomous Agents' },
+  { color: '#34d399', title: 'Production Services' },
 ] as const;
 
 // ── AI Learning Journey ───────────────────────────────────────────────────────
@@ -215,6 +216,90 @@ export default function HomeV2() {
     }));
   }, [pStats]);
 
+  const renderFeatureCard = (feature: typeof dynamicFeatures[number], idx: number, featured = false) => {
+    const { to, icon: Icon, color, bg, border, badge, title, subtitle, tagline, desc, bullets, cta } = feature;
+    return (
+      <div
+        key={to}
+        className={`group h-full transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        style={{ transitionDelay: `${200 + idx * 80}ms` }}
+      >
+        <Link to={to} className={`relative flex flex-col h-full rounded-2xl transition-all duration-300 hover:-translate-y-1.5 ${featured ? 'p-7' : 'p-5'}`}
+          style={{
+            background: 'rgba(15,23,42,0.95)',
+            border: `1px solid rgba(71,85,105,0.20)`,
+            ...(featured ? {} : { borderLeft: `3px solid ${color}` }),
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.borderColor = border;
+            (e.currentTarget as HTMLElement).style.borderLeftColor = color;
+            (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 40px -12px ${color}30`;
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.borderColor = 'rgba(71,85,105,0.20)';
+            (e.currentTarget as HTMLElement).style.borderLeftColor = featured ? 'rgba(71,85,105,0.20)' : color;
+            (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+          }}>
+          {/* Top accent */}
+          <div className="absolute top-0 left-5 right-5 h-[1px] rounded-full pointer-events-none"
+            style={{ background: `linear-gradient(90deg, transparent, ${color}60, transparent)` }} />
+
+          {/* Icon + badge */}
+          <div className="flex items-start justify-between mb-5">
+            <div className={`rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${featured ? 'w-16 h-16' : 'w-13 h-13'}`}
+              style={{ background: bg, border: `1px solid ${border}`, boxShadow: `0 0 24px -6px ${color}35` }}>
+              <Icon size={featured ? 28 : 24} style={{ color }} />
+            </div>
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] px-2 py-1 rounded-lg"
+              style={{ color, background: `${color}15`, border: `1px solid ${color}30` }}>
+              {badge}
+            </span>
+          </div>
+
+          {/* Title */}
+          <h3 className={`font-black text-white mb-0.5 ${featured ? 'text-xl' : 'text-base'}`}>{title}</h3>
+          <p className="text-[10px] font-bold mb-3" style={{ color: `${color}cc` }}>{subtitle}</p>
+
+          {/* Description */}
+          <p className={`text-slate-400 leading-relaxed mb-4 ${featured ? 'text-sm' : 'text-[13px]'}`}>{desc}</p>
+
+          {/* Bullets — featured card only, keeps the 2×2 grid tight */}
+          {featured && (
+            <ul className="space-y-1.5 mb-5">
+              {bullets.map(b => (
+                <li key={b} className="flex items-center gap-2 text-[12px] text-slate-400">
+                  <CheckCircle2 size={11} style={{ color, flexShrink: 0 }} /> {b}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* Tagline callout — tools card differentiator, kept to one compact line */}
+          {tagline && (
+            <p className="text-[12px] font-bold italic mb-4 leading-snug" style={{ color: '#a78bfa' }}>
+              "{tagline.replace('\n', ' ')}"
+            </p>
+          )}
+
+          {/* CTA — solid button on the featured card, text link on the rest.
+              mt-auto docks it to the bottom of the (now equal-height) card
+              regardless of how long the description/tagline above it is. */}
+          {featured ? (
+            <span className="self-start mt-auto inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black rounded-xl text-white transition-all duration-200 group-hover:-translate-y-0.5"
+              style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)`, border: `1px solid ${color}90` }}>
+              {cta} <ArrowRight size={14} />
+            </span>
+          ) : (
+            <div className="mt-auto flex items-center gap-1.5 text-sm font-black transition-all duration-200 group-hover:gap-2.5"
+              style={{ color }}>
+              {cta} <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
+            </div>
+          )}
+        </Link>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-20">
 
@@ -293,20 +378,74 @@ export default function HomeV2() {
             </div>
 
             {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-3 mb-8">
+            <div className="flex flex-wrap items-center gap-3 mb-5">
               <Link to="/learn"
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-black rounded-2xl text-white transition-all duration-200 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5 active:scale-95"
                 style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.6)' }}>
                 <Zap size={15} /> Start Building <ArrowRight size={15} />
               </Link>
-              <button
-                onClick={() => document.getElementById('learning-path')?.scrollIntoView({ behavior: 'smooth' })}
-                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold rounded-2xl text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
-                style={{ background: 'rgba(30,41,59,0.6)', border: '1px solid rgba(71,85,105,0.35)' }}>
-                <BookOpen size={15} /> See the Builder Roadmap
-              </button>
             </div>
 
+            {/* Stat bar — LIVE badge leads, then content depth, "free" as the closer */}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-8 px-4 py-2.5 rounded-xl w-fit"
+              style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(139,92,246,0.18)' }}>
+              <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.15em] shrink-0" style={{ color: '#a78bfa' }}>
+                <PulsingDot active color="bg-violet-400" size="sm" /> Live
+              </span>
+              <span className="text-slate-600 text-[11px]">·</span>
+              {([
+                [pStats?.platform.questions || 590, '+ Qs'],
+                [pStats?.platform.blog_posts || 60, '+ Notes'],
+                [31, ' Blueprints'],
+                [pStats?.platform.tools || 9, ' Tools'],
+                ['100%', ' Free'],
+              ] as const).map(([value, label], i, arr) => (
+                <span key={label} className="flex items-center gap-3">
+                  <span className="text-[12px] text-slate-400"><span className="text-white font-bold">{value}</span>{label}</span>
+                  {i < arr.length - 1 && <span className="text-slate-600 text-[11px]">·</span>}
+                </span>
+              ))}
+              {((pStats?.pageViews?.total ?? 0) > 0 || ghRepo != null || signalTotal != null) && (
+                <span className="text-slate-600 text-[11px]">·</span>
+              )}
+              {(pStats?.pageViews?.total ?? 0) > 0 && (
+                <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+                  <Eye size={12} className="text-violet-400" />
+                  <span className="text-white font-bold">{(pStats?.pageViews?.total ?? 0).toLocaleString()}</span>
+                  &nbsp;views
+                </span>
+              )}
+              {ghRepo != null && ghRepo.stars > 0 && (
+                <>
+                  {(pStats?.pageViews?.total ?? 0) > 0 && <span className="text-slate-600 text-[11px]">·</span>}
+                  <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+                    <span style={{ color: '#fbbf24' }}>⭐</span>
+                    <span className="text-white font-bold">{ghRepo.stars.toLocaleString()}</span>
+                    &nbsp;stars
+                  </span>
+                </>
+              )}
+              {ghRepo != null && ghRepo.watchers > 0 && (
+                <>
+                  <span className="text-slate-600 text-[11px]">·</span>
+                  <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+                    <span style={{ color: '#38bdf8' }}>👀</span>
+                    <span className="text-white font-bold">{ghRepo.watchers.toLocaleString()}</span>
+                    &nbsp;watching
+                  </span>
+                </>
+              )}
+              {signalTotal != null && (
+                <>
+                  <span className="text-slate-600 text-[11px]">·</span>
+                  <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
+                    <span style={{ color: '#f472b6' }}>♥</span>
+                    <span className="text-white font-bold">{signalTotal}</span>
+                    &nbsp;found helpful
+                  </span>
+                </>
+              )}
+            </div>
 
           </div>
 
@@ -365,146 +504,203 @@ export default function HomeV2() {
       </section>
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § PAGE VIEWS — GA4 activity strip
+          § LEARNING PATH — AI 101 → 310, moved up right after hero (#32)
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      {(pStats?.pageViews?.total ?? 0) > 0 || ghRepo != null || signalTotal != null ? (
-      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-        style={{ transitionDelay: '80ms' }}>
-        <div className="rounded-2xl px-6 py-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
-          style={{
-            background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(15,23,42,0.95) 100%)',
-            border: '1px solid rgba(139,92,246,0.15)',
-          }}>
-          {/* Page views since May 1 */}
-          {(pStats?.pageViews?.total ?? 0) > 0 && (
-            <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
-              <Eye size={13} className="text-violet-400" />
-              <span className="text-white font-bold">{(pStats?.pageViews?.total ?? 0).toLocaleString()}</span>
-              &nbsp;views
-            </span>
-          )}
-          {ghRepo != null && ghRepo.stars > 0 && (
-            <>
-              {(pStats?.pageViews?.total ?? 0) > 0 && <span className="text-slate-600 text-[12px]">·</span>}
-              <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
-                <span style={{ color: '#fbbf24' }}>⭐</span>
-                <span className="text-white font-bold">{ghRepo.stars.toLocaleString()}</span>
-                &nbsp;GitHub stars
-              </span>
-            </>
-          )}
-          {ghRepo != null && ghRepo.watchers > 0 && (
-            <>
-              <span className="text-slate-600 text-[12px]">·</span>
-              <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
-                <span style={{ color: '#38bdf8' }}>👀</span>
-                <span className="text-white font-bold">{ghRepo.watchers.toLocaleString()}</span>
-                &nbsp;watching
-              </span>
-            </>
-          )}
-          {signalTotal != null && (
-            <>
-              <span className="text-slate-600 text-[12px]">·</span>
-              <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
-                <span style={{ color: '#f472b6' }}>♥</span>
-                <span className="text-white font-bold">{signalTotal}</span>
-                &nbsp;found helpful
-              </span>
-            </>
-          )}
+      <section id="learning-path" className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        style={{ transitionDelay: '100ms' }}>
+
+        {/* Section header */}
+        <div className="mb-8">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Learning Path</p>
+          <h2 className="text-2xl font-black text-white">Your AI Engineering Journey</h2>
+          <p className="text-sm text-slate-500 mt-1">From fundamentals to enterprise architecture — structured, hands-on, free.</p>
         </div>
+
+        {/* ── DESKTOP: horizontal gradient track ─────────────────────────── */}
+        <div className="hidden md:block">
+          <div className="relative">
+            {/* Gradient connecting track between step circles */}
+            <div className="absolute top-[27px] left-[12.5%] right-[12.5%] h-[2px] pointer-events-none rounded-full"
+              style={{ background: 'linear-gradient(90deg, #38bdf8 0%, #a78bfa 33%, #2dd4bf 66%, #fb923c 100%)', opacity: 0.6 }} />
+
+            <div className="grid grid-cols-4 gap-3">
+              {journeySteps.map((step) => {
+                const StepIcon = step.icon;
+                return (
+                  <div key={step.level} className="h-full flex flex-col items-center">
+                    {/* Step circle */}
+                    <div className="relative z-10 w-14 h-14 rounded-full flex flex-col items-center justify-center mb-4 transition-transform duration-200 hover:scale-110"
+                      style={{
+                        background: `radial-gradient(circle, ${step.bg} 0%, rgba(6,12,24,0.95) 100%)`,
+                        border: `2px solid ${step.color}`,
+                        boxShadow: `0 0 24px -6px ${step.color}60`,
+                      }}>
+                      <span className="text-[8px] font-black uppercase tracking-wide" style={{ color: `${step.color}90` }}>{step.tag.slice(0,4)}</span>
+                      <span className="text-sm font-black leading-none" style={{ color: step.color }}>{step.level}</span>
+                    </div>
+
+                    {/* Step card */}
+                    <Link to={step.href}
+                      className="w-full flex-1 flex flex-col rounded-2xl p-4 transition-all duration-200 hover:-translate-y-1.5 group"
+                      style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid ${step.border}` }}
+                      onMouseEnter={e => {
+                        (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 30px -10px ${step.color}35`;
+                        (e.currentTarget as HTMLElement).style.borderColor = step.color + '50';
+                      }}
+                      onMouseLeave={e => {
+                        (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                        (e.currentTarget as HTMLElement).style.borderColor = step.border;
+                      }}>
+                      {/* Tag + icon */}
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <StepIcon size={12} style={{ color: step.color }} />
+                        <span className="text-[9px] font-black uppercase tracking-[0.15em]" style={{ color: step.color }}>{step.tag}</span>
+                      </div>
+                      {/* Title */}
+                      <h3 className="text-sm font-black text-white mb-1 leading-snug">{step.title}</h3>
+                      {/* Example output */}
+                      <p className="text-[9px] font-mono mb-2" style={{ color: `${step.color}b0` }}>{step.output}</p>
+                      {/* Topic chips */}
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {step.topics.map(t => (
+                          <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold"
+                            style={{ color: step.color, background: step.bg, border: `1px solid ${step.border}` }}>
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                      {/* Audience */}
+                      <p className="text-[10px] text-slate-600 mb-3">{step.audience}</p>
+                      {/* CTA — pinned to the bottom so uneven title/quote wrapping doesn't misalign the row */}
+                      <div className="mt-auto flex items-center gap-1 text-[11px] font-black transition-all duration-200 group-hover:gap-2"
+                        style={{ color: step.color }}>
+                        {step.cta} <ArrowRight size={11} className="transition-transform group-hover:translate-x-0.5" />
+                      </div>
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* ── MOBILE: vertical left-border stack ─────────────────────────── */}
+        <div className="md:hidden space-y-3">
+          {journeySteps.map((step) => {
+            const StepIcon = step.icon;
+            return (
+              <Link key={step.level} to={step.href}
+                className="flex items-start gap-3 rounded-2xl p-4 block transition-all duration-200 active:scale-[0.98]"
+                style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid ${step.border}`, borderLeft: `3px solid ${step.color}` }}>
+                {/* Badge */}
+                <div className="shrink-0 w-10 h-10 rounded-xl flex flex-col items-center justify-center font-black"
+                  style={{ background: step.bg, border: `1px solid ${step.border}` }}>
+                  <span className="text-[8px]" style={{ color: `${step.color}80` }}>{step.level.slice(0,2)}</span>
+                  <span className="text-xs font-black" style={{ color: step.color }}>{step.level.slice(2)}</span>
+                </div>
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <StepIcon size={11} style={{ color: step.color }} />
+                    <span className="text-[9px] font-black uppercase tracking-wider" style={{ color: step.color }}>{step.tag}</span>
+                  </div>
+                  <p className="text-sm font-black text-white mb-1">{step.title}</p>
+                  <p className="text-[10px] text-slate-500">{step.topics.join(' · ')}</p>
+                </div>
+                <ArrowRight size={14} className="shrink-0 mt-1" style={{ color: `${step.color}70` }} />
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Footer note */}
+        <p className="mt-7 text-xs text-slate-600">All content is free · No account required to start</p>
       </section>
-      ) : null}
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § FEATURES — what's on the platform
+          § PROGRESS TEASER — returning user nudge, moved up after Learning Path
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
+      {sessions.length > 0 && (
+        <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+          style={{ transitionDelay: '140ms' }}>
+          <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5"
+            style={{
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(15,23,42,0.98) 100%)',
+              border: '1px solid rgba(139,92,246,0.28)',
+            }}>
+            {/* Left: welcome back */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1" style={{ color: '#a78bfa' }}>Welcome back</p>
+              <p className="text-base font-black text-white mb-0.5">Continue your CCA-F prep</p>
+              <p className="text-xs text-slate-400">
+                {sessions.length} session{sessions.length !== 1 ? 's' : ''} completed
+                {sessions.at(-1) && (
+                  <> · Last score:{' '}
+                    <span className="font-bold" style={{ color: '#a78bfa' }}>
+                      {Math.round((sessions.at(-1)!.score / sessions.at(-1)!.total) * 100)}%
+                    </span>
+                  </>
+                )}
+              </p>
+            </div>
+            {/* Middle: best score bar */}
+            {(() => {
+              const best = Math.max(...sessions.map(s => Math.round((s.score / s.total) * 100)));
+              const passing = best >= 72;
+              return (
+                <div className="w-full sm:w-44 shrink-0">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] text-slate-500">Best score</span>
+                    <span className="text-sm font-black" style={{ color: passing ? '#10b981' : '#a78bfa' }}>{best}%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${best}%`, background: passing ? '#10b981' : 'linear-gradient(90deg,#7c3aed,#a78bfa)' }} />
+                  </div>
+                  <p className="text-[9px] text-slate-700 mt-1">Pass threshold: 72% {passing ? '✓ Ready' : '· Keep going'}</p>
+                </div>
+              );
+            })()}
+            {/* Right: CTA */}
+            <Link to="/skillup/ccaf/quiz"
+              className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black rounded-xl text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.55)' }}>
+              Continue <ArrowRight size={14} />
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          § PLATFORM — asymmetric pillar layout + "you'll build" tags
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-        style={{ transitionDelay: '160ms' }}>
+        style={{ transitionDelay: '180ms' }}>
         <div className="mb-6">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Approach</p>
           <h2 className="text-2xl font-black text-white">A Better Way to Learn AI</h2>
-          <p className="text-sm text-slate-500 mt-1">Four pillars. One mission: build real systems, not finish fake exercises.</p>
+          <p className="text-sm text-slate-500 mt-1">One mission: build real systems, not finish fake exercises.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5">
-          {dynamicFeatures.map(({ to, icon: Icon, color, bg, border, badge, title, subtitle, tagline, desc, bullets, cta }, idx) => (
-            <div
-              key={to}
-              className={`group transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-              style={{ transitionDelay: `${200 + idx * 80}ms` }}
-            >
-              <Link to={to} className="block h-full rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1.5"
-                style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid rgba(71,85,105,0.20)` }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.border = `1px solid ${border}`;
-                  (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 40px -12px ${color}30`;
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.border = '1px solid rgba(71,85,105,0.20)';
-                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                }}>
-                {/* Top accent */}
-                <div className="absolute top-0 left-5 right-5 h-[1px] rounded-full pointer-events-none"
-                  style={{ background: `linear-gradient(90deg, transparent, ${color}60, transparent)` }} />
+        <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_1fr] gap-5 items-start">
+          {/* Featured pillar — Practice Scenarios */}
+          {renderFeatureCard(dynamicFeatures[0], 0, true)}
 
-                {/* Icon + badge */}
-                <div className="flex items-start justify-between mb-5">
-                  <div className="w-13 h-13 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
-                    style={{ background: bg, border: `1px solid ${border}`, boxShadow: `0 0 24px -6px ${color}35` }}>
-                    <Icon size={24} style={{ color }} />
-                  </div>
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em] px-2 py-1 rounded-lg"
-                    style={{ color, background: `${color}15`, border: `1px solid ${color}30` }}>
-                    {badge}
-                  </span>
-                </div>
+          {/* Remaining 4 pillars — tighter 2×2 grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-stretch">
+            {dynamicFeatures.slice(1).map((f, i) => renderFeatureCard(f, i + 1))}
+          </div>
+        </div>
 
-                {/* Title */}
-                <h3 className="text-base font-black text-white mb-0.5">{title}</h3>
-                <p className="text-[10px] font-bold mb-3" style={{ color: `${color}cc` }}>{subtitle}</p>
-
-                {/* Description */}
-                <p className="text-[13px] text-slate-400 leading-relaxed mb-4">{desc}</p>
-
-                {/* Bullets */}
-                <ul className="space-y-1.5 mb-5">
-                  {bullets.map(b => (
-                    <li key={b} className="flex items-center gap-2 text-[12px] text-slate-400">
-                      <CheckCircle2 size={11} style={{ color, flexShrink: 0 }} /> {b}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Tagline callout — tools card differentiator */}
-                {tagline && (
-                  <div className="mb-4 rounded-xl px-4 py-3" style={{
-                    background: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(251,146,60,0.08) 100%)',
-                    border: '1px solid rgba(139,92,246,0.25)',
-                  }}>
-                    <span className="block text-[9px] font-black uppercase tracking-[0.18em] mb-1.5" style={{ color: '#64748b' }}>Why it matters</span>
-                    {tagline.split('\n').map((line, i) => (
-                      <span key={i} className="block font-black leading-tight" style={i === 0 ? {
-                        fontSize: '13px',
-                        color: '#e2e8f0',
-                      } : {
-                        fontSize: '13px',
-                        background: 'linear-gradient(100deg, #7c3aed 0%, #a78bfa 50%, #fb923c 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                      }}>{line}</span>
-                    ))}
-                  </div>
-                )}
-
-                {/* CTA */}
-                <div className="flex items-center gap-1.5 text-sm font-black transition-all duration-200 group-hover:gap-2.5"
-                  style={{ color }}>
-                  {cta} <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-                </div>
-              </Link>
-            </div>
+        {/* "You'll build" — compressed tag row (replaces standalone card grid) */}
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] mr-1" style={{ color: '#64748b' }}>You'll build</span>
+          {buildProjects.map(p => (
+            <span key={p.title} className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full"
+              style={{ color: p.color, background: `${p.color}12`, border: `1px solid ${p.color}28` }}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: p.color }} />
+              {p.title}
+            </span>
           ))}
         </div>
       </section>
@@ -606,206 +802,6 @@ export default function HomeV2() {
       </section>
 
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § PROGRESS TEASER — returning user nudge
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      {sessions.length > 0 && (
-        <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-          style={{ transitionDelay: '175ms' }}>
-          <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5"
-            style={{
-              background: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(15,23,42,0.98) 100%)',
-              border: '1px solid rgba(139,92,246,0.28)',
-            }}>
-            {/* Left: welcome back */}
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1" style={{ color: '#a78bfa' }}>Welcome back</p>
-              <p className="text-base font-black text-white mb-0.5">Continue your CCA-F prep</p>
-              <p className="text-xs text-slate-400">
-                {sessions.length} session{sessions.length !== 1 ? 's' : ''} completed
-                {sessions.at(-1) && (
-                  <> · Last score:{' '}
-                    <span className="font-bold" style={{ color: '#a78bfa' }}>
-                      {Math.round((sessions.at(-1)!.score / sessions.at(-1)!.total) * 100)}%
-                    </span>
-                  </>
-                )}
-              </p>
-            </div>
-            {/* Middle: best score bar */}
-            {(() => {
-              const best = Math.max(...sessions.map(s => Math.round((s.score / s.total) * 100)));
-              const passing = best >= 72;
-              return (
-                <div className="w-full sm:w-44 shrink-0">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] text-slate-500">Best score</span>
-                    <span className="text-sm font-black" style={{ color: passing ? '#10b981' : '#a78bfa' }}>{best}%</span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${best}%`, background: passing ? '#10b981' : 'linear-gradient(90deg,#7c3aed,#a78bfa)' }} />
-                  </div>
-                  <p className="text-[9px] text-slate-700 mt-1">Pass threshold: 72% {passing ? '✓ Ready' : '· Keep going'}</p>
-                </div>
-              );
-            })()}
-            {/* Right: CTA */}
-            <Link to="/skillup/ccaf/quiz"
-              className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black rounded-xl text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.55)' }}>
-              Continue <ArrowRight size={14} />
-            </Link>
-          </div>
-        </section>
-      )}
-
-      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § LEARNING JOURNEY — AI 101 → 310 (#32)
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      <section id="learning-path" className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-        style={{ transitionDelay: '240ms' }}>
-
-        {/* Section header */}
-        <div className="mb-8">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Learning Path</p>
-          <h2 className="text-2xl font-black text-white">Your AI Engineering Journey</h2>
-          <p className="text-sm text-slate-500 mt-1">From fundamentals to enterprise architecture — structured, hands-on, free.</p>
-        </div>
-
-        {/* ── DESKTOP: horizontal gradient track ─────────────────────────── */}
-        <div className="hidden md:block">
-          <div className="relative">
-            {/* Gradient connecting track between step circles */}
-            <div className="absolute top-[27px] left-[12.5%] right-[12.5%] h-[2px] pointer-events-none rounded-full"
-              style={{ background: 'linear-gradient(90deg, #38bdf8 0%, #a78bfa 33%, #2dd4bf 66%, #fb923c 100%)', opacity: 0.6 }} />
-
-            <div className="grid grid-cols-4 gap-3">
-              {journeySteps.map((step) => {
-                const StepIcon = step.icon;
-                return (
-                  <div key={step.level} className="flex flex-col items-center">
-                    {/* Step circle */}
-                    <div className="relative z-10 w-14 h-14 rounded-full flex flex-col items-center justify-center mb-4 transition-transform duration-200 hover:scale-110"
-                      style={{
-                        background: `radial-gradient(circle, ${step.bg} 0%, rgba(6,12,24,0.95) 100%)`,
-                        border: `2px solid ${step.color}`,
-                        boxShadow: `0 0 24px -6px ${step.color}60`,
-                      }}>
-                      <span className="text-[8px] font-black uppercase tracking-wide" style={{ color: `${step.color}90` }}>{step.tag.slice(0,4)}</span>
-                      <span className="text-sm font-black leading-none" style={{ color: step.color }}>{step.level}</span>
-                    </div>
-
-                    {/* Step card */}
-                    <Link to={step.href}
-                      className="w-full rounded-2xl p-4 block transition-all duration-200 hover:-translate-y-1.5 group"
-                      style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid ${step.border}` }}
-                      onMouseEnter={e => {
-                        (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 30px -10px ${step.color}35`;
-                        (e.currentTarget as HTMLElement).style.borderColor = step.color + '50';
-                      }}
-                      onMouseLeave={e => {
-                        (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                        (e.currentTarget as HTMLElement).style.borderColor = step.border;
-                      }}>
-                      {/* Tag + icon */}
-                      <div className="flex items-center gap-1.5 mb-2">
-                        <StepIcon size={12} style={{ color: step.color }} />
-                        <span className="text-[9px] font-black uppercase tracking-[0.15em]" style={{ color: step.color }}>{step.tag}</span>
-                      </div>
-                      {/* Title */}
-                      <h3 className="text-sm font-black text-white mb-1 leading-snug">{step.title}</h3>
-                      {/* Example output */}
-                      <p className="text-[9px] font-mono mb-2" style={{ color: `${step.color}b0` }}>{step.output}</p>
-                      {/* Topic chips */}
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {step.topics.map(t => (
-                          <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold"
-                            style={{ color: step.color, background: step.bg, border: `1px solid ${step.border}` }}>
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                      {/* Audience */}
-                      <p className="text-[10px] text-slate-600 mb-3">{step.audience}</p>
-                      {/* CTA */}
-                      <div className="flex items-center gap-1 text-[11px] font-black transition-all duration-200 group-hover:gap-2"
-                        style={{ color: step.color }}>
-                        {step.cta} <ArrowRight size={11} className="transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </Link>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* ── MOBILE: vertical left-border stack ─────────────────────────── */}
-        <div className="md:hidden space-y-3">
-          {journeySteps.map((step) => {
-            const StepIcon = step.icon;
-            return (
-              <Link key={step.level} to={step.href}
-                className="flex items-start gap-3 rounded-2xl p-4 block transition-all duration-200 active:scale-[0.98]"
-                style={{ background: 'rgba(15,23,42,0.95)', border: `1px solid ${step.border}`, borderLeft: `3px solid ${step.color}` }}>
-                {/* Badge */}
-                <div className="shrink-0 w-10 h-10 rounded-xl flex flex-col items-center justify-center font-black"
-                  style={{ background: step.bg, border: `1px solid ${step.border}` }}>
-                  <span className="text-[8px]" style={{ color: `${step.color}80` }}>{step.level.slice(0,2)}</span>
-                  <span className="text-xs font-black" style={{ color: step.color }}>{step.level.slice(2)}</span>
-                </div>
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <StepIcon size={11} style={{ color: step.color }} />
-                    <span className="text-[9px] font-black uppercase tracking-wider" style={{ color: step.color }}>{step.tag}</span>
-                  </div>
-                  <p className="text-sm font-black text-white mb-1">{step.title}</p>
-                  <p className="text-[10px] text-slate-500">{step.topics.join(' · ')}</p>
-                </div>
-                <ArrowRight size={14} className="shrink-0 mt-1" style={{ color: `${step.color}70` }} />
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="mt-7 flex items-center justify-between flex-wrap gap-4">
-          <p className="text-xs text-slate-600">All content is free · No account required to start</p>
-          <Link to="/skillup"
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black rounded-2xl text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-violet-500/20 active:scale-95"
-            style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(56,189,248,0.15))', border: '1px solid rgba(139,92,246,0.35)' }}>
-            Start Your AI Journey <ArrowRight size={14} />
-          </Link>
-        </div>
-      </section>
-
-      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          § WHAT YOU WILL BUILD (#31)
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-        style={{ transitionDelay: '300ms' }}>
-        <div className="mb-6">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Projects</p>
-          <h2 className="text-2xl font-black text-white">What You Will Actually Build</h2>
-          <p className="text-sm text-slate-500 mt-1">Production-grade systems, not toy examples.</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {buildProjects.map(({ icon: Icon, color, title, desc }) => (
-            <div key={title} className="rounded-2xl p-5 transition-all duration-200 hover:-translate-y-1"
-              style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)', borderLeft: `3px solid ${color}` }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                style={{ background: `${color}12`, border: `1px solid ${color}28` }}>
-                <Icon size={18} style={{ color }} />
-              </div>
-              <h3 className="text-sm font-black text-white mb-2">{title}</h3>
-              <p className="text-[12px] text-slate-500 leading-relaxed">{desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § COMMUNITY — open source
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
@@ -816,9 +812,9 @@ export default function HomeV2() {
             border: '1px solid rgba(16,185,129,0.18)',
           }}>
           <div className="p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row items-start gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
               {/* Left: messaging */}
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: '#64748b' }}>Open Source</p>
                 <h2 className="text-xl font-black text-white mb-2">Ship Real Work. Build Real Reputation.</h2>
                 <p className="text-sm text-slate-400 leading-relaxed mb-4 max-w-xl">
@@ -879,20 +875,37 @@ export default function HomeV2() {
                   </a>
                 </div>
               </div>
-              {/* Right: open-source stats */}
-              <div className="shrink-0 grid grid-cols-2 gap-2.5">
-                {([
-                  { value: '100%', label: 'Open source', color: '#34d399' },
-                  { value: 'MIT', label: 'License', color: '#38bdf8' },
-                  { value: 'Free', label: 'Forever', color: '#a78bfa' },
-                  { value: '0', label: 'Paywalls', color: '#fb923c' },
-                ] as const).map(({ value, label, color }) => (
-                  <div key={label} className="rounded-xl px-4 py-3 text-center"
-                    style={{ background: `${color}0a`, border: `1px solid ${color}20` }}>
-                    <div className="text-lg font-black" style={{ color }}>{value}</div>
-                    <div className="text-[10px] text-slate-600 mt-0.5">{label}</div>
+              {/* Right: Built by — author card (real maintainer data) */}
+              <div className="rounded-2xl p-5"
+                style={{ background: 'rgba(6,12,24,0.80)', border: '1px solid rgba(16,185,129,0.20)' }}>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-3" style={{ color: '#64748b' }}>Built by</p>
+                <div className="flex items-center gap-3 mb-3">
+                  <img src={maintainer.avatar} alt={maintainer.name}
+                    className="w-12 h-12 rounded-full object-cover shrink-0"
+                    style={{ border: '2px solid rgba(139,92,246,0.4)' }} />
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-white leading-tight truncate">{maintainer.name}</p>
+                    <p className="text-[11px] font-semibold leading-tight mt-0.5" style={{ color: '#a78bfa' }}>{maintainer.title}</p>
                   </div>
-                ))}
+                </div>
+                <div className="flex items-center gap-1.5 mb-3 text-slate-500 text-[10px]">
+                  <MapPin size={10} />
+                  <span>{maintainer.location}</span>
+                </div>
+                <p className="text-[12px] italic text-slate-400 leading-relaxed pl-3 mb-4" style={{ borderLeft: '2px solid rgba(139,92,246,0.4)' }}>
+                  "{maintainer.tagline}"
+                </p>
+                <div className="flex items-center gap-2">
+                  {maintainer.links.map(link => (
+                    <a key={link.label} href={link.url} target="_blank" rel="noreferrer" aria-label={link.label}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                      style={{ background: 'rgba(71,85,105,0.15)', border: '1px solid rgba(71,85,105,0.25)', color: '#94a3b8' }}>
+                      {link.icon === 'github' && <GitFork size={14} />}
+                      {link.icon === 'linkedin' && <Globe2 size={14} />}
+                      {link.icon === 'globe' && <Globe size={14} />}
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -933,12 +946,7 @@ export default function HomeV2() {
               <Link to="/learn"
                 className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-black rounded-2xl text-white transition-all duration-200 hover:shadow-2xl hover:shadow-violet-500/30 hover:-translate-y-0.5 active:scale-95"
                 style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.6)' }}>
-                <Zap size={16} /> Join Early Access <ArrowRight size={16} />
-              </Link>
-              <Link to="/blog"
-                className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-bold rounded-2xl text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
-                style={{ background: 'rgba(30,41,59,0.7)', border: '1px solid rgba(71,85,105,0.35)' }}>
-                <Newspaper size={16} /> Browse Articles
+                <Zap size={16} /> Start Building <ArrowRight size={16} />
               </Link>
               <Link to="/usecases"
                 className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-bold rounded-2xl text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"

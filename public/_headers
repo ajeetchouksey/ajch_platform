@@ -1,0 +1,16 @@
+# Hashed build assets (dist/assets/*-<hash>.js|css) — content-addressed filenames,
+# a content change always produces a new URL, so these are safe to cache forever.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Content JSON/markdown — not filename-hashed, so a deploy can change these without
+# the URL changing. Short cache + revalidate keeps repeat loads fast without risking
+# long-lived staleness. (The app also has its own localStorage-level cache — see
+# src/lib/content-loader.ts — which is versioned separately by __APP_VERSION__.)
+/content/*
+  Cache-Control: public, max-age=300, must-revalidate
+
+# HTML shell — always revalidate so a new deploy is visible on next load, not stuck
+# behind a stale cached shell referencing old (possibly now-404) hashed asset URLs.
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate

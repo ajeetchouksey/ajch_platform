@@ -6,21 +6,83 @@ import {
   verticalFromContentPath,
 } from './content-manifest';
 
-// ── Module-level registry cache (loaded once) ──────────────────────────────
-let _registryCache: ExamRegistry | null = null;
-let _blogManifestCache: BlogManifest | null = null;
-const _blogPostCache = new Map<string, string>();
+// ── Generic content cache ──────────────────────────────────────────────────
+// Every fetchJSON/fetchText call is deduped three ways:
+//   1. in-memory (Map)          — instant on any repeat call this session
+//   2. in-flight promise (Map)  — concurrent callers for the same URL share one fetch
+//   3. localStorage (versioned) — survives a full reload / a later visit
+// Cache key is the *resolved* URL, not the logical path: a CDN-promoted vertical
+// (e.g. blog) resolves to a URL pinned to a commit SHA (see content-manifest.ts),
+// so a content promotion naturally invalidates the cache by changing the key.
+// Locally-served content (still most of skillup) has a stable URL regardless of
+// content changes, so the persisted entry is additionally tagged with
+// __APP_VERSION__ — a new deploy invalidates it even though the URL didn't change.
+const _memCache = new Map<string, unknown>();
+const _inflight = new Map<string, Promise<unknown>>();
+const LS_PREFIX = 'ajch:content:';
+
+function readPersisted<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(LS_PREFIX + key);
+    if (!raw) return null;
+    const entry = JSON.parse(raw) as { v: string; data: T };
+    return entry.v === __APP_VERSION__ ? entry.data : null;
+  } catch {
+    return null; // storage unavailable (private browsing) or corrupt entry
+  }
+}
+
+function writePersisted<T>(key: string, data: T): void {
+  try {
+    localStorage.setItem(LS_PREFIX + key, JSON.stringify({ v: __APP_VERSION__, data }));
+  } catch {
+    // Quota exceeded or storage unavailable — memory cache for this session still works.
+  }
+}
+
+/** True if `path` is already resolvable from cache — no network call needed. */
+function isCached(path: string): boolean {
+  const key = resolveContentUrl(path);
+  return _memCache.has(key) || readPersisted(key) !== null;
+}
+
+async function cached<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+  if (_memCache.has(key)) return _memCache.get(key) as T;
+
+  const persisted = readPersisted<T>(key);
+  if (persisted !== null) {
+    _memCache.set(key, persisted);
+    return persisted;
+  }
+
+  const pending = _inflight.get(key);
+  if (pending) return pending as Promise<T>;
+
+  const promise = fetcher()
+    .then((data) => {
+      _memCache.set(key, data);
+      writePersisted(key, data);
+      return data;
+    })
+    .finally(() => { _inflight.delete(key); });
+
+  _inflight.set(key, promise);
+  return promise;
+}
 
 async function fetchJSON<T>(path: string): Promise<T> {
   await ensureContentManifestLoaded();
   const url = resolveContentUrl(path);
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
-  const json = await res.json() as T;
-  validateSchemaCompatibility(verticalFromContentPath(path), json);
-  return json;
+  return cached(url, async () => {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
+    const json = await res.json() as T;
+    validateSchemaCompatibility(verticalFromContentPath(path), json);
+    return json;
+  });
 }
 
+// Live analytics only — intentionally bypasses the cache above (always cache: 'no-store').
 async function fetchJSONFresh<T>(path: string): Promise<T> {
   await ensureContentManifestLoaded();
   const url = resolveContentUrl(path);
@@ -34,39 +96,37 @@ async function fetchJSONFresh<T>(path: string): Promise<T> {
 async function fetchText(path: string): Promise<string> {
   await ensureContentManifestLoaded();
   const url = resolveContentUrl(path);
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
-  return res.text();
+  return cached(url, async () => {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
+    return res.text();
+  });
 }
 
+const BLOG_MANIFEST_PATH = 'content/blog/index.json';
+const blogPostPath = (slug: string): string => `content/blog/posts/${slug}.md`;
+
 export async function loadBlogManifest(): Promise<BlogManifest> {
-  if (_blogManifestCache) return _blogManifestCache;
-  _blogManifestCache = await fetchJSON<BlogManifest>('content/blog/index.json');
-  return _blogManifestCache;
+  return fetchJSON<BlogManifest>(BLOG_MANIFEST_PATH);
 }
 
 export async function loadBlogPost(slug: string): Promise<string> {
-  if (_blogPostCache.has(slug)) return _blogPostCache.get(slug)!;
-  const post = await fetchText(`content/blog/posts/${slug}.md`);
-  _blogPostCache.set(slug, post);
-  return post;
+  return fetchText(blogPostPath(slug));
 }
 
 export function hasCachedBlogManifest(): boolean {
-  return _blogManifestCache !== null;
+  return isCached(BLOG_MANIFEST_PATH);
 }
 
 export function hasCachedBlogPost(slug: string): boolean {
-  return _blogPostCache.has(slug);
+  return isCached(blogPostPath(slug));
 }
 
 // ── Registry-driven loaders (exam-agnostic) ────────────────────────────────
 
 export async function loadExamRegistry(): Promise<ExamRegistry> {
-  if (_registryCache) return _registryCache;
   // RC-4: read from auto-generated skillup/catalog.json (replaces exams/index.json)
-  _registryCache = await fetchJSON<ExamRegistry>('content/skillup/catalog.json');
-  return _registryCache;
+  return fetchJSON<ExamRegistry>('content/skillup/catalog.json');
 }
 
 export async function loadQuestionsForExam(examId: string): Promise<Question[]> {
@@ -408,13 +468,8 @@ export interface SourceIntel {
 
 export type AnyUseCase = FeaturedUseCase | CatalogUseCase;
 
-let _sourceIntelCache: SourceIntel | null = null;
-const _caseFileCache = new Map<string, FeaturedUseCase>();
-
 export async function loadSourceIntel(): Promise<SourceIntel> {
-  if (_sourceIntelCache) return _sourceIntelCache;
-  _sourceIntelCache = await fetchJSON<SourceIntel>('content/usecases/_source-intel.json');
-  return _sourceIntelCache;
+  return fetchJSON<SourceIntel>('content/usecases/_source-intel.json');
 }
 
 export async function loadAllUseCases(): Promise<AnyUseCase[]> {
@@ -425,15 +480,11 @@ export async function loadAllUseCases(): Promise<AnyUseCase[]> {
 }
 
 export async function loadUseCaseById(id: string): Promise<AnyUseCase | null> {
-  // Return from cache immediately — no network, no flicker
-  if (_caseFileCache.has(id)) return _caseFileCache.get(id)!;
-  // Try the individual case file first (has architectureNotes + relatedUseCases)
+  // Try the individual case file first (has architectureNotes + relatedUseCases) —
+  // cached like everything else in this module, so a repeat visit costs no network call.
   try {
     const caseFile = await fetchJSON<FeaturedUseCase>(`content/usecases/cases/${id}.json`);
-    if (caseFile?.id) {
-      _caseFileCache.set(id, caseFile);
-      return caseFile;
-    }
+    if (caseFile?.id) return caseFile;
   } catch {
     // fall through to source-intel
   }

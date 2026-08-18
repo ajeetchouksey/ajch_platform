@@ -4,7 +4,7 @@
 Usage: python3 scripts/sync-stats.py
 
 Runs automatically after any content-agent write to keep home page stats
-accurate. Also executed by agents-validate.yml on every push to main.
+accurate.
 """
 import json
 import os
@@ -128,12 +128,11 @@ def generate_catalog() -> None:
 
 
 def count_agents() -> int:
-    path = "public/content/agents/registry.json"
-    if not os.path.exists(path):
-        return len(glob.glob(".github/agents/*.agent.md"))
-    with open(path, encoding="utf-8") as f:
-        data = json.load(f)
-    return len(data.get("agents", []))
+    """Count Claude Code subagent definitions. The old GitHub Copilot-format
+    registry (public/content/agents/registry.json, sourced from
+    .github/agents/*.agent.md) was retired when the platform consolidated
+    onto Claude Code natively — see docs/agent-framework.md."""
+    return len(glob.glob(".claude/agents/*.md"))
 
 
 def count_tools() -> int:
