@@ -1,9 +1,16 @@
 name: Deploy to GitHub Pages
 # v4 — uses actions/deploy-pages to match "GitHub Actions" Pages source setting
+#
+# DISABLED (automatic trigger removed): aaryaai.dev's DNS now points at
+# Cloudflare Pages (see .github/workflows/deploy-cloudflare-pages.yml and
+# docs/agent-framework.md's sibling context in the Phase 2 migration work) —
+# GitHub Pages no longer receives production traffic. This workflow is kept,
+# not deleted, as a rollback path: trigger it manually (workflow_dispatch,
+# via the Actions tab or `gh workflow run deploy.yml`) if Cloudflare Pages
+# ever needs to be rolled back from. Re-add the `push: branches: [main]`
+# trigger below to resume automatic deploys.
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
