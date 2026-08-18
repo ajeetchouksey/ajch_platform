@@ -8,8 +8,14 @@
 # the real JS file — for up to a year. The next browser to request that
 # exact chunk URL gets HTML back for a <script type="module"> load and fails
 # with "Failed to load module script: ... MIME type of 'text/html'".
-# Scoping /assets/* to a real 404 here prevents that from ever being cached.
-/assets/*  /assets/:splat  404
+#
+# The destination MUST be a distinct path from the source. The previous
+# version of this rule (/assets/* -> /assets/:splat 404) was a same-shape
+# rewrite that Cloudflare silently no-ops, falling through to the /* catch-
+# all below — confirmed live: requests for a never-before-seen fake asset
+# path still came back 200 text/html after that version shipped. Routing to
+# a genuinely different file is what makes the 404 real.
+/assets/*  /_asset-404.html  404
 
 # Client-side routes (React Router) — always serve the SPA shell.
 /*  /index.html  200
