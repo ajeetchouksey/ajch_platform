@@ -1,0 +1,15 @@
+# Missing hashed build assets must 404 for real — never fall back to the SPA
+# shell here. Without this rule, Cloudflare Pages' automatic SPA fallback
+# (no top-level 404.html in this deploy) serves index.html with a 200 for
+# ANY unmatched path, including a since-removed/renamed chunk under
+# /assets/*. That wrong response still inherits the `/assets/*` header rule
+# in public/_headers (Cache-Control: public, max-age=31536000, immutable),
+# so Cloudflare's edge caches the mistaken 200-HTML response as if it were
+# the real JS file — for up to a year. The next browser to request that
+# exact chunk URL gets HTML back for a <script type="module"> load and fails
+# with "Failed to load module script: ... MIME type of 'text/html'".
+# Scoping /assets/* to a real 404 here prevents that from ever being cached.
+/assets/*  /assets/:splat  404
+
+# Client-side routes (React Router) — always serve the SPA shell.
+/*  /index.html  200
