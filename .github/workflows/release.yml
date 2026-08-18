@@ -151,18 +151,13 @@ jobs:
               "$ARTIFACT" "${ARTIFACT}.sha256"
           fi
 
-      # ── 9. Trigger deployment workflow (stable releases only) ─────────────
-      # Dispatches deploy.yml on the main branch so deployment is explicitly
-      # tracked as a child run in the Actions UI.
-      # Pre-releases are excluded — they never auto-deploy to production.
-      - name: Trigger deployment workflow
-        id: dispatch
-        if: steps.check.outputs.exists == 'false' && steps.meta.outputs.prerelease == 'false'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh workflow run deploy.yml --ref main
-          echo "triggered=true" >> $GITHUB_OUTPUT
+      # ── 9. Deployment note ──────────────────────────────────────────────
+      # No dispatch needed here: Cloudflare Pages (production) already deploys
+      # automatically on every push to main via deploy-cloudflare-pages.yml.
+      # A release tag always points at a commit already on main, so that
+      # deploy has already happened by the time this workflow runs.
+      # deploy.yml (GitHub Pages) is retired to workflow_dispatch-only and is
+      # deliberately NOT triggered here — see deploy.yml's own header.
 
       # ── 10. Write job summary ───────────────────────────────────────────
       - name: Write job summary
@@ -185,9 +180,9 @@ jobs:
 
           # Deployment status label
           if [ "$PRERELEASE" = "false" ]; then
-            DEPLOY_STATUS="✅ Dispatched \`deploy.yml\` on \`main\`"
+            DEPLOY_STATUS="✅ Already live via Cloudflare Pages (auto-deploys on push to \`main\`)"
           else
-            DEPLOY_STATUS="⏭️ Skipped — pre-release tag"
+            DEPLOY_STATUS="⏭️ Pre-release — not applicable"
           fi
 
           # Release status label
