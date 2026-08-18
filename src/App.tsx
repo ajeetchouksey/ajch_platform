@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { BrowserRouter, useLocation } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import AppRoutes from '@/app/router';
@@ -37,7 +37,9 @@ export default function App() {
         <GATracker />
         <AuthMerger />
         <Layout>
-          <AppRoutes />
+          <Suspense fallback={<div className="flex items-center justify-center py-24 text-slate-400">Loading…</div>}>
+            <AppRoutes />
+          </Suspense>
         </Layout>
       </BrowserRouter>
     </AuthProvider>

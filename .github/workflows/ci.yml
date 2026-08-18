@@ -40,3 +40,15 @@ jobs:
           # Non-secret build vars — intentionally empty for PR builds;
           # the build must succeed without real tokens.
           VITE_REPO_BASE: /ajch_platform/
+
+      - name: Check bundle size budget
+        run: |
+          # 700KB — comfortably above the known largest lazy chunk (mermaid's
+          # vendor deps, ~650KB, only loaded on the 6 pages that render diagrams)
+          # but still catches an un-split bundle like the pre-lazy-loading 1.3MB main chunk.
+          OVERSIZED=$(find dist/assets -name '*.js' -size +700k)
+          if [ -n "$OVERSIZED" ]; then
+            echo "Chunks exceeding 700KB budget:"
+            echo "$OVERSIZED"
+            exit 1
+          fi

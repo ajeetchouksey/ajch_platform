@@ -4,14 +4,13 @@
  * POST /mentor/plan  — AI study plan generation via Anthropic API proxy
  * POST /mentor/chat  — per-session inline mentor Q&A via Anthropic API proxy
  *
- * Storage : GitHub Gists (private subscriber list + public aggregate stats)
+ * Storage : D1 (subscriber list, see workers/schema.sql) + GitHub Gist (public aggregate stats)
  * Invites : GitHub App installation token → repo collaborator invite (read-only)
  * Security: CORS origin check, OWASP A03 input validation, KV rate limiting,
  *           prompt injection defence (delimited user input), PII-safe error logs
  *
  * Required secrets (set via `wrangler secret put <NAME>`):
  *   GIST_TOKEN             Fine-grained PAT, Gists R/W scope only
- *   SUBSCRIBER_GIST_ID     Private/secret gist ID — subscribers.json
  *   PUBLIC_STATS_GIST_ID   Public gist ID        — aarya-stats.json
  *   GH_APP_ID              GitHub App ID (aarya-platform-bot)
  *   GH_APP_PRIVATE_KEY     GitHub App RSA private key (PEM, PKCS#1 or PKCS#8)
@@ -44,12 +43,6 @@ const GH_HANDLE_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
 export interface Env {
   /** Fine-grained PAT — Gists read/write scope only. */
   GIST_TOKEN: string;
-  /**
-   * INVARIANT: this must be a *secret* (private) gist — never public.
-   * Public gist = PII breach. The gist was created with "Create secret gist" in
-   * the browser. Never re-create it as a public gist.
-   */
-  SUBSCRIBER_GIST_ID: string;
   /** Public gist — contains only aggregate counts (email_count, gh_count). No PII. */
   PUBLIC_STATS_GIST_ID: string;
   GH_APP_ID: string;
@@ -58,18 +51,18 @@ export interface Env {
   GH_APP_INSTALLATION_ID: string;
   /** Workers KV namespace — used for per-IP rate limiting. */
   RATE_LIMITER: KVNamespace;
+  /**
+   * D1 database — subscriber list (type, value, subscribed_at). Replaces the old
+   * Gist read-modify-write, which raced under concurrent /subscribe calls.
+   * Schema: workers/schema.sql. Binding declared in wrangler.toml.
+   */
+  DB: D1Database;
   /** Anthropic API key — powers /mentor/* endpoints. Set via `wrangler secret put ANTHROPIC_API_KEY`. */
   ANTHROPIC_API_KEY?: string;
   /** GitHub OAuth App client ID — used by /oauth/callback to exchange code for token. */
   GH_CLIENT_ID?: string;
   /** GitHub OAuth App client secret — NEVER expose client-side. Set via `wrangler secret put GH_CLIENT_SECRET`. */
   GH_CLIENT_SECRET?: string;
-}
-
-interface Subscriber {
-  type: 'email' | 'github';
-  value: string;
-  subscribed_at: string;
 }
 
 interface PublicStats {
@@ -120,6 +113,12 @@ function b64url(s: string): string {
 function b64urlBytes(buf: Uint8Array): string {
   return btoa(String.fromCharCode(...buf))
     .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+/** SHA-256 of a string, hex-encoded. Used to build short, fixed-length KV cache keys. */
+async function sha256Hex(s: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 async function signGitHubAppJWT(appId: string, pemKey: string): Promise<string> {
@@ -603,6 +602,18 @@ async function handleMentorPlan(request: Request, env: Env, origin: string): Pro
 
   const safeRequest = stripHtml(planRequest, 500);
 
+  // Cache identical plan requests (same exam, scores, weights, target date, and free-text
+  // request) to avoid re-spending Anthropic tokens on repeat visits — plans only need to
+  // change when the learner's inputs change. Key is hashed since safeRequest can push the
+  // raw concatenation past KV's 512-byte key limit.
+  const cacheKey = `mp:${await sha256Hex(
+    `${examId}:${targetDate}:${JSON.stringify(sanitizedScores)}:${JSON.stringify(sanitizedWeights)}:${safeRequest}`,
+  )}`;
+  const cachedPlan = await env.RATE_LIMITER.get(cacheKey);
+  if (cachedPlan) {
+    return json(JSON.parse(cachedPlan), 200, origin);
+  }
+
   const userContent = `Exam: ${stripHtml(examTitle as string, 100)} (ID: ${examId})
 Target date: ${targetDate}
 Domain scores (% correct): ${JSON.stringify(sanitizedScores)}
@@ -642,7 +653,12 @@ Domain weights (%): ${JSON.stringify(sanitizedWeights)}
 
   const coachNote = typeof parsed.coachNote === 'string' ? stripHtml(parsed.coachNote as string, 280) : '';
 
-  return json({ sessions, coachNote }, 200, origin);
+  const result = { sessions, coachNote };
+  // 1hr TTL — long enough to survive a page refresh/revisit, short enough that a plan
+  // doesn't go stale for long after the learner's underlying scores actually change.
+  await env.RATE_LIMITER.put(cacheKey, JSON.stringify(result), { expirationTtl: 3600 });
+
+  return json(result, 200, origin);
 }
 
 // ── /mentor/chat handler ──────────────────────────────────────────────────────
@@ -765,46 +781,37 @@ export default {
       return json({ error: 'Invalid GitHub handle' }, 400);
     }
 
-    // ── Read subscribers (INVARIANT: private gist) ─────────────────────────────
-    let subscribers: Subscriber[];
+    // ── Insert (D1 atomic upsert — replaces the Gist read-modify-write) ────────
+    // ON CONFLICT DO NOTHING relies on the (type, value) primary key in
+    // workers/schema.sql, so "already subscribed" is a single atomic statement
+    // instead of a read-then-write that could race under concurrent requests.
+    let changes: number;
     try {
-      subscribers = await readGist<Subscriber[]>(
-        env.SUBSCRIBER_GIST_ID, 'subscribers.json', env.GIST_TOKEN,
-      );
-      if (!Array.isArray(subscribers)) subscribers = [];
-    } catch (err) {
-      // Log error code only — no PII in logs
-      console.error('subscriber-read-failed:', (err as Error).message);
-      return json({ error: 'Service temporarily unavailable' }, 503);
-    }
-
-    // ── Deduplicate ────────────────────────────────────────────────────────────
-    const dedupKey = `${type}:${normalised}`;
-    if (subscribers.some(s => `${s.type}:${s.value.toLowerCase()}` === dedupKey)) {
-      return json({ status: 'already_subscribed' }, 200);
-    }
-
-    // ── Persist ────────────────────────────────────────────────────────────────
-    subscribers.push({
-      type: type as 'email' | 'github',
-      value: normalised,
-      subscribed_at: new Date().toISOString(),
-    });
-
-    try {
-      await writeGist(env.SUBSCRIBER_GIST_ID, 'subscribers.json', subscribers, env.GIST_TOKEN);
+      const result = await env.DB.prepare(
+        'INSERT INTO subscribers (type, value, subscribed_at) VALUES (?1, ?2, ?3) ON CONFLICT(type, value) DO NOTHING',
+      ).bind(type, normalised, new Date().toISOString()).run();
+      changes = result.meta.changes;
     } catch (err) {
       console.error('subscriber-write-failed:', (err as Error).message);
       return json({ error: 'Service temporarily unavailable' }, 503);
     }
 
+    if (changes === 0) {
+      return json({ status: 'already_subscribed' }, 200);
+    }
+
     // ── Update public stats (aggregate counts only — no PII) ──────────────────
-    const stats: PublicStats = {
-      email_count: subscribers.filter(s => s.type === 'email').length,
-      gh_count: subscribers.filter(s => s.type === 'github').length,
-      synced_at: new Date().toISOString(),
-    };
     try {
+      const counts = await env.DB.prepare(
+        'SELECT type, COUNT(*) as n FROM subscribers GROUP BY type',
+      ).all<{ type: string; n: number }>();
+      const emailCount = counts.results.find(r => r.type === 'email')?.n ?? 0;
+      const ghCount = counts.results.find(r => r.type === 'github')?.n ?? 0;
+      const stats: PublicStats = {
+        email_count: emailCount,
+        gh_count: ghCount,
+        synced_at: new Date().toISOString(),
+      };
       await writeGist(env.PUBLIC_STATS_GIST_ID, 'aarya-stats.json', stats, env.GIST_TOKEN);
     } catch (err) {
       // Non-fatal — subscriber already persisted; stats will catch up on next subscribe

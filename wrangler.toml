@@ -11,14 +11,21 @@ workers_dev     = true
 binding = "RATE_LIMITER"
 id      = "11f07ef9b0c5432bb9a232390d3ec672"
 
+# ── D1 database — subscriber list (replaces the Gist read-modify-write) ──────
+# Created via: wrangler d1 create aarya-subscribers
+# Schema applied via: wrangler d1 execute aarya-subscribers --file=workers/schema.sql (--local for dev, --remote for prod)
+[[d1_databases]]
+binding     = "DB"
+database_name = "aarya-subscribers"
+database_id = "2f397d9b-4d45-4c1d-aa1e-3c474f58dd32"
+
 # ── Secrets — set via CLI, never commit values ────────────────────────────────
 # Run each of the following (you will be prompted to paste the value):
 #
 #   wrangler secret put GIST_TOKEN
-#     → paste the fine-grained PAT (aarya-subscribe-gist-pat, Gists R/W)
-#
-#   wrangler secret put SUBSCRIBER_GIST_ID
-#     → <REPLACE_WITH_SUBSCRIBER_GIST_ID>
+#     → paste the fine-grained PAT (aarya-subscribe-gist-pat, Gists R/W) — still
+#       used for the public aggregate-stats gist (aarya-stats.json); the private
+#       subscriber-list gist is retired in favour of the D1 database above.
 #
 #   wrangler secret put PUBLIC_STATS_GIST_ID
 #     → <REPLACE_WITH_PUBLIC_STATS_GIST_ID>

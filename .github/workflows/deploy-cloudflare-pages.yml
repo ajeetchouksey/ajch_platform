@@ -1,0 +1,74 @@
+name: Deploy to Cloudflare Pages
+# Parallel to deploy.yml (GitHub Pages) — does NOT replace it. GitHub Pages remains
+# the production deployment; this publishes the same build to Cloudflare Pages
+# (https://ajch-platform.pages.dev) so it can be evaluated/tested independently
+# before any DNS cutover decision. See docs/adr/ for the platform migration context.
+#
+# One-time setup required before this workflow can run:
+#   1. Create a Cloudflare API token: https://dash.cloudflare.com/profile/api-tokens
+#        → "Create Token" → "Edit Cloudflare Workers" template (includes Pages:Edit),
+#          or a custom token scoped to Account.Cloudflare Pages:Edit only.
+#   2. Add it as a repo secret:
+#        gh secret set CLOUDFLARE_API_TOKEN
+#      (or Settings → Secrets and variables → Actions → New repository secret)
+#   3. The Cloudflare account ID is not secret — set below directly (from
+#      `wrangler whoami`: Ajeetchouksey27@hotmail.com's Account).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-pages
+  cancel-in-progress: false
+
+env:
+  CLOUDFLARE_ACCOUNT_ID: e898ebfc013f074cde300a1ed1c16418
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+        env:
+          HUSKY: '0'
+
+      - name: Build
+        env:
+          HUSKY: '0'
+          VITE_REPO_BASE: /
+          VITE_GH_CLIENT_ID: ${{ secrets.VITE_GH_CLIENT_ID }}
+          VITE_GA_MEASUREMENT_ID: ${{ vars.VITE_GA_MEASUREMENT_ID }}
+          VITE_CONVERTKIT_FORM_ID: ${{ secrets.VITE_CONVERTKIT_FORM_ID }}
+          VITE_SUBSCRIBE_WORKER_URL: https://aarya-subscribe.ajeetchouksey27.workers.dev
+          VITE_GH_OAUTH_PROXY: https://aarya-subscribe.ajeetchouksey27.workers.dev
+          VITE_STATS_GIST_ID: 4ccf1b49e144256342d92bab727fbb89
+        run: npm run build
+
+      # Cloudflare Pages only enables its native SPA fallback (any unmatched path →
+      # index.html, 200) when there's no top-level 404.html in the deployment. This
+      # repo ships one for GitHub Pages' own redirect-based SPA routing hack
+      # (public/404.html) — harmless there, but it would make Cloudflare serve that
+      # file as a literal 404 for every client-side route instead. Strip it for this
+      # deploy only; public/404.html and the GitHub Pages workflow are untouched.
+      - name: Remove GitHub-Pages-only 404 redirect shim
+        run: rm -f dist/404.html
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npx wrangler pages deploy dist --project-name=ajch-platform --branch=main

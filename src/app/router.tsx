@@ -1,72 +1,75 @@
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
-
+import { lazy } from 'react';
 // ── Home ──────────────────────────────────────────────────────────────────────
-import HomeV2 from '@/features/home/pages/HomeV2';
+const HomeV2 = lazy(() => import('@/features/home/pages/HomeV2'));
 
 // ── Skill Up (Exams) ──────────────────────────────────────────────────────────
-import ExamCatalog from '@/features/exams/pages/ExamCatalog';
-import ExamHome from '@/features/exams/pages/ExamHome';
-import Quiz from '@/features/exams/pages/Quiz';
-import Notes from '@/features/exams/pages/Notes';
-import Scenarios from '@/features/exams/pages/Scenarios';
-import Progress from '@/features/exams/pages/Progress';
-import StudyPlan from '@/features/exams/pages/StudyPlan';
+const ExamCatalog = lazy(() => import('@/features/exams/pages/ExamCatalog'));
+const ExamHome = lazy(() => import('@/features/exams/pages/ExamHome'));
+const Quiz = lazy(() => import('@/features/exams/pages/Quiz'));
+const Notes = lazy(() => import('@/features/exams/pages/Notes'));
+const Scenarios = lazy(() => import('@/features/exams/pages/Scenarios'));
+const Progress = lazy(() => import('@/features/exams/pages/Progress'));
+const StudyPlan = lazy(() => import('@/features/exams/pages/StudyPlan'));
 
 // ── Pathways ──────────────────────────────────────────────────────────────────
-import Pathways from '@/features/pathways/pages/Pathways';
-import PathwayTrack from '@/features/pathways/pages/PathwayTrack';
-import PathwayArticle from '@/features/pathways/pages/PathwayArticle';
+const Pathways = lazy(() => import('@/features/pathways/pages/Pathways'));
+const PathwayTrack = lazy(() => import('@/features/pathways/pages/PathwayTrack'));
+const PathwayArticle = lazy(() => import('@/features/pathways/pages/PathwayArticle'));
 
 // ── Field Notes (Blog) ────────────────────────────────────────────────────────
-import Blog from '@/features/blog/pages/Blog';
-import BlogPost from '@/features/blog/pages/BlogPost';
+const Blog = lazy(()=> import('@/features/blog/pages/Blog'));
+const BlogPost = lazy(()=> import ('@/features/blog/pages/BlogPost'));
 
 // ── AI Tools ──────────────────────────────────────────────────────────────────
-import Tools from '@/features/tools/pages/Tools';
-import TokenCounter from '@/features/tools/pages/TokenCounter';
-import ContextVisualizer from '@/features/tools/pages/ContextVisualizer';
-import McpScaffold from '@/features/tools/pages/McpScaffold';
-import SystemPromptBuilder from '@/features/tools/pages/SystemPromptBuilder';
-import ModelCostCalc from '@/features/tools/pages/ModelCostCalc';
-import ToolSchemaBuilder from '@/features/tools/pages/ToolSchemaBuilder';
-import RagChunkVisualizer from '@/features/tools/pages/RagChunkVisualizer';
-import PromptTester from '@/features/tools/pages/PromptTester';
-import PromptLibrary from '@/features/tools/pages/PromptLibrary';
+const Tools =  lazy(()=> import('@/features/tools/pages/Tools'));
+const TokenCounter =  lazy(()=> import('@/features/tools/pages/TokenCounter'));
+const ContextVisualizer =  lazy(()=> import('@/features/tools/pages/ContextVisualizer'));
+const McpScaffold =  lazy(()=> import('@/features/tools/pages/McpScaffold'));
+const SystemPromptBuilder = lazy(() => import('@/features/tools/pages/SystemPromptBuilder'));
+const ModelCostCalc = lazy(() => import('@/features/tools/pages/ModelCostCalc'));
+const ToolSchemaBuilder = lazy(() => import('@/features/tools/pages/ToolSchemaBuilder'));
+const RagChunkVisualizer = lazy(() => import('@/features/tools/pages/RagChunkVisualizer'));
+const PromptTester = lazy(() => import('@/features/tools/pages/PromptTester'));
+const PromptLibrary = lazy(() => import('@/features/tools/pages/PromptLibrary'));
 
 // ── Interview Prep ────────────────────────────────────────────────────────────
-import InterviewCatalog from '@/features/interview/pages/InterviewCatalog';
-import InterviewPack from '@/features/interview/pages/InterviewPack';
-import InterviewQuestion from '@/features/interview/pages/InterviewQuestion';
+const InterviewCatalog = lazy(() => import('@/features/interview/pages/InterviewCatalog'));
+const InterviewPack = lazy(() => import('@/features/interview/pages/InterviewPack'));
+const InterviewQuestion = lazy(() => import('@/features/interview/pages/InterviewQuestion'));
 
 // ── AI Use Cases ──────────────────────────────────────────────────────────────
-import UseCasesCatalog from '@/features/usecases/pages/UseCasesCatalog';
-import UseCaseDetail from '@/features/usecases/pages/UseCaseDetail';
+const UseCasesCatalog = lazy(() => import('@/features/usecases/pages/UseCasesCatalog'));
+const UseCaseDetail = lazy(() => import('@/features/usecases/pages/UseCaseDetail'));
 
 // ── Docs ──────────────────────────────────────────────────────────────────────
-import Docs from '@/features/docs/pages/Docs';
+const Docs = lazy(() => import('@/features/docs/pages/Docs'));
 
 // ── Monitoring ───────────────────────────────────────────────────────────────
-import Monitoring from '@/features/monitoring/pages/Monitoring';
+const Monitoring = lazy(() => import('@/features/monitoring/pages/Monitoring'));
 
 // ── MVP Progress ─────────────────────────────────────────────────────────────
-import MvpProgress from '@/features/mvp/pages/MvpProgress';
+const MvpProgress = lazy(() => import('@/features/mvp/pages/MvpProgress'));
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
-import Admin from '@/features/admin/pages/Admin';
-import YoutubeTracker from '@/features/admin/pages/YoutubeTracker';
-import IssueBoard from '@/features/admin/pages/IssueBoard';
-import Reactions from '@/features/admin/pages/Reactions';
+const Admin = lazy(() => import('@/features/admin/pages/Admin'));
+const YoutubeTracker = lazy(() => import('@/features/admin/pages/YoutubeTracker'));
+const IssueBoard = lazy(() => import('@/features/admin/pages/IssueBoard'));
+const Reactions = lazy(() => import('@/features/admin/pages/Reactions'));
 
 // ── Analytics / Maintainer ────────────────────────────────────────────────────
-import Analytics from '@/features/analytics/pages/Analytics';
-import Maintainer from '@/features/analytics/pages/Maintainer';
-import MaintainerDashboard from '@/features/analytics/pages/MaintainerDashboard';
+const Analytics = lazy(() => import('@/features/analytics/pages/Analytics'));
+const Maintainer = lazy(() => import('@/features/analytics/pages/Maintainer'));
+const MaintainerDashboard = lazy(() => import('@/features/analytics/pages/MaintainerDashboard'));
 
 // ── Profile / Team ────────────────────────────────────────────────────────────
-import Profile from '@/features/profile/pages/Profile';
-import TeamV2 from '@/features/profile/pages/TeamV2';import Dashboard from '@/features/profile/pages/Dashboard';
-import Contribute from '@/features/community/pages/Contribute';
-import Subscribe from '@/pages/Subscribe';import AuthCallback from '@/pages/AuthCallback';// ─────────────────────────────────────────────────────────────────────────────
+const Profile = lazy(() => import('@/features/profile/pages/Profile'));
+const TeamV2 = lazy(() => import('@/features/profile/pages/TeamV2'));
+const Dashboard = lazy(() => import('@/features/profile/pages/Dashboard'));
+const Contribute = lazy(() => import('@/features/community/pages/Contribute'));
+const Subscribe = lazy(() => import('@/pages/Subscribe'));
+const AuthCallback = lazy(() => import('@/pages/AuthCallback'));
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Backward-compat redirect helpers for /exams/:examId/* → /skillup/:examId/*
 function ExamIdRedirect() {
