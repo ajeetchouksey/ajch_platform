@@ -1,8 +1,7 @@
 name: Deploy to Cloudflare Pages
-# Parallel to deploy.yml (GitHub Pages) — does NOT replace it. GitHub Pages remains
-# the production deployment; this publishes the same build to Cloudflare Pages
-# (https://ajch-platform.pages.dev) so it can be evaluated/tested independently
-# before any DNS cutover decision. See docs/adr/ for the platform migration context.
+# Production deployment target (aaryaai.dev — DNS points here). Runs on every
+# push to main. deploy.yml (GitHub Pages) is kept as a workflow_dispatch-only
+# manual rollback path but no longer auto-deploys — see its own header.
 #
 # One-time setup required before this workflow can run:
 #   1. Create a Cloudflare API token: https://dash.cloudflare.com/profile/api-tokens

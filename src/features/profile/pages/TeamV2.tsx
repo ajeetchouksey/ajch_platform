@@ -126,7 +126,6 @@ interface AgentCardProps {
   activeTask: string;
   model: string;
   tools: number;
-  version: string;
   icon: React.ElementType;
   accentHex: string;
   accentClass: string;
@@ -135,11 +134,11 @@ interface AgentCardProps {
   profileFile?: string;
 }
 
-const GH_BASE = 'https://github.com/ajeetchouksey/ajch_platform/blob/main/.github/agents/';
+const GH_BASE = 'https://github.com/ajeetchouksey/ajch_platform/blob/main/.claude/agents/';
 
 function AgentCard({
   name, role, tagline, description, capabilities, status,
-  activeTask, model, tools, version, icon: Icon,
+  activeTask, model, tools, icon: Icon,
   accentHex, isNew, isLarge, profileFile,
 }: AgentCardProps) {
   return (
@@ -199,9 +198,6 @@ function AgentCard({
                 <span className={`w-1.5 h-1.5 rounded-full ${status === 'active' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
                 {status}
               </div>
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono text-slate-600 bg-slate-800/60 border border-slate-700/30">
-                {version}
-              </span>
             </div>
           </div>
 
@@ -403,7 +399,7 @@ const TICKER_ITEMS = [
   '📝 Content Lead drafting article',
   '🎓 Curriculum Engineer scanning docs',
   '🚀 SRE monitoring deploy pipeline',
-  '🧠 Pair Programmer awaiting session',
+  '🎓 Principal Mentor: Socratic session active',
   '🎨 Design Systems Engineer: UX audit',
   '📊 Product Manager scoring backlog',
   '🔍 AI Researcher scanning arXiv',
@@ -417,13 +413,13 @@ const PIPELINE_STEPS = [
   { icon: ShieldCheck, label: 'AppSec Engineer',  sub: 'hard pre-build gate — PASS ✓ or BLOCK ✗',       color: '#ef4444' },
   { icon: GitBranch,   label: 'Domain Lead',      sub: 'implements via their own specialist sub-agents', color: '#3b82f6' },
   { icon: ShieldCheck, label: 'Post-build Audit', sub: 'AppSec re-scans every changed file',             color: '#f59e0b' },
-  { icon: Zap,         label: 'SRE',              sub: 'semver release, CHANGELOG, agent versioning',   color: '#f97316' },
+  { icon: Zap,         label: 'SRE',              sub: 'semver release, CHANGELOG, CI/CD pipelines',   color: '#f97316' },
   { icon: Megaphone,   label: 'DevRel',           sub: 'drafts the announcement copy for human review', color: '#ec4899' },
 ];
 
 const ARCH_LAYERS = [
   { label: 'Dispatch Layer',      color: '#8b5cf6', agents: ['Staff Engineer', 'Product Manager'],                          count: 2  },
-  { label: 'Domain Leads',        color: '#3b82f6', agents: ['Platform Architect', 'Content Lead', 'Curriculum Eng', 'Pair Programmer'], count: 4 },
+  { label: 'Domain Leads',        color: '#3b82f6', agents: ['Platform Architect', 'Content Lead', 'Curriculum Eng', 'Interview Prep Eng'], count: 4 },
   { label: 'Platform Foundation', color: '#f59e0b', agents: ['AppSec Engineer', 'Design Systems', 'SRE', 'DevRel'],         count: 4  },
   { label: 'Specialists',         color: '#10b981', agents: ['23 sub-agents across all domain leads'],                      count: 23 },
 ];
@@ -440,7 +436,6 @@ export default function TeamV2() {
     'platform-control':{ hex: '#3b82f6', cls: 'blue' },
     blog:             { hex: '#10b981', cls: 'emerald' },
     'exam-content':   { hex: '#f59e0b', cls: 'amber' },
-    'study-companion':{ hex: '#f43f5e', cls: 'rose' },
     'security-governance':{ hex: '#f59e0b', cls: 'amber' },
     'ux-framework':   { hex: '#a855f7', cls: 'purple' },
     devops:           { hex: '#f97316', cls: 'orange' },
@@ -457,9 +452,9 @@ export default function TeamV2() {
       capabilities: ['Intent Classification', 'Security Pre-flight', 'Agent Routing', 'Synthesis'],
       status: 'active' as const,
       activeTask: 'Routing blog request → Content Lead',
-      model: 'Claude Sonnet', tools: 14, version: 'v2.5.2',
+      model: 'Claude Sonnet', tools: 14,
       icon: Cpu, isNew: false, isLarge: true,
-      profileFile: 'staff-engineer.agent.md',
+      profileFile: 'staff-engineer.md',
     },
     {
       id: 'product-owner',
@@ -470,9 +465,9 @@ export default function TeamV2() {
       capabilities: ['Roadmap', 'RICE Scoring', 'Sprint Planning', 'Research & Analysis'],
       status: 'active' as const,
       activeTask: 'Analyzing backlog — recommending sprint priorities',
-      model: 'Claude Sonnet', tools: 14, version: 'v1.1.0',
+      model: 'Claude Sonnet', tools: 14,
       icon: TrendingUp, isNew: true, isLarge: true,
-      profileFile: 'product-manager.agent.md',
+      profileFile: 'product-manager.md',
     },
     {
       id: 'platform-control',
@@ -483,9 +478,9 @@ export default function TeamV2() {
       capabilities: ['Architecture', 'Build Config', 'Deploy', 'Feature Registration'],
       status: 'active' as const,
       activeTask: 'Scaffolding new tools route → Platform Engineer',
-      model: 'Claude Sonnet', tools: 8, version: 'v3.2.0',
+      model: 'Claude Sonnet', tools: 8,
       icon: GitBranch, isNew: false, isLarge: false,
-      profileFile: 'platform-architect.agent.md',
+      profileFile: 'platform-architect.md',
     },
     {
       id: 'blog',
@@ -496,9 +491,9 @@ export default function TeamV2() {
       capabilities: ['Content Pipeline', 'Voice Strategy', 'Category Management'],
       status: 'active' as const,
       activeTask: 'Drafting post on AI model optimization...',
-      model: 'Claude Sonnet', tools: 6, version: 'v2.0.0',
+      model: 'Claude Sonnet', tools: 6,
       icon: PenTool, isNew: false, isLarge: false,
-      profileFile: 'content-lead.agent.md',
+      profileFile: 'content-lead.md',
     },
     {
       id: 'exam-content',
@@ -509,22 +504,9 @@ export default function TeamV2() {
       capabilities: ['Web Research', 'Concept Extraction', 'Deduplication', 'Classification'],
       status: 'active' as const,
       activeTask: 'Scanning Anthropic docs for new CCA-F content...',
-      model: 'Claude Sonnet', tools: 8, version: 'v2.0.0',
+      model: 'Claude Sonnet', tools: 8,
       icon: GraduationCap, isNew: false, isLarge: false,
-      profileFile: 'curriculum-engineer.agent.md',
-    },
-    {
-      id: 'study-companion',
-      name: 'Pair Programmer',
-      role: 'Teacher',
-      tagline: '101 → 201 → 301. Meet you where you are.',
-      description: 'Split into Principal Mentor (Socratic teaching) and Junior Dev (teaching-back simulation) for two-track learning.',
-      capabilities: ['Expert Teaching', 'Socratic Method', 'Student Sim', 'Gap Analysis'],
-      status: 'standby' as const,
-      activeTask: 'Standby — awaiting study session',
-      model: 'Claude Sonnet', tools: 7, version: 'v1.0.0',
-      icon: Brain, isNew: false, isLarge: false,
-      profileFile: 'pair-programmer.agent.md',
+      profileFile: 'curriculum-engineer.md',
     },
     {
       id: 'security-governance',
@@ -535,9 +517,9 @@ export default function TeamV2() {
       capabilities: ['Pre-flight Validation', 'OWASP A03/A09', 'Secrets Scan', 'Post-build Audit'],
       status: 'active' as const,
       activeTask: 'Standing by — next write request incoming',
-      model: 'Claude Sonnet', tools: 5, version: 'v1.1.0',
+      model: 'Claude Sonnet', tools: 5,
       icon: ShieldCheck, isNew: false, isLarge: false,
-      profileFile: 'appsec-engineer.agent.md',
+      profileFile: 'appsec-engineer.md',
     },
     {
       id: 'ux-framework',
@@ -548,22 +530,22 @@ export default function TeamV2() {
       capabilities: ['UI Primitives', 'Design Tokens', 'Post-build Audit', 'Component Scaffolding'],
       status: 'active' as const,
       activeTask: 'Post-build UX audit of changed components',
-      model: 'Claude Sonnet', tools: 8, version: 'v1.1.0',
+      model: 'Claude Sonnet', tools: 8,
       icon: Palette, isNew: false, isLarge: false,
-      profileFile: 'design-systems-engineer.agent.md',
+      profileFile: 'design-systems-engineer.md',
     },
     {
       id: 'devops',
       name: 'SRE',
       role: 'CI/CD Lead',
       tagline: 'Build. Tag. Deploy. Never skip the CHANGELOG.',
-      description: 'Owns all GitHub Actions workflows, semver releases, and agent-file versioning. Every ship gets a version bump.',
+      description: 'Owns all GitHub Actions workflows and semver releases. Every ship gets a version bump.',
       capabilities: ['CI/CD Pipelines', 'Semver Releases', 'Agent Versioning', 'CHANGELOG'],
       status: 'active' as const,
       activeTask: 'Monitoring deploy.yml — last deploy: main branch',
-      model: 'Claude Sonnet', tools: 7, version: 'v1.3.0',
+      model: 'Claude Sonnet', tools: 7,
       icon: Zap, isNew: true, isLarge: false,
-      profileFile: 'sre.agent.md',
+      profileFile: 'sre.md',
     },
     {
       id: 'social-media',
@@ -574,9 +556,9 @@ export default function TeamV2() {
       capabilities: ['LinkedIn Posts', 'Twitter/X Threads', 'Dev.to Drafts', 'CCA-F Study Tips'],
       status: 'standby' as const,
       activeTask: 'Standby — awaiting content promotion request',
-      model: 'Claude Sonnet', tools: 5, version: 'v1.0.0',
+      model: 'Claude Sonnet', tools: 5,
       icon: Megaphone, isNew: true, isLarge: false,
-      profileFile: 'devrel.agent.md',
+      profileFile: 'devrel.md',
     },
     {
       id: 'mvp-strategy',
@@ -587,14 +569,14 @@ export default function TeamV2() {
       capabilities: ['Gap Analysis', 'Strategy Brief', 'Recommendations', 'Evidence Package'],
       status: 'active' as const,
       activeTask: 'Weekly MVP analysis — last run Aug 10 2026',
-      model: 'Claude Sonnet', tools: 6, version: 'v1.0.0',
+      model: 'Claude Sonnet', tools: 6,
       icon: Trophy, isNew: true, isLarge: false,
-      profileFile: 'mvp-strategist.agent.md',
+      profileFile: 'mvp-strategist.md',
     },
   ];
 
   const l0Agents  = agents.filter(a => ['orchestrator', 'product-owner'].includes(a.id));
-  const l1Agents  = agents.filter(a => ['platform-control', 'blog', 'exam-content', 'study-companion'].includes(a.id));
+  const l1Agents  = agents.filter(a => ['platform-control', 'blog', 'exam-content'].includes(a.id));
   const opsAgents = agents.filter(a => ['security-governance', 'ux-framework', 'devops', 'social-media', 'mvp-strategy'].includes(a.id));
 
   const subAgentGroups = [
@@ -608,7 +590,7 @@ export default function TeamV2() {
           tagline: 'Fetch. Synthesise. Surface signal.',
           capabilities: ['arXiv Scan', 'Model Benchmarks', 'Tool Discovery', 'Trend Synthesis'],
           status: 'standby' as const, icon: Globe2,
-          profileFile: 'ai-researcher.agent.md',
+          profileFile: 'ai-researcher.md',
         },
         {
           id: 'interview-prep', name: 'Interview Prep Engineer', role: 'Interview Commander',
@@ -629,7 +611,7 @@ export default function TeamV2() {
           tagline: 'Ceremonies. Velocity. Retros.',
           capabilities: ['Sprint Planning', 'Retrospectives', 'Burndown', 'Backlog Grooming'],
           status: 'standby' as const, icon: ListChecks,
-          profileFile: 'delivery-manager.agent.md',
+          profileFile: 'delivery-manager.md',
         },
       ],
     },
@@ -643,28 +625,28 @@ export default function TeamV2() {
           tagline: 'Routes, nav entries, and lazy-loaded pages.',
           capabilities: ['React Router', 'Lazy Loading', 'Nav Registration', 'Page Scaffold'],
           status: 'active' as const, icon: GitBranch,
-          profileFile: 'platform-engineer.agent.md',
+          profileFile: 'platform-engineer.md',
         },
         {
           id: 'component-builder', name: 'Frontend Engineer', role: 'UI Components',
           tagline: 'Build typed primitives. Zero raw Tailwind.',
           capabilities: ['React Components', 'TypeScript', 'Design Tokens', 'Accessibility'],
           status: 'active' as const, icon: Layers,
-          profileFile: 'frontend-engineer.agent.md',
+          profileFile: 'frontend-engineer.md',
         },
         {
           id: 'platform-dev-expert', name: 'Platform Dev Expert', role: 'Library & Build Tooling',
           tagline: 'src/lib · types · scripts. The logic beneath the UI.',
           capabilities: ['TypeScript Libs', 'Data Flow', 'Build Scripts', 'Algorithms'],
           status: 'active' as const, icon: Terminal,
-          profileFile: 'platform-dev-expert.agent.md',
+          profileFile: 'platform-dev-expert.md',
         },
         {
           id: 'test-engineer', name: 'Test Engineer', role: 'Quality Gate',
           tagline: 'Unit · Integration · E2E. Coverage or it did not happen.',
           capabilities: ['Vitest', 'Playwright E2E', 'Coverage Thresholds', 'CI Gate'],
           status: 'standby' as const, icon: ListChecks,
-          profileFile: 'test-engineer.agent.md',
+          profileFile: 'test-engineer.md',
         },
       ],
     },
@@ -678,14 +660,14 @@ export default function TeamV2() {
           tagline: 'Draft, refine, and pass to the gate.',
           capabilities: ['Technical Writing', 'SEO Copy', 'Code Samples', 'Markdown'],
           status: 'active' as const, icon: FileText,
-          profileFile: 'tech-writer.agent.md',
+          profileFile: 'tech-writer.md',
         },
         {
           id: 'content-publisher', name: 'Release Engineer', role: 'Publishing Pipeline',
           tagline: 'Validate metadata. Write index. Ship.',
           capabilities: ['JSON Metadata', 'Index Update', 'Slug Generation', 'Publish Gate'],
           status: 'active' as const, icon: Send,
-          profileFile: 'release-engineer.agent.md',
+          profileFile: 'release-engineer.md',
         },
       ],
     },
@@ -699,20 +681,20 @@ export default function TeamV2() {
           tagline: 'Stem. Distractors. Rationale. Deduplicate.',
           capabilities: ['MCQ Authoring', 'Distractors', 'Rationale', 'Domain Mapping'],
           status: 'active' as const, icon: HelpCircle,
-          profileFile: 'assessment-engineer.agent.md',
+          profileFile: 'assessment-engineer.md',
         },
         {
           id: 'study-notes', name: 'Docs Engineer', role: 'Notes Author',
           tagline: 'Structured notes in Markdown. Always cite the source.',
           capabilities: ['Markdown Notes', 'Source Citation', 'Domain Structuring', 'Cross-refs'],
           status: 'active' as const, icon: BookOpen,
-          profileFile: 'docs-engineer.agent.md',
+          profileFile: 'docs-engineer.md',
         },
       ],
     },
     {
-      parentId: 'study-companion',
-      parentName: 'Pair Programmer',
+      parentId: 'study-track',
+      parentName: 'Principal Mentor + Junior Dev',
       parentColor: '#f43f5e',
       agents: [
         {
@@ -720,49 +702,49 @@ export default function TeamV2() {
           tagline: 'Ask before telling. Guide, never hand-hold.',
           capabilities: ['Socratic Method', 'Concept Depth', 'Exam Traps', 'Gap Analysis'],
           status: 'active' as const, icon: Lightbulb,
-          profileFile: 'principal-mentor.agent.md',
+          profileFile: 'principal-mentor.md',
         },
         {
           id: 'student-simulator', name: 'Junior Dev', role: '101 → 301 Simulator',
           tagline: 'Be the student. Force the teacher to think.',
           capabilities: ['Teaching-back Sim', '101/201/301 Mode', 'Intentional Gaps', 'Feedback'],
           status: 'standby' as const, icon: Bot,
-          profileFile: 'junior-dev.agent.md',
+          profileFile: 'junior-dev.md',
         },
         {
           id: 'exam-coach', name: 'Exam Coach', role: 'Mock Exam Specialist',
           tagline: 'Timed. Scored. Debriefed. No shortcuts.',
           capabilities: ['Mock Exams', 'Timed Sessions', 'Scoring', 'Post-exam Debrief'],
           status: 'standby' as const, icon: Award,
-          profileFile: 'exam-coach.agent.md',
+          profileFile: 'exam-coach.md',
         },
         {
           id: 'devils-advocate', name: "Devil's Advocate", role: 'Adversarial Teaching',
           tagline: 'Wrong on purpose. Force you to find the flaw.',
           capabilities: ['Adversarial Arguments', 'Flaw Detection', 'Counter-reasoning', 'Rebuttal Practice'],
           status: 'standby' as const, icon: Brain,
-          profileFile: 'devils-advocate.agent.md',
+          profileFile: 'devils-advocate.md',
         },
         {
           id: 'performance-analyzer', name: 'Performance Analyzer', role: 'Gap Analysis',
           tagline: 'Where are you weak? Here is the evidence.',
           capabilities: ['Domain Gap Analysis', 'Distractor Patterns', 'Remediation Priorities', 'Session Data'],
           status: 'standby' as const, icon: TrendingUp,
-          profileFile: 'performance-analyzer.agent.md',
+          profileFile: 'performance-analyzer.md',
         },
         {
           id: 'learning-analytics', name: 'Learning Analytics', role: 'Content Analytics',
           tagline: 'Coverage. Difficulty. Predicted readiness.',
           capabilities: ['Domain Heatmaps', 'Difficulty Distribution', 'Tag Frequency', 'Readiness Curves'],
           status: 'standby' as const, icon: Layers,
-          profileFile: 'learning-analytics.agent.md',
+          profileFile: 'learning-analytics.md',
         },
         {
           id: 'scenario-engineer', name: 'Scenario Engineer', role: 'Scenario Specialist',
           tagline: 'RichScenario v2.0. Writes. Bumps contentVersion.',
           capabilities: ['Scenario JSON', 'RichScenario v2.0', 'contentVersion Bump', 'Exam Scenarios'],
           status: 'standby' as const, icon: ListChecks,
-          profileFile: 'scenario-engineer.agent.md',
+          profileFile: 'scenario-engineer.md',
         },
       ],
     },
@@ -776,7 +758,7 @@ export default function TeamV2() {
           tagline: 'Catch design-system drift before it ships.',
           capabilities: ['Component Audit', 'Token Compliance', 'Accessibility Check', 'Diff Report'],
           status: 'active' as const, icon: ShieldCheck,
-          profileFile: 'qa-engineer.agent.md',
+          profileFile: 'qa-engineer.md',
         },
       ],
     },
@@ -790,21 +772,21 @@ export default function TeamV2() {
           tagline: 'Tracks blogs, videos, diagrams vs targets by domain.',
           capabilities: ['Content Audit', 'Domain Coverage', 'Gap Report', 'Trend Analysis'],
           status: 'standby' as const, icon: BarChart2,
-          profileFile: 'content-gap-analyst.agent.md',
+          profileFile: 'content-gap-analyst.md',
         },
         {
           id: 'community-tracker', name: 'Community Tracker', role: 'Community Intelligence',
           tagline: 'LinkedIn, GitHub stars, speaking, mentoring — all in one view.',
           capabilities: ['LinkedIn Metrics', 'GitHub Stars', 'Speaking Log', 'Mentoring Log'],
           status: 'standby' as const, icon: Users,
-          profileFile: 'community-tracker.agent.md',
+          profileFile: 'community-tracker.md',
         },
         {
           id: 'evidence-curator', name: 'Evidence Curator', role: 'Nomination Evidence',
           tagline: 'Packages closed issues into MVP nomination-ready evidence.',
           capabilities: ['Evidence Pack', 'Issue Curation', 'Impact Summary', 'Portfolio Format'],
           status: 'standby' as const, icon: FileCheck,
-          profileFile: 'evidence-curator.agent.md',
+          profileFile: 'evidence-curator.md',
         },
       ],
     },
@@ -1208,14 +1190,14 @@ export default function TeamV2() {
               </div>
               <div>
                 <p className="text-xs font-black text-white uppercase tracking-wider">The Agents</p>
-                <p className="text-[10px] text-slate-500">28 specialised AI agents</p>
+                <p className="text-[10px] text-slate-500">33 specialised AI agents</p>
               </div>
             </div>
             {[
               { label: 'Speed & Consistency', sub: 'Executes at agent speed, follows conventions precisely every time' },
               { label: 'Breadth',             sub: 'Handles code, content, security, docs, and social simultaneously' },
               { label: 'Specialisation',      sub: 'Each agent owns one domain — no context-switching, no drift' },
-              { label: 'Auditability',        sub: 'Behaviour is version-controlled in .github/agents/ — fully reproducible' },
+              { label: 'Auditability',        sub: 'Behaviour is version-controlled in .claude/agents/ — fully reproducible' },
               { label: 'Safety',              sub: 'Every write is gated; every output is surfaced for human review' },
             ].map(({ label, sub }) => (
               <div key={label} className="flex items-start gap-2.5">
@@ -1236,7 +1218,7 @@ export default function TeamV2() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
           {[
             {
-              icon: Terminal, color: '#8b5cf6', label: 'Pair Programmer',
+              icon: Terminal, color: '#8b5cf6', label: 'Build Together',
               who: 'Human + Staff Engineer → Domain Lead',
               detail: 'Human writes the intent and acceptance criteria. AI implements and opens a PR. Human reviews every diff. Nothing merges without explicit approval.',
             },
@@ -1262,7 +1244,7 @@ export default function TeamV2() {
             },
             {
               icon: Brain, color: '#f43f5e', label: 'Teacher & Student',
-              who: 'Human ↔ Pair Programmer (both modes)',
+              who: 'Human ↔ Principal Mentor / Junior Dev',
               detail: 'Principal Mentor uses Socratic questioning to deepen understanding. Junior Dev flips the dynamic — simulating a student so the human practises teaching-back.',
             },
           ].map(({ icon: I, color, label, who, detail }) => (
@@ -1298,7 +1280,7 @@ export default function TeamV2() {
               'No agent auto-publishes — human reviews all output before it ships',
               'All work is traceable to a GitHub issue — no work without a ticket',
               'Every decision point surfaces for explicit human review and approval',
-              'Agent behaviour is version-controlled in .github/agents/ and auditable',
+              'Agent behaviour is version-controlled in .claude/agents/ and auditable',
               'Humans set the quality bar — agents are held to it on every output',
             ].map((rule, i) => (
               <div key={i} className="flex items-start gap-2.5">
@@ -1389,11 +1371,11 @@ export default function TeamV2() {
       ════════════════════════════════════════════════════════════ */}
       <div className="text-center py-10 border-t border-slate-800/40">
         <p className="text-slate-600 text-xs mb-4 font-mono">
-          All agents are defined in <code className="text-violet-500">.github/agents/</code> —
+          All agents are defined in <code className="text-violet-500">.claude/agents/</code> —
           open-sourced and version-controlled.
         </p>
         <div className="flex items-center justify-center gap-3">
-          <a href="https://github.com/ajeetchouksey/ajch_platform/tree/main/.github/agents"
+          <a href="https://github.com/ajeetchouksey/ajch_platform/tree/main/.claude/agents"
             target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold
               bg-slate-800 border border-slate-700/50 text-slate-300

@@ -11,9 +11,21 @@ Versioning: [Semantic Versioning 2.0.0](https://semver.org/)
 
 ## [Unreleased]
 
+---
+
+## [3.5.0] - 2026-08-18
+
 ### Added
 - **SkillUp discovery toolbar** (`src/features/exams/pages/ExamCatalog.tsx`) — search box, Provider/Level/Status filter chips, and sort (Recommended / Most questions / A–Z) on the `/skillup` catalog; filter state is URL-backed via `useSearchParams` (survives reload/back). Domain pills collapse to 4 + "+N more"; curated "Available Now / Coming Soon" sections preserved when no filter is active. Scales the catalog for a growing certification list.
-- **Deep Dive notes standard** (`.github/agents/docs-engineer.agent.md` → 1.1.0, `.github/agents/curriculum-engineer.agent.md` → 1.1.0) — every domain study note must now include a `## Deep Dive` section with four required elements: connective narrative, an end-to-end worked scenario, a memory aid/mnemonic, and per-domain exam strategy. Pointer-only notes are rejected in review.
+- **Deep Dive notes standard** (`.claude/agents/docs-engineer.md`, `.claude/agents/curriculum-engineer.md`) — every domain study note must now include a `## Deep Dive` section with four required elements: connective narrative, an end-to-end worked scenario, a memory aid/mnemonic, and per-domain exam strategy. Pointer-only notes are rejected in review.
+- **Cloudflare Pages deployment** — platform now deploys in parallel to Cloudflare Pages (`aaryaai.dev`) alongside the existing GitHub Pages build, via new `deploy-cloudflare-pages.yml` workflow; DNS cut over to Cloudflare nameservers.
+- **Route-level code-splitting** — `React.lazy`/`Suspense` on heavy routes (blog post, `/tools`, exam notes with Mermaid) to cut initial bundle size and defer the `mermaid` chunk until a diagram is actually rendered.
+- **D1-backed subscriber storage** — `workers/subscribe.ts` now writes subscribers to a Cloudflare D1 database with an atomic `INSERT ... ON CONFLICT DO NOTHING`, replacing the Gist read-modify-write race.
+
+### Changed
+- **Agent framework consolidated onto Claude Code natively** — retired the parallel GitHub Copilot custom-agent format (`.github/agents/*.agent.md`, 44 files) in favour of Claude Code's native subagent format (`.claude/agents/*.md`, 34 files) as the single source of truth. Fixed stale cross-references (renamed/merged agents), added `interview-prep-engineer` to the Staff Engineer's routing table, cost-tiered `sre`/`qa-engineer`/`platform-engineer`/`release-engineer` onto `claude-haiku-4-5`, and extracted Staff Engineer's embedded MVP Weekly Analysis / Tooling Radar workflows into on-demand Skills. Marked `pair-programmer` deprecated (superseded by `principal-mentor` + `junior-dev`) rather than deleting it. See `docs/agent-framework.md`.
+- **Team page** (`src/features/profile/pages/TeamV2.tsx`) — updated to reflect the agent framework consolidation: GitHub source links now point at `.claude/agents/`, removed the leftover per-agent version badges (versioning is tracked at the platform-release level, not per agent file), removed the deprecated Pair Programmer card from the roster, and corrected the Domain Leads / collaboration-pattern references to the current agent set.
+- GitHub Pages auto-deploy on push to `main` disabled (`workflow_dispatch`-only now) — Cloudflare Pages is the production deployment target.
 
 ---
 
