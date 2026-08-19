@@ -21,14 +21,13 @@
 /.github/SECURITY.md                @ajeetchouksey @ajchava
 /.github/dependabot.yml             @ajeetchouksey @ajchava
 
-# ── Agent files — version gate enforced by agents-validate.yml ───────────
-/.github/agents/                    @ajeetchouksey @ajchava
+# ── Content promotion — strictest tier, always via promote-content.yml's PR,
+# never hand-edited (see docs/content-architecture.md) ────────────────────
+/content-manifest.json              @ajeetchouksey @ajchava
 
 # ── Content — community can contribute; maintainer must review ────────────
 # Questions: Curriculum Engineer validates schema; owner approves merge
 /public/content/questions/          @ajeetchouksey @ajchava
-# Blog: Content Lead pipeline; owner approves publication
-/public/content/blog/               @ajeetchouksey @ajchava
 # SkillUp skill definitions and catalog
 /public/content/skillup/            @ajeetchouksey @ajchava
 # Stats file is auto-generated — still requires owner review if touched by humans

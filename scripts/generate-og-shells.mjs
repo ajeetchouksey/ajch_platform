@@ -12,7 +12,7 @@
  * No Cloudflare, no DNS changes, no extra runtime — works on GitHub Pages.
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -20,6 +20,29 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root      = join(__dirname, '..');
 const distDir   = join(root, 'dist');
 const contentDir = join(root, 'public', 'content');
+
+// Load blog/index.json — from the CDN-promoted vertical repo if
+// content-manifest.json has a `blog` entry, else the local
+// public/content/blog/index.json. Mirrors src/lib/content-manifest.ts's
+// resolution rule (reimplemented here — that module is browser-oriented).
+async function loadBlogIndex() {
+  const manifestPath = join(root, 'content-manifest.json');
+  if (existsSync(manifestPath)) {
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+    const blog = manifest.blog;
+    if (blog?.repo && blog?.sha) {
+      const baseUrl = (blog.baseUrl ?? 'https://cdn.jsdelivr.net/gh').replace(/\/$/, '');
+      const url = `${baseUrl}/${blog.repo}@${blog.sha}/content/blog/index.json`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.error(`✗ generate-og-shells: could not fetch ${url} — HTTP ${res.status}`);
+        process.exit(1);
+      }
+      return res.json();
+    }
+  }
+  return JSON.parse(readFileSync(join(contentDir, 'blog', 'index.json'), 'utf-8'));
+}
 
 const SITE          = 'https://aaryaai.dev';
 const DEFAULT_IMAGE = `${SITE}/og-preview.png`;
@@ -68,7 +91,7 @@ let count = 0;
 
 // ── blog posts ────────────────────────────────────────────────────────────────
 
-const blogIndex = JSON.parse(readFileSync(join(contentDir, 'blog', 'index.json'), 'utf-8'));
+const blogIndex = await loadBlogIndex();
 const posts = blogIndex.posts.filter(p => !p.draft);
 
 for (const post of posts) {

@@ -10,16 +10,41 @@ import json
 import os
 import glob
 import re
+import urllib.error
+import urllib.request
 from datetime import date
+
+
+def _load_blog_manifest() -> dict:
+    """Load blog/index.json — from the CDN-promoted vertical repo if
+    content-manifest.json has a `blog` entry (repo+sha), else the local
+    public/content/blog/index.json (pre-migration fallback). Mirrors
+    src/lib/content-manifest.ts's resolution rule."""
+    manifest_path = "content-manifest.json"
+    if os.path.exists(manifest_path):
+        with open(manifest_path, encoding="utf-8") as f:
+            manifest = json.load(f)
+        blog = manifest.get("blog", {})
+        repo, sha = blog.get("repo"), blog.get("sha")
+        if repo and sha:
+            base_url = blog.get("baseUrl", "https://cdn.jsdelivr.net/gh").rstrip("/")
+            url = f"{base_url}/{repo}@{sha}/content/blog/index.json"
+            try:
+                with urllib.request.urlopen(url, timeout=15) as resp:
+                    return json.loads(resp.read())
+            except (urllib.error.URLError, urllib.error.HTTPError) as exc:
+                print(f"⚠ Failed to fetch {url}: {exc} — falling back to local.")
+
+    local_path = "public/content/blog/index.json"
+    if not os.path.exists(local_path):
+        return {}
+    with open(local_path, encoding="utf-8") as f:
+        return json.load(f)
 
 
 def count_blog_posts() -> int:
     """Non-draft posts in blog/index.json."""
-    path = "public/content/blog/index.json"
-    if not os.path.exists(path):
-        return 0
-    with open(path, encoding="utf-8") as f:
-        data = json.load(f)
+    data = _load_blog_manifest()
     return sum(1 for p in data.get("posts", []) if not p.get("draft", False))
 
 

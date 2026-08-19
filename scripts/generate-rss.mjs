@@ -1,10 +1,12 @@
 /**
  * Build-time RSS 2.0 feed generator (GAP-6 increment 2).
- * Reads:  public/content/blog/index.json
+ * Reads:  blog/index.json — from the CDN-promoted vertical repo if
+ *         content-manifest.json has a `blog` entry, else the local
+ *         public/content/blog/index.json (pre-migration fallback).
  * Writes: public/rss.xml
  * Usage:  node scripts/generate-rss.mjs
  */
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -12,7 +14,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
 const BASE_URL = 'https://aaryaai.dev';
-const MANIFEST_PATH = join(ROOT, 'public', 'content', 'blog', 'index.json');
+const CONTENT_MANIFEST_PATH = join(ROOT, 'content-manifest.json');
+const LOCAL_MANIFEST_PATH = join(ROOT, 'public', 'content', 'blog', 'index.json');
 const OUTPUT_PATH = join(ROOT, 'public', 'rss.xml');
 
 // Security: escape all user-controlled strings before insertion into XML.
@@ -31,15 +34,36 @@ function toRfc822(isoDate) {
   return new Date(isoDate + 'T00:00:00Z').toUTCString();
 }
 
-// --- Read manifest -----------------------------------------------------------
-let manifest;
-try {
-  manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf-8'));
-} catch (err) {
-  console.error(`[rss] ERROR: could not read ${MANIFEST_PATH}`);
-  console.error(err.message);
-  process.exit(1);
+// --- Resolve & read blog manifest ---------------------------------------------
+// Mirrors src/lib/content-manifest.ts's resolution rule (manifest repo+sha wins,
+// else local path) — reimplemented here since that module is browser-oriented
+// (import.meta.env/window) and this script runs in a plain Node build step.
+async function loadBlogManifest() {
+  if (existsSync(CONTENT_MANIFEST_PATH)) {
+    const manifest = JSON.parse(readFileSync(CONTENT_MANIFEST_PATH, 'utf-8'));
+    const blog = manifest.blog;
+    if (blog?.repo && blog?.sha) {
+      const baseUrl = (blog.baseUrl ?? 'https://cdn.jsdelivr.net/gh').replace(/\/$/, '');
+      const url = `${baseUrl}/${blog.repo}@${blog.sha}/content/blog/index.json`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.error(`[rss] ERROR: could not fetch ${url} — HTTP ${res.status}`);
+        process.exit(1);
+      }
+      return res.json();
+    }
+  }
+
+  try {
+    return JSON.parse(readFileSync(LOCAL_MANIFEST_PATH, 'utf-8'));
+  } catch (err) {
+    console.error(`[rss] ERROR: could not read ${LOCAL_MANIFEST_PATH}`);
+    console.error(err.message);
+    process.exit(1);
+  }
 }
+
+const manifest = await loadBlogManifest();
 
 // Security: validate slug before embedding in URLs — slugs must be URL-safe
 // and contain no XML-special characters.
