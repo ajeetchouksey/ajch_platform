@@ -9,7 +9,7 @@ workers_dev     = true
 #   2. Paste the returned id below.
 [[kv_namespaces]]
 binding = "GA4_CACHE"
-id      = "REPLACE_WITH_GA4_CACHE_KV_ID"
+id      = "56f523216ef14f57bff29b1029426527"
 
 # ── Secrets — set via CLI, never commit values ────────────────────────────────
 #
