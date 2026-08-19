@@ -8,6 +8,7 @@ import {
   Maximize2, Minimize2, List, X, BookOpen,
 } from 'lucide-react';
 import { loadBlogPost, loadBlogManifest, hasCachedBlogManifest, hasCachedBlogPost } from '@/lib/content-loader';
+import { resolveContentUrl } from '@/lib/content-manifest';
 import { sharePost } from '@/lib/share';
 import { trackEvent } from '@/lib/analytics';
 import GiscusComments from '@/components/GiscusComments';
@@ -656,6 +657,16 @@ export default function BlogPost() {
                 },
                 code({ className, children, ...props }) {
                   return <code className={className} {...props}>{children}</code>;
+                },
+                img({ src, alt, ...props }) {
+                  // Post markdown embeds images as absolute site paths
+                  // (/content/blog/images/...), authored before this vertical
+                  // was CDN-promoted. Resolve through the same manifest-aware
+                  // rule as everything else in content-loader.ts, so a
+                  // promoted vertical's images route to its CDN pin instead
+                  // of 404ing against the (now-removed) local path.
+                  const resolvedSrc = typeof src === 'string' ? resolveContentUrl(src) : src;
+                  return <img src={resolvedSrc} alt={alt ?? ''} {...props} />;
                 },
               }}
             />
