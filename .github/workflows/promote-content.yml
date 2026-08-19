@@ -63,8 +63,8 @@ jobs:
           fi
 
           case "${VERTICAL}" in
-            blog|usecases|interviews|pathways) remote_path="index.json" ;;
-            skillup) remote_path="catalog.json" ;;
+            blog|usecases|interviews|pathways) remote_path="content/${VERTICAL}/index.json" ;;
+            skillup) remote_path="content/${VERTICAL}/catalog.json" ;;
             *) echo "::error::Unsupported vertical: ${VERTICAL}"; exit 1 ;;
           esac
 
