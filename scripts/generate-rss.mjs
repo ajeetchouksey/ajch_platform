@@ -4,9 +4,10 @@
  *         content-manifest.json has a `blog` entry, else the local
  *         public/content/blog/index.json (pre-migration fallback).
  * Writes: public/rss.xml
+ * Also copies content-manifest.json into public/ — see copyManifestToPublic().
  * Usage:  node scripts/generate-rss.mjs
  */
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, copyFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -17,6 +18,24 @@ const BASE_URL = 'https://aaryaai.dev';
 const CONTENT_MANIFEST_PATH = join(ROOT, 'content-manifest.json');
 const LOCAL_MANIFEST_PATH = join(ROOT, 'public', 'content', 'blog', 'index.json');
 const OUTPUT_PATH = join(ROOT, 'public', 'rss.xml');
+
+// content-manifest.json lives at the repo root (source of truth for the
+// promote-content PR flow, CODEOWNERS, and this build's own manifest reads
+// below) — but Vite only publishes public/ to the live site, so the browser's
+// runtime fetch('/content-manifest.json') in src/lib/content-manifest.ts was
+// silently 404ing in production the whole time this file has existed. That
+// was masked as long as un-migrated verticals' local public/content/{x}/
+// fallback existed; removing blog's local copy surfaced it as a real bug
+// (a missing manifest meant the resolver fell back to a now-deleted local
+// path, and Cloudflare's SPA-fallback served the site shell's HTML with a
+// 200 for that 404, which then rendered as if it were post content). Copying
+// the root file into public/ here, ahead of `vite build`'s own public/ →
+// dist/ copy, is what actually gets it deployed.
+function copyManifestToPublic() {
+  if (!existsSync(CONTENT_MANIFEST_PATH)) return;
+  copyFileSync(CONTENT_MANIFEST_PATH, join(ROOT, 'public', 'content-manifest.json'));
+}
+copyManifestToPublic();
 
 // Security: escape all user-controlled strings before insertion into XML.
 // & must be replaced first to avoid double-escaping subsequent replacements.
