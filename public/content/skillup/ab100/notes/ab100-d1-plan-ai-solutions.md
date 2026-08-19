@@ -14,7 +14,7 @@
 
 Not every automation problem benefits from an AI agent. The decision tree:
 
-![The Agentic AI Decision Framework](../../../../images/skill/ab_100_ai_decisiontree.png)
+![The Agentic AI Decision Framework](/content/skillup/ab100/images/ab_100_ai_decisiontree.png)
 
 ### ROI Calculation Factors
 - **Cost of current process**: FTE hours × hourly rate × volume
@@ -40,7 +40,7 @@ For Azure AI Foundry, think of the relationship as:
 
 **Project** = Individual AI application/team workspace
 
-![Hub vs Project](../../../../images/skill/ab_100_ai_hub_project.png)
+![Hub vs Project](/content/skillup/ab100/images/ab_100_ai_hub_project.png)
 
 
 | Concept | Hub | Project |
@@ -65,7 +65,7 @@ If you're talking about agents, prompts, knowledge bases, evaluations, and deplo
 
 ### Model Selection Decision Tree
 
-![Model Selection Decision Tree](../../../../images/skill/ab_100_model_selection_decision_tree.png) 
+![Model Selection Decision Tree](/content/skillup/ab100/images/ab_100_model_selection_decision_tree.png) 
 
 
 | Model | Best For | Context | Cost Tier |
@@ -100,7 +100,7 @@ If you're talking about agents, prompts, knowledge bases, evaluations, and deplo
 
 ### Provisioned Throughput Units (PTU)
 
-![Provisioned Throughput Units (PTU)](../../../../images/skill/ab_100_ptu.png) 
+![Provisioned Throughput Units (PTU)](/content/skillup/ab100/images/ab_100_ptu.png) 
 
 
 - **PTU**: billed by provisioned unit/hour regardless of usage — best when utilization > 60%
@@ -144,7 +144,7 @@ If you're talking about agents, prompts, knowledge bases, evaluations, and deplo
 
 ### Event-Driven Agent Trigger Patterns
 
-![Provisioned Throughput Units (PTU)](../../../../images/skill/ab_100_event_driven_agent_trigger_patterns.png) 
+![Provisioned Throughput Units (PTU)](/content/skillup/ab100/images/ab_100_event_driven_agent_trigger_patterns.png) 
 
 | Trigger Pattern | Best For | Latency |
 |----------------|----------|---------|

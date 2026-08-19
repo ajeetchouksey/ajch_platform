@@ -223,7 +223,7 @@ Not every task benefits equally from AI. Map each task type to the right Copilot
 
 ### The mapping process
 
-![Diagram 5](../images/d2-microsoft-ai-services-05.png)
+![Diagram 5](/content/skillup/ab731/images/d2-microsoft-ai-services-05.png)
 
 <div class="note-important"><strong>Exam pattern:</strong> "Which tasks should be prioritised for Copilot deployment?" → Automatable tasks first (meeting summaries, email drafts, document extraction) — fastest, clearest ROI. Augmentable tasks (analysis, writing) second. Never start with judgment-heavy or relationship tasks.</div>
 
