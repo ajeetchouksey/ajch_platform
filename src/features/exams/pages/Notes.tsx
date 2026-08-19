@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { loadNoteForExam, loadExamRegistry } from '@/lib/content-loader';
+import { resolveContentUrl } from '@/lib/content-manifest';
 import { markNotesSeen } from '@/lib/storage';
 import {
   recordStudyDay, getResumeState, setResumeState, clearResumeState,
@@ -674,6 +675,15 @@ export default function Notes() {
                   const def = GLOSSARY[text] ?? GLOSSARY[text.toLowerCase()];
                   if (def) return <TermTooltip term={text} definition={def} />;
                   return <code className={className} {...props}>{children}</code>;
+                },
+                img({ src, alt, ...props }) {
+                  // Notes embed images as absolute site paths
+                  // (/content/skillup/{examId}/images/...). Resolve through the
+                  // same manifest-aware rule as every other content fetch, so a
+                  // promoted vertical's images route to its CDN pin instead of
+                  // 404ing against a since-removed local path.
+                  const resolvedSrc = typeof src === 'string' ? resolveContentUrl(src) : src;
+                  return <img src={resolvedSrc} alt={alt ?? ''} {...props} />;
                 },
               }}
             >
