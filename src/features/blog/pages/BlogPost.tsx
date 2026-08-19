@@ -28,6 +28,13 @@ const AUTHOR_PORTAL: Record<string, string> = {
 };
 
 // ── Utilities ────────────────────────────────────────────────────────────────
+// resolveContentUrl() returns either a full CDN URL (promoted vertical) or a
+// root-relative local path — og:image needs a fully-qualified URL either way.
+function toAbsoluteContentUrl(path: string): string {
+  const resolved = resolveContentUrl(path);
+  return resolved.startsWith('http') ? resolved : `https://aaryaai.dev${resolved}`;
+}
+
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
 }
@@ -355,7 +362,7 @@ export default function BlogPost() {
     title: meta?.title,
     description: meta?.excerpt ?? meta?.title,
     canonicalUrl: `https://aaryaai.dev/blog/${slug}`,
-    ogImage: meta?.image ? `https://aaryaai.dev${meta.image}` : undefined,
+    ogImage: meta?.image ? toAbsoluteContentUrl(meta.image) : undefined,
   });
 
   // Load post
