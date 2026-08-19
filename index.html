@@ -31,14 +31,9 @@
     <meta name="twitter:description" content="Practitioner-built AI learning hub. Certification prep, 60+ technical articles, and developer tools. Free forever." />
     <meta name="twitter:image"       content="https://aaryaai.dev/og-preview.png" />
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JJ9DPX6RS4"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-JJ9DPX6RS4');
-    </script>
+    <!-- Cloudflare Web Analytics (cookieless, additive to GA4) -->
+    <!-- TODO: replace token — Cloudflare dash → aaryaai.dev zone → Analytics & Logs → Web Analytics → "Add site" → copy the data-cf-beacon token -->
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "REPLACE_WITH_CF_BEACON_TOKEN"}'></script>
     <!-- GitHub Pages SPA redirect handler -->
     <script type="text/javascript">
       (function(l) {

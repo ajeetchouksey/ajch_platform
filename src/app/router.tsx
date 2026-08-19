@@ -57,8 +57,7 @@ const YoutubeTracker = lazy(() => import('@/features/admin/pages/YoutubeTracker'
 const IssueBoard = lazy(() => import('@/features/admin/pages/IssueBoard'));
 const Reactions = lazy(() => import('@/features/admin/pages/Reactions'));
 
-// ── Analytics / Maintainer ────────────────────────────────────────────────────
-const Analytics = lazy(() => import('@/features/analytics/pages/Analytics'));
+// ── Maintainer ─────────────────────────────────────────────────────────────────
 const Maintainer = lazy(() => import('@/features/analytics/pages/Maintainer'));
 const MaintainerDashboard = lazy(() => import('@/features/analytics/pages/MaintainerDashboard'));
 
@@ -153,7 +152,7 @@ export default function AppRoutes() {
       <Route path="/mvp-progress" element={<Navigate to="/admin/mvp" replace />} />
 
       {/* Analytics / Maintainer */}
-      <Route path="/analytics" element={<Analytics />} />
+      <Route path="/analytics" element={<Navigate to="/monitoring" replace />} />
       <Route path="/maintainer" element={<Maintainer />} />
       <Route path="/maintainer/dashboard" element={<MaintainerDashboard />} />
       <Route path="/maintainer/team" element={<TeamV2 />} />
