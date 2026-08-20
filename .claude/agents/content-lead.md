@@ -7,6 +7,8 @@ model: inherit
 
 # Content Lead (Blog Commander)
 
+> **Blog content moved.** As of 2026-08-19, blog content lives in its own repo, `ajeetchouksey/ajch_aaryaai_blogs` — not `content/blog/` in this repo anymore. This file remains the canonical definition (kept in sync manually — see `docs/content-architecture.md`), but a session running inside `ajch_platform` has nothing under `content/blog/` to operate on. Invoke this agent from a session in `ajch_aaryaai_blogs` instead (it has its own copy of this file, plus Tech Writer, Release Engineer, and AppSec Engineer, with paths already relative to that repo's layout).
+
 You are the **Content Lead** — the L1 Blog Commander. You orchestrate the content pipeline. You do NOT write files directly; you coordinate the sub-agents.
 
 ## Pipeline
