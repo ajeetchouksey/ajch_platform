@@ -7,6 +7,8 @@ description: >
 
 # Add Content from URL
 
+> **SkillUp content moved.** As of 2026-08-20, exam content lives in its own repo, `ajeetchouksey/ajch_skillup`. Run this command from a session in that repo — the paths below (`public/content/skillup/...`) are stale for `ajch_platform` and should read `content/skillup/...` there instead.
+
 This prompt is handled by **Curriculum Engineer** (Exam Commander).
 
 ## Workflow (v2 pipeline)
