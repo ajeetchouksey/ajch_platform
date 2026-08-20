@@ -4,5 +4,11 @@
     "sha": "c0beb93269f0229feab739b696f2b494a3ae88d4",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
     "promotedAt": "2026-08-19T19:51:59.858Z"
+  },
+  "skillup": {
+    "repo": "ajeetchouksey/ajch_skillup",
+    "sha": "b22a030daab5b00aed95b2544757c28b700892d9",
+    "baseUrl": "https://cdn.jsdelivr.net/gh",
+    "promotedAt": "2026-08-20T05:43:35.582Z"
   }
 }

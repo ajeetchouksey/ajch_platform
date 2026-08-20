@@ -101,8 +101,16 @@ const INDEX_REQUIRED = [
   'contentVersion', 'contentUpdatedAt', 'provider', 'palette',
 ];
 
+// This script is a canonical copy synced verbatim across ajch_platform (where
+// content lives at public/content/...) and each standalone vertical repo
+// (where the same relative paths, e.g. "content/skillup/...", live directly
+// at the repo root with no public/ prefix). Auto-detect which layout we're
+// running in rather than hardcoding one — keeps the copies genuinely
+// identical instead of needing a per-repo fork of this file.
+const CONTENT_BASE = existsSync(join(ROOT, 'public')) ? join(ROOT, 'public') : ROOT;
+
 function absContent(relativePath) {
-  if (relativePath.startsWith('content/')) return join(ROOT, 'public', relativePath);
+  if (relativePath.startsWith('content/')) return join(CONTENT_BASE, relativePath);
   return join(ROOT, relativePath);
 }
 
