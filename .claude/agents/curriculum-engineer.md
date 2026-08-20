@@ -32,7 +32,7 @@ Exam Agent (you) — synthesize: N questions added, D{X} notes updated
 
 1. **Fetch** source material via WebFetch
 2. **Extract** key concepts relevant to CCA-F domains
-3. **Search** `public/content/` for overlap (deduplication)
+3. **Search** `content/skillup/{examId}/` (in `ajch_skillup`) for overlap (deduplication)
 4. **Classify** each concept into Domain 1–5
 5. **Brief** sub-agents with classified concepts
 
@@ -51,7 +51,7 @@ Scenario stems may include a brief real-world hook (1 sentence max) to make ques
 ### Notes Update → Docs Engineer
 ```
 Delegate to Docs Engineer:
-"Update public/content/skillup/{examId}/notes/ with the following new content:
+"Update content/skillup/{examId}/notes/ with the following new content:
 Section: [H2 title]
 Concept: [extracted concept with detail]
 Mnemonic/trap if applicable: [text]
@@ -61,7 +61,7 @@ Human Angle: [Add one memorable analogy, real-world punch line, or proverb in th
 
 ## Domain Classification
 
-> **Registry-first**: Always read `public/content/skillup/{examId}/index.json` (and `public/content/skillup/catalog.json` for the full exam list) to get the correct domain list, weights, and file paths for the target exam before classifying concepts. Do NOT assume CCA-F D1–D5.
+> **Registry-first**: Always read `content/skillup/{examId}/index.json` (and `content/skillup/catalog.json` for the full exam list) to get the correct domain list, weights, and file paths for the target exam before classifying concepts. Do NOT assume CCA-F D1–D5.
 
 ### CCA-F Example
 | Domain | Core Topics |
@@ -74,7 +74,7 @@ Human Angle: [Add one memorable analogy, real-world punch line, or proverb in th
 
 ### Adding Content for Any Exam
 
-1. Read `public/content/skillup/catalog.json` to get all available exams
+1. Read `content/skillup/catalog.json` to get all available exams
 2. Find the exam entry by `id`
 3. Use `exam.domains[].id` and `exam.domains[].title` to classify concepts
 4. Question files are listed in `exam.questionFiles[]` (e.g. `ab100-domain1.json`)
@@ -84,18 +84,18 @@ Human Angle: [Add one memorable analogy, real-world punch line, or proverb in th
 ## Deduplication Rule
 
 Before generating any question or note:
-1. Search `public/content/skillup/{examId}/questions/` for existing questions with overlapping tags
+1. Search `content/skillup/{examId}/questions/` for existing questions with overlapping tags
 2. If >70% concept overlap with an existing question → skip, note the existing ID
 3. Report: `[N] concepts extracted, [M] deduplicated, [P] new items generated`
 
 ## Content Locations (SkillUp Structure)
 
-- **Catalog**: `public/content/skillup/catalog.json` — auto-generated list of all exams (read-only; updated by `sync-stats.py`)
-- **Exam index**: `public/content/skillup/{examId}/index.json` — domains, questionFiles, taskStatementsFile, notesFiles
-- **Questions**: `public/content/skillup/{examId}/questions/{examId}-domain{N}.json`
-- **Notes**: `public/content/skillup/{examId}/notes/{examId}-d{N}-{slug}.md` (path in `domains[].notesFile`)
-- **Scenarios**: `public/content/skillup/{examId}/scenarios/{examId}-*.json` (paths in `scenarioFiles[]`)
-- **Task statements**: `public/content/skillup/{examId}/task-statements.json` — maps official study-guide tasks to questionIds
+- **Catalog**: `content/skillup/catalog.json` — auto-generated list of all exams (read-only; updated by `sync-stats.py`)
+- **Exam index**: `content/skillup/{examId}/index.json` — domains, questionFiles, taskStatementsFile, notesFiles
+- **Questions**: `content/skillup/{examId}/questions/{examId}-domain{N}.json`
+- **Notes**: `content/skillup/{examId}/notes/{examId}-d{N}-{slug}.md` (path in `domains[].notesFile`)
+- **Scenarios**: `content/skillup/{examId}/scenarios/{examId}-*.json` (paths in `scenarioFiles[]`)
+- **Task statements**: `content/skillup/{examId}/task-statements.json` — maps official study-guide tasks to questionIds
 - **Types**: `src/types/content.ts`
 
 ## SkillUp Tooling (run after any content change)
