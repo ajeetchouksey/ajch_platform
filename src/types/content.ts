@@ -4,7 +4,7 @@ export interface DomainConfig {
   title: string;
   weight: number;
   color: string;      // Tailwind bg class, e.g. "bg-violet-600"
-  notesFile: string;  // relative to public/, e.g. "content/notes/d1-..."
+  notesFile: string;  // e.g. "content/skillup/ab100/notes/ab100-d1-....md" (resolved via content-manifest.ts)
 }
 
 export interface ExamResource {
