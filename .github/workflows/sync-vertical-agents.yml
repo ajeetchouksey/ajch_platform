@@ -1,0 +1,166 @@
+name: Sync Vertical Agents
+# Owned by SRE (sre.md). Manual, on-demand only for now — see scripts/
+# sync-vertical-agents.mjs's header and docs/content-architecture.md for the
+# full design. Resolves an entry-point agent's full .claude/skills/
+# dependency chain, rewrites paths for the target vertical repo's layout,
+# and — only if every safety gate below passes — opens and merges a PR
+# there. Any gate failure leaves the PR open for normal human review
+# instead of merging.
+
+on:
+  workflow_dispatch:
+    inputs:
+      vertical:
+        description: Vertical repo to sync
+        required: true
+        type: choice
+        options:
+          - blog
+          - skillup
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Sync agents/skills to ${{ inputs.vertical }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout ajch_platform
+        uses: actions/checkout@v4
+        with:
+          path: ajch_platform
+
+      - name: Resolve target repo
+        id: target
+        run: |
+          set -euo pipefail
+          case "${{ inputs.vertical }}" in
+            blog)    echo "repo=ajeetchouksey/ajch_aaryaai_blogs" >> "$GITHUB_OUTPUT" ;;
+            skillup) echo "repo=ajeetchouksey/ajch_skillup"       >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::Unknown vertical: ${{ inputs.vertical }}"; exit 1 ;;
+          esac
+
+      # Mints a short-lived installation token for aarya-platform-bot — the
+      # existing App, already installed with access to all repos under this
+      # account. Requires the App to also have Pull requests: Read & write
+      # (Contents: Read & write is already granted) — see this workflow's
+      # own PR description / docs/content-architecture.md for the one-time
+      # manual step to add that permission.
+      - name: Mint App installation token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - name: Checkout target vertical repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.target.outputs.repo }}
+          token: ${{ steps.app-token.outputs.token }}
+          path: vertical
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Run sync script
+        id: sync
+        working-directory: ajch_platform
+        run: |
+          set -euo pipefail
+          node scripts/sync-vertical-agents.mjs "${{ inputs.vertical }}" "${{ github.workspace }}/vertical" \
+            | tee /tmp/sync-output.txt
+          if grep -q "already up to date" /tmp/sync-output.txt; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate synced files
+        if: steps.sync.outputs.changed == 'true'
+        working-directory: ajch_platform
+        run: |
+          set -euo pipefail
+          cd "${{ github.workspace }}/vertical"
+          changed_files=$(git diff --name-only; git ls-files --others --exclude-standard)
+          node "${{ github.workspace }}/ajch_platform/scripts/validate-agent-file.mjs" "${{ inputs.vertical }}" $changed_files
+
+      - name: Open PR in target repo
+        id: pr
+        if: steps.sync.outputs.changed == 'true'
+        working-directory: vertical
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "aarya-platform-bot[bot]"
+          git config user.email "aarya-platform-bot[bot]@users.noreply.github.com"
+
+          branch="sync/agents-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$branch"
+          git add .claude/
+          git commit -m "chore: sync agent/skill files from ajch_platform (automated, see scripts/sync-vertical-agents.mjs in ajch_platform)"
+          git push --set-upstream origin "$branch"
+
+          gh pr create \
+            --repo "${{ steps.target.outputs.repo }}" \
+            --base main \
+            --head "$branch" \
+            --title "chore: sync agent/skill files from ajch_platform" \
+            --body "Automated sync of \`.claude/agents/\` and \`.claude/skills/\` from the core platform repo's current \`main\`. Opened by \`sync-vertical-agents.yml\`; merges automatically only if every safety gate passes (bot-authored, path-scoped to \`.claude/agents/**\`/\`.claude/skills/**\` only, validator clean) — otherwise stays open for review."
+          echo "number=$(gh pr view "$branch" --repo "${{ steps.target.outputs.repo }}" --json number -q .number)" >> "$GITHUB_OUTPUT"
+
+      # ── Safety gates — every one must pass before this workflow merges
+      # anything. Any failure leaves the PR open and this job ends non-zero,
+      # falling back to ordinary human review. Nothing here is a rubber
+      # stamp: each gate is independently re-verified against the live PR
+      # state, not assumed from earlier steps.
+      - name: "Gate — PR author is the bot"
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          author=$(gh pr view "${{ steps.pr.outputs.number }}" --repo "${{ steps.target.outputs.repo }}" --json author -q .author.login)
+          echo "PR author: $author"
+          case "$author" in
+            *aarya-platform-bot*) echo "✓ bot-authored" ;;
+            *) echo "::error::PR author '$author' is not the sync bot — refusing to auto-merge."; exit 1 ;;
+          esac
+
+      - name: "Gate — changed paths scoped to .claude/agents|skills only"
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          files=$(gh pr view "${{ steps.pr.outputs.number }}" --repo "${{ steps.target.outputs.repo }}" --json files -q '.files[].path')
+          echo "$files"
+          bad=$(echo "$files" | grep -vE '^\.claude/(agents|skills)/' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::PR touches paths outside .claude/agents|skills: $bad — refusing to auto-merge."
+            exit 1
+          fi
+          echo "✓ path-scoped"
+
+      - name: "Gate — merge"
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          gh pr merge "${{ steps.pr.outputs.number }}" --repo "${{ steps.target.outputs.repo }}" --squash --delete-branch
+          echo "✓ merged"
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ steps.sync.outputs.changed }}" != "true" ]; then
+            echo "## No changes — ${{ inputs.vertical }} already up to date" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Synced ${{ inputs.vertical }} — PR #${{ steps.pr.outputs.number }}" >> "$GITHUB_STEP_SUMMARY"
+          fi
