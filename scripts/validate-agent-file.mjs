@@ -22,7 +22,9 @@ if (!vertical || files.length === 0) {
 }
 
 const PLACEHOLDER_RE = /\b(TODO|FIXME|REPLACE_WITH_[A-Z_]*)\b/;
-const STALE_PATH_RE = new RegExp(`public/content/${vertical}/`);
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const safeVertical = escapeRegExp(vertical);
+const STALE_PATH_RE = new RegExp(`public/content/${safeVertical}/`);
 
 let errors = 0;
 function fail(file, msg) {
