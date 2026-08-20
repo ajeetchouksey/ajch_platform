@@ -10,5 +10,11 @@
     "sha": "b22a030daab5b00aed95b2544757c28b700892d9",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
     "promotedAt": "2026-08-20T05:43:35.582Z"
+  },
+  "usecases": {
+    "repo": "ajeetchouksey/ajch_ai_usecases",
+    "sha": "359864a31f258b6d11af60c55f5db366a760f71d",
+    "baseUrl": "https://cdn.jsdelivr.net/gh",
+    "promotedAt": "2026-08-20T10:53:50.000Z"
   }
 }

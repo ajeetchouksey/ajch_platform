@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
+import { ensureContentManifestLoaded, resolveContentUrl } from '@/lib/content-manifest';
 import {
   Trophy, BarChart2, Users, FileCheck, Lock,
   AlertTriangle, CheckCircle, AlertCircle,
@@ -440,8 +441,9 @@ export default function MvpProgress() {
         setLiveOverrides(prev => ({ ...prev, githubStars: d.stargazers_count }));
       })
       .catch(() => {});
-    // use case count from index
-    fetch('/content/usecases/index.json')
+    // use case count from index (manifest-aware — resolves to the CDN pin once usecases is promoted)
+    ensureContentManifestLoaded()
+      .then(() => fetch(resolveContentUrl('content/usecases/index.json')))
       .then(r => r.json())
       .then((d: { totalCount: number }) => {
         setLiveOverrides(prev => ({ ...prev, useCases: d.totalCount }));
