@@ -157,6 +157,23 @@ function checkExam(examId) {
 
 // ── main ──────────────────────────────────────────────────────────────────────
 
+// Once skillup is CDN-promoted (a `skillup` entry exists in
+// content-manifest.json), this repo no longer holds the raw content these
+// deep per-question checks (duplicate IDs, per-domain counts, tag/difficulty
+// coverage) operate on — that quality gate is now the vertical repo's own
+// concern (its CI already runs schema validation; deep quality auditing is a
+// natural extension there, not something to fetch-and-recheck here). Skip
+// cleanly rather than hard-failing the weekly cron against a directory that
+// may no longer exist.
+const manifestPath = join(ROOT, 'content-manifest.json');
+if (existsSync(manifestPath)) {
+  const manifest = loadJson(manifestPath) ?? {};
+  if (manifest.skillup?.repo && manifest.skillup?.sha) {
+    console.log('⚠ skillup is CDN-promoted — content health checks now live in that repo. Skipping.');
+    process.exit(0);
+  }
+}
+
 const examIds = discoverExams();
 if (examIds.length === 0) {
   console.error('No exams found in public/content/skillup/');
