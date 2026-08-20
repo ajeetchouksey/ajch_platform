@@ -8,6 +8,8 @@ description: >
 
 # Exam Registry Skill
 
+> **SkillUp content moved.** As of 2026-08-20, exam content lives in its own repo, `ajeetchouksey/ajch_skillup` — not `content/skillup/` in this repo anymore. Every `public/content/skillup/...`/`content/skillup/...` path below is relative to that repo, not this one. This skill's own copy there has the same paths (already correct — no `public/` prefix in that repo's layout).
+
 ## Purpose
 
 Each exam has its own `index.json` at `public/content/skillup/{examId}/index.json`.

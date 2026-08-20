@@ -28,7 +28,5 @@
 # ── Content — community can contribute; maintainer must review ────────────
 # Questions: Curriculum Engineer validates schema; owner approves merge
 /public/content/questions/          @ajeetchouksey @ajchava
-# SkillUp skill definitions and catalog
-/public/content/skillup/            @ajeetchouksey @ajchava
 # Stats file is auto-generated — still requires owner review if touched by humans
 /public/content/stats.json          @ajeetchouksey @ajchava
