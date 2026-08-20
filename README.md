@@ -1,8 +1,8 @@
 # Aarya — My AI Learning Hub
 
-> **v2.7.0** · [aaryaai.dev](https://aaryaai.dev) · React 19 + TypeScript + Vite + Tailwind CSS v4 · Deployed on Cloudflare Pages
+> **v3.5.0** · [aaryaai.dev](https://aaryaai.dev) · React 19 + TypeScript + Vite + Tailwind CSS v4 · Deployed on Cloudflare Pages
 
-An AI-powered learning platform for practitioners building production AI systems — exam prep, technical blog, developer tools, interview preparation, and architecture notes, all shipped through a 24-agent agentic development pipeline.
+An AI-powered learning platform for practitioners building production AI systems — exam prep, technical blog, developer tools, interview preparation, and architecture notes, all shipped through a 34-agent agentic development pipeline.
 
 ---
 
@@ -10,11 +10,11 @@ An AI-powered learning platform for practitioners building production AI systems
 
 | Metric | Value |
 |--------|-------|
-| Practice questions | **590+** across 4 certifications |
-| Blog articles | **58+** field notes & deep dives |
-| Study notes | **19** architecture & domain guides |
+| Practice questions | **810+** across 6 exams |
+| Blog articles | **62+** field notes & deep dives |
+| Study notes | **25** architecture & domain guides |
 | AI scenarios | **13** production-grade walkthroughs |
-| AI agents | **24** specialised agents (all open-source) |
+| AI agents | **34** specialised agents (all open-source) |
 | Certifications covered | CCA-F · AB-100 · GH Copilot · AI-900 |
 
 ---
@@ -30,7 +30,7 @@ An AI-powered learning platform for practitioners building production AI systems
 | `/notes` | Architecture decision records, system design guides, platform runbooks |
 | `/horizons` | Learning pathways for AI architecture and enterprise governance |
 | `/learn` | Platform orientation and getting-started guide |
-| `/team` | Full 24-agent system map with live status and spec links |
+| `/team` | Full 34-agent system map with live status and spec links |
 | `/docs` | Platform architecture, release notes, content schema, agent ecosystem reference |
 
 ---
@@ -46,7 +46,7 @@ An AI-powered learning platform for practitioners building production AI systems
 | Deployment | Cloudflare Pages + Cloudflare Workers (OG handler) |
 | CI/CD | GitHub Actions (ci · deploy · release · analytics-sync · codeql · dependency-review) |
 | Content | Static JSON/MD in `public/content/` — no database |
-| Agents | 24 specialised AI agents via GitHub Copilot (`.github/agents/`) |
+| Agents | 34 specialised AI agents via Claude Code native subagents (`.claude/agents/`) |
 
 ---
 
@@ -54,12 +54,16 @@ An AI-powered learning platform for practitioners building production AI systems
 
 ```
 ajch_platform/
+├── content-manifest.json   # Pins each vertical repo (blog, skillup) to a promoted commit SHA
 ├── public/
 │   └── content/
-│       ├── blog/           # Blog post markdown + index.json
 │       ├── questions/      # Exam MCQ JSON files
 │       ├── notes/          # Study notes markdown
+│       ├── scenarios/      # Applied scenario JSON
 │       ├── interviews/     # Interview prep packs + canonical Q&A bank
+│       ├── usecases/       # Use-case walkthroughs
+│       ├── pathways/       # Learning pathways
+│       ├── tools/          # Tool metadata
 │       ├── platform-docs/  # Architecture docs, release notes, agent ecosystem
 │       └── stats.json      # Auto-generated content statistics
 ├── src/
@@ -67,21 +71,25 @@ ajch_platform/
 │   ├── components/
 │   │   └── ui/             # Design system primitives (zero raw Tailwind in components)
 │   ├── features/           # Feature modules (skillup, blog, tools, interview, home, profile)
-│   ├── lib/                # Content loaders, GitHub stats, utilities
+│   ├── lib/                # Content loaders, GitHub stats, content-manifest resolver, utilities
 │   └── types/              # Shared TypeScript types
+├── .claude/
+│   ├── agents/             # 34 agent specification files (Claude Code native subagents)
+│   └── skills/             # On-demand reference skills agents load explicitly
 ├── .github/
-│   ├── agents/             # 24 agent specification files (.agent.md)
 │   └── workflows/          # CI/CD pipelines
-├── scripts/                # Build scripts, content validation, stats sync
-├── workers/                # Cloudflare Workers (OG handler)
+├── scripts/                # Build scripts, content validation, stats sync, vertical-repo sync
+├── workers/                # Cloudflare Workers (subscribe, OG handler)
 └── cli/                    # Content curator CLI (tsx)
 ```
+
+Blog and SkillUp content live in their own repos (`ajeetchouksey/ajch_aaryaai_blogs`, `ajeetchouksey/ajch_skillup`) and are pulled in at a pinned commit SHA via `content-manifest.json` — see `docs/content-architecture.md`.
 
 ---
 
 ## Agentic Development System
 
-Every feature ships through a **7-step gated pipeline** operated by 24 specialised AI agents:
+Every feature ships through a **7-step gated pipeline** operated by 34 specialised AI agents:
 
 ```
 Staff Engineer → Product Manager (Issue Gate)
@@ -93,7 +101,7 @@ Staff Engineer → Product Manager (Issue Gate)
               → DevRel (announcement copy)
 ```
 
-Agent specs live in [`.github/agents/`](.github/agents/). All agents run on Claude Sonnet via GitHub Copilot — zero external API keys required.
+Agent specs live in [`.claude/agents/`](.claude/agents/) as native Claude Code subagents. Blog and SkillUp each keep their own copy of the relevant content-authoring agents in their own repo, kept current via `.github/workflows/sync-vertical-agents.yml` (see `docs/content-architecture.md`).
 
 ---
 
@@ -135,11 +143,12 @@ npm run curator:coverage
 
 ## Content Model
 
-All content is static JSON/Markdown served from `public/content/`. No database — no backend.
+Content is static JSON/Markdown — no database, no backend. Some content lives in this repo's `public/content/`; blog and SkillUp content live in their own repos and are resolved through `content-manifest.json` (pinned commit SHA, served via jsDelivr CDN) — see `src/lib/content-manifest.ts` and `docs/content-architecture.md` for the resolution logic.
 
-- **Blog posts**: `public/content/blog/*.md` + `index.json` manifest
-- **Exam questions**: `public/content/questions/<exam>/<domain>.json`
-- **Study notes**: `public/content/notes/*.md`
+- **Blog posts**: `ajeetchouksey/ajch_aaryaai_blogs` (`content/blog/*.md` + `index.json`)
+- **SkillUp exam content**: `ajeetchouksey/ajch_skillup` (`content/skillup/<examId>/`)
+- **Exam questions (local)**: `public/content/questions/<exam>/<domain>.json`
+- **Study notes (local)**: `public/content/notes/*.md`
 - **Interview packs**: `public/content/interviews/<role>/pack.json` + `canonical-bank.json`
 - **Platform docs**: `public/content/platform-docs/*.md` + `index.json`
 - **Stats**: `public/content/stats.json` (auto-generated by `scripts/sync-stats.py`)
@@ -165,6 +174,8 @@ Pre-commit hooks (husky + lint-staged) enforce ESLint and content validation aut
 ## Links
 
 - **Live site**: [aaryaai.dev](https://aaryaai.dev)
-- **Agent specs**: [`.github/agents/`](.github/agents/)
+- **Agent specs**: [`.claude/agents/`](.claude/agents/)
+- **Blog content repo**: [`ajeetchouksey/ajch_aaryaai_blogs`](https://github.com/ajeetchouksey/ajch_aaryaai_blogs)
+- **SkillUp content repo**: [`ajeetchouksey/ajch_skillup`](https://github.com/ajeetchouksey/ajch_skillup)
 - **Platform docs**: [aaryaai.dev/docs](https://aaryaai.dev/docs)
 - **Release notes**: [aaryaai.dev/docs](https://aaryaai.dev/docs) → Release Notes tab
