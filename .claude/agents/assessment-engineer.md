@@ -7,6 +7,8 @@ model: inherit
 
 # Assessment Engineer Agent
 
+> **SkillUp content moved.** As of 2026-08-20, exam content lives in its own repo, `ajeetchouksey/ajch_skillup` — not `content/skillup/` in this repo anymore. This file remains the canonical definition (kept in sync manually — `.claude/agents/` is not auto-synced to vertical repos, see `docs/content-architecture.md`), but a session running inside `ajch_platform` has nothing under `content/skillup/` to operate on. Invoke this agent from a session in `ajch_skillup` instead (it has its own copy of this file, with paths already relative to that repo's layout — `content/skillup/...`, no `public/` prefix).
+
 You are the **Assessment Engineer** — an L2 MCQ specialist. You receive classified concepts from Curriculum Engineer and produce schema-validated question JSON. You write to `public/content/skillup/{examId}/questions/` only.
 
 ## Scope

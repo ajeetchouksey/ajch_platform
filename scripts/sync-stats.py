@@ -48,14 +48,40 @@ def count_blog_posts() -> int:
     return sum(1 for p in data.get("posts", []) if not p.get("draft", False))
 
 
-def count_questions() -> int:
-    """Sum of skill.questions across all skills in skillup/catalog.json.
-    Falls back to legacy exams/index.json if catalog not yet generated."""
+def _load_skillup_catalog() -> dict:
+    """Load skillup/catalog.json — from the CDN-promoted vertical repo if
+    content-manifest.json has a `skillup` entry (repo+sha), else the local
+    public/content/skillup/catalog.json (pre-migration fallback). Mirrors
+    src/lib/content-manifest.ts's resolution rule (same pattern as
+    _load_blog_manifest() above)."""
+    manifest_path = "content-manifest.json"
+    if os.path.exists(manifest_path):
+        with open(manifest_path, encoding="utf-8") as f:
+            manifest = json.load(f)
+        skillup = manifest.get("skillup", {})
+        repo, sha = skillup.get("repo"), skillup.get("sha")
+        if repo and sha:
+            base_url = skillup.get("baseUrl", "https://cdn.jsdelivr.net/gh").rstrip("/")
+            url = f"{base_url}/{repo}@{sha}/content/skillup/catalog.json"
+            try:
+                with urllib.request.urlopen(url, timeout=15) as resp:
+                    return json.loads(resp.read())
+            except (urllib.error.URLError, urllib.error.HTTPError) as exc:
+                print(f"⚠ Failed to fetch {url}: {exc} — falling back to local.")
+
     catalog = "public/content/skillup/catalog.json"
     if os.path.exists(catalog):
         with open(catalog, encoding="utf-8") as f:
-            data = json.load(f)
-        return sum(e.get("questions", 0) for e in data.get("exams", []))
+            return json.load(f)
+    return {}
+
+
+def count_questions() -> int:
+    """Sum of skill.questions across all skills in skillup/catalog.json.
+    Falls back to legacy exams/index.json if catalog not yet generated."""
+    data = _load_skillup_catalog()
+    if data.get("exams"):
+        return sum(e.get("questions", 0) for e in data["exams"])
     # legacy fallback
     path = "public/content/exams/index.json"
     if not os.path.exists(path):
@@ -67,11 +93,9 @@ def count_questions() -> int:
 
 def count_exams() -> int:
     """Count available skills in skillup/catalog.json."""
-    catalog = "public/content/skillup/catalog.json"
-    if os.path.exists(catalog):
-        with open(catalog, encoding="utf-8") as f:
-            data = json.load(f)
-        return sum(1 for e in data.get("exams", []) if e.get("available", False))
+    data = _load_skillup_catalog()
+    if data.get("exams"):
+        return sum(1 for e in data["exams"] if e.get("available", False))
     # legacy fallback
     path = "public/content/exams/index.json"
     if not os.path.exists(path):
@@ -82,7 +106,14 @@ def count_exams() -> int:
 
 
 def count_notes() -> int:
-    """Count notes across all skills in skillup/. Falls back to flat notes/."""
+    """Count notes across all skills, from catalog.json's per-domain notesFile
+    entries (works whether skillup is local or CDN-promoted). Falls back to a
+    local glob, then a flat notes/ dir, if the catalog has no exams yet."""
+    data = _load_skillup_catalog()
+    if data.get("exams"):
+        return sum(
+            1 for e in data["exams"] for d in e.get("domains", []) if d.get("notesFile")
+        )
     skillup_notes = glob.glob("public/content/skillup/*/notes/*.md")
     if skillup_notes:
         return len(skillup_notes)
@@ -90,7 +121,12 @@ def count_notes() -> int:
 
 
 def count_scenarios() -> int:
-    """Count scenarios across all skills in skillup/. Falls back to flat scenarios/."""
+    """Count scenarios across all skills, from catalog.json's scenarioFiles
+    arrays (works whether skillup is local or CDN-promoted). Falls back to a
+    local glob, then a flat scenarios/ dir, if the catalog has no exams yet."""
+    data = _load_skillup_catalog()
+    if data.get("exams"):
+        return sum(len(e.get("scenarioFiles", [])) for e in data["exams"])
     skillup_scenarios = glob.glob("public/content/skillup/*/scenarios/*.json")
     if skillup_scenarios:
         return len(skillup_scenarios)
@@ -117,7 +153,22 @@ def count_questions_in_files(question_files: list) -> int:
 def generate_catalog() -> None:
     """Auto-discover skillup/*/index.json, recount questions from actual files,
     update each index.json in place, then write skillup/catalog.json.
-    This is the single source of truth — never hand-edit catalog.json."""
+    This is the single source of truth — never hand-edit catalog.json.
+
+    Once skillup is CDN-promoted (a `skillup` entry exists in
+    content-manifest.json), this repo no longer holds the raw per-exam content
+    this function operates on — recounting/regenerating moves to the vertical
+    repo itself. Skip local regeneration entirely in that case rather than
+    running against a directory that may no longer exist."""
+    manifest_path = "content-manifest.json"
+    if os.path.exists(manifest_path):
+        with open(manifest_path, encoding="utf-8") as f:
+            manifest = json.load(f)
+        skillup = manifest.get("skillup", {})
+        if skillup.get("repo") and skillup.get("sha"):
+            print("⚠ skillup is CDN-promoted — skipping local catalog regeneration.")
+            return
+
     skill_files = sorted(glob.glob("public/content/skillup/*/index.json"))
     skills = []
     for path in skill_files:
