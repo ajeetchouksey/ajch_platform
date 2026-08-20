@@ -73,8 +73,7 @@ ajch_platform/
 │   ├── agents/             # 24 agent specification files (.agent.md)
 │   └── workflows/          # CI/CD pipelines
 ├── scripts/                # Build scripts, content validation, stats sync
-├── workers/                # Cloudflare Workers (OG handler)
-└── cli/                    # Content curator CLI (tsx)
+└── workers/                # Cloudflare Workers (OG handler)
 ```
 
 ---
@@ -125,10 +124,8 @@ npm run build
 # Sync content statistics (run after any content write)
 python3 scripts/sync-stats.py
 
-# Curator CLI — stats, validate, coverage
-npm run curator:stats
-npm run curator:validate
-npm run curator:coverage
+# Content health report
+npm run health
 ```
 
 ---

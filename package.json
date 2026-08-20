@@ -11,12 +11,7 @@
     "preview": "vite preview",
     "prepare": "husky || true",
     "validate-content": "node scripts/validate-content.mjs",
-    "health": "node scripts/content-health-report.mjs",
-    "cli": "tsx cli/index.ts",
-    "curator": "tsx cli/curator.ts",
-    "curator:stats": "tsx cli/curator.ts stats",
-    "curator:validate": "tsx cli/curator.ts validate",
-    "curator:coverage": "tsx cli/curator.ts coverage"
+    "health": "node scripts/content-health-report.mjs"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -42,6 +37,7 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260710.1",
     "@eslint/js": "^10.0.1",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.3.3",
@@ -50,14 +46,11 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.0.1",
-    "@cloudflare/workers-types": "^5.20260710.1",
     "eslint": "^10.8.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.11.0",
-    "inquirer": "^13.4.3",
     "tailwindcss": "^4.3.0",
-    "tsx": "^4.23.5",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.60.1",
     "vite": "^8.0.16",
