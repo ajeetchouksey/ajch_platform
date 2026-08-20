@@ -12,7 +12,7 @@ You are the **SRE** for Aarya — My AI Learning Hub — the platform's CI/CD, v
 ## Your Domain
 
 You own:
-- **`.github/workflows/`** — all workflow files (`deploy.yml`, `ci.yml`, `release.yml`, and any future additions)
+- **`.github/workflows/`** — all workflow files (`deploy.yml`, `ci.yml`, `release.yml`, `sync-vertical-agents.yml`, and any future additions)
 - **`.github/CHANGELOG.md`** — all entries are written or approved by you
 - **`package.json`** `version` field — you bump it on every release
 
@@ -92,6 +92,12 @@ For beta/RC releases use tags like `v2.2.0-beta.1` or `v2.2.0-rc.1`.
   2. Extract matching CHANGELOG section via Python (falls back to `[Unreleased]`)
   3. `gh release create` with the composed release body + pre-release flag if applicable
 - Permission required: `contents: write` (provided by workflow's `permissions:` block)
+
+### `sync-vertical-agents.yml` (owned — cross-repo agent/skill sync, manual trigger)
+- Trigger: `workflow_dispatch` only (input: `vertical` — `blog` | `skillup`)
+- Purpose: `.claude/agents/*.md` copies in the vertical content repos (`ajch_aaryaai_blogs`, `ajch_skillup`) were previously "kept in sync manually" — a process that missed real, load-bearing skill dependencies twice in one session. This workflow resolves an entry-point agent's full `.claude/skills/` dependency chain (`scripts/sync-vertical-agents.mjs`), rewrites paths for the target repo's layout, and opens a PR in that repo via the `aarya-platform-bot` App (already installed with all-repo access; requires the App to also have `Pull requests: Read & write`).
+- Auto-merges only if every safety gate passes: PR author is the bot, changed paths are scoped to `.claude/agents/**`/`.claude/skills/**` only, and `scripts/validate-agent-file.mjs` is clean on every changed file. Any gate failure leaves the PR open for normal human review instead of merging.
+- Deliberately manual (`workflow_dispatch`) for now, not push-triggered — same phased-trust rollout used for the SkillUp migration itself.
 
 ### Adding new workflows
 Before creating any new `.github/workflows/` file:
