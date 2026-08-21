@@ -18,6 +18,8 @@ import { fetchGitHubRepo, type GitHubRepoStats } from '@/lib/github-stats';
 import { getSessions } from '@/lib/storage';
 import { useMeta } from '@/lib/useMeta';
 import { maintainer } from '@/data/maintainer';
+import { SubscribeForm } from '@/components/SubscribeForm';
+import quizScreenshot from '@/assets/quiz-screenshot.png';
 
 // ── Platform feature cards ────────────────────────────────────────────────────
 const features = [
@@ -34,6 +36,7 @@ const features = [
     desc: 'Practitioner-grade scenarios across multiple AI certification tracks. Agentic patterns, MCP tool design, context management — the kind of problems you face in production.',
     bullets: ['590+ production-grade scenarios', 'Instant scoring + explanations', 'Track progress across domains'],
     cta: 'Start Practicing',
+    screenshot: quizScreenshot,
   },
   {
     to: '/blog',
@@ -217,7 +220,7 @@ export default function HomeV2() {
   }, [pStats]);
 
   const renderFeatureCard = (feature: typeof dynamicFeatures[number], idx: number, featured = false) => {
-    const { to, icon: Icon, color, bg, border, badge, title, subtitle, tagline, desc, bullets, cta } = feature;
+    const { to, icon: Icon, color, bg, border, badge, title, subtitle, tagline, desc, bullets, cta, screenshot } = feature;
     return (
       <div
         key={to}
@@ -272,6 +275,14 @@ export default function HomeV2() {
                 </li>
               ))}
             </ul>
+          )}
+
+          {/* Screenshot — featured card only, real product UI, not an icon abstraction */}
+          {featured && screenshot && (
+            <div className="mb-5 rounded-xl overflow-hidden" style={{ border: `1px solid ${border}` }}>
+              <img src={screenshot} alt="Live quiz interface — a real scenario question with answer options"
+                className="w-full h-[160px] object-cover object-top" loading="lazy" />
+            </div>
           )}
 
           {/* Tagline callout — tools card differentiator, kept to one compact line */}
@@ -449,6 +460,50 @@ export default function HomeV2() {
 
           </div>
 
+          {/* ── Mobile: condensed terminal teaser ─────────────────────────── */}
+          <div className="lg:hidden rounded-2xl overflow-hidden"
+            style={{
+              background: 'rgba(6,12,24,0.98)',
+              border: '1px solid rgba(139,92,246,0.22)',
+              boxShadow: '0 0 60px -20px rgba(139,92,246,0.20), inset 0 1px 0 rgba(255,255,255,0.04)',
+            }}>
+            <div className="flex items-center gap-2 px-4 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="flex gap-1.5">
+                <span className="w-3 h-3 rounded-full" style={{ background: '#ef4444', opacity: 0.7 }} />
+                <span className="w-3 h-3 rounded-full" style={{ background: '#eab308', opacity: 0.7 }} />
+                <span className="w-3 h-3 rounded-full" style={{ background: '#22c55e', opacity: 0.7 }} />
+              </div>
+              <span className="text-[10px] font-mono text-slate-600 ml-2 flex-1">rag-assistant.build</span>
+              <div className="flex items-center gap-1.5">
+                <PulsingDot active color="bg-sky-400" size="sm" />
+                <span className="text-[9px] text-sky-500 font-mono font-bold">BUILDING</span>
+              </div>
+            </div>
+            <div className="p-4 space-y-2.5">
+              {[
+                { step: '04', label: 'Receive user query',  detail: '"How do I add tool use to Claude?"',         color: '#a78bfa', icon: MessageSquare },
+                { step: '05', label: 'Semantic search',      detail: 'top-3 retrieved · scores: 0.93, 0.91, 0.87', color: '#3b82f6', icon: GitBranch },
+                { step: '07', label: 'LLM call → answer',   detail: 'claude-3-5-haiku · 312 tokens · 1.2 s',       color: '#10b981', icon: Bot },
+              ].map(({ step, label, detail, color, icon: I }) => (
+                <div key={step} className="flex items-start gap-3">
+                  <span className="font-mono text-[9px] font-bold mt-0.5 shrink-0 w-4" style={{ color: `${color}60` }}>{step}</span>
+                  <div className="w-[22px] h-[22px] rounded-md flex items-center justify-center shrink-0"
+                    style={{ background: `${color}15`, border: `1px solid ${color}28` }}>
+                    <I size={11} style={{ color }} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold text-slate-200 leading-tight">{label}</p>
+                    <p className="text-[10px] font-mono" style={{ color: '#475569' }}>{detail}</p>
+                  </div>
+                </div>
+              ))}
+              <div className="pt-2.5 mt-1 flex items-center gap-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <span className="font-mono text-[10px] font-bold" style={{ color: '#10b981' }}>✓ assistant ready · 3 sources · 0.91 confidence</span>
+                <span className="font-mono text-[9px] ml-auto" style={{ color: '#334155' }}>v0.1.0 · rag</span>
+              </div>
+            </div>
+          </div>
+
           {/* ── Right: terminal ─────────────────────────────────────────── */}
           <div className="hidden lg:block">
             <div className="rounded-2xl overflow-hidden"
@@ -511,7 +566,7 @@ export default function HomeV2() {
 
         {/* Section header */}
         <div className="mb-8">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Learning Path</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#94a3b8' }}>Learning Path</p>
           <h2 className="text-2xl font-black text-white">Your AI Engineering Journey</h2>
           <p className="text-sm text-slate-500 mt-1">From fundamentals to enterprise architecture — structured, hands-on, free.</p>
         </div>
@@ -677,7 +732,7 @@ export default function HomeV2() {
       <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         style={{ transitionDelay: '180ms' }}>
         <div className="mb-6">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#64748b' }}>Approach</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{ color: '#94a3b8' }}>Approach</p>
           <h2 className="text-2xl font-black text-white">A Better Way to Learn AI</h2>
           <p className="text-sm text-slate-500 mt-1">One mission: build real systems, not finish fake exercises.</p>
         </div>
@@ -694,7 +749,7 @@ export default function HomeV2() {
 
         {/* "You'll build" — compressed tag row (replaces standalone card grid) */}
         <div className="mt-6 flex flex-wrap items-center gap-2">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] mr-1" style={{ color: '#64748b' }}>You'll build</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] mr-1" style={{ color: '#94a3b8' }}>You'll build</span>
           {buildProjects.map(p => (
             <span key={p.title} className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full"
               style={{ color: p.color, background: `${p.color}12`, border: `1px solid ${p.color}28` }}>
@@ -815,7 +870,7 @@ export default function HomeV2() {
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
               {/* Left: messaging */}
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: '#64748b' }}>Open Source</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: '#94a3b8' }}>Open Source</p>
                 <h2 className="text-xl font-black text-white mb-2">Ship Real Work. Build Real Reputation.</h2>
                 <p className="text-sm text-slate-400 leading-relaxed mb-4 max-w-xl">
                   Every contribution goes into production AI systems — that’s a portfolio entry, not a participation badge.
@@ -878,7 +933,7 @@ export default function HomeV2() {
               {/* Right: Built by — author card (real maintainer data) */}
               <div className="rounded-2xl p-5"
                 style={{ background: 'rgba(6,12,24,0.80)', border: '1px solid rgba(16,185,129,0.20)' }}>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-3" style={{ color: '#64748b' }}>Built by</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-3" style={{ color: '#94a3b8' }}>Built by</p>
                 <div className="flex items-center gap-3 mb-3">
                   <img src={maintainer.avatar} alt={maintainer.name}
                     className="w-12 h-12 rounded-full object-cover shrink-0"
@@ -955,6 +1010,16 @@ export default function HomeV2() {
               </Link>
             </div>
 
+            <div className="mt-8 flex justify-center">
+              {import.meta.env.VITE_CONVERTKIT_FORM_ID
+                ? <SubscribeForm compact />
+                : (
+                  <Link to="/subscribe"
+                    className="inline-flex items-center gap-2 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-500 px-4 py-2 rounded-lg transition-colors duration-200 whitespace-nowrap">
+                    Get updates in your inbox →
+                  </Link>
+                )}
+            </div>
 
           </div>
         </div>

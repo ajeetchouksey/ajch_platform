@@ -50,6 +50,20 @@ const COMMANDS = {
     console.log('screenshot:', f);
   },
 
+  // `ss-el <css-sel> [name]` — element-only screenshot (auto-scrolls to fit
+  // the full element bounding box regardless of viewport height), for a
+  // clean product shot without surrounding page chrome/margins.
+  async 'ss-el'(argsStr) {
+    if (!page) return console.log('ERROR: launch first');
+    const [sel, ...nameParts] = argsStr.trim().split(/\s+/);
+    if (!sel) return console.log('ERROR: usage — ss-el <css-sel> [name]');
+    const f = path.join(SHOT_DIR, (nameParts.join(' ') || `ss-el-${Date.now()}`) + '.png');
+    try {
+      await page.locator(sel).first().screenshot({ path: f });
+      console.log('screenshot:', f);
+    } catch (e) { console.log('ERROR:', e.message); }
+  },
+
   async click(sel) {
     if (!page) return console.log('ERROR: launch first');
     try { await page.click(sel, { timeout: 5000 }); console.log('clicked:', sel); }

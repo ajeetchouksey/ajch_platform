@@ -81,6 +81,7 @@ PID=$(netstat -ano | grep ":5173" | grep LISTENING | awk '{print $NF}' | head -1
 | `launch` | launch headless Chromium |
 | `nav <path>` | navigate (e.g. `nav /blog`); waits for network idle |
 | `ss [name]` | screenshot → `$SCREENSHOT_DIR/<name>.png` |
+| `ss-el <css-sel> [name]` | element-only screenshot — auto-scrolls to fit the full element regardless of viewport height, for a clean product shot without page chrome |
 | `click <css-sel>` | click via Playwright's normal click |
 | `click-text <text>` | click first link/button/`[role=button]` matching visible text |
 | `wait <css-sel>` | wait up to 10s for a selector |
