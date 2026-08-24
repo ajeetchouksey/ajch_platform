@@ -284,15 +284,15 @@ export default {
       return Response.redirect(`${storedOrigin}/monitoring?connected=true`, 302);
     }
 
-    // All other routes require owner GitHub token
-    const authHeader = request.headers.get('Authorization') ?? '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-    if (!token) return json({ error: 'Unauthorized' }, 401, origin);
-
-    const isOwner = await verifyOwner(token, env.GA4_CACHE);
-    if (!isOwner) return json({ error: 'Forbidden' }, 403, origin);
-
     try {
+      // All other routes require owner GitHub token
+      const authHeader = request.headers.get('Authorization') ?? '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+      if (!token) return json({ error: 'Unauthorized' }, 401, origin);
+
+      const isOwner = await verifyOwner(token, env.GA4_CACHE);
+      if (!isOwner) return json({ error: 'Forbidden' }, 403, origin);
+
       // GET /api/ga/status — returns connection method, never leaks tokens (AppSec Req 2)
       if (url.pathname === '/api/ga/status' && request.method === 'GET') {
         const hasSA = Boolean(env.GA4_SERVICE_ACCOUNT_B64);
@@ -352,6 +352,15 @@ export default {
       const msg = err instanceof Error ? err.message : 'Internal error';
       // ga4_not_connected → tell the UI to show the connect banner
       if (msg === 'ga4_not_connected') return json({ error: 'ga4_not_connected' }, 503, origin);
+      // Cloudflare's free-tier KV read quota (100k/day) — surfaces from verifyOwner()'s
+      // auth-cache lookup on every request. Give the UI something readable instead of
+      // letting this propagate as an uncaught exception (which Cloudflare renders as a
+      // platform error page with no CORS headers — the browser then reports it as an
+      // opaque "Failed to fetch" with zero diagnostic value).
+      if (msg.toLowerCase().includes('limit exceeded')) {
+        console.error('[ga4-proxy] KV quota exceeded');
+        return json({ error: 'kv_quota_exceeded' }, 503, origin);
+      }
       console.error('[ga4-proxy]', msg);
       return json({ error: 'GA4 request failed' }, 502, origin);
     }

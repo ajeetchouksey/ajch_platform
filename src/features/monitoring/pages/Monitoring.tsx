@@ -7,6 +7,7 @@ import { useGA4Realtime } from '../hooks/useGA4Realtime';
 import { useGA4Status } from '../hooks/useGA4Status';
 import { useCloudflareOverview } from '../hooks/useCloudflareOverview';
 import { useCloudflareStatus } from '../hooks/useCloudflareStatus';
+import { ga4ErrorMessage } from '../hooks/ga4Error';
 import { KpiCard } from '../components/KpiCard';
 import { HBarChart } from '../components/HBarChart';
 import { DonutChart } from '../components/DonutChart';
@@ -72,7 +73,7 @@ function ConnectGA4Banner({ onConnected }: { onConnected: () => void }) {
       const res = await fetch(`${import.meta.env.VITE_GA4_PROXY_URL}/oauth/start`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error(`Could not start OAuth (${res.status})`);
+      if (!res.ok) throw new Error(await ga4ErrorMessage(res));
       const { url } = (await res.json()) as { url: string };
       window.location.href = url;
     } catch (e) {

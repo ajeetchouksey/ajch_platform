@@ -15,6 +15,9 @@ export async function ga4ErrorMessage(res: Response): Promise<string> {
   if (res.status === 503 && body?.error === 'ga4_not_connected') {
     return 'Not connected yet — click "Connect Google Analytics" above.';
   }
+  if (res.status === 503 && body?.error === 'kv_quota_exceeded') {
+    return "Hit Cloudflare's daily KV read limit — try again after it resets (UTC midnight), or upgrade the Workers plan.";
+  }
   if (body?.error) return `GA4 error: ${body.error}`;
   return `GA4 request failed (HTTP ${res.status})`;
 }
