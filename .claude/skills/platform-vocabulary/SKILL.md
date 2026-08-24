@@ -64,6 +64,26 @@ The key principle: generic retries give the model no new information. Specific e
 
 ---
 
+### The Degradation Ladder
+**Definition:** Fallback for a model call is not binary — works or hard-fails. It's an ordered sequence of response strategies a system falls through, from full capability to honest failure, each rung tried only after the one above it fails: (1) second provider, (2) cached/last-known-good answer, (3) degraded mode (smaller model, no tools, shorter output), (4) human handoff with full context, (5) fail closed with an explicit outage message. Never skip a rung, and never let a lower rung simulate the capability of a higher one.
+
+**Prerequisite:** [The Boring Interface](/blog/the-boring-interface) — rung 1 (second provider) doesn't exist as a clean routing decision until call sites are vendor-agnostic.
+
+**Coined in:** `the-degradation-ladder` (Field Notes, 2026-08-24)  
+**Exam alignment:** CCA-F Domain 1 — Agentic Architecture & Orchestration  
+**Tags:** `degradation-ladder`, `resilience`, `fallback-strategy`, `named-framework`
+
+---
+
+### The Boring Interface
+**Definition:** An interface is "boring" when swapping the vendor behind it touches exactly one place. Three properties: (1) the name describes the capability, not the vendor (`generateCompletion`, not `callAnthropic`); (2) input/output shapes carry no vendor-specific fields; (3) swapping the implementation never touches call sites, only the one adapter behind the interface.
+
+**Coined in:** `the-boring-interface` (Field Notes, 2026-08-24)  
+**Exam alignment:** CCA-F Domain 1 — Agentic Architecture & Orchestration  
+**Tags:** `boring-interface`, `vendor-lock-in`, `llm-abstraction`, `named-framework`
+
+---
+
 ### Domain Boundary
 **Definition:** The hard constraint that defines the permitted action scope of an agent. A Domain Boundary Violation occurs when an agent acts outside its declared scope — triggered by prompt injection, scope creep in the system prompt, or insufficient guardrails.
 
@@ -167,4 +187,4 @@ Terms introduced in the SkillUp v3.x upgrade. Use these exact names in agent fil
 
 ---
 
-*Last updated: 2026-06-16 | Maintained by: Content Lead + SRE*
+*Last updated: 2026-08-24 | Maintained by: Content Lead + SRE*

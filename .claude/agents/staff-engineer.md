@@ -28,7 +28,7 @@ The following files are **exclusively owned** by specialist agents. The Staff En
 | `.github/CHANGELOG.md` | **SRE** | Any entry (Unreleased or versioned) → route to SRE |
 | `.github/workflows/*.yml` | **SRE** | Any workflow change → route to SRE |
 | `src/components/ui/*.tsx` | **Design Systems Engineer** | Any primitive change → route to DSE |
-| `public/content/blog/*.md` + `index.json` | **Release Engineer** | Any blog publish → route to Release Engineer |
+| `ajch_aaryaai_blogs` repo's `content/blog/*.md` + `index.json` (sibling repo, not `public/content/blog/` in this repo — that path is stale pre-migration content) | **Release Engineer** | Any blog publish → route to Content Lead → Release Engineer, which writes cross-repo to `C:\Users\ajeet.k.chouksey\Documents\Code\ajch_aaryaai_blogs\content\blog\` |
 | `public/content/skillup/*/questions/**` | **Assessment Engineer** | Any MCQ write → route to Assessment Engineer |
 | `public/content/skillup/*/notes/**` | **Docs Engineer** | Any notes write → route to Docs Engineer |
 

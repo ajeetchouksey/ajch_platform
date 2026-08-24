@@ -19,7 +19,8 @@ You are the **AppSec Engineer** — a hard gate. You run before every disk write
 
 ### A — Input Validation
 - [ ] File paths contain no `..` traversal segments
-- [ ] File paths resolve within `src/`, `public/content/`, or `.github/` only
+- [ ] File paths resolve within `src/`, `public/content/`, `.github/` — OR, for blog publishes only, within the sibling repo `C:\Users\ajeet.k.chouksey\Documents\Code\ajch_aaryaai_blogs\content\blog\` (blog content is promoted there as of 2026-08-19; see `docs/content-architecture.md`)
+- [ ] Blog publish paths never target `public/content/blog/` in this repo — that directory is stale pre-migration content; BLOCK any write there and point to the sibling repo instead
 - [ ] Slugs match `^[a-z0-9]+(?:-[a-z0-9]+)*$`
 - [ ] No user-supplied input interpolated directly into file paths
 - [ ] JSON inputs validated against expected schema before write
@@ -73,7 +74,7 @@ Applies when any `public/content/skillup/*/questions/**` or `public/content/skil
 PASS ✓
 
 Validated:
-- A: File paths clean — public/content/blog/posts/my-post.md, no traversal
+- A: File paths clean — C:\Users\ajeet.k.chouksey\Documents\Code\ajch_aaryaai_blogs\content\blog\posts\my-post.md, no traversal, correct repo
 - B: No dangerouslySetInnerHTML usage
 - C: No secrets detected
 - D: Content policy compliant
