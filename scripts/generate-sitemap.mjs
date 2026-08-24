@@ -21,17 +21,26 @@ const distDir   = join(root, 'dist');
 const SITE = 'https://aaryaai.dev';
 const TODAY = new Date().toISOString().slice(0, 10);
 
+// Full XML escaping, not just &amp; — path/lastmod ultimately come from
+// network-fetched content (blog slugs, use case ids, etc.), so every dynamic
+// value written into the file needs the full XML-special-character set escaped,
+// not just a partial subset (CodeQL js/http-to-file-access).
 function esc(str = '') {
-  return String(str).replace(/&/g, '&amp;');
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 function urlEntry(path, { lastmod, changefreq, priority }) {
   return [
     '  <url>',
     `    <loc>${esc(SITE + path)}</loc>`,
-    `    <lastmod>${lastmod || TODAY}</lastmod>`,
-    `    <changefreq>${changefreq}</changefreq>`,
-    `    <priority>${priority}</priority>`,
+    `    <lastmod>${esc(lastmod || TODAY)}</lastmod>`,
+    `    <changefreq>${esc(changefreq)}</changefreq>`,
+    `    <priority>${esc(priority)}</priority>`,
     '  </url>',
   ].join('\n');
 }
