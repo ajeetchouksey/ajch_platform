@@ -32,8 +32,10 @@
     <meta name="twitter:image"       content="https://aaryaai.dev/og-preview.png" />
 
     <!-- Cloudflare Web Analytics (cookieless, additive to GA4) -->
-    <!-- TODO: replace token — Cloudflare dash → aaryaai.dev zone → Analytics & Logs → Web Analytics → "Add site" → copy the data-cf-beacon token -->
-    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "REPLACE_WITH_CF_BEACON_TOKEN"}'></script>
+    <!-- Token comes from VITE_CF_BEACON_TOKEN (see .env.example) so it isn't hand-edited here.
+         Get it from: Cloudflare dash → aaryaai.dev zone → Analytics & Logs → Web Analytics → "Add site".
+         Left unset, this beacon just no-ops — no separate on/off switch needed. -->
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "%VITE_CF_BEACON_TOKEN%"}'></script>
     <!-- GitHub Pages SPA redirect handler -->
     <script type="text/javascript">
       (function(l) {
