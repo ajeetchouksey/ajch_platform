@@ -11,6 +11,11 @@ workers_dev     = true
 binding = "GA4_CACHE"
 id      = "56f523216ef14f57bff29b1029426527"
 
+# ── OAuth client ID — not secret, safe to commit (paired with the
+# GOOGLE_CLIENT_SECRET secret below) ──────────────────────────────────────────
+[vars]
+GOOGLE_CLIENT_ID = "939308613423-4iu2mv9tapb7tfekrpl9c8fichbo85rb.apps.googleusercontent.com"
+
 # ── Secrets — set via CLI, never commit values ────────────────────────────────
 #
 # Option A — Service Account (requires GCP billing):
