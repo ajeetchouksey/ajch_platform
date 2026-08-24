@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth';
+import { ga4ErrorMessage } from './ga4Error';
 
 const PROXY_URL = (import.meta.env.VITE_GA4_PROXY_URL as string | undefined) ?? '';
 
@@ -43,8 +44,8 @@ export function useGA4(request: GA4ReportRequest | null) {
       body: JSON.stringify(request),
       signal: controller.signal,
     })
-      .then(res => {
-        if (!res.ok) throw new Error(`GA4 error ${res.status}`);
+      .then(async res => {
+        if (!res.ok) throw new Error(await ga4ErrorMessage(res));
         return res.json() as Promise<GA4ReportResult>;
       })
       .then(data => { if (!cancelled) setState({ data, loading: false, error: null }); })
