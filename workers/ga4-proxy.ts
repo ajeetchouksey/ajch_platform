@@ -58,6 +58,36 @@ function json(data: unknown, status = 200, origin: string | null = null): Respon
   });
 }
 
+// ── In-memory cache tier (per-isolate) ────────────────────────────────────────
+// A warm Cloudflare Workers isolate serves many requests before being recycled.
+// Nearly every route here does a KV read (auth check, access-token check,
+// response cache check) on every single call — under realtime polling + multiple
+// tabs, that burns through the free-tier KV quota (100k reads/day) fast. Checking
+// an in-memory Map first, and only falling back to KV on a miss, avoids a KV read
+// entirely for repeat requests within the same warm isolate. KV stays the source
+// of truth (still written on every set, still read on a memory miss) — this is
+// purely a read-reduction layer, not a correctness change.
+const memCache = new Map<string, { value: string; expires: number }>();
+
+function memGet(key: string): string | null {
+  const entry = memCache.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expires) { memCache.delete(key); return null; }
+  return entry.value;
+}
+
+function memSet(key: string, value: string, ttlSeconds: number): void {
+  memCache.set(key, { value, expires: Date.now() + ttlSeconds * 1000 });
+}
+
+async function cachedKvGet(kv: KVNamespace, key: string, ttlSeconds = 55): Promise<string | null> {
+  const mem = memGet(key);
+  if (mem !== null) return mem;
+  const fromKv = await kv.get(key);
+  if (fromKv !== null) memSet(key, fromKv, ttlSeconds);
+  return fromKv;
+}
+
 // ── Token hash helper (OWASP A02 — no raw token in KV keys) ──────────────────
 
 async function tokenHash(token: string): Promise<string> {
@@ -71,7 +101,7 @@ async function verifyOwner(token: string, kv: KVNamespace): Promise<boolean> {
   const hash = await tokenHash(token);
   const cacheKey = `auth:${hash}`;
 
-  const cached = await kv.get(cacheKey);
+  const cached = await cachedKvGet(kv, cacheKey, 600);
   if (cached === OWNER_LOGIN) return true;
   if (cached !== null) return false; // cached non-owner
 
@@ -81,8 +111,10 @@ async function verifyOwner(token: string, kv: KVNamespace): Promise<boolean> {
   if (!res.ok) return false;
 
   const { login } = await res.json<{ login: string }>();
+  const cacheValue = login === OWNER_LOGIN ? OWNER_LOGIN : '';
   // Cache result for 10 minutes regardless of pass/fail (empty string = not owner)
-  await kv.put(cacheKey, login === OWNER_LOGIN ? OWNER_LOGIN : '', { expirationTtl: 600 });
+  memSet(cacheKey, cacheValue, 600);
+  await kv.put(cacheKey, cacheValue, { expirationTtl: 600 });
   return login === OWNER_LOGIN;
 }
 
@@ -133,7 +165,9 @@ async function getAccessTokenSA(env: Env): Promise<string> {
   if (!tokenRes.ok) throw new Error(`GA4 SA token exchange failed: ${await tokenRes.text()}`);
 
   const { access_token, expires_in } = await tokenRes.json<{ access_token: string; expires_in: number }>();
-  await env.GA4_CACHE.put('ga4:access_token', access_token, { expirationTtl: Math.min(expires_in - 300, 3300) });
+  const ttl = Math.min(expires_in - 300, 3300);
+  memSet('ga4:access_token', access_token, ttl);
+  await env.GA4_CACHE.put('ga4:access_token', access_token, { expirationTtl: ttl });
   return access_token;
 }
 
@@ -156,13 +190,15 @@ async function getAccessTokenOAuth(env: Env): Promise<string> {
   if (!res.ok) throw new Error(`OAuth token refresh failed: ${res.status}`);
 
   const { access_token, expires_in } = await res.json<{ access_token: string; expires_in: number }>();
-  await env.GA4_CACHE.put('ga4:access_token', access_token, { expirationTtl: Math.min(expires_in - 300, 3300) });
+  const ttl = Math.min(expires_in - 300, 3300);
+  memSet('ga4:access_token', access_token, ttl);
+  await env.GA4_CACHE.put('ga4:access_token', access_token, { expirationTtl: ttl });
   return access_token;
 }
 
 // Orchestrator: service account wins if configured, otherwise OAuth
 async function getAccessToken(env: Env): Promise<string> {
-  const cached = await env.GA4_CACHE.get('ga4:access_token');
+  const cached = await cachedKvGet(env.GA4_CACHE, 'ga4:access_token', 3300);
   if (cached) return cached;
   if (env.GA4_SERVICE_ACCOUNT_B64) return getAccessTokenSA(env);
   return getAccessTokenOAuth(env);
@@ -172,7 +208,7 @@ async function getAccessToken(env: Env): Promise<string> {
 
 async function runRealtimeReport(env: Env): Promise<unknown> {
   const cacheKey = 'ga4:realtime:v1';
-  const cached = await env.GA4_CACHE.get(cacheKey);
+  const cached = await cachedKvGet(env.GA4_CACHE, cacheKey, 60);
   if (cached) return JSON.parse(cached);
 
   const token = await getAccessToken(env);
@@ -189,7 +225,9 @@ async function runRealtimeReport(env: Env): Promise<unknown> {
 
   if (!res.ok) throw new Error(`GA4 realtime error: ${res.status}`);
   const data = await res.json();
-  await env.GA4_CACHE.put(cacheKey, JSON.stringify(data), { expirationTtl: 60 });
+  const serialized = JSON.stringify(data);
+  memSet(cacheKey, serialized, 60);
+  await env.GA4_CACHE.put(cacheKey, serialized, { expirationTtl: 60 });
   return data;
 }
 
@@ -207,7 +245,7 @@ interface ReportRequest {
 async function runDataReport(env: Env, req: ReportRequest): Promise<unknown> {
   // Static cache key based on first metric + date range (single owner, no user-scoping needed)
   const cacheKey = `ga4:report:${req.dateRange.startDate}:${req.dateRange.endDate}:${req.metrics.map(m => m.name).join(',')}:${req.dimensions.map(d => d.name).join(',')}`;
-  const cached = await env.GA4_CACHE.get(cacheKey);
+  const cached = await cachedKvGet(env.GA4_CACHE, cacheKey, 300);
   if (cached) return JSON.parse(cached);
 
   const token = await getAccessToken(env);
@@ -231,7 +269,9 @@ async function runDataReport(env: Env, req: ReportRequest): Promise<unknown> {
     throw new Error(`GA4 report error ${res.status}: ${err}`);
   }
   const data = await res.json();
-  await env.GA4_CACHE.put(cacheKey, JSON.stringify(data), { expirationTtl: 300 }); // 5-min cache
+  const serialized = JSON.stringify(data);
+  memSet(cacheKey, serialized, 300);
+  await env.GA4_CACHE.put(cacheKey, serialized, { expirationTtl: 300 }); // 5-min cache
   return data;
 }
 
