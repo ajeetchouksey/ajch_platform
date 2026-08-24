@@ -3,7 +3,7 @@ import { useAuth } from '@/lib/auth';
 import { ga4ErrorMessage } from './ga4Error';
 
 const PROXY_URL = (import.meta.env.VITE_GA4_PROXY_URL as string | undefined) ?? '';
-const POLL_INTERVAL = 30_000;
+const POLL_INTERVAL = 60_000;
 
 export interface RealtimeData {
   rows?: { dimensionValues: { value: string }[]; metricValues: { value: string }[] }[];

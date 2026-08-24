@@ -206,9 +206,12 @@ async function getAccessToken(env: Env): Promise<string> {
 
 // ── GA4 Realtime report ───────────────────────────────────────────────────────
 
+const REALTIME_CACHE_TTL = 90; // was 60s — 30s poll interval bumped to 60s alongside this
+const REPORT_CACHE_TTL = 900; // 15 min — was 5 min; report data doesn't need to be that fresh
+
 async function runRealtimeReport(env: Env): Promise<unknown> {
   const cacheKey = 'ga4:realtime:v1';
-  const cached = await cachedKvGet(env.GA4_CACHE, cacheKey, 60);
+  const cached = await cachedKvGet(env.GA4_CACHE, cacheKey, REALTIME_CACHE_TTL);
   if (cached) return JSON.parse(cached);
 
   const token = await getAccessToken(env);
@@ -226,8 +229,8 @@ async function runRealtimeReport(env: Env): Promise<unknown> {
   if (!res.ok) throw new Error(`GA4 realtime error: ${res.status}`);
   const data = await res.json();
   const serialized = JSON.stringify(data);
-  memSet(cacheKey, serialized, 60);
-  await env.GA4_CACHE.put(cacheKey, serialized, { expirationTtl: 60 });
+  memSet(cacheKey, serialized, REALTIME_CACHE_TTL);
+  await env.GA4_CACHE.put(cacheKey, serialized, { expirationTtl: REALTIME_CACHE_TTL });
   return data;
 }
 
@@ -245,7 +248,7 @@ interface ReportRequest {
 async function runDataReport(env: Env, req: ReportRequest): Promise<unknown> {
   // Static cache key based on first metric + date range (single owner, no user-scoping needed)
   const cacheKey = `ga4:report:${req.dateRange.startDate}:${req.dateRange.endDate}:${req.metrics.map(m => m.name).join(',')}:${req.dimensions.map(d => d.name).join(',')}`;
-  const cached = await cachedKvGet(env.GA4_CACHE, cacheKey, 300);
+  const cached = await cachedKvGet(env.GA4_CACHE, cacheKey, REPORT_CACHE_TTL);
   if (cached) return JSON.parse(cached);
 
   const token = await getAccessToken(env);
@@ -270,8 +273,8 @@ async function runDataReport(env: Env, req: ReportRequest): Promise<unknown> {
   }
   const data = await res.json();
   const serialized = JSON.stringify(data);
-  memSet(cacheKey, serialized, 300);
-  await env.GA4_CACHE.put(cacheKey, serialized, { expirationTtl: 300 }); // 5-min cache
+  memSet(cacheKey, serialized, REPORT_CACHE_TTL);
+  await env.GA4_CACHE.put(cacheKey, serialized, { expirationTtl: REPORT_CACHE_TTL });
   return data;
 }
 
