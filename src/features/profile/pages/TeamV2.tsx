@@ -9,6 +9,7 @@ import {
   Radio, Command, Boxes, BarChart2, FileCheck,
 } from 'lucide-react';
 import { maintainer } from '@/data/maintainer';
+import { useMeta } from '@/lib/useMeta';
 
 /* ─── Embedded keyframes (scoped to this page) ─────────────────────────────── */
 const STYLES = `
@@ -426,6 +427,10 @@ const ARCH_LAYERS = [
 
 /* ─── Main page ──────────────────────────────────────────────────────────────── */
 export default function TeamV2() {
+  useMeta({
+    title: 'The Team',
+    description: 'Meet the AI agent team behind Aarya — My AI Learning Hub, and the maintainer running the platform.',
+  });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);

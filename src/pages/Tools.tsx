@@ -8,6 +8,7 @@ import RelatedContent from '@/components/RelatedContent';
 import GiscusComments from '@/components/GiscusComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { MessageSquare } from 'lucide-react';
+import { useMeta } from '@/lib/useMeta';
 
 interface ToolDef {
   icon: React.ElementType;
@@ -103,6 +104,10 @@ const CATEGORY_META: Record<string, { label: string; color: string; border: stri
 };
 
 export default function Tools() {
+  useMeta({
+    title: 'AI Developer Tools',
+    description: 'Free browser-based tools for AI engineers: token counter, context visualizer, prompt tester, MCP scaffold builder, and more.',
+  });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
