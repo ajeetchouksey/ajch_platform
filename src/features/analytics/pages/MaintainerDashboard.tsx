@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useIsOwner } from '@/lib/auth';
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
 import { DashboardChart } from '@/components/DashboardChart';
 import {
@@ -8,8 +8,6 @@ import {
   GraduationCap, FileText, Layers, Bot, Wrench, Mail, GitBranch,
   RefreshCw,
 } from 'lucide-react';
-
-const OWNER_LOGIN = 'ajeetchouksey';
 
 interface GistStats {
   email_count: number
@@ -59,7 +57,8 @@ function fmtDuration(secs: number | null): string {
 }
 
 export default function MaintainerDashboard() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading } = useAuth();
+  const isOwner = useIsOwner();
   const [mounted, setMounted] = useState(false);
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [gistStats, setGistStats] = useState<GistStats | null>(null);
@@ -86,7 +85,7 @@ export default function MaintainerDashboard() {
     }).catch(() => {}).finally(() => setLoading(false));
   }, [statsGistId]);
 
-  if (!authLoading && (!user || user.login !== OWNER_LOGIN)) {
+  if (!authLoading && !isOwner) {
     return <Navigate to="/maintainer" replace />;
   }
 

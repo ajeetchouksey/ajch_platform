@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useIsOwner } from '@/lib/auth';
 import {
   loadExamRegistry,
   loadBlogManifest,
@@ -13,15 +13,7 @@ import {
   RefreshCw, Plus, Eye, ChevronLeft, Loader2, KeyRound,
 } from 'lucide-react';
 
-const OWNER_LOGIN = 'ajeetchouksey';
-const DEV_BYPASS = import.meta.env.VITE_BYPASS_ADMIN_AUTH === 'true';
 const REPO = 'ajeetchouksey/ajch_platform';
-
-const TOOLS = [
-  'Token Counter', 'Context Visualizer', 'MCP Scaffold', 'RAG Chunk Visualizer',
-  'Prompt Tester', 'Prompt Library', 'System Prompt Builder', 'Model Cost Calculator',
-  'Tool Schema Builder',
-];
 
 type ContentArea = 'exam-domain' | 'blog' | 'usecase' | 'tool';
 
@@ -57,6 +49,7 @@ function buildItems(
   exams: ExamConfig[],
   posts: BlogPostMeta[],
   usecases: AnyUseCase[],
+  toolLabels: string[],
 ): ContentItem[] {
   const items: ContentItem[] = [];
   for (const exam of exams) {
@@ -90,7 +83,7 @@ function buildItems(
       mvpDomain: 'Use Cases',
     });
   }
-  for (const tool of TOOLS) {
+  for (const tool of toolLabels) {
     items.push({
       area: 'tool',
       id: `tool-${tool.toLowerCase().replace(/\s+/g, '-')}`,
@@ -157,7 +150,8 @@ async function createGhIssue(item: ContentItem, token: string): Promise<GhIssue 
 
 // -- Main component -----------------------------------------------------------
 export default function YoutubeTracker() {
-  const { user, token, isLoading: authLoading } = useAuth();
+  const { token, isLoading: authLoading } = useAuth();
+  const isOwner = useIsOwner();
 
   const [items, setItems] = useState<ContentItem[]>([]);
   const [ghIssues, setGhIssues] = useState<GhIssue[]>([]);
@@ -174,10 +168,11 @@ export default function YoutubeTracker() {
       loadExamRegistry(),
       loadBlogManifest(),
       loadAllUseCases(),
+      fetch('/content/tools/index.json').then(r => r.json()) as Promise<{ tools: { label: string }[] }>,
       fetchYoutubeIssues(token),
     ])
-      .then(([registry, manifest, usecases, issues]) => {
-        setItems(buildItems(registry.exams, manifest.posts, usecases));
+      .then(([registry, manifest, usecases, toolsCatalog, issues]) => {
+        setItems(buildItems(registry.exams, manifest.posts, usecases, toolsCatalog.tools.map(t => t.label)));
         setGhIssues(issues);
         setError(null);
         setLoading(false);
@@ -209,7 +204,7 @@ export default function YoutubeTracker() {
       </div>
     );
   }
-  if (!DEV_BYPASS && (!user || user.login !== OWNER_LOGIN)) return <Navigate to="/" replace />;
+  if (!isOwner) return <Navigate to="/" replace />;
 
   const issueByTitle = new Map(ghIssues.map(i => [i.title, i]));
   const getMatch = (item: ContentItem) => issueByTitle.get(item.issueTitle);

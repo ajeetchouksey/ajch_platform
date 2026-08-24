@@ -112,3 +112,13 @@ export function useAuth() {
 export function isOAuthConfigured(): boolean {
   return !!CLIENT_ID && !!PROXY_URL;
 }
+
+export const OWNER_LOGIN = 'ajeetchouksey';
+const DEV_BYPASS_ADMIN_AUTH = import.meta.env.VITE_BYPASS_ADMIN_AUTH === 'true';
+
+/** Single source of truth for "is this the platform owner" across every admin/maintainer page. */
+// eslint-disable-next-line react-refresh/only-export-components
+export function useIsOwner(): boolean {
+  const { user } = useAuth();
+  return DEV_BYPASS_ADMIN_AUTH || user?.login === OWNER_LOGIN;
+}

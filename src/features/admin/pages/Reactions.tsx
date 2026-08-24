@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useIsOwner } from '@/lib/auth';
 import { ThumbsUp, ThumbsDown, Star, ChevronLeft, Lock, Trash2, BarChart2, TrendingUp } from 'lucide-react';
 
-const OWNER_LOGIN = 'ajeetchouksey';
-const DEV_BYPASS = import.meta.env.VITE_BYPASS_ADMIN_AUTH === 'true';
 const WORKER_URL = (import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined) ?? '';
 
 type Vote = 'up' | 'down';
@@ -70,7 +68,8 @@ const TYPE_LABEL: Record<ContentType, string> = {
 };
 
 export default function Reactions() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading } = useAuth();
+  const isOwner = useIsOwner();
   // lazy init reads localStorage once on mount — no effect needed
   const [entries, setEntries] = useState<ReactionEntry[]>(() => readLocalData());
   const [signalData, setSignalData] = useState<{ total: number; byContent: Record<string, number> } | null>(null);
@@ -90,7 +89,7 @@ export default function Reactions() {
   };
 
   if (authLoading) return null;
-  if (!DEV_BYPASS && (!user || user.login !== OWNER_LOGIN)) return <Navigate to="/" replace />;
+  if (!isOwner) return <Navigate to="/" replace />;
 
   const likes = entries.filter(e => e.vote === 'up').length;
   const dislikes = entries.filter(e => e.vote === 'down').length;
