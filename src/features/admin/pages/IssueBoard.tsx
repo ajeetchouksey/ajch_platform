@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useIsOwner } from '@/lib/auth';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
@@ -9,8 +9,6 @@ import {
   KeyRound, X, Send, ExternalLink, Tag, Milestone,
 } from 'lucide-react';
 
-const OWNER_LOGIN = 'ajeetchouksey';
-const DEV_BYPASS = import.meta.env.VITE_BYPASS_ADMIN_AUTH === 'true';
 const REPO = 'ajeetchouksey/ajch_platform';
 const MAX_PAGES = 10; // cap at 1000 issues
 
@@ -86,7 +84,8 @@ function SafeMarkdown({ children }: { children: string }) {
 
 // -- Main component -----------------------------------------------------------
 export default function IssueBoard() {
-  const { user, token, isLoading: authLoading } = useAuth();
+  const { token, isLoading: authLoading } = useAuth();
+  const isOwner = useIsOwner();
   const adminToken = token;
 
   const [issues, setIssues] = useState<GhIssue[]>([]);
@@ -228,7 +227,7 @@ export default function IssueBoard() {
       </div>
     );
   }
-  if (!DEV_BYPASS && (!user || user.login !== OWNER_LOGIN)) return <Navigate to="/" replace />;
+  if (!isOwner) return <Navigate to="/" replace />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

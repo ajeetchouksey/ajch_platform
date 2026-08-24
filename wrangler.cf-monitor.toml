@@ -1,0 +1,42 @@
+name            = "aarya-cf-monitor"
+main            = "workers/cloudflare-proxy.ts"
+compatibility_date = "2026-06-05"
+workers_dev     = true
+
+# ── KV namespace — auth cache + Cloudflare analytics response cache ──────────
+# One-time setup:
+#   1. wrangler kv namespace create CF_MONITOR_CACHE --config wrangler.cf-monitor.toml
+#   2. Paste the returned id below.
+[[kv_namespaces]]
+binding = "CF_MONITOR_CACHE"
+id      = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# ── Secrets / vars — set via CLI, never commit values ─────────────────────────
+#
+#   wrangler secret put CF_API_TOKEN --config wrangler.cf-monitor.toml
+#     → Cloudflare dash → My Profile → API Tokens → Create Token → custom token with
+#       Account.Account Analytics:Read and Zone.Analytics:Read scopes, scoped to the
+#       aaryaai.dev zone. Read-only — this token cannot change anything.
+#
+#   wrangler secret put CF_ACCOUNT_ID --config wrangler.cf-monitor.toml
+#     → Cloudflare dash → right sidebar of any zone overview page (not secret, but
+#       kept as a secret here for one-command setup rather than a plaintext [vars]).
+#       Already known for this account: e898ebfc013f074cde300a1ed1c16418
+#       (see .github/workflows/deploy-cloudflare-pages.yml)
+#
+#   wrangler secret put CF_ZONE_ID --config wrangler.cf-monitor.toml
+#     → Cloudflare dash → aaryaai.dev zone overview → right sidebar "Zone ID".
+#       Optional: without it, zone-level traffic (requests/bandwidth/cache ratio)
+#       is omitted but per-Worker stats still work.
+#
+# Optional: override which Worker scripts are reported on (defaults to
+# aarya-subscribe, aarya-ga4-proxy, aarya-og — see workers/cloudflare-proxy.ts):
+#   [vars]
+#   CF_WORKER_SCRIPT_NAMES = "aarya-subscribe,aarya-ga4-proxy,aarya-og,aarya-cf-monitor"
+#
+# ── Routes ────────────────────────────────────────────────────────────────────
+# After deploy, set in Vite:
+#   VITE_CF_MONITOR_PROXY_URL=https://aarya-cf-monitor.<subdomain>.workers.dev
+#
+# ── Deploy ────────────────────────────────────────────────────────────────────
+#   wrangler deploy --config wrangler.cf-monitor.toml

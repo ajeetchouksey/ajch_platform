@@ -739,7 +739,7 @@ export default function Notes() {
             <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5">
               <List size={9} /> In this article
             </p>
-            <nav className="space-y-0.5">
+            <nav aria-label="Table of contents" className="space-y-0.5">
               {(() => {
                 const activeIdx = toc.findIndex(i => i.id === activeId);
                 return toc.map(({ id, text, level }, idx) => {

@@ -1,8 +1,8 @@
 # Aarya — My AI Learning Hub
 
-> **v2.7.0** · [aaryaai.dev](https://aaryaai.dev) · React 19 + TypeScript + Vite + Tailwind CSS v4 · Deployed on Cloudflare Pages
+> **v3.5.0** · [aaryaai.dev](https://aaryaai.dev) · React 19 + TypeScript + Vite + Tailwind CSS v4 · Deployed on Cloudflare Pages
 
-An AI-powered learning platform for practitioners building production AI systems — exam prep, technical blog, developer tools, interview preparation, and architecture notes, all shipped through a 24-agent agentic development pipeline.
+An AI-powered learning platform for practitioners building production AI systems — exam prep, technical blog, developer tools, interview preparation, and architecture notes, all shipped through a 33-subagent agentic development pipeline running natively on Claude Code.
 
 ---
 
@@ -14,7 +14,7 @@ An AI-powered learning platform for practitioners building production AI systems
 | Blog articles | **58+** field notes & deep dives |
 | Study notes | **19** architecture & domain guides |
 | AI scenarios | **13** production-grade walkthroughs |
-| AI agents | **24** specialised agents (all open-source) |
+| AI agents | **33** specialised subagents (all open-source) |
 | Certifications covered | CCA-F · AB-100 · GH Copilot · AI-900 |
 
 ---
@@ -46,7 +46,7 @@ An AI-powered learning platform for practitioners building production AI systems
 | Deployment | Cloudflare Pages + Cloudflare Workers (OG handler) |
 | CI/CD | GitHub Actions (ci · deploy · release · analytics-sync · codeql · dependency-review) |
 | Content | Static JSON/MD in `public/content/` — no database |
-| Agents | 24 specialised AI agents via GitHub Copilot (`.github/agents/`) |
+| Agents | 33 subagents running natively on Claude Code (`.claude/agents/`) |
 
 ---
 
@@ -80,7 +80,7 @@ ajch_platform/
 
 ## Agentic Development System
 
-Every feature ships through a **7-step gated pipeline** operated by 24 specialised AI agents:
+Every feature ships through a **7-step gated pipeline** operated by 33 specialised Claude Code subagents:
 
 ```
 Staff Engineer → Product Manager (Issue Gate)
@@ -92,7 +92,7 @@ Staff Engineer → Product Manager (Issue Gate)
               → DevRel (announcement copy)
 ```
 
-Agent specs live in [`.github/agents/`](.github/agents/). All agents run on Claude Sonnet via GitHub Copilot — zero external API keys required.
+Subagent specs live in [`.claude/agents/`](.claude/agents/) — one file per subagent, run natively via Claude Code's subagent system. (An earlier version of this pipeline ran a parallel GitHub Copilot-format agent registry under `.github/agents/`; that format was retired in mid-2026 after the two definitions drifted out of sync — see [`docs/agent-framework.md`](docs/agent-framework.md) for the full history.) Most subagents default to `model: inherit`; a few narrow, mechanical ones (`sre`, `qa-engineer`, `platform-engineer`, `release-engineer`) are pinned to a cheaper model — see that same doc for the current tiering.
 
 ---
 
@@ -132,7 +132,7 @@ npm run health
 
 ## Content Model
 
-All content is static JSON/Markdown served from `public/content/`. No database — no backend.
+All content is static JSON/Markdown served from `public/content/` (or, for promoted verticals, fetched from a pinned CDN URL — see `docs/content-architecture.md`). No database, no backend, for the content layer specifically. (The platform does have a small backend elsewhere — the `aarya-subscribe` Cloudflare Worker, backed by a D1 database, handles newsletter subscription, the AI mentor proxy, and OAuth. See `workers/`.)
 
 - **Blog posts**: `public/content/blog/*.md` + `index.json` manifest
 - **Exam questions**: `public/content/questions/<exam>/<domain>.json`
@@ -162,6 +162,6 @@ Pre-commit hooks (husky + lint-staged) enforce ESLint and content validation aut
 ## Links
 
 - **Live site**: [aaryaai.dev](https://aaryaai.dev)
-- **Agent specs**: [`.github/agents/`](.github/agents/)
+- **Agent specs**: [`.claude/agents/`](.claude/agents/)
 - **Platform docs**: [aaryaai.dev/docs](https://aaryaai.dev/docs)
 - **Release notes**: [aaryaai.dev/docs](https://aaryaai.dev/docs) → Release Notes tab

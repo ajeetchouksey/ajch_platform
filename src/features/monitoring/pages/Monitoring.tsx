@@ -1,27 +1,28 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/lib/auth';
-import { Activity, BarChart2, BookOpen, Globe, Monitor, Lock, Pause, Play, Users, Eye, Clock, TrendingUp, Wifi, Link2, Unlink } from 'lucide-react';
+import { useAuth, useIsOwner, OWNER_LOGIN } from '@/lib/auth';
+import { Activity, BarChart2, BookOpen, Globe, Monitor, Lock, Pause, Play, Users, Eye, Clock, TrendingUp, Wifi, Link2, Unlink, Server, Cpu, AlertOctagon } from 'lucide-react';
 import { useGA4 } from '../hooks/useGA4';
 import { useGA4Realtime } from '../hooks/useGA4Realtime';
 import { useGA4Status } from '../hooks/useGA4Status';
+import { useCloudflareOverview } from '../hooks/useCloudflareOverview';
+import { useCloudflareStatus } from '../hooks/useCloudflareStatus';
 import { KpiCard } from '../components/KpiCard';
 import { HBarChart } from '../components/HBarChart';
 import { DonutChart } from '../components/DonutChart';
 import { SparkLine } from '../components/SparkLine';
 import { SkeletonCard, SkeletonRow } from '../components/Skeleton';
 
-const OWNER_LOGIN = 'ajeetchouksey';
-
-type Tab = 'overview' | 'content' | 'exams' | 'sources' | 'audience';
+type Tab = 'overview' | 'content' | 'exams' | 'sources' | 'audience' | 'cloudflare';
 type DateRange = '7d' | '28d' | '90d';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: 'overview',  label: 'Overview',  icon: <BarChart2 size={14} /> },
-  { id: 'content',   label: 'Content',   icon: <BookOpen size={14} /> },
-  { id: 'exams',     label: 'Exams',     icon: <Monitor size={14} /> },
-  { id: 'sources',   label: 'Sources',   icon: <Globe size={14} /> },
-  { id: 'audience',  label: 'Audience',  icon: <Users size={14} /> },
+  { id: 'overview',   label: 'Overview',   icon: <BarChart2 size={14} /> },
+  { id: 'content',    label: 'Content',    icon: <BookOpen size={14} /> },
+  { id: 'exams',      label: 'Exams',      icon: <Monitor size={14} /> },
+  { id: 'sources',    label: 'Sources',    icon: <Globe size={14} /> },
+  { id: 'audience',   label: 'Audience',   icon: <Users size={14} /> },
+  { id: 'cloudflare', label: 'Cloudflare', icon: <Server size={14} /> },
 ];
 
 const DATE_RANGES: { id: DateRange; label: string; start: string }[] = [
@@ -40,6 +41,12 @@ function fmtNum(n: number): string {
 }
 function pct(a: number, b: number): string {
   return b ? `${((a / b) * 100).toFixed(1)}%` : '—';
+}
+function fmtBytes(bytes: number): string {
+  if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(1)} GB`;
+  if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(1)} MB`;
+  if (bytes >= 1e3) return `${(bytes / 1e3).toFixed(1)} KB`;
+  return `${bytes} B`;
 }
 
 function SectionCard({ title, children, loading }: { title: string; children: React.ReactNode; loading?: boolean }) {
@@ -498,6 +505,79 @@ function AudienceTab({ dateRange }: { dateRange: DateRange }) {
   );
 }
 
+// ── Cloudflare tab — Worker/Pages operational metrics (Track C8) ─────────────
+
+function CloudflareTab({ dateRange }: { dateRange: DateRange }) {
+  const cfStatus = useCloudflareStatus();
+  const { data, loading, error } = useCloudflareOverview(dateRange);
+
+  if (!import.meta.env.VITE_CF_MONITOR_PROXY_URL) {
+    return (
+      <div className="text-xs text-amber-400 border border-amber-500/30 rounded-lg px-3 py-2 bg-amber-500/10">
+        VITE_CF_MONITOR_PROXY_URL not set — data unavailable
+      </div>
+    );
+  }
+
+  if (!cfStatus.loading && !cfStatus.connected) {
+    return (
+      <div className="text-xs text-amber-400 border border-amber-500/30 rounded-lg px-3 py-2 bg-amber-500/10">
+        Cloudflare proxy is deployed but not configured — set CF_API_TOKEN and CF_ACCOUNT_ID
+        (see wrangler.cf-monitor.toml) to enable this tab.
+      </div>
+    );
+  }
+
+  if (error) {
+    return <p className="text-rose-400 text-xs">{error}</p>;
+  }
+
+  const zone = data?.zone;
+  const workers = data?.workers ?? [];
+
+  return (
+    <div className="space-y-4">
+      {!cfStatus.loading && cfStatus.connected && !cfStatus.zoneConfigured && (
+        <div className="text-xs text-amber-400 border border-amber-500/30 rounded-lg px-3 py-2 bg-amber-500/10">
+          CF_ZONE_ID not set — zone traffic (requests/bandwidth/cache ratio) omitted, per-Worker stats still shown below.
+        </div>
+      )}
+
+      {zone && (
+        <SectionCard title="Zone Traffic (aaryaai.dev)" loading={loading}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <KpiCard label="Requests" value={fmtNum(zone.requests)} icon={<Globe size={14} />} accent="#67e8f9" />
+            <KpiCard label="Bandwidth" value={fmtBytes(zone.bytes)} icon={<TrendingUp size={14} />} accent="#a78bfa" />
+            <KpiCard label="Cache Hit Ratio" value={`${(zone.cacheHitRatio * 100).toFixed(1)}%`} icon={<Server size={14} />} accent="#4ade80" />
+            <KpiCard label="Threats Blocked" value={fmtNum(zone.threats)} icon={<AlertOctagon size={14} />} accent="#fb923c" />
+          </div>
+        </SectionCard>
+      )}
+
+      <SectionCard title="Workers — Requests, Errors, CPU Time" loading={loading}>
+        {workers.length === 0 && !loading && (
+          <p className="text-xs text-slate-500">No Worker invocation data for this range.</p>
+        )}
+        <div className="space-y-3">
+          {workers.map(w => (
+            <div key={w.scriptName} className="grid grid-cols-2 md:grid-cols-5 gap-3 items-center text-xs">
+              <span className="text-slate-300 font-medium flex items-center gap-1.5 col-span-2 md:col-span-1">
+                <Cpu size={12} className="text-slate-500" /> {w.scriptName}
+              </span>
+              <span className="text-slate-400">{fmtNum(w.requests)} req</span>
+              <span className={w.errorRate > 0.01 ? 'text-rose-400' : 'text-slate-400'}>
+                {pct(w.errors, w.requests)} errors
+              </span>
+              <span className="text-slate-400">p50 {w.cpuTimeP50Ms.toFixed(1)}ms</span>
+              <span className="text-slate-500">p99 {w.cpuTimeP99Ms.toFixed(1)}ms</span>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function Monitoring() {
@@ -532,9 +612,9 @@ export default function Monitoring() {
     ga4Status.refetch();
   }
 
-  const isOwner = user?.login === OWNER_LOGIN;
+  const isOwner = useIsOwner();
 
-  if (!authLoading && !user) {
+  if (!authLoading && !user && !isOwner) {
     return (
       <div className="max-w-md mx-auto mt-16 text-center">
         <div className="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4">
@@ -625,6 +705,7 @@ export default function Monitoring() {
           {tab === 'exams'     && <ExamsTab dateRange={dateRange} />}
           {tab === 'sources'   && <SourcesTab dateRange={dateRange} />}
           {tab === 'audience'  && <AudienceTab dateRange={dateRange} />}
+          {tab === 'cloudflare' && <CloudflareTab dateRange={dateRange} />}
         </>
       )}
     </div>

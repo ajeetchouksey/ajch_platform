@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/lib/auth';
+import { useIsOwner } from '@/lib/auth';
 import { maintainer } from '@/data/maintainer';
 import { ProfileCard } from '@/components/ProfileCard';
 import { StatGrid } from '@/components/StatGrid';
@@ -8,10 +8,8 @@ import { SkillBadges } from '@/components/SkillBadges';
 import { TimelineSection } from '@/components/TimelineSection';
 import { ExternalLink, Rocket, Target, LayoutDashboard, Users } from 'lucide-react';
 
-const OWNER_LOGIN = 'ajeetchouksey';
-
 export default function Maintainer() {
-  const { user } = useAuth();
+  const isOwner = useIsOwner();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -35,7 +33,7 @@ export default function Maintainer() {
       <StatGrid stats={maintainer.stats} />
 
       {/* Owner-only links */}
-      {user?.login === OWNER_LOGIN && (
+      {isOwner && (
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
             to="/maintainer/dashboard"

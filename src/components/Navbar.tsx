@@ -12,7 +12,7 @@ const links = [
 export default function Navbar() {
   return (
     <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-      <nav className="max-w-5xl mx-auto px-4 flex items-center gap-1 h-14">
+      <nav aria-label="Primary" className="max-w-5xl mx-auto px-4 flex items-center gap-1 h-14">
         <span className="font-bold text-violet-400 mr-4 text-sm tracking-wide select-none">
           CCA-F Prep
         </span>

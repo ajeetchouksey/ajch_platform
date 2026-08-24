@@ -1,6 +1,6 @@
 # Aarya AI Platform Refactor — Content Split, Governance & Community Contribution
 
-**Status:** Draft plan, execution started · **Owner:** @ajeetchouksey · **Created:** 2026-08-12 · **Last updated:** 2026-08-12
+**Status:** Draft plan, execution started · **Owner:** @ajeetchouksey · **Created:** 2026-08-12 · **Last updated:** 2026-08-23
 
 ## Purpose
 
@@ -21,6 +21,9 @@ Tracks execution against this plan. Update as items land.
 
 | Date | Item | Track | Status |
 |---|---|---|---|
+| 2026-08-24 | C8 groundwork — `workers/cloudflare-proxy.ts` + `/admin/monitoring` "Cloudflare" tab: per-Worker request/error/CPU stats and zone traffic via Cloudflare's GraphQL Analytics API | C | 🟡 Code shipped, pending `CF_API_TOKEN`/`CF_ACCOUNT_ID`/`CF_ZONE_ID` secrets — the scheduled-issue-on-error-spike half of C8 is still open |
+| 2026-08-19/20 | Phase 1 blog pilot shipped — blog, skillup, and usecases promoted to CDN-fetch via `content-manifest.json` | B | ✅ Done |
+| 2026-08-19/20 | Track C1 governance tier — `.github/CODEOWNERS` strict-review rule added for `content-manifest.json` | C | ✅ Done |
 | 2026-08-12 | `workers/subscribe.ts` given its own `tsconfig.worker.json` (ES2022 lib, `@cloudflare/workers-types`) instead of inheriting the app's DOM-lib config; fixed `KVNamespace`/`BufferSource` type errors | C (adjacent hardening) | ✅ Done — pending `npm install` to fetch the new devDependency |
 | 2026-08-12 | Resolved all 3 open questions (interview build-script placement, Pathways/Platform Docs staying in core, Track D announcement readiness criteria) | B / D | ✅ Done |
 | 2026-08-12 | C2 rate-limiter consolidation — merged `checkRateLimit` + `checkMentorRateLimit` into one `checkWindowedRateLimit(env, keyPrefix, ip, {max})`. `checkSignalRateLimit` left untouched (structurally different: existence-based dedup lock, not a windowed counter — forcing it into the same shape would add a mode flag, not remove duplication). Zero call-site changes; same KV key format/TTL/thresholds preserved, and the worker build is now green | C | ✅ Done |

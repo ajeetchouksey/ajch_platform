@@ -1,0 +1,624 @@
+<title>Aarya Ops Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface-sunken: #EFEBE3;
+    --ink: #1D1A15;
+    --ink-soft: #4A4438;
+    --muted: #78705F;
+    --line: #DFD9CB;
+    --line-strong: #C7BFAC;
+    --accent: #A84A16;
+    --accent-soft: #F0DCC9;
+    --accent-ink: #7A360F;
+    --good: #2F6B3F;
+    --good-soft: #DEEBDD;
+    --pending: #8A6A1E;
+    --pending-soft: #F1E6C6;
+    --shadow: 0 1px 2px rgba(29, 26, 21, 0.06), 0 8px 24px -12px rgba(29, 26, 21, 0.18);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16140F;
+      --surface: #1E1B15;
+      --surface-sunken: #26221A;
+      --ink: #F1EDE3;
+      --ink-soft: #CFC7B4;
+      --muted: #9C927C;
+      --line: #3A352A;
+      --line-strong: #4C4636;
+      --accent: #E08A47;
+      --accent-soft: #3A2A18;
+      --accent-ink: #F3C39B;
+      --good: #6FAE7C;
+      --good-soft: #22301F;
+      --pending: #D9B454;
+      --pending-soft: #332A14;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px -14px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #16140F;
+    --surface: #1E1B15;
+    --surface-sunken: #26221A;
+    --ink: #F1EDE3;
+    --ink-soft: #CFC7B4;
+    --muted: #9C927C;
+    --line: #3A352A;
+    --line-strong: #4C4636;
+    --accent: #E08A47;
+    --accent-soft: #3A2A18;
+    --accent-ink: #F3C39B;
+    --good: #6FAE7C;
+    --good-soft: #22301F;
+    --pending: #D9B454;
+    --pending-soft: #332A14;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px -14px rgba(0, 0, 0, 0.6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.45;
+  }
+
+  .mono {
+    font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  a { color: var(--accent-ink); }
+
+  .wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 24px 96px;
+  }
+
+  header.top {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 28px;
+  }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+
+  .subhead {
+    color: var(--muted);
+    font-size: 14.5px;
+    max-width: 62ch;
+  }
+
+  /* ── summary bar ─────────────────────────────────────────────── */
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 24px 0 36px;
+    box-shadow: var(--shadow);
+  }
+
+  .summary-cell {
+    background: var(--surface);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .summary-cell .num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .summary-cell .label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  .bar-track {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--surface-sunken);
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── workstream sections ─────────────────────────────────────── */
+
+  .stream {
+    margin-bottom: 40px;
+  }
+
+  .stream-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line-strong);
+    margin-bottom: 14px;
+  }
+
+  .stream-head h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stream-count {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  ul.items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  li.item {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 13px 14px;
+    display: grid;
+    grid-template-columns: 20px 1fr auto;
+    gap: 12px;
+    align-items: start;
+    transition: border-color 0.15s ease, opacity 0.15s ease;
+  }
+
+  li.item:hover {
+    border-color: var(--line-strong);
+  }
+
+  li.item.done {
+    opacity: 0.62;
+  }
+
+  li.item.done .item-title {
+    text-decoration: line-through;
+    text-decoration-color: var(--muted);
+    text-decoration-thickness: 1px;
+  }
+
+  .item-check {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 5px;
+    margin-top: 2px;
+    cursor: pointer;
+    background: var(--surface);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .item-check:checked {
+    background: var(--good);
+    border-color: var(--good);
+  }
+
+  .item-check:checked::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(40deg);
+  }
+
+  .item-check:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .item-title {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .item-detail {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 3px;
+    max-width: 64ch;
+  }
+
+  .item-detail code, .item-path {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    background: var(--surface-sunken);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--ink-soft);
+  }
+
+  .item-dep {
+    font-size: 12px;
+    color: var(--pending);
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .item-dep::before {
+    content: "↳";
+    color: var(--muted);
+  }
+
+  .chip {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+    align-self: start;
+  }
+
+  .chip.done { background: var(--good-soft); color: var(--good); }
+  .chip.pending { background: var(--pending-soft); color: var(--pending); }
+  .chip.blocked { background: var(--accent-soft); color: var(--accent-ink); }
+
+  footer.note {
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+    margin-top: 8px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 720px) {
+    .summary { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 560px) {
+    .summary { grid-template-columns: 1fr; }
+    li.item { grid-template-columns: 18px 1fr; }
+    li.item .chip { grid-column: 2; justify-self: start; margin-top: 6px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar-fill { transition: none; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">aaryaai.dev · ajch_platform</span>
+    <h1>Aarya Ops Board</h1>
+    <p class="subhead">Three open workstreams from the SEO setup plan, the architecture review, and the accessibility audit — check items off as they land. Progress is saved in this browser.</p>
+  </header>
+
+  <div class="summary">
+    <div class="summary-cell">
+      <span class="num mono" id="stat-done">0 / 0</span>
+      <span class="label">Items complete</span>
+      <div class="bar-track"><div class="bar-fill" id="bar-overall" style="width:0%"></div></div>
+    </div>
+    <div class="summary-cell">
+      <span class="num mono" id="stat-seo">0 / 6</span>
+      <span class="label">SEO setup</span>
+    </div>
+    <div class="summary-cell">
+      <span class="num mono" id="stat-arch">0 / 5</span>
+      <span class="label">Architecture follow-ups</span>
+    </div>
+    <div class="summary-cell">
+      <span class="num mono" id="stat-a11y">0 / 6</span>
+      <span class="label">Accessibility (WCAG 2.1 AA)</span>
+    </div>
+  </div>
+
+  <section class="stream" data-stream="seo">
+    <div class="stream-head">
+      <h2>SEO setup</h2>
+      <span class="stream-count mono"><span class="done-count">0</span>/6 done</span>
+    </div>
+    <ul class="items">
+      <li class="item" data-id="seo-1">
+        <input type="checkbox" class="item-check" data-id="seo-1">
+        <div>
+          <div class="item-title">Add <span class="item-path">public/robots.txt</span></div>
+          <div class="item-detail">Points crawlers at the sitemap. No blocker — smallest item on the board.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+      <li class="item" data-id="seo-2">
+        <input type="checkbox" class="item-check" data-id="seo-2">
+        <div>
+          <div class="item-title">Verify domain in Google Search Console</div>
+          <div class="item-detail">DNS TXT record via Cloudflare — no code change. Unblocks sitemap submission and real query/impression data.</div>
+        </div>
+        <span class="chip pending">no deps</span>
+      </li>
+      <li class="item" data-id="seo-3">
+        <input type="checkbox" class="item-check" data-id="seo-3">
+        <div>
+          <div class="item-title">Write <span class="item-path">scripts/generate-sitemap.mjs</span></div>
+          <div class="item-detail">Dynamic sitemap (137 URLs) covering every static route plus blog/skillup/roleprep/usecases, wired into the build after <span class="item-path">generate-og-shells.mjs</span>. Old static <span class="item-path">public/sitemap.xml</span> removed. Submitting in Search Console still needs verification (seo-2).</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+      <li class="item" data-id="seo-4">
+        <input type="checkbox" class="item-check" data-id="seo-4">
+        <div>
+          <div class="item-title">Extend per-page shells to <span class="item-path">/roleprep/{roleId}</span> and <span class="item-path">/usecases/{id}</span></div>
+          <div class="item-detail">Rescoped: the plan originally said <span class="item-path">/notes/{slug}</span> and <span class="item-path">/interview/{role}</span>, but neither route exists — corrected in <span class="item-path">marketing/seo-setup-plan-aaryaai.md</span>. Shells now generated for the real per-item routes via <span class="item-path">scripts/lib/content-sources.mjs</span>. Static routes (<span class="item-path">/tools</span>, <span class="item-path">/team</span>, <span class="item-path">/docs</span>) now use the existing <span class="item-path">useMeta</span> hook for per-page title/description.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+      <li class="item" data-id="seo-5">
+        <input type="checkbox" class="item-check" data-id="seo-5">
+        <div>
+          <div class="item-title">Add <span class="item-path">Article</span> / <span class="item-path">LearningResource</span> JSON-LD</div>
+          <div class="item-detail">Every blog shell now carries an <span class="item-path">Article</span> schema block (headline, dates, author, publisher) and every skillup shell a <span class="item-path">LearningResource</span> block (provider, educationalLevel), injected alongside the existing site-wide WebSite/Organization JSON-LD in <span class="item-path">generate-og-shells.mjs</span>.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+      <li class="item" data-id="seo-6">
+        <input type="checkbox" class="item-check" data-id="seo-6">
+        <div>
+          <div class="item-title">Confirm GA4 secrets are set, link to Search Console</div>
+          <div class="item-detail"><span class="item-path">stats.json</span>'s audience/pageViews fields are currently empty — verify <span class="item-path">analytics-sync.yml</span> is actually running.</div>
+          <div class="item-dep">depends on: Search Console verified</div>
+        </div>
+        <span class="chip blocked">blocked</span>
+      </li>
+    </ul>
+  </section>
+
+  <section class="stream" data-stream="arch">
+    <div class="stream-head">
+      <h2>Architecture follow-ups</h2>
+      <span class="stream-count mono"><span class="done-count">0</span>/5 done</span>
+    </div>
+    <ul class="items">
+      <li class="item" data-id="arch-1">
+        <input type="checkbox" class="item-check" data-id="arch-1">
+        <div>
+          <div class="item-title">Fix <span class="item-path">README.md</span> — agent count, platform, version</div>
+          <div class="item-detail">33 subagents on Claude Code (not 24 via GitHub Copilot), v3.5.0, links repointed to <span class="item-path">.claude/agents/</span>.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+      <li class="item" data-id="arch-2">
+        <input type="checkbox" class="item-check" data-id="arch-2">
+        <div>
+          <div class="item-title">Correct campaign plan's agentic-pipeline framing</div>
+          <div class="item-detail">Updated to match the README fix. SEO plan needed no changes — it never cited the agent count.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+      <li class="item" data-id="arch-3">
+        <input type="checkbox" class="item-check" data-id="arch-3">
+        <div>
+          <div class="item-title">Bring <span class="item-path">platform_refactor.md</span>'s progress log current</div>
+          <div class="item-detail">Log Phase 1 (blog pilot) and the C1 governance-tier work as done — both already shipped but aren't reflected in the log.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+      <li class="item" data-id="arch-4">
+        <input type="checkbox" class="item-check" data-id="arch-4">
+        <div>
+          <div class="item-title">Track C3 — split the Worker by concern</div>
+          <div class="item-detail">Subscribe, mentor proxy, OAuth, and signals currently share one deploy and one blast radius. Highest real risk item on the backlog today.</div>
+        </div>
+        <span class="chip pending">no deps</span>
+      </li>
+      <li class="item" data-id="arch-5">
+        <input type="checkbox" class="item-check" data-id="arch-5">
+        <div>
+          <div class="item-title">Write two new ADRs</div>
+          <div class="item-detail">Secret rotation policy (GH App key, <span class="item-path">ANTHROPIC_API_KEY</span>) and <span class="item-path">/mentor/*</span> cost/abuse posture — both feed the existing C6 ADR backlog.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+    </ul>
+  </section>
+
+  <section class="stream" data-stream="a11y">
+    <div class="stream-head">
+      <h2>Accessibility (WCAG 2.1 AA)</h2>
+      <span class="stream-count mono"><span class="done-count">0</span>/6 done</span>
+    </div>
+    <ul class="items">
+      <li class="item" data-id="a11y-1">
+        <input type="checkbox" class="item-check" data-id="a11y-1">
+        <div>
+          <div class="item-title">Label the newsletter email input</div>
+          <div class="item-detail">The <span class="item-path">placeholder="your@email.com"</span> field has no <span class="item-path">&lt;label&gt;</span>/<span class="item-path">aria-label</span> — a screen reader announces only "edit text." Add <span class="item-path">aria-label="Email address"</span> at minimum. WCAG 3.3.2.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+      <li class="item" data-id="a11y-2">
+        <input type="checkbox" class="item-check" data-id="a11y-2">
+        <div>
+          <div class="item-title">Name the icon-only GitHub PAT login button</div>
+          <div class="item-detail">Currently exposed only via <span class="item-path">title</span>, which assistive tech doesn't reliably read and touch never triggers. Add <span class="item-path">aria-label="Login with Personal Access Token"</span>. WCAG 4.1.2.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+      <li class="item" data-id="a11y-3">
+        <input type="checkbox" class="item-check" data-id="a11y-3">
+        <div>
+          <div class="item-title">Add a skip-to-content link</div>
+          <div class="item-detail">Every page, every keyboard user currently tabs through 9 nav items, search, "Rate this," and Login before reaching <span class="item-path">&lt;main&gt;</span>. WCAG 2.4.1.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+      <li class="item" data-id="a11y-4">
+        <input type="checkbox" class="item-check" data-id="a11y-4">
+        <div>
+          <div class="item-title">Manually verify 200% zoom reflow</div>
+          <div class="item-detail">The fixed-viewport shell (<span class="item-path">html</span>/<span class="item-path">body</span> <span class="item-path">overflow: hidden</span>, scroll delegated to <span class="item-path">&lt;main&gt;</span>) wasn't confirmed live — flagged, not broken. Check no horizontal scroll and nothing gets trapped off-screen. WCAG 1.4.10.</div>
+        </div>
+        <span class="chip pending">no deps</span>
+      </li>
+      <li class="item" data-id="a11y-5">
+        <input type="checkbox" class="item-check" data-id="a11y-5">
+        <div>
+          <div class="item-title">Label the five <span class="item-path">&lt;nav&gt;</span> landmarks</div>
+          <div class="item-detail">None are distinguished — landmark navigation hears "navigation" five times with no way to tell them apart. Add <span class="item-path">aria-label</span> to each (Primary, Skill Up sections, Footer, …). WCAG 1.3.1.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+      <li class="item" data-id="a11y-6">
+        <input type="checkbox" class="item-check" data-id="a11y-6">
+        <div>
+          <div class="item-title">Fix heading order before the <span class="item-path">&lt;h1&gt;</span></div>
+          <div class="item-detail">Three <span class="item-path">&lt;h3&gt;</span> elements appear in the DOM before the page's own <span class="item-path">&lt;h1&gt;</span> — heading-order navigation hits unintroduced content first. Demote or relocate them. WCAG 1.3.1.</div>
+        </div>
+        <span class="chip done">done</span>
+      </li>
+    </ul>
+  </section>
+
+  <footer class="note">
+    Sourced from the SEO setup plan, architecture review, and accessibility audit written for <span class="item-path">ajch_platform</span> on Aug 23, 2026. Checking an item here doesn't change anything in the repo — it's just a shared view of where things stand.
+  </footer>
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = "aarya-ops-board-v1";
+  var state = {};
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) state = JSON.parse(raw) || {};
+    } catch (e) { state = {}; }
+  }
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function applyState() {
+    document.querySelectorAll(".item-check").forEach(function (box) {
+      var id = box.getAttribute("data-id");
+      var checked = !!state[id];
+      box.checked = checked;
+      box.closest("li.item").classList.toggle("done", checked);
+    });
+    recompute();
+  }
+
+  function recompute() {
+    var streams = document.querySelectorAll(".stream");
+    var totalDone = 0, totalAll = 0;
+
+    streams.forEach(function (stream) {
+      var boxes = stream.querySelectorAll(".item-check");
+      var done = 0;
+      boxes.forEach(function (b) { if (b.checked) done++; });
+      totalDone += done;
+      totalAll += boxes.length;
+      var countEl = stream.querySelector(".done-count");
+      if (countEl) countEl.textContent = done;
+    });
+
+    document.getElementById("stat-done").textContent = totalDone + " / " + totalAll;
+    var seoBoxes = document.querySelectorAll('[data-stream="seo"] .item-check');
+    var seoDone = 0;
+    seoBoxes.forEach(function (b) { if (b.checked) seoDone++; });
+    document.getElementById("stat-seo").textContent = seoDone + " / " + seoBoxes.length;
+
+    var archBoxes = document.querySelectorAll('[data-stream="arch"] .item-check');
+    var archDone = 0;
+    archBoxes.forEach(function (b) { if (b.checked) archDone++; });
+    document.getElementById("stat-arch").textContent = archDone + " / " + archBoxes.length;
+
+    var a11yBoxes = document.querySelectorAll('[data-stream="a11y"] .item-check');
+    var a11yDone = 0;
+    a11yBoxes.forEach(function (b) { if (b.checked) a11yDone++; });
+    document.getElementById("stat-a11y").textContent = a11yDone + " / " + a11yBoxes.length;
+
+    var pct = totalAll ? Math.round((totalDone / totalAll) * 100) : 0;
+    document.getElementById("bar-overall").style.width = pct + "%";
+  }
+
+  document.querySelectorAll(".item-check").forEach(function (box) {
+    box.addEventListener("change", function () {
+      var id = box.getAttribute("data-id");
+      state[id] = box.checked;
+      box.closest("li.item").classList.toggle("done", box.checked);
+      save();
+      recompute();
+    });
+  });
+
+  // Pre-seed items already completed, without clobbering any manual overrides
+  // a returning visitor may have made (only fills in keys not already set).
+  load();
+  var completed = {
+    "arch-1": true, "arch-2": true, "arch-3": true, "arch-5": true,
+    "seo-1": true, "seo-3": true, "seo-4": true, "seo-5": true,
+    "a11y-1": true, "a11y-2": true, "a11y-3": true, "a11y-5": true, "a11y-6": true
+  };
+  var seeded = false;
+  Object.keys(completed).forEach(function (id) {
+    if (!(id in state)) { state[id] = completed[id]; seeded = true; }
+  });
+  if (seeded) save();
+  applyState();
+})();
+</script>

@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { BookOpen, Layers, Cpu, FileCode, Tag, Clock, FileText } from 'lucide-react';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
+import { useMeta } from '@/lib/useMeta';
 
 const MermaidDiagram = lazy(() => import('../components/MermaidDiagram'));
 
@@ -39,6 +40,10 @@ function readingTime(md: string) {
 }
 
 export default function Docs() {
+  useMeta({
+    title: 'Platform Docs',
+    description: 'Architecture guides, how-it-works pages, and the agent ecosystem reference for Aarya — My AI Learning Hub.',
+  });
   const [searchParams, setSearchParams] = useSearchParams();
   const [manifest, setManifest] = useState<DocManifest | null>(null);
   const [content, setContent] = useState<string>('');
