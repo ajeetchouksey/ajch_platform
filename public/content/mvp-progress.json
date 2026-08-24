@@ -1,6 +1,6 @@
 {
   "schema": "1.0",
-  "lastUpdated": "2026-08-10",
+  "lastUpdated": "2026-08-24",
   "targetDate": "2027-04-30",
   "targets": {
     "blogs": 100,
@@ -22,7 +22,7 @@
     "blogs": 62,
     "videos": 0,
     "architectures": 2,
-    "useCases": 45,
+    "useCases": 46,
     "interviewQuestions": 24,
     "skillupExams": 6,
     "aiTools": 9,
@@ -31,7 +31,7 @@
     "community": 0,
     "speaking": 0,
     "mentoring": 0,
-    "ossRepos": 1,
+    "ossRepos": 4,
     "githubStars": 1
   },
   "quarters": [
@@ -92,11 +92,11 @@
     { "domain": "Azure AI Foundry", "pct": 12, "status": "critical" },
     { "domain": "GitHub Copilot",   "pct": 18, "status": "critical" },
     { "domain": "Agentic AI",       "pct": 35, "status": "low"      },
-    { "domain": "AI Architecture",  "pct": 28, "status": "low"      },
+    { "domain": "AI Architecture",  "pct": 7,  "status": "critical" },
     { "domain": "AI Engineering",   "pct": 62, "status": "good"     },
-    { "domain": "Community",        "pct": 5,  "status": "critical" },
-    { "domain": "Video Content",    "pct": 3,  "status": "critical" },
-    { "domain": "Open Source",      "pct": 10, "status": "critical" }
+    { "domain": "Community",        "pct": 0,  "status": "critical" },
+    { "domain": "Video Content",    "pct": 0,  "status": "critical" },
+    { "domain": "Open Source",      "pct": 40, "status": "low"      }
   ],
   "agentRecommendations": [
     {

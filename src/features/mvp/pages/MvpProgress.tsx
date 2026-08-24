@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/lib/auth';
-import { ensureContentManifestLoaded, resolveContentUrl } from '@/lib/content-manifest';
+import { useAuth, useIsOwner } from '@/lib/auth';
+import { loadAllUseCases } from '@/lib/content-loader';
+import { ensureContentManifestLoaded } from '@/lib/content-manifest';
 import {
   Trophy, BarChart2, Users, FileCheck, Lock,
   AlertTriangle, CheckCircle, AlertCircle,
@@ -9,7 +10,6 @@ import {
   Activity,
 } from 'lucide-react';
 
-const OWNER_LOGIN = 'ajeetchouksey';
 const REPO = 'ajeetchouksey/ajch_platform';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -398,13 +398,14 @@ export default function MvpProgress() {
   const [mounted, setMounted]   = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [liveOverrides, setLiveOverrides] = useState<Record<string, number>>({});
+  const [staleMetrics, setStaleMetrics] = useState<Set<string>>(new Set());
   const [weekIssues, setWeekIssues] = useState<GHIssue[]>([]);
   // incremented every hour (and on manual refresh) to re-trigger all fetches
   const [refreshKey, setRefreshKey] = useState(0);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const refreshingRef = useRef(false);
 
-  const isOwner = user?.login === OWNER_LOGIN;
+  const isOwner = useIsOwner();
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
@@ -426,6 +427,9 @@ export default function MvpProgress() {
   };
 
   useEffect(() => {
+    setStaleMetrics(new Set()); // eslint-disable-line react-hooks/set-state-in-effect
+    const markStale = (metric: string) => setStaleMetrics(prev => new Set(prev).add(metric));
+
     // blog count from the content index (source of truth)
     fetch('/content/blog/index.json')
       .then(r => r.json())
@@ -433,22 +437,32 @@ export default function MvpProgress() {
         const count = d.posts.filter(p => !p.draft).length;
         setLiveOverrides(prev => ({ ...prev, blogs: count }));
       })
-      .catch(() => {});
-    // GitHub stars from public API (no auth needed for public repos)
-    fetch(`https://api.github.com/repos/${REPO}`)
-      .then(r => r.json())
-      .then((d: { stargazers_count: number }) => {
-        setLiveOverrides(prev => ({ ...prev, githubStars: d.stargazers_count }));
-      })
-      .catch(() => {});
-    // use case count from index (manifest-aware — resolves to the CDN pin once usecases is promoted)
+      .catch(() => markStale('blogs'));
+    // GitHub stars + OSS repo count — core repo plus every CDN-promoted vertical repo
+    // (content-manifest.json), no auth needed for public repos
     ensureContentManifestLoaded()
-      .then(() => fetch(resolveContentUrl('content/usecases/index.json')))
-      .then(r => r.json())
-      .then((d: { totalCount: number }) => {
-        setLiveOverrides(prev => ({ ...prev, useCases: d.totalCount }));
+      .then((manifest) => {
+        const verticalRepos = Object.values(manifest)
+          .map(v => v.repo)
+          .filter((repo): repo is string => Boolean(repo));
+        const repos = new Set([REPO, ...verticalRepos]);
+        return Promise.all([...repos].map(repo =>
+          fetch(`https://api.github.com/repos/${repo}`).then(r => r.json()),
+        ));
       })
-      .catch(() => {});
+      .then((repoData: { stargazers_count?: number }[]) => {
+        const totalStars = repoData.reduce((s, d) => s + (d.stargazers_count ?? 0), 0);
+        setLiveOverrides(prev => ({ ...prev, githubStars: totalStars, ossRepos: repoData.length }));
+      })
+      .catch(() => { markStale('githubStars'); markStale('ossRepos'); });
+    // use case count — same source (and dedup logic) as the live /usecases page itself,
+    // NOT content/usecases/index.json's "published case files" totalCount, which undercounts
+    // by excluding catalog-only entries that still render on the real page.
+    loadAllUseCases()
+      .then((cases) => {
+        setLiveOverrides(prev => ({ ...prev, useCases: cases.length }));
+      })
+      .catch(() => markStale('useCases'));
     // interview question count = bank questions × role addendums (from interviews index)
     fetch('/content/interviews/index.json')
       .then(r => r.json())
@@ -456,21 +470,21 @@ export default function MvpProgress() {
         const total = d.roles.reduce((s, r) => s + (r.questionCount ?? 0), 0);
         setLiveOverrides(prev => ({ ...prev, interviewQuestions: total }));
       })
-      .catch(() => {});
+      .catch(() => markStale('interviewQuestions'));
     // skillup exam count from catalog
     fetch('/content/skillup/catalog.json')
       .then(r => r.json())
       .then((d: { exams: unknown[] }) => {
         setLiveOverrides(prev => ({ ...prev, skillupExams: d.exams.length }));
       })
-      .catch(() => {});
+      .catch(() => markStale('skillupExams'));
     // ai tools count from manifest (source of truth alongside Tools.tsx)
     fetch('/content/tools/index.json')
       .then(r => r.json())
       .then((d: { tools: unknown[] }) => {
         setLiveOverrides(prev => ({ ...prev, aiTools: d.tools.length }));
       })
-      .catch(() => {});
+      .catch(() => markStale('aiTools'));
     // architecture blogs: only posts tagged ai-architecture or system-design
     fetch('/content/blog/index.json')
       .then(r => r.json())
@@ -479,7 +493,7 @@ export default function MvpProgress() {
         const count = d.posts.filter(p => !p.draft && p.tags?.some(t => ARCH_TAGS.has(t))).length;
         setLiveOverrides(prev => ({ ...prev, architectures: count }));
       })
-      .catch(() => {});
+      .catch(() => markStale('architectures'));
     // pathways catalog: community articles (community-reach tracks) + architecture articles
     fetch('/content/pathways/catalog.json')
       .then(r => r.json())
@@ -497,8 +511,7 @@ export default function MvpProgress() {
           architectures: (prev.architectures ?? 0) + arch,
         }));
       })
-      .catch(() => {});
-   
+      .catch(() => markStale('communityArticles'));
   }, [refreshKey]);
 
   useEffect(() => {
@@ -516,7 +529,7 @@ export default function MvpProgress() {
       .catch(() => {});
   }, [refreshKey]);
 
-  if (!authLoading && !user) {
+  if (!authLoading && !user && !isOwner) {
     return (
       <div className="max-w-md mx-auto mt-16 text-center">
         <div className="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4">
@@ -564,6 +577,16 @@ export default function MvpProgress() {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
             Updated {agentLastRun}
           </div>
+          {staleMetrics.size > 0 && (
+            <div
+              className="flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-full font-medium"
+              style={{ background: 'rgba(251,191,36,0.08)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.25)' }}
+              title={`Failed to refresh: ${[...staleMetrics].join(', ')} — showing last-known values`}
+            >
+              <AlertTriangle size={11} />
+              {staleMetrics.size} metric{staleMetrics.size > 1 ? 's' : ''} stale
+            </div>
+          )}
           <span className="text-xs text-slate-600">Next agent run: {agentNextRun}</span>
           <button
             onClick={manualRefresh}
