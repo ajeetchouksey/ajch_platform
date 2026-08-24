@@ -23,8 +23,29 @@ function loadManifest() {
   return JSON.parse(readFileSync(manifestPath, 'utf-8'));
 }
 
-async function fetchFromCdn(entry, contentPath, label) {
+// content-manifest.json is CODEOWNERS-gated, but it's still file data that ends up
+// driving an outbound fetch URL — validate its shape before trusting it, rather than
+// interpolating repo/sha/baseUrl directly (CodeQL js/file-access-to-http).
+const GITHUB_REPO_PATTERN = /^[\w.-]+\/[\w.-]+$/;
+const SHA_PATTERN = /^[0-9a-f]{7,40}$/i;
+const ALLOWED_BASE_URLS = new Set(['https://cdn.jsdelivr.net/gh']);
+
+function resolveCdnBase(entry, vertical) {
+  if (!entry?.repo || !GITHUB_REPO_PATTERN.test(entry.repo)) {
+    throw new Error(`content-manifest.json: invalid repo for "${vertical}": ${JSON.stringify(entry?.repo)}`);
+  }
+  if (!entry?.sha || !SHA_PATTERN.test(entry.sha)) {
+    throw new Error(`content-manifest.json: invalid sha for "${vertical}": ${JSON.stringify(entry?.sha)}`);
+  }
   const baseUrl = (entry.baseUrl ?? 'https://cdn.jsdelivr.net/gh').replace(/\/$/, '');
+  if (!ALLOWED_BASE_URLS.has(baseUrl)) {
+    throw new Error(`content-manifest.json: baseUrl not in allowlist for "${vertical}": ${JSON.stringify(baseUrl)}`);
+  }
+  return baseUrl;
+}
+
+async function fetchFromCdn(entry, contentPath, label, vertical) {
+  const baseUrl = resolveCdnBase(entry, vertical);
   const url = `${baseUrl}/${entry.repo}@${entry.sha}/${contentPath}`;
   const res = await fetch(url);
   if (!res.ok) {
@@ -39,7 +60,7 @@ export async function loadBlogIndex() {
   const manifest = loadManifest();
   const blog = manifest?.blog;
   if (blog?.repo && blog?.sha) {
-    return fetchFromCdn(blog, 'content/blog/index.json', 'loadBlogIndex');
+    return fetchFromCdn(blog, 'content/blog/index.json', 'loadBlogIndex', 'blog');
   }
   return JSON.parse(readFileSync(join(contentDir, 'blog', 'index.json'), 'utf-8'));
 }
@@ -53,7 +74,7 @@ export async function loadSkillupCatalog() {
   const manifest = loadManifest();
   const skillup = manifest?.skillup;
   if (skillup?.repo && skillup?.sha) {
-    return fetchFromCdn(skillup, 'content/skillup/catalog.json', 'loadSkillupCatalog');
+    return fetchFromCdn(skillup, 'content/skillup/catalog.json', 'loadSkillupCatalog', 'skillup');
   }
   const localPath = join(contentDir, 'skillup', 'catalog.json');
   if (!existsSync(localPath)) return null;
@@ -72,7 +93,7 @@ export async function loadUsecasesSourceIntel() {
   const manifest = loadManifest();
   const usecases = manifest?.usecases;
   if (usecases?.repo && usecases?.sha) {
-    return fetchFromCdn(usecases, 'content/usecases/_source-intel.json', 'loadUsecasesSourceIntel');
+    return fetchFromCdn(usecases, 'content/usecases/_source-intel.json', 'loadUsecasesSourceIntel', 'usecases');
   }
   const localPath = join(contentDir, 'usecases', '_source-intel.json');
   if (!existsSync(localPath)) return null;
