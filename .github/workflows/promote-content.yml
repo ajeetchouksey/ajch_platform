@@ -96,21 +96,27 @@ jobs:
           import json
           from datetime import datetime, timezone
 
-          path = 'content-manifest.json'
-          with open(path, encoding='utf-8') as f:
-              data = json.load(f)
+          # The running app fetches /content-manifest.json at runtime, which
+          # Vite serves from public/ -- not the repo-root copy. Both must be
+          # updated or the promotion silently never reaches the live site.
+          paths = ['content-manifest.json', 'public/content-manifest.json']
+          promoted_at = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-          data["${VERTICAL}"] = {
-              "repo": "${REPO}",
-              "sha": "${SHA}",
-              "baseUrl": "${BASE_URL}",
-              "schemaVersion": 1,
-              "promotedAt": datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
-          }
+          for path in paths:
+              with open(path, encoding='utf-8') as f:
+                  data = json.load(f)
 
-          with open(path, 'w', encoding='utf-8') as f:
-              json.dump(data, f, indent=2)
-              f.write('\n')
+              data["${VERTICAL}"] = {
+                  "repo": "${REPO}",
+                  "sha": "${SHA}",
+                  "baseUrl": "${BASE_URL}",
+                  "schemaVersion": 1,
+                  "promotedAt": promoted_at,
+              }
+
+              with open(path, 'w', encoding='utf-8') as f:
+                  json.dump(data, f, indent=2)
+                  f.write('\n')
           PY
 
       - name: Open promotion PR
@@ -125,7 +131,7 @@ jobs:
 
           branch="chore/promote-${VERTICAL}-${SHA:0:12}"
           git checkout -B "${branch}"
-          git add content-manifest.json
+          git add content-manifest.json public/content-manifest.json
 
           if git diff --cached --quiet; then
             echo "No manifest change to promote."
