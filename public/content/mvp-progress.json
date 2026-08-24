@@ -19,7 +19,7 @@
     "githubStars": 500
   },
   "current": {
-    "blogs": 62,
+    "blogs": 65,
     "videos": 0,
     "architectures": 2,
     "useCases": 46,
@@ -89,7 +89,7 @@
     }
   ],
   "domainCoverage": [
-    { "domain": "Azure AI Foundry", "pct": 12, "status": "critical" },
+    { "domain": "Azure AI Foundry", "pct": 18, "status": "critical" },
     { "domain": "GitHub Copilot",   "pct": 18, "status": "critical" },
     { "domain": "Agentic AI",       "pct": 35, "status": "low"      },
     { "domain": "AI Architecture",  "pct": 7,  "status": "critical" },
