@@ -3,7 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const repoRoot = process.cwd();
-const manifestPath = path.join(repoRoot, 'content-manifest.json');
+// The running app fetches /content-manifest.json at runtime, which Vite
+// serves from public/ -- not the repo-root copy. Both must stay in sync or
+// a "successful" promotion silently never reaches the live site.
+const manifestPaths = [
+  path.join(repoRoot, 'content-manifest.json'),
+  path.join(repoRoot, 'public', 'content-manifest.json'),
+];
 
 const usage = `Usage:
   node scripts/sync-vertical-repo.mjs <vertical> <repo> <sha> [--base-url <url>]
@@ -35,19 +41,19 @@ if (!/^blog|skillup|usecases|interviews|pathways|platform-docs$/.test(vertical))
   fail(`Unsupported vertical: ${vertical}. Expected one of: blog, skillup, usecases, interviews, pathways, platform-docs`);
 }
 
-const manifest = fs.existsSync(manifestPath)
-  ? JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
-  : {};
+const promotedAt = new Date().toISOString();
 
-manifest[vertical] = {
-  repo,
-  sha,
-  baseUrl,
-  promotedAt: new Date().toISOString(),
-};
+for (const manifestPath of manifestPaths) {
+  const manifest = fs.existsSync(manifestPath)
+    ? JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+    : {};
 
-fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-console.log(`✓ Updated ${vertical} in content-manifest.json`);
+  manifest[vertical] = { repo, sha, baseUrl, promotedAt };
+
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log(`✓ Updated ${vertical} in ${path.relative(repoRoot, manifestPath)}`);
+}
+
 console.log(`  repo: ${repo}`);
 console.log(`  sha: ${sha}`);
 console.log(`  baseUrl: ${baseUrl}`);
