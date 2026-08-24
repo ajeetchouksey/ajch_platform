@@ -11,9 +11,7 @@ import { EXAM_SCHEMES } from '@/types/content';
 import type { ExamConfig } from '@/types/content';
 import { SubscribeForm } from './SubscribeForm';
 import { GrowthPrompt } from './GrowthPrompt';
-import { useAuth } from '@/lib/auth';
-
-const OWNER_LOGIN = 'ajeetchouksey';
+import { useIsOwner } from '@/lib/auth';
 
 const EXAM_NAV = [
   { slug: '',          label: 'Overview',    icon: GraduationCap, end: true },
@@ -133,8 +131,8 @@ function Breadcrumbs() {
 
 /** Renders an Admin nav link only for the platform owner. */
 function AdminNavItem() {
-  const { user } = useAuth();
-  if (!user || user.login !== OWNER_LOGIN) return null;
+  const isOwner = useIsOwner();
+  if (!isOwner) return null;
   return (
     <NavLink
       to="/admin"
@@ -164,7 +162,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   });
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const { user } = useAuth();
+  const isOwner = useIsOwner();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const pageKey = location.pathname + location.search;
@@ -221,6 +219,12 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="h-screen overflow-hidden flex flex-col text-slate-100">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-violet-600 focus:text-white focus:text-sm focus:font-semibold"
+      >
+        Skip to content
+      </a>
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
       {/* Navigation progress bar — restarts on every route change */}
       <div key={`np-${pageKey}`} className="nav-progress" aria-hidden="true" />
@@ -275,7 +279,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           </NavLink>
 
-          <nav className="hidden lg:flex flex-1 min-w-0 overflow-hidden items-center gap-0">
+          <nav aria-label="Primary" className="hidden lg:flex flex-1 min-w-0 overflow-hidden items-center gap-0">
             {platformLinks.filter((l) => !l.sidebarOnly && !l.topNavHidden).map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
@@ -335,10 +339,10 @@ export default function Layout({ children }: { children: ReactNode }) {
         >
           {/* Mobile: platform nav */}
           <div className="px-4 pb-4 lg:hidden">
-            <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
+            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
               Platform
-            </h3>
-            <nav className="space-y-0.5">
+            </p>
+            <nav aria-label="Platform" className="space-y-0.5">
               {platformLinks.filter((l) => !l.sidebarOnly && !l.topNavHidden).map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
@@ -358,7 +362,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               ))}
             </nav>
             {/* Admin link — owner only */}
-            {user?.login === OWNER_LOGIN && (
+            {isOwner && (
               <>
                 <div className="border-t border-slate-800/60 my-3 -mx-1" />
                 <NavLink
@@ -377,10 +381,10 @@ export default function Layout({ children }: { children: ReactNode }) {
               </>
             )}
             <div className="border-t border-slate-800/60 my-3 -mx-1" />
-            <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
+            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
               Resources
-            </h3>
-            <nav className="space-y-0.5">
+            </p>
+            <nav aria-label="Resources" className="space-y-0.5">
               {platformLinks.filter((l) => l.topNavHidden && !l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
@@ -400,10 +404,10 @@ export default function Layout({ children }: { children: ReactNode }) {
               ))}
             </nav>
             <div className="border-t border-slate-800/60 my-3 -mx-1" />
-            <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
+            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
               Account
-            </h3>
-            <nav className="space-y-0.5">
+            </p>
+            <nav aria-label="Account" className="space-y-0.5">
               {platformLinks.filter((l) => l.sidebarOnly).map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
@@ -441,7 +445,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
                     {currentExam.shortTitle} Exam
                   </h3>
-                  <nav className="space-y-0.5">
+                  <nav aria-label={`${currentExam.shortTitle} exam sections`} className="space-y-0.5">
                     {examLinks.map(({ to, label, icon: Icon, end }) => (
                       <NavLink
                         key={to}
@@ -521,7 +525,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           {isInTeam && (
             <div className="px-4 pb-4">
               <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">The Team</h3>
-              <nav className="space-y-0.5 mb-3">
+              <nav aria-label="Team" className="space-y-0.5 mb-3">
                 <NavLink
                   to="/team"
                   end
@@ -590,6 +594,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
         {/* Main content */}
         <main
+          id="main"
           className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden flex flex-col"
           style={{
             background: 'radial-gradient(ellipse 120% 45% at 50% 0%, rgba(139,92,246,0.10) 0%, transparent 55%)',
@@ -705,7 +710,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <Badge label="AI Hub" variant="violet" size="xs" />
                   <VersionTag version={__APP_VERSION__} highlight />
                 </div>
-                <nav className="flex flex-wrap gap-x-4 gap-y-1">
+                <nav aria-label="Footer" className="flex flex-wrap gap-x-4 gap-y-1">
                   {footerLinks.map(({ href, label, external }) =>
                     external ? (
                       <a key={href} href={href} target="_blank" rel="noreferrer"

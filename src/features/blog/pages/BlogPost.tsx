@@ -155,7 +155,7 @@ function TocSidebar({
             <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5">
               <List size={9} /> In this article
             </p>
-            <nav className="space-y-0.5">
+            <nav aria-label="Table of contents" className="space-y-0.5">
               {headings.map(({ id, text, level }, idx) => {
                 const isActive = activeId === id;
                 const isPast = activeIdx >= 0 && idx < activeIdx;
@@ -286,7 +286,7 @@ function MobileToc({ headings, activeId, onClose }: { headings: Heading[]; activ
           <p className="text-sm font-black text-white flex items-center gap-2"><List size={14} />Contents</p>
           <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors"><X size={16} /></button>
         </div>
-        <nav className="space-y-1">
+        <nav aria-label="Table of contents" className="space-y-1">
           {headings.map(({ id, text, level }) => (
             <a key={id} href={`#${id}`}
               onClick={e => { e.preventDefault(); onClose(); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}

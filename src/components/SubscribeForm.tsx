@@ -132,6 +132,7 @@ export function SubscribeForm({ compact = false, className = '' }: SubscribeForm
             value={value}
             onChange={e => setValue(e.target.value)}
             placeholder={channel === 'email' ? 'your@email.com' : '@githubhandle'}
+            aria-label={channel === 'email' ? 'Email address' : 'GitHub handle'}
             maxLength={channel === 'email' ? 254 : 39}
             className={`${inputCls} px-3 py-1.5 w-44 min-w-0`}
           />
@@ -147,6 +148,7 @@ export function SubscribeForm({ compact = false, className = '' }: SubscribeForm
             value={value}
             onChange={e => setValue(e.target.value)}
             placeholder={channel === 'email' ? 'your@email.com' : '@githubhandle'}
+            aria-label={channel === 'email' ? 'Email address' : 'GitHub handle'}
             maxLength={channel === 'email' ? 254 : 39}
             className={`${inputCls} px-4 py-2.5 w-full`}
           />

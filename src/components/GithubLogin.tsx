@@ -149,6 +149,7 @@ export function GithubLogin() {
           onClick={() => setShowTokenInput(true)}
           className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors"
           title="Login with Personal Access Token"
+          aria-label="Login with Personal Access Token"
         >
           <Key size={14} />
         </button>
