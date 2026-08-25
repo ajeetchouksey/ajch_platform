@@ -15,6 +15,7 @@ import GiscusComments from '@/components/GiscusComments';
 import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import { ContentFeedback } from '@/components/ContentFeedback';
+import { ContentMeta } from '@/components/ui';
 import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
@@ -240,6 +241,11 @@ function TocSidebar({
           <div className="flex items-center gap-2 text-slate-500">
             <Clock size={10} className="shrink-0" />{meta.readingTime} min read
           </div>
+          {meta.updated && (
+            <ContentMeta
+              updatedLabel={`Updated ${new Date(meta.updated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
+            />
+          )}
           <button onClick={onShare}
             className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition-all mt-1"
             style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', color: '#a78bfa' }}>
@@ -562,6 +568,11 @@ export default function BlogPost() {
                   {new Date(meta.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </span>
                 <span className="flex items-center gap-1.5"><Clock size={12} /> {meta.readingTime} min read</span>
+                {meta.updated && (
+                  <ContentMeta
+                    updatedLabel={`Updated ${new Date(meta.updated).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`}
+                  />
+                )}
                 <PageViewsBadge path={`/blog/${slug}`} />
                 <KeywordHighlightToggle
                   enabled={highlightEnabled}

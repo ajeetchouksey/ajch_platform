@@ -15,6 +15,7 @@ import type { DomainConfig, ExamConfig } from '@/types/content';
 import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
+import { ContentMeta } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
@@ -781,6 +782,19 @@ export default function Notes() {
                 <div className="flex items-center gap-2 text-[11px] text-slate-500">
                   <Zap size={10} className="shrink-0" />~{domainQCount} quiz questions
                 </div>
+              )}
+              {/*
+                contentUpdatedAt/contentVersion are exam-wide fields sourced
+                from index.json, NOT per-domain-note-file — switching domains
+                within the same exam shows the same date/version even if only
+                one domain's notes actually changed. Known granularity
+                limitation for this PR.
+              */}
+              {examConfig && (
+                <ContentMeta
+                  updatedLabel={`Last updated ${new Date(examConfig.contentUpdatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`}
+                  versionTag={examConfig.contentVersion}
+                />
               )}
               <button
                 onClick={handleShare}

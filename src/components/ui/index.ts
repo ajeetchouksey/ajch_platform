@@ -9,6 +9,8 @@ export type { BadgeVariant } from './Badge';
 
 export { VersionTag } from './VersionTag';
 
+export { ContentMeta } from './ContentMeta';
+
 export { PulsingDot } from './PulsingDot';
 
 export { SectionHeader } from './SectionHeader';
