@@ -1,20 +1,20 @@
 {
   "blog": {
     "repo": "ajeetchouksey/ajch_aaryaai_blogs",
-    "sha": "22cf92a1662540b5796696c1e10ae1229951fd2e",
+    "sha": "ee9ccf00e2a3bf7e81d6b5563713565e8a3a5ecf",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
-    "promotedAt": "2026-08-24T16:17:35.416Z"
+    "promotedAt": "2026-08-25T05:51:21.574Z"
   },
   "skillup": {
     "repo": "ajeetchouksey/ajch_skillup",
-    "sha": "b22a030daab5b00aed95b2544757c28b700892d9",
+    "sha": "9e8bdec1735e5c28848cab67e9f7a996447e7a87",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
-    "promotedAt": "2026-08-20T05:43:35.582Z"
+    "promotedAt": "2026-08-25T10:22:33.130Z"
   },
   "usecases": {
     "repo": "ajeetchouksey/ajch_ai_usecases",
-    "sha": "359864a31f258b6d11af60c55f5db366a760f71d",
+    "sha": "3bb7722266ea9ec71bb8058a4297c3953e74afc7",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
-    "promotedAt": "2026-08-20T10:53:50.000Z"
+    "promotedAt": "2026-08-25T06:38:44.852Z"
   }
 }
