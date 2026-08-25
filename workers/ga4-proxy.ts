@@ -35,6 +35,7 @@ export interface Env {
   GA4_SERVICE_ACCOUNT_B64?: string; // optional when OAuth is used
   GA4_PROPERTY_ID: string;
   GA4_CACHE: KVNamespace;
+  ANALYTICS_DB: D1Database;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
 }
@@ -278,6 +279,84 @@ async function runDataReport(env: Env, req: ReportRequest): Promise<unknown> {
   return data;
 }
 
+// ── Daily analytics history (D1) ──────────────────────────────────────────────
+// Persists the Overview tab's daily series independent of GA4's own retention
+// window and the 15-min KV cache above — populated by the Cron Trigger
+// (scheduled(), below) plus a one-time /api/ga/backfill call, read back via
+// GET /api/ga/history. See workers/schema-analytics.sql for the table shape.
+
+const OVERVIEW_METRICS = [
+  { name: 'sessions' },
+  { name: 'totalUsers' },
+  { name: 'screenPageViews' },
+  { name: 'engagementRate' },
+  { name: 'averageSessionDuration' },
+  { name: 'bounceRate' },
+] as const;
+
+interface OverviewRow {
+  date: string; // YYYY-MM-DD
+  sessions: number;
+  users: number;
+  pageviews: number;
+  engagementRate: number;
+  avgDurationSecs: number;
+  bounceRate: number;
+}
+
+// GA4's `date` dimension returns YYYYMMDD with no separators — normalize to
+// the YYYY-MM-DD shape used everywhere else (D1 primary key, API responses).
+function normalizeGa4Date(raw: string): string {
+  return `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`;
+}
+
+function rowsFromGa4Report(data: unknown): OverviewRow[] {
+  const rows = (data as { rows?: { dimensionValues: { value: string }[]; metricValues: { value: string }[] }[] }).rows ?? [];
+  return rows.map(r => ({
+    date: normalizeGa4Date(r.dimensionValues[0].value),
+    sessions: parseInt(r.metricValues[0].value, 10) || 0,
+    users: parseInt(r.metricValues[1].value, 10) || 0,
+    pageviews: parseInt(r.metricValues[2].value, 10) || 0,
+    engagementRate: parseFloat(r.metricValues[3].value) || 0,
+    avgDurationSecs: parseFloat(r.metricValues[4].value) || 0,
+    bounceRate: parseFloat(r.metricValues[5].value) || 0,
+  }));
+}
+
+async function upsertOverviewRows(env: Env, rows: OverviewRow[]): Promise<void> {
+  const now = new Date().toISOString();
+  const stmt = env.ANALYTICS_DB.prepare(
+    `INSERT INTO daily_overview (date, sessions, users, pageviews, engagement_rate, avg_duration_secs, bounce_rate, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(date) DO UPDATE SET
+       sessions = excluded.sessions,
+       users = excluded.users,
+       pageviews = excluded.pageviews,
+       engagement_rate = excluded.engagement_rate,
+       avg_duration_secs = excluded.avg_duration_secs,
+       bounce_rate = excluded.bounce_rate,
+       updated_at = excluded.updated_at`
+  );
+  const batch = rows.map(r => stmt.bind(r.date, r.sessions, r.users, r.pageviews, r.engagementRate, r.avgDurationSecs, r.bounceRate, now));
+  if (batch.length > 0) await env.ANALYTICS_DB.batch(batch);
+}
+
+// Snapshots a single day (or short range) from GA4 into D1. Used both by the
+// daily cron (last 3 days, self-healing via the upsert above) and by the
+// one-time backfill route (a wide range in one GA4 call).
+async function snapshotOverviewRange(env: Env, startDate: string, endDate: string): Promise<OverviewRow[]> {
+  const data = await runDataReport(env, {
+    dateRange: { startDate, endDate },
+    dimensions: [{ name: 'date' }],
+    metrics: [...OVERVIEW_METRICS],
+    orderBys: [{ dimension: { dimensionName: 'date' } }],
+    limit: 1000,
+  });
+  const rows = rowsFromGa4Report(data);
+  await upsertOverviewRows(env, rows);
+  return rows;
+}
+
 // ── Main handler ──────────────────────────────────────────────────────────────
 
 export default {
@@ -390,6 +469,37 @@ export default {
         return json(data, 200, origin);
       }
 
+      // POST /api/ga/backfill — one-time (or re-run) wide-range snapshot into D1.
+      // Body: { startDate: 'YYYY-MM-DD', endDate: 'YYYY-MM-DD' }
+      if (url.pathname === '/api/ga/backfill' && request.method === 'POST') {
+        const body = await request.json<{ startDate?: string; endDate?: string }>();
+        if (!body.startDate || !body.endDate) {
+          return json({ error: 'Missing startDate or endDate' }, 400, origin);
+        }
+        const rows = await snapshotOverviewRange(env, body.startDate, body.endDate);
+        const earliestDateReturned = rows.length > 0 ? rows[0].date : null;
+        return json({
+          inserted: rows.length,
+          requestedStartDate: body.startDate,
+          earliestDateReturned,
+          truncated: earliestDateReturned !== null && earliestDateReturned !== body.startDate,
+        }, 200, origin);
+      }
+
+      // GET /api/ga/history — reads the persisted daily series from D1, no GA4 call.
+      // Query params: start=YYYY-MM-DD, end=YYYY-MM-DD
+      if (url.pathname === '/api/ga/history' && request.method === 'GET') {
+        const start = url.searchParams.get('start');
+        const end = url.searchParams.get('end');
+        if (!start || !end) {
+          return json({ error: 'Missing start or end query param' }, 400, origin);
+        }
+        const { results } = await env.ANALYTICS_DB.prepare(
+          'SELECT * FROM daily_overview WHERE date BETWEEN ? AND ? ORDER BY date'
+        ).bind(start, end).all();
+        return json({ rows: results }, 200, origin);
+      }
+
       return json({ error: 'Not found' }, 404, origin);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Internal error';
@@ -398,5 +508,26 @@ export default {
       console.error('[ga4-proxy]', msg);
       return json({ error: 'GA4 request failed' }, 502, origin);
     }
+  },
+
+  // Cron Trigger (see [triggers] in wrangler.ga4.toml) — daily snapshot of the
+  // last 3 days into ANALYTICS_DB. 3 days, not just yesterday, because GA4
+  // data can still shift for ~48h after a day ends; the upsert in
+  // upsertOverviewRows() makes re-snapshotting self-healing rather than
+  // additive.
+  //
+  // Uses GA4's own relative-date keywords ("3daysAgo"/"yesterday") instead of
+  // computing calendar dates client-side in UTC — the Data API resolves these
+  // in the GA4 property's own configured reporting timezone, so if that
+  // timezone isn't UTC, a UTC-computed date could snapshot the wrong calendar
+  // day (and briefly disagree with what the live KPI tiles show for "today").
+  async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil((async () => {
+      try {
+        await snapshotOverviewRange(env, '3daysAgo', 'yesterday');
+      } catch (err) {
+        console.error('[ga4-proxy] scheduled snapshot failed', err instanceof Error ? err.message : err);
+      }
+    })());
   },
 };

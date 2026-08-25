@@ -5,6 +5,7 @@ import { Activity, BarChart2, BookOpen, Globe, Monitor, Lock, Pause, Play, Users
 import { useGA4 } from '../hooks/useGA4';
 import { useGA4Realtime } from '../hooks/useGA4Realtime';
 import { useGA4Status } from '../hooks/useGA4Status';
+import { useGA4History } from '../hooks/useGA4History';
 import { useCloudflareOverview } from '../hooks/useCloudflareOverview';
 import { useCloudflareStatus } from '../hooks/useCloudflareStatus';
 import { KpiCard } from '../components/KpiCard';
@@ -12,6 +13,13 @@ import { HBarChart } from '../components/HBarChart';
 import { DonutChart } from '../components/DonutChart';
 import { SparkLine } from '../components/SparkLine';
 import { SkeletonCard, SkeletonRow } from '../components/Skeleton';
+import { forecast } from '../lib/forecast';
+
+// 2026-05-01 was the originally requested backfill start, but GA4 has no data
+// before this date — tracking simply wasn't collecting before then (confirmed
+// via a direct GA4 query, not a retention-window truncation). Using the real
+// earliest available date avoids the chart claiming a range it can't back up.
+const HISTORY_START_DATE = '2026-06-02';
 
 type Tab = 'overview' | 'content' | 'exams' | 'sources' | 'audience' | 'cloudflare';
 type DateRange = '7d' | '28d' | '90d';
@@ -188,6 +196,73 @@ function RealtimePanel() {
   );
 }
 
+// ── Current vs Target (traffic) ─────────────────────────────────────────────
+// Reads quarters[].trafficTargets from mvp-progress.json — the same
+// current/target/quarters schema the MVP dashboard already uses for content
+// metrics (see src/features/mvp/pages/MvpProgress.tsx), extended with a
+// traffic block. Targets are grounded in a real backfilled baseline (see
+// trafficBaseline in that file), not guessed round numbers.
+
+interface MvpQuarter {
+  id: string;
+  label: string;
+  start: string;
+  end: string;
+  trafficTargets?: { sessions: number; pageviews: number; users: number };
+}
+
+function useActiveQuarter() {
+  const [quarter, setQuarter] = useState<MvpQuarter | null>(null);
+  useEffect(() => {
+    fetch('/content/mvp-progress.json')
+      .then(r => r.json())
+      .then((data: { quarters?: MvpQuarter[] }) => {
+        const today = new Date().toISOString().slice(0, 10);
+        const active = data.quarters?.find(q => q.start <= today && today <= q.end && q.trafficTargets);
+        setQuarter(active ?? null);
+      })
+      .catch(() => setQuarter(null));
+  }, []);
+  return quarter;
+}
+
+function TargetBar({ label, actual, target, color }: { label: string; actual: number; target: number; color: string }) {
+  const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
+  return (
+    <div>
+      <div className="flex justify-between text-xs text-slate-400 mb-1">
+        <span>{label}</span>
+        <span>{fmtNum(actual)} / {fmtNum(target)} <span className="text-slate-600">({pct}%)</span></span>
+      </div>
+      <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
+      </div>
+    </div>
+  );
+}
+
+function CurrentVsTargetPanel({ historyRows }: { historyRows: { date: string; sessions: number; pageviews: number; users: number }[] }) {
+  const quarter = useActiveQuarter();
+  if (!quarter?.trafficTargets) return null;
+
+  const today = new Date().toISOString().slice(0, 10);
+  const qtdRows = historyRows.filter(r => r.date >= quarter.start && r.date <= today);
+  const actualSessions = qtdRows.reduce((a, r) => a + r.sessions, 0);
+  const actualPageviews = qtdRows.reduce((a, r) => a + r.pageviews, 0);
+  const actualUsers = qtdRows.reduce((a, r) => a + r.users, 0);
+
+  return (
+    <SectionCard title={`Current vs Target — ${quarter.label} (${quarter.start} → ${quarter.end})`}>
+      <div className="space-y-3">
+        <TargetBar label="Sessions" actual={actualSessions} target={quarter.trafficTargets.sessions} color="#a78bfa" />
+        <TargetBar label="Pageviews" actual={actualPageviews} target={quarter.trafficTargets.pageviews} color="#67e8f9" />
+        <TargetBar label="Users" actual={actualUsers} target={quarter.trafficTargets.users} color="#4ade80" />
+      </div>
+      <p className="text-[10px] text-slate-600 mt-3">Target = baseline run-rate × 1.25 stretch, grounded in real backfilled data — see trafficBaseline in mvp-progress.json.</p>
+    </SectionCard>
+  );
+}
+
 // ── Overview tab ──────────────────────────────────────────────────────────────
 
 function OverviewTab({ dateRange }: { dateRange: DateRange }) {
@@ -203,6 +278,9 @@ function OverviewTab({ dateRange }: { dateRange: DateRange }) {
     metrics: [{ name: 'sessions' }, { name: 'screenPageViews' }],
     orderBys: [{ dimension: { dimensionName: 'date' } }], limit: 90 });
 
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const historyQ = useGA4History(HISTORY_START_DATE, today);
+
   const row = kpiQ.data?.rows?.[0];
   const metrics = row ? {
     users:    parseInt(row.metricValues[0].value, 10),
@@ -213,16 +291,31 @@ function OverviewTab({ dateRange }: { dateRange: DateRange }) {
     bounce:   parseFloat(row.metricValues[5].value),
   } : null;
 
+  // Prefer the persisted D1 history (fixed range since HISTORY_START_DATE, survives
+  // past GA4's live-query window) — fall back to the live, 7/28/90-day-capped
+  // query if history hasn't been backfilled yet (empty ANALYTICS_DB).
+  const usingHistory = (historyQ.rows?.length ?? 0) > 0;
   const sessionsChartData = useMemo(() => {
+    if (historyQ.rows && historyQ.rows.length > 0) {
+      return historyQ.rows.map(r => ({ date: r.date, sessions: r.sessions, views: r.pageviews }));
+    }
     return sessionsQ.data?.rows?.map(r => ({
       date: r.dimensionValues[0].value,
       sessions: parseInt(r.metricValues[0].value, 10),
       views: parseInt(r.metricValues[1].value, 10),
     })) ?? [];
-  }, [sessionsQ.data]);
+  }, [historyQ.rows, sessionsQ.data]);
 
-  const sessionPoints = sessionsChartData.map(d => d.sessions);
-  const viewPoints = sessionsChartData.map(d => d.views);
+  const sessionForecast = useMemo(() => forecast(
+    sessionsChartData.map(d => ({ date: d.date, value: d.sessions }))
+  ), [sessionsChartData]);
+  const viewForecast = useMemo(() => forecast(
+    sessionsChartData.map(d => ({ date: d.date, value: d.views }))
+  ), [sessionsChartData]);
+
+  const sessionPoints = [...sessionsChartData.map(d => d.sessions), ...sessionForecast.projectedPoints.map(p => p.value)];
+  const viewPoints = [...sessionsChartData.map(d => d.views), ...viewForecast.projectedPoints.map(p => p.value)];
+  const dashedFromIndex = usingHistory && sessionsChartData.length > 0 ? sessionsChartData.length - 1 : undefined;
 
   return (
     <div className="space-y-4">
@@ -241,22 +334,34 @@ function OverviewTab({ dateRange }: { dateRange: DateRange }) {
 
       {sessionsChartData.length > 0 && (
         <SectionCard title="Sessions & Pageviews over time">
-          <div className="flex items-end gap-4 mb-2">
-            <div className="flex items-center gap-1.5 text-xs text-slate-400"><span className="w-3 h-0.5 bg-violet-400 inline-block" /> Sessions</div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-400"><span className="w-3 h-0.5 bg-cyan-400 inline-block" /> Pageviews</div>
+          <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+            <div className="flex items-end gap-4">
+              <div className="flex items-center gap-1.5 text-xs text-slate-400"><span className="w-3 h-0.5 bg-violet-400 inline-block" /> Sessions</div>
+              <div className="flex items-center gap-1.5 text-xs text-slate-400"><span className="w-3 h-0.5 bg-cyan-400 inline-block" /> Pageviews</div>
+              {dashedFromIndex !== undefined && (
+                <div className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-3 h-0.5 bg-slate-500 inline-block" style={{ backgroundImage: 'repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 6px)' }} /> Projected</div>
+              )}
+            </div>
+            {sessionForecast.growthRateWoW !== null && (
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${sessionForecast.growthRateWoW >= 0 ? 'text-emerald-400 bg-emerald-400/10' : 'text-rose-400 bg-rose-400/10'}`}>
+                {sessionForecast.growthRateWoW >= 0 ? '+' : ''}{(sessionForecast.growthRateWoW * 100).toFixed(1)}% WoW
+              </span>
+            )}
           </div>
           <div className="relative">
-            <SparkLine points={sessionPoints} color="#a78bfa" width={700} height={80} />
+            <SparkLine points={sessionPoints} color="#a78bfa" width={700} height={80} dashedFromIndex={dashedFromIndex} />
             <div className="absolute inset-0 pointer-events-none">
-              <SparkLine points={viewPoints} color="#67e8f9" width={700} height={80} />
+              <SparkLine points={viewPoints} color="#67e8f9" width={700} height={80} dashedFromIndex={dashedFromIndex} />
             </div>
           </div>
           <div className="flex justify-between text-[10px] text-slate-600 mt-1">
-            <span>{sessionsChartData[0]?.date}</span>
-            <span>{sessionsChartData[sessionsChartData.length - 1]?.date}</span>
+            <span>{usingHistory ? HISTORY_START_DATE : sessionsChartData[0]?.date}</span>
+            <span>{dashedFromIndex !== undefined ? `${sessionsChartData[sessionsChartData.length - 1]?.date} → +30d projected` : sessionsChartData[sessionsChartData.length - 1]?.date}</span>
           </div>
         </SectionCard>
       )}
+
+      {usingHistory && historyQ.rows && <CurrentVsTargetPanel historyRows={historyQ.rows} />}
     </div>
   );
 }
