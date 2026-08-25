@@ -47,12 +47,34 @@ Use fetched data to validate that platform targets align with the current MVP aw
 6. Read public/content/tools/index.json            → tool count (source of truth, synced with Tools.tsx)
 7. Read public/content/pathways/catalog.json        → discovery tracks: communityArticles + architectures from Discovery
 8. Read public/content/stats.json                   → platform totals
-9. Call Content Gap Analyst                         → full domain coverage report across all 6 sources
-10. Call Community Tracker                          → community metric update
-11. Call Evidence Curator                           → closed MSMVPAI issue count
-12. Synthesize → produce agentRecommendations[]
-13. Write updated sections to mvp-progress.json
+9. Read public/content/monitoring-snapshot.json      → traffic pace vs quarter target, Worker error rates, D1 usage
+   → if the file is missing, or its `generatedAt` is more than 10 days old, do NOT use it as
+     current — say plainly in the brief that monitoring data is stale/unavailable instead of
+     presenting old numbers as this week's state (same discipline as any other stale-data check)
+10. Call Content Gap Analyst                        → full domain coverage report across all 6 sources
+11. Call Community Tracker                          → community metric update
+12. Call Evidence Curator                           → closed MSMVPAI issue count
+13. Synthesize → produce agentRecommendations[]
+14. Write updated sections to mvp-progress.json
 ```
+
+## Monitoring & Observability Findings
+
+`public/content/monitoring-snapshot.json` is written weekly by the `monitoring-snapshot-sync`
+GitHub Actions workflow (see `scripts/build-monitoring-snapshot.mjs`) — it already computes
+severity for you in its `alerts[]` array (traffic pace vs. the active quarter's
+`trafficBaseline`, and Cloudflare Worker error rates). Fold each entry directly into
+`agentRecommendations[]`:
+
+- `alerts[].severity` maps 1:1 onto the existing `critical | warning` levels here.
+- `alerts[].message` is already a plain-language description — reuse it (or tighten it) as `desc`.
+- For `critical` and `warning` monitoring findings, set `action` to recommend routing to Product
+  Manager to draft a GitHub Issue (same handoff phrasing already used for other critical items,
+  e.g. "Ship Issue #336...") — Product Manager owns actually drafting and creating issues (its
+  `8f. Observability Intelligence` module), never create issues yourself.
+- D1 usage (`d1Usage[]`) has no severity attached — Cloudflare quota limits for this account
+  aren't verified yet. Mention usage only as informational context, never as a critical/warning
+  finding, until a real quota number is confirmed.
 
 ## Platform Content URLs
 

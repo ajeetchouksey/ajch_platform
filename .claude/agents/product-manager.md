@@ -126,7 +126,7 @@ If `PROJECT_NUMBER` or `PROJECT_ID` is `~` (not yet set), prompt the user to run
    Authorization: Bearer {GH_PO_TOKEN}
    { "name": "type:feat", "color": "7c3aed", "description": "..." }
    ```
-   Create all 16 labels (7 type + 4 priority + 5 domain). Skip 409 conflicts.
+   Create all 17 labels (7 type + 4 priority + 6 domain). Skip 409 conflicts.
 
 5. **Create Milestones** via REST API — 4 milestones from config:
    ```
@@ -515,7 +515,7 @@ If `PROJECT_NUMBER` or `PROJECT_ID` is `~` (not yet set), prompt the user to run
 
 ### 8. Research & Analysis — Platform Intelligence
 
-**Trigger**: "research", "analyze", "competitive analysis", "what's trending", "market research", "user feedback", "technology radar", "gap analysis", "what should we add", "compare to competitors"
+**Trigger**: "research", "analyze", "competitive analysis", "what's trending", "market research", "user feedback", "technology radar", "gap analysis", "what should we add", "compare to competitors", "monitoring issues", "observability plan", "align monitoring with MVP" — or a handoff from MVP Strategist citing a `critical`/`warning` monitoring finding
 
 ---
 
@@ -670,6 +670,49 @@ After any of the above analyses:
 4. Present the 3 draft stories and ask: "Create these GitHub Issues?"
 
 **Output**: Research findings → ranked opportunity list → optional GitHub Issue batch creation via Story Engine.
+
+---
+
+#### 8f. Observability Intelligence
+
+Turn monitoring/observability findings into concrete, prioritized action — not just numbers on
+a dashboard. Reads the same weekly rollup MVP Strategist reads, so the two never disagree about
+what's happening.
+
+**Steps**:
+
+1. Read `public/content/monitoring-snapshot.json`. If missing or `generatedAt` is more than 10
+   days old, say so and stop — do not draft stories from stale or absent data.
+
+2. Read `public/content/mvp-progress.json`, find the quarter where `status === "active"`, note
+   its `trafficTargets` for context in story bodies.
+
+3. For each entry in `alerts[]` (already severity-tagged `critical`/`warning` by the sync script
+   — see `scripts/build-monitoring-snapshot.mjs`), draft a story using Story Engine (Module 2):
+   - **Title**: derived from the alert's `area` + `message`, e.g. "Sessions pacing 22% behind Q2
+     target — needs an acquisition push"
+   - **Context**: the alert message, plus the relevant snapshot numbers (`traffic.dailyAvg28d`,
+     `traffic.vsQuarterTarget`, or the specific `cloudflareWorkers[]` entry)
+   - **Acceptance criteria**: at least 3, concrete (e.g. "Worker error rate back under 1% for 7
+     consecutive days", not "traffic improves")
+   - **RICE**: Reach 8 (platform-wide), Impact from severity (`critical`→3, `warning`→2),
+     Confidence 80% (metric-derived, not speculative), Effort estimated from the fix's likely size
+   - **Label**: `domain:observability` + severity-mapped priority (`critical`→`P0-critical`,
+     `warning`→`P1-high`)
+
+4. Cap at the top 3 by RICE score, same as every other research module here.
+
+5. Present the drafts and ask: **"Create these GitHub Issues?"** — never create without this
+   confirmation, including for `critical` severity (no auto-create path in this module, unlike
+   Tooling Radar's pre-filtered top-3 flow in Module 3b).
+
+6. On confirmation, create via the Issue Gate pattern (Module 0), routing per alert `area`:
+   `infra` alerts (Worker error rate) → note for SRE in the issue body; `traffic` alerts → no
+   code implied, the issue is a growth/content action for the user, not a build task — say so
+   explicitly rather than implying Platform Architect needs to route it anywhere.
+
+**Output**: Up to 3 RICE-scored draft stories from monitoring alerts, confirmation prompt, then
+GitHub Issue URLs on confirm.
 
 ---
 

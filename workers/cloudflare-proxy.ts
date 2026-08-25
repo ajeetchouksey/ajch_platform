@@ -5,14 +5,17 @@
  *                         + per-Worker invocations/errors/CPU time, via Cloudflare's
  *                         GraphQL Analytics API (5-min KV cache)
  *
- * Auth: every request must carry Authorization: Bearer <github_token> — same
+ * Auth: every request must carry either Authorization: Bearer <github_token> — same
  * hash-and-verify-owner pattern as workers/ga4-proxy.ts (kept independent rather
- * than shared, since these are separately deployed Workers with separate KV).
+ * than shared, since these are separately deployed Workers with separate KV) — or
+ * X-Sync-Key: <MONITORING_SYNC_KEY>, used by the weekly monitoring-snapshot-sync
+ * GitHub Actions workflow, which has no GitHub session to verify.
  *
  * Secrets (set via `wrangler secret put <NAME> --config wrangler.cf-monitor.toml`):
- *   CF_API_TOKEN   Cloudflare API token, Account Analytics:Read + Zone Analytics:Read scopes
- *   CF_ACCOUNT_ID  Cloudflare account ID (not secret, but kept here for one-config-does-it-all)
- *   CF_ZONE_ID     Zone ID for aaryaai.dev (needed for zone-level HTTP analytics)
+ *   CF_API_TOKEN          Cloudflare API token, Account Analytics:Read + Zone Analytics:Read scopes
+ *   CF_ACCOUNT_ID         Cloudflare account ID (not secret, but kept here for one-config-does-it-all)
+ *   CF_ZONE_ID            Zone ID for aaryaai.dev (needed for zone-level HTTP analytics)
+ *   MONITORING_SYNC_KEY   shared secret for monitoring-snapshot-sync.yml (same value on both Workers)
  *
  * KV binding:
  *   CF_MONITOR_CACHE   namespace for auth + response caching
@@ -41,6 +44,7 @@ export interface Env {
   CF_ZONE_ID?: string;
   CF_WORKER_SCRIPT_NAMES?: string;
   CF_MONITOR_CACHE: KVNamespace;
+  MONITORING_SYNC_KEY?: string; // shared secret for the weekly monitoring-snapshot-sync workflow
 }
 
 // ── CORS helpers ──────────────────────────────────────────────────────────────
@@ -306,12 +310,20 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
 
-    const authHeader = request.headers.get('Authorization') ?? '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-    if (!token) return json({ error: 'Unauthorized' }, 401, origin);
+    // Either the owner's GitHub token, or the shared sync key used by the
+    // weekly monitoring-snapshot-sync GitHub Actions workflow (machine
+    // caller — no GitHub session to verify).
+    const syncKey = request.headers.get('X-Sync-Key') ?? '';
+    const isSyncCaller = Boolean(env.MONITORING_SYNC_KEY) && syncKey === env.MONITORING_SYNC_KEY;
 
-    const isOwner = await verifyOwner(token, env.CF_MONITOR_CACHE);
-    if (!isOwner) return json({ error: 'Forbidden' }, 403, origin);
+    if (!isSyncCaller) {
+      const authHeader = request.headers.get('Authorization') ?? '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+      if (!token) return json({ error: 'Unauthorized' }, 401, origin);
+
+      const isOwner = await verifyOwner(token, env.CF_MONITOR_CACHE);
+      if (!isOwner) return json({ error: 'Forbidden' }, 403, origin);
+    }
 
     try {
       if (url.pathname === '/api/cf/status' && request.method === 'GET') {

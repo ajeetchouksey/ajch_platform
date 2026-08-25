@@ -1,0 +1,65 @@
+{
+  "schema": "1.0",
+  "generatedAt": "2026-08-25T15:08:57.706Z",
+  "since": "2026-07-28",
+  "until": "2026-08-24",
+  "traffic": {
+    "last7d": {
+      "sessions": 45,
+      "pageviews": 166,
+      "users": 26
+    },
+    "dailyAvg28d": {
+      "sessions": 17,
+      "pageviews": 147,
+      "users": 6.2
+    },
+    "vsQuarterTarget": {
+      "quarterId": "Q2",
+      "paceRatio": {
+        "sessions": 1.197,
+        "pageviews": 1.344,
+        "users": 1.033
+      }
+    }
+  },
+  "cloudflareWorkers": [
+    {
+      "scriptName": "aarya-cf-monitor",
+      "requests": 87,
+      "errorRate": 0,
+      "cpuTimeP99Ms": 16106
+    },
+    {
+      "scriptName": "aarya-ga4-proxy",
+      "requests": 1545717,
+      "errorRate": 0.4434259311374592,
+      "cpuTimeP99Ms": 1995
+    },
+    {
+      "scriptName": "aarya-subscribe",
+      "requests": 413,
+      "errorRate": 0,
+      "cpuTimeP99Ms": 3692
+    }
+  ],
+  "d1Usage": [
+    {
+      "database": "aarya-subscribers",
+      "rowsRead": 1,
+      "rowsWritten": 3
+    },
+    {
+      "database": "aarya-analytics",
+      "rowsRead": 1588,
+      "rowsWritten": 141
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "critical",
+      "area": "infra",
+      "message": "aarya-ga4-proxy error rate is 44.3% over the last 28 days — investigate before it affects the dashboard or subscribe flow."
+    }
+  ]
+}
