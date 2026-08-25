@@ -21,9 +21,31 @@ export interface CfWorkerStat {
   cpuTimeP99Ms: number;
 }
 
+export interface CfWorkerDailyPoint {
+  date: string;
+  requests: number;
+  errors: number;
+}
+
+export interface CfWorkerTrend {
+  scriptName: string;
+  series: CfWorkerDailyPoint[];
+}
+
+export interface CfD1Usage {
+  databaseId: string;
+  name: string;
+  readQueries: number;
+  writeQueries: number;
+  rowsRead: number;
+  rowsWritten: number;
+}
+
 export interface CfOverview {
   zone: CfZoneTraffic | null;
   workers: CfWorkerStat[];
+  workerTrend: CfWorkerTrend[];
+  d1Usage: CfD1Usage[];
   since: string;
   until: string;
 }

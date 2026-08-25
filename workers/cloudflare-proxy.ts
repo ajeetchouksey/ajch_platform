@@ -29,8 +29,11 @@ const GH_API = 'https://api.github.com';
 const CF_GRAPHQL = 'https://api.cloudflare.com/client/v4/graphql';
 
 // Worker scripts to report on — override via CF_WORKER_SCRIPT_NAMES (comma-separated)
-// if more Workers are deployed later.
-const DEFAULT_WORKER_SCRIPTS = ['aarya-subscribe', 'aarya-ga4-proxy', 'aarya-og'];
+// if more Workers are deployed later. Includes aarya-cf-monitor itself --
+// the monitor didn't monitor itself before, and the exception-hardening
+// investigation on aarya-ga4-proxy found a real worker throwing at
+// production volume, so self-monitoring coverage matters here.
+const DEFAULT_WORKER_SCRIPTS = ['aarya-subscribe', 'aarya-ga4-proxy', 'aarya-og', 'aarya-cf-monitor'];
 
 export interface Env {
   CF_API_TOKEN?: string;
@@ -182,17 +185,112 @@ async function fetchWorkerStats(env: Env, since: string, until: string) {
     }));
 }
 
+interface WorkerDailyGroup {
+  dimensions: { scriptName: string; date: string };
+  sum: { requests: number; errors: number };
+}
+
+// Per-day requests/errors per worker — same dataset as fetchWorkerStats, just
+// grouped by date too (verified live: workersInvocationsAdaptive accepts
+// `date` alongside `scriptName` in dimensions). Powers the trend chart; the
+// aggregate totals in fetchWorkerStats stay a separate simpler query since
+// most callers only need the current-window summary.
+async function fetchWorkerDailyTrend(env: Env, since: string, until: string) {
+  const query = `
+    query WorkerDaily($accountTag: string!, $since: Time!, $until: Time!) {
+      viewer {
+        accounts(filter: { accountTag: $accountTag }) {
+          workersInvocationsAdaptive(
+            limit: 1000
+            filter: { datetime_geq: $since, datetime_leq: $until }
+          ) {
+            dimensions { scriptName date }
+            sum { requests errors }
+          }
+        }
+      }
+    }`;
+  type Result = { viewer: { accounts: { workersInvocationsAdaptive: WorkerDailyGroup[] }[] } };
+  const data = await runGraphQL<Result>(env, query, {
+    accountTag: env.CF_ACCOUNT_ID,
+    since: `${since}T00:00:00Z`,
+    until: `${until}T23:59:59Z`,
+  });
+  const groups = data.viewer.accounts[0]?.workersInvocationsAdaptive ?? [];
+  const wanted = new Set((env.CF_WORKER_SCRIPT_NAMES?.split(',').map(s => s.trim()) ?? DEFAULT_WORKER_SCRIPTS));
+
+  const byScript = new Map<string, { date: string; requests: number; errors: number }[]>();
+  for (const g of groups) {
+    if (!wanted.has(g.dimensions.scriptName)) continue;
+    const series = byScript.get(g.dimensions.scriptName) ?? [];
+    series.push({ date: g.dimensions.date, requests: g.sum.requests, errors: g.sum.errors });
+    byScript.set(g.dimensions.scriptName, series);
+  }
+  return [...byScript.entries()].map(([scriptName, series]) => ({
+    scriptName,
+    series: series.sort((a, b) => a.date.localeCompare(b.date)),
+  }));
+}
+
+interface D1UsageGroup {
+  dimensions: { databaseId: string };
+  sum: { readQueries: number; writeQueries: number; rowsRead: number; rowsWritten: number };
+}
+
+// One row per D1 database (rowsRead/rowsWritten/readQueries/writeQueries) --
+// answers "are we anywhere near a quota" for the two databases this platform
+// depends on (aarya-subscribers, aarya-analytics). databaseId is a raw UUID
+// on the wire; DATABASE_NAMES below maps the ones we know about to a label.
+const DATABASE_NAMES: Record<string, string> = {
+  'd34f9b7a-374f-4e0c-89e7-a202b4966286': 'aarya-analytics',
+  '2f397d9b-4d45-4c1d-aa1e-3c474f58dd32': 'aarya-subscribers',
+};
+
+async function fetchD1Usage(env: Env, since: string, until: string) {
+  const query = `
+    query D1Usage($accountTag: string!, $since: Time!, $until: Time!) {
+      viewer {
+        accounts(filter: { accountTag: $accountTag }) {
+          d1AnalyticsAdaptiveGroups(
+            limit: 20
+            filter: { datetime_geq: $since, datetime_leq: $until }
+          ) {
+            dimensions { databaseId }
+            sum { readQueries writeQueries rowsRead rowsWritten }
+          }
+        }
+      }
+    }`;
+  type Result = { viewer: { accounts: { d1AnalyticsAdaptiveGroups: D1UsageGroup[] }[] } };
+  const data = await runGraphQL<Result>(env, query, {
+    accountTag: env.CF_ACCOUNT_ID,
+    since: `${since}T00:00:00Z`,
+    until: `${until}T23:59:59Z`,
+  });
+  const groups = data.viewer.accounts[0]?.d1AnalyticsAdaptiveGroups ?? [];
+  return groups.map(g => ({
+    databaseId: g.dimensions.databaseId,
+    name: DATABASE_NAMES[g.dimensions.databaseId] ?? g.dimensions.databaseId,
+    readQueries: g.sum.readQueries,
+    writeQueries: g.sum.writeQueries,
+    rowsRead: g.sum.rowsRead,
+    rowsWritten: g.sum.rowsWritten,
+  }));
+}
+
 async function fetchOverview(env: Env, range: string) {
   const cacheKey = `cf:overview:${range}`;
   const cached = await env.CF_MONITOR_CACHE.get(cacheKey);
   if (cached) return JSON.parse(cached);
 
   const { since, until } = rangeToDates(range);
-  const [zone, workers] = await Promise.all([
+  const [zone, workers, workerTrend, d1Usage] = await Promise.all([
     env.CF_ZONE_ID ? fetchZoneTraffic(env, since, until) : Promise.resolve(null),
     fetchWorkerStats(env, since, until),
+    fetchWorkerDailyTrend(env, since, until).catch(() => []),
+    fetchD1Usage(env, since, until).catch(() => []),
   ]);
-  const result = { zone, workers, since, until };
+  const result = { zone, workers, workerTrend, d1Usage, since, until };
   await env.CF_MONITOR_CACHE.put(cacheKey, JSON.stringify(result), { expirationTtl: 300 });
   return result;
 }
