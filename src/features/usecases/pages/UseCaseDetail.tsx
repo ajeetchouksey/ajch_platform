@@ -21,7 +21,7 @@ import {
   type FeaturedUseCase,
 } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
-import { GlassCard, Badge, SectionHeader } from '@/components/ui';
+import { GlassCard, Badge, SectionHeader, ContentMeta } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import {
@@ -140,6 +140,28 @@ export default function UseCaseDetail() {
         as="h1"
         className="mb-6"
       />
+
+      {/*
+        Provenance line — sourced only from the narrowed `featured` object
+        (FeaturedUseCase | null), never from raw `uc`, since CatalogUseCase
+        has no publishedDate/updatedDate fields. Renders nothing (ContentMeta
+        returns null) for all use cases that don't yet populate these fields.
+      */}
+      {featured && (featured.publishedDate || featured.updatedDate) && (
+        <ContentMeta
+          publishedLabel={
+            featured.publishedDate
+              ? `Published ${new Date(featured.publishedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`
+              : undefined
+          }
+          updatedLabel={
+            featured.updatedDate
+              ? `Updated ${new Date(featured.updatedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`
+              : undefined
+          }
+          className="mb-6"
+        />
+      )}
 
       {/* Featured content — 2-col at xl+ */}
       {featured && (
