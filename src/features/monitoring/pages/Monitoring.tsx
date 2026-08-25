@@ -203,7 +203,11 @@ function RealtimePanel() {
       {loading && !data && <SkeletonCard />}
       {error && <p className="text-xs text-rose-400">{error}</p>}
 
-      {data && (
+      {data && activeUsers === 0 && (
+        <p className="text-sm text-slate-500 text-center py-6">No active visitors right now.</p>
+      )}
+
+      {data && activeUsers > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex flex-col gap-1">
             <p className="text-4xl font-bold text-emerald-300 tabular-nums">{activeUsers}</p>
@@ -930,6 +934,10 @@ function CloudflareTab({ dateRange }: { dateRange: DateRange }) {
 
   const zone = data?.zone;
   const workers = data?.workers ?? [];
+  const workerTrend = data?.workerTrend ?? [];
+  const d1Usage = data?.d1Usage ?? [];
+
+  const trendByScript = new Map(workerTrend.map(t => [t.scriptName, t.series]));
 
   return (
     <div className="space-y-4">
@@ -954,22 +962,71 @@ function CloudflareTab({ dateRange }: { dateRange: DateRange }) {
         {workers.length === 0 && !loading && (
           <p className="text-xs text-slate-500">No Worker invocation data for this range.</p>
         )}
-        <div className="space-y-3">
-          {workers.map(w => (
-            <div key={w.scriptName} className="grid grid-cols-2 md:grid-cols-5 gap-3 items-center text-xs">
-              <span className="text-slate-300 font-medium flex items-center gap-1.5 col-span-2 md:col-span-1">
-                <Cpu size={12} className="text-slate-500" /> {w.scriptName}
-              </span>
-              <span className="text-slate-400">{fmtNum(w.requests)} req</span>
-              <span className={w.errorRate > 0.01 ? 'text-rose-400' : 'text-slate-400'}>
-                {pct(w.errors, w.requests)} errors
-              </span>
-              <span className="text-slate-400">p50 {w.cpuTimeP50Ms.toFixed(1)}ms</span>
-              <span className="text-slate-500">p99 {w.cpuTimeP99Ms.toFixed(1)}ms</span>
-            </div>
-          ))}
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead><tr className="text-slate-500 border-b border-slate-800">
+              <th className="text-left pb-2 font-medium">Worker</th>
+              <th className="text-right pb-2 font-medium">Requests</th>
+              <th className="text-right pb-2 font-medium">Errors</th>
+              <th className="text-center pb-2 font-medium">Trend</th>
+              <th className="text-right pb-2 font-medium">p50 CPU</th>
+              <th className="text-right pb-2 font-medium">p99 CPU</th>
+            </tr></thead>
+            <tbody>
+              {workers.map(w => {
+                const series = trendByScript.get(w.scriptName) ?? [];
+                const points = series.map(p => p.requests);
+                return (
+                  <tr key={w.scriptName} className="border-b border-slate-800/50 hover:bg-white/[0.02]">
+                    <td className="py-2 text-slate-300 font-medium">
+                      <span className="flex items-center gap-1.5"><Cpu size={12} className="text-slate-500 shrink-0" /> {w.scriptName}</span>
+                    </td>
+                    <td className="py-2 text-right tabular-nums text-slate-200">{fmtNum(w.requests)}</td>
+                    <td className={`py-2 text-right tabular-nums ${w.errorRate > 0.01 ? 'text-rose-400' : 'text-slate-400'}`}>
+                      {pct(w.errors, w.requests)}
+                    </td>
+                    <td className="py-2">
+                      {points.length > 1
+                        ? <div className="flex justify-center"><SparkLine points={points} width={90} height={24} color={w.errorRate > 0.01 ? '#fb7185' : '#67e8f9'} /></div>
+                        : <span className="text-slate-700 block text-center">—</span>}
+                    </td>
+                    <td className="py-2 text-right tabular-nums text-slate-400">{w.cpuTimeP50Ms.toFixed(0)}ms</td>
+                    <td className="py-2 text-right tabular-nums text-slate-500">{w.cpuTimeP99Ms.toFixed(0)}ms</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </SectionCard>
+
+      {d1Usage.length > 0 && (
+        <SectionCard title="D1 Database Usage" loading={loading}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead><tr className="text-slate-500 border-b border-slate-800">
+                <th className="text-left pb-2 font-medium">Database</th>
+                <th className="text-right pb-2 font-medium">Read Queries</th>
+                <th className="text-right pb-2 font-medium">Write Queries</th>
+                <th className="text-right pb-2 font-medium">Rows Read</th>
+                <th className="text-right pb-2 font-medium">Rows Written</th>
+              </tr></thead>
+              <tbody>
+                {d1Usage.map(db => (
+                  <tr key={db.databaseId} className="border-b border-slate-800/50 hover:bg-white/[0.02]">
+                    <td className="py-2 text-slate-300 font-medium">{db.name}</td>
+                    <td className="py-2 text-right tabular-nums text-slate-200">{fmtNum(db.readQueries)}</td>
+                    <td className="py-2 text-right tabular-nums text-slate-200">{fmtNum(db.writeQueries)}</td>
+                    <td className="py-2 text-right tabular-nums text-slate-400">{fmtNum(db.rowsRead)}</td>
+                    <td className="py-2 text-right tabular-nums text-slate-400">{fmtNum(db.rowsWritten)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-[10px] text-slate-600 mt-3">Cloudflare D1 free-tier limits: 5M rows read/day, 100k rows written/day per database — worth checking these against that if they start climbing.</p>
+        </SectionCard>
+      )}
     </div>
   );
 }
