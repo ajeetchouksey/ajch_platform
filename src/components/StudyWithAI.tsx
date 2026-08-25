@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronDown, ChevronRight, Sparkles, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { AI_TOOLS, composeHandoffPrompt, getPreferredAiTool, setPreferredAiTool } from '@/lib/ai-handoff';
@@ -8,13 +8,44 @@ import { copyToClipboard } from '@/lib/clipboard';
 interface StudyWithAIProps {
   context: HandoffContext;
   variant: 'icon' | 'row';
+  /** Controlled open state — omit to keep the component's default
+   *  uncontrolled behavior (internal toggle on trigger click). Pass both
+   *  `open` and `onOpenChange` together to drive this panel from an
+   *  external trigger (e.g. a floating "explain this" button). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** A user-selected excerpt to seed the prompt with. Recomposes the
+   *  prompt (leading with this excerpt) whenever it changes, without
+   *  clobbering in-progress edits on unrelated re-renders. */
+  initialSelectedText?: string;
 }
 
-export function StudyWithAI({ context, variant }: StudyWithAIProps) {
-  const [open, setOpen] = useState(false);
-  const [promptText, setPromptText] = useState(() => composeHandoffPrompt(context));
+export function StudyWithAI({ context, variant, open: openProp, onOpenChange, initialSelectedText }: StudyWithAIProps) {
+  const isControlled = openProp !== undefined;
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = isControlled ? openProp : internalOpen;
+  const setOpen = (updater: boolean | ((prev: boolean) => boolean)) => {
+    const next = typeof updater === 'function' ? (updater as (prev: boolean) => boolean)(open) : updater;
+    if (!isControlled) setInternalOpen(next);
+    onOpenChange?.(next);
+  };
+  const [promptText, setPromptText] = useState(() => (
+    initialSelectedText ? composeHandoffPrompt({ ...context, selectedText: initialSelectedText }) : composeHandoffPrompt(context)
+  ));
   const [copied, setCopied] = useState(false);
   const [preferred, setPreferred] = useState<AiToolId | null>(() => getPreferredAiTool());
+
+  // Recompose the prompt when a new selection comes in from an external
+  // trigger. Deliberately keyed only on initialSelectedText (not `context`)
+  // so it doesn't fire — and clobber a user's in-progress edit — on
+  // unrelated re-renders of the icon/row trigger usages, which never pass
+  // this prop at all.
+  useEffect(() => {
+    if (initialSelectedText) {
+      setPromptText(composeHandoffPrompt({ ...context, selectedText: initialSelectedText }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialSelectedText]);
 
   const handleCopy = async () => {
     const ok = await copyToClipboard(promptText);
@@ -38,7 +69,7 @@ export function StudyWithAI({ context, variant }: StudyWithAIProps) {
           size="sm"
           icon={Sparkles}
           onClick={() => setOpen((o) => !o)}
-          title="Study with AI — compose a prompt for ChatGPT, Claude, or Gemini"
+          title="Study with AI — compose a prompt for ChatGPT, Claude, Gemini, or Microsoft Copilot"
         />
       ) : (
         <button

@@ -12,10 +12,10 @@ import {
 } from '@/lib/study-tracker';
 import type { FocusTimer } from '@/lib/study-tracker';
 import type { DomainConfig, ExamConfig } from '@/types/content';
-import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
-import { ContentMeta } from '@/components/ui';
+import { ContentMeta, Button } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 import { StudyWithAI } from '@/components/StudyWithAI';
 
@@ -326,6 +326,87 @@ export default function Notes() {
 
   // Scrollspy — observe all heading anchors once content renders
   const articleRef = useRef<HTMLElement>(null);
+
+  // ── Selection-aware "explain this" floating trigger ──────────────────────
+  // Study With AI panel state, lifted here so the same instance (rendered
+  // below with variant="icon") can be opened either from its existing
+  // sidebar icon or from the floating trigger below.
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiSelectedText, setAiSelectedText] = useState<string | undefined>(undefined);
+  function handleAiOpenChange(next: boolean) {
+    setAiPanelOpen(next);
+    if (!next) setAiSelectedText(undefined); // don't leak a stale selection into the next whole-page open
+  }
+
+  const [selectionTrigger, setSelectionTrigger] = useState<{ text: string; top: number; bottom: number; left: number } | null>(null);
+  const floatingTriggerRef = useRef<HTMLDivElement>(null);
+  // Approximate rendered width of the floating "Explain" trigger (Sparkles
+  // icon + "Explain" label, size="sm") — used to clamp it inside the
+  // viewport the same way TermTooltip clamps against TIP_W above.
+  const EXPLAIN_TRIGGER_W = 110;
+
+  useEffect(() => {
+    let debounceId: ReturnType<typeof setTimeout> | null = null;
+
+    function evaluateSelection() {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0 || sel.isCollapsed) { setSelectionTrigger(null); return; }
+      const text = sel.toString().trim();
+      if (!text) { setSelectionTrigger(null); return; }
+      // Scope to the article body only — selections in the sidebar/TOC/
+      // analytics chrome should never trigger this.
+      const { anchorNode, focusNode } = sel;
+      if (!articleRef.current || !anchorNode || !focusNode ||
+          !articleRef.current.contains(anchorNode) || !articleRef.current.contains(focusNode)) {
+        setSelectionTrigger(null);
+        return;
+      }
+      const rect = sel.getRangeAt(0).getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) { setSelectionTrigger(null); return; }
+      setSelectionTrigger({ text, top: rect.top, bottom: rect.bottom, left: rect.left + rect.width / 2 });
+    }
+
+    // Debounced on selectionchange — fires repeatedly during a drag, so we
+    // only evaluate once the selection has settled, avoiding flicker.
+    function handleSelectionChange() {
+      if (debounceId) clearTimeout(debounceId);
+      debounceId = setTimeout(evaluateSelection, 150);
+    }
+
+    function handleMouseDown(e: MouseEvent) {
+      if (floatingTriggerRef.current?.contains(e.target as Node)) return;
+      setSelectionTrigger(null);
+    }
+
+    function handleScroll() {
+      setSelectionTrigger(null);
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setSelectionTrigger(null);
+    }
+
+    document.addEventListener('selectionchange', handleSelectionChange);
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('scroll', handleScroll, true);
+
+    return () => {
+      if (debounceId) clearTimeout(debounceId);
+      document.removeEventListener('selectionchange', handleSelectionChange);
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, []);
+
+  function handleExplainSelection() {
+    if (!selectionTrigger) return;
+    setAiSelectedText(selectionTrigger.text);
+    setAiPanelOpen(true);
+    setSelectionTrigger(null);
+  }
+
   const setupObserver = useCallback(() => {
     if (!articleRef.current) return;
     observerRef.current?.disconnect();
@@ -390,6 +471,16 @@ export default function Notes() {
   const domainQCount = examConfig && currentDomainConfig
     ? Math.round((examConfig.questions * currentDomainConfig.weight) / 100)
     : 0;
+
+  // Shared Study With AI context — both the xl+ sidebar instance and the
+  // below-xl modal instance pass the exact same object so their composed
+  // prompts never drift from one another.
+  const aiContext = {
+    source: 'notes' as const,
+    examTitle: examConfig?.title ?? '',
+    domainTitle: currentDomainConfig?.title,
+    noteExcerpt: content ? content.slice(0, 500) : undefined,
+  };
 
   function goTo(d: DomainConfig) {
     setSearchParams({ d: String(d.id) });
@@ -808,12 +899,10 @@ export default function Notes() {
                 </button>
                 <StudyWithAI
                   variant="icon"
-                  context={{
-                    source: 'notes',
-                    examTitle: examConfig?.title ?? '',
-                    domainTitle: currentDomainConfig?.title,
-                    noteExcerpt: content ? content.slice(0, 500) : undefined,
-                  }}
+                  open={aiPanelOpen}
+                  onOpenChange={handleAiOpenChange}
+                  initialSelectedText={aiSelectedText}
+                  context={aiContext}
                 />
               </div>
             </div>
@@ -858,6 +947,83 @@ export default function Notes() {
       )}
 
       </div>{/* end two-column grid */}
+
+      {/* Floating "explain this" trigger — shown when the user selects text
+          inside the article body. Reuses the same StudyWithAI instance(s)
+          driven by aiPanelOpen/aiSelectedText below (sidebar icon on xl+,
+          modal on smaller viewports), opening it pre-seeded with the
+          selection instead of a second copy of the panel UI. */}
+      {selectionTrigger && (() => {
+        // Clamp horizontally so the trigger never renders partially or
+        // fully off-screen near a viewport edge — same approach as
+        // TermTooltip.handleShow's TIP_W clamp above, adapted for a
+        // fixed-position, centered (translateX(-50%)) trigger.
+        const vw = window.innerWidth;
+        const half = EXPLAIN_TRIGGER_W / 2;
+        const clampedLeft = Math.max(8 + half, Math.min(vw - 8 - half, selectionTrigger.left));
+        // Flip below the selection when there isn't room to render above it
+        // (selection near the top of the viewport) — mirrors TermTooltip's
+        // `flipped` fallback.
+        const flipped = selectionTrigger.top - 44 < 8;
+        const top = flipped ? selectionTrigger.bottom + 8 : Math.max(8, selectionTrigger.top - 44);
+        return (
+          <div
+            ref={floatingTriggerRef}
+            style={{
+              position: 'fixed',
+              top,
+              left: clampedLeft,
+              transform: 'translateX(-50%)',
+              zIndex: 60,
+            }}
+          >
+            <Button
+              variant="primary"
+              size="sm"
+              icon={Sparkles}
+              onClick={handleExplainSelection}
+              title="Explain this with AI"
+            >
+              Explain<span className="sr-only"> this with AI</span>
+            </Button>
+          </div>
+        );
+      })()}
+
+      {/* Below-xl "Study with AI" modal — the sidebar <aside> above that
+          hosts the sole StudyWithAI instance is `hidden` below the xl
+          breakpoint, so the floating "Explain" trigger's state change had
+          nowhere visible to render into on narrower viewports. This second
+          controlled instance is driven by the exact same lifted
+          aiPanelOpen/aiSelectedText state (never contradictory with the
+          sidebar instance — both simply reflect one source of truth) and
+          only mounts while that state is open, so it never shows a
+          redundant floating trigger of its own while idle. Reuses the real
+          StudyWithAI component/logic — no duplicated panel UI. */}
+      {aiPanelOpen && (
+        <div className="xl:hidden fixed inset-0 z-[80] flex items-end sm:items-center justify-center">
+          <div
+            className="absolute inset-0"
+            style={{ background: 'rgba(2,6,23,0.72)', backdropFilter: 'blur(2px)' }}
+            onClick={() => handleAiOpenChange(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Study with AI"
+            className="relative w-full sm:max-w-md sm:mx-4 max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl"
+            style={{ background: 'rgba(15,23,42,0.98)', border: '1px solid rgba(139,92,246,0.28)' }}
+          >
+            <StudyWithAI
+              variant="row"
+              open={aiPanelOpen}
+              onOpenChange={handleAiOpenChange}
+              initialSelectedText={aiSelectedText}
+              context={aiContext}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Quiz this domain CTA */}
       {!loading && !error && content && (
