@@ -21,8 +21,14 @@ export interface ForecastResult {
   growthRateMoM: number | null;
 }
 
+// Defense in depth: a malformed date string reaching this function used to
+// throw "Invalid time value" out of toISOString() and crash the whole page
+// (no error boundary on /monitoring) -- not just this chart. Callers should
+// pass real YYYY-MM-DD strings, but this guards the failure mode itself
+// rather than relying on every call site getting normalization right.
 function addDays(dateStr: string, days: number): string {
   const d = new Date(`${dateStr}T00:00:00Z`);
+  if (isNaN(d.getTime())) return dateStr;
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
@@ -35,7 +41,7 @@ function addDays(dateStr: string, days: number): string {
  * which day-of-week the window happens to start/end on. Smoothing first
  * fits the underlying trend, not the weekly seasonality.
  */
-function trailingWeeklyAverage(points: SeriesPoint[]): number[] {
+export function trailingWeeklyAverage(points: SeriesPoint[]): number[] {
   const out: number[] = [];
   for (let i = 0; i < points.length; i++) {
     const start = Math.max(0, i - 6);
@@ -107,4 +113,26 @@ export function forecast(points: SeriesPoint[], projectDays = 30, fitWindow = 14
     : null;
 
   return { projectedPoints, growthRateWoW, growthRateMoM };
+}
+
+/**
+ * Flags days whose raw value deviates from its own trailing-14-day smoothed
+ * average by more than `multiplier`x in either direction — reuses the same
+ * smoothing basis the forecast trend line is fit on, so a flagged day is
+ * "unusual relative to the trend," not just relative to a raw neighbor
+ * (which would over-flag normal weekday/weekend swings).
+ * Returns indices into `points` (not dates), for direct use as SparkLine markers.
+ */
+export function detectAnomalies(points: SeriesPoint[], multiplier = 2): number[] {
+  const smoothed = trailingWeeklyAverage(points);
+  const flagged: number[] = [];
+  for (let i = 0; i < points.length; i++) {
+    const baseline = smoothed[i];
+    if (baseline <= 0) continue; // no meaningful baseline yet to compare against
+    const value = points[i].value;
+    if (value >= baseline * multiplier || value <= baseline / multiplier) {
+      flagged.push(i);
+    }
+  }
+  return flagged;
 }
