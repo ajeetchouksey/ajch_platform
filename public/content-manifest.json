@@ -1,9 +1,9 @@
 {
   "blog": {
     "repo": "ajeetchouksey/ajch_aaryaai_blogs",
-    "sha": "22cf92a1662540b5796696c1e10ae1229951fd2e",
+    "sha": "ee9ccf00e2a3bf7e81d6b5563713565e8a3a5ecf",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
-    "promotedAt": "2026-08-24T16:17:35.416Z"
+    "promotedAt": "2026-08-25T05:51:21.574Z"
   },
   "skillup": {
     "repo": "ajeetchouksey/ajch_skillup",
@@ -13,8 +13,8 @@
   },
   "usecases": {
     "repo": "ajeetchouksey/ajch_ai_usecases",
-    "sha": "359864a31f258b6d11af60c55f5db366a760f71d",
+    "sha": "6b6ae84983fe4521d0e5d23bc74e4e9984e23956",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
-    "promotedAt": "2026-08-20T10:53:50.000Z"
+    "promotedAt": "2026-08-25T05:51:22.379Z"
   }
 }
