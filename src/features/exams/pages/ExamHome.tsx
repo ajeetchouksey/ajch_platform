@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, CalendarDays, Clock, X, MessageSquare, CheckCircle2 } from 'lucide-react';
+import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, CalendarDays, Clock, X, MessageSquare, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { useAuth } from '@/lib/auth';
 import { getSessions } from '@/lib/storage';
 import { loadPlan, nextIncompleteSession } from '@/lib/plan-generator';
-import { getStreak, getDomainCompletion } from '@/lib/study-tracker';
+import { getStreak, getDomainCompletion, getReadinessBreakdown } from '@/lib/study-tracker';
+import type { ReadinessBreakdown } from '@/lib/study-tracker';
 import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import type { ExamConfig, DomainConfig, QuizSession, ContentType } from '@/types/content';
@@ -19,15 +20,13 @@ type DomainStatus = 'strong' | 'progress' | 'new';
 
 interface DomainReadiness { pct: number; total: number; status: DomainStatus }
 
-function computeReadiness(
+function computeDomainQuizStatus(
   sessions: QuizSession[],
   examId: string,
   domains: DomainConfig[],
 ): {
   byDomain: Record<number, DomainReadiness>;
-  overall: number;
   domainsStarted: number;
-  recommendedDomainId: number | null;
 } {
   const scores: Record<number, { correct: number; total: number }> = {};
   for (const d of domains) scores[d.id] = { correct: 0, total: 0 };
@@ -36,7 +35,6 @@ function computeReadiness(
     const sc = scores[s.domainFilter];
     if (sc) { sc.correct += s.score; sc.total += s.total; }
   }
-  let weightedPctSum = 0;
   let domainsStarted = 0;
   const byDomain: Record<number, DomainReadiness> = {};
   for (const d of domains) {
@@ -45,11 +43,8 @@ function computeReadiness(
     const status: DomainStatus = pct >= 70 ? 'strong' : sc.total > 0 ? 'progress' : 'new';
     if (sc.total > 0) domainsStarted++;
     byDomain[d.id] = { pct, total: sc.total, status };
-    weightedPctSum += pct * d.weight;
   }
-  const overall = Math.round(weightedPctSum / 100);
-  const recommendedDomainId = domains.find((d) => byDomain[d.id]?.status !== 'strong')?.id ?? null;
-  return { byDomain, overall, domainsStarted, recommendedDomainId };
+  return { byDomain, domainsStarted };
 }
 
 const STATUS_CHIP: Record<DomainStatus, string> = {
@@ -201,10 +196,15 @@ export default function ExamHome() {
   const [mounted, setMounted] = useState(false);
   const { user, isLoading: authLoading, login } = useAuth();
   const sessions = useMemo(() => getSessions(), []);
-  const readiness = useMemo(
-    () => exam ? computeReadiness(sessions, examId ?? '', exam.domains) : null,
+  const domainStatus = useMemo(
+    () => exam ? computeDomainQuizStatus(sessions, examId ?? '', exam.domains) : null,
     [sessions, examId, exam],
   );
+  const readinessBreakdown: ReadinessBreakdown | null = useMemo(
+    () => exam ? getReadinessBreakdown(examId ?? '', exam.domains, sessions) : null,
+    [sessions, examId, exam],
+  );
+  const [readinessExplainOpen, setReadinessExplainOpen] = useState(false);
   // Guest mode banner dismissal (persists across page refreshes)
   const [bannerDismissed, setBannerDismissed] = useState(() => {
     try { return !!localStorage.getItem('guest_banner_dismissed'); }
@@ -339,7 +339,7 @@ export default function ExamHome() {
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Prerequisites</span>
           {prereqExams.map((prereq) => {
-            const pr = computeReadiness(sessions, prereq.id, prereq.domains);
+            const pr = getReadinessBreakdown(prereq.id, prereq.domains, sessions);
             const passed = pr.overall >= prereq.passThreshold;
             return (
               <Link
@@ -411,7 +411,7 @@ export default function ExamHome() {
             </button>
           </div>
         </div>
-      ) : readiness && readiness.domainsStarted === 0 ? (
+      ) : domainStatus && domainStatus.domainsStarted === 0 ? (
         // ── Logged in but no quiz data yet ─────────────────────────────
         <div
           className={`glass-card rounded-xl p-5 flex items-center gap-4 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
@@ -431,7 +431,7 @@ export default function ExamHome() {
             Take quiz →
           </Link>
         </div>
-      ) : readiness ? (
+      ) : domainStatus && readinessBreakdown ? (
         // ── Full readiness panel ────────────────────────────────────────
         <div
           className={`glass-card glass-edge card-accent-top rounded-xl p-5 space-y-4 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
@@ -452,20 +452,20 @@ export default function ExamHome() {
             <div className="shrink-0 relative w-[52px] h-[52px]">
               <div
                 className="w-full h-full rounded-full"
-                style={{ background: `conic-gradient(#7c3aed 0% ${readiness.overall}%, #1e293b ${readiness.overall}% 100%)` }}
+                style={{ background: `conic-gradient(#7c3aed 0% ${readinessBreakdown.overall}%, #1e293b ${readinessBreakdown.overall}% 100%)` }}
               />
               <div className="absolute inset-[6px] rounded-full bg-[#0d1117] flex items-center justify-center">
-                <span className="text-[11px] font-bold text-violet-400">{readiness.overall}%</span>
+                <span className="text-[11px] font-bold text-violet-400">{readinessBreakdown.overall}%</span>
               </div>
             </div>
             {/* Stats */}
             <div className="flex-1 min-w-0">
-              <p className="text-lg font-bold text-white leading-tight">{readiness.overall}% ready</p>
-              <p className="text-xs text-slate-500">{readiness.domainsStarted} of {exam?.domains.length} domains started · need {exam?.passThreshold}% to pass</p>
+              <p className="text-lg font-bold text-white leading-tight">{readinessBreakdown.overall}% ready</p>
+              <p className="text-xs text-slate-500">{domainStatus.domainsStarted} of {exam?.domains.length} domains started · need {exam?.passThreshold}% to pass</p>
               {/* Per-domain mini bars */}
               <div className="mt-2.5 space-y-1.5">
                 {exam?.domains.map((d) => {
-                const dr = readiness.byDomain[d.id];
+                const dr = domainStatus.byDomain[d.id];
                 const sessions = getSessions();
                 const comp = getDomainCompletion(exam.id, d.id, sessions);
                 return (
@@ -489,14 +489,14 @@ export default function ExamHome() {
           </div>
 
           {/* Recommended next step */}
-          {readiness.recommendedDomainId !== null && (() => {
-            const rec = exam?.domains.find((d) => d.id === readiness.recommendedDomainId);
+          {readinessBreakdown.recommendedFocusDomain !== null && (() => {
+            const rec = exam?.domains.find((d) => d.id === readinessBreakdown.recommendedFocusDomain);
             return rec ? (
               <div className="flex items-center gap-3 pt-1 border-t border-slate-800/60">
                 <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600 shrink-0">Recommended</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-slate-300 truncate">D{rec.id}: {rec.title}</p>
-                  <p className="text-[10px] text-slate-600">{rec.weight}% of exam · {readiness.byDomain[rec.id]?.status === 'progress' ? 'Resume' : 'Not started yet'}</p>
+                  <p className="text-[10px] text-slate-600">{rec.weight}% of exam · {domainStatus.byDomain[rec.id]?.status === 'progress' ? 'Resume' : 'Not started yet'}</p>
                 </div>
                 <Link
                   to={`/skillup/${examId}/notes?d=${rec.id}`}
@@ -507,6 +507,30 @@ export default function ExamHome() {
               </div>
             ) : null;
           })()}
+
+          {/* Readiness explain toggle */}
+          <div className="pt-1 border-t border-slate-800/60">
+            <button
+              onClick={() => setReadinessExplainOpen((o) => !o)}
+              className="w-full flex items-center gap-1.5 text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
+              aria-expanded={readinessExplainOpen}
+            >
+              {readinessExplainOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+              How is readiness calculated?
+            </button>
+            {readinessExplainOpen && (
+              <div className="mt-2 space-y-1 rounded-lg bg-slate-900/60 border border-slate-800/60 p-2.5">
+                {readinessBreakdown.byDomain.map((d) => (
+                  <p key={d.domainId} className="text-[10px] text-slate-400 leading-relaxed">
+                    D{d.domainId}: {d.title} — {d.weight}% of exam · Notes {d.notesRead ? '✓' : '✗'} · Quiz {d.bestScore}% · {d.pointsEarned}/{d.pointsPossible} pts
+                  </p>
+                ))}
+                <p className="text-[10px] text-slate-500 italic mt-1">
+                  Readiness = 30% for notes read + up to 70% for best quiz score, per domain, weighted by exam domain weight.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       ) : null}
 
@@ -549,7 +573,7 @@ export default function ExamHome() {
         <h2 className="section-heading mb-4">Exam Domain Weights</h2>
         <div className="space-y-3">
           {exam.domains.map((domain, idx) => {
-            const dr = readiness?.byDomain[domain.id];
+            const dr = domainStatus?.byDomain[domain.id];
             return (
               <div key={domain.id} className="group cursor-default">
                 <div className="flex justify-between items-center text-sm mb-1">

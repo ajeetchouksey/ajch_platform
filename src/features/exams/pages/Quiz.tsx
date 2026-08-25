@@ -8,6 +8,7 @@ import { trackEvent } from '@/lib/analytics';
 import { type Question, type QuizSession, type DomainConfig } from '@/types/content';
 import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X } from 'lucide-react';
 import QuizShareCard from '@/components/QuizShareCard';
+import { StudyWithAI } from '@/components/StudyWithAI';
 
 type Phase = 'setup' | 'quiz' | 'review';
 
@@ -77,6 +78,7 @@ export default function Quiz() {
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [passThreshold, setPassThreshold] = useState(72);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
+  const [examTitle, setExamTitle] = useState('Exam');
   const [examTotalQuestions, setExamTotalQuestions] = useState<number | null>(null);
   const [showPalette, setShowPalette] = useState(false);
   // One-time-per-session nudge dismissal
@@ -100,6 +102,7 @@ export default function Quiz() {
         setExamDomains(exam.domains);
         setPassThreshold(exam.passThreshold);
         setExamShortTitle(exam.shortTitle);
+        setExamTitle(exam.title);
         setExamTotalQuestions(exam.questions);
       }
     }).catch(() => {});
@@ -330,6 +333,25 @@ export default function Quiz() {
                 </div>
               ))}
             </div>
+          );
+        })()}
+
+        {/* Study with AI handoff — focused on weak domains from this attempt */}
+        {examDomains.length > 0 && (() => {
+          const weak = examDomains
+            .map((d) => {
+              const dqs = questions.filter((q) => q.domain === d.id);
+              if (dqs.length === 0) return null;
+              const correct = dqs.filter((q) => answers[q.id] === q.correct).length;
+              const pct = Math.round((correct / dqs.length) * 100);
+              return pct < passThreshold ? { title: d.title, pct } : null;
+            })
+            .filter((d): d is { title: string; pct: number } => d !== null);
+          return (
+            <StudyWithAI
+              variant="row"
+              context={{ source: 'quiz-review', examTitle, weakDomains: weak.length > 0 ? weak : undefined }}
+            />
           );
         })()}
 
