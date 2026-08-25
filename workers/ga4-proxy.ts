@@ -216,8 +216,11 @@ async function runRealtimeReport(env: Env): Promise<unknown> {
   if (cached) return JSON.parse(cached);
 
   const token = await getAccessToken(env);
+  // GA4's realtime dimension is unifiedScreenName -- not unifiedPageScreen
+  // (that name doesn't exist; confirmed via a live 400 whose own error
+  // message suggested the correct one).
   const body = {
-    dimensions: [{ name: 'unifiedPageScreen' }, { name: 'country' }, { name: 'minutesAgo' }],
+    dimensions: [{ name: 'unifiedScreenName' }, { name: 'country' }, { name: 'minutesAgo' }],
     metrics: [{ name: 'activeUsers' }],
   };
 
@@ -227,7 +230,7 @@ async function runRealtimeReport(env: Env): Promise<unknown> {
     body: JSON.stringify(body),
   });
 
-  if (!res.ok) throw new Error(`GA4 realtime error: ${res.status}`);
+  if (!res.ok) throw new Error(`GA4 realtime error ${res.status}: ${await res.text()}`);
   const data = await res.json();
   const serialized = JSON.stringify(data);
   memSet(cacheKey, serialized, REALTIME_CACHE_TTL);
@@ -271,6 +274,50 @@ async function runDataReport(env: Env, req: ReportRequest): Promise<unknown> {
   if (!res.ok) {
     const err = await res.text();
     throw new Error(`GA4 report error ${res.status}: ${err}`);
+  }
+  const data = await res.json();
+  const serialized = JSON.stringify(data);
+  memSet(cacheKey, serialized, REPORT_CACHE_TTL);
+  await env.GA4_CACHE.put(cacheKey, serialized, { expirationTtl: REPORT_CACHE_TTL });
+  return data;
+}
+
+// ── Retention (GA4 native cohort report) ──────────────────────────────────────
+// A cohortSpec request is a fundamentally different shape than every other
+// query on this page — no dateRanges, cohorts define their own date ranges
+// internally, and the response uses cohort/cohortNthWeek dimensions instead
+// of the usual ones. Kept as its own function/route rather than overloading
+// runDataReport(). Weekly granularity, 5 weeks (Week 0-4) as GA4's own
+// Retention report defaults to.
+
+async function runCohortReport(env: Env, sinceDate: string): Promise<unknown> {
+  const cacheKey = `ga4:retention:${sinceDate}`;
+  const cached = await cachedKvGet(env.GA4_CACHE, cacheKey, REPORT_CACHE_TTL);
+  if (cached) return JSON.parse(cached);
+
+  const token = await getAccessToken(env);
+  // Cohort date ranges reject GA4's usual relative keywords ("today") --
+  // confirmed via a live 400 ("cohort end date format is not correct") --
+  // needs a literal YYYY-MM-DD.
+  const todayLiteral = new Date().toISOString().slice(0, 10);
+  const body = {
+    dimensions: [{ name: 'cohort' }, { name: 'cohortNthWeek' }],
+    metrics: [{ name: 'cohortActiveUsers' }, { name: 'cohortTotalUsers' }],
+    cohortSpec: {
+      cohorts: [{ dimension: 'firstSessionDate', name: 'cohort', dateRange: { startDate: sinceDate, endDate: todayLiteral } }],
+      cohortsRange: { granularity: 'WEEKLY', startOffset: 0, endOffset: 4 },
+    },
+  };
+
+  const res = await fetch(`${GA4_BASE}/properties/${env.GA4_PROPERTY_ID}:runReport`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`GA4 cohort report error ${res.status}: ${err}`);
   }
   const data = await res.json();
   const serialized = JSON.stringify(data);
@@ -368,6 +415,15 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
 
+    // Everything below can throw (KV, fetch, JSON parsing) — wrap it all in one
+    // try/catch. This used to only wrap the /api/ga/* routes, leaving
+    // /oauth/callback and verifyOwner() able to become uncaught worker
+    // exceptions (Cloudflare's own analytics showed ~46% of all requests
+    // failing with scriptThrewException — a real bug, not just noisy 401s
+    // from unauthenticated/bot traffic, which return a clean Response and
+    // don't count as script errors).
+    try {
+
     // /oauth/callback is called by Google — no Bearer token, state param is the CSRF proof
     if (url.pathname === '/oauth/callback' && request.method === 'GET') {
       const code = url.searchParams.get('code');
@@ -414,7 +470,6 @@ export default {
     const isOwner = await verifyOwner(token, env.GA4_CACHE);
     if (!isOwner) return json({ error: 'Forbidden' }, 403, origin);
 
-    try {
       // GET /api/ga/status — returns connection method, never leaks tokens (AppSec Req 2)
       if (url.pathname === '/api/ga/status' && request.method === 'GET') {
         const hasSA = Boolean(env.GA4_SERVICE_ACCOUNT_B64);
@@ -457,6 +512,14 @@ export default {
 
       if (url.pathname === '/api/ga/realtime' && request.method === 'GET') {
         const data = await runRealtimeReport(env);
+        return json(data, 200, origin);
+      }
+
+      // GET /api/ga/retention — weekly cohort report (Week 0-4 % returning)
+      // Query param: since=YYYY-MM-DD (cohort window start; defaults to HISTORY_START_DATE-equivalent)
+      if (url.pathname === '/api/ga/retention' && request.method === 'GET') {
+        const since = url.searchParams.get('since') ?? '2026-06-02';
+        const data = await runCohortReport(env, since);
         return json(data, 200, origin);
       }
 
