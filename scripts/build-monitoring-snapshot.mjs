@@ -20,6 +20,13 @@
  * dashboard UI rather than inventing new ones — see Monitoring.tsx's
  * `errorRate > 0.01` red-row cutoff. D1 usage is reported with no
  * threshold: no verified real quota number exists for this account yet.
+ *
+ * Worker error-rate alerting uses a 7-day window, not 28d, deliberately —
+ * a 28d trailing average keeps a resolved incident tripping "critical" for
+ * weeks after it's actually fixed (found by running this against real data:
+ * the aarya-ga4-proxy scriptThrewException spike fixed in PR #450 alone
+ * would have kept alerting into late September on a 28d window). Both
+ * windows are still reported in the snapshot for context.
  */
 
 import { readFileSync, writeFileSync } from 'fs';
@@ -79,9 +86,10 @@ async function main() {
   const since28Str = toDateStr(since28);
   const since7Str = toDateStr(since7);
 
-  const [history, cfOverview] = await Promise.all([
+  const [history, cfOverview28d, cfOverview7d] = await Promise.all([
     fetchJson(`${GA4_PROXY_URL}/api/ga/history?start=${since28Str}&end=${untilStr}`, 'GA4 history'),
-    fetchJson(`${CF_MONITOR_URL}/api/cf/overview?range=28d`, 'Cloudflare overview'),
+    fetchJson(`${CF_MONITOR_URL}/api/cf/overview?range=28d`, 'Cloudflare overview (28d)'),
+    fetchJson(`${CF_MONITOR_URL}/api/cf/overview?range=7d`, 'Cloudflare overview (7d)'),
   ]);
 
   const rows = history.rows ?? [];
@@ -133,30 +141,40 @@ async function main() {
     }
   }
 
-  const cloudflareWorkers = (cfOverview.workers ?? []).map(w => ({
+  // Error-rate alerting uses the 7-day window, not 28d: a 28d average keeps a
+  // resolved incident (e.g. the scriptThrewException spike fixed in PR #450)
+  // tripping "critical" for weeks after it's actually fixed, since one or two
+  // bad days dominate a trailing month-long average long after the fact.
+  // Both windows are still reported for context.
+  const errorRate7dByScript = new Map((cfOverview7d.workers ?? []).map(w => [w.scriptName, w.errorRate]));
+
+  const cloudflareWorkers = (cfOverview28d.workers ?? []).map(w => ({
     scriptName: w.scriptName,
     requests: w.requests,
-    errorRate: w.errorRate,
+    errorRate28d: w.errorRate,
+    errorRate7d: errorRate7dByScript.get(w.scriptName) ?? null,
     cpuTimeP99Ms: w.cpuTimeP99Ms,
   }));
 
   for (const w of cloudflareWorkers) {
-    if (w.errorRate > WORKER_ERROR_RATE_CRITICAL) {
+    const alertRate = w.errorRate7d;
+    if (alertRate === null) continue; // no 7d data — don't alert on an unknown rate
+    if (alertRate > WORKER_ERROR_RATE_CRITICAL) {
       alerts.push({
         severity: 'critical',
         area: 'infra',
-        message: `${w.scriptName} error rate is ${(w.errorRate * 100).toFixed(1)}% over the last 28 days — investigate before it affects the dashboard or subscribe flow.`,
+        message: `${w.scriptName} error rate is ${(alertRate * 100).toFixed(1)}% over the last 7 days — investigate before it affects the dashboard or subscribe flow.`,
       });
-    } else if (w.errorRate > WORKER_ERROR_RATE_WARNING) {
+    } else if (alertRate > WORKER_ERROR_RATE_WARNING) {
       alerts.push({
         severity: 'warning',
         area: 'infra',
-        message: `${w.scriptName} error rate is ${(w.errorRate * 100).toFixed(1)}% over the last 28 days — above the normal baseline.`,
+        message: `${w.scriptName} error rate is ${(alertRate * 100).toFixed(1)}% over the last 7 days — above the normal baseline.`,
       });
     }
   }
 
-  const d1Usage = (cfOverview.d1Usage ?? []).map(d => ({
+  const d1Usage = (cfOverview28d.d1Usage ?? []).map(d => ({
     database: d.name,
     rowsRead: d.rowsRead,
     rowsWritten: d.rowsWritten,
