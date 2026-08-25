@@ -1,0 +1,58 @@
+name: Monitoring Snapshot Sync
+# Weekly rollup of GA4 traffic + Cloudflare Worker/D1 health, written to
+# public/content/monitoring-snapshot.json so agents (mvp-strategist,
+# product-manager) can read it like any other static content file --
+# neither agent can hold the dashboard's GitHub-OAuth owner auth.
+#
+# Weekly, not daily: mvp-strategist itself only runs about once a week
+# (see agentLastRun/agentNextRun in mvp-progress.json), so refreshing this
+# more often than it's consumed would just be noise.
+#
+# Requires GitHub secret: MONITORING_SYNC_KEY (same value must also be set
+# as a Worker secret on both aarya-ga4-proxy and aarya-cf-monitor via
+# `wrangler secret put MONITORING_SYNC_KEY --config wrangler.ga4.toml` /
+# `--config wrangler.cf-monitor.toml`).
+
+on:
+  schedule:
+    - cron: '0 6 * * 0'   # every Sunday at 06:00 UTC, after content-health.yml's Sunday-00:00 run
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Build monitoring snapshot
+        env:
+          GA4_PROXY_URL: https://aarya-ga4-proxy.ajeetchouksey27.workers.dev
+          CF_MONITOR_URL: https://aarya-cf-monitor.ajeetchouksey27.workers.dev
+          MONITORING_SYNC_KEY: ${{ secrets.MONITORING_SYNC_KEY }}
+        run: node scripts/build-monitoring-snapshot.mjs
+
+      - name: Commit snapshot if changed
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add public/content/monitoring-snapshot.json
+
+          if git diff --cached --quiet; then
+            echo "No change to monitoring snapshot."
+            exit 0
+          fi
+
+          git commit -m "chore(monitoring): refresh weekly snapshot"
+          git push origin HEAD:main

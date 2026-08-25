@@ -3,17 +3,21 @@
  * GET  /api/ga/realtime  — active users, top pages, top countries (60 s KV cache)
  * POST /api/ga/report    — GA4 Data API report {dateRange, dimensions, metrics}
  *
- * Auth: every request must carry Authorization: Bearer <github_token>
+ * Auth: every request must carry either Authorization: Bearer <github_token>
  *   1. SHA-256 hash token → 16-char key
  *   2. Check KV auth:<hash> (10-min TTL) for cached login
  *   3. On miss → call GitHub /user, verify login === 'ajeetchouksey'
  *   4. Cache verified login in KV
+ *  ...or X-Sync-Key: <MONITORING_SYNC_KEY>, used by the weekly
+ *  monitoring-snapshot-sync GitHub Actions workflow, which has no GitHub
+ *  session to verify.
  *
  * GA4 service-account JWT is signed here; access token cached in KV (55 min TTL).
  *
  * Secrets (set via `wrangler secret put <NAME> --config wrangler.ga4.toml`):
  *   GA4_SERVICE_ACCOUNT_B64   base64-encoded service-account JSON
  *   GA4_PROPERTY_ID           GA4 numeric property ID (e.g. "123456789")
+ *   MONITORING_SYNC_KEY       shared secret for monitoring-snapshot-sync.yml (same value on both Workers)
  *
  * KV binding:
  *   GA4_CACHE   namespace for auth + response caching
@@ -38,6 +42,7 @@ export interface Env {
   ANALYTICS_DB: D1Database;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
+  MONITORING_SYNC_KEY?: string; // shared secret for the weekly monitoring-snapshot-sync workflow
 }
 
 // ── CORS helpers ──────────────────────────────────────────────────────────────
@@ -462,13 +467,20 @@ export default {
       return Response.redirect(`${storedOrigin}/monitoring?connected=true`, 302);
     }
 
-    // All other routes require owner GitHub token
-    const authHeader = request.headers.get('Authorization') ?? '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-    if (!token) return json({ error: 'Unauthorized' }, 401, origin);
+    // All other routes require either the owner's GitHub token, or the
+    // shared sync key used by the weekly monitoring-snapshot-sync GitHub
+    // Actions workflow (machine caller — no GitHub session to verify).
+    const syncKey = request.headers.get('X-Sync-Key') ?? '';
+    const isSyncCaller = Boolean(env.MONITORING_SYNC_KEY) && syncKey === env.MONITORING_SYNC_KEY;
 
-    const isOwner = await verifyOwner(token, env.GA4_CACHE);
-    if (!isOwner) return json({ error: 'Forbidden' }, 403, origin);
+    if (!isSyncCaller) {
+      const authHeader = request.headers.get('Authorization') ?? '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+      if (!token) return json({ error: 'Unauthorized' }, 401, origin);
+
+      const isOwner = await verifyOwner(token, env.GA4_CACHE);
+      if (!isOwner) return json({ error: 'Forbidden' }, 403, origin);
+    }
 
       // GET /api/ga/status — returns connection method, never leaks tokens (AppSec Req 2)
       if (url.pathname === '/api/ga/status' && request.method === 'GET') {

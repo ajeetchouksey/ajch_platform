@@ -1,0 +1,68 @@
+{
+  "schema": "1.0",
+  "generatedAt": "2026-08-25T15:24:19.135Z",
+  "since": "2026-07-28",
+  "until": "2026-08-24",
+  "traffic": {
+    "last7d": {
+      "sessions": 45,
+      "pageviews": 166,
+      "users": 26
+    },
+    "dailyAvg28d": {
+      "sessions": 17,
+      "pageviews": 147,
+      "users": 6.2
+    },
+    "vsQuarterTarget": {
+      "quarterId": "Q2",
+      "paceRatio": {
+        "sessions": 1.197,
+        "pageviews": 1.344,
+        "users": 1.033
+      }
+    }
+  },
+  "cloudflareWorkers": [
+    {
+      "scriptName": "aarya-cf-monitor",
+      "requests": 93,
+      "errorRate28d": 0,
+      "errorRate7d": 0,
+      "cpuTimeP99Ms": 16106
+    },
+    {
+      "scriptName": "aarya-ga4-proxy",
+      "requests": 1545719,
+      "errorRate28d": 0.4434253573903148,
+      "errorRate7d": 0.4434253573903148,
+      "cpuTimeP99Ms": 1995
+    },
+    {
+      "scriptName": "aarya-subscribe",
+      "requests": 413,
+      "errorRate28d": 0,
+      "errorRate7d": 0,
+      "cpuTimeP99Ms": 3692
+    }
+  ],
+  "d1Usage": [
+    {
+      "database": "aarya-subscribers",
+      "rowsRead": 1,
+      "rowsWritten": 3
+    },
+    {
+      "database": "aarya-analytics",
+      "rowsRead": 1636,
+      "rowsWritten": 141
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "critical",
+      "area": "infra",
+      "message": "aarya-ga4-proxy error rate is 44.3% over the last 7 days — investigate before it affects the dashboard or subscribe flow."
+    }
+  ]
+}
