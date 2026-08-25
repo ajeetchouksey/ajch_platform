@@ -88,14 +88,27 @@ Once each vertical is independently governed and promoted through the manifest, 
 ## Vertical promotion tooling
 
 `scripts/sync-vertical-repo.mjs` updates `content-manifest.json` with a vertical's
-`{repo, sha, baseUrl, promotedAt}` — that's its full current scope. It does not
-copy or sync any files (agent definitions, validators) into the vertical repo;
-an earlier draft of this document described that as a goal, but it was never
-built and there's no current need for it, since canonical agent definitions
-(`.claude/agents/*.md`) work by being present in whichever repo a Claude Code
-session is run from, not by being mirrored ahead of time. Revisit if a vertical
-repo ever needs autonomous agent runs without the platform repo checked out
-alongside it.
+`{repo, sha, baseUrl, promotedAt}` — that's its full scope. It does not touch
+agent definitions or validators.
+
+`scripts/sync-vertical-agents.mjs` handles that separately: it resolves an
+entry agent's full `.claude/agents/` + `.claude/skills/` dependency chain,
+rewrites `public/content/{vertical}/` references to `content/{vertical}/`,
+strips the `> **{Vertical} content moved.**` relocation notice (meaningless
+once you're already inside the vertical repo), and writes the result into an
+already-checked-out copy of the target vertical repo — idempotent, diff-only.
+Usage: `node scripts/sync-vertical-agents.mjs <vertical> <path-to-checkout>`.
+It does **not** sync `scripts/` (e.g. `validate-content.mjs` is still kept in
+sync by hand, per its own header comment) — a known gap, not yet built.
+
+`.claude/vertical-registry.json` is the source of truth for the facts that
+used to be hand-duplicated across `staff-engineer.md`, `appsec-engineer.md`,
+and every vertical's Lead/Writer/Publisher files: each promoted vertical's
+repo, local checkout path, content root, stale pre-migration path, and which
+agents own its Lead/Writer/Publisher roles. It is distinct from
+`content-manifest.json` — that file is live SPA runtime config for the
+jsDelivr content loader (repo/sha/baseUrl) and must not be conflated with
+agent-authoring metadata.
 
 ## Summary
 
