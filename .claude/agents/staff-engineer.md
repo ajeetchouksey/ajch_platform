@@ -28,10 +28,7 @@ The following files are **exclusively owned** by specialist agents. The Staff En
 | `.github/CHANGELOG.md` | **SRE** | Any entry (Unreleased or versioned) → route to SRE |
 | `.github/workflows/*.yml` | **SRE** | Any workflow change → route to SRE |
 | `src/components/ui/*.tsx` | **Design Systems Engineer** | Any primitive change → route to DSE |
-| `ajch_aaryaai_blogs` repo's `content/blog/*.md` + `index.json` (sibling repo, not `public/content/blog/` in this repo — that path is stale pre-migration content) | **Release Engineer** | Any blog publish → route to Content Lead → Release Engineer, which writes cross-repo to `C:\Users\ajeet.k.chouksey\Documents\Code\ajch_aaryaai_blogs\content\blog\` |
-| `ajch_ai_usecases` repo's `content/usecases/cases/*.json` + `index.json` (sibling repo — `public/content/usecases/` no longer exists in this repo) | **Usecase Publisher** | Any use-case publish → route to Usecase Lead → Usecase Publisher, which writes cross-repo to `C:\Users\ajeet.k.chouksey\Documents\Code\ajch_ai_usecases\content\usecases\` |
-| `public/content/skillup/*/questions/**` | **Assessment Engineer** | Any MCQ write → route to Assessment Engineer |
-| `public/content/skillup/*/notes/**` | **Docs Engineer** | Any notes write → route to Docs Engineer |
+| Any promoted vertical's `contentRoot` (see `.claude/vertical-registry.json`) | That vertical's **Publisher** (or specialist, for a loose-2-role vertical) | Any content write for a registered vertical → route to that vertical's Lead agent, never write it here. Resolve the target path from the registry, not from memory — never a vertical's `staleLocalPath` (e.g. old `public/content/{vertical}/` locations in this repo, all removed in the vertical-split migration) |
 
 **Violation of these boundaries is a workflow breach.** If you catch yourself about to write to one of these files, STOP — call the owning agent instead.
 
