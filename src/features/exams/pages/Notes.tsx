@@ -17,6 +17,7 @@ import GiscusComments from '@/components/GiscusComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { ContentMeta } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
+import { StudyWithAI } from '@/components/StudyWithAI';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -796,14 +797,25 @@ export default function Notes() {
                   versionTag={examConfig.contentVersion}
                 />
               )}
-              <button
-                onClick={handleShare}
-                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition-all mt-1"
-                style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', color: '#a78bfa' }}
-              >
-                {copied ? <Check size={11} /> : <Share2 size={11} />}
-                {copied ? 'Copied!' : 'Share'}
-              </button>
+              <div className="flex gap-1.5 mt-1">
+                <button
+                  onClick={handleShare}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition-all"
+                  style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', color: '#a78bfa' }}
+                >
+                  {copied ? <Check size={11} /> : <Share2 size={11} />}
+                  {copied ? 'Copied!' : 'Share'}
+                </button>
+                <StudyWithAI
+                  variant="icon"
+                  context={{
+                    source: 'notes',
+                    examTitle: examConfig?.title ?? '',
+                    domainTitle: currentDomainConfig?.title,
+                    noteExcerpt: content ? content.slice(0, 500) : undefined,
+                  }}
+                />
+              </div>
             </div>
           )}
 

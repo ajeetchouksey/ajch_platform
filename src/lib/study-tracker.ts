@@ -80,19 +80,66 @@ export function getDailyCard(examId: string, domains: DomainConfig[], sessions: 
 }
 
 // ── Exam Readiness Score ─────────────────────────────────────────────────────
-export function getReadinessScore(examId: string, domains: DomainConfig[], sessions: QuizSession[]): number {
-  if (!domains.length) return 0;
+export interface DomainReadinessDetail {
+  domainId: number;
+  title: string;
+  weight: number;
+  notesRead: boolean;
+  quizAttempted: boolean;
+  bestScore: number;       // 0-100
+  pointsEarned: number;    // 0-100 domain-internal score = (notesRead?30:0) + (quizAttempted ? min(100,bestScore)*0.7 : 0)
+  pointsPossible: number;  // always 100
+}
+
+export interface ReadinessBreakdown {
+  byDomain: DomainReadinessDetail[];
+  overall: number;                        // identical value to what getReadinessScore() used to compute directly
+  recommendedFocusDomain: number | null;  // domainId with lowest pointsEarned/pointsPossible ratio; weight (descending) as tiebreak
+}
+
+export function getReadinessBreakdown(examId: string, domains: DomainConfig[], sessions: QuizSession[]): ReadinessBreakdown {
+  if (!domains.length) return { byDomain: [], overall: 0, recommendedFocusDomain: null };
+
   let weightedScore = 0;
   let totalWeight = 0;
+  const byDomain: DomainReadinessDetail[] = [];
+
   for (const d of domains) {
     const c = getDomainCompletion(examId, d.id, sessions);
     // Notes contributes 30%, quiz contributes 70% of each domain's contribution
     const notesPoints = c.notesRead ? 30 : 0;
     const quizPoints = c.quizAttempted ? Math.min(100, c.bestScore) * 0.7 : 0;
-    weightedScore += (notesPoints + quizPoints) * d.weight;
+    const pointsEarned = notesPoints + quizPoints;
+    weightedScore += pointsEarned * d.weight;
     totalWeight += d.weight * 100;
+    byDomain.push({
+      domainId: d.id,
+      title: d.title,
+      weight: d.weight,
+      notesRead: c.notesRead,
+      quizAttempted: c.quizAttempted,
+      bestScore: c.bestScore,
+      pointsEarned,
+      pointsPossible: 100,
+    });
   }
-  return totalWeight > 0 ? Math.round(weightedScore / totalWeight * 100) : 0;
+
+  const overall = totalWeight > 0 ? Math.round(weightedScore / totalWeight * 100) : 0;
+
+  let best: DomainReadinessDetail | null = null;
+  for (const d of byDomain) {
+    const ratio = d.pointsEarned / d.pointsPossible;
+    if (!best) { best = d; continue; }
+    const bestRatio = best.pointsEarned / best.pointsPossible;
+    if (ratio < bestRatio || (ratio === bestRatio && d.weight > best.weight)) best = d;
+  }
+  const recommendedFocusDomain = best?.domainId ?? null;
+
+  return { byDomain, overall, recommendedFocusDomain };
+}
+
+export function getReadinessScore(examId: string, domains: DomainConfig[], sessions: QuizSession[]): number {
+  return getReadinessBreakdown(examId, domains, sessions).overall;
 }
 
 // ── Resume State ─────────────────────────────────────────────────────────────

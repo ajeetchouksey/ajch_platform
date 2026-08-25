@@ -21,8 +21,9 @@ import {
   getQuizScoresByDomain,
   autoSyncProgressToPlan,
 } from '@/lib/plan-generator';
-import type { DailyMinutes, DomainQuizScore } from '@/lib/plan-generator';
-import { getDailyCard, exportStudyPlanAsIcal, getStreak, getReadinessScore } from '@/lib/study-tracker';
+import type { DailyMinutes, DomainQuizScore, WeakDomain } from '@/lib/plan-generator';
+import { getDailyCard, getStreak, getReadinessBreakdown } from '@/lib/study-tracker';
+import { predictPassProbabilityFromSessions } from '@/lib/adaptive-quiz';
 import {
   callMentorPlan,
   callMentorChat,
@@ -32,6 +33,8 @@ import {
 import type { StudyPlan as StudyPlanType, StudySession, Activity } from '@/lib/plan-generator';
 import type { ExamConfig } from '@/types/content';
 import { useProgressSync } from '@/lib/useProgressSync';
+import { StudyWithAI } from '@/components/StudyWithAI';
+import { TodaysMissionHero } from './TodaysMissionHero';
 
 // ── Activity icon ─────────────────────────────────────────────────────────────
 
@@ -51,6 +54,11 @@ interface AskMentorPanelProps {
 
 function AskMentorPanel({ examId, day, domainTitle }: AskMentorPanelProps) {
   const defaultQ = `Why is ${domainTitle} important and what are the most likely exam questions?`;
+  const MENTOR_SHORTCUT_CHIPS = [
+    `Why is ${domainTitle} important and what are the most likely exam questions?`,
+    `Give me a realistic exam scenario for ${domainTitle}`,
+    `What's the trickiest thing people get wrong in ${domainTitle}?`,
+  ];
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState(defaultQ);
   const [loading, setLoading] = useState(false);
@@ -86,6 +94,21 @@ function AskMentorPanel({ examId, day, domainTitle }: AskMentorPanelProps) {
 
       {open && (
         <div className="px-4 pb-4 space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {MENTOR_SHORTCUT_CHIPS.map((chip) => (
+              <button
+                key={chip}
+                onClick={() => setQuestion(chip)}
+                className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                  question === chip
+                    ? 'bg-violet-600 border-violet-500 text-white'
+                    : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:border-violet-500/50 hover:text-slate-200'
+                }`}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
           <textarea
             value={question}
             onChange={(e) => setQuestion(e.target.value.substring(0, 300))}
@@ -227,12 +250,14 @@ function PlanCalendar({ plan, targetDate, onDayClick }: PlanCalendarProps) {
 interface SessionCardProps {
   session: StudySession;
   examId: string;
+  examTitle: string;
+  weakDomains: WeakDomain[];
   onToggle: (day: number, actIdx: number) => void;
   defaultOpen?: boolean;
   domainScore?: DomainQuizScore;
 }
 
-function SessionCard({ session, examId, onToggle, defaultOpen = false, domainScore }: SessionCardProps) {
+function SessionCard({ session, examId, examTitle, weakDomains, onToggle, defaultOpen = false, domainScore }: SessionCardProps) {
   const [open, setOpen] = useState(defaultOpen);
   const doneCount = session.activities.filter((a) => a.completed).length;
   const total = session.activities.length;
@@ -339,6 +364,17 @@ function SessionCard({ session, examId, onToggle, defaultOpen = false, domainSco
 
       {/* Ask Mentor panel */}
       <AskMentorPanel examId={examId} day={session.day} domainTitle={session.domainTitle} />
+
+      {/* Study with AI handoff */}
+      <StudyWithAI
+        variant="row"
+        context={{
+          source: 'study-plan',
+          examTitle,
+          domainTitle: session.domainTitle,
+          weakDomains: weakDomains.map((w) => ({ title: w.title, pct: w.pct })),
+        }}
+      />
     </div>
   );
 }
@@ -524,6 +560,20 @@ export default function StudyPlan() {
     [exam, validId, sessions],
   );
 
+  const readinessBreakdown = useMemo(
+    () => (exam ? getReadinessBreakdown(validId ?? '', exam.domains, sessions) : null),
+    [exam, validId, sessions],
+  );
+  const streak = useMemo(() => getStreak(validId ?? ''), [validId, sessions]);
+  const dailyCard = useMemo(
+    () => (exam ? getDailyCard(validId ?? '', exam.domains, sessions) : null),
+    [exam, validId, sessions],
+  );
+  const forecast = useMemo(
+    () => (exam ? predictPassProbabilityFromSessions(validId ?? '', exam.domains, sessions) : null),
+    [exam, validId, sessions],
+  );
+
   const scrollToDay = useCallback((day: number) => {
     const el = document.getElementById(`session-day-${day}`);
     if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setViewMode('timeline'); }
@@ -612,65 +662,18 @@ export default function StudyPlan() {
         ))}
       </div>
 
-      {/* Daily card + streak + readiness + iCal row */}
-      {exam && (() => {
-        const sessions = getSessions();
-        const card = getDailyCard(examId ?? '', exam.domains, sessions);
-        const streak = getStreak(examId ?? '');
-        const readiness = getReadinessScore(examId ?? '', exam.domains, sessions);
-        const ACTION_LABEL: Record<string, string> = {
-          'read-notes': '📖 Read Notes',
-          'take-quiz': '🎯 Take Quiz',
-          'retake-quiz': '🔄 Retake Quiz',
-          'all-done': '🏆 All Done',
-        };
-        return (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {/* Daily card */}
-            {card && (
-              <div className="sm:col-span-2 glass-card glass-edge rounded-xl p-4 flex items-start gap-3">
-                <span className="text-xl mt-0.5">{card.action === 'all-done' ? '🏆' : '📌'}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">Today’s Focus</p>
-                  <p className="text-sm font-semibold text-white">D{card.domainId}: {card.domainTitle}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{card.reason}</p>
-                </div>
-                <Link
-                  to={card.link}
-                  className="shrink-0 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-[11px] font-bold hover:bg-violet-500 transition-colors"
-                >
-                  {ACTION_LABEL[card.action] ?? 'Go →'}
-                </Link>
-              </div>
-            )}
-            {/* Streak + readiness + iCal */}
-            <div className="glass-card rounded-xl p-4 flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-base">🔥</span>
-                  <div>
-                    <p className="text-xs font-bold text-amber-400">{streak} day{streak !== 1 ? 's' : ''}</p>
-                    <p className="text-[10px] text-slate-500">Current streak</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-bold text-violet-400">{readiness}%</p>
-                  <p className="text-[10px] text-slate-500">Readiness</p>
-                </div>
-              </div>
-              {plan && (
-                <button
-                  onClick={() => exportStudyPlanAsIcal(plan, exam.title)}
-                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700/60 text-slate-300 text-[11px] font-semibold hover:bg-slate-700 hover:text-white transition-colors"
-                  title="Export study plan to Google/Apple Calendar"
-                >
-                  <CalendarDays size={12} /> Export to Calendar (.ics)
-                </button>
-              )}
-            </div>
-          </div>
-        );
-      })()}
+      {/* Today's Mission hero — daily card + streak + readiness + forecast + iCal */}
+      {exam && readinessBreakdown && (
+        <TodaysMissionHero
+          examId={validId}
+          exam={exam}
+          plan={plan}
+          card={dailyCard}
+          streak={streak}
+          readiness={readinessBreakdown}
+          forecast={forecast}
+        />
+      )}
 
       {/* Target date + time commitment */}
       <div className="glass-card glass-edge rounded-xl p-4 flex flex-wrap items-center gap-4">
@@ -920,6 +923,8 @@ export default function StudyPlan() {
             <SessionCard
               session={session}
               examId={validId}
+              examTitle={exam.title}
+              weakDomains={weakDomains}
               onToggle={handleToggle}
               defaultOpen={next?.day === session.day && next?.domainId === session.domainId}
               domainScore={quizScoresByDomain[session.domainId]}
