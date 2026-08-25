@@ -10,6 +10,7 @@
  *  - skillup/{examId}/index.json: required fields + file references exist
  *  - skillup/{examId}/task-statements.json: questionIds resolve to actual question files
  *  - blog/index.json: post index schema (slug, title, author, date, tags)
+ *  - usecases/cases/*.json: use-case schema (id, title, vertical, patterns, ...)
  *  - *.md: empty file check, unclosed frontmatter check
  */
 
@@ -88,6 +89,27 @@ function validateScenario(file, item, index) {
     if (!(field in item)) {
       fail(file, `item[${index}] missing required field "${field}"`);
     }
+  }
+}
+
+const USECASE_REQUIRED = [
+  'id', 'title', 'vertical', 'patterns', 'problem', 'solution', 'whoItsFor',
+  'workflowSteps', 'keyInsights', 'relatedExams', 'examScenarioPotential',
+  'blogPotential', 'mermaidDiagram', 'architectureNotes', 'relatedUseCases',
+  'techStack', 'failureModes', 'scalingConsiderations', 'integrations',
+];
+
+function validateUsecase(file, item) {
+  for (const field of USECASE_REQUIRED) {
+    if (!(field in item)) {
+      fail(file, `missing required field "${field}"`);
+    }
+  }
+  if (item.id && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(item.id)) {
+    fail(file, `"id" must be kebab-case, got "${item.id}"`);
+  }
+  if (Array.isArray(item.failureModes) && item.failureModes.length < 2) {
+    fail(file, `"failureModes" must document at least 2 entries`);
   }
 }
 
@@ -230,6 +252,12 @@ for (const rawPath of files) {
       for (const [i, item] of items.entries()) {
         validateScenario(rawPath, item, i);
       }
+      continue;
+    }
+
+    // Use-case files
+    if (/\/usecases\/cases\//.test(normalized)) {
+      validateUsecase(rawPath, data);
       continue;
     }
 

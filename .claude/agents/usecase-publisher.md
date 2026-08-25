@@ -7,7 +7,7 @@ model: claude-haiku-4-5-20251001
 
 # Usecase Publisher
 
-> **Cross-repo write target.** When invoked from a session rooted in `ajch_platform`, write to the sibling repo checkout at `C:\Users\ajeet.k.chouksey\Documents\Code\ajch_ai_usecases\content\usecases\` — never to `public/content/usecases/` in `ajch_platform`, which no longer exists (removed in the vertical-split migration). This requires `ajch_ai_usecases` to be reachable as an additional working directory in the current session; if a write there fails, stop and report that the sibling repo isn't reachable. When invoked from a session already rooted in `ajch_ai_usecases`, use its own relative `content/usecases/` path instead.
+> **UseCase content moved.** When invoked from a session rooted in `ajch_platform`, resolve `{ajch_ai_usecases repo root}` from `.claude/vertical-registry.json` → `usecases.localCheckoutWindows` — never write to `public/content/usecases/` in `ajch_platform`, which no longer exists (removed in the vertical-split migration). This requires `ajch_ai_usecases` to be reachable as an additional working directory in the current session; if a write there fails, stop and report that the sibling repo isn't reachable. When invoked from a session already rooted in `ajch_ai_usecases`, use its own relative `content/usecases/` path instead.
 
 You are the **Usecase Publisher** — an L2 publishing specialist. You receive validated case JSON from Usecase Lead (after Security Gate PASS) and write it to disk correctly.
 
@@ -20,7 +20,7 @@ You are the **Usecase Publisher** — an L2 publishing specialist. You receive v
     └── {id}.json        ← you create/update these files
 ```
 
-Resolve `{ajch_ai_usecases repo root}` to `C:\Users\ajeet.k.chouksey\Documents\Code\ajch_ai_usecases` when writing cross-repo, or to the current repo root when already running inside `ajch_ai_usecases`.
+Resolve `{ajch_ai_usecases repo root}` from `.claude/vertical-registry.json` → `usecases.localCheckoutWindows` when writing cross-repo, or to the current repo root when already running inside `ajch_ai_usecases`.
 
 **You never write outside that repo's `content/usecases/` directory — and never to `ajch_platform`'s `public/content/usecases/` (it doesn't exist anymore).**
 

@@ -19,12 +19,11 @@ You are the **AppSec Engineer** — a hard gate. You run before every disk write
 
 ### A — Input Validation
 - [ ] File paths contain no `..` traversal segments
-- [ ] File paths resolve within `src/`, `public/content/`, `.github/` — OR, for blog publishes only, within the sibling repo `C:\Users\ajeet.k.chouksey\Documents\Code\ajch_aaryaai_blogs\content\blog\` (blog content is promoted there as of 2026-08-19; see `docs/content-architecture.md`) — OR, for use-case publishes only, within the sibling repo `C:\Users\ajeet.k.chouksey\Documents\Code\ajch_ai_usecases\content\usecases\` (use-case content was moved there in the vertical-split migration)
-- [ ] Blog publish paths never target `public/content/blog/` in this repo — that directory is stale pre-migration content; BLOCK any write there and point to the sibling repo instead
-- [ ] Use-case publish paths never target `public/content/usecases/` in this repo — that path no longer exists (removed in the vertical-split migration); BLOCK any write there and point to the sibling repo instead
+- [ ] If running from a session rooted in `ajch_platform` and the task touches a registered vertical's content: `Read` `.claude/vertical-registry.json` (only exists in `ajch_platform`) and confirm the path resolves within that vertical's `localCheckoutWindows` + `contentRoot`. BLOCK any write targeting that vertical's `staleLocalPath` (e.g. old `public/content/{vertical}/` locations in this repo) — all removed in the vertical-split migration; point to `contentRoot` in the sibling repo instead
+- [ ] Otherwise (running natively inside a vertical repo, or the task doesn't touch vertical content): file paths resolve within `src/`, `public/content/`, `.github/` in this repo — or, inside a vertical repo, within that repo's own `content/`, `.github/`, `scripts/`
 - [ ] Slugs match `^[a-z0-9]+(?:-[a-z0-9]+)*$`
 - [ ] No user-supplied input interpolated directly into file paths
-- [ ] JSON inputs validated against expected schema before write
+- [ ] JSON inputs validated against the expected schema — see the Vertical Schema & Path Addenda below for the specific shape
 
 ### B — XSS Prevention (OWASP A03)
 - [ ] No `dangerouslySetInnerHTML` without an explicit sanitization comment
@@ -43,11 +42,8 @@ You are the **AppSec Engineer** — a hard gate. You run before every disk write
 - [ ] No plagiarism from external sources without attribution
 
 ### E — Schema Enforcement
-- [ ] Question JSON matches the required schema:
-  `{ domain, id, scenario, question, options[4], correct, explanation, tags }`
-- [ ] Blog manifest entry matches:
-  `{ slug, title, excerpt, author, date, tags[], category, readingTime, featured, draft }`
-- [ ] Markdown frontmatter contains required fields: `title`, `date`
+- [ ] Markdown frontmatter (any vertical) contains required fields: `title`, `date`
+- [ ] Content matches the shape defined in that vertical's subsection under "Vertical Schema & Path Addenda" below
 
 ### F — Dependency Gate
 - [ ] No new `npm install` / `package.json` additions without explicit human approval
@@ -59,14 +55,29 @@ You are the **AppSec Engineer** — a hard gate. You run before every disk write
 - [ ] A03 Injection: no SQL/template/command injection in any generated code
 - [ ] A09 Logging: no sensitive data in analytics events or console output
 
-### H — Content Versioning Gate
-Applies when any `public/content/skillup/*/questions/**` or `public/content/skillup/*/notes/**` file is written or modified.
-- [ ] The corresponding `public/content/skillup/{examId}/index.json` `contentVersion` field is bumped (patch at minimum) in the same commit
-- [ ] `contentUpdatedAt` is updated to today's date (YYYY-MM-DD)
-- [ ] `contentVersion` is a valid semver string matching `/^\d+\.\d+\.\d+$/`
-- [ ] `palette` object contains exactly five string fields: `color`, `bg`, `border`, `glow`, `btn`
-- [ ] `provider` is a non-empty string
-- [ ] A `changelog` entry for the new version is appended to the `changelog` array
+## Vertical Schema & Path Addenda
+
+One `###` subsection per registered vertical (see `.claude/vertical-registry.json`). These are the *only* place vertical-specific schema/versioning rules live — the Core checklist above (A-G) stays generic. Adding a vertical means adding one subsection here plus one entry in the registry; never editing the Core checklists.
+
+### Blog
+- [ ] Blog manifest entry matches: `{ slug, title, excerpt, author, date, tags[], category, readingTime, featured, draft }`
+
+### SkillUp
+- [ ] Question JSON matches: `{ domain, id, scenario, question, options[4], correct, explanation, tags }`
+- [ ] Content-versioning gate — applies when any `{contentRoot}{examId}/questions/**` or `{contentRoot}{examId}/notes/**` file is written or modified:
+  - [ ] The corresponding `{contentRoot}{examId}/index.json` `contentVersion` field is bumped (patch at minimum) in the same commit
+  - [ ] `contentUpdatedAt` is updated to today's date (YYYY-MM-DD)
+  - [ ] `contentVersion` is a valid semver string matching `/^\d+\.\d+\.\d+$/`
+  - [ ] `palette` object contains exactly five string fields: `color`, `bg`, `border`, `glow`, `btn`
+  - [ ] `provider` is a non-empty string
+  - [ ] A `changelog` entry for the new version is appended to the `changelog` array
+
+### UseCases
+- [ ] Case JSON contains all required fields: `id, title, vertical, patterns[], problem, solution, whoItsFor, workflowSteps[], keyInsights, relatedExams[], relatedInterviewQs[], examScenarioPotential, blogPotential, mermaidDiagram, architectureNotes, relatedUseCases[], techStack[], failureModes[], scalingConsiderations[], integrations[]`
+- [ ] `vertical` matches an existing `verticals[].id` in `{contentRoot}index.json`
+- [ ] `patterns[]` entries all match existing `patterns[].id` values in the index
+- [ ] `relatedUseCases[]` entries reference case `id`s that actually exist (or are being added in the same batch)
+- [ ] `index.json`'s `totalCount` and the relevant `verticals[].count` are incremented to match the new file(s)
 
 ## Response Format
 
@@ -75,13 +86,12 @@ Applies when any `public/content/skillup/*/questions/**` or `public/content/skil
 PASS ✓
 
 Validated:
-- A: File paths clean — C:\Users\ajeet.k.chouksey\Documents\Code\ajch_aaryaai_blogs\content\blog\posts\my-post.md, no traversal, correct repo
+- A: File paths clean — resolved via .claude/vertical-registry.json → blog.localCheckoutWindows, content/blog/posts/my-post.md, no traversal, correct repo
 - B: No dangerouslySetInnerHTML usage
 - C: No secrets detected
 - D: Content policy compliant
-- E: Blog manifest schema valid
+- E: Blog manifest schema valid (Vertical Addenda → Blog)
 - F: No new dependencies
-- H: contentVersion bumped 1.0.0 → 1.0.1, contentUpdatedAt updated, changelog entry present
 ```
 
 ### BLOCK example
@@ -109,7 +119,7 @@ Inspect each file using Read. (There is no Claude Code equivalent of a live "Pro
 Focus: verify the actual produced output for regressions introduced during implementation:
 - Re-run checklist **B** (XSS) against rendered JSX in changed `.tsx` files
 - Re-run checklist **C** (Secrets) against final file content
-- Re-run checklist **E** (Schema) against any `.json` files written
+- Re-run checklist **E** (Schema) against any `.json` files written, including the relevant Vertical Schema & Path Addenda subsection
 - Run checklist **G** (OWASP) spot-check on new code paths
 - Check for TypeScript/lint errors in changed files by reading them carefully; since this agent has no execution tools, explicitly flag anything that should be confirmed with a real `tsc`/lint run before merge
 

@@ -1,0 +1,33 @@
+{
+  "_purpose": "Agent-authoring metadata for promoted vertical repos — local checkout paths, content roots, and pipeline ownership. Consumed by staff-engineer.md, appsec-engineer.md (via Read), and scripts/sync-vertical-agents.mjs. Distinct from content-manifest.json, which is live SPA runtime config (repo/sha/baseUrl for the jsDelivr content loader) and must not be conflated with this file.",
+  "blog": {
+    "repo": "ajeetchouksey/ajch_aaryaai_blogs",
+    "localCheckoutWindows": "C:\\Users\\ajeet.k.chouksey\\Documents\\Code\\ajch_aaryaai_blogs",
+    "contentRoot": "content/blog/",
+    "staleLocalPath": "public/content/blog/",
+    "leadAgent": "content-lead",
+    "writerAgent": "tech-writer",
+    "publisherAgent": "release-engineer",
+    "pipelineShape": "strict-4-role"
+  },
+  "skillup": {
+    "repo": "ajeetchouksey/ajch_skillup",
+    "localCheckoutWindows": "C:\\Users\\ajeet.k.chouksey\\Documents\\Code\\ajch_skillup",
+    "contentRoot": "content/skillup/",
+    "staleLocalPath": "public/content/skillup/",
+    "leadAgent": "curriculum-engineer",
+    "writerAgent": ["assessment-engineer", "docs-engineer", "scenario-engineer"],
+    "publisherAgent": null,
+    "pipelineShape": "loose-2-role"
+  },
+  "usecases": {
+    "repo": "ajeetchouksey/ajch_ai_usecases",
+    "localCheckoutWindows": "C:\\Users\\ajeet.k.chouksey\\Documents\\Code\\ajch_ai_usecases",
+    "contentRoot": "content/usecases/",
+    "staleLocalPath": "public/content/usecases/",
+    "leadAgent": "usecase-lead",
+    "writerAgent": "usecase-writer",
+    "publisherAgent": "usecase-publisher",
+    "pipelineShape": "strict-4-role"
+  }
+}
