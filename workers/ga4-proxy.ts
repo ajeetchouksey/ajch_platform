@@ -368,6 +368,15 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
 
+    // Everything below can throw (KV, fetch, JSON parsing) — wrap it all in one
+    // try/catch. This used to only wrap the /api/ga/* routes, leaving
+    // /oauth/callback and verifyOwner() able to become uncaught worker
+    // exceptions (Cloudflare's own analytics showed ~46% of all requests
+    // failing with scriptThrewException — a real bug, not just noisy 401s
+    // from unauthenticated/bot traffic, which return a clean Response and
+    // don't count as script errors).
+    try {
+
     // /oauth/callback is called by Google — no Bearer token, state param is the CSRF proof
     if (url.pathname === '/oauth/callback' && request.method === 'GET') {
       const code = url.searchParams.get('code');
@@ -414,7 +423,6 @@ export default {
     const isOwner = await verifyOwner(token, env.GA4_CACHE);
     if (!isOwner) return json({ error: 'Forbidden' }, 403, origin);
 
-    try {
       // GET /api/ga/status — returns connection method, never leaks tokens (AppSec Req 2)
       if (url.pathname === '/api/ga/status' && request.method === 'GET') {
         const hasSA = Boolean(env.GA4_SERVICE_ACCOUNT_B64);
