@@ -57,8 +57,8 @@ jobs:
           VITE_CF_BEACON_TOKEN: ${{ vars.VITE_CF_BEACON_TOKEN }}
           VITE_CF_MONITOR_PROXY_URL: ${{ vars.VITE_CF_MONITOR_PROXY_URL }}
           VITE_CONVERTKIT_FORM_ID: ${{ secrets.VITE_CONVERTKIT_FORM_ID }}
-          VITE_SUBSCRIBE_WORKER_URL: https://aarya-subscribe.ajeetchouksey27.workers.dev
-          VITE_GH_OAUTH_PROXY: https://aarya-subscribe.ajeetchouksey27.workers.dev
+          VITE_SUBSCRIBE_WORKER_URL: https://api.aaryaai.dev
+          VITE_GH_OAUTH_PROXY: https://api.aaryaai.dev
           VITE_STATS_GIST_ID: 4ccf1b49e144256342d92bab727fbb89
         run: npm run build
 

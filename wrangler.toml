@@ -1,7 +1,22 @@
 name            = "aarya-subscribe"
 main            = "workers/subscribe.ts"
 compatibility_date = "2026-06-05"
+# Kept on so the old *.workers.dev URL keeps working during the migration to
+# the custom domain below — safe to turn off once nothing references it.
 workers_dev     = true
+
+# ── Custom domain ─────────────────────────────────────────────────────────────
+# api.aaryaai.dev instead of aarya-subscribe.<account>.workers.dev — the latter
+# leaks the Cloudflare account name and looks untrustworthy on a Google/GitHub
+# OAuth consent screen. Cloudflare auto-provisions the DNS record + TLS cert
+# for this on `wrangler deploy` since aaryaai.dev is already a zone on this
+# account. After deploying, update:
+#   - GitHub OAuth App callback URL (github.com/settings/developers)
+#   - Google OAuth Client redirect URI (console.cloud.google.com)
+#   → both to https://api.aaryaai.dev/oauth/... instead of the old workers.dev URL
+[[routes]]
+pattern = "api.aaryaai.dev"
+custom_domain = true
 
 # ── KV namespace — per-IP rate limiting (5 req / 15 min) ─────────────────────
 # One-time setup:
@@ -54,7 +69,7 @@ database_id = "2f397d9b-4d45-4c1d-aa1e-3c474f58dd32"
 #       ga4-proxy.ts's GOOGLE_CLIENT_ID — that's a separate Worker/wrangler config
 #       for owner-only GA4 API access. Create a distinct client here, scoped to
 #       `openid email profile` only, with redirect URI:
-#       https://<this-worker-subdomain>.workers.dev/oauth/google/callback
+#       https://api.aaryaai.dev/oauth/google/callback
 #
 #   wrangler secret put GOOGLE_CLIENT_SECRET
 #     → paste the matching Google OAuth client secret (NEVER commit this value)
@@ -67,14 +82,14 @@ database_id = "2f397d9b-4d45-4c1d-aa1e-3c474f58dd32"
 # it'll need MS_CLIENT_ID / MS_CLIENT_SECRET secrets in this same style, plus
 # an Entra App registration with supported account types = "Accounts in any
 # organizational directory and personal Microsoft accounts" and redirect URI
-# https://<this-worker-subdomain>.workers.dev/oauth/microsoft/callback.
+# https://api.aaryaai.dev/oauth/microsoft/callback.
 #
 # ── Deploy ────────────────────────────────────────────────────────────────────
 # After secrets are set:
 #   wrangler deploy
-#
-# Copy the deployed URL (https://aarya-subscribe.<subdomain>.workers.dev)
-# and set it in Vite:
-#   VITE_SUBSCRIBE_WORKER_URL=https://aarya-subscribe.<subdomain>.workers.dev
+# This provisions the api.aaryaai.dev custom domain (see [[routes]] above)
+# automatically — no manual DNS/dashboard step needed. Set it in Vite:
+#   VITE_SUBSCRIBE_WORKER_URL=https://api.aaryaai.dev
+#   VITE_GH_OAUTH_PROXY=https://api.aaryaai.dev
 #
 # Set VITE_STATS_GIST_ID=<REPLACE_WITH_PUBLIC_STATS_GIST_ID> in Vite env as well.
