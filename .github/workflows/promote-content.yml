@@ -94,6 +94,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           import json
+          import os
           from datetime import datetime, timezone
 
           # The running app fetches /content-manifest.json at runtime, which
@@ -102,14 +103,25 @@ jobs:
           paths = ['content-manifest.json', 'public/content-manifest.json']
           promoted_at = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
+          # Read from the environment, not shell-interpolated into this heredoc --
+          # the heredoc delimiter ('PY') is quoted specifically so bash does NOT
+          # expand $VARS before Python sees the script. "${VERTICAL}" etc. as
+          # literal text previously wrote the placeholder strings themselves into
+          # the manifest instead of the real values (shipped broken; caught when
+          # promoting skillup on 2026-08-26).
+          vertical = os.environ['VERTICAL']
+          repo = os.environ['REPO']
+          sha = os.environ['SHA']
+          base_url = os.environ['BASE_URL']
+
           for path in paths:
               with open(path, encoding='utf-8') as f:
                   data = json.load(f)
 
-              data["${VERTICAL}"] = {
-                  "repo": "${REPO}",
-                  "sha": "${SHA}",
-                  "baseUrl": "${BASE_URL}",
+              data[vertical] = {
+                  "repo": repo,
+                  "sha": sha,
+                  "baseUrl": base_url,
                   "schemaVersion": 1,
                   "promotedAt": promoted_at,
               }
