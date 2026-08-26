@@ -48,6 +48,27 @@ database_id = "2f397d9b-4d45-4c1d-aa1e-3c474f58dd32"
 #   wrangler secret put GH_CLIENT_SECRET
 #     → paste your GitHub OAuth App client_secret (NEVER commit this value)
 #
+#   wrangler secret put GOOGLE_CLIENT_ID
+#     → paste your Google OAuth Client ID (Google Cloud Console → APIs & Services →
+#       Credentials → OAuth client ID → Web application). NOT the same secret as
+#       ga4-proxy.ts's GOOGLE_CLIENT_ID — that's a separate Worker/wrangler config
+#       for owner-only GA4 API access. Create a distinct client here, scoped to
+#       `openid email profile` only, with redirect URI:
+#       https://<this-worker-subdomain>.workers.dev/oauth/google/callback
+#
+#   wrangler secret put GOOGLE_CLIENT_SECRET
+#     → paste the matching Google OAuth client secret (NEVER commit this value)
+#
+#   wrangler secret put SESSION_SIGNING_KEY
+#     → random 32+ byte string, e.g. `openssl rand -hex 32`. Signs the session
+#       tokens minted for Google logins (see workers/subscribe.ts).
+#
+# Microsoft login is deferred (no Entra app registered yet) — when it's added,
+# it'll need MS_CLIENT_ID / MS_CLIENT_SECRET secrets in this same style, plus
+# an Entra App registration with supported account types = "Accounts in any
+# organizational directory and personal Microsoft accounts" and redirect URI
+# https://<this-worker-subdomain>.workers.dev/oauth/microsoft/callback.
+#
 # ── Deploy ────────────────────────────────────────────────────────────────────
 # After secrets are set:
 #   wrangler deploy
