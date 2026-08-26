@@ -19,7 +19,7 @@
     "githubStars": 500
   },
   "current": {
-    "blogs": 62,
+    "blogs": 65,
     "videos": 0,
     "architectures": 2,
     "useCases": 46,
@@ -59,7 +59,13 @@
       "status": "active",
       "openCount": 2,
       "closedCount": 0,
-      "contentTargets": { "blogs": 90, "useCases": 50, "interviewQuestions": 40, "communityArticles": 25 }
+      "contentTargets": { "blogs": 90, "useCases": 50, "interviewQuestions": 40, "communityArticles": 25 },
+      "trafficTargets": { "sessions": 1600, "pageviews": 12500, "users": 700 },
+      "trafficBaseline": {
+        "method": "Baseline daily run-rate x 1.25 stretch x 92 days in this quarter. Baseline computed from the first real GA4 backfill: 2026-06-02 to 2026-08-22 (69 days, earliest date GA4 has any data for this property — tracking wasn't collecting before then, not a retention-window truncation).",
+        "baselineDailyAvg": { "sessions": 14.2, "pageviews": 109.4, "users": 6.0 },
+        "computedOn": "2026-08-25"
+      }
     },
     {
       "id": "Q3",
@@ -89,7 +95,7 @@
     }
   ],
   "domainCoverage": [
-    { "domain": "Azure AI Foundry", "pct": 12, "status": "critical" },
+    { "domain": "Azure AI Foundry", "pct": 18, "status": "critical" },
     { "domain": "GitHub Copilot",   "pct": 18, "status": "critical" },
     { "domain": "Agentic AI",       "pct": 35, "status": "low"      },
     { "domain": "AI Architecture",  "pct": 7,  "status": "critical" },

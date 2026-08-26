@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/lib/auth';
+import { ga4ErrorMessage } from './ga4Error';
 
 const PROXY_URL = (import.meta.env.VITE_GA4_PROXY_URL as string | undefined) ?? '';
-const POLL_INTERVAL = 30_000;
+const POLL_INTERVAL = 60_000;
 
 export interface RealtimeData {
   rows?: { dimensionValues: { value: string }[]; metricValues: { value: string }[] }[];
@@ -27,7 +28,7 @@ export function useGA4Realtime(paused = false) {
       const res = await fetch(`${PROXY_URL}/api/ga/realtime`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error(`${res.status}`);
+      if (!res.ok) throw new Error(await ga4ErrorMessage(res));
       const data: RealtimeData = await res.json();
       setState({ data, loading: false, error: null, lastUpdated: new Date() });
     } catch (err) {

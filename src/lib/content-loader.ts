@@ -449,6 +449,8 @@ export interface FeaturedUseCase {
   relatedUseCases?: UseCaseRelatedLink[];
   examScenarioPotential?: string;
   blogPotential?: string;
+  publishedDate?: string;
+  updatedDate?: string;
 }
 
 export interface CatalogUseCase {

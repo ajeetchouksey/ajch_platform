@@ -66,6 +66,7 @@ The PO Agent reads this file in Module 1 (Setup). Never echo or log the token va
 | `domain:tools` | `#0891b2` | AI tools and utilities |
 | `domain:platform` | `#7c3aed` | Core platform / UX |
 | `domain:agent` | `#9333ea` | AI agent infrastructure |
+| `domain:observability` | `#0d9488` | Traffic/infra monitoring findings — worker health, D1 usage, GA4 pace vs. targets |
 
 ---
 

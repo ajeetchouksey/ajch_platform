@@ -3,7 +3,7 @@
 // weakness, and computes ReadinessReport from attempt history.
 // localStorage key: aarya_attempts_{examId}
 
-import type { DomainConfig, Question, QuestionAttempt, DomainReadiness, ReadinessReport } from '@/types/content';
+import type { DomainConfig, Question, QuestionAttempt, DomainReadiness, ReadinessReport, QuizSession } from '@/types/content';
 import { isValidExamId } from '@/lib/plan-generator';
 
 // ── Storage ────────────────────────────────────────────────────────────────────
@@ -92,6 +92,12 @@ function computeDomainStats(
 
 // ── Readiness computation ──────────────────────────────────────────────────────
 
+/**
+ * Dead code: never called anywhere in the app because QuestionAttempt is never
+ * populated (no UI calls saveAttempt()). Kept as a Phase 2-3 candidate once
+ * saveAttempt() is ever wired up. Use predictPassProbabilityFromSessions() below
+ * for live-data-backed pass prediction in the meantime.
+ */
 export function computeReadiness(
   examId: string,
   domains: DomainConfig[],
@@ -154,6 +160,40 @@ export function computeReadiness(
     recommendedFocusDomain,
     totalAttempts,
   };
+}
+
+/**
+ * Predicts pass probability from live QuizSession history (per-domain sum(score)/sum(total)
+ * from finished sessions), rather than the dead QuestionAttempt-based computeReadiness() above.
+ * Mixed/full-exam quizzes (domainFilter === null) are excluded from per-domain scoring,
+ * consistent with the rest of the codebase's per-domain calcs.
+ */
+export function predictPassProbabilityFromSessions(
+  examId: string,
+  domains: DomainConfig[],
+  sessions: QuizSession[],
+): { probability: number; weightedAccuracy: number; domainsWithData: number } | null {
+  let totalWeight = 0;
+  let weightedSum = 0;
+  let domainsWithData = 0;
+
+  for (const d of domains) {
+    const ds = sessions.filter((s) => s.skillId === examId && s.finishedAt && s.domainFilter === d.id);
+    const correct = ds.reduce((sum, s) => sum + s.score, 0);
+    const total = ds.reduce((sum, s) => sum + s.total, 0);
+    if (total <= 0) continue;
+    const pct = Math.round((correct / total) * 100);
+    domainsWithData += 1;
+    totalWeight += d.weight;
+    weightedSum += pct * d.weight;
+  }
+
+  if (domainsWithData === 0) return null;
+
+  const weightedAccuracy = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+  const probability = Math.min(1, Math.max(0, 1 / (1 + Math.exp(-0.12 * (weightedAccuracy - 75)))));
+
+  return { probability, weightedAccuracy, domainsWithData };
 }
 
 // ── Adaptive next-question selection ──────────────────────────────────────────

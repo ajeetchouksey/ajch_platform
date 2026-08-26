@@ -11,6 +11,31 @@ workers_dev     = true
 binding = "GA4_CACHE"
 id      = "56f523216ef14f57bff29b1029426527"
 
+# ── D1 database — persistent daily analytics history ─────────────────────────
+# Independent of GA4's own retention window and the KV cache's 15-min TTL —
+# populated by a daily Cron Trigger (below) plus a one-time /api/ga/backfill
+# call, read by GET /api/ga/history. See workers/schema-analytics.sql.
+# One-time setup:
+#   1. wrangler d1 create aarya-analytics --config wrangler.ga4.toml
+#   2. Paste the returned database_id below.
+#   3. wrangler d1 execute aarya-analytics --file=workers/schema-analytics.sql --config wrangler.ga4.toml (--local for dev, --remote for prod)
+[[d1_databases]]
+binding       = "ANALYTICS_DB"
+database_name = "aarya-analytics"
+database_id   = "d34f9b7a-374f-4e0c-89e7-a202b4966286"
+
+# ── Cron Trigger — daily snapshot of the last 3 days into ANALYTICS_DB ───────
+# 3 days (not just yesterday) because GA4 data can still shift for ~48h after
+# a day ends; re-snapshotting self-heals via the table's ON CONFLICT upsert.
+# Time chosen to run well after GA4's own processing window for the prior day.
+[triggers]
+crons = ["15 3 * * *"]
+
+# ── OAuth client ID — not secret, safe to commit (paired with the
+# GOOGLE_CLIENT_SECRET secret below) ──────────────────────────────────────────
+[vars]
+GOOGLE_CLIENT_ID = "939308613423-4iu2mv9tapb7tfekrpl9c8fichbo85rb.apps.googleusercontent.com"
+
 # ── Secrets — set via CLI, never commit values ────────────────────────────────
 #
 # Option A — Service Account (requires GCP billing):
@@ -35,3 +60,12 @@ id      = "56f523216ef14f57bff29b1029426527"
 #
 # ── Deploy ────────────────────────────────────────────────────────────────────
 #   wrangler deploy --config wrangler.ga4.toml
+#
+# ── One-time backfill (after deploy, once GA4 is connected) ──────────────────
+# From the browser, signed in as the owner:
+#   fetch(`${PROXY_URL}/api/ga/backfill`, { method: 'POST',
+#     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${githubToken}` },
+#     body: JSON.stringify({ startDate: '2026-05-01', endDate: '<today>' }) })
+# Check the response's `earliestDateReturned` against the requested
+# `startDate` — GA4's account-level data retention setting can silently
+# truncate how far back a report actually returns data.

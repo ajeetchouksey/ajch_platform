@@ -40,6 +40,11 @@ const VERTICALS = {
     entryAgents: ['curriculum-engineer', 'assessment-engineer', 'docs-engineer', 'scenario-engineer'],
     pathPrefix: 'skillup',
   },
+  usecases: {
+    repo: 'ajeetchouksey/ajch_ai_usecases',
+    entryAgents: ['usecase-lead', 'usecase-writer', 'usecase-publisher', 'appsec-engineer'],
+    pathPrefix: 'usecases',
+  },
 };
 
 const SKILL_REF_RE = /\.claude\/skills\/([a-z0-9-]+)\/SKILL\.md/g;

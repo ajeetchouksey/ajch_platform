@@ -28,9 +28,7 @@ The following files are **exclusively owned** by specialist agents. The Staff En
 | `.github/CHANGELOG.md` | **SRE** | Any entry (Unreleased or versioned) → route to SRE |
 | `.github/workflows/*.yml` | **SRE** | Any workflow change → route to SRE |
 | `src/components/ui/*.tsx` | **Design Systems Engineer** | Any primitive change → route to DSE |
-| `public/content/blog/*.md` + `index.json` | **Release Engineer** | Any blog publish → route to Release Engineer |
-| `public/content/skillup/*/questions/**` | **Assessment Engineer** | Any MCQ write → route to Assessment Engineer |
-| `public/content/skillup/*/notes/**` | **Docs Engineer** | Any notes write → route to Docs Engineer |
+| Any promoted vertical's `contentRoot` (see `.claude/vertical-registry.json`) | That vertical's **Publisher** (or specialist, for a loose-2-role vertical) | Any content write for a registered vertical → route to that vertical's Lead agent, never write it here. Resolve the target path from the registry, not from memory — never a vertical's `staleLocalPath` (e.g. old `public/content/{vertical}/` locations in this repo, all removed in the vertical-split migration) |
 
 **Violation of these boundaries is a workflow breach.** If you catch yourself about to write to one of these files, STOP — call the owning agent instead.
 
@@ -66,6 +64,7 @@ Read-only tasks (questions, explanations, searches) skip the security gate.
 |-------|-----------------|--------|
 | **Platform Architect** | layout, navigation, routing, sidebar, header, footer, component, page, feature module, design, responsive, deploy | Delegates routing → Platform Engineer, UX → Design Systems Engineer, components → Frontend Engineer, lib/types/scripts → Platform Dev Expert, tests → Test Engineer |
 | **Content Lead** | blog, article, post, write about, publish, draft, SEO, content pipeline | Blog Commander: delegates write → Tech Writer → Security Gate → Release Engineer |
+| **Usecase Lead** | use case, usecase, enterprise AI scenario, industry vertical, catalog gap | UseCase Commander: delegates write → Usecase Writer → Security Gate → Usecase Publisher — owns `ajch_ai_usecases`'s `content/usecases/**` cross-repo. Small batches only (2-4 per run) |
 | **Curriculum Engineer** | question, quiz content, exam, notes, domain, scenario, study material, add from URL, **add exam**, **new certification**, **new learning topic**, **learning** | Exam Commander: delegates MCQs → Assessment Engineer, notes → Docs Engineer |
 | **Interview Prep Engineer** | job description, JD, interview prep, role prep, interview questions, competency, interview pack, behavioural questions, system design questions | Interview Commander: parses JDs, maps to competency taxonomy, generates Q&A packs — owns `public/content/interviews/**` |
 | **Product Manager** | roadmap, backlog, user story, epic, sprint, iteration, milestone, prioritize, RICE, release notes, changelog, stakeholder update, content calendar, **what should we build**, **what's next**, **project board**, feature request, acceptance criteria, planning | Product decisions, backlog management, GitHub Project board operations, content roadmap |
