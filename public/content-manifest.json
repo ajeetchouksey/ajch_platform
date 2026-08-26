@@ -16,5 +16,12 @@
     "sha": "3bb7722266ea9ec71bb8058a4297c3953e74afc7",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
     "promotedAt": "2026-08-25T06:38:44.852Z"
+  },
+  "${VERTICAL}": {
+    "repo": "${REPO}",
+    "sha": "${SHA}",
+    "baseUrl": "${BASE_URL}",
+    "schemaVersion": 1,
+    "promotedAt": "2026-08-26T08:24:51Z"
   }
 }
