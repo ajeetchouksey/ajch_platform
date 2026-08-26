@@ -1,7 +1,7 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
 import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, Cpu, GraduationCap, Newspaper, Wrench, Users, Search, GitPullRequest, CalendarDays, ChevronDown, User, Briefcase, Building2, Activity, Compass, Lock } from 'lucide-react';
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
-import { GithubLogin } from './GithubLogin';
+import { LoginWidget } from './LoginWidget';
 import { StarRepo } from './StarRepo';
 import SearchModal from './SearchModal';
 import { Breadcrumb, Badge, VersionTag, type BreadcrumbItem } from './ui';
@@ -319,7 +319,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               <kbd className="hidden sm:block text-[10px] border border-slate-700 rounded px-1 py-0.5 text-slate-500">⌘K</kbd>
             </button>
             <StarRepo />
-            <GithubLogin />
+            <LoginWidget />
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />

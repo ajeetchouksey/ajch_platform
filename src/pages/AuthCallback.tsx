@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/lib/auth';
+import { useAuth, type AuthProviderId } from '@/lib/auth';
 
 /**
- * /auth/callback — landing page for the GitHub OAuth web flow.
+ * /auth/callback — landing page for the GitHub/Google OAuth web flows.
  *
- * GitHub redirects here after the Cloudflare Worker exchanges the one-time
+ * The provider redirects here after the Cloudflare Worker exchanges the one-time
  * `code` for an access token. The Worker passes the token via the URL
- * fragment (#token=...) so it is never sent to the Pages server.
+ * fragment (#token=...&provider=...) so it is never sent to the Pages server.
  *
  * Security:
  *  - state param verified against sessionStorage nonce (CSRF protection)
@@ -29,9 +29,10 @@ export default function AuthCallback() {
     const token = params.get('token');
     const state = params.get('state');
     const errParam = params.get('error');
+    const provider = (params.get('provider') as AuthProviderId | null) ?? 'github';
 
     if (errParam) {
-      setError(errParam === 'access_denied' ? 'You declined the GitHub authorization.' : `OAuth error: ${errParam}`); // eslint-disable-line react-hooks/set-state-in-effect
+      setError(errParam === 'access_denied' ? 'You declined the authorization request.' : `OAuth error: ${errParam}`); // eslint-disable-line react-hooks/set-state-in-effect
       return;
     }
 
@@ -52,7 +53,7 @@ export default function AuthCallback() {
     sessionStorage.removeItem('oauth_return');
 
     // Exchange token for user info and store in auth context
-    loginWithToken(token).then((ok) => {
+    loginWithToken(token, provider).then((ok) => {
       if (ok) {
         navigate(returnPath, { replace: true });
       } else {

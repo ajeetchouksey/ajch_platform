@@ -10,7 +10,7 @@ import { getAllAttempts } from './adaptive-quiz';
 import { getAllPrepLoops } from './prep-loop';
 import { getAllExamStats, type ExamStats } from './exam-stats';
 
-interface ProgressData {
+export interface ProgressData {
   quizHistory: Array<{ date: string; skillId?: string; domain: string; score: number; total: number }>;
   domainProgress: Record<string, { correct: number; total: number }>;
   lastSync: string;

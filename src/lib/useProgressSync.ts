@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useAuth } from './auth';
 import { loadProgress, saveProgress } from './gist-sync';
+import { loadProfileProgress, saveProfileProgress } from './profile-sync';
 import { getSessions, saveSessions, getNotesSeen, setNotesSeen } from './storage';
 import { loadPlan, savePlan } from './plan-generator';
 
@@ -54,12 +55,14 @@ export function addQuizResult(examId: string, domain: string, score: number, tot
 }
 
 export function useProgressSync() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const isRemoteProfile = user?.provider === 'google';
 
-  // Sync from Gist on login
+  // Sync from Gist (GitHub) or the D1 profile store (Google) on login
   useEffect(() => {
     if (!token) return;
-    loadProgress(token).then((remote) => {
+    const pull = isRemoteProfile ? loadProfileProgress(token) : loadProgress(token);
+    pull.then((remote) => {
       if (!remote) return;
       let didWrite = false;
 
@@ -106,16 +109,18 @@ export function useProgressSync() {
         window.dispatchEvent(new Event('progress-updated'));
       }
     });
-  }, [token]);
+  }, [token, isRemoteProfile]);
 
-  // Push local to Gist; on success, stamp lastSync locally so the UI reflects it
+  // Push local progress to the provider's backend; on success, stamp lastSync locally
+  // so the UI reflects it. Name kept as `syncToGist` — call sites don't need to know
+  // which backend a given provider uses.
   const syncToGist = useCallback(async () => {
     if (!token) return false;
     const local = getLocalProgress();
-    const ok = await saveProgress(token, local);
+    const ok = isRemoteProfile ? await saveProfileProgress(token, local) : await saveProgress(token, local);
     if (ok) setLocalProgress({ ...local, lastSync: new Date().toISOString() });
     return ok;
-  }, [token]);
+  }, [token, isRemoteProfile]);
 
   return { syncToGist };
 }

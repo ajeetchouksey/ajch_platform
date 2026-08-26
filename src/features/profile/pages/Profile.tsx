@@ -109,17 +109,19 @@ export default function Profile() {
                   Maintainer
                 </span>
               </div>
-              <p className="text-sm text-slate-400 mb-3">@{user.login}</p>
+              <p className="text-sm text-slate-400 mb-3">{user.provider === 'github' ? `@${user.login}` : user.email ?? user.login}</p>
               <div className="flex flex-wrap items-center gap-3">
-                <a
-                  href={user.html_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-violet-300 transition-colors"
-                >
-                  <ExternalLink size={12} />
-                  GitHub Profile
-                </a>
+                {user.provider === 'github' && user.html_url && (
+                  <a
+                    href={user.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-violet-300 transition-colors"
+                  >
+                    <ExternalLink size={12} />
+                    GitHub Profile
+                  </a>
+                )}
                 <button
                   onClick={handleSync}
                   disabled={syncStatus === 'syncing'}
@@ -150,7 +152,7 @@ export default function Profile() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white">Guest — stats saved locally</p>
-              <p className="text-xs text-slate-400 mt-0.5">Sign in with GitHub to back up your progress to a private Gist and sync across devices.</p>
+              <p className="text-xs text-slate-400 mt-0.5">Sign in with GitHub or Google to back up your progress and sync across devices.</p>
             </div>
             <Link
               to="/"

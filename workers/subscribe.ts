@@ -63,6 +63,23 @@ export interface Env {
   GH_CLIENT_ID?: string;
   /** GitHub OAuth App client secret — NEVER expose client-side. Set via `wrangler secret put GH_CLIENT_SECRET`. */
   GH_CLIENT_SECRET?: string;
+  /**
+   * Google OAuth Client ID for user login (/oauth/google/callback) — distinct from
+   * ga4-proxy.ts's own GOOGLE_CLIENT_ID, which is a separate Worker/wrangler config
+   * doing owner-only server-side GA4 API access, not user login.
+   */
+  GOOGLE_CLIENT_ID?: string;
+  /** Google OAuth Client Secret for user login. NEVER expose client-side. */
+  GOOGLE_CLIENT_SECRET?: string;
+  /**
+   * HMAC signing key for Google session tokens — minted once at OAuth callback
+   * time (embedding the verified profile) so /profile/* calls never need to
+   * re-verify against Google's own APIs. Random 32+ byte string.
+   * Microsoft login is deferred (no Entra app registered yet) — this key is
+   * written to be provider-agnostic so adding 'microsoft' back later needs no
+   * changes here, just a new AUTHORIZE_CONFIG entry + callback handler.
+   */
+  SESSION_SIGNING_KEY?: string;
 }
 
 interface PublicStats {
@@ -115,6 +132,17 @@ function b64urlBytes(buf: Uint8Array): string {
     .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
+/** Reverse of b64url()/b64urlBytes() — restores standard base64 padding before atob(). */
+function b64urlDecodeToString(s: string): string {
+  const b64 = s.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
+  return atob(padded);
+}
+
+function b64urlDecodeToBytes(s: string): Uint8Array {
+  return Uint8Array.from(b64urlDecodeToString(s), (c) => c.charCodeAt(0));
+}
+
 /** SHA-256 of a string, hex-encoded. Used to build short, fixed-length KV cache keys. */
 async function sha256Hex(s: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
@@ -141,6 +169,71 @@ async function signGitHubAppJWT(appId: string, pemKey: string): Promise<string> 
     new TextEncoder().encode(signingInput),
   );
   return `${signingInput}.${b64urlBytes(new Uint8Array(sig))}`;
+}
+
+// ── Session token (HMAC-SHA256) — Google login sessions ──────────────────────
+// Minted once at the OAuth callback (after verifying identity against the
+// provider's own userinfo endpoint), embedding the profile directly so
+// neither the client nor /profile/* calls ever need to re-contact Google.
+// Format mirrors a JWT: base64url(header).base64url(payload).base64url(signature).
+// (Microsoft login is deferred — 'provider' stays a literal union of one so
+// adding 'microsoft' back later is a one-line type change.)
+
+interface SessionPayload {
+  provider: 'google';
+  id: string;
+  name: string | null;
+  email?: string;
+  avatar_url: string;
+  exp: number; // unix seconds
+}
+
+async function hmacKey(secret: string): Promise<CryptoKey> {
+  return crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign', 'verify'],
+  );
+}
+
+async function signSessionToken(payload: SessionPayload, secret: string): Promise<string> {
+  const header = b64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const body = b64url(JSON.stringify(payload));
+  const signingInput = `${header}.${body}`;
+  const key = await hmacKey(secret);
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(signingInput));
+  return `${signingInput}.${b64urlBytes(new Uint8Array(sig))}`;
+}
+
+/** Verifies signature + expiry. Returns the embedded profile, or null if invalid/expired/malformed. */
+async function verifySessionToken(token: string, secret: string): Promise<SessionPayload | null> {
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  const [header, body, sig] = parts;
+  try {
+    const key = await hmacKey(secret);
+    const valid = await crypto.subtle.verify(
+      'HMAC', key, b64urlDecodeToBytes(sig) as BufferSource,
+      new TextEncoder().encode(`${header}.${body}`),
+    );
+    if (!valid) return null;
+    const payload = JSON.parse(b64urlDecodeToString(body)) as SessionPayload;
+    if (typeof payload.exp !== 'number' || payload.exp * 1000 < Date.now()) return null;
+    if (payload.provider !== 'google') return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+/** Extracts and verifies the Bearer session token from an /profile/* request. */
+async function authenticateProfileRequest(request: Request, env: Env): Promise<SessionPayload | null> {
+  if (!env.SESSION_SIGNING_KEY) return null;
+  const match = /^Bearer (.+)$/.exec(request.headers.get('Authorization') ?? '');
+  if (!match) return null;
+  return verifySessionToken(match[1], env.SESSION_SIGNING_KEY);
 }
 
 async function getInstallationToken(env: Env): Promise<string> {
@@ -248,6 +341,12 @@ const RATE_LIMIT_POLICIES = {
     windowMs: 7 * 24 * 60 * 60 * 1000,
     max: 1,
     ttlSeconds: 7 * 24 * 60 * 60,
+  },
+  profile: {
+    keyPrefix: 'pr',
+    windowMs: 60 * 1000,
+    max: 10,
+    ttlSeconds: 120,
   },
 } satisfies Record<string, WindowRateLimitOptions>;
 
@@ -518,6 +617,125 @@ async function handleOAuthCallback(request: Request, env: Env): Promise<Response
   }
 }
 
+// ── Google OAuth web flow callback ───────────────────────────────────────────
+// Same shape as handleOAuthCallback above (GitHub), except there is no
+// per-user Gist to fall back on: after exchanging the code and fetching the
+// verified profile from the provider, we mint our own signed session token
+// (see signSessionToken above) instead of forwarding Google's own access
+// token — it expires in ~1hr, which would otherwise silently break
+// background sync. (Microsoft login is deferred — no Entra app registered
+// yet; add a handleOAuthMicrosoftCallback here + a route below when it is.)
+
+const OAUTH_STATE_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SESSION_TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
+
+async function handleOAuthGoogleCallback(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  const code = url.searchParams.get('code') ?? '';
+  const state = url.searchParams.get('state') ?? '';
+
+  if (!code || code.length > 512 || !state || !OAUTH_STATE_RE.test(state)) {
+    return Response.redirect(`https://aaryaai.dev/auth/callback#error=invalid_request&state=${encodeURIComponent(state)}`, 302);
+  }
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !env.SESSION_SIGNING_KEY) {
+    return Response.redirect(`https://aaryaai.dev/auth/callback#error=server_misconfigured&state=${encodeURIComponent(state)}`, 302);
+  }
+
+  try {
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: env.GOOGLE_CLIENT_ID,
+        client_secret: env.GOOGLE_CLIENT_SECRET,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: `${url.origin}/oauth/google/callback`,
+      }),
+    });
+    const tokenData = await tokenRes.json() as Record<string, unknown>;
+    if (typeof tokenData.access_token !== 'string') {
+      return Response.redirect(`https://aaryaai.dev/auth/callback#error=access_denied&state=${encodeURIComponent(state)}`, 302);
+    }
+
+    const userRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    if (!userRes.ok) {
+      return Response.redirect(`https://aaryaai.dev/auth/callback#error=profile_fetch_failed&state=${encodeURIComponent(state)}`, 302);
+    }
+    const profile = await userRes.json() as { sub: string; name?: string; email?: string; picture?: string };
+
+    const sessionToken = await signSessionToken({
+      provider: 'google',
+      id: profile.sub,
+      name: profile.name ?? null,
+      email: profile.email,
+      avatar_url: profile.picture ?? '',
+      exp: Math.floor(Date.now() / 1000) + SESSION_TOKEN_TTL_SECONDS,
+    }, env.SESSION_SIGNING_KEY);
+
+    return Response.redirect(`https://aaryaai.dev/auth/callback#token=${encodeURIComponent(sessionToken)}&state=${encodeURIComponent(state)}&provider=google`, 302);
+  } catch {
+    return Response.redirect(`https://aaryaai.dev/auth/callback#error=server_error&state=${encodeURIComponent(state)}`, 302);
+  }
+}
+
+// ── /profile/load, /profile/save — D1-backed progress store for Google logins ──
+// GitHub logins never hit these; they sync via a private Gist instead (gist-sync.ts).
+
+async function handleProfileLoad(request: Request, env: Env, origin: string): Promise<Response> {
+  const identity = await authenticateProfileRequest(request, env);
+  if (!identity) return json({ error: 'unauthorized' }, 401, origin);
+
+  try {
+    const row = await env.DB.prepare(
+      'SELECT progress FROM user_profiles WHERE provider = ?1 AND provider_id = ?2',
+    ).bind(identity.provider, identity.id).first<{ progress: string }>();
+    return json({ progress: row ? JSON.parse(row.progress) : null }, 200, origin);
+  } catch (err) {
+    console.error('profile-load-failed:', (err as Error).message);
+    return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  }
+}
+
+const MAX_PROFILE_PAYLOAD_BYTES = 100 * 1024;
+
+async function handleProfileSave(request: Request, env: Env, origin: string): Promise<Response> {
+  const identity = await authenticateProfileRequest(request, env);
+  if (!identity) return json({ error: 'unauthorized' }, 401, origin);
+
+  if (!(await checkWindowedRateLimit(env, identity.id, RATE_LIMIT_POLICIES.profile, identity.provider))) {
+    return json({ error: 'rate_limited' }, 429, origin);
+  }
+
+  let bodyText: string;
+  try {
+    bodyText = await request.text();
+  } catch {
+    return json({ error: 'Invalid body' }, 400, origin);
+  }
+  if (bodyText.length > MAX_PROFILE_PAYLOAD_BYTES) {
+    return json({ error: 'Payload too large' }, 413, origin);
+  }
+  try {
+    JSON.parse(bodyText);
+  } catch {
+    return json({ error: 'Invalid JSON' }, 400, origin);
+  }
+
+  try {
+    await env.DB.prepare(
+      `INSERT INTO user_profiles (provider, provider_id, progress, updated_at) VALUES (?1, ?2, ?3, ?4)
+       ON CONFLICT(provider, provider_id) DO UPDATE SET progress = excluded.progress, updated_at = excluded.updated_at`,
+    ).bind(identity.provider, identity.id, bodyText, new Date().toISOString()).run();
+    return json({ status: 'ok' }, 200, origin);
+  } catch (err) {
+    console.error('profile-save-failed:', (err as Error).message);
+    return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  }
+}
+
 // ── GitHub OAuth Device Flow proxy ───────────────────────────────────────────
 // Proxies browser → Worker → GitHub to bypass browser CORS restrictions.
 // No client secret is transmitted — Device Flow only needs client_id.
@@ -719,10 +937,14 @@ export default {
       return new Response(null, { status: 204, headers: corsHeadersFor(origin) });
     }
 
-    // OAuth callback — GET request from GitHub redirect; no Origin header from the browser redirect
+    // OAuth callbacks — GET requests from the provider's own redirect; no Origin
+    // header on these since they're top-level browser navigations, not fetch/XHR.
     const { pathname } = new URL(request.url);
     if (pathname === '/oauth/callback' && request.method === 'GET') {
       return handleOAuthCallback(request, env);
+    }
+    if (pathname === '/oauth/google/callback' && request.method === 'GET') {
+      return handleOAuthGoogleCallback(request, env);
     }
 
     // Signal total — simple GET, no preflight; open to allowed origins only
@@ -746,6 +968,8 @@ export default {
     if (pathname === '/oauth/device-code') return handleOAuthDeviceCode(request, origin);
     if (pathname === '/oauth/token') return handleOAuthToken(request, origin);
     if (pathname === '/api/signal') return handleSignalPost(request, env, origin);
+    if (pathname === '/profile/load') return handleProfileLoad(request, env, origin);
+    if (pathname === '/profile/save') return handleProfileSave(request, env, origin);
     if (pathname !== '/subscribe') return new Response('Not Found', { status: 404 });
 
     // Per-IP rate limiting (5 req / 15 min)

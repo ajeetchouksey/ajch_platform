@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GitPullRequest, ExternalLink, Info, ChevronRight, GraduationCap, Newspaper, Wrench, Lock, BookMarked, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { GithubLogin } from '@/components/GithubLogin';
+import { LoginWidget } from '@/components/LoginWidget';
 
 // ── Static exam + domain whitelist ────────────────────────────────────────
 // Hardcoded — never derived from URL params or user input (AppSec constraint)
@@ -451,10 +451,10 @@ export default function Contribute() {
           </div>
           <div>
             <p className="text-white font-semibold text-lg">Sign in to contribute</p>
-            <p className="text-slate-400 text-sm mt-1 max-w-sm mx-auto">Submit exam questions, write blog posts, or propose tools. Your GitHub identity is used to credit contributions.</p>
+            <p className="text-slate-400 text-sm mt-1 max-w-sm mx-auto">Submit exam questions, write blog posts, or propose tools. Your name is used to credit contributions.</p>
           </div>
           <div className="flex justify-center">
-            <GithubLogin />
+            <LoginWidget />
           </div>
         </div>
       </div>
