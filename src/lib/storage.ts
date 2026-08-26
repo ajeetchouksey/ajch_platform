@@ -81,3 +81,27 @@ export function setNotesSeen(data: Record<string, string>): void {
   localStorage.setItem(NOTES_SEEN_KEY, JSON.stringify(data));
 }
 
+// ── Cross-account isolation ───────────────────────────────────────────────────
+// localStorage is shared by whichever account happens to be signed in on this
+// browser — it isn't scoped per-user on its own. useProgressSync calls this
+// when it detects the signed-in identity changed from the last one it saw, so
+// a previous account's plans/scores/streaks don't leak into the next login.
+// Exact/prefix keys mirror exactly what gist-sync.ts and profile-sync.ts treat
+// as "this user's progress" (sessions, notes, study plans, adaptive attempts,
+// prep loops, exam stats, the aggregated legacy blob) — deliberately excludes
+// UI-only preferences (preferred AI tool, focus timer, cached AI chat answers)
+// since those aren't privacy-sensitive per-account data.
+const PROGRESS_KEY_PREFIXES = ['study_plan_', 'study_daily_mins_', 'aarya_attempts_', 'aarya_preploop_'];
+const PROGRESS_EXACT_KEYS = [SESSIONS_KEY, NOTES_SEEN_KEY, 'aarya_progress', 'ccaf_progress', 'aarya_exam_stats'];
+
+export function clearAllProgressData(): void {
+  const toRemove: string[] = [...PROGRESS_EXACT_KEYS];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && PROGRESS_KEY_PREFIXES.some((prefix) => key.startsWith(prefix))) {
+      toRemove.push(key);
+    }
+  }
+  toRemove.forEach((key) => localStorage.removeItem(key));
+}
+

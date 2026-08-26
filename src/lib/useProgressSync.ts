@@ -2,8 +2,14 @@ import { useEffect, useCallback } from 'react';
 import { useAuth } from './auth';
 import { loadProgress, saveProgress } from './gist-sync';
 import { loadProfileProgress, saveProfileProgress } from './profile-sync';
-import { getSessions, saveSessions, getNotesSeen, setNotesSeen } from './storage';
+import { getSessions, saveSessions, getNotesSeen, setNotesSeen, clearAllProgressData } from './storage';
 import { loadPlan, savePlan } from './plan-generator';
+
+// localStorage isn't scoped per-user — it's shared by whichever account is
+// currently signed in on this browser. This tracks which identity last owned
+// it, so switching accounts (GitHub -> Google or vice versa) doesn't leave
+// the previous account's plans/scores visible under the new one.
+const PROGRESS_OWNER_KEY = 'aarya_progress_owner';
 
 const LOCAL_PROGRESS_KEY = 'aarya_progress';
 const LEGACY_PROGRESS_KEY = 'ccaf_progress';
@@ -57,10 +63,22 @@ export function addQuizResult(examId: string, domain: string, score: number, tot
 export function useProgressSync() {
   const { token, user } = useAuth();
   const isRemoteProfile = user?.provider === 'google';
+  // Stable string, not the user object — keeps effect deps free of referential churn.
+  const identity = user ? `${user.provider}:${user.email ?? user.login}` : null;
 
   // Sync from Gist (GitHub) or the D1 profile store (Google) on login
   useEffect(() => {
-    if (!token) return;
+    if (!token || !identity) return;
+
+    // Different account than whoever last used this browser — wipe local
+    // progress before pulling, so it never leaks into the new account's view.
+    const prevOwner = localStorage.getItem(PROGRESS_OWNER_KEY);
+    if (prevOwner && prevOwner !== identity) {
+      clearAllProgressData();
+      window.dispatchEvent(new Event('progress-updated'));
+    }
+    localStorage.setItem(PROGRESS_OWNER_KEY, identity);
+
     const pull = isRemoteProfile ? loadProfileProgress(token) : loadProgress(token);
     pull.then((remote) => {
       if (!remote) return;
@@ -109,7 +127,7 @@ export function useProgressSync() {
         window.dispatchEvent(new Event('progress-updated'));
       }
     });
-  }, [token, isRemoteProfile]);
+  }, [token, isRemoteProfile, identity]);
 
   // Push local progress to the provider's backend; on success, stamp lastSync locally
   // so the UI reflects it. Name kept as `syncToGist` — call sites don't need to know
