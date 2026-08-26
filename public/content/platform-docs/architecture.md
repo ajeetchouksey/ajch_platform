@@ -2,6 +2,8 @@
 
 Aarya — My AI Learning Hub is a fully static, client-side SPA built with React 19, TypeScript (strict mode), and Vite. There is no server-side rendering and no backend API. All content is served as static files from `public/content/`.
 
+![Aarya enterprise architecture — content verticals, presentation layer, Cloudflare edge/backend, data layer, AI agent system, CI/CD, and external integrations](/content/platform-docs/enterprise-architecture.png)
+
 ## Tech Stack
 
 | Layer | Technology |
