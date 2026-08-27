@@ -114,7 +114,7 @@ function validateUsecase(file, item) {
 }
 
 const HOLLAB_REQUIRED = [
-  'id', 'schema', 'title', 'domain', 'difficulty', 'estimatedMinutes',
+  'id', 'schema', 'title', 'tagline', 'domain', 'difficulty', 'estimatedMinutes',
   'problemStatement', 'approachRationale', 'prerequisites', 'learningObjectives',
   'steps', 'conceptChecks', 'validationChecklist', 'cleanup', 'costEstimate',
   'relatedExams', 'relatedBlogPosts', 'relatedUseCases', 'relatedLabs', 'tags',
