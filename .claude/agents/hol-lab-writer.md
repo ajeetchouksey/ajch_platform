@@ -28,6 +28,7 @@ Return exactly one JSON object matching this shape (see an existing lab file for
   "id": "kebab-case-slug",
   "schema": "hol-lab@1",
   "title": "...",
+  "tagline": "one short, punchy sentence for the catalog card — distinct from problemStatement, not a restatement of the title",
   "domain": "must match an existing domains[].id in index.json",
   "difficulty": "beginner | intermediate | advanced",
   "estimatedMinutes": N,

@@ -545,6 +545,7 @@ export interface HolLab {
   id: string;
   schema: string; // "hol-lab@1"
   title: string;
+  tagline: string; // one-sentence hook for catalog cards, distinct from the full problemStatement
   domain: string; // matches HolLabsIndex.domains[].id
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   estimatedMinutes: number;
@@ -574,6 +575,7 @@ export interface HolLab {
 export interface HolLabSummary {
   id: string;
   title: string;
+  tagline: string;
   domain: string;
   difficulty: HolLab['difficulty'];
   estimatedMinutes: number;
