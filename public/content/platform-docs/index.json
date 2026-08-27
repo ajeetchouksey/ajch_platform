@@ -1,6 +1,6 @@
 {
   "schema": "1.0",
-  "generated": "2026-07-23",
+  "generated": "2026-08-27",
   "docs": [
     {
       "id": "architecture",
@@ -41,6 +41,14 @@
       "file": "content/platform-docs/subscription-architecture.md",
       "icon": "Users",
       "category": "infrastructure"
+    },
+    {
+      "id": "hol-labs-content-guide",
+      "title": "Creating HOL Labs Content",
+      "description": "Step-by-step: draft a lab, update the index, open a PR, get it approved, and publish it live.",
+      "file": "content/platform-docs/hol-labs-content-guide.md",
+      "icon": "FileText",
+      "category": "content"
     }
   ]
 }
