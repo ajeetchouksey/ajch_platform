@@ -37,7 +37,7 @@ if (!vertical || !repo || !sha) {
   fail(usage);
 }
 
-if (!/^blog|skillup|usecases|hol-labs|interviews|pathways|platform-docs$/.test(vertical)) {
+if (!/^(?:blog|skillup|usecases|hol-labs|interviews|pathways|platform-docs)$/.test(vertical)) {
   fail(`Unsupported vertical: ${vertical}. Expected one of: blog, skillup, usecases, hol-labs, interviews, pathways, platform-docs`);
 }
 
