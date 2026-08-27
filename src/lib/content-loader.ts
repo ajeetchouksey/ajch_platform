@@ -551,6 +551,7 @@ export interface HolLab {
   estimatedMinutes: number;
   problemStatement: string;
   approachRationale: string;
+  mermaidDiagram?: string; // optional flow diagram — include when the lab's flow genuinely benefits from a picture
   prerequisites: string[];
   learningObjectives: string[];
   steps: HolLabStep[];

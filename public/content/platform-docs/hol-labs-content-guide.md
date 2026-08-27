@@ -48,6 +48,7 @@ Useful for a first draft you want full control over, or when adapting the steps 
   "estimatedMinutes": 45,
   "problemStatement": "the real, grounded problem this lab solves — never invented",
   "approachRationale": "why this specific tool/approach, naming a real alternative you rejected",
+  "mermaidDiagram": "optional — a flowchart, only when the lab genuinely has more than one path to show at a glance",
   "prerequisites": ["exact, checkable items — not \"basic Azure knowledge\""],
   "learningObjectives": ["verb + concrete outcome, 3-5 bullets"],
   "steps": [
@@ -74,7 +75,7 @@ Useful for a first draft you want full control over, or when adapting the steps 
 }
 ```
 
-Two rules that matter more than the schema itself: **every step needs a real `whyItMatters`** (a lab that's just click-here-click-there fails the whole point of this vertical), and **every cross-link must be genuine** — check the target actually exists (grep the skillup catalog, blog index, usecases index, or this repo's own `index.json`) before writing it. An honestly empty `relatedX` array beats a fabricated link every time.
+Three rules that matter more than the schema itself: **every step needs a real `whyItMatters`** (a lab that's just click-here-click-there fails the whole point of this vertical); **`mermaidDiagram` is optional, include it only when it earns its place** — a lab with a genuine branch or before/after comparison benefits from a picture, a single linear deploy-and-call sequence usually doesn't; and **every cross-link must be genuine** — check the target actually exists (grep the skillup catalog, blog index, usecases index, or this repo's own `index.json`) before writing it. An honestly empty `relatedX` array beats a fabricated link every time.
 
 **2. Update `index.json`.** Three things, every time you add a lab:
 - Increment `totalCount` and the matching `domains[].count`.

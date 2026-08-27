@@ -80,7 +80,7 @@ One `###` subsection per registered vertical (see `.claude/vertical-registry.jso
 - [ ] `index.json`'s `totalCount` and the relevant `verticals[].count` are incremented to match the new file(s)
 
 ### HOL Labs
-- [ ] Lab JSON matches: `{ id, schema, title, tagline, domain, difficulty, estimatedMinutes, problemStatement, approachRationale, prerequisites[], learningObjectives[], steps[] (each with order, title, instructions, whyItMatters, expectedResult), conceptChecks[], validationChecklist[], cleanup[], costEstimate{tier,monthlyEstimateUSD,freeTierNotes}, relatedExams[], relatedBlogPosts[], relatedUseCases[], relatedLabs[], tags[] }`
+- [ ] Lab JSON matches: `{ id, schema, title, tagline, domain, difficulty, estimatedMinutes, problemStatement, approachRationale, mermaidDiagram (optional), prerequisites[], learningObjectives[], steps[] (each with order, title, instructions, whyItMatters, expectedResult), conceptChecks[], validationChecklist[], cleanup[], costEstimate{tier,monthlyEstimateUSD,freeTierNotes}, relatedExams[], relatedBlogPosts[], relatedUseCases[], relatedLabs[], tags[] }`
 - [ ] `domain` matches an existing `index.json` `domains[].id`
 - [ ] Every entry in `steps[]` has a non-empty `whyItMatters` — reject a lab where any step lacks one
 - [ ] `costEstimate.tier` is present and, if `"paid"`, `prerequisites` also states the cost upfront

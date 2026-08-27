@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -13,7 +13,9 @@ import {
   Building2,
   ChevronRight,
   Clock,
+  GitGraph,
 } from 'lucide-react';
+const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import { loadHolLabById, type HolLab } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import { GlassCard, Badge, SectionHeader } from '@/components/ui';
@@ -120,6 +122,28 @@ export default function HolLabDetail() {
               <p className="text-xs text-slate-400 leading-relaxed">{lab.costEstimate.freeTierNotes}</p>
             </div>
           </div>
+
+          {/* Flow diagram — optional, only when the lab's flow genuinely benefits from a picture */}
+          {lab.mermaidDiagram && (
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <GitGraph size={14} className="text-violet-400" />
+                Flow
+              </h2>
+              <GlassCard accent="violet" border="border-slate-700/40" className="p-4">
+                <Suspense fallback={
+                  <div className="rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center" style={{ minHeight: '180px' }}>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                      <span className="w-3 h-3 rounded-full border-2 border-violet-600/40 border-t-violet-400 animate-spin" />
+                      Loading diagram…
+                    </div>
+                  </div>
+                }>
+                  <MermaidDiagram chart={lab.mermaidDiagram} />
+                </Suspense>
+              </GlassCard>
+            </div>
+          )}
 
           {/* Prerequisites */}
           <div>
