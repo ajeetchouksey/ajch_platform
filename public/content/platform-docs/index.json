@@ -49,6 +49,30 @@
       "file": "content/platform-docs/hol-labs-content-guide.md",
       "icon": "FileText",
       "category": "content"
+    },
+    {
+      "id": "blog-content-guide",
+      "title": "Writing a Blog Post",
+      "description": "Step-by-step: draft a post, update the manifest, open a PR, get it approved, and publish it live.",
+      "file": "content/platform-docs/blog-content-guide.md",
+      "icon": "FileText",
+      "category": "content"
+    },
+    {
+      "id": "skillup-content-guide",
+      "title": "Creating Skill Up Content",
+      "description": "Step-by-step: draft questions/notes/scenarios, bump content versioning, open a PR, get it approved, and publish live.",
+      "file": "content/platform-docs/skillup-content-guide.md",
+      "icon": "FileText",
+      "category": "content"
+    },
+    {
+      "id": "usecases-content-guide",
+      "title": "Creating Enterprise Use Case Blueprints",
+      "description": "Step-by-step: draft a case, update the index, open a PR, get it approved, and publish it live.",
+      "file": "content/platform-docs/usecases-content-guide.md",
+      "icon": "FileText",
+      "category": "content"
     }
   ]
 }
