@@ -42,6 +42,10 @@ const InterviewQuestion = lazy(() => import('@/features/interview/pages/Intervie
 const UseCasesCatalog = lazy(() => import('@/features/usecases/pages/UseCasesCatalog'));
 const UseCaseDetail = lazy(() => import('@/features/usecases/pages/UseCaseDetail'));
 
+// ── HOL Labs ──────────────────────────────────────────────────────────────────
+const HolLabsCatalog = lazy(() => import('@/features/hol-labs/pages/HolLabsCatalog'));
+const HolLabDetail = lazy(() => import('@/features/hol-labs/pages/HolLabDetail'));
+
 // ── Docs ──────────────────────────────────────────────────────────────────────
 const Docs = lazy(() => import('@/features/docs/pages/Docs'));
 
@@ -133,6 +137,10 @@ export default function AppRoutes() {
       {/* AI Use Cases */}
       <Route path="/usecases" element={<UseCasesCatalog />} />
       <Route path="/usecases/:id" element={<UseCaseDetail />} />
+
+      {/* HOL Labs */}
+      <Route path="/hol-labs" element={<HolLabsCatalog />} />
+      <Route path="/hol-labs/:id" element={<HolLabDetail />} />
 
       {/* Docs */}
       <Route path="/docs" element={<Docs />} />

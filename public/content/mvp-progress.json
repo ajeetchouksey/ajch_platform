@@ -16,7 +16,8 @@
     "speaking": 12,
     "mentoring": 12,
     "ossRepos": 10,
-    "githubStars": 500
+    "githubStars": 500,
+    "holLabs": 20
   },
   "current": {
     "blogs": 65,
@@ -32,7 +33,8 @@
     "speaking": 0,
     "mentoring": 0,
     "ossRepos": 4,
-    "githubStars": 1
+    "githubStars": 1,
+    "holLabs": 1
   },
   "quarters": [
     {

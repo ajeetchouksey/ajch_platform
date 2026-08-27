@@ -497,3 +497,119 @@ export async function loadUseCaseById(id: string): Promise<AnyUseCase | null> {
     null
   );
 }
+
+// ── Generic vertical index loader factory ──────────────────────────────────
+// Extracts the "load index, find by id" pattern otherwise duplicated per
+// vertical (exam registry, interview roles, use cases each hand-roll their
+// own). HOL Labs is the first vertical built directly on this.
+export function createIndexLoader<TIndex, TItem>(
+  indexPath: string,
+  getItems: (index: TIndex) => TItem[],
+  getId: (item: TItem) => string,
+) {
+  async function loadIndex(): Promise<TIndex> {
+    return fetchJSON<TIndex>(indexPath);
+  }
+  async function findById(id: string): Promise<TItem | undefined> {
+    const index = await loadIndex();
+    return getItems(index).find((item) => getId(item) === id);
+  }
+  return { loadIndex, findById };
+}
+
+// ── HOL Labs ─────────────────────────────────────────────────────────────
+export interface HolLabRelatedExam { exam: string; domain: number; why: string; }
+export interface HolLabRelatedBlogPost { slug: string; why: string; }
+export interface HolLabRelatedUseCase { id: string; vertical: string; why: string; }
+export interface HolLabRelatedLab { id: string; relation: 'prerequisite' | 'next' | 'alternative'; why: string; }
+
+export interface HolLabStep {
+  order: number;
+  title: string;
+  instructions: string;
+  whyItMatters: string;
+  code?: { language: string; snippet: string };
+  screenshot?: string;
+  expectedResult: string;
+}
+
+export interface HolLabConceptCheck { afterStep: number; question: string; answer: string; }
+
+export interface HolLabCostEstimate {
+  tier: 'free' | 'low-cost' | 'paid';
+  monthlyEstimateUSD: number;
+  freeTierNotes: string;
+}
+
+export interface HolLab {
+  id: string;
+  schema: string; // "hol-lab@1"
+  title: string;
+  domain: string; // matches HolLabsIndex.domains[].id
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  estimatedMinutes: number;
+  problemStatement: string;
+  approachRationale: string;
+  prerequisites: string[];
+  learningObjectives: string[];
+  steps: HolLabStep[];
+  conceptChecks: HolLabConceptCheck[];
+  validationChecklist: string[];
+  cleanup: string[];
+  costEstimate: HolLabCostEstimate;
+  relatedExams: HolLabRelatedExam[];
+  relatedBlogPosts: HolLabRelatedBlogPost[];
+  relatedUseCases: HolLabRelatedUseCase[];
+  relatedLabs: HolLabRelatedLab[];
+  tags: string[];
+  publishedDate: string;
+  updatedDate: string;
+}
+
+// Lightweight per-lab summary carried in index.json — enough for catalog cards,
+// filtering, and reverse-link lookups (see useRelatedLabs in related-labs.ts)
+// without fetching every lab file. hol-lab-publisher writes both the full lab
+// file AND this flattened summary at publish time, so no N+1 fetch is ever
+// needed to answer "what labs relate to this exam/usecase/blog/lab".
+export interface HolLabSummary {
+  id: string;
+  title: string;
+  domain: string;
+  difficulty: HolLab['difficulty'];
+  estimatedMinutes: number;
+  costTier: HolLabCostEstimate['tier'];
+  tags: string[];
+  relatedExamIds: string[];
+  relatedUseCaseIds: string[];
+  relatedBlogSlugs: string[];
+  relatedLabIds: string[];
+}
+
+export interface HolLabDomainMeta { id: string; label: string; count: number; }
+
+export interface HolLabsIndex {
+  schema: string; // "hol-labs-index@1"
+  domains: HolLabDomainMeta[];
+  labs: HolLabSummary[];
+  featuredIds: string[];
+  totalCount: number;
+}
+
+const HOL_LABS_INDEX_PATH = 'content/hol-labs/index.json';
+const holLabIndexLoader = createIndexLoader<HolLabsIndex, HolLabSummary>(
+  HOL_LABS_INDEX_PATH,
+  (index) => index.labs,
+  (lab) => lab.id,
+);
+
+export async function loadHolLabsIndex(): Promise<HolLabsIndex> {
+  return holLabIndexLoader.loadIndex();
+}
+
+export async function loadHolLabById(id: string): Promise<HolLab> {
+  return fetchJSON<HolLab>(`content/hol-labs/labs/${id}.json`);
+}
+
+export async function findHolLabSummaryById(id: string): Promise<HolLabSummary | undefined> {
+  return holLabIndexLoader.findById(id);
+}

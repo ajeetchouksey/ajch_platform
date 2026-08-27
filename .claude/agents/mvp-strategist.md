@@ -46,16 +46,17 @@ Use fetched data to validate that platform targets align with the current MVP aw
 5. Read public/content/skillup/catalog.json         → exam count
 6. Read public/content/tools/index.json            → tool count (source of truth, synced with Tools.tsx)
 7. Read public/content/pathways/catalog.json        → discovery tracks: communityArticles + architectures from Discovery
-8. Read public/content/stats.json                   → platform totals
-9. Read public/content/monitoring-snapshot.json      → traffic pace vs quarter target, Worker error rates, D1 usage
+8. Read content/hol-labs/index.json                 → HOL Labs totalCount (resolve via .claude/vertical-registry.json → hol-labs.localCheckoutWindows, or CDN via content-manifest.json)
+9. Read public/content/stats.json                   → platform totals
+10. Read public/content/monitoring-snapshot.json     → traffic pace vs quarter target, Worker error rates, D1 usage
    → if the file is missing, or its `generatedAt` is more than 10 days old, do NOT use it as
      current — say plainly in the brief that monitoring data is stale/unavailable instead of
      presenting old numbers as this week's state (same discipline as any other stale-data check)
-10. Call Content Gap Analyst                        → full domain coverage report across all 6 sources
-11. Call Community Tracker                          → community metric update
-12. Call Evidence Curator                           → closed MSMVPAI issue count
-13. Synthesize → produce agentRecommendations[]
-14. Write updated sections to mvp-progress.json
+11. Call Content Gap Analyst                        → full domain coverage report across all 7 sources
+12. Call Community Tracker                          → community metric update
+13. Call Evidence Curator                           → closed MSMVPAI issue count + HOL Labs count
+14. Synthesize → produce agentRecommendations[]
+15. Write updated sections to mvp-progress.json
 ```
 
 ## Monitoring & Observability Findings
@@ -85,6 +86,7 @@ severity for you in its `alerts[]` array (traffic pace vs. the active quarter's
 | Tools | https://aaryaai.dev/tools | `public/content/tools/index.json` |
 | Interview Prep | https://aaryaai.dev/roleprep | `public/content/interviews/index.json` |
 | Skillup / Exams | https://aaryaai.dev/skillup | `public/content/skillup/catalog.json` |
+| HOL Labs | https://aaryaai.dev/hol-labs | `content/hol-labs/index.json` |
 | Discovery | https://aaryaai.dev/discovery | `public/content/pathways/catalog.json` |
 
 ## Output Schema — `agentRecommendations[]`

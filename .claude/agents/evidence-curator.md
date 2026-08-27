@@ -24,6 +24,7 @@ Collect, count, and summarise all evidence of public contribution and community 
 | Study/Exam Content | Count exams in `public/content/skillup/catalog.json`; notes + MCQ files in `public/content/skillup/` | Medium |
 | AI Tools Published | Count tools in `public/content/tools/index.json` | Medium |
 | Community Articles | Count tracks in `public/content/pathways/catalog.json` where categories includes 'community' | Medium |
+| Hands-On Labs | Count entries in `content/hol-labs/index.json` → `totalCount` (resolve via `.claude/vertical-registry.json` → `hol-labs.localCheckoutWindows`, or CDN via `content-manifest.json`) | Medium |
 | Closed MSMVPAI Issues | `gh issue list --label MSMVPAI --state closed` | High |
 | Open Source Commits | Platform is public — count via GitHub API | Medium |
 
@@ -79,6 +80,7 @@ Map collected evidence to the official contribution types listed on the MVP site
     "tools": { "count": 9, "architectureTools": 4 },
     "communityArticles": { "count": 12, "tracks": 4 },
     "deliveredMilestones": {
+      "holLabs": 1,
       "closedMSMVPAIIssues": 2,
       "titles": ["feat(blog): AI architecture blueprint", "feat(blog): ADLC post"]
     },

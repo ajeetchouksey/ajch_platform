@@ -113,6 +113,39 @@ function validateUsecase(file, item) {
   }
 }
 
+const HOLLAB_REQUIRED = [
+  'id', 'schema', 'title', 'domain', 'difficulty', 'estimatedMinutes',
+  'problemStatement', 'approachRationale', 'prerequisites', 'learningObjectives',
+  'steps', 'conceptChecks', 'validationChecklist', 'cleanup', 'costEstimate',
+  'relatedExams', 'relatedBlogPosts', 'relatedUseCases', 'relatedLabs', 'tags',
+];
+
+function validateHolLab(file, item) {
+  for (const field of HOLLAB_REQUIRED) {
+    if (!(field in item)) {
+      fail(file, `missing required field "${field}"`);
+    }
+  }
+  if (item.id && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(item.id)) {
+    fail(file, `"id" must be kebab-case, got "${item.id}"`);
+  }
+  if (Array.isArray(item.steps)) {
+    item.steps.forEach((step, i) => {
+      if (!step.whyItMatters || typeof step.whyItMatters !== 'string' || !step.whyItMatters.trim()) {
+        fail(file, `steps[${i}] missing non-empty "whyItMatters"`);
+      }
+    });
+  } else {
+    fail(file, `"steps" must be an array`);
+  }
+  if (item.costEstimate && typeof item.costEstimate === 'object') {
+    const validTiers = new Set(['free', 'low-cost', 'paid']);
+    if (!validTiers.has(item.costEstimate.tier)) {
+      fail(file, `costEstimate.tier must be free|low-cost|paid, got "${item.costEstimate.tier}"`);
+    }
+  }
+}
+
 const INDEX_REQUIRED = [
   'schemaVersion', 'id', 'examCode', 'title', 'shortTitle',
   'contentLevel', 'description', 'questions', 'duration',
@@ -258,6 +291,12 @@ for (const rawPath of files) {
     // Use-case files
     if (/\/usecases\/cases\//.test(normalized)) {
       validateUsecase(rawPath, data);
+      continue;
+    }
+
+    // HOL Lab files
+    if (/\/hol-labs\/labs\//.test(normalized)) {
+      validateHolLab(rawPath, data);
       continue;
     }
 

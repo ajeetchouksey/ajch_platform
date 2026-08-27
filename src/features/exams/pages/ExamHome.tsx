@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, CalendarDays, Clock, X, MessageSquare, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
+import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, FlaskConical, CalendarDays, Clock, X, MessageSquare, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { loadExamRegistry } from '@/lib/content-loader';
@@ -162,12 +162,12 @@ const CONTENT_CARD: Record<ContentType, (examId: string) => CardDef> = {
     desc: 'Rapid-fire concept cards for exam-day review.',
     cta: 'Coming soon',
   }),
-  lab: (/* _id */) => ({
-    to: '#',
-    icon: Zap,
+  lab: (examId: string) => ({
+    to: `/hol-labs?exam=${examId}`,
+    icon: FlaskConical,
     title: 'Hands-on Lab',
-    desc: 'Interactive exercises to practice real-world configurations.',
-    cta: 'Coming soon',
+    desc: 'Guided walkthroughs to practice real-world configurations.',
+    cta: 'Browse Labs',
   }),
 };
 
@@ -177,7 +177,7 @@ function buildContentCards(exam: ExamConfig, examId: string): CardDef[] {
     ? exam.contentTypes
     : ['mcq', 'notes', 'scenario'];
   const cards: CardDef[] = types
-    .filter((t) => t !== 'flashcard' && t !== 'lab') // skip unavailable future types
+    .filter((t) => t !== 'flashcard') // skip unavailable future types
     .map((t) => CONTENT_CARD[t](examId));
   cards.push({
     to: `/skillup/${examId}/progress`,

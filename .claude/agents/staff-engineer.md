@@ -65,6 +65,7 @@ Read-only tasks (questions, explanations, searches) skip the security gate.
 | **Platform Architect** | layout, navigation, routing, sidebar, header, footer, component, page, feature module, design, responsive, deploy | Delegates routing → Platform Engineer, UX → Design Systems Engineer, components → Frontend Engineer, lib/types/scripts → Platform Dev Expert, tests → Test Engineer |
 | **Content Lead** | blog, article, post, write about, publish, draft, SEO, content pipeline | Blog Commander: delegates write → Tech Writer → Security Gate → Release Engineer |
 | **Usecase Lead** | use case, usecase, enterprise AI scenario, industry vertical, catalog gap | UseCase Commander: delegates write → Usecase Writer → Security Gate → Usecase Publisher — owns `ajch_ai_usecases`'s `content/usecases/**` cross-repo. Small batches only (2-4 per run) |
+| **HOL Lab Lead** | hands-on lab, HOL, lab, walkthrough, practice exercise, tutorial, lab exercise | Lab Commander: delegates write → HOL Lab Writer → Security Gate → HOL Lab Publisher — owns `ajch_hol_labs`'s `content/hol-labs/**` cross-repo. Small batches only (2-4 per run) |
 | **Curriculum Engineer** | question, quiz content, exam, notes, domain, scenario, study material, add from URL, **add exam**, **new certification**, **new learning topic**, **learning** | Exam Commander: delegates MCQs → Assessment Engineer, notes → Docs Engineer |
 | **Interview Prep Engineer** | job description, JD, interview prep, role prep, interview questions, competency, interview pack, behavioural questions, system design questions | Interview Commander: parses JDs, maps to competency taxonomy, generates Q&A packs — owns `public/content/interviews/**` |
 | **Product Manager** | roadmap, backlog, user story, epic, sprint, iteration, milestone, prioritize, RICE, release notes, changelog, stakeholder update, content calendar, **what should we build**, **what's next**, **project board**, feature request, acceptance criteria, planning | Product decisions, backlog management, GitHub Project board operations, content roadmap |
@@ -129,6 +130,7 @@ User Request
     │   │   ├─ Social/community post? → DevRel
     │   │   ├─ Exam questions/notes? → Curriculum Engineer
     │   │   ├─ Interview prep / JD / role prep? → Interview Prep Engineer
+    │   │   ├─ Hands-on lab content? → HOL Lab Lead
     │   │   ├─ Platform docs/architecture? → Platform Docs
     │   │   ├─ Release/version/CI/CHANGELOG? → SRE
     │   │   └─ MVP analysis/strategy/gaps? → MVP Strategist
@@ -187,6 +189,13 @@ User Request
 2. → **Security Gate**: validate file paths
 3. → **Platform Architect**: scaffold route + page + nav
 4. → **Curriculum Engineer**: populate with initial content
+5. → **Product Manager**: mark Done
+
+### "Create a new hands-on lab"
+1. → **Product Manager**: Issue Gate — find or create issue
+2. → **Security Gate**: validate planned file paths in `ajch_hol_labs`
+3. → **HOL Lab Lead**: delegate write → HOL Lab Writer → Security Gate → HOL Lab Publisher
+4. → **Content Sync** (if any `public/content/` writes occurred, e.g. `mvp-progress.json`): `python3 scripts/sync-stats.py`
 5. → **Product Manager**: mark Done
 
 ### "Teach me about [topic], then quiz me"
