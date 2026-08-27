@@ -79,6 +79,15 @@ One `###` subsection per registered vertical (see `.claude/vertical-registry.jso
 - [ ] `relatedUseCases[]` entries reference case `id`s that actually exist (or are being added in the same batch)
 - [ ] `index.json`'s `totalCount` and the relevant `verticals[].count` are incremented to match the new file(s)
 
+### HOL Labs
+- [ ] Lab JSON matches: `{ id, schema, title, domain, difficulty, estimatedMinutes, problemStatement, approachRationale, prerequisites[], learningObjectives[], steps[] (each with order, title, instructions, whyItMatters, expectedResult), conceptChecks[], validationChecklist[], cleanup[], costEstimate{tier,monthlyEstimateUSD,freeTierNotes}, relatedExams[], relatedBlogPosts[], relatedUseCases[], relatedLabs[], tags[] }`
+- [ ] `domain` matches an existing `index.json` `domains[].id`
+- [ ] Every entry in `steps[]` has a non-empty `whyItMatters` — reject a lab where any step lacks one
+- [ ] `costEstimate.tier` is present and, if `"paid"`, `prerequisites` also states the cost upfront
+- [ ] `steps[]` code blocks contain no live credentials/keys/subscription IDs — placeholder values only
+- [ ] Every populated relation (`relatedExams`/`relatedBlogPosts`/`relatedUseCases`/`relatedLabs`) entry carries a non-empty `why`
+- [ ] `index.json`'s `totalCount` and the relevant `domains[].count` are incremented to match the new file(s)
+
 ## Response Format
 
 ### PASS example

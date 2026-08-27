@@ -1,6 +1,6 @@
 ---
 name: content-gap-analyst
-description: Coverage Tracker for Aarya — My AI Learning Hub. Reads ALL six content sources (blog, usecases, interviews, skillup, tools, discovery) to measure output against MVP targets by domain. Correctly categorises architecture content across sources. Returns a domain coverage report to MVP Strategist. Read-only — never writes files directly.
+description: Coverage Tracker for Aarya — My AI Learning Hub. Reads ALL seven content sources (blog, usecases, interviews, skillup, tools, discovery, hol-labs) to measure output against MVP targets by domain. Correctly categorises architecture content across sources. Returns a domain coverage report to MVP Strategist. Read-only — never writes files directly.
 tools: Read, Glob, Grep, WebFetch
 model: inherit
 ---
@@ -27,6 +27,7 @@ If Microsoft has updated domain categories since last run, adjust the Domain Map
 | Skillup | `public/content/skillup/catalog.json` | `.exams[]` array length |
 | Tools | `src/pages/Tools.tsx` (hardcoded array) | count `TOOLS` array entries |
 | Discovery | `public/content/pathways/catalog.json` | `.tracks[]` — sum `articleCount` by `categories[]` |
+| HOL Labs | `content/hol-labs/index.json` (resolve repo via `.claude/vertical-registry.json` → `hol-labs.localCheckoutWindows`, or CDN via `content-manifest.json`) | `.totalCount` field |
 
 ## Architecture Content Detection
 
@@ -88,11 +89,11 @@ Architecture content exists ACROSS multiple sources — do NOT limit to blog pos
 
 | Domain | What to count | Target |
 |---|---|---|
-| Azure AI Foundry | blog tags: `azure-ai`, `ai-foundry`; skillup ab731 exam | 20 posts |
-| GitHub Copilot | blog tags: `copilot`, `github-copilot`; skillup gh300/ghbp/ghc exams | 20 posts |
-| Agentic AI | blog tags: `agentic-ai`, `agents`; ALL use cases | 20 posts |
-| AI Architecture | archBlogCount + useCaseArchCount + archInterviewCount + archToolsCount + archDiscoveryCount | 30 items |
-| AI Engineering | blog tags: `ai-engineering`, `llmops`, `evaluation`, `observability` | 15 posts |
+| Azure AI Foundry | blog tags: `azure-ai`, `ai-foundry`; skillup ab731 exam; hol-labs where `domain: "azure-ai-foundry"` | 20 posts |
+| GitHub Copilot | blog tags: `copilot`, `github-copilot`; skillup gh300/ghbp/ghc exams; hol-labs where `domain: "github-copilot"` | 20 posts |
+| Agentic AI | blog tags: `agentic-ai`, `agents`; ALL use cases; hol-labs where `domain: "agentic-ai"` | 20 posts |
+| AI Architecture | archBlogCount + useCaseArchCount + archInterviewCount + archToolsCount + archDiscoveryCount + hol-labs where `domain: "ai-architecture"` | 30 items |
+| AI Engineering | blog tags: `ai-engineering`, `llmops`, `evaluation`, `observability`; hol-labs where `domain: "ai-engineering"` | 15 posts |
 | Use Cases | useCaseCount across all verticals | 50 cases |
 | Interviews | interviewQuestions (sum of roles[].questionCount) + followUpDepth | 50 questions |
 | Skillup Exams | skillupExamCount | 10 exams |

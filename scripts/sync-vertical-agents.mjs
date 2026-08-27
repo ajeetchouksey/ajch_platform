@@ -45,6 +45,11 @@ const VERTICALS = {
     entryAgents: ['usecase-lead', 'usecase-writer', 'usecase-publisher', 'appsec-engineer'],
     pathPrefix: 'usecases',
   },
+  'hol-labs': {
+    repo: 'ajeetchouksey/ajch_hol_labs',
+    entryAgents: ['hol-lab-lead', 'hol-lab-writer', 'hol-lab-publisher', 'appsec-engineer'],
+    pathPrefix: 'hol-labs',
+  },
 };
 
 const SKILL_REF_RE = /\.claude\/skills\/([a-z0-9-]+)\/SKILL\.md/g;

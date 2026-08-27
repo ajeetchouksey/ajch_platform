@@ -29,5 +29,15 @@
     "writerAgent": "usecase-writer",
     "publisherAgent": "usecase-publisher",
     "pipelineShape": "strict-4-role"
+  },
+  "hol-labs": {
+    "repo": "ajeetchouksey/ajch_hol_labs",
+    "localCheckoutWindows": "C:\\Users\\ajeet.k.chouksey\\Documents\\Code\\ajch_hol_labs",
+    "contentRoot": "content/hol-labs/",
+    "staleLocalPath": "public/content/hol-labs/",
+    "leadAgent": "hol-lab-lead",
+    "writerAgent": "hol-lab-writer",
+    "publisherAgent": "hol-lab-publisher",
+    "pipelineShape": "strict-4-role"
   }
 }
