@@ -1,6 +1,3 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-
 import {
   CONTENT_MANIFEST,
   contentBase,
@@ -10,21 +7,23 @@ import {
   SUPPORTED_SCHEMA_VERSIONS,
 } from './content-manifest';
 
-test('content manifest stays local-by-default until a vertical is promoted', () => {
-  assert.deepEqual(CONTENT_MANIFEST, {});
-  assert.equal(contentBase('blog'), '/content/blog/');
-  assert.equal(resolveContentUrl('content/blog/index.json'), '/content/blog/index.json');
-});
+describe('content manifest', () => {
+  it('stays local-by-default until a vertical is promoted', () => {
+    expect(CONTENT_MANIFEST).toEqual({});
+    expect(contentBase('blog')).toBe('/content/blog/');
+    expect(resolveContentUrl('content/blog/index.json')).toBe('/content/blog/index.json');
+  });
 
-test('supported schema versions are normalized from strings and numbers', () => {
-  assert.equal(extractSchemaVersion('1.0'), 1);
-  assert.equal(extractSchemaVersion(1), 1);
-  assert.equal(extractSchemaVersion('interviews@1'), 1);
-  assert.ok(SUPPORTED_SCHEMA_VERSIONS.has(1));
-});
+  it('normalizes supported schema versions from strings and numbers', () => {
+    expect(extractSchemaVersion('1.0')).toBe(1);
+    expect(extractSchemaVersion(1)).toBe(1);
+    expect(extractSchemaVersion('interviews@1')).toBe(1);
+    expect(SUPPORTED_SCHEMA_VERSIONS.has(1)).toBe(true);
+  });
 
-test('runtime manifest hydration loads the repo-level manifest snapshot', async () => {
-  const manifest = await loadContentManifest();
-  assert.ok(manifest && typeof manifest === 'object');
-  assert.equal(typeof CONTENT_MANIFEST, 'object');
+  it('hydrates the runtime manifest from the repo-level manifest snapshot', async () => {
+    const manifest = await loadContentManifest();
+    expect(manifest).toBeTypeOf('object');
+    expect(CONTENT_MANIFEST).toBeTypeOf('object');
+  });
 });
