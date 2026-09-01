@@ -19,8 +19,9 @@
   },
   "hol-labs": {
     "repo": "ajeetchouksey/ajch_hol_labs",
-    "sha": "9667488637701758c04e94afce145d3444e715b5",
+    "sha": "38751285658d1b33fca03d6ed51396bb892be666",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
-    "promotedAt": "2026-08-27T20:38:23.346Z"
+    "schemaVersion": 1,
+    "promotedAt": "2026-09-01T20:13:37Z"
   }
 }
