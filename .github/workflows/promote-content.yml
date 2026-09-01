@@ -131,6 +131,13 @@ jobs:
                   f.write('\n')
           PY
 
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Regenerate content intelligence (stats + freshness)
+        run: node scripts/build-content-intelligence.mjs
+        continue-on-error: true # a stats-fetch failure must not block the manifest promotion itself
+
       - name: Open promotion PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -143,7 +150,7 @@ jobs:
 
           branch="chore/promote-${VERTICAL}-${SHA:0:12}"
           git checkout -B "${branch}"
-          git add content-manifest.json public/content-manifest.json
+          git add content-manifest.json public/content-manifest.json public/content/stats.json
 
           if git diff --cached --quiet; then
             echo "No manifest change to promote."

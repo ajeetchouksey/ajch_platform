@@ -314,9 +314,15 @@ export interface PlatformStats {
     exams: number;
     notes: number;
     scenarios: number;
+    usecases?: number;
+    hol_labs?: number;
     agents: number;
     tools: number;
   };
+  // Per-vertical source/freshness info — added when stats.json is generated
+  // by scripts/build-content-intelligence.mjs (schema "2.0"). Absent on
+  // older stats.json payloads (schema "1.0"), so always optional-check.
+  freshness?: Record<string, { source: 'cdn' | 'local'; promotedAt?: string; sha?: string; contentUpdatedAt?: string | null }>;
   audience?: {
     users_today:  number | null;
     users_28d:    number | null;

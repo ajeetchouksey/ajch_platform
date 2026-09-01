@@ -99,3 +99,16 @@ export async function loadUsecasesSourceIntel() {
   if (!existsSync(localPath)) return null;
   return JSON.parse(readFileSync(localPath, 'utf-8'));
 }
+
+// hol-labs/index.json — CDN when promoted, else local. Manifest key is
+// "hol-labs" (matches content-manifest.json), not "holLabs" or "hollabs".
+export async function loadHolLabsIndex() {
+  const manifest = loadManifest();
+  const holLabs = manifest?.['hol-labs'];
+  if (holLabs?.repo && holLabs?.sha) {
+    return fetchFromCdn(holLabs, 'content/hol-labs/index.json', 'loadHolLabsIndex', 'hol-labs');
+  }
+  const localPath = join(contentDir, 'hol-labs', 'index.json');
+  if (!existsSync(localPath)) return null;
+  return JSON.parse(readFileSync(localPath, 'utf-8'));
+}

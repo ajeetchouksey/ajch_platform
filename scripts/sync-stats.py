@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
-"""Regenerate public/content/stats.json from actual content counts.
+"""DEPRECATED — superseded by scripts/build-content-intelligence.mjs.
+
+That script trusts each vertical's own declared counts (this one re-derives
+several by hand), covers usecases/hol-labs (this one has never counted
+either), and fixes a real bug here: count_tools() below scans src/App.tsx,
+but routes moved to src/app/router.tsx a while ago, so this has been
+silently reporting 0 tools. Kept in the repo only until its remaining doc
+references (staff-engineer.md already updated; README.md, CLAUDE.md,
+platform-docs/*, .vscode/tasks.json etc. still mention it) are cleaned up in
+a follow-up pass — do not wire this into any new automation.
+
+Original docstring, for archive purposes:
+Regenerate public/content/stats.json from actual content counts.
 
 Usage: python3 scripts/sync-stats.py
 

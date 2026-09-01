@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "generated": "2026-09-01",
+  "note": "Tier 1 (named-framework/concept) auto-compiled by scripts/build-taxonomy.mjs from .claude/skills/platform-vocabulary/SKILL.md. Tier 2 (general topics) is seeded separately by scripts/seed-taxonomy.mjs and merged in by hand — do not hand-edit the Tier 1 entries here, edit the source markdown instead.",
+  "topics": [
+    {
+      "id": "context-budget-rule",
+      "label": "The Context Budget Rule",
+      "kind": "named-framework",
+      "aliases": [
+        "context-management",
+        "token-budget",
+        "context-window"
+      ],
+      "examDomains": [
+        {
+          "exam": "ccaf",
+          "domain": 5
+        }
+      ]
+    },
+    {
+      "id": "4-layer-agent-stack",
+      "label": "The 4-Layer Agent Stack",
+      "kind": "named-framework",
+      "aliases": [
+        "agentic-architecture",
+        "agent-stack",
+        "orchestration"
+      ],
+      "examDomains": [
+        {
+          "exam": "ccaf",
+          "domain": 1
+        }
+      ]
+    },
+    {
+      "id": "retry-pattern",
+      "label": "The Retry Pattern",
+      "kind": "named-framework",
+      "aliases": [
+        "retry-pattern",
+        "validation-loop",
+        "error-context",
+        "structured-output"
+      ],
+      "examDomains": [
+        {
+          "exam": "ccaf",
+          "domain": 3
+        }
+      ]
+    },
+    {
+      "id": "degradation-ladder",
+      "label": "The Degradation Ladder",
+      "kind": "named-framework",
+      "aliases": [
+        "degradation-ladder",
+        "resilience",
+        "fallback-strategy",
+        "named-framework"
+      ],
+      "examDomains": [
+        {
+          "exam": "ccaf",
+          "domain": 1
+        }
+      ]
+    },
+    {
+      "id": "boring-interface",
+      "label": "The Boring Interface",
+      "kind": "named-framework",
+      "aliases": [
+        "boring-interface",
+        "vendor-lock-in",
+        "llm-abstraction",
+        "named-framework"
+      ],
+      "examDomains": [
+        {
+          "exam": "ccaf",
+          "domain": 1
+        }
+      ]
+    },
+    {
+      "id": "domain-boundary",
+      "label": "Domain Boundary",
+      "kind": "named-framework",
+      "aliases": [
+        "guardrails",
+        "domain-boundary",
+        "agent-safety"
+      ],
+      "examDomains": [
+        {
+          "exam": "ccaf",
+          "domain": 2
+        }
+      ]
+    },
+    {
+      "id": "prompt-caching",
+      "label": "Prompt Caching",
+      "kind": "concept",
+      "aliases": [
+        "prompt-caching",
+        "cache-control",
+        "cost-optimization"
+      ],
+      "examDomains": [
+        {
+          "exam": "ccaf",
+          "domain": 5
+        }
+      ]
+    },
+    {
+      "id": "agentic-execution-layer",
+      "label": "Agentic Execution Layer",
+      "kind": "concept",
+      "aliases": [
+        "agentic-ai",
+        "execution-layer",
+        "autonomous-agents"
+      ],
+      "examDomains": [
+        {
+          "exam": "ccaf",
+          "domain": 1
+        }
+      ]
+    }
+  ]
+}

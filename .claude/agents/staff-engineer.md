@@ -149,7 +149,7 @@ User Request
     │   │   └─ MVP analysis/strategy/gaps? → MVP Strategist
     │   │
     │   ├─ STEP 3b — Content Sync (if any public/content/ writes occurred)
-    │   │   └─ Run `python3 scripts/sync-stats.py`
+    │   │   └─ Run `node scripts/build-content-intelligence.mjs`
     │   │       └─ Commit updated public/content/stats.json [skip ci]
     │   │
     │   ├─ STEP 4 — Post-build Security Audit
@@ -184,7 +184,7 @@ User Request
 2. PO returns issue # and acceptance criteria
 3. → **Security Gate** (pre-build): validate planned file paths + inputs
 4. → **Domain Agent** (Platform Architect / Content Lead / Platform Docs / Curriculum Engineer): implement, referencing issue #
-5. → **Content Sync** (if any `public/content/` writes): `python3 scripts/sync-stats.py` → commit `public/content/stats.json [skip ci]`
+5. → **Content Sync** (if any `public/content/` writes): `node scripts/build-content-intelligence.mjs` → commit `public/content/stats.json [skip ci]`
 6. → **Security Gate** (post-build): audit all changed files for OWASP/secret/schema issues
 7. → **Design Systems Engineer** (post-build): UX audit if any `.tsx` files changed
 8. → **QA Engineer** (post-build): validate Mermaid diagrams if any `.md` files with diagram blocks changed
@@ -208,7 +208,7 @@ User Request
 1. → **Product Manager**: Issue Gate — find or create issue
 2. → **Security Gate**: validate planned file paths in `ajch_hol_labs`
 3. → **HOL Lab Lead**: delegate write → HOL Lab Writer → Security Gate → HOL Lab Publisher
-4. → **Content Sync** (if any `public/content/` writes occurred, e.g. `mvp-progress.json`): `python3 scripts/sync-stats.py`
+4. → **Content Sync** (if any `public/content/` writes occurred, e.g. `mvp-progress.json`): `node scripts/build-content-intelligence.mjs`
 5. → **Product Manager**: mark Done
 
 ### "Teach me about [topic], then quiz me"
