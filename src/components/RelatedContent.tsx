@@ -2,6 +2,18 @@
  * RelatedContent — Issue #63
  * Surfaces related SkillUp tracks and AI Tools based on tag/keyword overlap.
  * No network calls — all matching done at render time from static keyword maps.
+ *
+ * NOT YET replaced by the computed relationship engine (see
+ * src/components/ComputedRelatedList.tsx, ComputedRelated in ComputedRelatedList.tsx,
+ * public/content/relationships.json) — deliberately, not an oversight. Its
+ * three call sites (BlogPost.tsx, ExamHome.tsx, Tools.tsx) are all blog/
+ * skillup/tools pages, and none of those verticals have taxonomyIds
+ * populated yet (only HOL Labs and Use Cases do, as of IDEA-0008 Phase 2 —
+ * see ajch_food_for_thoughts). Swapping this out today would make all three
+ * pages render nothing instead of these real, if hardcoded, suggestions —
+ * a regression, not an improvement. Retire this once Phase 4 backfills
+ * taxonomyIds onto blog (at minimum), at which point ComputedRelatedList
+ * can actually outperform it.
  */
 import { Link } from 'react-router-dom';
 import { BookOpen, Wrench, ArrowRight } from 'lucide-react';

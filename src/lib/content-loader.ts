@@ -1,4 +1,5 @@
 import type { Question, Scenario, ExamRegistry, BlogManifest } from '../types/content';
+import type { RelationshipEdge, RelationshipsFile } from './relationships';
 import {
   ensureContentManifestLoaded,
   resolveContentUrl,
@@ -404,6 +405,29 @@ export async function loadPlatformStats(): Promise<PlatformStats> {
   return _platformStatsInflight;
 }
 
+// ── Cross-vertical relationships ───────────────────────────────────────────
+// relationships.json is precomputed at build time (scripts/build-content-
+// intelligence.mjs, scoring logic mirrored from src/lib/relationships.ts) —
+// this is a pure O(1) lookup, never a runtime recompute.
+
+let _relationshipsCache: Promise<RelationshipsFile> | null = null;
+
+async function loadRelationshipsFile(): Promise<RelationshipsFile> {
+  if (!_relationshipsCache) {
+    _relationshipsCache = fetchJSON<RelationshipsFile>('content/relationships.json').catch((err) => {
+      _relationshipsCache = null; // allow retry on next call rather than caching a permanent failure
+      throw err;
+    });
+  }
+  return _relationshipsCache;
+}
+
+/** Precomputed related content for one doc id (e.g. "blog/my-post", "lab/some-lab") — see src/lib/search.ts for the id scheme. */
+export async function loadRelationshipsFor(docId: string): Promise<RelationshipEdge[]> {
+  const file = await loadRelationshipsFile();
+  return file.edges[docId] ?? [];
+}
+
 // ── Use Cases (AI UseCases section) ────────────────────────────────────────
 
 export interface UseCaseRelatedExam {
@@ -602,6 +626,10 @@ export interface HolLabSummary {
   costTier: HolLabCostEstimate['tier'];
   tags: string[];
   taxonomyIds?: string[];
+  // Mirrors the full lab file's updatedDate — needed here (not just on
+  // HolLab) so the relationship engine can score recency without an N+1
+  // fetch per lab, same reasoning as taxonomyIds above.
+  updatedDate?: string;
   relatedExamIds: string[];
   relatedUseCaseIds: string[];
   relatedBlogSlugs: string[];

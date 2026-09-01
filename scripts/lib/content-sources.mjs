@@ -126,3 +126,20 @@ export async function loadHolLabsIndex() {
   if (!existsSync(localPath)) return null;
   return JSON.parse(readFileSync(localPath, 'utf-8'));
 }
+
+// hol-labs/labs/{id}.json — a single full lab file, CDN when promoted, else
+// local. Only the index.json summary is needed for most purposes (that's
+// the whole point of HolLabSummary) — this exists specifically for reading
+// the full relatedExams/relatedBlogPosts/relatedUseCases `why` text, which
+// isn't flattened into the summary. Fine to call once per lab at this
+// vertical's current size; revisit if it ever grows into the hundreds.
+export async function loadHolLabFile(id) {
+  const manifest = loadManifest();
+  const holLabs = manifest?.['hol-labs'];
+  if (holLabs?.repo && holLabs?.sha) {
+    return fetchFromCdn(holLabs, `content/hol-labs/labs/${id}.json`, 'loadHolLabFile', 'hol-labs');
+  }
+  const localPath = join(contentDir, 'hol-labs', 'labs', `${id}.json`);
+  if (!existsSync(localPath)) return null;
+  return JSON.parse(readFileSync(localPath, 'utf-8'));
+}

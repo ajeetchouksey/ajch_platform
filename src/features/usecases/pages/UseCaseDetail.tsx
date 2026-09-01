@@ -21,8 +21,10 @@ import {
   type FeaturedUseCase,
 } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
+import { useRelationships } from '@/lib/useRelationships';
 import { GlassCard, Badge, SectionHeader, ContentMeta } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import {
   PATTERN_LABEL,
@@ -40,6 +42,7 @@ export default function UseCaseDetail() {
   const [uc, setUc] = useState<AnyUseCase | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [highlightEnabled, setHighlightEnabled] = useState(true);
+  const computedRelated = useRelationships(id ? `usecase/${id}` : undefined);
 
   useEffect(() => {
     if (!id) return;
@@ -409,6 +412,9 @@ export default function UseCaseDetail() {
               </div>
             </div>
           )}
+
+          {/* Computed cross-vertical relationships — see ComputedRelatedList */}
+          <ComputedRelatedList edges={computedRelated} heading="Related Content" />
 
           {/* Related interview questions */}
           {featured.relatedInterviewQs && featured.relatedInterviewQs.length > 0 && (

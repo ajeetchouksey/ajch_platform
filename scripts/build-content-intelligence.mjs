@@ -13,21 +13,31 @@
  * in scripts/lib/content-sources.mjs so there is exactly one implementation
  * of "how to fetch a vertical's content, promoted or local" in this repo.
  *
- * This is also the intended home for the relationship-scoring engine
- * (public/content/relationships.json) once src/lib/search.ts's indexer is
- * extended to cover all 7 doc types — see IDEA-0008 in ajch_food_for_thoughts
- * for the full phased plan. Phase 0 (this script, today) is stats-only.
+ * Also writes public/content/relationships.json — computed cross-vertical
+ * relationships, scored by taxonomyIds overlap weighted by recency. The
+ * scoring algorithm here is a plain-JS port of src/lib/relationships.ts
+ * (which has the tested, documented reference implementation and its own
+ * Vitest suite) — this script can't import that .ts file directly because
+ * CI pins Node 22 without --experimental-strip-types. Change the formula in
+ * BOTH places if you ever touch it.
+ *
+ * See IDEA-0008 in ajch_food_for_thoughts for the full phased plan. Only
+ * hol-labs and usecases have taxonomyIds populated as of Phase 2 — blog,
+ * skillup, and interviews will start participating once Phase 4 backfills
+ * them; until then this legitimately produces zero or few edges, which is
+ * expected, not a bug (verify the algorithm itself via relationships.test.ts).
  *
  * Usage: node scripts/build-content-intelligence.mjs
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import {
   loadBlogIndex,
   loadSkillupCatalog,
   loadUsecasesSourceIntel,
   loadHolLabsIndex,
+  loadHolLabFile,
 } from './lib/content-sources.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -98,6 +108,118 @@ function freshnessFor(manifest, vertical, fallback) {
   return { source: 'local', contentUpdatedAt: fallback ?? null };
 }
 
+// ── Relationship engine (plain-JS port of src/lib/relationships.ts) ────────
+
+function loadTaxonomyTier1Ids() {
+  const path = join(root, 'public', 'content', 'taxonomy.json');
+  if (!existsSync(path)) return new Set();
+  const taxonomy = JSON.parse(readFileSync(path, 'utf-8'));
+  return new Set(taxonomy.topics.filter((t) => t.tier === 1).map((t) => t.id));
+}
+
+// Flatten every currently-integrated vertical into the {id, type, title, url,
+// taxonomyIds, updatedAt} shape relationship scoring needs. Ids/urls mirror
+// src/lib/search.ts's scheme exactly (blog/{slug}, exam/{id}, usecase/{id},
+// lab/{id}) so relationships.json's keys line up with the SPA's doc ids.
+// Skillup only has an exam-level entry here (no domain-level breakdown) since
+// exams don't carry taxonomyIds yet (Phase 4) — nothing is lost by keeping
+// this minimal until that phase actually needs the finer granularity.
+export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex }) {
+  const docs = [];
+
+  for (const p of blogIndex?.posts ?? []) {
+    if (p.draft) continue;
+    docs.push({ id: `blog/${p.slug}`, type: 'blog', title: p.title, url: `/blog/${p.slug}`, taxonomyIds: p.taxonomyIds ?? [], updatedAt: p.updated ?? p.date });
+  }
+
+  for (const e of skillupCatalog?.exams ?? []) {
+    docs.push({ id: `exam/${e.id}`, type: 'exam', title: e.title, url: `/exams/${e.id}`, taxonomyIds: e.taxonomyIds ?? [], updatedAt: e.contentUpdatedAt });
+  }
+
+  const featured = sourceIntel?.featuredUseCases ?? [];
+  const catalogOnly = (sourceIntel?.catalogUseCases ?? []).filter((u) => !featured.some((f) => f.id === u.id));
+  for (const u of [...featured, ...catalogOnly]) {
+    docs.push({ id: `usecase/${u.id}`, type: 'usecase', title: u.title, url: `/usecases/${u.id}`, taxonomyIds: u.taxonomyIds ?? [], updatedAt: u.updatedDate ?? u.publishedDate });
+  }
+
+  for (const l of holLabsIndex?.labs ?? []) {
+    docs.push({ id: `lab/${l.id}`, type: 'lab', title: l.title, url: `/hol-labs/${l.id}`, taxonomyIds: l.taxonomyIds ?? [], updatedAt: l.updatedDate });
+  }
+
+  return docs;
+}
+
+const RECENCY_HALF_LIFE_DAYS = 90;
+
+export function recencyWeight(updatedAt, now) {
+  if (!updatedAt) return 1; // no date on record — neutral, don't penalize
+  const days = (now - new Date(updatedAt).getTime()) / 86_400_000;
+  if (!Number.isFinite(days) || days < 0) return 1; // bad/future date — don't let it dominate scoring
+  return Math.pow(0.5, days / RECENCY_HALF_LIFE_DAYS);
+}
+
+// Same algorithm as src/lib/relationships.ts's computeRelationshipEdges — see
+// that file's Vitest suite for the tested behavior (overlap-only matching,
+// same-type skip, tier bonus, recency ordering, why-merge-is-enrichment-only,
+// edge capping). Kept here as plain JS; see this file's header for why.
+export function computeRelationshipEdges(docs, { tier1Ids, now, maxEdgesPerDoc = 10, whyLookup = () => null }) {
+  const participants = docs.filter((d) => d.taxonomyIds.length > 0);
+  const edges = {};
+  const push = (from, to, score, shared) => {
+    (edges[from.id] ??= []).push({
+      id: to.id, type: to.type, title: to.title, url: to.url,
+      score, sharedTaxonomyIds: shared, why: whyLookup(from.id, to.id),
+    });
+  };
+
+  for (let i = 0; i < participants.length; i++) {
+    for (let j = i + 1; j < participants.length; j++) {
+      const a = participants[i];
+      const b = participants[j];
+      if (a.type === b.type) continue;
+
+      const shared = a.taxonomyIds.filter((id) => b.taxonomyIds.includes(id));
+      if (shared.length === 0) continue;
+
+      const tierBonus = shared.some((id) => tier1Ids.has(id)) ? 2 : 0;
+      const base = shared.length * 3 + tierBonus;
+
+      push(a, b, base * recencyWeight(b.updatedAt, now), shared);
+      push(b, a, base * recencyWeight(a.updatedAt, now), shared);
+    }
+  }
+
+  for (const id of Object.keys(edges)) {
+    edges[id].sort((x, y) => y.score - x.score);
+    if (edges[id].length > maxEdgesPerDoc) edges[id] = edges[id].slice(0, maxEdgesPerDoc);
+  }
+  return edges;
+}
+
+// Hand-authored why text, directional (sourceId -> targetId -> why). Only
+// HOL Labs and Use Cases carry any hand-authored cross-vertical relation
+// fields today; extend this as other verticals grow their own (Phase 4).
+async function buildWhyLookup(holLabsIndex, sourceIntel) {
+  const map = new Map();
+  const set = (sourceId, targetId, why) => { if (why) map.set(`${sourceId}|${targetId}`, why); };
+
+  for (const summary of holLabsIndex?.labs ?? []) {
+    const full = await loadHolLabFile(summary.id).catch(() => null);
+    if (!full) continue;
+    const sourceId = `lab/${full.id}`;
+    for (const r of full.relatedExams ?? []) set(sourceId, `exam/${r.exam}`, r.why);
+    for (const r of full.relatedBlogPosts ?? []) set(sourceId, `blog/${r.slug}`, r.why);
+    for (const r of full.relatedUseCases ?? []) set(sourceId, `usecase/${r.id}`, r.why);
+  }
+
+  for (const u of sourceIntel?.featuredUseCases ?? []) {
+    const sourceId = `usecase/${u.id}`;
+    for (const r of u.relatedExams ?? []) set(sourceId, `exam/${r.exam}`, r.why);
+  }
+
+  return (sourceId, targetId) => map.get(`${sourceId}|${targetId}`) ?? null;
+}
+
 async function main() {
   const manifest = loadManifest();
 
@@ -135,8 +257,7 @@ async function main() {
 
   const outDir = join(root, 'public', 'content');
   mkdirSync(outDir, { recursive: true });
-  const outPath = join(outDir, 'stats.json');
-  writeFileSync(outPath, JSON.stringify(stats, null, 2) + '\n', 'utf-8');
+  writeFileSync(join(outDir, 'stats.json'), JSON.stringify(stats, null, 2) + '\n', 'utf-8');
 
   const p = stats.platform;
   console.log(
@@ -144,9 +265,37 @@ async function main() {
     `${p.notes} notes · ${p.scenarios} scenarios · ${p.usecases} use cases · ${p.hol_labs} labs · ` +
     `${p.agents} agents · ${p.tools} tools`
   );
+
+  const now = Date.now();
+  const relDocs = collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex });
+  const tier1Ids = loadTaxonomyTier1Ids();
+  const whyLookup = await buildWhyLookup(holLabsIndex, sourceIntel);
+  const edges = computeRelationshipEdges(relDocs, { tier1Ids, now, whyLookup });
+
+  const relationships = {
+    schemaVersion: 1,
+    generated: new Date(now).toISOString(),
+    edges,
+  };
+  writeFileSync(join(outDir, 'relationships.json'), JSON.stringify(relationships, null, 2) + '\n', 'utf-8');
+
+  const participantCount = relDocs.filter((d) => d.taxonomyIds.length > 0).length;
+  const edgeCount = Object.values(edges).reduce((sum, e) => sum + e.length, 0);
+  console.log(`Relationships written: ${Object.keys(edges).length} doc(s) with edges, ${edgeCount} edge(s) total (${participantCount}/${relDocs.length} docs have taxonomyIds)`);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+// Guarded so build-content-intelligence.test.mjs can import the pure
+// functions above (computeRelationshipEdges, recencyWeight) without
+// triggering a real network-fetching run as an import side effect.
+// pathToFileURL (not a manual file:// string) correctly resolves argv[1]
+// against cwd the same way Node resolves the entry module — argv[1] is
+// relative when the script is invoked with a relative path (the common
+// case: `node scripts/build-content-intelligence.mjs`), so a naive
+// `file://${argv[1]}` string never matches import.meta.url's always-
+// absolute form.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

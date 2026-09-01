@@ -18,13 +18,16 @@ import {
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import { loadHolLabById, type HolLab } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
+import { useRelationships } from '@/lib/useRelationships';
 import { GlassCard, Badge, SectionHeader } from '@/components/ui';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { DOMAIN_LABELS, DOMAIN_ACCENT, COST_TIER_VARIANT, COST_TIER_LABEL, RELATION_LABEL } from '../hol-labs-constants';
 
 export default function HolLabDetail() {
   const { id } = useParams<{ id: string }>();
   const [lab, setLab] = useState<HolLab | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const computedRelated = useRelationships(id ? `lab/${id}` : undefined);
 
   useEffect(() => {
     if (!id) return;
@@ -68,7 +71,7 @@ export default function HolLabDetail() {
 
   const accent = DOMAIN_ACCENT[lab.domain] ?? 'slate';
   const hasRelations = lab.relatedExams.length > 0 || lab.relatedBlogPosts.length > 0
-    || lab.relatedUseCases.length > 0 || lab.relatedLabs.length > 0;
+    || lab.relatedUseCases.length > 0 || lab.relatedLabs.length > 0 || computedRelated.length > 0;
 
   return (
     <div className="max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 py-10">
@@ -339,6 +342,8 @@ export default function HolLabDetail() {
                 </div>
               </div>
             )}
+
+            <ComputedRelatedList edges={computedRelated} />
           </div>
         )}
       </div>

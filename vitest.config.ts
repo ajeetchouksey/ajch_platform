@@ -5,9 +5,12 @@ export default mergeConfig(viteConfig, defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    // Playwright owns e2e/**/*.spec.ts — exclude it so Vitest doesn't try to
-    // execute Playwright tests (test.describe() throws outside the PW runner).
-    exclude: [...configDefaults.exclude, 'e2e/**'],
+    // Playwright owns e2e/**/*.spec.ts, and Node's built-in test runner owns
+    // scripts/**/*.test.mjs (see build-content-intelligence.test.mjs's own
+    // header for why a scripts/ file can't just use Vitest) — exclude both
+    // so Vitest doesn't try to execute tests written for a different runner
+    // (e.g. "No test suite found" for a node:test file with no describe()).
+    exclude: [...configDefaults.exclude, 'e2e/**', 'scripts/**'],
     setupFiles: ['./src/test/setup.ts'],
     alias: { '@': new URL('./src', import.meta.url).pathname },
     coverage: {
