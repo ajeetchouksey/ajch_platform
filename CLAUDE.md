@@ -20,9 +20,12 @@ npm run preview              # preview a production build
 npm run validate-content     # node scripts/validate-content.mjs — schema-checks public/content/**
 npm run health                # node scripts/content-health-report.mjs — drift report (dup IDs, gaps)
 python3 scripts/sync-stats.py  # regenerate public/content/stats.json — run after ANY content write
+npm run test -- --run         # vitest — unit/integration tests (src/lib/**)
+npm run test:coverage         # vitest run --coverage — v8 coverage, scoped to src/lib/** and src/shared/lib/**
+npm run test:e2e              # playwright test — needs the dev server running at http://localhost:5173
 ```
 
-**There is no test runner installed.** `vitest`/`playwright-test` are not in `package.json` and there is no `test` script — despite `test-engineer.md` describing an intended Vitest+Playwright setup, that hasn't landed yet. The one existing spec (`src/lib/content-manifest.test.ts`) uses Node's built-in `node:test`/`node:assert` and is not wired into any script; run it directly with `node --test src/lib/content-manifest.test.ts` (needs a loader for TS — there's no ready-made command for this in `package.json`). `npm run build` (`tsc -b && vite build`) is the closest thing to a correctness check today.
+Vitest + Playwright are installed per `test-engineer.md`'s canonical setup (`vitest.config.ts` merges `vite.config.ts` so the `@/` alias and plugins aren't duplicated; jsdom environment; `src/test/setup.ts` clears `localStorage` between tests). Coverage is intentionally scoped to `src/lib/**`/`src/shared/lib/**` only — UI components are meant to be covered by Playwright E2E instead, not unit tests. Only TEST-MODULE-1 (the lib files that existed when the framework landed — `storage.test.ts`, `gist-sync.test.ts`, `content-manifest.test.ts`) is implemented so far; TEST-MODULE-2 through 6 (schema migration, bookmarks, search index, scheduling algorithm, full E2E user flows) are still planned, see `test-engineer.md`. E2E beyond a basic smoke test (`e2e/smoke.spec.ts`) is blocked on `data-testid` attributes not existing yet in page components — add them before writing real E2E flows. `npm run build` (`tsc -b && vite build`) remains the fastest correctness check for anything outside `src/lib/`.
 
 To actually run/click through the app or smoke-test the Worker (not just build it), use the `run-ajch-platform` skill — it drives a headless-Chromium REPL (`.claude/skills/run-ajch-platform/driver.mjs`) and covers `wrangler dev` + D1 seeding for the Worker. Key gotcha it documents: this is Windows/Git Bash, `lsof` doesn't exist and fails silently — use `netstat -ano | grep ":<port>" | grep LISTENING` + `taskkill //F //PID <pid>` to free a port, not `lsof`.
 
