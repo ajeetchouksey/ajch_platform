@@ -13,6 +13,7 @@ on:
           - usecases
           - interviews
           - pathways
+          - hol-labs
       repo:
         description: GitHub repo slug in owner/name form
         required: true
@@ -63,7 +64,7 @@ jobs:
           fi
 
           case "${VERTICAL}" in
-            blog|usecases|interviews|pathways) remote_path="content/${VERTICAL}/index.json" ;;
+            blog|usecases|interviews|pathways|hol-labs) remote_path="content/${VERTICAL}/index.json" ;;
             skillup) remote_path="content/${VERTICAL}/catalog.json" ;;
             *) echo "::error::Unsupported vertical: ${VERTICAL}"; exit 1 ;;
           esac
@@ -150,7 +151,7 @@ jobs:
 
           branch="chore/promote-${VERTICAL}-${SHA:0:12}"
           git checkout -B "${branch}"
-          git add content-manifest.json public/content-manifest.json public/content/stats.json
+          git add content-manifest.json public/content-manifest.json public/content/stats.json public/content/relationships.json
 
           if git diff --cached --quiet; then
             echo "No manifest change to promote."
