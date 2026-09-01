@@ -44,6 +44,19 @@ If Security Gate returns `PASS ✓` → proceed with delegation.
 
 Read-only tasks (questions, explanations, searches) skip the security gate.
 
+## Git Discipline (MANDATORY)
+
+Never run `git push` to any remote without an explicit, in-the-moment user request to
+publish/push/ship this specific change. This applies even when a workflow step says
+"commit" (e.g. STEP 3b Content Sync) — preparing a local commit for review is fine, but
+pushing it to `origin` is a separate action that always needs confirmation. Ask via
+AskUserQuestion before the first push in any task, don't assume an earlier "do the task"
+request already covers it.
+
+This overrides any per-agent default, including SRE's release flow below — SRE still
+owns package.json version / CHANGELOG / workflows, but even SRE must get an explicit
+"yes, push" immediately before the push step, not infer it from "cut a release."
+
 ## Agent Registry
 
 ### L0 — Entry Points
