@@ -51,7 +51,11 @@ Brief domain summary (2–3 sentences).
 
 ### Key Concept
 
-Explanation...
+**{One-line claim, ≤20 words — the whole idea stated flat.}**
+
+{Paragraph 1: 2-3 sentences, first sentence signposts what it does.}
+
+{Paragraph 2: 2-3 sentences, ending in a **bolded analogy** stated as its own clause.}
 
 ```mermaid
 graph TD
@@ -70,6 +74,42 @@ Common distractor: students confuse X with Y because... {A memorable framing or 
 |---------|----------|
 | X | Always do Y when Z |
 ```
+
+## Key Concept Formatting Standard (REQUIRED for every Key Concept block)
+
+A Key Concept block explains a rule; it must also be **memorable** without becoming a bullet list.
+See `docs-engineer-writing-framework.md` (same directory) for the full rationale and a worked
+before/after example. Every `### Key Concept` block follows this shape:
+
+```markdown
+### Key Concept
+
+**{One-line claim, ≤20 words, the whole idea stated flat.}**
+
+{Paragraph 1 — 2-3 sentences. First sentence signposts what this paragraph does
+(define, contrast, situate). Do not open with throat-clearing ("It is important
+to understand that...").}
+
+{Paragraph 2 — 2-3 sentences, ending in **a bolded analogy or metaphor** stated
+as its own clause, not buried as a trailing dependent clause. E.g. "**Think of
+it like a junk drawer**: the more you cram in, the longer it takes to find what
+you need."}
+```
+
+**Rules**:
+- The bolded claim comes first, standalone, before any explanatory prose — it is the sentence a
+  learner should still remember a week later even if they forget everything else in the block.
+- No single paragraph inside Key Concept may run past ~70 words / 3 sentences — split it. Two
+  short paragraphs beat one long one.
+- If an analogy is used (encouraged, not mandatory — see Human Angle guardrail), bold it and give
+  it its own sentence; don't tack it onto the end of an explanatory sentence as an afterthought.
+
+**Anti-patterns**:
+- Opening with definition-and-context and letting the sharp, quotable version of the idea arrive
+  two sentences in, unmarked
+- One 90+ word paragraph with no visual break
+- An analogy that's technically present but grammatically subordinate to something else, so it
+  doesn't stand out
 
 ## Deep Dive Standard (REQUIRED for every domain note)
 
@@ -125,10 +165,15 @@ type? If yes, you need routing."]
 or a different approach is better. Shows the learner the boundary of the rule, not just the rule.]
 ```
 
+**Rules (punch-first)**: each of the three fields above should lead with its sharpest sentence
+first, not build up to it — a practitioner scanning under exam-week time pressure should get the
+payoff from the first sentence of each field, not the last.
+
 **Anti-patterns for In Practice blocks**:
 - Restating the key concept in different words (adds no value)
 - Using exam framing: "this is tested because...", "remember for the exam..."
 - Leaving out the "when you'd choose differently" — knowing the limits of a rule is part of understanding it
+- Burying the actual failure mode or trigger question after a sentence of setup instead of leading with it
 
 ## Custom HTML Classes (rendered by MermaidDiagram component)
 
@@ -154,6 +199,7 @@ Use these in markdown for special styling:
 7. **Worked scenarios** — include at least one end-to-end worked scenario per domain (inside the Deep Dive) that shows the reasoning, not just the answer. Use real numbers, real tool names, real config.
 8. **Human Angle** — include one memorable analogy, proverb, or punch line in the Overview section of each domain file. Mark it clearly with the 💡 callout. This aids retention without distorting exam content. Rule: *proverbs support memory, never replace precision.* If no natural fit exists, omit — a forced analogy is worse than none.
 9. **In Practice** — every topic section must include a production context block (see format below). This is what separates skill-building notes from exam-pointer notes.
+10. **Punch-first prose** — inside Key Concept and In Practice blocks, lead with the sharpest, most memorable sentence before elaborating; see Key Concept Formatting Standard for the required shape. Craft rule only — it changes how prose opens, not what headings exist.
 
 > **AI Guardrail**: Human Angle and Deep Dive content must be professional, culturally neutral, and must not alter the technical accuracy of any documented fact. Memory aids (mnemonics/checklists) must map to real, load-bearing concepts — never invented filler. Deep Dive narrative and worked scenarios live within the exam content boundary and must be factually correct; the Human Angle callout exists outside it.
 
