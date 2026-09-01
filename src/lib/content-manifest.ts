@@ -63,7 +63,7 @@ if (typeof window !== 'undefined') {
   void ensureContentManifestLoaded();
 }
 
-export const SUPPORTED_SCHEMA_VERSIONS = new Set<number>([1]);
+export const SUPPORTED_SCHEMA_VERSIONS = new Set<number>([1, 2]);
 
 export function verticalFromContentPath(path: string): string | null {
   const normalized = path.replace(/\\/g, '/').replace(/^\/+/, '');
