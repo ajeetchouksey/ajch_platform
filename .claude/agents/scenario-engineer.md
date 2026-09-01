@@ -69,6 +69,7 @@ Before creating any scenario:
 4. **Realistic characters** — at least 2 characters with distinct concerns that create natural decision tension
 5. **One correct answer per question** — same rules as Assessment Engineer; all 4 options must be plausible
 6. **keyLearnings** — 2–4 sentences, each distilling one transferable insight from the scenario
+7. **Punch-first background** — the first sentence of `background` states the stakes or constraint that drives the scenario's decisions, not company name/stack/scene-setting details. Those come after, not first. (Same principle as Docs Engineer's Key Concept Formatting Standard — lead with what matters, elaborate second.)
 
 ## ID Assignment
 
