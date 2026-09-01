@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, X, FileText, GraduationCap, Wrench, ArrowRight, Briefcase } from 'lucide-react';
-import { search, buildBlogDocs, buildExamDocs, buildToolDocs, buildInterviewDocs } from '@/lib/search';
+import { Search, X, FileText, GraduationCap, Wrench, ArrowRight, Briefcase, Building2, FlaskConical } from 'lucide-react';
+import { search, buildFullIndex } from '@/lib/search';
 import type { SearchDocument, SearchResult } from '@/lib/search';
-import { loadBlogManifest, loadExamRegistry, loadInterviewBank } from '@/lib/content-loader';
+import { loadBlogManifest, loadExamRegistry, loadInterviewBank, loadAllUseCases, loadHolLabsIndex } from '@/lib/content-loader';
 
 // ── Icon by content type ───────────────────────────────────────────────────
 const TYPE_ICON: Record<SearchDocument['type'], React.ElementType> = {
@@ -12,6 +12,8 @@ const TYPE_ICON: Record<SearchDocument['type'], React.ElementType> = {
   tool: Wrench,
   note: FileText,
   interview: Briefcase,
+  usecase: Building2,
+  lab: FlaskConical,
 };
 const TYPE_COLOR: Record<SearchDocument['type'], string> = {
   blog: '#a78bfa',
@@ -19,6 +21,8 @@ const TYPE_COLOR: Record<SearchDocument['type'], string> = {
   tool: '#60a5fa',
   note: '#fb923c',
   interview: '#f472b6',
+  usecase: '#22d3ee',
+  lab: '#facc15',
 };
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -36,17 +40,26 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
-  // Build index once on first open
+  // Build index once on first open. Use cases and HOL labs are loaded
+  // best-effort (.catch(() => []/null)) same as interview bank — a missing
+  // or slow-to-fetch vertical must not block the rest of the index.
   useEffect(() => {
     if (!open || index.length > 0) return;
-    Promise.all([loadBlogManifest(), loadExamRegistry(), loadInterviewBank().catch(() => [])])
-      .then(([blog, exams, interview]) => {
-        setIndex([
-          ...buildBlogDocs(blog.posts),
-          ...buildExamDocs(exams.exams),
-          ...buildToolDocs(),
-          ...buildInterviewDocs(interview),
-        ]);
+    Promise.all([
+      loadBlogManifest(),
+      loadExamRegistry(),
+      loadInterviewBank().catch(() => []),
+      loadAllUseCases().catch(() => []),
+      loadHolLabsIndex().catch(() => null),
+    ])
+      .then(([blog, exams, interview, useCases, holLabs]) => {
+        setIndex(buildFullIndex({
+          blogPosts: blog.posts,
+          exams: exams.exams,
+          interviewItems: interview,
+          useCases,
+          holLabs: holLabs?.labs ?? [],
+        }));
       })
       .catch(() => {});
   }, [open, index.length]);
@@ -106,7 +119,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search posts, exams, tools…"
+            placeholder="Search posts, exams, use cases, labs…"
             className="flex-1 bg-transparent text-sm text-slate-200 placeholder-slate-500 outline-none"
             autoComplete="off"
             spellCheck={false}
