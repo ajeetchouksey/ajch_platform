@@ -457,6 +457,13 @@ export interface FeaturedUseCase {
   blogPotential?: string;
   publishedDate?: string;
   updatedDate?: string;
+  // Populated by scripts/backfill-taxonomy-ids.mjs — for use cases this is
+  // currently identical to `patterns` (already canonical taxonomy-shaped
+  // ids per content/usecases/index.json's patterns[] catalog), but kept as
+  // its own field so the relationship engine (IDEA-0008 Phase 3) reads one
+  // consistent field name across every vertical, not each vertical's own
+  // differently-named display-tag field.
+  taxonomyIds?: string[];
 }
 
 export interface CatalogUseCase {
@@ -464,6 +471,7 @@ export interface CatalogUseCase {
   title: string;
   vertical: string;
   patterns: string[];
+  taxonomyIds?: string[];
 }
 
 export interface SourceIntel {
@@ -570,6 +578,11 @@ export interface HolLab {
   relatedUseCases: HolLabRelatedUseCase[];
   relatedLabs: HolLabRelatedLab[];
   tags: string[];
+  // Populated by scripts/backfill-taxonomy-ids.mjs — currently identical to
+  // `tags` (already clean kebab-case values registered as Tier-2 taxonomy
+  // nodes), kept as its own field for the same cross-vertical-consistency
+  // reason as FeaturedUseCase.taxonomyIds above.
+  taxonomyIds?: string[];
   publishedDate: string;
   updatedDate: string;
 }
@@ -588,6 +601,7 @@ export interface HolLabSummary {
   estimatedMinutes: number;
   costTier: HolLabCostEstimate['tier'];
   tags: string[];
+  taxonomyIds?: string[];
   relatedExamIds: string[];
   relatedUseCaseIds: string[];
   relatedBlogSlugs: string[];

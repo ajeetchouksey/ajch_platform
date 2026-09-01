@@ -100,6 +100,20 @@ export async function loadUsecasesSourceIntel() {
   return JSON.parse(readFileSync(localPath, 'utf-8'));
 }
 
+// usecases/index.json (distinct from _source-intel.json above) — carries the
+// canonical patterns[] catalog ({id, label, count}), already taxonomy-shaped.
+// CDN when promoted, else local.
+export async function loadUsecasesIndex() {
+  const manifest = loadManifest();
+  const usecases = manifest?.usecases;
+  if (usecases?.repo && usecases?.sha) {
+    return fetchFromCdn(usecases, 'content/usecases/index.json', 'loadUsecasesIndex', 'usecases');
+  }
+  const localPath = join(contentDir, 'usecases', 'index.json');
+  if (!existsSync(localPath)) return null;
+  return JSON.parse(readFileSync(localPath, 'utf-8'));
+}
+
 // hol-labs/index.json — CDN when promoted, else local. Manifest key is
 // "hol-labs" (matches content-manifest.json), not "holLabs" or "hollabs".
 export async function loadHolLabsIndex() {
