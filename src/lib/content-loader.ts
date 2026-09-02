@@ -470,6 +470,7 @@ export interface FeaturedUseCase {
   workflowSteps?: string[];
   keyInsights?: string;
   mermaidDiagram?: string;
+  mermaidDiagramCaption?: string;
   architectureNotes?: string;
   techStack?: UseCaseTechStackCategory[];
   failureModes?: UseCaseFailureMode[];
@@ -591,6 +592,7 @@ export interface HolLab {
   problemStatement: string;
   approachRationale: string;
   mermaidDiagram?: string; // optional flow diagram — include when the lab's flow genuinely benefits from a picture
+  mermaidDiagramCaption?: string; // encouraged whenever mermaidDiagram is present — see mermaid-diagram-craft/SKILL.md
   prerequisites: string[];
   learningObjectives: string[];
   steps: HolLabStep[];

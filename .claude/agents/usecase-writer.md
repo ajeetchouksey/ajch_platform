@@ -38,6 +38,7 @@ Return exactly one JSON object matching this shape (see an existing case file fo
   "examScenarioPotential": "low | medium | high",
   "blogPotential": "low | medium | high",
   "mermaidDiagram": "flowchart TD ...",
+  "mermaidDiagramCaption": "5-10 words describing what the diagram shows — see mermaid-diagram-craft/SKILL.md",
   "architectureNotes": "2-4 sentences on the non-obvious design decisions",
   "relatedUseCases": [{ "id": "existing-case-id", "label": "...", "vertical": "..." }],
   "techStack": [{ "category": "...", "tools": ["..."] }],
@@ -51,7 +52,7 @@ Nothing else in your response — no file paths, no commentary, no markdown wrap
 
 ## Content Standards
 
-- **Concrete over generic**: real numbers (time saved, error rate, cost), real product names in `techStack`, a realistic `mermaidDiagram` that matches `workflowSteps`. See `.claude/skills/mermaid-diagram-craft/SKILL.md` for when a diagram earns its place, real-node-name discipline, and the enforced checklist it will be validated against.
+- **Concrete over generic**: real numbers (time saved, error rate, cost), real product names in `techStack`, a realistic `mermaidDiagram` that matches `workflowSteps`. See `.claude/skills/mermaid-diagram-craft/SKILL.md` for when a diagram earns its place, real-node-name discipline, and the enforced checklist it will be validated against. Always pair `mermaidDiagram` with `mermaidDiagramCaption` — see that skill's Caption rule.
 - **`relatedUseCases` and `relatedInterviewQs` must be real** — reference actual existing ids you confirmed exist during research, or omit the field/entry rather than fabricate a cross-link that 404s.
 - **`failureModes` must be genuine failure modes with real mitigations** — not padding. At least 2.
 - **Tooling diversity, with a platform-relevant lean**: `techStack` should reflect a realistic multi-vendor stack (the way `loan-application-underwriting.json` mixes GPT-4o, Azure AI Document Intelligence, and AWS Textract) — don't single-source every case to one vendor. Where an Azure AI service is a genuine, realistic fit for the workflow (Azure AI Foundry, Azure AI Document Intelligence, Azure AI Search, Azure OpenAI in Foundry), include it alongside the other real options — if `ajch_platform` is reachable in this session, its current MVP focus is the Azure AI Foundry Hub (issue #336 in that repo), and use cases are one of the concrete places that domain coverage shows up; if `ajch_platform` isn't reachable, apply the same Azure-fit lean without citing the issue. Never force it where it doesn't fit the actual architecture; a case with no genuine Azure fit should say so implicitly by just not listing one.

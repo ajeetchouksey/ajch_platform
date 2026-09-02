@@ -239,7 +239,7 @@ export default function UseCaseDetail() {
                     </div>
                   </div>
                 }>
-                  <MermaidDiagram chart={featured.mermaidDiagram} />
+                  <MermaidDiagram chart={featured.mermaidDiagram} caption={featured.mermaidDiagramCaption} />
                 </Suspense>
               </GlassCard>
               {featured.architectureNotes && (

@@ -161,9 +161,10 @@ Data / storage       →  fill:#162236,stroke:#60a5fa   (blue)
 
 ### Caption rules
 
-- 5–10 words, lowercase except proper nouns.
-- Describes what the diagram *shows*, not just the topic (e.g.
-  `"Bounded planner-executor-critic loop with escalation"` not just `"Orchestration"`).
+See `.claude/skills/mermaid-diagram-craft/SKILL.md` § Caption rule — this
+vertical follows it for `diagram.caption`. This was the source this
+vertical originally contributed; the rule now lives centrally, keep in
+sync if it changes.
 
 ### Validation checklist (run mentally before writing to disk)
 

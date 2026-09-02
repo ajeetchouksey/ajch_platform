@@ -62,3 +62,42 @@ A short Exam Trap callout doesn't need three subheadings inside it; a
 genuinely multi-branch Deep Dive scenario does need real structure to stay
 readable. The right amount of structure is the amount the content's actual
 shape calls for — no more, no less.
+
+## 5. Writing the copy
+
+Words are the content, not decoration around it — the same discipline
+Docs Engineer's Deep Dive and Tech Writer's headline already assume, made
+explicit and shared:
+
+- **Active voice.** "The retry pattern handles failures" beats "failures
+  are handled by the retry pattern." Passive voice hides who or what does
+  the acting — exactly the ambiguity a technical reader needs resolved.
+- **Specific beats clever.** A real number, a real tool name, a real
+  failure mode outperforms a vivid metaphor that doesn't teach anything
+  checkable. Same instinct behind Tech Writer's Named-Framework/Strong-
+  Claim techniques and Docs Engineer's Deep Dive worked scenario —
+  extended here to sentence-level word choice, not just section-level
+  structure.
+- **Name things by what the reader recognizes**, not by what sounds
+  original. A step called "Configure the retry budget" is more useful
+  than one called "Tame the chaos" — the reader is scanning for the
+  concept, not the voice.
+
+Distinct from §3's "avoiding generic AI-prose patterns" — §3 is what to
+cut, this is what good copy actively does.
+
+## 6. Naming discipline (blog post titles)
+
+Applies to Tech Writer's headlines specifically — Docs Engineer's note
+titles follow a fixed `# D{N}: {Domain Title}` template with no naming
+choice left to make, so this section doesn't apply there.
+
+Tech Writer's Strong-Claim Technique already covers headline *stance*
+(the headline must be a position, not a topic). This covers headline
+*naming discipline*, a distinct failure mode: stop at the name or claim
+itself — don't append an explainer after it. "The Context Budget Rule" is
+a name; "The Context Budget Rule: How to Allocate Your Agent's Context
+Window Wisely" is a name plus a description that belongs in the post's
+intro paragraph, not the title. If the headline needs a colon and a
+restatement to make sense, the claim itself isn't sharp enough yet —
+sharpen the claim, don't pad the title to compensate.

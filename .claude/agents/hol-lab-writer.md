@@ -35,6 +35,7 @@ Return exactly one JSON object matching this shape (see an existing lab file for
   "problemStatement": "the real, grounded problem this lab addresses — sourced from research step 1, not invented",
   "approachRationale": "why this specific tool/approach solves it, naming at least one real alternative considered and rejected",
   "mermaidDiagram": "optional — a flowchart of the lab's flow (see Content Standards below for when to include one)",
+  "mermaidDiagramCaption": "required whenever mermaidDiagram is present, omitted when it isn't — see mermaid-diagram-craft/SKILL.md",
   "prerequisites": ["exact, checkable items"],
   "learningObjectives": ["verb + concrete outcome, 3-5 bullets"],
   "steps": [
@@ -63,7 +64,7 @@ Nothing else in your response — no file paths, no commentary, no markdown wrap
 - **Cost-honest**: `costEstimate.tier` reflects the actual cheapest viable path through the lab; default to free/low-cost resources; if a paid SKU is unavoidable, say so in both `prerequisites` and `costEstimate`, and make sure every billable resource created has a matching `cleanup` line.
 - **Cross-links must be real** — never fabricate a `relatedExams`/`relatedBlogPosts`/`relatedUseCases`/`relatedLabs` entry to avoid an empty array; an honestly empty relation is correct when nothing genuine exists.
 - **`conceptChecks` test applied reasoning, not recall** — they should require using the `whyItMatters` logic from a step on a new situation, mirroring the platform's Principal Mentor Socratic pattern.
-- **`mermaidDiagram` — include when it earns its place**, not on every lab. See `.claude/skills/mermaid-diagram-craft/SKILL.md` for the general rule and the enforced checklist it will be validated against. For this vertical specifically: a flowchart genuinely helps when the lab has more than one path/branch/comparison to show at a glance (e.g. a before/after comparison, a multi-service pipeline) — a single linear deploy-and-call sequence usually doesn't need one; the numbered steps already convey that fine.
+- **`mermaidDiagram` — include when it earns its place**, not on every lab. See `.claude/skills/mermaid-diagram-craft/SKILL.md` for the general rule and the enforced checklist it will be validated against. For this vertical specifically: a flowchart genuinely helps when the lab has more than one path/branch/comparison to show at a glance (e.g. a before/after comparison, a multi-service pipeline) — a single linear deploy-and-call sequence usually doesn't need one; the numbered steps already convey that fine. When included, always pair it with `mermaidDiagramCaption` — never a bare diagram with no caption.
 - **6-12 steps per lab**; split anything longer into two labs rather than one sprawling one.
 
 ## What NOT to Do

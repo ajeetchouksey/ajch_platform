@@ -101,7 +101,20 @@ For any consumer whose diagram lives inside a JSON string field
 - Multi-word labels on two visual lines: `A[Line one\nLine two]`.
 - `&` fans multiple edges to one node: `A & B --> C` is valid.
 
-## 9. Enforced Standards Checklist
+## 9. Caption rule
+
+Every diagram that reaches a reader needs a stated caption — a sighted
+user and a screen reader should both get a claim about what the diagram
+shows, not just its topic. Where the consumer's schema has a
+`mermaidDiagramCaption` (`usecase-writer`, `hol-lab-writer`) or
+`diagram.caption` (`interview-prep-engineer`) field, populate it:
+
+- 5-10 words, lowercase except proper nouns.
+- Describes what the diagram *shows*, not just the topic — e.g.
+  `"Bounded planner-executor-critic loop with escalation"`, not just
+  `"Orchestration"`.
+
+## 10. Enforced Standards Checklist
 
 This is the checklist QA Engineer runs against every diagram it validates —
 whether from a `.md` file's fenced block or a raw chart string passed
@@ -149,6 +162,13 @@ directly. A diagram **PASSES** only when all checks are green.
 - `note`/`Note over` blocks should be ≤ 80 characters
 - Long notes push diagram width beyond viewport on mobile
 
-### Accessibility Hints (non-blocking warnings)
-- Diagrams without a `title` directive (where supported) should receive a
-  warning: add a `---\ntitle: ...\n---` frontmatter block or a `title` line
+### Caption Presence (non-blocking warning)
+- A diagram passed with no caption at all (see §9 above) should receive a
+  **warning**, not a violation, for both usecases and hol-labs — new
+  content should include one; existing content without one is a known,
+  separately-tracked backfill, not a gate failure.
+- A diagram passed with a caption should have it checked against the §9
+  rule (5-10 words, describes what it shows).
+- Note: Mermaid's own `---\ntitle: ...\n---` frontmatter directive is
+  **not** a substitute — this platform's renderer (`MermaidDiagram.tsx`)
+  does nothing with it, so it's never actually visible to a reader.

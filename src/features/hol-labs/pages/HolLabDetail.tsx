@@ -142,7 +142,7 @@ export default function HolLabDetail() {
                     </div>
                   </div>
                 }>
-                  <MermaidDiagram chart={lab.mermaidDiagram} />
+                  <MermaidDiagram chart={lab.mermaidDiagram} caption={lab.mermaidDiagramCaption} />
                 </Suspense>
               </GlassCard>
             </div>

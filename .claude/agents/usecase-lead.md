@@ -31,7 +31,8 @@ Return: one complete case JSON object, nothing else."
 ```
 Delegate to QA Engineer:
 "Validate this Mermaid diagram against platform standards (raw chart string):
-{mermaidDiagram field from the case JSON}"
+{mermaidDiagram field from the case JSON}
+Caption: {mermaidDiagramCaption field from the case JSON, or 'MISSING' if absent}"
 ```
 `mermaidDiagram` is a required field for this vertical, so this step always
 runs. VIOLATIONS → return to Usecase Writer for a redraw before proceeding

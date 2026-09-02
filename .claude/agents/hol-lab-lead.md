@@ -31,7 +31,8 @@ Return: one complete lab JSON object, nothing else."
 ```
 Delegate to QA Engineer:
 "Validate this Mermaid diagram against platform standards (raw chart string):
-{mermaidDiagram field from the lab JSON}"
+{mermaidDiagram field from the lab JSON}
+Caption: {mermaidDiagramCaption field from the lab JSON, or 'MISSING' if absent}"
 ```
 `mermaidDiagram` is optional for this vertical — if the Writer's output
 omits it, skip this step and note "N/A — no diagram" in the final report.

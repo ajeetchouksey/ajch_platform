@@ -108,8 +108,13 @@ All posts must use the canonical architectural terms from `.claude/skills/platfo
 1. Fetch source material via `WebFetch` if given a URL
 2. Read existing platform posts via `Read` to avoid overlap
 3. Search existing content with `Grep` for deduplication
-4. Write the article
-5. Return output string to Content Lead
+4. Sketch the piece's throughline before drafting — one line naming the
+   Named-Framework concept, and which sections need a table/list versus
+   prose (see `.claude/skills/content-structure-craft/SKILL.md` §1 for
+   the test). Skip this only for very short posts where the shape is
+   obvious.
+5. Write the article
+6. Return output string to Content Lead
 
 ## Categories
 
