@@ -81,6 +81,20 @@ export async function loadSkillupCatalog() {
   return JSON.parse(readFileSync(localPath, 'utf-8'));
 }
 
+// One skillup question file (path already looks like "content/skillup/
+// {examId}/questions/{examId}-domain{N}.json", exactly as stored in each
+// exam's questionFiles[]) — CDN when skillup is promoted, else local.
+export async function loadSkillupQuestionFile(relativePath) {
+  const manifest = loadManifest();
+  const skillup = manifest?.skillup;
+  if (skillup?.repo && skillup?.sha) {
+    return fetchFromCdn(skillup, relativePath, 'loadSkillupQuestionFile', 'skillup');
+  }
+  const localPath = join(root, 'public', relativePath);
+  if (!existsSync(localPath)) return null;
+  return JSON.parse(readFileSync(localPath, 'utf-8'));
+}
+
 // interviews/index.json — not yet a promoted vertical, always local.
 export async function loadInterviewsIndex() {
   const localPath = join(contentDir, 'interviews', 'index.json');

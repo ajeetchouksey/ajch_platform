@@ -160,6 +160,59 @@ function backfillBlog(dir, resolve, write) {
   return changed;
 }
 
+// Skillup is structured differently from every other vertical: multiple
+// exam directories (content/skillup/{examId}/index.json), each with its own
+// domains[] array and per-domain question files — not one index file. Tags
+// live on individual questions, not on a domain or exam directly, so this
+// groups each exam's questions by their own `domain` field and resolves the
+// UNION of that domain's question tags — deliberately domain-level, not
+// exam-level, so one exam covering many subtopics doesn't collapse into one
+// noisy, overly broad tag set (see build-content-intelligence.mjs's header
+// for the full rationale).
+function backfillSkillup(dir, resolve, write) {
+  const skillupDir = join(dir, 'content', 'skillup');
+  const examDirs = readdirSync(skillupDir).filter((f) => existsSync(join(skillupDir, f, 'index.json')));
+  const unresolved = new Set();
+  let changed = 0;
+
+  for (const examId of examDirs) {
+    const indexPath = join(skillupDir, examId, 'index.json');
+    const index = JSON.parse(readFileSync(indexPath, 'utf-8'));
+
+    const tagsByDomain = new Map(); // domain id -> Set<tag>
+    for (const qf of index.questionFiles ?? []) {
+      // questionFiles entries are repo-root-relative (e.g.
+      // "content/skillup/ab731/questions/ab731-domain1.json") — resolve
+      // against `dir`, not `skillupDir`, to match that convention.
+      const qPath = join(dir, qf);
+      if (!existsSync(qPath)) continue;
+      const questions = JSON.parse(readFileSync(qPath, 'utf-8'));
+      for (const q of questions) {
+        if (!tagsByDomain.has(q.domain)) tagsByDomain.set(q.domain, new Set());
+        for (const t of q.tags ?? []) tagsByDomain.get(q.domain).add(t);
+      }
+    }
+
+    console.log(`\n  ${examId}:`);
+    for (const domain of index.domains ?? []) {
+      const rawTags = [...(tagsByDomain.get(domain.id) ?? [])];
+      const taxonomyIds = resolveViaAlias(rawTags, resolve, unresolved);
+      console.log(`    domain ${domain.id} (${domain.title}): ${rawTags.length} raw tag(s) -> taxonomyIds=[${taxonomyIds.join(', ')}]`);
+      if (write) domain.taxonomyIds = taxonomyIds;
+      changed++;
+    }
+
+    if (write) {
+      writeFileSync(indexPath, JSON.stringify(index, null, 2) + '\n', 'utf-8');
+    }
+  }
+
+  if (unresolved.size > 0) {
+    console.log(`\n  (${unresolved.size} distinct tag(s) had no taxonomy match, dropped — run seed-taxonomy.mjs with a lower threshold if more coverage is wanted)`);
+  }
+  return changed;
+}
+
 function backfillInterviews(dir, resolve, write) {
   const path = join(dir, 'public', 'content', 'interviews', 'bank', 'questions.json');
   const questions = JSON.parse(readFileSync(path, 'utf-8'));
@@ -189,7 +242,7 @@ function main() {
   const write = process.argv.includes('--write');
 
   if (!vertical || !dir) {
-    console.error('Usage: node scripts/backfill-taxonomy-ids.mjs --vertical <hol-labs|usecases|blog|interviews> --dir <path> [--write]');
+    console.error('Usage: node scripts/backfill-taxonomy-ids.mjs --vertical <hol-labs|usecases|blog|interviews|skillup> --dir <path> [--write]');
     process.exit(1);
   }
   if (!existsSync(dir)) {
@@ -210,8 +263,10 @@ function main() {
     changed = backfillBlog(dir, resolve, write);
   } else if (vertical === 'interviews') {
     changed = backfillInterviews(dir, resolve, write);
+  } else if (vertical === 'skillup') {
+    changed = backfillSkillup(dir, resolve, write);
   } else {
-    console.error(`✗ Unknown vertical: ${vertical} (expected hol-labs, usecases, blog, or interviews)`);
+    console.error(`✗ Unknown vertical: ${vertical} (expected hol-labs, usecases, blog, interviews, or skillup)`);
     process.exit(1);
   }
 

@@ -138,8 +138,22 @@ export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabs
     docs.push({ id: `blog/${p.slug}`, type: 'blog', title: p.title, url: `/blog/${p.slug}`, taxonomyIds: p.taxonomyIds ?? [], updatedAt: p.updated ?? p.date });
   }
 
+  // Domain-level, not exam-level — an exam covers many subtopics (see this
+  // file's header), so relationship scoring needs the finer grain. Id/url
+  // scheme matches src/lib/search.ts's buildExamDocs domain entries exactly
+  // (id: exam/{examId}/domain-{domainId}, url: /exams/{examId}/notes) so a
+  // relationship edge and a search result for the same domain agree.
   for (const e of skillupCatalog?.exams ?? []) {
-    docs.push({ id: `exam/${e.id}`, type: 'exam', title: e.title, url: `/exams/${e.id}`, taxonomyIds: e.taxonomyIds ?? [], updatedAt: e.contentUpdatedAt });
+    for (const d of e.domains ?? []) {
+      docs.push({
+        id: `exam/${e.id}/domain-${d.id}`,
+        type: 'exam',
+        title: `${e.title} — ${d.title}`,
+        url: `/exams/${e.id}/notes`,
+        taxonomyIds: d.taxonomyIds ?? [],
+        updatedAt: e.contentUpdatedAt,
+      });
+    }
   }
 
   const featured = sourceIntel?.featuredUseCases ?? [];

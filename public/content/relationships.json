@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generated": "2026-09-02T07:38:32.178Z",
+  "generated": "2026-09-02T08:08:58.110Z",
   "edges": {
     "blog/microsoft-foundry-two-boundary-model": [
       {
@@ -8,7 +8,7 @@
         "type": "lab",
         "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
         "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
-        "score": 2.8575084116723204,
+        "score": 2.85704335488881,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -19,7 +19,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.8575084116723204,
+        "score": 2.85704335488881,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -32,7 +32,7 @@
         "type": "blog",
         "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
         "url": "/blog/microsoft-foundry-two-boundary-model",
-        "score": 2.7922428293503168,
+        "score": 2.791788394478421,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -67,7 +67,7 @@
         "type": "blog",
         "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
         "url": "/blog/microsoft-foundry-two-boundary-model",
-        "score": 2.7922428293503168,
+        "score": 2.791788394478421,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -78,7 +78,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.3537674812625387,
+        "score": 1.353547156889079,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -104,7 +104,7 @@
         "type": "blog",
         "title": "The ADLC: A Software Engineering Discipline for AI Agents",
         "url": "/blog/adlc-engineering-discipline-for-ai-agents",
-        "score": 2.5068381544356857,
+        "score": 2.506430168903912,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -115,7 +115,7 @@
         "type": "blog",
         "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
         "url": "/blog/ai-architecture-blueprint-multi-agent-privacy-first",
-        "score": 2.449581891858138,
+        "score": 2.4491832247287886,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -126,7 +126,7 @@
         "type": "blog",
         "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
         "url": "/blog/what-is-a-vector-database",
-        "score": 2.2855407205747906,
+        "score": 2.2851687509904663,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -137,7 +137,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 2.2506056659823868,
+        "score": 2.2502393820450597,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -148,7 +148,7 @@
         "type": "blog",
         "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
         "url": "/blog/llm-observability",
-        "score": 2.0837788734635883,
+        "score": 2.0834397404285,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -198,7 +198,7 @@
         "type": "blog",
         "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
         "url": "/blog/what-is-a-vector-database",
-        "score": 2.2855407205747906,
+        "score": 2.2851687509904663,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -209,7 +209,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 2.2506056659823868,
+        "score": 2.2502393820450597,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -272,7 +272,7 @@
         "type": "blog",
         "title": "When Your Burger Bot Goes Rogue: A Production Wake-Up Call",
         "url": "/blog/order-bot-domain-boundary",
-        "score": 2.7143602883211027,
+        "score": 2.7139185287588847,
         "sharedTaxonomyIds": [
           "domain-boundary"
         ],
@@ -307,7 +307,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.8575084116723204,
+        "score": 2.85704335488881,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -320,7 +320,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.8575084116723204,
+        "score": 2.85704335488881,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -331,7 +331,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.3537674812625387,
+        "score": 1.353547156889079,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -344,7 +344,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.8575084116723204,
+        "score": 2.85704335488881,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -355,7 +355,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.3537674812625387,
+        "score": 1.353547156889079,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],

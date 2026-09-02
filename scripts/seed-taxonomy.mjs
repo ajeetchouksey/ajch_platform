@@ -31,13 +31,18 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { loadUsecasesIndex, loadHolLabsIndex, loadBlogIndex } from './lib/content-sources.mjs';
+import { loadUsecasesIndex, loadHolLabsIndex, loadBlogIndex, loadSkillupCatalog, loadSkillupQuestionFile } from './lib/content-sources.mjs';
 import { buildAliasIndex } from './lib/taxonomy.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 const TAXONOMY_PATH = join(root, 'public', 'content', 'taxonomy.json');
 const BLOG_MIN_USAGE = 2;
+// skillup's 1065 questions carry 1275 unique free-text tags (vs. blog's 89
+// across 65 posts) — a much higher usage bar keeps this to genuinely
+// reusable concepts instead of importing hundreds of one-off/narrow
+// question-level tags as permanent taxonomy nodes.
+const SKILLUP_MIN_USAGE = 10;
 
 // Hand-picked display labels for known abbreviations/product names — a
 // generic slug->Title Case conversion would produce "Azure Ai Foundry"
@@ -70,6 +75,19 @@ const LABEL_OVERRIDES = {
   pestertest: 'Pester Tests',
   codequality: 'Code Quality',
   powershell: 'PowerShell',
+  mcp: 'MCP',
+  'ci-cd': 'CI/CD',
+  tool_choice: 'Tool Choice',
+  vscode: 'VS Code',
+  jetbrains: 'JetBrains',
+  'json-schema': 'JSON Schema',
+  'github-copilot': 'GitHub Copilot',
+  'copilot-cli': 'Copilot CLI',
+  'copilot-chat': 'Copilot Chat',
+  'copilot-extensions': 'Copilot Extensions',
+  'copilot-features': 'Copilot Features',
+  'copilot-studio': 'Copilot Studio',
+  'ide-integration': 'IDE Integration',
 };
 
 // Purely categorical meta-tags, not concepts — a tag can only reach here if
@@ -120,6 +138,28 @@ const SOURCES = [
       }
       return [...counts.entries()]
         .filter(([, count]) => count >= BLOG_MIN_USAGE)
+        .map(([id]) => ({ id, label: titleCase(id) }));
+    },
+  },
+  {
+    vertical: 'skillup',
+    describe: `content/skillup/{exam}/questions/*.json — free-text question tags across all exams, used on ${SKILLUP_MIN_USAGE}+ questions`,
+    async candidates() {
+      const catalog = await loadSkillupCatalog();
+      const counts = new Map(); // lowercase tag -> count (question tags have inconsistent casing, e.g. "Copilot-Studio" vs "copilot-studio")
+      for (const exam of catalog?.exams ?? []) {
+        const files = await Promise.all((exam.questionFiles ?? []).map((f) => loadSkillupQuestionFile(f).catch(() => null)));
+        for (const questions of files) {
+          for (const q of questions ?? []) {
+            for (const t of q.tags ?? []) {
+              const key = t.toLowerCase();
+              counts.set(key, (counts.get(key) ?? 0) + 1);
+            }
+          }
+        }
+      }
+      return [...counts.entries()]
+        .filter(([, count]) => count >= SKILLUP_MIN_USAGE)
         .map(([id]) => ({ id, label: titleCase(id) }));
     },
   },

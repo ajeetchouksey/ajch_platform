@@ -537,6 +537,510 @@
       "aliases": [
         "configuration-management"
       ]
+    },
+    {
+      "id": "copilot-studio",
+      "label": "Copilot Studio",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "copilot-studio"
+      ]
+    },
+    {
+      "id": "tool-design",
+      "label": "Tool Design",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "tool-design"
+      ]
+    },
+    {
+      "id": "governance",
+      "label": "Governance",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "governance"
+      ]
+    },
+    {
+      "id": "compliance",
+      "label": "Compliance",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "compliance"
+      ]
+    },
+    {
+      "id": "human-in-the-loop",
+      "label": "Human In The Loop",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "human-in-the-loop"
+      ]
+    },
+    {
+      "id": "enterprise",
+      "label": "Enterprise",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "enterprise"
+      ]
+    },
+    {
+      "id": "knowledge-base",
+      "label": "Knowledge Base",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "knowledge-base"
+      ]
+    },
+    {
+      "id": "fine-tuning",
+      "label": "Fine Tuning",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "fine-tuning"
+      ]
+    },
+    {
+      "id": "prompt-engineering",
+      "label": "Prompt Engineering",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "prompt-engineering"
+      ]
+    },
+    {
+      "id": "multi-agent",
+      "label": "Multi Agent",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "multi-agent"
+      ]
+    },
+    {
+      "id": "security",
+      "label": "Security",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "security"
+      ]
+    },
+    {
+      "id": "mcp",
+      "label": "MCP",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "hallucination",
+      "label": "Hallucination",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "hallucination"
+      ]
+    },
+    {
+      "id": "evaluation-metrics",
+      "label": "Evaluation Metrics",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "evaluation-metrics"
+      ]
+    },
+    {
+      "id": "monitoring",
+      "label": "Monitoring",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "monitoring"
+      ]
+    },
+    {
+      "id": "latency",
+      "label": "Latency",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "latency"
+      ]
+    },
+    {
+      "id": "validation",
+      "label": "Validation",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "validation"
+      ]
+    },
+    {
+      "id": "evaluation",
+      "label": "Evaluation",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "evaluation"
+      ]
+    },
+    {
+      "id": "least-privilege",
+      "label": "Least Privilege",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "least-privilege"
+      ]
+    },
+    {
+      "id": "reliability",
+      "label": "Reliability",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "reliability"
+      ]
+    },
+    {
+      "id": "ci-cd",
+      "label": "CI/CD",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "ci-cd"
+      ]
+    },
+    {
+      "id": "few-shot",
+      "label": "Few Shot",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "few-shot"
+      ]
+    },
+    {
+      "id": "privacy",
+      "label": "Privacy",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "privacy"
+      ]
+    },
+    {
+      "id": "automation",
+      "label": "Automation",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "automation"
+      ]
+    },
+    {
+      "id": "hooks",
+      "label": "Hooks",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "hooks"
+      ]
+    },
+    {
+      "id": "agentic-loop",
+      "label": "Agentic Loop",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "agentic-loop"
+      ]
+    },
+    {
+      "id": "error-handling",
+      "label": "Error Handling",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "error-handling"
+      ]
+    },
+    {
+      "id": "task-decomposition",
+      "label": "Task Decomposition",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "task-decomposition"
+      ]
+    },
+    {
+      "id": "coordinator",
+      "label": "Coordinator",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "coordinator"
+      ]
+    },
+    {
+      "id": "code-review",
+      "label": "Code Review",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "code-review"
+      ]
+    },
+    {
+      "id": "tool_choice",
+      "label": "Tool Choice",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "tool_choice"
+      ]
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "context"
+      ]
+    },
+    {
+      "id": "tool-selection",
+      "label": "Tool Selection",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "tool-selection"
+      ]
+    },
+    {
+      "id": "json-schema",
+      "label": "JSON Schema",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "json-schema"
+      ]
+    },
+    {
+      "id": "slash-commands",
+      "label": "Slash Commands",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "slash-commands"
+      ]
+    },
+    {
+      "id": "solution-design",
+      "label": "Solution Design",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "solution-design"
+      ]
+    },
+    {
+      "id": "scenario-based",
+      "label": "Scenario Based",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "scenario-based"
+      ]
+    },
+    {
+      "id": "application",
+      "label": "Application",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "application"
+      ]
+    },
+    {
+      "id": "comprehension",
+      "label": "Comprehension",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "comprehension"
+      ]
+    },
+    {
+      "id": "analysis",
+      "label": "Analysis",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "analysis"
+      ]
+    },
+    {
+      "id": "copilot-chat",
+      "label": "Copilot Chat",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "copilot-chat"
+      ]
+    },
+    {
+      "id": "ide-integration",
+      "label": "IDE Integration",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "ide-integration"
+      ]
+    },
+    {
+      "id": "github-copilot",
+      "label": "GitHub Copilot",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "github-copilot"
+      ]
+    },
+    {
+      "id": "vscode",
+      "label": "VS Code",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "vscode"
+      ]
+    },
+    {
+      "id": "copilot-cli",
+      "label": "Copilot CLI",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "copilot-cli"
+      ]
+    },
+    {
+      "id": "code-filter",
+      "label": "Code Filter",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "code-filter"
+      ]
+    },
+    {
+      "id": "plans",
+      "label": "Plans",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "plans"
+      ]
+    },
+    {
+      "id": "copilot-extensions",
+      "label": "Copilot Extensions",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "copilot-extensions"
+      ]
+    },
+    {
+      "id": "code-completion",
+      "label": "Code Completion",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "code-completion"
+      ]
+    },
+    {
+      "id": "content-exclusions",
+      "label": "Content Exclusions",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "content-exclusions"
+      ]
+    },
+    {
+      "id": "jetbrains",
+      "label": "JetBrains",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "jetbrains"
+      ]
+    },
+    {
+      "id": "proxy-security",
+      "label": "Proxy Security",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "proxy-security"
+      ]
+    },
+    {
+      "id": "branch-protection",
+      "label": "Branch Protection",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "branch-protection"
+      ]
+    },
+    {
+      "id": "testing",
+      "label": "Testing",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "testing"
+      ]
+    },
+    {
+      "id": "copilot-features",
+      "label": "Copilot Features",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "copilot-features"
+      ]
+    },
+    {
+      "id": "developer-productivity",
+      "label": "Developer Productivity",
+      "kind": "concept",
+      "tier": 2,
+      "aliases": [
+        "developer-productivity"
+      ]
     }
   ]
 }

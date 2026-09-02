@@ -5,6 +5,11 @@ export interface DomainConfig {
   weight: number;
   color: string;      // Tailwind bg class, e.g. "bg-violet-600"
   notesFile: string;  // e.g. "content/skillup/ab100/notes/ab100-d1-....md" (resolved via content-manifest.ts)
+  // Aggregated + alias-resolved from this domain's own questions' tags (see
+  // scripts/backfill-taxonomy-ids.mjs's skillup mode) — this, not an
+  // exam-wide tag set, is what the relationship engine scores against, so
+  // an exam covering many subtopics doesn't collapse into one noisy match.
+  taxonomyIds?: string[];
 }
 
 export interface ExamResource {
