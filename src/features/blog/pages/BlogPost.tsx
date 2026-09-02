@@ -705,6 +705,13 @@ export default function BlogPost() {
               tags={meta.tags ?? []}
               currentPath={`/blog/${slug}`}
               heading="Related Resources"
+              // Skill-track suggestions are dropped here (not on ExamHome/Tools,
+              // which have no computed alternative at all) — ComputedRelatedList
+              // right below already surfaces more precise exam-domain matches
+              // from real taxonomyIds overlap, not a coarse whole-exam keyword
+              // match. AI Tools stays: tools have no content to tag, so they're
+              // not part of the relationship engine and can't be replaced by it.
+              maxSkills={0}
             />
           )}
 
