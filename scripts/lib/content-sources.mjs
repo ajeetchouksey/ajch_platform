@@ -88,6 +88,14 @@ export async function loadInterviewsIndex() {
   return JSON.parse(readFileSync(localPath, 'utf-8'));
 }
 
+// interviews/bank/questions.json — the actual tagged question items (index.json
+// above is just the role-pack index). Not yet a promoted vertical, always local.
+export async function loadInterviewsBank() {
+  const localPath = join(contentDir, 'interviews', 'bank', 'questions.json');
+  if (!existsSync(localPath)) return null;
+  return JSON.parse(readFileSync(localPath, 'utf-8'));
+}
+
 // usecases/_source-intel.json — CDN when promoted, else local.
 export async function loadUsecasesSourceIntel() {
   const manifest = loadManifest();

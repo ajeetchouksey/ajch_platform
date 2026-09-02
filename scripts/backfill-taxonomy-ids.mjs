@@ -3,31 +3,43 @@
  * backfill-taxonomy-ids.mjs
  *
  * One-time (per vertical) backfill of `taxonomyIds` onto already-published
- * content, for verticals whose existing tag/pattern vocabulary is already
- * clean and kebab-case (registered as Tier-2 taxonomy.json nodes by
- * scripts/seed-taxonomy.mjs first — run that before this). For those
- * verticals taxonomyIds is currently an identity copy of the existing
- * tags/patterns field; this script's real job is validating every id
- * against taxonomy.json (catching a typo/rename before it ships) and
- * writing the field everywhere the schema now expects it (both the
- * per-item files AND their index.json summary entries, so reverse-link
- * lookups never need an N+1 fetch).
+ * content. Two modes, depending on how clean the vertical's existing tag
+ * vocabulary already is:
  *
- * Operates directly on a target repo checkout passed via --dir — this repo
- * (ajch_platform) doesn't hold promoted verticals' raw content anymore.
+ * - IDENTITY (hol-labs, usecases): tags/patterns are already kebab-case and
+ *   registered as taxonomy.json nodes by scripts/seed-taxonomy.mjs — this
+ *   script just validates every id against taxonomy.json (catching a typo/
+ *   rename before it ships) and copies it through as taxonomyIds.
+ * - ALIAS-RESOLVED (blog, interviews): tags are free text and often mean an
+ *   already-registered concept under a different string (e.g. a blog post
+ *   tagged "resilience" means the degradation-ladder node) — resolved via
+ *   scripts/lib/taxonomy.mjs's buildAliasIndex() instead of copied as-is.
+ *   An unresolvable tag is dropped, not invented as a new node (that's
+ *   seed-taxonomy.mjs's job, run before this).
+ *
+ * Writes both the per-item files AND their index.json summary entries where
+ * one exists, so reverse-link lookups never need an N+1 fetch.
+ *
+ * Operates directly on a target repo checkout passed via --dir for a
+ * promoted vertical (this repo doesn't hold that raw content anymore).
+ * interviews is unpromoted and always local, so --dir defaults to this
+ * repo's own root for it.
  *
  * Usage:
- *   node scripts/backfill-taxonomy-ids.mjs --vertical hol-labs  --dir ../ajch_hol_labs
- *   node scripts/backfill-taxonomy-ids.mjs --vertical usecases  --dir ../ajch_ai_usecases
+ *   node scripts/backfill-taxonomy-ids.mjs --vertical hol-labs    --dir ../ajch_hol_labs
+ *   node scripts/backfill-taxonomy-ids.mjs --vertical usecases    --dir ../ajch_ai_usecases
+ *   node scripts/backfill-taxonomy-ids.mjs --vertical blog        --dir ../ajch_aaryaai_blogs
+ *   node scripts/backfill-taxonomy-ids.mjs --vertical interviews
  *
  * Default is dry-run (prints what would change). Pass --write to apply.
  */
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { loadTaxonomyTopics, buildAliasIndex } from './lib/taxonomy.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TAXONOMY_PATH = join(__dirname, '..', 'public', 'content', 'taxonomy.json');
+const REPO_ROOT = join(__dirname, '..');
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -35,8 +47,7 @@ function arg(name) {
 }
 
 function loadKnownIds() {
-  const taxonomy = JSON.parse(readFileSync(TAXONOMY_PATH, 'utf-8'));
-  return new Set(taxonomy.topics.map((t) => t.id));
+  return new Set(loadTaxonomyTopics().map((t) => t.id));
 }
 
 function checkKnown(ids, knownIds, context) {
@@ -45,6 +56,22 @@ function checkKnown(ids, knownIds, context) {
     console.warn(`  ⚠ ${context}: not in taxonomy.json, skipping: ${unknown.join(', ')} (run seed-taxonomy.mjs first if these are legitimate new topics)`);
   }
   return ids.filter((id) => knownIds.has(id));
+}
+
+// Alias-resolve a raw tag list into deduped taxonomy ids — multiple raw tags
+// can resolve to the same node (e.g. "resilience" and "fallback-strategy"
+// both mean degradation-ladder), so this can legitimately return fewer ids
+// than input tags. Unresolvable tags are silently dropped (reported once
+// in aggregate by the caller instead of per-item, since an unresolved
+// legacy blog tag like "70-533" is expected, not an error to flag per post).
+function resolveViaAlias(tags, resolve, unresolvedSink) {
+  const ids = new Set();
+  for (const tag of tags) {
+    const hit = resolve(tag);
+    if (hit) ids.add(hit);
+    else unresolvedSink?.add(tag);
+  }
+  return [...ids];
 }
 
 function backfillHolLabs(dir, knownIds, write) {
@@ -110,13 +137,59 @@ function backfillUseCases(dir, knownIds, write) {
   return changed;
 }
 
+function backfillBlog(dir, resolve, write) {
+  const indexPath = join(dir, 'content', 'blog', 'index.json');
+  const index = JSON.parse(readFileSync(indexPath, 'utf-8'));
+  const unresolved = new Set();
+  let changed = 0;
+
+  for (const post of index.posts ?? []) {
+    const taxonomyIds = resolveViaAlias(post.tags ?? [], resolve, unresolved);
+    console.log(`  ${post.slug}: tags=[${(post.tags ?? []).join(', ')}] -> taxonomyIds=[${taxonomyIds.join(', ')}]`);
+    if (write) post.taxonomyIds = taxonomyIds;
+    changed++;
+  }
+
+  if (unresolved.size > 0) {
+    console.log(`\n  (${unresolved.size} tag(s) had no taxonomy match, dropped: ${[...unresolved].sort().join(', ')})`);
+  }
+
+  if (write) {
+    writeFileSync(indexPath, JSON.stringify(index, null, 2) + '\n', 'utf-8');
+  }
+  return changed;
+}
+
+function backfillInterviews(dir, resolve, write) {
+  const path = join(dir, 'public', 'content', 'interviews', 'bank', 'questions.json');
+  const questions = JSON.parse(readFileSync(path, 'utf-8'));
+  const unresolved = new Set();
+  let changed = 0;
+
+  for (const q of questions) {
+    const taxonomyIds = resolveViaAlias(q.tags ?? [], resolve, unresolved);
+    console.log(`  ${q.id}: tags=[${(q.tags ?? []).join(', ')}] -> taxonomyIds=[${taxonomyIds.join(', ')}]`);
+    if (write) q.taxonomyIds = taxonomyIds;
+    changed++;
+  }
+
+  if (unresolved.size > 0) {
+    console.log(`\n  (${unresolved.size} tag(s) had no taxonomy match, dropped — expected, this bank's tags are mostly one-off: ${[...unresolved].sort().join(', ')})`);
+  }
+
+  if (write) {
+    writeFileSync(path, JSON.stringify(questions, null, 2) + '\n', 'utf-8');
+  }
+  return changed;
+}
+
 function main() {
   const vertical = arg('vertical');
-  const dir = arg('dir');
+  const dir = arg('dir') ?? (vertical === 'interviews' ? REPO_ROOT : undefined);
   const write = process.argv.includes('--write');
 
   if (!vertical || !dir) {
-    console.error('Usage: node scripts/backfill-taxonomy-ids.mjs --vertical <hol-labs|usecases> --dir <path> [--write]');
+    console.error('Usage: node scripts/backfill-taxonomy-ids.mjs --vertical <hol-labs|usecases|blog|interviews> --dir <path> [--write]');
     process.exit(1);
   }
   if (!existsSync(dir)) {
@@ -125,6 +198,7 @@ function main() {
   }
 
   const knownIds = loadKnownIds();
+  const { resolve } = buildAliasIndex(loadTaxonomyTopics());
   console.log(`${write ? 'Writing' : 'Dry run (pass --write to apply)'} — ${vertical} at ${dir}\n`);
 
   let changed;
@@ -132,8 +206,12 @@ function main() {
     changed = backfillHolLabs(dir, knownIds, write);
   } else if (vertical === 'usecases') {
     changed = backfillUseCases(dir, knownIds, write);
+  } else if (vertical === 'blog') {
+    changed = backfillBlog(dir, resolve, write);
+  } else if (vertical === 'interviews') {
+    changed = backfillInterviews(dir, resolve, write);
   } else {
-    console.error(`✗ Unknown vertical: ${vertical} (expected hol-labs or usecases)`);
+    console.error(`✗ Unknown vertical: ${vertical} (expected hol-labs, usecases, blog, or interviews)`);
     process.exit(1);
   }
 

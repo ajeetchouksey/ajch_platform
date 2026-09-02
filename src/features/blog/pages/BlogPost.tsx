@@ -13,6 +13,8 @@ import { sharePost } from '@/lib/share';
 import { trackEvent } from '@/lib/analytics';
 import GiscusComments from '@/components/GiscusComments';
 import RelatedContent from '@/components/RelatedContent';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationships } from '@/lib/useRelationships';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { ContentMeta } from '@/components/ui';
@@ -357,6 +359,7 @@ export default function BlogPost() {
   const [copied, setCopied] = useState(false);
   const [visible, setVisible] = useState(false);
   const [activeId, setActiveId] = useState('');
+  const computedRelated = useRelationships(slug ? `blog/${slug}` : undefined);
   const [highlightEnabled, setHighlightEnabled] = useState(true);
   const [readPct, setReadPct] = useState(0);
   const [showToc, setShowToc] = useState(false);
@@ -704,6 +707,9 @@ export default function BlogPost() {
               heading="Related Resources"
             />
           )}
+
+          {/* ── Computed cross-vertical relationships ─────────────────────── */}
+          <ComputedRelatedList edges={computedRelated} heading="Also Related" />
         </div>
 
         {/* ───── Sticky sidebar ─────────────────────────────────────────── */}

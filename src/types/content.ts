@@ -171,6 +171,7 @@ export interface BlogPostMeta {
   date: string;
   updated: string | null;
   tags: string[];
+  taxonomyIds?: string[];
   category: string;
   readingTime: number;
   featured: boolean;

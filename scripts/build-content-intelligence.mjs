@@ -21,11 +21,16 @@
  * CI pins Node 22 without --experimental-strip-types. Change the formula in
  * BOTH places if you ever touch it.
  *
- * See IDEA-0008 in ajch_food_for_thoughts for the full phased plan. Only
- * hol-labs and usecases have taxonomyIds populated as of Phase 2 — blog,
- * skillup, and interviews will start participating once Phase 4 backfills
- * them; until then this legitimately produces zero or few edges, which is
- * expected, not a bug (verify the algorithm itself via relationships.test.ts).
+ * See IDEA-0008 in ajch_food_for_thoughts for the full phased plan. As of
+ * Phase 4, hol-labs, usecases, blog, and interviews all have taxonomyIds
+ * (blog via alias-resolved backfill — see scripts/lib/taxonomy.mjs — since
+ * its tags are free text, unlike the other three's already-clean
+ * vocabularies). Only skillup remains unannotated: its Question.tags are
+ * per-question, not per-exam, and this pipeline's docs are one-per-exam —
+ * bridging that gap means either aggregating a whole exam's tags (too
+ * noisy, kills precision) or adding exam-domain-level docs (a real
+ * architecture extension, not a backfill) — deliberately deferred rather
+ * than shipping a low-precision shortcut.
  *
  * Usage: node scripts/build-content-intelligence.mjs
  */
@@ -38,6 +43,7 @@ import {
   loadUsecasesSourceIntel,
   loadHolLabsIndex,
   loadHolLabFile,
+  loadInterviewsBank,
 } from './lib/content-sources.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -124,7 +130,7 @@ function loadTaxonomyTier1Ids() {
 // Skillup only has an exam-level entry here (no domain-level breakdown) since
 // exams don't carry taxonomyIds yet (Phase 4) — nothing is lost by keeping
 // this minimal until that phase actually needs the finer granularity.
-export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex }) {
+export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex, interviewsBank }) {
   const docs = [];
 
   for (const p of blogIndex?.posts ?? []) {
@@ -144,6 +150,10 @@ export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabs
 
   for (const l of holLabsIndex?.labs ?? []) {
     docs.push({ id: `lab/${l.id}`, type: 'lab', title: l.title, url: `/hol-labs/${l.id}`, taxonomyIds: l.taxonomyIds ?? [], updatedAt: l.updatedDate });
+  }
+
+  for (const q of interviewsBank ?? []) {
+    docs.push({ id: `interview/${q.id}`, type: 'interview', title: q.question, url: `/roleprep/q/${q.id}`, taxonomyIds: q.taxonomyIds ?? [] });
   }
 
   return docs;
@@ -223,11 +233,12 @@ async function buildWhyLookup(holLabsIndex, sourceIntel) {
 async function main() {
   const manifest = loadManifest();
 
-  const [blogIndex, skillupCatalog, sourceIntel, holLabsIndex] = await Promise.all([
+  const [blogIndex, skillupCatalog, sourceIntel, holLabsIndex, interviewsBank] = await Promise.all([
     loadBlogIndex().catch((e) => { console.error(`⚠ blog: ${e.message}`); return null; }),
     loadSkillupCatalog().catch((e) => { console.error(`⚠ skillup: ${e.message}`); return null; }),
     loadUsecasesSourceIntel().catch((e) => { console.error(`⚠ usecases: ${e.message}`); return null; }),
     loadHolLabsIndex().catch((e) => { console.error(`⚠ hol-labs: ${e.message}`); return null; }),
+    loadInterviewsBank().catch((e) => { console.error(`⚠ interviews: ${e.message}`); return null; }),
   ]);
 
   const skillupCounts = countSkillupAggregates(skillupCatalog);
@@ -267,7 +278,7 @@ async function main() {
   );
 
   const now = Date.now();
-  const relDocs = collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex });
+  const relDocs = collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex, interviewsBank });
   const tier1Ids = loadTaxonomyTier1Ids();
   const whyLookup = await buildWhyLookup(holLabsIndex, sourceIntel);
   const edges = computeRelationshipEdges(relDocs, { tier1Ids, now, whyLookup });
