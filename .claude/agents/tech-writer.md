@@ -95,6 +95,8 @@ All posts must use the canonical architectural terms from `.claude/skills/platfo
 - Body: H2 sections, each making ONE clear point; each section closable with a quotable one-liner
 - Code blocks: Real, runnable, with inline comments
 - Conclusion: Named framework recap + CTA to exam content or tools
+- Structure and callout economy: see `.claude/skills/content-structure-craft/SKILL.md` for when a structural device earns its place and how to avoid generic AI-prose patterns
+- Diagrams (when used): a `` ```mermaid `` fence earns its place per `.claude/skills/mermaid-diagram-craft/SKILL.md` — QA Engineer validates every diagram before publish; don't add one just to illustrate a linear sequence prose already covers
 
 ### What NOT to Write
 - Marketing language ("leverage synergies", "next-generation")

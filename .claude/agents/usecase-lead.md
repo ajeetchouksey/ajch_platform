@@ -27,7 +27,17 @@ Context: [any relevant detail — the gap this fills, related exams/interviews t
 Return: one complete case JSON object, nothing else."
 ```
 
-### Step 2 — Security Gate
+### Step 2 — Diagram Gate
+```
+Delegate to QA Engineer:
+"Validate this Mermaid diagram against platform standards (raw chart string):
+{mermaidDiagram field from the case JSON}"
+```
+`mermaidDiagram` is a required field for this vertical, so this step always
+runs. VIOLATIONS → return to Usecase Writer for a redraw before proceeding
+to Step 3; don't pass a failing diagram through to Security Gate.
+
+### Step 3 — Security Gate
 ```
 Delegate to AppSec Engineer:
 "Pre-flight for use-case publish.
@@ -38,14 +48,14 @@ Case id: {id}
 Full case JSON: [paste]"
 ```
 
-### Step 3 (if PASS) — Brief Usecase Publisher
+### Step 4 (if PASS) — Brief Usecase Publisher
 ```
 Delegate to Usecase Publisher:
 "Publish the following case to {repo root}/content/usecases/:
 {full case JSON}"
 ```
 
-### Step 4 — Post-build Security Audit
+### Step 5 — Post-build Security Audit
 ```
 Delegate to AppSec Engineer:
 "Post-build audit of {repo root}/content/usecases/cases/{id}.json and index.json"

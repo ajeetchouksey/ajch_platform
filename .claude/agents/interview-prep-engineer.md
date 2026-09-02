@@ -123,6 +123,10 @@ small deltas. Never copy a full answer into a second role pack.
 
 Every diagram is a Mermaid string stored in `diagram.chart`. Follow these rules
 strictly so diagrams render correctly in the platform's `MermaidDiagram` component.
+The type-selection table, JSON-encoding rules, and color-by-meaning palette below
+are the source this vertical contributed to the shared
+`.claude/skills/mermaid-diagram-craft/SKILL.md` — that file is now the canonical,
+platform-wide version; keep these two in sync if either changes.
 
 ### Diagram type selection
 

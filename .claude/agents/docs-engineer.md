@@ -194,12 +194,13 @@ Use these in markdown for special styling:
 2. **Skill-first** — every paragraph should answer "why does this matter in practice?" Frame exam relevance as a *consequence* of real-world importance, not the reason for learning it. The exam tests whether you understand the concept; understanding the concept is the goal. Never write "remember this for the exam" — write "this is why systems fail without it".
 3. **Concrete examples** — use real API calls, real token counts, real limits
 4. **Cross-domain links** — note connections: "The 18-tool limit (D4) explains why coordinators exist (D1)"
-5. **Mermaid diagrams** — use for flows, hierarchies, decision trees
+5. **Mermaid diagrams** — see `.claude/skills/mermaid-diagram-craft/SKILL.md` for when one earns its place and the enforced readability/contrast rules; don't hardcode diagram rules here
 6. **Depth over pointers** — every domain note must teach understanding, not just list facts. A note that only points at concepts (tables, bullets, term lists) without a `## Deep Dive` section that explains *how* and *why* fails review.
 7. **Worked scenarios** — include at least one end-to-end worked scenario per domain (inside the Deep Dive) that shows the reasoning, not just the answer. Use real numbers, real tool names, real config.
 8. **Human Angle** — include one memorable analogy, proverb, or punch line in the Overview section of each domain file. Mark it clearly with the 💡 callout. This aids retention without distorting exam content. Rule: *proverbs support memory, never replace precision.* If no natural fit exists, omit — a forced analogy is worse than none.
 9. **In Practice** — every topic section must include a production context block (see format below). This is what separates skill-building notes from exam-pointer notes.
 10. **Punch-first prose** — inside Key Concept and In Practice blocks, lead with the sharpest, most memorable sentence before elaborating; see Key Concept Formatting Standard for the required shape. Craft rule only — it changes how prose opens, not what headings exist.
+11. **Structure and callout economy** — see `.claude/skills/content-structure-craft/SKILL.md` for when a `note-trap`/`note-important`/`note-scribble` callout earns its place versus when it's clutter, and for avoiding generic AI-prose patterns.
 
 > **AI Guardrail**: Human Angle and Deep Dive content must be professional, culturally neutral, and must not alter the technical accuracy of any documented fact. Memory aids (mnemonics/checklists) must map to real, load-bearing concepts — never invented filler. Deep Dive narrative and worked scenarios live within the exam content boundary and must be factually correct; the Human Angle callout exists outside it.
 
