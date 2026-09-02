@@ -19,7 +19,7 @@ npm run build                # tsc -b && vite build && generate-og-shells + gene
 npm run preview              # preview a production build
 npm run validate-content     # node scripts/validate-content.mjs — schema-checks public/content/**
 npm run health                # node scripts/content-health-report.mjs — drift report (dup IDs, gaps)
-node scripts/build-content-intelligence.mjs  # regenerate public/content/stats.json (schema 2.0, all 6 verticals + freshness) — auto-runs via content-intelligence-sync.yml and promote-content.yml; scripts/sync-stats.py is deprecated, kept only until its remaining doc references are cleaned up
+node scripts/build-content-intelligence.mjs  # regenerate public/content/stats.json + relationships.json (schema 2.0, all 6 verticals + freshness) — auto-runs via content-intelligence-sync.yml and promote-content.yml; supersedes the now-removed scripts/sync-stats.py
 node scripts/build-taxonomy.mjs  # regenerate public/content/taxonomy.json Tier-1 topics from .claude/skills/platform-vocabulary/SKILL.md
 npm run test -- --run         # vitest — unit/integration tests (src/lib/**)
 npm run test:coverage         # vitest run --coverage — v8 coverage, scoped to src/lib/** and src/shared/lib/**
@@ -74,4 +74,4 @@ Model tiering (see `docs/agent-framework.md`): most subagents run `model: inheri
 ## Contributing conventions
 
 - Branch naming: `feat/<scope>`, `fix/<scope>`, `chore/<scope>`, `docs/<scope>`.
-- PRs require: ESLint passing with `--max-warnings=0`, content schema validation passing, `tsc --noEmit` clean, and `stats.json` updated (via `python3 scripts/sync-stats.py`) whenever content under `public/content/` changed.
+- PRs require: ESLint passing with `--max-warnings=0`, content schema validation passing, `tsc --noEmit` clean, and `stats.json`/`relationships.json` updated (via `node scripts/build-content-intelligence.mjs`) whenever content under `public/content/` changed.

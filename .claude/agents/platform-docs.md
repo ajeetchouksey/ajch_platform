@@ -60,4 +60,4 @@ Valid `category` values: `infrastructure`, `agents`, `content`, `releases`, `sec
 
 ## After Writing
 
-Always run `python3 scripts/sync-stats.py` after completing writes (stats.json does not include platform-docs count, but the step keeps the pipeline honest).
+Always run `node scripts/build-content-intelligence.mjs` after completing writes (stats.json does not include platform-docs count, but the step keeps the pipeline honest).

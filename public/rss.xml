@@ -5,8 +5,35 @@
     <link>https://aaryaai.dev</link>
     <description>AI learning resources, exam prep, and engineering insights</description>
     <language>en-gb</language>
-    <lastBuildDate>Mon, 10 Aug 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 24 Aug 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://aaryaai.dev/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Your Retry Loop Is Not a Fallback Strategy</title>
+      <link>https://aaryaai.dev/blog/the-degradation-ladder</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/the-degradation-ladder</guid>
+      <description>Retrying a failed model call three times and then throwing a 500 isn&apos;t resilience — it&apos;s denial with extra steps. Here&apos;s the five-rung ladder that separates systems that degrade gracefully from ones that just go dark.</description>
+      <pubDate>Mon, 24 Aug 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>AI Architecture</category>
+    </item>
+    <item>
+      <title>If Your Function Is Named callAnthropic(), You Don&apos;t Have an Abstraction</title>
+      <link>https://aaryaai.dev/blog/the-boring-interface</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/the-boring-interface</guid>
+      <description>You&apos;ve named a function after a vendor at least once. Here&apos;s why that&apos;s not a style nit — it&apos;s the reason swapping models later means touching every call site instead of one.</description>
+      <pubDate>Mon, 24 Aug 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>AI Architecture</category>
+    </item>
+    <item>
+      <title>Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.</title>
+      <link>https://aaryaai.dev/blog/microsoft-foundry-two-boundary-model</link>
+      <guid isPermaLink="true">https://aaryaai.dev/blog/microsoft-foundry-two-boundary-model</guid>
+      <description>Foundry&apos;s architecture has a governance boundary (account) and an isolation boundary (project), and the choice to allow multiple projects is locked at resource creation time.</description>
+      <pubDate>Mon, 24 Aug 2026 00:00:00 GMT</pubDate>
+      <author>Ajeet Chouksey</author>
+      <category>AI Architecture</category>
+    </item>
     <item>
       <title>The ADLC: A Software Engineering Discipline for AI Agents</title>
       <link>https://aaryaai.dev/blog/adlc-engineering-discipline-for-ai-agents</link>

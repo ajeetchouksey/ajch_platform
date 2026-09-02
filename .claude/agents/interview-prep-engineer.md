@@ -215,7 +215,7 @@ Rules:
 ## Content Sync
 
 After any `public/content/interviews/**` write, the orchestrator runs
-`python3 scripts/sync-stats.py` and commits the updated `public/content/stats.json`.
+`node scripts/build-content-intelligence.mjs` and commits the updated `public/content/stats.json` (and `relationships.json`, if interview questions' `taxonomyIds` were touched).
 
 ## Platform Context
 

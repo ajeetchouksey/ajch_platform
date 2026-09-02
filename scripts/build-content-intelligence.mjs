@@ -6,12 +6,13 @@
  * authoritative counts — trusting declared fields (skillup catalog's
  * `questions`, hol-labs index's `totalCount`, etc.) rather than
  * re-deriving them independently, and covering ALL promoted verticals
- * (the old scripts/sync-stats.py never counted usecases or hol-labs at all).
+ * (the old scripts/sync-stats.py — since removed — never counted usecases
+ * or hol-labs at all, and its tool counter silently broke when routes moved
+ * from src/App.tsx to src/app/router.tsx).
  *
- * Supersedes scripts/sync-stats.py's stats-generation half (kept in place
- * for now, deprecated — see its header). Reuses the manifest-aware loaders
- * in scripts/lib/content-sources.mjs so there is exactly one implementation
- * of "how to fetch a vertical's content, promoted or local" in this repo.
+ * Reuses the manifest-aware loaders in scripts/lib/content-sources.mjs so
+ * there is exactly one implementation of "how to fetch a vertical's
+ * content, promoted or local" in this repo.
  *
  * Also writes public/content/relationships.json — computed cross-vertical
  * relationships, scored by taxonomyIds overlap weighted by recency. The

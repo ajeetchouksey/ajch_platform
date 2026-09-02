@@ -127,7 +127,7 @@ def main() -> None:
     # 2. Load existing stats.json first (needed for fallback values)
     stats_path = "public/content/stats.json"
     if not os.path.exists(stats_path):
-        print(f"✗ {stats_path} not found — run scripts/sync-stats.py first.")
+        print(f"✗ {stats_path} not found — run scripts/build-content-intelligence.mjs first.")
         sys.exit(1)
 
     with open(stats_path, encoding="utf-8") as f:

@@ -90,7 +90,7 @@ Before generating any question or note:
 
 ## Content Locations (SkillUp Structure)
 
-- **Catalog**: `content/skillup/catalog.json` — auto-generated list of all exams (read-only; updated by `sync-stats.py`)
+- **Catalog**: `content/skillup/catalog.json` — auto-generated list of all exams (read-only). Skillup is CDN-promoted, so this file now lives in `ajch_skillup` and is regenerated there via that repo's own `python scripts/generate-catalog.py` after any content change, not from this repo.
 - **Exam index**: `content/skillup/{examId}/index.json` — domains, questionFiles, taskStatementsFile, notesFiles
 - **Questions**: `content/skillup/{examId}/questions/{examId}-domain{N}.json`
 - **Notes**: `content/skillup/{examId}/notes/{examId}-d{N}-{slug}.md` (path in `domains[].notesFile`)
@@ -107,8 +107,11 @@ node scripts/check-exam-completeness.mjs --exam {examId}
 # Scaffold a brand-new exam directory with all required files
 node scripts/new-exam.mjs --id {examId} --code "EXAM-CODE" --title "..." --level 201 --domains "D1,D2,D3"
 
-# Recount questions and regenerate catalog.json + stats.json
-python scripts/sync-stats.py
+# In ajch_skillup: recount questions and regenerate catalog.json
+python scripts/generate-catalog.py
+
+# In ajch_platform: regenerate stats.json + relationships.json from the updated catalog
+node scripts/build-content-intelligence.mjs
 ```
 
 ### task-statements.json (required per exam)
