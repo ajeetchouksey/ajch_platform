@@ -612,11 +612,14 @@ export interface HolLab {
   updatedDate: string;
 }
 
-// Lightweight per-lab summary carried in index.json — enough for catalog cards,
-// filtering, and reverse-link lookups (see useRelatedLabs in related-labs.ts)
-// without fetching every lab file. hol-lab-publisher writes both the full lab
-// file AND this flattened summary at publish time, so no N+1 fetch is ever
-// needed to answer "what labs relate to this exam/usecase/blog/lab".
+// Lightweight per-lab summary carried in index.json — enough for catalog cards
+// and filtering without fetching every lab file. hol-lab-publisher writes
+// both the full lab file AND this flattened summary at publish time. Reverse-
+// link lookups ("what relates to this exam/usecase/blog/lab") are handled by
+// the computed relationship engine now (useRelationships/loadRelationshipsFor,
+// public/content/relationships.json) — the hand-rolled useRelatedLabs hook
+// this summary was originally built for was written but never adopted by any
+// page, and was removed rather than kept as unused dead code.
 export interface HolLabSummary {
   id: string;
   title: string;

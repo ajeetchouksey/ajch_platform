@@ -18,6 +18,8 @@ import { ContentFeedback } from '@/components/ContentFeedback';
 import { ContentMeta, Button } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 import { StudyWithAI } from '@/components/StudyWithAI';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationships } from '@/lib/useRelationships';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -220,6 +222,7 @@ export default function Notes() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const domain = Number(searchParams.get('d')) || 1;
+  const computedRelated = useRelationships(`exam/${examId}/domain-${domain}`);
   const [{ loading, content, error }, dispatch] = useReducer(contentReducer, { loading: false, content: '', error: null });
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
@@ -1069,6 +1072,13 @@ export default function Notes() {
               <ChevronRight size={16} className="text-slate-500 shrink-0 transition-transform group-hover:translate-x-0.5" />
             </button>
           ) : <div />}
+        </div>
+      )}
+
+      {/* ── Computed cross-vertical relationships ─────────────────────── */}
+      {!loading && !error && content && (
+        <div className="mt-10 pt-6 border-t border-slate-800/70">
+          <ComputedRelatedList edges={computedRelated} heading="Related Content" />
         </div>
       )}
 
