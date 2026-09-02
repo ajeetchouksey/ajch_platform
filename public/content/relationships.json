@@ -1,7 +1,44 @@
 {
   "schemaVersion": 1,
-  "generated": "2026-09-02T07:19:12.389Z",
+  "generated": "2026-09-02T07:38:32.178Z",
   "edges": {
+    "blog/microsoft-foundry-two-boundary-model": [
+      {
+        "id": "lab/deploy-first-prompt-flow-azure-ai-foundry",
+        "type": "lab",
+        "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
+        "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
+        "score": 2.8575084116723204,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "lab/wire-content-safety-foundry-endpoint",
+        "type": "lab",
+        "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
+        "url": "/hol-labs/wire-content-safety-foundry-endpoint",
+        "score": 2.8575084116723204,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      }
+    ],
+    "lab/deploy-first-prompt-flow-azure-ai-foundry": [
+      {
+        "id": "blog/microsoft-foundry-two-boundary-model",
+        "type": "blog",
+        "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
+        "url": "/blog/microsoft-foundry-two-boundary-model",
+        "score": 2.7922428293503168,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      }
+    ],
     "lab/wire-content-safety-foundry-endpoint": [
       {
         "id": "interview/q-hr-stakeholder-001",
@@ -24,6 +61,257 @@
           "responsible-ai"
         ],
         "why": null
+      },
+      {
+        "id": "blog/microsoft-foundry-two-boundary-model",
+        "type": "blog",
+        "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
+        "url": "/blog/microsoft-foundry-two-boundary-model",
+        "score": 2.7922428293503168,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/guardrails-are-not-constraints",
+        "type": "blog",
+        "title": "Guardrails Are Not Constraints — They Are the Operating Model",
+        "url": "/blog/guardrails-are-not-constraints",
+        "score": 1.3537674812625387,
+        "sharedTaxonomyIds": [
+          "responsible-ai"
+        ],
+        "why": null
+      }
+    ],
+    "blog/adlc-engineering-discipline-for-ai-agents": [
+      {
+        "id": "interview/q-rag-001",
+        "type": "interview",
+        "title": "Design an enterprise knowledge assistant grounded in policy documents across multiple regions, with per-region access control and strong hallucination guardrails.",
+        "url": "/roleprep/q/q-rag-001",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "observability"
+        ],
+        "why": null
+      }
+    ],
+    "interview/q-rag-001": [
+      {
+        "id": "blog/adlc-engineering-discipline-for-ai-agents",
+        "type": "blog",
+        "title": "The ADLC: A Software Engineering Discipline for AI Agents",
+        "url": "/blog/adlc-engineering-discipline-for-ai-agents",
+        "score": 2.5068381544356857,
+        "sharedTaxonomyIds": [
+          "observability"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/ai-architecture-blueprint-multi-agent-privacy-first",
+        "type": "blog",
+        "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
+        "url": "/blog/ai-architecture-blueprint-multi-agent-privacy-first",
+        "score": 2.449581891858138,
+        "sharedTaxonomyIds": [
+          "observability"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/what-is-a-vector-database",
+        "type": "blog",
+        "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
+        "url": "/blog/what-is-a-vector-database",
+        "score": 2.2855407205747906,
+        "sharedTaxonomyIds": [
+          "rag"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/rag-vs-agentic-rag",
+        "type": "blog",
+        "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
+        "url": "/blog/rag-vs-agentic-rag",
+        "score": 2.2506056659823868,
+        "sharedTaxonomyIds": [
+          "rag"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/llm-observability",
+        "type": "blog",
+        "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
+        "url": "/blog/llm-observability",
+        "score": 2.0837788734635883,
+        "sharedTaxonomyIds": [
+          "observability"
+        ],
+        "why": null
+      }
+    ],
+    "blog/ai-architecture-blueprint-multi-agent-privacy-first": [
+      {
+        "id": "interview/q-rag-001",
+        "type": "interview",
+        "title": "Design an enterprise knowledge assistant grounded in policy documents across multiple regions, with per-region access control and strong hallucination guardrails.",
+        "url": "/roleprep/q/q-rag-001",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "observability"
+        ],
+        "why": null
+      }
+    ],
+    "blog/what-is-a-vector-database": [
+      {
+        "id": "interview/q-rag-001",
+        "type": "interview",
+        "title": "Design an enterprise knowledge assistant grounded in policy documents across multiple regions, with per-region access control and strong hallucination guardrails.",
+        "url": "/roleprep/q/q-rag-001",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "rag"
+        ],
+        "why": null
+      },
+      {
+        "id": "interview/q-hr-grounding-001",
+        "type": "interview",
+        "title": "How do you ground an HR AI assistant in enterprise HR knowledge while keeping sensitive employee data out of the retrieval context?",
+        "url": "/roleprep/q/q-hr-grounding-001",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "rag"
+        ],
+        "why": null
+      }
+    ],
+    "interview/q-hr-grounding-001": [
+      {
+        "id": "blog/what-is-a-vector-database",
+        "type": "blog",
+        "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
+        "url": "/blog/what-is-a-vector-database",
+        "score": 2.2855407205747906,
+        "sharedTaxonomyIds": [
+          "rag"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/rag-vs-agentic-rag",
+        "type": "blog",
+        "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
+        "url": "/blog/rag-vs-agentic-rag",
+        "score": 2.2506056659823868,
+        "sharedTaxonomyIds": [
+          "rag"
+        ],
+        "why": null
+      }
+    ],
+    "blog/rag-vs-agentic-rag": [
+      {
+        "id": "interview/q-rag-001",
+        "type": "interview",
+        "title": "Design an enterprise knowledge assistant grounded in policy documents across multiple regions, with per-region access control and strong hallucination guardrails.",
+        "url": "/roleprep/q/q-rag-001",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "rag"
+        ],
+        "why": null
+      },
+      {
+        "id": "interview/q-hr-grounding-001",
+        "type": "interview",
+        "title": "How do you ground an HR AI assistant in enterprise HR knowledge while keeping sensitive employee data out of the retrieval context?",
+        "url": "/roleprep/q/q-hr-grounding-001",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "rag"
+        ],
+        "why": null
+      }
+    ],
+    "blog/llm-observability": [
+      {
+        "id": "interview/q-rag-001",
+        "type": "interview",
+        "title": "Design an enterprise knowledge assistant grounded in policy documents across multiple regions, with per-region access control and strong hallucination guardrails.",
+        "url": "/roleprep/q/q-rag-001",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "observability"
+        ],
+        "why": null
+      }
+    ],
+    "blog/order-bot-domain-boundary": [
+      {
+        "id": "interview/q-hitl-001",
+        "type": "interview",
+        "title": "An agent can take an irreversible action (issue a refund, delete data, send an external email). How do you guarantee a human approves high-risk actions, in a way a clever prompt cannot bypass?",
+        "url": "/roleprep/q/q-hitl-001",
+        "score": 5,
+        "sharedTaxonomyIds": [
+          "domain-boundary"
+        ],
+        "why": null
+      }
+    ],
+    "interview/q-hitl-001": [
+      {
+        "id": "blog/order-bot-domain-boundary",
+        "type": "blog",
+        "title": "When Your Burger Bot Goes Rogue: A Production Wake-Up Call",
+        "url": "/blog/order-bot-domain-boundary",
+        "score": 2.7143602883211027,
+        "sharedTaxonomyIds": [
+          "domain-boundary"
+        ],
+        "why": null
+      }
+    ],
+    "blog/guardrails-are-not-constraints": [
+      {
+        "id": "interview/q-hr-stakeholder-001",
+        "type": "interview",
+        "title": "You need sign-off from HR leadership, a Works Council, Data Privacy, and Cyber Security to launch an HR AI pilot. Walk through how you approach it.",
+        "url": "/roleprep/q/q-hr-stakeholder-001",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "responsible-ai"
+        ],
+        "why": null
+      },
+      {
+        "id": "interview/q-hr-responsible-ai-001",
+        "type": "interview",
+        "title": "What makes responsible AI especially hard in HR use cases â€” hiring decisions, performance scoring, workforce analytics â€” compared to other enterprise domains?",
+        "url": "/roleprep/q/q-hr-responsible-ai-001",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "responsible-ai"
+        ],
+        "why": null
+      },
+      {
+        "id": "lab/wire-content-safety-foundry-endpoint",
+        "type": "lab",
+        "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
+        "url": "/hol-labs/wire-content-safety-foundry-endpoint",
+        "score": 2.8575084116723204,
+        "sharedTaxonomyIds": [
+          "responsible-ai"
+        ],
+        "why": null
       }
     ],
     "interview/q-hr-stakeholder-001": [
@@ -32,7 +320,18 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.857803844098799,
+        "score": 2.8575084116723204,
+        "sharedTaxonomyIds": [
+          "responsible-ai"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/guardrails-are-not-constraints",
+        "type": "blog",
+        "title": "Guardrails Are Not Constraints — They Are the Operating Model",
+        "url": "/blog/guardrails-are-not-constraints",
+        "score": 1.3537674812625387,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -45,7 +344,18 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.857803844098799,
+        "score": 2.8575084116723204,
+        "sharedTaxonomyIds": [
+          "responsible-ai"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/guardrails-are-not-constraints",
+        "type": "blog",
+        "title": "Guardrails Are Not Constraints — They Are the Operating Model",
+        "url": "/blog/guardrails-are-not-constraints",
+        "score": 1.3537674812625387,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],

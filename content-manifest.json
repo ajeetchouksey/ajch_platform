@@ -1,9 +1,10 @@
 {
   "blog": {
     "repo": "ajeetchouksey/ajch_aaryaai_blogs",
-    "sha": "ee9ccf00e2a3bf7e81d6b5563713565e8a3a5ecf",
+    "sha": "af6ae26",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
-    "promotedAt": "2026-08-25T05:51:21.574Z"
+    "schemaVersion": 1,
+    "promotedAt": "2026-09-02T07:38:16Z"
   },
   "skillup": {
     "repo": "ajeetchouksey/ajch_skillup",
