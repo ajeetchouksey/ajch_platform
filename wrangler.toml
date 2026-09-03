@@ -95,6 +95,13 @@ COMMENTS_ENABLED = "true"
 #       is fine locally but must be set before COMMENTS_ENABLED ever flips to
 #       "true" in production.
 #
+#   wrangler secret put ADMIN_API_SECRET
+#     → random 32+ byte string, e.g. `openssl rand -hex 32`. Interim admin auth
+#       for comment moderation (IDEA-0009 Phase 4, FR-6/FR-12) — checked as
+#       `Authorization: Bearer <token>` on the hide/unhide/lock/unlock routes.
+#       Unset = every moderation call 403s. A stopgap until a real per-admin
+#       identity path exists (see the Env doc comment in workers/subscribe.ts).
+#
 # Microsoft login is deferred (no Entra app registered yet) — when it's added,
 # it'll need MS_CLIENT_ID / MS_CLIENT_SECRET secrets in this same style, plus
 # an Entra App registration with supported account types = "Accounts in any

@@ -60,6 +60,7 @@ const Admin = lazy(() => import('@/features/admin/pages/Admin'));
 const YoutubeTracker = lazy(() => import('@/features/admin/pages/YoutubeTracker'));
 const IssueBoard = lazy(() => import('@/features/admin/pages/IssueBoard'));
 const Reactions = lazy(() => import('@/features/admin/pages/Reactions'));
+const CommentModeration = lazy(() => import('@/features/admin/pages/CommentModeration'));
 
 // ── Maintainer ─────────────────────────────────────────────────────────────────
 const Maintainer = lazy(() => import('@/features/analytics/pages/Maintainer'));
@@ -155,6 +156,7 @@ export default function AppRoutes() {
       <Route path="/admin/youtube" element={<YoutubeTracker />} />
       <Route path="/admin/issues" element={<IssueBoard />} />
       <Route path="/admin/reactions" element={<Reactions />} />
+      <Route path="/admin/comments" element={<CommentModeration />} />
 
       {/* Legacy redirects */}
       <Route path="/mvp-progress" element={<Navigate to="/admin/mvp" replace />} />
