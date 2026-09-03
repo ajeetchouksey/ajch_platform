@@ -43,6 +43,14 @@ function getOwnerToken(id: number): string | null {
   }
 }
 
+function clearOwnerToken(id: number) {
+  try {
+    localStorage.removeItem(ownerTokenKey(id));
+  } catch {
+    /* localStorage unavailable — nothing to clear */
+  }
+}
+
 function formatRelativeTime(iso: string): string {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (mins < 1) return 'just now';
@@ -81,7 +89,7 @@ function splitMentions(body: string, knownNames: string[]): { text: string; ment
   let plain = '';
   const isWordChar = (ch: string | undefined) => !!ch && /[\p{L}\p{N}]/u.test(ch);
   while (i < body.length) {
-    if (body[i] === '@') {
+    if (body[i] === '@' && !isWordChar(body[i - 1])) {
       const match = names.find((name) => {
         const slice = body.slice(i + 1, i + 1 + name.length);
         return slice.toLowerCase() === name.toLowerCase() && !isWordChar(body[i + 1 + name.length]);
@@ -283,7 +291,20 @@ export function LightComments({ contentId }: LightCommentsProps) {
         method: 'DELETE',
         headers: { 'X-Owner-Token': token },
       });
-      if (res.ok) setComments((prev) => (prev ?? []).filter((c) => c.id !== id));
+      if (res.ok) {
+        const hasReplies = (comments ?? []).some((c) => c.parentCommentId === id);
+        if (hasReplies) {
+          // Backend tombstones rather than removes when replies exist (FR-11) — mirror
+          // that locally so the thread's replies don't disappear from nestComments(),
+          // and drop the now-invalid owner token (a retry would just 403).
+          setComments((prev) => (prev ?? []).map((c) => (
+            c.id === id ? { ...c, body: '[deleted]', authorName: null } : c
+          )));
+          clearOwnerToken(id);
+        } else {
+          setComments((prev) => (prev ?? []).filter((c) => c.id !== id));
+        }
+      }
     } catch {
       /* leave the comment as-is — the reader can retry the delete */
     } finally {
@@ -359,7 +380,7 @@ export function LightComments({ contentId }: LightCommentsProps) {
       {threads !== null && threads.length > 0 && (
         <div className="space-y-2">
           {threads.map((c) => {
-            const isDeletable = getOwnerToken(c.id) !== null;
+            const isDeletable = getOwnerToken(c.id) !== null && c.body !== '[deleted]';
             // FR-13 — mentionable names scoped to this one thread, not the whole page.
             const threadNames = [c.authorName, ...c.replies.map((r) => r.authorName)]
               .filter((n): n is string => !!n);
@@ -429,7 +450,7 @@ export function LightComments({ contentId }: LightCommentsProps) {
                 {c.replies.length > 0 && (
                   <div className="mt-3 pl-3 border-l-2 border-slate-700/40 space-y-2">
                     {visibleReplies.map((r) => {
-                      const replyDeletable = getOwnerToken(r.id) !== null;
+                      const replyDeletable = getOwnerToken(r.id) !== null && r.body !== '[deleted]';
                       return (
                         <div key={r.id}>
                           <div className="flex items-start justify-between gap-2">
