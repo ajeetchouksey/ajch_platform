@@ -675,6 +675,65 @@ async function hashCommentIp(env: Env, ip: string): Promise<string> {
   return sha256Hex(`${env.COMMENT_IP_SALT ?? 'aarya-comments-dev-salt'}:${ip}`);
 }
 
+interface CommentAuthor {
+  provider: 'google' | 'github';
+  id: string;
+  name: string;
+}
+
+/**
+ * Resolves the logged-in commenter's identity from `Authorization: Bearer <token>` —
+ * comments now require login, so this replaces the old free-text `authorName` field.
+ * Tries a Google session token first (self-verifiable, no network call — same token
+ * minted at /oauth/google/callback for /profile/*); falls back to treating the token
+ * as a raw GitHub PAT, verified live against GitHub's own API (mirrors
+ * src/lib/auth.tsx's fetchGitHubUser — a GitHub PAT isn't a self-verifiable JWT,
+ * so there's no way to check it without asking GitHub).
+ */
+async function authenticateCommentUser(request: Request, env: Env): Promise<CommentAuthor | null> {
+  const match = /^Bearer (.+)$/.exec(request.headers.get('Authorization') ?? '');
+  if (!match) return null;
+  const token = match[1];
+
+  if (env.SESSION_SIGNING_KEY) {
+    const session = await verifySessionToken(token, env.SESSION_SIGNING_KEY);
+    if (session) {
+      return {
+        provider: 'google',
+        id: session.id,
+        name: session.name ?? (session.email ? session.email.split('@')[0] : session.id),
+      };
+    }
+  }
+
+  try {
+    const res = await fetch('https://api.github.com/user', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'aarya-subscribe-worker/1.0',
+      },
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as { login: string; name: string | null };
+    return { provider: 'github', id: data.login, name: data.name || data.login };
+  } catch {
+    return null;
+  }
+}
+
+function checkCommentIdentityRateLimit(env: Env, authorId: string): Promise<boolean> {
+  return checkWindowedRateLimit(env, authorId, RATE_LIMIT_POLICIES.comment);
+}
+
+/** Length cap only, no character stripping — comment bodies now carry Markdown (bold,
+ * lists, links, blockquotes all use characters `stripHtml` used to delete). Safe because
+ * the client renders via ReactMarkdown with no raw-HTML passthrough (no rehype-raw), so
+ * any literal `<`/`>` a user types is shown as inert text, never interpreted as markup. */
+function capLength(s: string, maxLen: number): string {
+  return s.slice(0, maxLen).trim();
+}
+
 async function handleCommentGet(request: Request, env: Env, origin: string): Promise<Response> {
   const url = new URL(request.url);
   const contentId = url.searchParams.get('contentId') ?? '';
@@ -736,7 +795,6 @@ async function handleCommentPost(request: Request, env: Env, origin: string): Pr
   let payload: {
     contentId?: unknown;
     parentCommentId?: unknown;
-    authorName?: unknown;
     body?: unknown;
     honeypot?: unknown;
   };
@@ -749,10 +807,20 @@ async function handleCommentPost(request: Request, env: Env, origin: string): Pr
   // Honeypot: real users never fill this (hidden via CSS); a fake success
   // response — not a 400 — keeps the trap invisible to bots probing the API.
   if (typeof payload.honeypot === 'string' && payload.honeypot.length > 0) {
-    return json({ id: 0, status: 'visible', ownerToken: crypto.randomUUID() }, 201, origin);
+    return json({ id: 0, status: 'visible', ownerToken: crypto.randomUUID(), authorName: 'Anonymous' }, 201, origin);
   }
 
-  const { contentId, parentCommentId, authorName, body } = payload;
+  // Comments now require login — the display name comes from the authenticated
+  // identity, never client-supplied free text.
+  const author = await authenticateCommentUser(request, env);
+  if (!author) {
+    return json({ error: 'unauthorized' }, 401, origin);
+  }
+  if (!(await checkCommentIdentityRateLimit(env, author.id))) {
+    return json({ error: 'rate_limited' }, 429, origin);
+  }
+
+  const { contentId, parentCommentId, body } = payload;
   if (typeof contentId !== 'string' || !CONTENT_ID_RE.test(contentId)) {
     return json({ error: 'Invalid contentId' }, 400, origin);
   }
@@ -765,19 +833,12 @@ async function handleCommentPost(request: Request, env: Env, origin: string): Pr
   if (typeof body !== 'string') {
     return json({ error: 'Invalid body' }, 400, origin);
   }
-  const safeBody = stripHtml(body, COMMENT_BODY_MAX);
+  const safeBody = capLength(body, COMMENT_BODY_MAX);
   if (safeBody.length === 0) {
     return json({ error: 'Invalid body' }, 400, origin);
   }
 
-  let safeAuthorName: string | null = null;
-  if (authorName !== undefined && authorName !== null) {
-    if (typeof authorName !== 'string') {
-      return json({ error: 'Invalid authorName' }, 400, origin);
-    }
-    const trimmedName = stripHtml(authorName, COMMENT_NAME_MAX);
-    safeAuthorName = trimmedName.length > 0 ? trimmedName : null;
-  }
+  const safeAuthorName = stripHtml(author.name, COMMENT_NAME_MAX) || author.id;
 
   let parentId: number | null = null;
   if (parentCommentId !== undefined && parentCommentId !== null) {
@@ -809,7 +870,7 @@ async function handleCommentPost(request: Request, env: Env, origin: string): Pr
       `INSERT INTO comments (content_id, parent_comment_id, author_name, body, status, ip_hash, owner_token, created_at)
        VALUES (?1, ?2, ?3, ?4, 'visible', ?5, ?6, ?7)`,
     ).bind(contentId, parentId, safeAuthorName, safeBody, ipHash, ownerToken, createdAt).run();
-    return json({ id: result.meta.last_row_id, status: 'visible', ownerToken }, 201, origin);
+    return json({ id: result.meta.last_row_id, status: 'visible', ownerToken, authorName: safeAuthorName }, 201, origin);
   } catch (err) {
     console.error('comment-write-failed:', (err as Error).message);
     return json({ error: 'Service temporarily unavailable' }, 503, origin);

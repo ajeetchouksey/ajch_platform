@@ -1,13 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MessageCircle, Send, Trash2, Reply as ReplyIcon, Lock } from 'lucide-react';
+import {
+  MessageCircle, Send, Trash2, Reply as ReplyIcon, Lock,
+  Bold, Italic, List as ListIcon, ListOrdered, Link2, Code2, Eye, EyeOff,
+} from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { GlassCard, Button } from '@/components/ui';
+import { useAuth, isProviderConfigured } from '@/lib/auth';
 
-// IDEA-0009 Phase 3 — one-level-deep replies (FR-2/FR-4) and @mention tagging
-// (FR-13, display-only — no notification path exists for anonymous authors).
+// IDEA-0009 Phase 3 — one-level-deep replies (FR-2/FR-4) and @mention tagging (FR-13).
+// Posting now requires login — the display name comes from the authenticated identity,
+// not free text — and the body supports Markdown rich text (bold/italic/lists/links/code).
 
 const WORKER_URL = (import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined) ?? '';
 const BODY_MAX = 2000;
-const NAME_MAX = 80;
 const PAGE_SIZE = 20;
 const REPLIES_COLLAPSE_AT = 3;
 
@@ -79,17 +85,18 @@ function nestComments(flat: CommentDTO[]): CommentNode[] {
 }
 
 /**
- * Splits a comment body into plain-text and @mention segments, matched against the
- * other real (non-Anonymous) display names already present in the same thread (FR-13).
- * Purely presentational — matching text is never validated against who can "see" it.
+ * Rewrites @mentions (matched against other real display names already present in the
+ * same thread, FR-13) into a sentinel markdown link so they survive normal Markdown
+ * parsing and render as a styled tag instead of a real link (see CommentBody's `a`
+ * override below). Purely presentational — matching text is never validated against
+ * who can "see" it.
  */
-function splitMentions(body: string, knownNames: string[]): { text: string; mention: boolean }[] {
-  if (knownNames.length === 0) return [{ text: body, mention: false }];
+function markMentions(body: string, knownNames: string[]): string {
+  if (knownNames.length === 0) return body;
   const names = [...knownNames].sort((a, b) => b.length - a.length);
-  const segments: { text: string; mention: boolean }[] = [];
-  let i = 0;
-  let plain = '';
   const isWordChar = (ch: string | undefined) => !!ch && /[\p{L}\p{N}]/u.test(ch);
+  let out = '';
+  let i = 0;
   while (i < body.length) {
     if (body[i] === '@' && !isWordChar(body[i - 1])) {
       const match = names.find((name) => {
@@ -97,33 +104,132 @@ function splitMentions(body: string, knownNames: string[]): { text: string; ment
         return slice.toLowerCase() === name.toLowerCase() && !isWordChar(body[i + 1 + name.length]);
       });
       if (match) {
-        if (plain) segments.push({ text: plain, mention: false });
-        plain = '';
-        segments.push({ text: `@${match}`, mention: true });
+        out += `[@${match}](#mention)`;
         i += 1 + match.length;
         continue;
       }
     }
-    plain += body[i];
+    out += body[i];
     i += 1;
   }
-  if (plain) segments.push({ text: plain, mention: false });
-  return segments;
+  return out;
 }
 
+/** Renders a comment body as Markdown — no raw-HTML passthrough (no rehype-raw plugin), so
+ * any literal HTML a user types renders as inert text rather than being interpreted as markup. */
 function CommentBody({ body, knownNames }: { body: string; knownNames: string[] }) {
   return (
-    <p className="text-xs text-slate-400 leading-relaxed mt-1.5 whitespace-pre-wrap">
-      {splitMentions(body, knownNames).map((seg, i) =>
-        seg.mention ? (
-          <span key={i} className="text-violet-300 font-medium bg-violet-500/10 rounded px-1">
-            {seg.text}
-          </span>
-        ) : (
-          <span key={i}>{seg.text}</span>
-        ),
-      )}
-    </p>
+    <div className="text-xs text-slate-400 leading-relaxed mt-1.5 [&_p]:mb-1.5 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_code]:bg-slate-800/80 [&_code]:rounded [&_code]:px-1 [&_blockquote]:border-l-2 [&_blockquote]:border-slate-700 [&_blockquote]:pl-2 [&_blockquote]:text-slate-500">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          a: ({ href, children }) =>
+            href === '#mention' ? (
+              <span className="text-violet-300 font-medium bg-violet-500/10 rounded px-1">{children}</span>
+            ) : (
+              <a href={href} target="_blank" rel="noopener noreferrer" className="text-violet-400 underline hover:text-violet-300">
+                {children}
+              </a>
+            ),
+        }}
+      >
+        {markMentions(body, knownNames)}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
+/** Wraps the current textarea selection in `before`/`after` markdown syntax (e.g. **bold**). */
+function wrapSelection(
+  el: HTMLTextAreaElement | null,
+  value: string,
+  setValue: (v: string) => void,
+  before: string,
+  after: string = before,
+) {
+  if (!el) { setValue(value + before + after); return; }
+  const { selectionStart, selectionEnd } = el;
+  const selected = value.slice(selectionStart, selectionEnd);
+  const next = value.slice(0, selectionStart) + before + selected + after + value.slice(selectionEnd);
+  setValue(next);
+  requestAnimationFrame(() => {
+    el.focus();
+    const cursor = selectionStart + before.length + selected.length + after.length;
+    el.setSelectionRange(cursor, cursor);
+  });
+}
+
+/** Prefixes every line of the current selection with `prefix` (e.g. "- " for a bullet list). */
+function prefixLines(
+  el: HTMLTextAreaElement | null,
+  value: string,
+  setValue: (v: string) => void,
+  prefix: string,
+) {
+  if (!el) { setValue(value + prefix); return; }
+  const { selectionStart, selectionEnd } = el;
+  const lineStart = value.lastIndexOf('\n', selectionStart - 1) + 1;
+  const block = value.slice(lineStart, selectionEnd);
+  const prefixed = block.split('\n').map((line) => `${prefix}${line}`).join('\n');
+  const next = value.slice(0, lineStart) + prefixed + value.slice(selectionEnd);
+  setValue(next);
+  requestAnimationFrame(() => el.focus());
+}
+
+interface FormatToolbarProps {
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+  value: string;
+  setValue: (v: string) => void;
+  previewing: boolean;
+  onTogglePreview: () => void;
+}
+
+const TOOLBAR_BTN = 'p-1 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-800/60 disabled:opacity-40 transition-colors';
+
+/** Minimal Markdown formatting toolbar shared by the top-level box and every reply box. */
+function FormatToolbar({ textareaRef, value, setValue, previewing, onTogglePreview }: FormatToolbarProps) {
+  return (
+    <div className="flex items-center gap-0.5 mb-1.5">
+      <button
+        type="button" title="Bold" disabled={previewing} className={TOOLBAR_BTN}
+        onClick={() => { if (!previewing) wrapSelection(textareaRef.current, value, setValue, '**'); }}
+      >
+        <Bold size={12} />
+      </button>
+      <button
+        type="button" title="Italic" disabled={previewing} className={TOOLBAR_BTN}
+        onClick={() => { if (!previewing) wrapSelection(textareaRef.current, value, setValue, '_'); }}
+      >
+        <Italic size={12} />
+      </button>
+      <button
+        type="button" title="Bulleted list" disabled={previewing} className={TOOLBAR_BTN}
+        onClick={() => { if (!previewing) prefixLines(textareaRef.current, value, setValue, '- '); }}
+      >
+        <ListIcon size={12} />
+      </button>
+      <button
+        type="button" title="Numbered list" disabled={previewing} className={TOOLBAR_BTN}
+        onClick={() => { if (!previewing) prefixLines(textareaRef.current, value, setValue, '1. '); }}
+      >
+        <ListOrdered size={12} />
+      </button>
+      <button
+        type="button" title="Link" disabled={previewing} className={TOOLBAR_BTN}
+        onClick={() => { if (!previewing) wrapSelection(textareaRef.current, value, setValue, '[', '](https://)'); }}
+      >
+        <Link2 size={12} />
+      </button>
+      <button
+        type="button" title="Code" disabled={previewing} className={TOOLBAR_BTN}
+        onClick={() => { if (!previewing) wrapSelection(textareaRef.current, value, setValue, '`'); }}
+      >
+        <Code2 size={12} />
+      </button>
+      <button type="button" title={previewing ? 'Edit' : 'Preview'} onClick={onTogglePreview} className={`ml-auto ${TOOLBAR_BTN}`}>
+        {previewing ? <EyeOff size={12} /> : <Eye size={12} />}
+      </button>
+    </div>
   );
 }
 
@@ -141,8 +247,11 @@ export function LightComments({ contentId }: LightCommentsProps) {
   // FR-12 page-scope lock (Phase 4) — blocks the whole compose box, not just one thread.
   const [pageLocked, setPageLocked] = useState(false);
 
-  const [authorName, setAuthorName] = useState('');
+  const { user, token, login } = useAuth();
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const replyRef = useRef<HTMLTextAreaElement>(null);
   const [body, setBody] = useState('');
+  const [previewing, setPreviewing] = useState(false);
   const [honeypot, setHoneypot] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -151,6 +260,7 @@ export function LightComments({ contentId }: LightCommentsProps) {
   // FR-2 — reply state is single-slot: only one reply box open at a time.
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyBody, setReplyBody] = useState('');
+  const [replyPreviewing, setReplyPreviewing] = useState(false);
   const [replySubmitting, setReplySubmitting] = useState(false);
   const [replyError, setReplyError] = useState<string | null>(null);
   // FR-4 — which top-level threads have expanded past the collapse-at-3 default.
@@ -230,15 +340,21 @@ export function LightComments({ contentId }: LightCommentsProps) {
     try {
       const res = await fetch(`${WORKER_URL}/api/comment`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           contentId,
           parentCommentId: parentId ?? undefined,
-          authorName: authorName.trim() || undefined,
           body: trimmed,
           honeypot,
         }),
       });
+      if (res.status === 401) {
+        opts.setError('Please sign in to comment.');
+        return;
+      }
       if (res.status === 503) {
         opts.setError('Comments are temporarily disabled.');
         return;
@@ -255,13 +371,13 @@ export function LightComments({ contentId }: LightCommentsProps) {
         opts.setError('Could not post — try again.');
         return;
       }
-      const data = await res.json() as { id: number; ownerToken: string };
+      const data = await res.json() as { id: number; ownerToken: string; authorName: string };
       storeOwnerToken(data.id, data.ownerToken);
       // FR-3 — append locally instead of refetching, so it renders immediately.
       const posted: CommentDTO = {
         id: data.id,
         parentCommentId: parentId,
-        authorName: authorName.trim() || null,
+        authorName: data.authorName,
         body: trimmed,
         createdAt: new Date().toISOString(),
       };
@@ -274,31 +390,36 @@ export function LightComments({ contentId }: LightCommentsProps) {
     }
   };
 
-  const submit = () =>
+  const submit = () => {
+    if (!user) { setFormError('Please sign in to comment.'); return; }
     void postComment(body, null, {
       setBusy: setSubmitting,
       setError: setFormError,
-      onSuccess: () => setBody(''),
+      onSuccess: () => { setBody(''); setPreviewing(false); },
     });
+  };
 
-  const submitReply = (parentId: number) =>
+  const submitReply = (parentId: number) => {
+    if (!user) { setReplyError('Please sign in to comment.'); return; }
     void postComment(replyBody, parentId, {
       setBusy: setReplySubmitting,
       setError: setReplyError,
       onSuccess: () => {
         setReplyBody('');
         setReplyingTo(null);
+        setReplyPreviewing(false);
       },
     });
+  };
 
   const deleteComment = async (id: number) => {
-    const token = getOwnerToken(id);
-    if (!token) return;
+    const savedOwnerToken = getOwnerToken(id);
+    if (!savedOwnerToken) return;
     setDeletingId(id);
     try {
       const res = await fetch(`${WORKER_URL}/api/comment/${id}`, {
         method: 'DELETE',
-        headers: { 'X-Owner-Token': token },
+        headers: { 'X-Owner-Token': savedOwnerToken },
       });
       if (res.ok) {
         const hasReplies = (comments ?? []).some((c) => c.parentCommentId === id);
@@ -337,17 +458,20 @@ export function LightComments({ contentId }: LightCommentsProps) {
           <p className="text-xs text-slate-500 flex items-center gap-1.5">
             <Lock size={12} className="text-slate-600" /> Comments are locked for this page.
           </p>
+        ) : !user ? (
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs text-slate-400">Sign in to leave a comment.</p>
+            <div className="flex items-center gap-2 shrink-0">
+              {isProviderConfigured('github') && (
+                <Button variant="outline" size="xs" onClick={() => { void login('github'); }}>Sign in with GitHub</Button>
+              )}
+              {isProviderConfigured('google') && (
+                <Button variant="outline" size="xs" onClick={() => { void login('google'); }}>Sign in with Google</Button>
+              )}
+            </div>
+          </div>
         ) : (
           <>
-        <label htmlFor={`comment-name-${contentId}`} className="sr-only">Name (optional)</label>
-        <input
-          id={`comment-name-${contentId}`}
-          type="text"
-          value={authorName}
-          onChange={(e) => setAuthorName(e.target.value.slice(0, NAME_MAX))}
-          placeholder="Name (optional)"
-          className="w-full mb-2 px-3 py-1.5 rounded-lg text-xs bg-slate-800/60 border border-slate-700/60 text-slate-200 placeholder:text-slate-500 focus:border-violet-500/60"
-        />
         {/* Honeypot — off-screen, never visible to a real reader; bots that fill every field trip it. */}
         <input
           type="text"
@@ -359,18 +483,26 @@ export function LightComments({ contentId }: LightCommentsProps) {
           style={{ position: 'absolute', left: '-9999px', width: 1, height: 1 }}
         />
         <label htmlFor={`comment-body-${contentId}`} className="sr-only">Comment</label>
-        <textarea
-          id={`comment-body-${contentId}`}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Share a question or a thought about this use case…"
-          rows={3}
-          maxLength={BODY_MAX}
-          className="w-full mb-2 px-3 py-2 rounded-lg text-xs bg-slate-800/60 border border-slate-700/60 text-slate-200 placeholder:text-slate-500 focus:border-violet-500/60 resize-y"
-        />
+        <FormatToolbar textareaRef={bodyRef} value={body} setValue={setBody} previewing={previewing} onTogglePreview={() => setPreviewing((v) => !v)} />
+        {previewing ? (
+          <div className="mb-2 px-3 py-2 rounded-lg bg-slate-800/60 border border-slate-700/60 min-h-[4.5rem]">
+            {body.trim() ? <CommentBody body={body} knownNames={[]} /> : <p className="text-xs text-slate-600">Nothing to preview yet.</p>}
+          </div>
+        ) : (
+          <textarea
+            id={`comment-body-${contentId}`}
+            ref={bodyRef}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Share a question or a thought about this use case… (Markdown supported)"
+            rows={3}
+            maxLength={BODY_MAX}
+            className="w-full mb-2 px-3 py-2 rounded-lg text-xs bg-slate-800/60 border border-slate-700/60 text-slate-200 placeholder:text-slate-500 focus:border-violet-500/60 resize-y"
+          />
+        )}
         <div className="flex items-center justify-between gap-3">
           <p className="text-[10px] text-slate-500 leading-relaxed">
-            Posting is anonymous — no account needed. We store a hashed IP only to prevent
+            Posting as {user.name ?? user.login}. We store a hashed IP only to prevent
             spam (never the raw address), and you can delete your own comment any time.
           </p>
           <Button variant="primary" size="sm" icon={Send} disabled={submitting} onClick={submit}>
@@ -434,7 +566,7 @@ export function LightComments({ contentId }: LightCommentsProps) {
                     onClick={() => {
                       setReplyingTo(replyingTo === c.id ? null : c.id);
                       setReplyError(null);
-                      // Convenience pre-fill — skipped for anonymous authors (no unique name to tag).
+                      // Convenience pre-fill — skipped for pre-login-era comments with no stored name.
                       setReplyBody(replyingTo === c.id ? '' : (c.authorName ? `@${c.authorName} ` : ''));
                     }}
                     className="mt-2 flex items-center gap-1 text-[11px] text-violet-400 hover:text-violet-300 transition-colors"
@@ -445,27 +577,51 @@ export function LightComments({ contentId }: LightCommentsProps) {
 
                 {replyingTo === c.id && (
                   <div className="mt-2 pl-3 border-l-2 border-violet-500/20">
-                    <textarea
-                      value={replyBody}
-                      onChange={(e) => setReplyBody(e.target.value)}
-                      placeholder={`Reply to ${c.authorName ?? 'this comment'}…`}
-                      rows={2}
-                      maxLength={BODY_MAX}
-                      className="w-full mb-2 px-3 py-2 rounded-lg text-xs bg-slate-800/60 border border-slate-700/60 text-slate-200 placeholder:text-slate-500 focus:border-violet-500/60 resize-y"
-                    />
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="xs"
-                        disabled={replySubmitting}
-                        onClick={() => submitReply(c.id)}
-                      >
-                        Post reply
-                      </Button>
-                      <Button variant="ghost" size="xs" onClick={() => setReplyingTo(null)}>
-                        Cancel
-                      </Button>
-                    </div>
+                    {!user ? (
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-[11px] text-slate-500">Sign in to reply.</p>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {isProviderConfigured('github') && (
+                            <Button variant="outline" size="xs" onClick={() => { void login('github'); }}>GitHub</Button>
+                          )}
+                          {isProviderConfigured('google') && (
+                            <Button variant="outline" size="xs" onClick={() => { void login('google'); }}>Google</Button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <FormatToolbar textareaRef={replyRef} value={replyBody} setValue={setReplyBody} previewing={replyPreviewing} onTogglePreview={() => setReplyPreviewing((v) => !v)} />
+                        {replyPreviewing ? (
+                          <div className="mb-2 px-3 py-2 rounded-lg bg-slate-800/60 border border-slate-700/60 min-h-[3rem]">
+                            {replyBody.trim() ? <CommentBody body={replyBody} knownNames={threadNames} /> : <p className="text-xs text-slate-600">Nothing to preview yet.</p>}
+                          </div>
+                        ) : (
+                          <textarea
+                            ref={replyRef}
+                            value={replyBody}
+                            onChange={(e) => setReplyBody(e.target.value)}
+                            placeholder={`Reply to ${c.authorName ?? 'this comment'}… (Markdown supported)`}
+                            rows={2}
+                            maxLength={BODY_MAX}
+                            className="w-full mb-2 px-3 py-2 rounded-lg text-xs bg-slate-800/60 border border-slate-700/60 text-slate-200 placeholder:text-slate-500 focus:border-violet-500/60 resize-y"
+                          />
+                        )}
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="xs"
+                            disabled={replySubmitting}
+                            onClick={() => submitReply(c.id)}
+                          >
+                            Post reply
+                          </Button>
+                          <Button variant="ghost" size="xs" onClick={() => setReplyingTo(null)}>
+                            Cancel
+                          </Button>
+                        </div>
+                      </>
+                    )}
                     {replyError && <p role="status" aria-live="polite" className="mt-1 text-[11px] text-rose-400">{replyError}</p>}
                   </div>
                 )}
