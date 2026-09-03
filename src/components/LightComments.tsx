@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MessageCircle, Send, Trash2, Reply as ReplyIcon } from 'lucide-react';
+import { MessageCircle, Send, Trash2, Reply as ReplyIcon, Lock } from 'lucide-react';
 import { GlassCard, Button } from '@/components/ui';
 
 // IDEA-0009 Phase 3 — one-level-deep replies (FR-2/FR-4) and @mention tagging
@@ -17,6 +17,8 @@ interface CommentDTO {
   authorName: string | null;
   body: string;
   createdAt: string;
+  /** FR-12 thread-scope lock (Phase 4) — only ever true on a top-level comment. */
+  locked?: boolean;
 }
 
 interface CommentNode extends CommentDTO {
@@ -136,6 +138,8 @@ export function LightComments({ contentId }: LightCommentsProps) {
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
+  // FR-12 page-scope lock (Phase 4) — blocks the whole compose box, not just one thread.
+  const [pageLocked, setPageLocked] = useState(false);
 
   const [authorName, setAuthorName] = useState('');
   const [body, setBody] = useState('');
@@ -174,7 +178,7 @@ export function LightComments({ contentId }: LightCommentsProps) {
       `${WORKER_URL}/api/comment?contentId=${encodeURIComponent(contentId)}&limit=${PAGE_SIZE}&offset=${offset}`,
     );
     if (!res.ok) throw new Error(String(res.status));
-    return res.json() as Promise<{ comments: CommentDTO[]; hasMore: boolean }>;
+    return res.json() as Promise<{ comments: CommentDTO[]; hasMore: boolean; pageLocked: boolean }>;
   }, [contentId]);
 
   useEffect(() => {
@@ -183,6 +187,7 @@ export function LightComments({ contentId }: LightCommentsProps) {
       .then((data) => {
         setComments(data.comments);
         setHasMore(data.hasMore);
+        setPageLocked(data.pageLocked);
       })
       .catch(() => setListError('Comments are unavailable right now — try again later.'));
   }, [inView, loadPage]);
@@ -240,6 +245,10 @@ export function LightComments({ contentId }: LightCommentsProps) {
       }
       if (res.status === 429) {
         opts.setError('Too many comments too fast — try again in a few minutes.');
+        return;
+      }
+      if (res.status === 403) {
+        opts.setError('This discussion is locked.');
         return;
       }
       if (!res.ok) {
@@ -324,6 +333,12 @@ export function LightComments({ contentId }: LightCommentsProps) {
       </h2>
 
       <GlassCard accent="violet" className="p-4 mb-4">
+        {pageLocked ? (
+          <p className="text-xs text-slate-500 flex items-center gap-1.5">
+            <Lock size={12} className="text-slate-600" /> Comments are locked for this page.
+          </p>
+        ) : (
+          <>
         <label htmlFor={`comment-name-${contentId}`} className="sr-only">Name (optional)</label>
         <input
           id={`comment-name-${contentId}`}
@@ -365,6 +380,8 @@ export function LightComments({ contentId }: LightCommentsProps) {
         <p role="status" aria-live="polite" className="mt-2 text-[11px] text-rose-400 min-h-[1em]">
           {formError}
         </p>
+          </>
+        )}
       </GlassCard>
 
       {listError && <p className="text-xs text-rose-400">{listError}</p>}
@@ -408,17 +425,23 @@ export function LightComments({ contentId }: LightCommentsProps) {
                 </div>
                 <CommentBody body={c.body} knownNames={threadNames} />
 
-                <button
-                  onClick={() => {
-                    setReplyingTo(replyingTo === c.id ? null : c.id);
-                    setReplyError(null);
-                    // Convenience pre-fill — skipped for anonymous authors (no unique name to tag).
-                    setReplyBody(replyingTo === c.id ? '' : (c.authorName ? `@${c.authorName} ` : ''));
-                  }}
-                  className="mt-2 flex items-center gap-1 text-[11px] text-violet-400 hover:text-violet-300 transition-colors"
-                >
-                  <ReplyIcon size={11} /> Reply
-                </button>
+                {c.locked ? (
+                  <p className="mt-2 flex items-center gap-1 text-[11px] text-slate-600">
+                    <Lock size={11} /> This thread is locked.
+                  </p>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setReplyingTo(replyingTo === c.id ? null : c.id);
+                      setReplyError(null);
+                      // Convenience pre-fill — skipped for anonymous authors (no unique name to tag).
+                      setReplyBody(replyingTo === c.id ? '' : (c.authorName ? `@${c.authorName} ` : ''));
+                    }}
+                    className="mt-2 flex items-center gap-1 text-[11px] text-violet-400 hover:text-violet-300 transition-colors"
+                  >
+                    <ReplyIcon size={11} /> Reply
+                  </button>
+                )}
 
                 {replyingTo === c.id && (
                   <div className="mt-2 pl-3 border-l-2 border-violet-500/20">

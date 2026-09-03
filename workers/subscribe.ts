@@ -90,6 +90,12 @@ export interface Env {
    * space, so this salt is required before COMMENTS_ENABLED ever flips to
    * 'true' in production. Falls back to a fixed dev-only string if unset. */
   COMMENT_IP_SALT?: string;
+  /** Interim admin auth for comment moderation (IDEA-0009 Phase 4, FR-6/FR-12) —
+   * a shared secret checked against `Authorization: Bearer <token>` on the
+   * hide/unhide/lock/unlock routes. A stopgap until IDEA-0006's account/auth
+   * model lands with a real per-admin identity; set via
+   * `wrangler secret put ADMIN_API_SECRET`. Unset = every moderation call 403s. */
+  ADMIN_API_SECRET?: string;
 }
 
 interface PublicStats {
@@ -370,6 +376,14 @@ const RATE_LIMIT_POLICIES = {
     max: 10,
     ttlSeconds: 1800,
   },
+  // Generous relative to legitimate admin usage — this is defense-in-depth against
+  // ADMIN_API_SECRET-guessing automation, not a limit a real admin should ever hit.
+  commentModerate: {
+    keyPrefix: 'cma',
+    windowMs: 15 * 60 * 1000,
+    max: 30,
+    ttlSeconds: 1800,
+  },
 } satisfies Record<string, WindowRateLimitOptions>;
 
 /**
@@ -573,14 +587,87 @@ interface CommentRow {
   author_name: string | null;
   body: string;
   created_at: string;
+  locked: number;
+  status: string;
 }
 
 function checkCommentRateLimit(env: Env, ip: string): Promise<boolean> {
-  return checkWindowedRateLimit(env, ip, RATE_LIMIT_POLICIES.comment);
+  return getCommentRateLimitPolicy(env, 'comment').then((policy) => checkWindowedRateLimit(env, ip, policy));
 }
 
 function checkCommentDeleteRateLimit(env: Env, ip: string): Promise<boolean> {
-  return checkWindowedRateLimit(env, ip, RATE_LIMIT_POLICIES.commentDelete);
+  return getCommentRateLimitPolicy(env, 'commentDelete').then((policy) => checkWindowedRateLimit(env, ip, policy));
+}
+
+function checkCommentModerateRateLimit(env: Env, ip: string): Promise<boolean> {
+  return checkWindowedRateLimit(env, ip, RATE_LIMIT_POLICIES.commentModerate);
+}
+
+// ── Runtime-configurable moderation thresholds (IDEA-0009 Phase 4, NFR-12) ──
+// Lets ops tighten/loosen the comment/commentDelete rate-limit window+max without
+// a redeploy: `wrangler kv key put --binding=RATE_LIMITER cfg:moderation '{"comment":{"max":3}}'`.
+// Falls back to the hardcoded RATE_LIMIT_POLICIES defaults on any read/parse failure.
+const MODERATION_CONFIG_KEY = 'cfg:moderation';
+
+interface ModerationConfigOverride {
+  max?: number;
+  windowMs?: number;
+}
+
+async function getCommentRateLimitPolicy(
+  env: Env,
+  policyName: 'comment' | 'commentDelete',
+): Promise<WindowRateLimitOptions> {
+  const base = RATE_LIMIT_POLICIES[policyName];
+  try {
+    const raw = await env.RATE_LIMITER.get(MODERATION_CONFIG_KEY);
+    if (!raw) return base;
+    const parsed = JSON.parse(raw) as Partial<Record<'comment' | 'commentDelete', ModerationConfigOverride>>;
+    const override = parsed[policyName];
+    if (!override) return base;
+    return {
+      ...base,
+      max: typeof override.max === 'number' && override.max > 0 ? override.max : base.max,
+      windowMs: typeof override.windowMs === 'number' && override.windowMs > 0 ? override.windowMs : base.windowMs,
+    };
+  } catch {
+    return base;
+  }
+}
+
+/** Constant-time compare — avoids leaking ADMIN_API_SECRET length/content via response timing. */
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+/** Interim admin check (see ADMIN_API_SECRET doc on Env) — `Authorization: Bearer <secret>`. */
+function isAuthorizedAdmin(request: Request, env: Env): boolean {
+  if (!env.ADMIN_API_SECRET) return false;
+  const match = /^Bearer (.+)$/.exec(request.headers.get('Authorization') ?? '');
+  return !!match && timingSafeEqual(match[1], env.ADMIN_API_SECRET);
+}
+
+async function writeModerationLog(
+  env: Env,
+  entry: {
+    action: 'hide' | 'unhide' | 'lock' | 'unlock';
+    targetCommentId: number | null;
+    targetContentId: string | null;
+    reason: string | null;
+  },
+): Promise<void> {
+  try {
+    await env.DB.prepare(
+      `INSERT INTO moderation_log (action, target_comment_id, target_content_id, actor, reason, created_at)
+       VALUES (?1, ?2, ?3, 'admin', ?4, ?5)`,
+    ).bind(entry.action, entry.targetCommentId, entry.targetContentId, entry.reason, new Date().toISOString()).run();
+  } catch (err) {
+    // Audit-log failure must never block the moderation action itself from completing.
+    console.error('moderation-log-write-failed:', (err as Error).message);
+  }
 }
 
 /** Salted (NFR-3) — an unsalted SHA-256 of an IPv4 address is brute-forceable across its ~4B space. */
@@ -596,14 +683,20 @@ async function handleCommentGet(request: Request, env: Env, origin: string): Pro
   }
   const limit = Math.min(Math.max(Number(url.searchParams.get('limit')) || 20, 1), 100);
   const offset = Math.max(Number(url.searchParams.get('offset')) || 0, 0);
+  // An authorized admin also sees 'hidden' rows (Phase 4) — otherwise hide/unhide
+  // would be one-way, since the public list would never surface them again.
+  const statusFilter = isAuthorizedAdmin(request, env) ? `status IN ('visible', 'hidden')` : `status = 'visible'`;
 
   try {
     // Fetch one extra row to derive hasMore without a second COUNT(*) query.
-    const result = await env.DB.prepare(
-      `SELECT id, parent_comment_id, author_name, body, created_at FROM comments
-       WHERE content_id = ?1 AND status = 'visible'
-       ORDER BY created_at ASC LIMIT ?2 OFFSET ?3`,
-    ).bind(contentId, limit + 1, offset).all<CommentRow>();
+    const [result, pageLockRow] = await Promise.all([
+      env.DB.prepare(
+        `SELECT id, parent_comment_id, author_name, body, created_at, locked, status FROM comments
+         WHERE content_id = ?1 AND ${statusFilter}
+         ORDER BY created_at ASC LIMIT ?2 OFFSET ?3`,
+      ).bind(contentId, limit + 1, offset).all<CommentRow>(),
+      env.DB.prepare('SELECT 1 FROM locked_pages WHERE content_id = ?1').bind(contentId).first(),
+    ]);
 
     const rows = result.results;
     const hasMore = rows.length > limit;
@@ -613,8 +706,11 @@ async function handleCommentGet(request: Request, env: Env, origin: string): Pro
       authorName: r.author_name,
       body: r.body,
       createdAt: r.created_at,
+      status: r.status,
+      // Thread-scope lock (FR-12) only ever applies to a top-level row.
+      locked: r.parent_comment_id === null ? !!r.locked : false,
     }));
-    return json({ comments, hasMore }, 200, origin);
+    return json({ comments, hasMore, pageLocked: !!pageLockRow }, 200, origin);
   } catch (err) {
     console.error('comment-read-failed:', (err as Error).message);
     return json({ error: 'Service temporarily unavailable' }, 503, origin);
@@ -660,6 +756,12 @@ async function handleCommentPost(request: Request, env: Env, origin: string): Pr
   if (typeof contentId !== 'string' || !CONTENT_ID_RE.test(contentId)) {
     return json({ error: 'Invalid contentId' }, 400, origin);
   }
+  // FR-12 page-scope lock — blocks every new submission against this contentId,
+  // top-level or reply, without touching what's already there.
+  const pageLocked = await env.DB.prepare('SELECT 1 FROM locked_pages WHERE content_id = ?1').bind(contentId).first();
+  if (pageLocked) {
+    return json({ error: 'locked' }, 403, origin);
+  }
   if (typeof body !== 'string') {
     return json({ error: 'Invalid body' }, 400, origin);
   }
@@ -683,13 +785,17 @@ async function handleCommentPost(request: Request, env: Env, origin: string): Pr
       return json({ error: 'Invalid parentCommentId' }, 400, origin);
     }
     const parent = await env.DB.prepare(
-      `SELECT content_id, parent_comment_id FROM comments WHERE id = ?1 AND status = 'visible' AND owner_token <> ''`,
-    ).bind(parentCommentId).first<{ content_id: string; parent_comment_id: number | null }>();
+      `SELECT content_id, parent_comment_id, locked FROM comments WHERE id = ?1 AND status = 'visible' AND owner_token <> ''`,
+    ).bind(parentCommentId).first<{ content_id: string; parent_comment_id: number | null; locked: number }>();
     // One level of nesting only (FR-2) — replying to a reply is rejected, not silently flattened.
     // owner_token <> '' also excludes tombstoned comments (FR-11 clears it on delete) — a
     // deleted comment shouldn't grow new replies underneath it.
     if (!parent || parent.content_id !== contentId || parent.parent_comment_id !== null) {
       return json({ error: 'Invalid parentCommentId' }, 400, origin);
+    }
+    // FR-12 thread-scope lock — blocks new replies against this specific thread.
+    if (parent.locked) {
+      return json({ error: 'locked' }, 403, origin);
     }
     parentId = parentCommentId;
   }
@@ -748,6 +854,118 @@ async function handleCommentDelete(request: Request, env: Env, origin: string, i
     return new Response(null, { status: 204, headers: corsHeadersFor(origin) });
   } catch (err) {
     console.error('comment-delete-failed:', (err as Error).message);
+    return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  }
+}
+
+// ── Moderation (IDEA-0009 Phase 4) — admin-only hide/unhide/lock/unlock ─────
+// All four require isAuthorizedAdmin() (Authorization: Bearer <ADMIN_API_SECRET>).
+
+async function handleCommentHide(
+  request: Request,
+  env: Env,
+  origin: string,
+  id: number,
+  hide: boolean,
+): Promise<Response> {
+  if (!isAuthorizedAdmin(request, env)) {
+    return json({ error: 'unauthorized' }, 403, origin);
+  }
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  if (!(await checkCommentModerateRateLimit(env, ip))) {
+    return json({ error: 'rate_limited' }, 429, origin);
+  }
+
+  let payload: { reason?: unknown } = {};
+  try {
+    payload = await request.json() as typeof payload;
+  } catch {
+    /* reason is optional — an empty/missing body is fine */
+  }
+  const reason = typeof payload.reason === 'string' ? stripHtml(payload.reason, 500) : null;
+
+  try {
+    const row = await env.DB.prepare('SELECT content_id FROM comments WHERE id = ?1')
+      .bind(id).first<{ content_id: string }>();
+    if (!row) {
+      return json({ error: 'not_found' }, 404, origin);
+    }
+
+    const newStatus = hide ? 'hidden' : 'visible';
+    await env.DB.prepare('UPDATE comments SET status = ?1 WHERE id = ?2').bind(newStatus, id).run();
+    await writeModerationLog(env, {
+      action: hide ? 'hide' : 'unhide',
+      targetCommentId: id,
+      targetContentId: row.content_id,
+      reason,
+    });
+    return json({ status: newStatus }, 200, origin);
+  } catch (err) {
+    console.error('comment-moderate-failed:', (err as Error).message);
+    return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  }
+}
+
+async function handleCommentLock(
+  request: Request,
+  env: Env,
+  origin: string,
+  id: number,
+  lock: boolean,
+): Promise<Response> {
+  if (!isAuthorizedAdmin(request, env)) {
+    return json({ error: 'unauthorized' }, 403, origin);
+  }
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  if (!(await checkCommentModerateRateLimit(env, ip))) {
+    return json({ error: 'rate_limited' }, 429, origin);
+  }
+
+  let payload: { scope?: unknown; reason?: unknown };
+  try {
+    payload = await request.json() as typeof payload;
+  } catch {
+    return json({ error: 'Invalid JSON' }, 400, origin);
+  }
+  const scope: 'thread' | 'page' = payload.scope === 'page' ? 'page' : 'thread';
+  const reason = typeof payload.reason === 'string' ? stripHtml(payload.reason, 500) : null;
+
+  try {
+    const row = await env.DB.prepare('SELECT content_id, parent_comment_id FROM comments WHERE id = ?1')
+      .bind(id).first<{ content_id: string; parent_comment_id: number | null }>();
+    if (!row) {
+      return json({ error: 'not_found' }, 404, origin);
+    }
+
+    if (scope === 'thread') {
+      if (row.parent_comment_id !== null) {
+        return json({ error: 'not_top_level' }, 400, origin);
+      }
+      await env.DB.prepare('UPDATE comments SET locked = ?1, locked_reason = ?2 WHERE id = ?3')
+        .bind(lock ? 1 : 0, lock ? reason : null, id).run();
+    } else {
+      // Page scope resolves content_id from the given comment id — locking a page
+      // with zero comments isn't supported yet (FR-12's real trigger is an
+      // existing policy-violating conversation, not a preemptive empty-page lock).
+      if (lock) {
+        await env.DB.prepare(
+          `INSERT INTO locked_pages (content_id, reason, created_at) VALUES (?1, ?2, ?3)
+           ON CONFLICT(content_id) DO UPDATE SET reason = excluded.reason, created_at = excluded.created_at`,
+        ).bind(row.content_id, reason, new Date().toISOString()).run();
+      } else {
+        await env.DB.prepare('DELETE FROM locked_pages WHERE content_id = ?1').bind(row.content_id).run();
+      }
+    }
+
+    await writeModerationLog(env, {
+      action: lock ? 'lock' : 'unlock',
+      targetCommentId: scope === 'thread' ? id : null,
+      targetContentId: row.content_id,
+      reason,
+    });
+    return json({ locked: lock }, 200, origin);
+  } catch (err) {
+    console.error('comment-lock-failed:', (err as Error).message);
     return json({ error: 'Service temporarily unavailable' }, 503, origin);
   }
 }
@@ -1178,6 +1396,20 @@ export default {
     if (commentIdMatch && request.method === 'DELETE') {
       if (!isAllowedOrigin(origin)) return new Response('Forbidden', { status: 403 });
       return handleCommentDelete(request, env, origin, Number(commentIdMatch[1]));
+    }
+
+    // Comment moderation (Phase 4, admin-authenticated) — matched ahead of the
+    // generic POST routing table below since these paths carry a numeric segment.
+    const commentActionMatch = /^\/api\/comment\/(\d+)\/(hide|unhide|lock|unlock)$/.exec(pathname);
+    if (commentActionMatch && request.method === 'POST') {
+      if (!isAllowedOrigin(origin)) return new Response('Forbidden', { status: 403 });
+      const targetId = Number(commentActionMatch[1]);
+      switch (commentActionMatch[2]) {
+        case 'hide': return handleCommentHide(request, env, origin, targetId, true);
+        case 'unhide': return handleCommentHide(request, env, origin, targetId, false);
+        case 'lock': return handleCommentLock(request, env, origin, targetId, true);
+        default: return handleCommentLock(request, env, origin, targetId, false);
+      }
     }
 
     if (request.method !== 'POST') {
