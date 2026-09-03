@@ -34,6 +34,13 @@ binding     = "DB"
 database_name = "aarya-subscribers"
 database_id = "2f397d9b-4d45-4c1d-aa1e-3c474f58dd32"
 
+# ── Plaintext vars (non-secret feature flags) ────────────────────────────────
+# IDEA-0009 Phase 1 kill switch (NFR-6) — the comments table/endpoints exist
+# once this deploys, but POST /api/comment stays 503 until this flips to
+# "true" (Phase 2, alongside the privacy-disclosure prerequisite).
+[vars]
+COMMENTS_ENABLED = "false"
+
 # ── Secrets — set via CLI, never commit values ────────────────────────────────
 # Run each of the following (you will be prompted to paste the value):
 #
@@ -77,6 +84,13 @@ database_id = "2f397d9b-4d45-4c1d-aa1e-3c474f58dd32"
 #   wrangler secret put SESSION_SIGNING_KEY
 #     → random 32+ byte string, e.g. `openssl rand -hex 32`. Signs the session
 #       tokens minted for Google logins (see workers/subscribe.ts).
+#
+#   wrangler secret put COMMENT_IP_SALT
+#     → random 32+ byte string, e.g. `openssl rand -hex 32`. Pepper mixed into
+#       the IP hash stored on each comment row (IDEA-0009 NFR-3) — without a
+#       real secret here, hashing falls back to a fixed dev-only string, which
+#       is fine locally but must be set before COMMENTS_ENABLED ever flips to
+#       "true" in production.
 #
 # Microsoft login is deferred (no Entra app registered yet) — when it's added,
 # it'll need MS_CLIENT_ID / MS_CLIENT_SECRET secrets in this same style, plus
