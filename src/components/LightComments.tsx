@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MessageCircle, Send, Trash2 } from 'lucide-react';
+import { MessageCircle, Send, Trash2, Reply as ReplyIcon } from 'lucide-react';
 import { GlassCard, Button } from '@/components/ui';
 
-// IDEA-0009 Phase 2 — flat, anonymous comments only. Replies/threading and
-// @mention tagging are deliberately Phase 3 scope, not implemented here.
+// IDEA-0009 Phase 3 — one-level-deep replies (FR-2/FR-4) and @mention tagging
+// (FR-13, display-only — no notification path exists for anonymous authors).
 
 const WORKER_URL = (import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined) ?? '';
 const BODY_MAX = 2000;
 const NAME_MAX = 80;
 const PAGE_SIZE = 20;
+const REPLIES_COLLAPSE_AT = 3;
 
 interface CommentDTO {
   id: number;
@@ -16,6 +17,10 @@ interface CommentDTO {
   authorName: string | null;
   body: string;
   createdAt: string;
+}
+
+interface CommentNode extends CommentDTO {
+  replies: CommentDTO[];
 }
 
 function ownerTokenKey(id: number) {
@@ -38,6 +43,14 @@ function getOwnerToken(id: number): string | null {
   }
 }
 
+function clearOwnerToken(id: number) {
+  try {
+    localStorage.removeItem(ownerTokenKey(id));
+  } catch {
+    /* localStorage unavailable — nothing to clear */
+  }
+}
+
 function formatRelativeTime(iso: string): string {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (mins < 1) return 'just now';
@@ -46,6 +59,70 @@ function formatRelativeTime(iso: string): string {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   return days < 30 ? `${days}d ago` : new Date(iso).toLocaleDateString();
+}
+
+/** Groups a flat, oldest-first comment list into top-level nodes with their replies attached. */
+function nestComments(flat: CommentDTO[]): CommentNode[] {
+  const byId = new Map<number, CommentNode>();
+  const roots: CommentNode[] = [];
+  for (const c of flat) byId.set(c.id, { ...c, replies: [] });
+  for (const c of flat) {
+    if (c.parentCommentId === null) {
+      roots.push(byId.get(c.id)!);
+    } else {
+      byId.get(c.parentCommentId)?.replies.push(c);
+    }
+  }
+  return roots;
+}
+
+/**
+ * Splits a comment body into plain-text and @mention segments, matched against the
+ * other real (non-Anonymous) display names already present in the same thread (FR-13).
+ * Purely presentational — matching text is never validated against who can "see" it.
+ */
+function splitMentions(body: string, knownNames: string[]): { text: string; mention: boolean }[] {
+  if (knownNames.length === 0) return [{ text: body, mention: false }];
+  const names = [...knownNames].sort((a, b) => b.length - a.length);
+  const segments: { text: string; mention: boolean }[] = [];
+  let i = 0;
+  let plain = '';
+  const isWordChar = (ch: string | undefined) => !!ch && /[\p{L}\p{N}]/u.test(ch);
+  while (i < body.length) {
+    if (body[i] === '@' && !isWordChar(body[i - 1])) {
+      const match = names.find((name) => {
+        const slice = body.slice(i + 1, i + 1 + name.length);
+        return slice.toLowerCase() === name.toLowerCase() && !isWordChar(body[i + 1 + name.length]);
+      });
+      if (match) {
+        if (plain) segments.push({ text: plain, mention: false });
+        plain = '';
+        segments.push({ text: `@${match}`, mention: true });
+        i += 1 + match.length;
+        continue;
+      }
+    }
+    plain += body[i];
+    i += 1;
+  }
+  if (plain) segments.push({ text: plain, mention: false });
+  return segments;
+}
+
+function CommentBody({ body, knownNames }: { body: string; knownNames: string[] }) {
+  return (
+    <p className="text-xs text-slate-400 leading-relaxed mt-1.5 whitespace-pre-wrap">
+      {splitMentions(body, knownNames).map((seg, i) =>
+        seg.mention ? (
+          <span key={i} className="text-violet-300 font-medium bg-violet-500/10 rounded px-1">
+            {seg.text}
+          </span>
+        ) : (
+          <span key={i}>{seg.text}</span>
+        ),
+      )}
+    </p>
+  );
 }
 
 interface LightCommentsProps {
@@ -66,6 +143,14 @@ export function LightComments({ contentId }: LightCommentsProps) {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  // FR-2 — reply state is single-slot: only one reply box open at a time.
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyBody, setReplyBody] = useState('');
+  const [replySubmitting, setReplySubmitting] = useState(false);
+  const [replyError, setReplyError] = useState<string | null>(null);
+  // FR-4 — which top-level threads have expanded past the collapse-at-3 default.
+  const [expandedThreads, setExpandedThreads] = useState<Set<number>>(new Set());
 
   // NFR-7 — lazy-fetch only once the section actually scrolls into view.
   useEffect(() => {
@@ -115,39 +200,50 @@ export function LightComments({ contentId }: LightCommentsProps) {
     }
   };
 
-  const submit = async () => {
-    const trimmed = body.trim();
+  /** Shared by the top-level box and every inline reply box — only the parentId and the small
+   * bits of local state (which box to clear, which spinner/error to drive) differ per caller. */
+  const postComment = async (
+    text: string,
+    parentId: number | null,
+    opts: {
+      setBusy: (v: boolean) => void;
+      setError: (v: string | null) => void;
+      onSuccess: () => void;
+    },
+  ) => {
+    const trimmed = text.trim();
     if (trimmed.length === 0) {
-      setFormError('Write something before posting.');
+      opts.setError('Write something before posting.');
       return;
     }
     if (trimmed.length > BODY_MAX) {
-      setFormError(`Comments are capped at ${BODY_MAX} characters.`);
+      opts.setError(`Comments are capped at ${BODY_MAX} characters.`);
       return;
     }
-    setSubmitting(true);
-    setFormError(null);
+    opts.setBusy(true);
+    opts.setError(null);
     try {
       const res = await fetch(`${WORKER_URL}/api/comment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contentId,
+          parentCommentId: parentId ?? undefined,
           authorName: authorName.trim() || undefined,
           body: trimmed,
           honeypot,
         }),
       });
       if (res.status === 503) {
-        setFormError('Comments are temporarily disabled.');
+        opts.setError('Comments are temporarily disabled.');
         return;
       }
       if (res.status === 429) {
-        setFormError('Too many comments too fast — try again in a few minutes.');
+        opts.setError('Too many comments too fast — try again in a few minutes.');
         return;
       }
       if (!res.ok) {
-        setFormError('Could not post your comment — try again.');
+        opts.setError('Could not post — try again.');
         return;
       }
       const data = await res.json() as { id: number; ownerToken: string };
@@ -155,19 +251,36 @@ export function LightComments({ contentId }: LightCommentsProps) {
       // FR-3 — append locally instead of refetching, so it renders immediately.
       const posted: CommentDTO = {
         id: data.id,
-        parentCommentId: null,
+        parentCommentId: parentId,
         authorName: authorName.trim() || null,
         body: trimmed,
         createdAt: new Date().toISOString(),
       };
       setComments((prev) => [...(prev ?? []), posted]);
-      setBody('');
+      opts.onSuccess();
     } catch {
-      setFormError('Could not post your comment — try again.');
+      opts.setError('Could not post — try again.');
     } finally {
-      setSubmitting(false);
+      opts.setBusy(false);
     }
   };
+
+  const submit = () =>
+    void postComment(body, null, {
+      setBusy: setSubmitting,
+      setError: setFormError,
+      onSuccess: () => setBody(''),
+    });
+
+  const submitReply = (parentId: number) =>
+    void postComment(replyBody, parentId, {
+      setBusy: setReplySubmitting,
+      setError: setReplyError,
+      onSuccess: () => {
+        setReplyBody('');
+        setReplyingTo(null);
+      },
+    });
 
   const deleteComment = async (id: number) => {
     const token = getOwnerToken(id);
@@ -178,7 +291,20 @@ export function LightComments({ contentId }: LightCommentsProps) {
         method: 'DELETE',
         headers: { 'X-Owner-Token': token },
       });
-      if (res.ok) setComments((prev) => (prev ?? []).filter((c) => c.id !== id));
+      if (res.ok) {
+        const hasReplies = (comments ?? []).some((c) => c.parentCommentId === id);
+        if (hasReplies) {
+          // Backend tombstones rather than removes when replies exist (FR-11) — mirror
+          // that locally so the thread's replies don't disappear from nestComments(),
+          // and drop the now-invalid owner token (a retry would just 403).
+          setComments((prev) => (prev ?? []).map((c) => (
+            c.id === id ? { ...c, body: '[deleted]', authorName: null } : c
+          )));
+          clearOwnerToken(id);
+        } else {
+          setComments((prev) => (prev ?? []).filter((c) => c.id !== id));
+        }
+      }
     } catch {
       /* leave the comment as-is — the reader can retry the delete */
     } finally {
@@ -187,6 +313,8 @@ export function LightComments({ contentId }: LightCommentsProps) {
   };
 
   if (!WORKER_URL) return null; // no Worker configured (e.g. static preview) — omit the section entirely
+
+  const threads = comments !== null ? nestComments(comments) : null;
 
   return (
     <div ref={containerRef} className="mt-10">
@@ -230,7 +358,7 @@ export function LightComments({ contentId }: LightCommentsProps) {
             Posting is anonymous — no account needed. We store a hashed IP only to prevent
             spam (never the raw address), and you can delete your own comment any time.
           </p>
-          <Button variant="primary" size="sm" icon={Send} disabled={submitting} onClick={() => void submit()}>
+          <Button variant="primary" size="sm" icon={Send} disabled={submitting} onClick={submit}>
             Post
           </Button>
         </div>
@@ -241,18 +369,25 @@ export function LightComments({ contentId }: LightCommentsProps) {
 
       {listError && <p className="text-xs text-rose-400">{listError}</p>}
 
-      {comments === null && !listError && (
+      {threads === null && !listError && (
         <p className="text-xs text-slate-500">Loading comments…</p>
       )}
 
-      {comments !== null && comments.length === 0 && (
+      {threads !== null && threads.length === 0 && (
         <p className="text-xs text-slate-500">No comments yet — be the first.</p>
       )}
 
-      {comments !== null && comments.length > 0 && (
+      {threads !== null && threads.length > 0 && (
         <div className="space-y-2">
-          {comments.map((c) => {
-            const isDeletable = getOwnerToken(c.id) !== null;
+          {threads.map((c) => {
+            const isDeletable = getOwnerToken(c.id) !== null && c.body !== '[deleted]';
+            // FR-13 — mentionable names scoped to this one thread, not the whole page.
+            const threadNames = [c.authorName, ...c.replies.map((r) => r.authorName)]
+              .filter((n): n is string => !!n);
+            const expanded = expandedThreads.has(c.id);
+            const visibleReplies = expanded ? c.replies : c.replies.slice(0, REPLIES_COLLAPSE_AT);
+            const hiddenCount = c.replies.length - visibleReplies.length;
+
             return (
               <GlassCard key={c.id} border="border-slate-700/40" className="p-3">
                 <div className="flex items-start justify-between gap-2">
@@ -271,7 +406,81 @@ export function LightComments({ contentId }: LightCommentsProps) {
                     </button>
                   )}
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed mt-1.5 whitespace-pre-wrap">{c.body}</p>
+                <CommentBody body={c.body} knownNames={threadNames} />
+
+                <button
+                  onClick={() => {
+                    setReplyingTo(replyingTo === c.id ? null : c.id);
+                    setReplyError(null);
+                    // Convenience pre-fill — skipped for anonymous authors (no unique name to tag).
+                    setReplyBody(replyingTo === c.id ? '' : (c.authorName ? `@${c.authorName} ` : ''));
+                  }}
+                  className="mt-2 flex items-center gap-1 text-[11px] text-violet-400 hover:text-violet-300 transition-colors"
+                >
+                  <ReplyIcon size={11} /> Reply
+                </button>
+
+                {replyingTo === c.id && (
+                  <div className="mt-2 pl-3 border-l-2 border-violet-500/20">
+                    <textarea
+                      value={replyBody}
+                      onChange={(e) => setReplyBody(e.target.value)}
+                      placeholder={`Reply to ${c.authorName ?? 'this comment'}…`}
+                      rows={2}
+                      maxLength={BODY_MAX}
+                      className="w-full mb-2 px-3 py-2 rounded-lg text-xs bg-slate-800/60 border border-slate-700/60 text-slate-200 placeholder:text-slate-500 focus:border-violet-500/60 resize-y"
+                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        disabled={replySubmitting}
+                        onClick={() => submitReply(c.id)}
+                      >
+                        Post reply
+                      </Button>
+                      <Button variant="ghost" size="xs" onClick={() => setReplyingTo(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                    {replyError && <p role="status" aria-live="polite" className="mt-1 text-[11px] text-rose-400">{replyError}</p>}
+                  </div>
+                )}
+
+                {c.replies.length > 0 && (
+                  <div className="mt-3 pl-3 border-l-2 border-slate-700/40 space-y-2">
+                    {visibleReplies.map((r) => {
+                      const replyDeletable = getOwnerToken(r.id) !== null && r.body !== '[deleted]';
+                      return (
+                        <div key={r.id}>
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-[11px] font-semibold text-slate-300">{r.authorName ?? 'Anonymous'}</p>
+                            {replyDeletable && (
+                              <button
+                                onClick={() => void deleteComment(r.id)}
+                                disabled={deletingId === r.id}
+                                aria-label="Delete my reply"
+                                className="text-slate-600 hover:text-rose-400 transition-colors"
+                              >
+                                <Trash2 size={11} />
+                              </button>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-slate-500">{formatRelativeTime(r.createdAt)}</p>
+                          <CommentBody body={r.body} knownNames={threadNames} />
+                        </div>
+                      );
+                    })}
+                    {hiddenCount > 0 && (
+                      <button
+                        onClick={() => setExpandedThreads((prev) => new Set(prev).add(c.id))}
+                        className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
+                      >
+                        Show {hiddenCount} more {hiddenCount === 1 ? 'reply' : 'replies'}
+                      </button>
+                    )}
+                  </div>
+                )}
               </GlassCard>
             );
           })}
@@ -287,3 +496,4 @@ export function LightComments({ contentId }: LightCommentsProps) {
     </div>
   );
 }
+
