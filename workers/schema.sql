@@ -52,9 +52,12 @@ CREATE INDEX IF NOT EXISTS idx_comments_content_id ON comments(content_id, creat
 -- so it stays an index lookup instead of a full table scan as comments grow.
 CREATE INDEX IF NOT EXISTS idx_comments_parent_comment_id ON comments(parent_comment_id);
 
--- IDEA-0009 Phase 4 — FR-12 page-scope locks. A page can be locked before any
--- comment exists under it, so this can't live as a column on `comments` the
--- way thread-scope locks do; content_id alone is the key, one row per locked page.
+-- IDEA-0009 Phase 4 -- FR-12 page-scope locks. content_id, not any single comment, is
+-- the real subject of a page-scope lock, so it can't live as a column on `comments`
+-- the way thread-scope locks do -- content_id alone is the key, one row per locked
+-- page. (The Worker endpoint currently resolves content_id from an existing comment
+-- id, so locking a page before any comment exists under it isn't supported yet --
+-- see the comment above handleCommentLock's page-scope branch in subscribe.ts.)
 CREATE TABLE IF NOT EXISTS locked_pages (
   content_id TEXT PRIMARY KEY,
   reason     TEXT,

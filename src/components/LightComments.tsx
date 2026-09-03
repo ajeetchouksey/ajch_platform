@@ -308,6 +308,7 @@ export function LightComments({ contentId }: LightCommentsProps) {
       const data = await loadPage(comments?.length ?? 0);
       setComments((prev) => [...(prev ?? []), ...data.comments]);
       setHasMore(data.hasMore);
+      setPageLocked(data.pageLocked);
     } catch {
       setListError('Could not load more comments — try again later.');
     } finally {

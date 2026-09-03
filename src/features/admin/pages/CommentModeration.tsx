@@ -62,6 +62,10 @@ export default function CommentModeration() {
   };
 
   const call = async (path: string, body: Record<string, unknown>) => {
+    if (!secret.trim()) {
+      setError('Enter the admin secret first.');
+      return false;
+    }
     const res = await fetch(`${WORKER_URL}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${secret}` },
@@ -94,7 +98,10 @@ export default function CommentModeration() {
 
   const toggleLockPage = async () => {
     const anchor = comments?.[0];
-    if (!anchor) return;
+    if (!anchor) {
+      setError('Load at least one comment for this content ID before locking the page.');
+      return;
+    }
     const ok = await call(`/api/comment/${anchor.id}/${pageLocked ? 'unlock' : 'lock'}`, { scope: 'page', reason: 'admin action' });
     if (ok) setPageLocked((v) => !v);
     else setError('Action failed — check the admin secret.');

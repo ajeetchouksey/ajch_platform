@@ -635,7 +635,10 @@ async function getCommentRateLimitPolicy(
   }
 }
 
-/** Constant-time compare — avoids leaking ADMIN_API_SECRET length/content via response timing. */
+/** Constant-time compare of equal-length secrets — avoids leaking the *content* of
+ * ADMIN_API_SECRET via response timing. Does not hide length (an early mismatch on
+ * differing length is O(1) and reveals nothing sensitive; the secret's length is not
+ * itself a protected value). */
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let diff = 0;
@@ -1006,8 +1009,9 @@ async function handleCommentLock(
         .bind(lock ? 1 : 0, lock ? reason : null, id).run();
     } else {
       // Page scope resolves content_id from the given comment id — locking a page
-      // with zero comments isn't supported yet (FR-12's real trigger is an
-      // existing policy-violating conversation, not a preemptive empty-page lock).
+      // that has zero comments yet isn't supported by this endpoint (it needs an
+      // existing row to look up content_id from); FR-12's real trigger is an
+      // existing policy-violating conversation, not a preemptive empty-page lock.
       if (lock) {
         await env.DB.prepare(
           `INSERT INTO locked_pages (content_id, reason, created_at) VALUES (?1, ?2, ?3)
