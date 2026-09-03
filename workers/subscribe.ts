@@ -416,7 +416,7 @@ function corsHeadersFor(origin: string): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Owner-Token',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Owner-Token',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -625,6 +625,12 @@ async function handleCommentPost(request: Request, env: Env, origin: string): Pr
   if (env.COMMENTS_ENABLED !== 'true') {
     return json({ error: 'disabled' }, 503, origin);
   }
+  if (!env.COMMENT_IP_SALT) {
+    // Fail closed rather than silently persist a brute-forceable, unsalted IP
+    // hash (NFR-3) — a missing secret should block intake, not weaken it.
+    console.error('comment-post-blocked: COMMENT_IP_SALT is not configured');
+    return json({ error: 'disabled' }, 503, origin);
+  }
 
   const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
   if (!(await checkCommentRateLimit(env, ip))) {
@@ -677,9 +683,11 @@ async function handleCommentPost(request: Request, env: Env, origin: string): Pr
       return json({ error: 'Invalid parentCommentId' }, 400, origin);
     }
     const parent = await env.DB.prepare(
-      `SELECT content_id, parent_comment_id FROM comments WHERE id = ?1 AND status = 'visible'`,
+      `SELECT content_id, parent_comment_id FROM comments WHERE id = ?1 AND status = 'visible' AND owner_token <> ''`,
     ).bind(parentCommentId).first<{ content_id: string; parent_comment_id: number | null }>();
     // One level of nesting only (FR-2) — replying to a reply is rejected, not silently flattened.
+    // owner_token <> '' also excludes tombstoned comments (FR-11 clears it on delete) — a
+    // deleted comment shouldn't grow new replies underneath it.
     if (!parent || parent.content_id !== contentId || parent.parent_comment_id !== null) {
       return json({ error: 'Invalid parentCommentId' }, 400, origin);
     }
@@ -724,15 +732,15 @@ async function handleCommentDelete(request: Request, env: Env, origin: string, i
       return json({ error: 'not_owner' }, 403, origin);
     }
 
-    const childCount = await env.DB.prepare('SELECT COUNT(*) as n FROM comments WHERE parent_comment_id = ?1')
-      .bind(id).first<{ n: number }>();
+    // Atomic conditional delete — avoids the COUNT-then-DELETE race where a
+    // reply could be inserted between the two, orphaning its parent_comment_id.
+    const deleted = await env.DB.prepare(
+      `DELETE FROM comments WHERE id = ?1 AND NOT EXISTS (SELECT 1 FROM comments WHERE parent_comment_id = ?1)`,
+    ).bind(id).run();
 
-    if ((childCount?.n ?? 0) === 0) {
-      // Leaf comment — nothing references it, safe to remove the row outright.
-      await env.DB.prepare('DELETE FROM comments WHERE id = ?1').bind(id).run();
-    } else {
-      // Has replies — tombstone instead of deleting the row, so their
-      // parent_comment_id doesn't dangle (FR-11).
+    if (deleted.meta.changes === 0) {
+      // Has replies (the NOT EXISTS guard blocked the delete) — tombstone
+      // instead, so their parent_comment_id doesn't dangle (FR-11).
       await env.DB.prepare(
         `UPDATE comments SET body = '[deleted]', author_name = NULL, ip_hash = '', owner_token = '' WHERE id = ?1`,
       ).bind(id).run();

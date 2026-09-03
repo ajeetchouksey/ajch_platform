@@ -39,3 +39,7 @@ CREATE TABLE IF NOT EXISTS comments (
 
 -- Serves both GET /api/comment's per-content lookup and its oldest-first sort.
 CREATE INDEX IF NOT EXISTS idx_comments_content_id ON comments(content_id, created_at);
+
+-- Serves the reply-existence check in POST/DELETE (parent validation, leaf-vs-tombstone)
+-- so it stays an index lookup instead of a full table scan as comments grow.
+CREATE INDEX IF NOT EXISTS idx_comments_parent_comment_id ON comments(parent_comment_id);
