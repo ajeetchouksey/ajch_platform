@@ -35,11 +35,14 @@ database_name = "aarya-subscribers"
 database_id = "2f397d9b-4d45-4c1d-aa1e-3c474f58dd32"
 
 # ── Plaintext vars (non-secret feature flags) ────────────────────────────────
-# IDEA-0009 Phase 1 kill switch (NFR-6) — the comments table/endpoints exist
-# once this deploys, but POST /api/comment stays 503 until this flips to
-# "true" (Phase 2, alongside the privacy-disclosure prerequisite).
+# IDEA-0009 Phase 2 — NFR-4 (privacy disclosure) resolved via the inline copy
+# in LightComments.tsx (no separate /legal/privacy page yet). Flipped on for
+# the Use Cases rollout (FR-9) now that LightComments.tsx is wired in.
+# Still fails closed at runtime (503) until `wrangler secret put
+# COMMENT_IP_SALT` is run against the deployed Worker — see the secrets list
+# below — so this flag alone does not make comment intake live in production.
 [vars]
-COMMENTS_ENABLED = "false"
+COMMENTS_ENABLED = "true"
 
 # ── Secrets — set via CLI, never commit values ────────────────────────────────
 # Run each of the following (you will be prompted to paste the value):

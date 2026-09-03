@@ -1,4 +1,5 @@
 import { ContentFeedback } from '@/components/ContentFeedback';
+import { LightComments } from '@/components/LightComments';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -466,6 +467,9 @@ export default function UseCaseDetail() {
           </div>{/* end right sidebar */}
         </div>
       )}
+
+      {/* IDEA-0009 Phase 2 — non-GitHub comment layer, closes the zero-discussion-channel gap */}
+      <LightComments contentId={`usecase-${id ?? ''}`} />
 
       {/* Catalog-only fallback */}
       {!featured && (
