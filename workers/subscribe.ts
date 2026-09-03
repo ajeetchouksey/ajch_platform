@@ -80,6 +80,16 @@ export interface Env {
    * changes here, just a new AUTHORIZE_CONFIG entry + callback handler.
    */
   SESSION_SIGNING_KEY?: string;
+  /** Feature flag gating public comment intake (IDEA-0009 NFR-6) — must be the
+   * exact string 'true' to enable; unset or any other value keeps POST
+   * /api/comment returning 503. Set as a plaintext var in wrangler.toml, not
+   * a secret, since it carries no sensitive value. */
+  COMMENTS_ENABLED?: string;
+  /** Pepper mixed into each comment's stored IP hash (IDEA-0009 NFR-3) — a bare
+   * SHA-256 of an IPv4 address is brute-forceable across its ~4B address
+   * space, so this salt is required before COMMENTS_ENABLED ever flips to
+   * 'true' in production. Falls back to a fixed dev-only string if unset. */
+  COMMENT_IP_SALT?: string;
 }
 
 interface PublicStats {
@@ -348,6 +358,18 @@ const RATE_LIMIT_POLICIES = {
     max: 10,
     ttlSeconds: 120,
   },
+  comment: {
+    keyPrefix: 'cm',
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    ttlSeconds: 1800,
+  },
+  commentDelete: {
+    keyPrefix: 'cmd',
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    ttlSeconds: 1800,
+  },
 } satisfies Record<string, WindowRateLimitOptions>;
 
 /**
@@ -393,8 +415,8 @@ async function checkRateLimit(env: Env, ip: string): Promise<boolean> {
 function corsHeadersFor(origin: string): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Owner-Token',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -537,6 +559,189 @@ async function handleSignalPost(request: Request, env: Env, origin: string): Pro
   }
 
   return json({ status: 'ok', count: data.signals[contentId] }, 200, origin);
+}
+
+// ── Comments (IDEA-0009 Phase 1) — anonymous, non-GitHub feedback layer ─────
+// Gated by env.COMMENTS_ENABLED (NFR-6); no UI is wired to these routes yet.
+
+const COMMENT_BODY_MAX = 2000;
+const COMMENT_NAME_MAX = 80;
+
+interface CommentRow {
+  id: number;
+  parent_comment_id: number | null;
+  author_name: string | null;
+  body: string;
+  created_at: string;
+}
+
+function checkCommentRateLimit(env: Env, ip: string): Promise<boolean> {
+  return checkWindowedRateLimit(env, ip, RATE_LIMIT_POLICIES.comment);
+}
+
+function checkCommentDeleteRateLimit(env: Env, ip: string): Promise<boolean> {
+  return checkWindowedRateLimit(env, ip, RATE_LIMIT_POLICIES.commentDelete);
+}
+
+/** Salted (NFR-3) — an unsalted SHA-256 of an IPv4 address is brute-forceable across its ~4B space. */
+async function hashCommentIp(env: Env, ip: string): Promise<string> {
+  return sha256Hex(`${env.COMMENT_IP_SALT ?? 'aarya-comments-dev-salt'}:${ip}`);
+}
+
+async function handleCommentGet(request: Request, env: Env, origin: string): Promise<Response> {
+  const url = new URL(request.url);
+  const contentId = url.searchParams.get('contentId') ?? '';
+  if (!CONTENT_ID_RE.test(contentId)) {
+    return json({ error: 'Invalid contentId' }, 400, origin);
+  }
+  const limit = Math.min(Math.max(Number(url.searchParams.get('limit')) || 20, 1), 100);
+  const offset = Math.max(Number(url.searchParams.get('offset')) || 0, 0);
+
+  try {
+    // Fetch one extra row to derive hasMore without a second COUNT(*) query.
+    const result = await env.DB.prepare(
+      `SELECT id, parent_comment_id, author_name, body, created_at FROM comments
+       WHERE content_id = ?1 AND status = 'visible'
+       ORDER BY created_at ASC LIMIT ?2 OFFSET ?3`,
+    ).bind(contentId, limit + 1, offset).all<CommentRow>();
+
+    const rows = result.results;
+    const hasMore = rows.length > limit;
+    const comments = rows.slice(0, limit).map((r) => ({
+      id: r.id,
+      parentCommentId: r.parent_comment_id,
+      authorName: r.author_name,
+      body: r.body,
+      createdAt: r.created_at,
+    }));
+    return json({ comments, hasMore }, 200, origin);
+  } catch (err) {
+    console.error('comment-read-failed:', (err as Error).message);
+    return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  }
+}
+
+async function handleCommentPost(request: Request, env: Env, origin: string): Promise<Response> {
+  if (env.COMMENTS_ENABLED !== 'true') {
+    return json({ error: 'disabled' }, 503, origin);
+  }
+
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  if (!(await checkCommentRateLimit(env, ip))) {
+    return json({ error: 'rate_limited' }, 429, origin);
+  }
+
+  let payload: {
+    contentId?: unknown;
+    parentCommentId?: unknown;
+    authorName?: unknown;
+    body?: unknown;
+    honeypot?: unknown;
+  };
+  try {
+    payload = await request.json() as typeof payload;
+  } catch {
+    return json({ error: 'Invalid JSON' }, 400, origin);
+  }
+
+  // Honeypot: real users never fill this (hidden via CSS); a fake success
+  // response — not a 400 — keeps the trap invisible to bots probing the API.
+  if (typeof payload.honeypot === 'string' && payload.honeypot.length > 0) {
+    return json({ id: 0, status: 'visible', ownerToken: crypto.randomUUID() }, 201, origin);
+  }
+
+  const { contentId, parentCommentId, authorName, body } = payload;
+  if (typeof contentId !== 'string' || !CONTENT_ID_RE.test(contentId)) {
+    return json({ error: 'Invalid contentId' }, 400, origin);
+  }
+  if (typeof body !== 'string') {
+    return json({ error: 'Invalid body' }, 400, origin);
+  }
+  const safeBody = stripHtml(body, COMMENT_BODY_MAX);
+  if (safeBody.length === 0) {
+    return json({ error: 'Invalid body' }, 400, origin);
+  }
+
+  let safeAuthorName: string | null = null;
+  if (authorName !== undefined && authorName !== null) {
+    if (typeof authorName !== 'string') {
+      return json({ error: 'Invalid authorName' }, 400, origin);
+    }
+    const trimmedName = stripHtml(authorName, COMMENT_NAME_MAX);
+    safeAuthorName = trimmedName.length > 0 ? trimmedName : null;
+  }
+
+  let parentId: number | null = null;
+  if (parentCommentId !== undefined && parentCommentId !== null) {
+    if (typeof parentCommentId !== 'number' || !Number.isInteger(parentCommentId) || parentCommentId <= 0) {
+      return json({ error: 'Invalid parentCommentId' }, 400, origin);
+    }
+    const parent = await env.DB.prepare(
+      `SELECT content_id, parent_comment_id FROM comments WHERE id = ?1 AND status = 'visible'`,
+    ).bind(parentCommentId).first<{ content_id: string; parent_comment_id: number | null }>();
+    // One level of nesting only (FR-2) — replying to a reply is rejected, not silently flattened.
+    if (!parent || parent.content_id !== contentId || parent.parent_comment_id !== null) {
+      return json({ error: 'Invalid parentCommentId' }, 400, origin);
+    }
+    parentId = parentCommentId;
+  }
+
+  const ownerToken = crypto.randomUUID();
+  const ipHash = await hashCommentIp(env, ip);
+  const createdAt = new Date().toISOString();
+
+  try {
+    const result = await env.DB.prepare(
+      `INSERT INTO comments (content_id, parent_comment_id, author_name, body, status, ip_hash, owner_token, created_at)
+       VALUES (?1, ?2, ?3, ?4, 'visible', ?5, ?6, ?7)`,
+    ).bind(contentId, parentId, safeAuthorName, safeBody, ipHash, ownerToken, createdAt).run();
+    return json({ id: result.meta.last_row_id, status: 'visible', ownerToken }, 201, origin);
+  } catch (err) {
+    console.error('comment-write-failed:', (err as Error).message);
+    return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  }
+}
+
+async function handleCommentDelete(request: Request, env: Env, origin: string, id: number): Promise<Response> {
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  if (!(await checkCommentDeleteRateLimit(env, ip))) {
+    return json({ error: 'rate_limited' }, 429, origin);
+  }
+
+  // Reject an empty header up front — never let it match a tombstoned row's blanked owner_token ('').
+  const ownerToken = request.headers.get('X-Owner-Token') ?? '';
+  if (!ownerToken) {
+    return json({ error: 'not_owner' }, 403, origin);
+  }
+
+  try {
+    const row = await env.DB.prepare('SELECT owner_token FROM comments WHERE id = ?1')
+      .bind(id).first<{ owner_token: string }>();
+    if (!row) {
+      return json({ error: 'not_found' }, 404, origin);
+    }
+    if (row.owner_token !== ownerToken) {
+      return json({ error: 'not_owner' }, 403, origin);
+    }
+
+    const childCount = await env.DB.prepare('SELECT COUNT(*) as n FROM comments WHERE parent_comment_id = ?1')
+      .bind(id).first<{ n: number }>();
+
+    if ((childCount?.n ?? 0) === 0) {
+      // Leaf comment — nothing references it, safe to remove the row outright.
+      await env.DB.prepare('DELETE FROM comments WHERE id = ?1').bind(id).run();
+    } else {
+      // Has replies — tombstone instead of deleting the row, so their
+      // parent_comment_id doesn't dangle (FR-11).
+      await env.DB.prepare(
+        `UPDATE comments SET body = '[deleted]', author_name = NULL, ip_hash = '', owner_token = '' WHERE id = ?1`,
+      ).bind(id).run();
+    }
+    return new Response(null, { status: 204, headers: corsHeadersFor(origin) });
+  } catch (err) {
+    console.error('comment-delete-failed:', (err as Error).message);
+    return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  }
 }
 
 // 2 req / 15 min per IP (AI calls are expensive) — same key format (`ml:${ip}:${bucket}`) as before consolidation
@@ -953,6 +1158,20 @@ export default {
       return handleSignalGet(env, origin);
     }
 
+    // Comment list — simple GET, no preflight; open to allowed origins only
+    if (pathname === '/api/comment' && request.method === 'GET') {
+      if (!isAllowedOrigin(origin)) return new Response('Forbidden', { status: 403 });
+      return handleCommentGet(request, env, origin);
+    }
+
+    // Comment self-delete (FR-11) — needs its own method branch since DELETE
+    // never reaches the POST-only routing table below.
+    const commentIdMatch = /^\/api\/comment\/(\d+)$/.exec(pathname);
+    if (commentIdMatch && request.method === 'DELETE') {
+      if (!isAllowedOrigin(origin)) return new Response('Forbidden', { status: 403 });
+      return handleCommentDelete(request, env, origin, Number(commentIdMatch[1]));
+    }
+
     if (request.method !== 'POST') {
       return new Response('Method Not Allowed', { status: 405 });
     }
@@ -968,6 +1187,7 @@ export default {
     if (pathname === '/oauth/device-code') return handleOAuthDeviceCode(request, origin);
     if (pathname === '/oauth/token') return handleOAuthToken(request, origin);
     if (pathname === '/api/signal') return handleSignalPost(request, env, origin);
+    if (pathname === '/api/comment') return handleCommentPost(request, env, origin);
     if (pathname === '/profile/load') return handleProfileLoad(request, env, origin);
     if (pathname === '/profile/save') return handleProfileSave(request, env, origin);
     if (pathname !== '/subscribe') return new Response('Not Found', { status: 404 });
