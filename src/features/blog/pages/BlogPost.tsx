@@ -12,6 +12,7 @@ import { resolveContentUrl } from '@/lib/content-manifest';
 import { sharePost } from '@/lib/share';
 import { trackEvent } from '@/lib/analytics';
 import GiscusComments from '@/components/GiscusComments';
+import { LightComments } from '@/components/LightComments';
 import RelatedContent from '@/components/RelatedContent';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationships } from '@/lib/useRelationships';
@@ -698,6 +699,8 @@ export default function BlogPost() {
 
           {/* ── Comments ──────────────────────────────────────────────────── */}
           <GiscusComments slug={slug ?? ''} context="field-notes" />
+          {/* IDEA-0009 Phase 5 — login-gated supplement for non-GitHub (Google) readers */}
+          {meta && <LightComments contentId={`blog-${meta.slug}`} />}
 
           {/* ── Related resources ─────────────────────────────────────────── */}
           {meta && (

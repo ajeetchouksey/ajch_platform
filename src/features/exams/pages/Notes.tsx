@@ -14,6 +14,7 @@ import type { FocusTimer } from '@/lib/study-tracker';
 import type { DomainConfig, ExamConfig } from '@/types/content';
 import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
+import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { ContentMeta, Button } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
@@ -1094,6 +1095,8 @@ export default function Notes() {
             slug={`${examId}-domain-${domain}`}
             context="skill-up"
           />
+          {/* IDEA-0009 Phase 5 pilot — CCA-F only, expand to other exams once moderation load is proven */}
+          {examId === 'ccaf' && <LightComments contentId={`${examId}-domain-${domain}`} />}
         </div>
       )}
     </div>
