@@ -91,11 +91,19 @@ export interface Env {
    * 'true' in production. Falls back to a fixed dev-only string if unset. */
   COMMENT_IP_SALT?: string;
   /** Interim admin auth for comment moderation (IDEA-0009 Phase 4, FR-6/FR-12) —
-   * a shared secret checked against `Authorization: Bearer <token>` on the
-   * hide/unhide/lock/unlock routes. A stopgap until IDEA-0006's account/auth
-   * model lands with a real per-admin identity; set via
-   * `wrangler secret put ADMIN_API_SECRET`. Unset = every moderation call 403s. */
+   * legacy fallback only now that ADMINS exists: a shared secret checked against
+   * `Authorization: Bearer <token>`. Kept so any existing tooling using it
+   * doesn't break immediately; new admin grants should go through ADMINS
+   * instead. Set via `wrangler secret put ADMIN_API_SECRET`. */
   ADMIN_API_SECRET?: string;
+  /** Admin allowlist (IDEA-0009 Phase 4.1) — Workers KV, one key per admin
+   * identity in the form `${provider}:${id}` (e.g. `github:ajeetchouksey`,
+   * `google:<session id>`), matching authenticateCommentUser()'s CommentAuthor
+   * shape. Value is unused (empty string is fine) — presence of the key is the
+   * grant. Add an admin: `wrangler kv key put --binding=ADMINS "github:someuser" "1"`.
+   * Remove one: `wrangler kv key delete --binding=ADMINS "github:someuser"`.
+   * Neither requires a redeploy or affects any other admin. See resolveAdmin(). */
+  ADMINS?: KVNamespace;
 }
 
 interface PublicStats {
@@ -647,10 +655,41 @@ function timingSafeEqual(a: string, b: string): boolean {
 }
 
 /** Interim admin check (see ADMIN_API_SECRET doc on Env) — `Authorization: Bearer <secret>`. */
-function isAuthorizedAdmin(request: Request, env: Env): boolean {
+function isAuthorizedAdminSecret(request: Request, env: Env): boolean {
   if (!env.ADMIN_API_SECRET) return false;
   const match = /^Bearer (.+)$/.exec(request.headers.get('Authorization') ?? '');
   return !!match && timingSafeEqual(match[1], env.ADMIN_API_SECRET);
+}
+
+/** `${provider}:${id}` — same key shape stored in the ADMINS KV allowlist and
+ * recorded as moderation_log.actor, so an audit row always names a real identity. */
+function adminKey(author: CommentAuthor): string {
+  return `${author.provider}:${author.id}`;
+}
+
+/**
+ * Resolves the caller to an admin identity string, or null if not an admin.
+ * Legacy fallback checked first — cheap, no network call — so tooling still
+ * using ADMIN_API_SECRET never pays for the identity path's GitHub round-trip.
+ * Its actor is recorded as the literal string 'legacy-secret', since a shared
+ * secret carries no real per-person identity to log.
+ * Primary path (checked only if the legacy secret doesn't match): the caller
+ * authenticates the same way a commenter does (Google session token or GitHub
+ * PAT, via authenticateCommentUser — reused, not reimplemented), then that
+ * identity's `${provider}:${id}` key is looked up in the ADMINS KV allowlist.
+ * Adding/removing an admin is one `wrangler kv key put`/`delete` call — no
+ * secret rotation, no redeploy, and it only affects that one person.
+ */
+async function resolveAdmin(request: Request, env: Env): Promise<string | null> {
+  if (isAuthorizedAdminSecret(request, env)) return 'legacy-secret';
+  if (env.ADMINS) {
+    const author = await authenticateCommentUser(request, env);
+    if (author) {
+      const key = adminKey(author);
+      if ((await env.ADMINS.get(key)) !== null) return key;
+    }
+  }
+  return null;
 }
 
 async function writeModerationLog(
@@ -660,13 +699,14 @@ async function writeModerationLog(
     targetCommentId: number | null;
     targetContentId: string | null;
     reason: string | null;
+    actor: string;
   },
 ): Promise<void> {
   try {
     await env.DB.prepare(
       `INSERT INTO moderation_log (action, target_comment_id, target_content_id, actor, reason, created_at)
-       VALUES (?1, ?2, ?3, 'admin', ?4, ?5)`,
-    ).bind(entry.action, entry.targetCommentId, entry.targetContentId, entry.reason, new Date().toISOString()).run();
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6)`,
+    ).bind(entry.action, entry.targetCommentId, entry.targetContentId, entry.actor, entry.reason, new Date().toISOString()).run();
   } catch (err) {
     // Audit-log failure must never block the moderation action itself from completing.
     console.error('moderation-log-write-failed:', (err as Error).message);
@@ -747,7 +787,7 @@ async function handleCommentGet(request: Request, env: Env, origin: string): Pro
   const offset = Math.max(Number(url.searchParams.get('offset')) || 0, 0);
   // An authorized admin also sees 'hidden' rows (Phase 4) — otherwise hide/unhide
   // would be one-way, since the public list would never surface them again.
-  const statusFilter = isAuthorizedAdmin(request, env) ? `status IN ('visible', 'hidden')` : `status = 'visible'`;
+  const statusFilter = (await resolveAdmin(request, env)) ? `status IN ('visible', 'hidden')` : `status = 'visible'`;
 
   try {
     // Fetch one extra row to derive hasMore without a second COUNT(*) query.
@@ -923,7 +963,8 @@ async function handleCommentDelete(request: Request, env: Env, origin: string, i
 }
 
 // ── Moderation (IDEA-0009 Phase 4) — admin-only hide/unhide/lock/unlock ─────
-// All four require isAuthorizedAdmin() (Authorization: Bearer <ADMIN_API_SECRET>).
+// All four require resolveAdmin() (ADMINS KV allowlist, or the legacy
+// ADMIN_API_SECRET bearer token as a fallback).
 
 async function handleCommentHide(
   request: Request,
@@ -932,7 +973,8 @@ async function handleCommentHide(
   id: number,
   hide: boolean,
 ): Promise<Response> {
-  if (!isAuthorizedAdmin(request, env)) {
+  const actor = await resolveAdmin(request, env);
+  if (!actor) {
     return json({ error: 'unauthorized' }, 403, origin);
   }
   const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
@@ -962,6 +1004,7 @@ async function handleCommentHide(
       targetCommentId: id,
       targetContentId: row.content_id,
       reason,
+      actor,
     });
     return json({ status: newStatus }, 200, origin);
   } catch (err) {
@@ -977,7 +1020,8 @@ async function handleCommentLock(
   id: number,
   lock: boolean,
 ): Promise<Response> {
-  if (!isAuthorizedAdmin(request, env)) {
+  const actor = await resolveAdmin(request, env);
+  if (!actor) {
     return json({ error: 'unauthorized' }, 403, origin);
   }
   const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
@@ -1027,6 +1071,7 @@ async function handleCommentLock(
       targetCommentId: scope === 'thread' ? id : null,
       targetContentId: row.content_id,
       reason,
+      actor,
     });
     return json({ locked: lock }, 200, origin);
   } catch (err) {

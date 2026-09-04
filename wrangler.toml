@@ -26,6 +26,16 @@ custom_domain = true
 binding = "RATE_LIMITER"
 id      = "11f07ef9b0c5432bb9a232390d3ec672"
 
+# ── KV namespace — comment moderation admin allowlist (IDEA-0009 Phase 4.1) ──
+# One key per admin, format `${provider}:${id}` (e.g. "github:ajeetchouksey"),
+# value unused (presence = grant). Add/remove an admin with a single
+# `wrangler kv key put|delete --binding=ADMINS "<key>" ...` — no redeploy, no
+# shared-secret rotation, affects only that one person. See resolveAdmin() in
+# workers/subscribe.ts. ADMIN_API_SECRET (below) remains as a legacy fallback.
+[[kv_namespaces]]
+binding = "ADMINS"
+id      = "71f0e6b95533405598ec16729851fc5d"
+
 # ── D1 database — subscriber list (replaces the Gist read-modify-write) ──────
 # Created via: wrangler d1 create aarya-subscribers
 # Schema applied via: wrangler d1 execute aarya-subscribers --file=workers/schema.sql (--local for dev, --remote for prod)
