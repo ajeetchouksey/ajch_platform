@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ChevronDown, ChevronRight, Sparkles, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { AI_TOOLS, composeHandoffPrompt, getPreferredAiTool, setPreferredAiTool } from '@/lib/ai-handoff';
@@ -39,13 +39,15 @@ export function StudyWithAI({ context, variant, open: openProp, onOpenChange, in
   // trigger. Deliberately keyed only on initialSelectedText (not `context`)
   // so it doesn't fire — and clobber a user's in-progress edit — on
   // unrelated re-renders of the icon/row trigger usages, which never pass
-  // this prop at all.
-  useEffect(() => {
+  // this prop at all. Recomputed during render (not an effect) per React's
+  // "adjusting state when a prop changes" pattern, to avoid an extra render.
+  const [prevSelectedText, setPrevSelectedText] = useState(initialSelectedText);
+  if (initialSelectedText !== prevSelectedText) {
+    setPrevSelectedText(initialSelectedText);
     if (initialSelectedText) {
       setPromptText(composeHandoffPrompt({ ...context, selectedText: initialSelectedText }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialSelectedText]);
+  }
 
   const handleCopy = async () => {
     const ok = await copyToClipboard(promptText);
