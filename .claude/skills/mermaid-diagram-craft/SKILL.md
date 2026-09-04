@@ -114,6 +114,27 @@ shows, not just its topic. Where the consumer's schema has a
   `"Bounded planner-executor-critic loop with escalation"`, not just
   `"Orchestration"`.
 
+**Markdown-embedded diagrams** (Docs Engineer's study notes, Tech Writer's
+blog posts) have no schema field to carry a caption — there's no
+`MermaidDiagram.tsx` prop wired to these call sites, only Markdown text.
+Until that gets real component support, the convention is a plain italic
+line directly below the closing ` ``` ` fence, following the same 5-10
+word rule:
+
+```markdown
+```mermaid
+flowchart TD
+  ...
+```
+*What flows through agent delegation versus stays human-owned.*
+```
+
+This isn't a substitute for real `role="img"`/`aria-label` support — it's
+a stopgap that at least gives a sighted reader a stated claim today. A
+generic section heading placed above the fence (an existing convention in
+`public/content/platform-docs/*.md`) is not the same thing — it names the
+section's topic, not what that specific diagram shows.
+
 ## 10. Enforced Standards Checklist
 
 This is the checklist QA Engineer runs against every diagram it validates —
