@@ -564,7 +564,7 @@ export default function StudyPlan() {
     () => (exam ? getReadinessBreakdown(validId ?? '', exam.domains, sessions) : null),
     [exam, validId, sessions],
   );
-  const streak = useMemo(() => getStreak(validId ?? ''), [validId, sessions]);
+  const streak = useMemo(() => getStreak(validId ?? ''), [validId]);
   const dailyCard = useMemo(
     () => (exam ? getDailyCard(validId ?? '', exam.domains, sessions) : null),
     [exam, validId, sessions],
