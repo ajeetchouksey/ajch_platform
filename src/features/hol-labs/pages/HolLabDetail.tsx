@@ -350,9 +350,14 @@ export default function HolLabDetail() {
         )}
       </div>
 
-      {/* IDEA-0009 — closes the zero-discussion-channel gap, same as Use Cases originally */}
-      <ContentFeedback contentId={`hol-lab-${id ?? ''}`} compact />
-      <LightComments contentId={`hol-lab-${id ?? ''}`} />
+      {/* IDEA-0009 — closes the zero-discussion-channel gap, same as Use Cases originally.
+          Guarded on `id` — an empty fallback would collapse every lab into one shared thread. */}
+      {id && (
+        <>
+          <ContentFeedback contentId={`hol-lab-${id}`} compact />
+          <LightComments contentId={`hol-lab-${id}`} />
+        </>
+      )}
     </div>
   );
 }
