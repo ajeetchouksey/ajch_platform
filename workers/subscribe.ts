@@ -669,18 +669,19 @@ function adminKey(author: CommentAuthor): string {
 
 /**
  * Resolves the caller to an admin identity string, or null if not an admin.
- * Primary path: the caller authenticates the same way a commenter does (Google
- * session token or GitHub PAT, via authenticateCommentUser — reused, not
- * reimplemented), then that identity's `${provider}:${id}` key is looked up in
- * the ADMINS KV allowlist. Adding/removing an admin is one `wrangler kv key
- * put`/`delete` call — no secret rotation, no redeploy, and it only affects
- * that one person.
- * Legacy fallback: the original ADMIN_API_SECRET bearer-token check, kept so
- * existing tooling doesn't break immediately. Its actor is recorded as the
- * literal string 'legacy-secret', since a shared secret carries no real
- * per-person identity to log.
+ * Legacy fallback checked first — cheap, no network call — so tooling still
+ * using ADMIN_API_SECRET never pays for the identity path's GitHub round-trip.
+ * Its actor is recorded as the literal string 'legacy-secret', since a shared
+ * secret carries no real per-person identity to log.
+ * Primary path (checked only if the legacy secret doesn't match): the caller
+ * authenticates the same way a commenter does (Google session token or GitHub
+ * PAT, via authenticateCommentUser — reused, not reimplemented), then that
+ * identity's `${provider}:${id}` key is looked up in the ADMINS KV allowlist.
+ * Adding/removing an admin is one `wrangler kv key put`/`delete` call — no
+ * secret rotation, no redeploy, and it only affects that one person.
  */
 async function resolveAdmin(request: Request, env: Env): Promise<string | null> {
+  if (isAuthorizedAdminSecret(request, env)) return 'legacy-secret';
   if (env.ADMINS) {
     const author = await authenticateCommentUser(request, env);
     if (author) {
@@ -688,7 +689,7 @@ async function resolveAdmin(request: Request, env: Env): Promise<string | null> 
       if ((await env.ADMINS.get(key)) !== null) return key;
     }
   }
-  return isAuthorizedAdminSecret(request, env) ? 'legacy-secret' : null;
+  return null;
 }
 
 async function writeModerationLog(

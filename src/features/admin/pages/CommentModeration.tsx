@@ -25,7 +25,7 @@ interface ModComment {
 }
 
 export default function CommentModeration() {
-  const { user, token } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
   const [contentId, setContentId] = useState('');
   const [comments, setComments] = useState<ModComment[] | null>(null);
   const [pageLocked, setPageLocked] = useState(false);
@@ -33,6 +33,13 @@ export default function CommentModeration() {
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="text-slate-500 text-sm animate-pulse">Checking auth…</span>
+      </div>
+    );
+  }
   if (!user) return <Navigate to="/" replace />;
   if (!WORKER_URL) return <p className="max-w-2xl mx-auto px-4 py-10 text-sm text-slate-500">Worker not configured.</p>;
 
