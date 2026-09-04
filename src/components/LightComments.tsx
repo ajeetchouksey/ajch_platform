@@ -6,7 +6,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { GlassCard, Button } from '@/components/ui';
-import { useAuth, isProviderConfigured } from '@/lib/auth';
+import { useAuth } from '@/lib/auth';
 
 // IDEA-0009 Phase 3 — one-level-deep replies (FR-2/FR-4) and @mention tagging (FR-13).
 // Posting now requires login — the display name comes from the authenticated identity,
@@ -247,7 +247,7 @@ export function LightComments({ contentId }: LightCommentsProps) {
   // FR-12 page-scope lock (Phase 4) — blocks the whole compose box, not just one thread.
   const [pageLocked, setPageLocked] = useState(false);
 
-  const { user, token, login } = useAuth();
+  const { user, token } = useAuth();
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const replyRef = useRef<HTMLTextAreaElement>(null);
   const [body, setBody] = useState('');
@@ -460,17 +460,7 @@ export function LightComments({ contentId }: LightCommentsProps) {
             <Lock size={12} className="text-slate-600" /> Comments are locked for this page.
           </p>
         ) : !user ? (
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs text-slate-400">Sign in to leave a comment.</p>
-            <div className="flex items-center gap-2 shrink-0">
-              {isProviderConfigured('github') && (
-                <Button variant="outline" size="xs" onClick={() => { void login('github'); }}>Sign in with GitHub</Button>
-              )}
-              {isProviderConfigured('google') && (
-                <Button variant="outline" size="xs" onClick={() => { void login('google'); }}>Sign in with Google</Button>
-              )}
-            </div>
-          </div>
+          <p className="text-xs text-slate-400">Sign in from the account menu above to leave a comment.</p>
         ) : (
           <>
         {/* Honeypot — off-screen, never visible to a real reader; bots that fill every field trip it. */}
@@ -579,17 +569,7 @@ export function LightComments({ contentId }: LightCommentsProps) {
                 {replyingTo === c.id && (
                   <div className="mt-2 pl-3 border-l-2 border-violet-500/20">
                     {!user ? (
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-[11px] text-slate-500">Sign in to reply.</p>
-                        <div className="flex items-center gap-2 shrink-0">
-                          {isProviderConfigured('github') && (
-                            <Button variant="outline" size="xs" onClick={() => { void login('github'); }}>GitHub</Button>
-                          )}
-                          {isProviderConfigured('google') && (
-                            <Button variant="outline" size="xs" onClick={() => { void login('google'); }}>Google</Button>
-                          )}
-                        </div>
-                      </div>
+                      <p className="text-[11px] text-slate-500">Sign in from the account menu above to reply.</p>
                     ) : (
                       <>
                         <FormatToolbar textareaRef={replyRef} value={replyBody} setValue={setReplyBody} previewing={replyPreviewing} onTogglePreview={() => setReplyPreviewing((v) => !v)} />
