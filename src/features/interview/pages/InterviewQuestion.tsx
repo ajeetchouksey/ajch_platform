@@ -11,6 +11,8 @@ import {
 } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import { GlassCard, Badge, type BadgeVariant } from '@/components/ui';
+import { ContentFeedback } from '@/components/ContentFeedback';
+import { LightComments } from '@/components/LightComments';
 
 const TYPE_VARIANT: Record<string, BadgeVariant> = {
   technical: 'blue', behavioral: 'emerald', 'system-design': 'amber',
@@ -263,6 +265,11 @@ export default function InterviewQuestion() {
       <div className="mt-8 flex flex-wrap gap-1.5">
         {item.tags.map((t) => <Badge key={t} label={`#${t}`} variant="slate" size="xs" />)}
       </div>
+
+      {/* IDEA-0009 — closes the zero-discussion-channel gap, keyed off the shared
+          canonical bank item id so a comment applies regardless of which JD/pack surfaced it */}
+      <ContentFeedback contentId={`interview-${id}`} compact />
+      <LightComments contentId={`interview-${id}`} />
     </div>
   );
 }

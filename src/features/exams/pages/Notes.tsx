@@ -1095,8 +1095,8 @@ export default function Notes() {
             slug={`${examId}-domain-${domain}`}
             context="skill-up"
           />
-          {/* IDEA-0009 Phase 5 pilot — CCA-F only, expand to other exams once moderation load is proven */}
-          {examId === 'ccaf' && <LightComments contentId={`${examId}-domain-${domain}`} />}
+          {/* IDEA-0009 Phase 5 — rolled out to all exams after the CCA-F pilot proved manageable */}
+          <LightComments contentId={`${examId}-domain-${domain}`} />
         </div>
       )}
     </div>

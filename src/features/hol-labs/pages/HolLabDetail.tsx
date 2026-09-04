@@ -21,6 +21,8 @@ import { useMeta } from '@/lib/useMeta';
 import { useRelationships } from '@/lib/useRelationships';
 import { GlassCard, Badge, SectionHeader } from '@/components/ui';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { ContentFeedback } from '@/components/ContentFeedback';
+import { LightComments } from '@/components/LightComments';
 import { DOMAIN_LABELS, DOMAIN_ACCENT, COST_TIER_VARIANT, COST_TIER_LABEL, RELATION_LABEL } from '../hol-labs-constants';
 
 export default function HolLabDetail() {
@@ -347,6 +349,10 @@ export default function HolLabDetail() {
           </div>
         )}
       </div>
+
+      {/* IDEA-0009 — closes the zero-discussion-channel gap, same as Use Cases originally */}
+      <ContentFeedback contentId={`hol-lab-${id ?? ''}`} compact />
+      <LightComments contentId={`hol-lab-${id ?? ''}`} />
     </div>
   );
 }
