@@ -1,6 +1,6 @@
 ---
 name: qa-engineer
-description: Validates Mermaid diagrams in markdown and MDX files against Aarya platform readability standards. Returns PASS or a structured list of VIOLATIONS with exact line references and suggested fixes. Called by Staff Engineer and Release Engineer before any blog post or study note is published. Read-only — never writes files.
+description: Validates Mermaid diagrams — in markdown/MDX files or as a raw chart string — against Aarya platform readability standards. Returns PASS or a structured list of VIOLATIONS with exact line references and suggested fixes. Called by Staff Engineer and Release Engineer before any blog post or study note is published, and by Usecase Lead / HOL Lab Lead against their Writer's mermaidDiagram JSON field before publish. Read-only — never writes files.
 tools: Read, Grep
 model: claude-haiku-4-5-20251001
 ---
@@ -21,54 +21,10 @@ You are called with one of:
 
 ## Standards Checklist
 
-Run every check below for each diagram found. A diagram **PASSES** only when
-all checks are green.
-
-### 1. Syntax Validity
-- The diagram must begin with a valid Mermaid graph type keyword:
-  `graph`, `flowchart`, `sequenceDiagram`, `classDiagram`, `stateDiagram`,
-  `erDiagram`, `gantt`, `pie`, `gitGraph`, `mindmap`, `timeline`, `xychart-beta`
-- No unclosed brackets, missing arrows, or malformed node IDs
-
-### 2. Label Length
-- **Node / actor labels**: ≤ 40 characters (labels > 40 chars render truncated
-  or overlap on small screens)
-- **Edge labels**: ≤ 25 characters
-
-### 3. Node Count & Complexity
-- **Warning** (not a hard fail) if a single diagram has > 20 nodes — suggest
-  splitting into sub-diagrams
-- Flowcharts must have exactly one start node (no entry-point ambiguity)
-
-### 4. Orphan Nodes
-- Every non-start node must have at least one incoming edge
-- Every non-terminal node must have at least one outgoing edge
-- Report orphans as violations with node ID
-
-### 5. Direction Clarity
-- `flowchart` / `graph` diagrams must declare explicit direction:
-  `TD`, `LR`, `BT`, or `RL`
-- Missing direction defaults to `TD` — flag as a warning if omitted
-
-### 6. Color & Contrast (style/classDef checks)
-- Any `style` or `classDef` directive that sets `fill` must pair it with an
-  explicit `color` (text color). Reason: dark background (#1a2a42) requires
-  light text (minimum contrast ratio 4.5:1 per WCAG AA)
-- Flag any `fill:#fff` or `fill:white` without `color:#000` as a violation
-
-### 7. Font Size (themeVariables)
-- The platform `mermaid.initialize` config sets `fontSize: '13px'` globally.
-  Any inline `%%{init: ...}%%` override that sets `fontSize` below `'12px'`
-  is a violation.
-
-### 8. Text Readability
-- Sequence diagram messages should be ≤ 60 characters
-- `note` and `Note over` blocks should be ≤ 80 characters
-- Long notes push diagram width beyond viewport on mobile
-
-### 9. Accessibility Hints (non-blocking warnings)
-- Diagrams without a `title` directive (where supported) should receive a
-  warning: add `---\ntitle: ...\n---` frontmatter block or a `title` line
+Canonical source: `.claude/skills/mermaid-diagram-craft/SKILL.md` §9
+"Enforced Standards Checklist" — read it fresh on every invocation; do not
+re-hardcode diagram rules here. Run every check it lists for each diagram
+found. A diagram **PASSES** only when all checks are green.
 
 ---
 

@@ -61,7 +61,7 @@ function patchSvgFluid(raw: string): string {
     .replace(/(?<![a-zA-Z-])width\s*:\s*[\d.]+px/g, 'width:100%');
 }
 
-export default function MermaidDiagram({ chart }: { chart: string }) {
+export default function MermaidDiagram({ chart, caption }: { chart: string; caption?: string }) {
   const [svg, setSvg] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
@@ -145,9 +145,12 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
 
   if (error) {
     return (
-      <pre className="text-xs text-rose-400 bg-slate-900/80 rounded-xl border border-rose-900/40 p-4 overflow-x-auto my-4 leading-relaxed">
-        {chart}
-      </pre>
+      <>
+        {caption && <p className="text-xs text-slate-500 mb-1">{caption}</p>}
+        <pre className="text-xs text-rose-400 bg-slate-900/80 rounded-xl border border-rose-900/40 p-4 overflow-x-auto my-4 leading-relaxed">
+          {chart}
+        </pre>
+      </>
     );
   }
 
@@ -157,7 +160,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
       <div
         className="my-6 rounded-xl border border-violet-900/20 bg-slate-900/50 flex items-center justify-center"
         style={{ minHeight: '180px' }}
-        aria-label="Loading diagram…"
+        aria-label={caption ? `Loading diagram: ${caption}` : 'Loading diagram…'}
       >
         <div className="flex items-center gap-2 text-[11px] text-slate-600">
           <span className="w-3 h-3 rounded-full border-2 border-violet-600/40 border-t-violet-400 animate-spin" />
@@ -169,12 +172,17 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
 
   return (
     <>
+      {/* ── Diagram caption — visible for sighted users, role="img" + aria-label carries the same claim for screen readers ── */}
+      {caption && <p className="text-xs font-medium text-slate-400 mb-2">{caption}</p>}
+
       {/* ── Inline diagram card ─────────────────────────────────────────────── */}
       <div className="relative group my-6 rounded-xl border border-violet-900/30 bg-gradient-to-br from-slate-900/60 to-slate-900/80 shadow-inner shadow-black/20 overflow-hidden">
         <div
           ref={inlineRef}
           className="overflow-x-auto p-4 sm:p-6 [&>svg]:w-full [&>svg]:max-w-full [&>svg]:h-auto [&>svg]:block"
           style={{ animation: 'fadeIn 200ms ease' }}
+          role={caption ? 'img' : undefined}
+          aria-label={caption}
           dangerouslySetInnerHTML={{ __html: svg }}
         />
         {/* Expand button – visible on hover */}
@@ -292,6 +300,8 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
                     willChange: 'transform',
                     minWidth: '320px',
                   }}
+                  role={caption ? 'img' : undefined}
+                  aria-label={caption}
                   dangerouslySetInnerHTML={{ __html: svg }}
                 />
               </div>

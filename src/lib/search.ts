@@ -6,7 +6,7 @@
 // user input). AppSec binding condition from Sprint 4 pre-build gate met.
 // ──────────────────────────────────────────────────────────────────────────
 
-export type SearchDocType = 'blog' | 'exam' | 'tool' | 'note' | 'interview';
+export type SearchDocType = 'blog' | 'exam' | 'tool' | 'note' | 'interview' | 'usecase' | 'lab';
 
 export interface SearchDocument {
   id: string;
@@ -16,6 +16,12 @@ export interface SearchDocument {
   url: string;           // always a local SPA path, e.g. "/blog/my-post"
   tags: string[];
   category?: string;
+  // Populated once content carries taxonomyIds (see IDEA-0008, Phase 2) —
+  // the relationship engine (Phase 3) scores doc pairs by taxonomyIds
+  // overlap, weighted by updatedAt recency. Both optional and unused by
+  // scoreDoc()/search() below until that phase lands.
+  taxonomyIds?: string[];
+  updatedAt?: string;
 }
 
 export interface SearchResult {
@@ -125,6 +131,80 @@ export function buildInterviewDocs(items: Array<{
     tags: [...(q.tags ?? []), q.type, q.difficulty],
     category: q.competency,
   }));
+}
+
+/**
+ * Build SearchDocument[] from the deduped use-case list (loadAllUseCases()).
+ * Use-cases carry `patterns`, not `tags` — mapped onto tags[] here since
+ * that's what search scoring/rendering expects; `problem` (only present on
+ * FeaturedUseCase, not CatalogUseCase) doubles as the excerpt when present.
+ */
+export function buildUseCaseDocs(cases: Array<{
+  id: string;
+  title: string;
+  vertical: string;
+  patterns: string[];
+  problem?: string;
+}>): SearchDocument[] {
+  return cases.map((c) => ({
+    id: `usecase/${c.id}`,
+    type: 'usecase' as SearchDocType,
+    title: c.title,
+    excerpt: c.problem ?? '',
+    url: `/usecases/${c.id}`,
+    tags: c.patterns ?? [],
+    category: c.vertical,
+  }));
+}
+
+/**
+ * Build SearchDocument[] from the HOL Labs index summaries
+ * (loadHolLabsIndex().labs) — the lightweight per-lab entries carried in
+ * index.json, not the full per-lab detail file (no N+1 fetch needed).
+ */
+export function buildHolLabDocs(labs: Array<{
+  id: string;
+  title: string;
+  tagline: string;
+  domain: string;
+  tags?: string[];
+}>): SearchDocument[] {
+  return labs.map((l) => ({
+    id: `lab/${l.id}`,
+    type: 'lab' as SearchDocType,
+    title: l.title,
+    excerpt: l.tagline,
+    url: `/hol-labs/${l.id}`,
+    tags: l.tags ?? [],
+    category: l.domain,
+  }));
+}
+
+/**
+ * Assemble the complete 7-type search index from already-fetched raw data.
+ * Deliberately takes plain data, not loader functions — this file stays
+ * dependency-free (see header) so it can be imported by both the browser
+ * SPA (via src/lib/content-loader.ts's fetchers) and a future Node build
+ * script (via scripts/lib/content-sources.mjs's fetchers), which resolve
+ * promoted-vs-local content differently and must not be entangled here.
+ * Each parameter is optional so a caller missing one source (e.g. a script
+ * that only cares about some verticals) doesn't need to pass empty arrays.
+ */
+export function buildFullIndex(sources: {
+  blogPosts?: Parameters<typeof buildBlogDocs>[0];
+  exams?: Parameters<typeof buildExamDocs>[0];
+  interviewItems?: Parameters<typeof buildInterviewDocs>[0];
+  useCases?: Parameters<typeof buildUseCaseDocs>[0];
+  holLabs?: Parameters<typeof buildHolLabDocs>[0];
+}): SearchDocument[] {
+  return [
+    ...buildBlogDocs(sources.blogPosts ?? []),
+    ...buildExamDocs(sources.exams ?? []),
+    ...buildToolDocs(),
+    ...buildInterviewDocs(sources.interviewItems ?? []),
+    ...buildUseCaseDocs(sources.useCases ?? []),
+    ...buildHolLabDocs(sources.holLabs ?? []),
+  ];
 }
 
 // ── Search function ────────────────────────────────────────────────────────

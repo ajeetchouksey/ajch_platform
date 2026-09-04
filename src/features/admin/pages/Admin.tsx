@@ -49,6 +49,15 @@ const PAGES = [
     bg: 'rgba(139,92,246,0.08)',
     border: 'rgba(139,92,246,0.22)',
   },
+  {
+    to: '/admin/comments',
+    icon: ShieldAlert,
+    label: 'Comment Moderation',
+    desc: 'Hide/unhide, lock/unlock threads or an entire page\u2019s comment section (IDEA-0009 Phase 4).',
+    color: 'text-amber-400',
+    bg: 'rgba(245,158,11,0.08)',
+    border: 'rgba(245,158,11,0.22)',
+  },
 ];
 
 export default function Admin() {

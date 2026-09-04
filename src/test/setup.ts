@@ -1,3 +1,4 @@
+import { beforeAll, beforeEach, afterAll } from 'vitest';
 import '@testing-library/jest-dom';
 
 // Reset localStorage between tests

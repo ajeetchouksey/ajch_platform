@@ -1,4 +1,5 @@
 import { ContentFeedback } from '@/components/ContentFeedback';
+import { LightComments } from '@/components/LightComments';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -21,8 +22,10 @@ import {
   type FeaturedUseCase,
 } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
+import { useRelationships } from '@/lib/useRelationships';
 import { GlassCard, Badge, SectionHeader, ContentMeta } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import {
   PATTERN_LABEL,
@@ -40,6 +43,7 @@ export default function UseCaseDetail() {
   const [uc, setUc] = useState<AnyUseCase | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [highlightEnabled, setHighlightEnabled] = useState(true);
+  const computedRelated = useRelationships(id ? `usecase/${id}` : undefined);
 
   useEffect(() => {
     if (!id) return;
@@ -236,7 +240,7 @@ export default function UseCaseDetail() {
                     </div>
                   </div>
                 }>
-                  <MermaidDiagram chart={featured.mermaidDiagram} />
+                  <MermaidDiagram chart={featured.mermaidDiagram} caption={featured.mermaidDiagramCaption} />
                 </Suspense>
               </GlassCard>
               {featured.architectureNotes && (
@@ -410,6 +414,9 @@ export default function UseCaseDetail() {
             </div>
           )}
 
+          {/* Computed cross-vertical relationships — see ComputedRelatedList */}
+          <ComputedRelatedList edges={computedRelated} heading="Related Content" />
+
           {/* Related interview questions */}
           {featured.relatedInterviewQs && featured.relatedInterviewQs.length > 0 && (
             <div>
@@ -460,6 +467,9 @@ export default function UseCaseDetail() {
           </div>{/* end right sidebar */}
         </div>
       )}
+
+      {/* IDEA-0009 Phase 2 — non-GitHub comment layer, closes the zero-discussion-channel gap */}
+      <LightComments contentId={`usecase-${id ?? ''}`} />
 
       {/* Catalog-only fallback */}
       {!featured && (

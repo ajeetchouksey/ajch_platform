@@ -12,7 +12,10 @@ import { resolveContentUrl } from '@/lib/content-manifest';
 import { sharePost } from '@/lib/share';
 import { trackEvent } from '@/lib/analytics';
 import GiscusComments from '@/components/GiscusComments';
+import { LightComments } from '@/components/LightComments';
 import RelatedContent from '@/components/RelatedContent';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationships } from '@/lib/useRelationships';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { ContentMeta } from '@/components/ui';
@@ -357,6 +360,7 @@ export default function BlogPost() {
   const [copied, setCopied] = useState(false);
   const [visible, setVisible] = useState(false);
   const [activeId, setActiveId] = useState('');
+  const computedRelated = useRelationships(slug ? `blog/${slug}` : undefined);
   const [highlightEnabled, setHighlightEnabled] = useState(true);
   const [readPct, setReadPct] = useState(0);
   const [showToc, setShowToc] = useState(false);
@@ -695,6 +699,8 @@ export default function BlogPost() {
 
           {/* ── Comments ──────────────────────────────────────────────────── */}
           <GiscusComments slug={slug ?? ''} context="field-notes" />
+          {/* IDEA-0009 Phase 5 — login-gated supplement for non-GitHub (Google) readers */}
+          {meta && <LightComments contentId={`blog-${meta.slug}`} />}
 
           {/* ── Related resources ─────────────────────────────────────────── */}
           {meta && (
@@ -702,8 +708,18 @@ export default function BlogPost() {
               tags={meta.tags ?? []}
               currentPath={`/blog/${slug}`}
               heading="Related Resources"
+              // Skill-track suggestions are dropped here (not on ExamHome/Tools,
+              // which have no computed alternative at all) — ComputedRelatedList
+              // right below already surfaces more precise exam-domain matches
+              // from real taxonomyIds overlap, not a coarse whole-exam keyword
+              // match. AI Tools stays: tools have no content to tag, so they're
+              // not part of the relationship engine and can't be replaced by it.
+              maxSkills={0}
             />
           )}
+
+          {/* ── Computed cross-vertical relationships ─────────────────────── */}
+          <ComputedRelatedList edges={computedRelated} heading="Also Related" />
         </div>
 
         {/* ───── Sticky sidebar ─────────────────────────────────────────── */}

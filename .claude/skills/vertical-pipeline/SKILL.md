@@ -34,7 +34,7 @@ it at run time:
    inside `ajch_platform`) — that path was removed in the vertical-split
    migration and must be BLOCKed by AppSec Engineer if targeted.
 
-## Shape A — Strict 4-role (blog, usecases)
+## Shape A — Strict 4-role (blog, usecases, hol-labs)
 
 ```
 User request / Issue Gate
@@ -43,6 +43,8 @@ Lead — understand intent, gather context, check for existing coverage
     ↓
 Writer — researches + drafts content (no file I/O)
     ↓
+QA Engineer — validates mermaidDiagram, if present (HARD GATE)
+    ↓ PASS ✓ / N/A — no diagram
 AppSec Engineer — validates content + planned paths (HARD GATE)
     ↓ PASS ✓
 Publisher — writes file(s) + updates the vertical's index/manifest
@@ -51,6 +53,15 @@ AppSec Engineer — post-build audit (HARD GATE)
     ↓ PASS ✓
 Lead — synthesize result back to user
 ```
+
+The QA Engineer diagram gate applies to usecases (mermaidDiagram is a
+required field there — always runs) and hol-labs (optional field — runs
+only when the Writer's output includes one). It doesn't apply to blog,
+whose diagram checks run through Staff Engineer's own `.md`-file flow
+directly in `ajch_platform` rather than through this Lead pipeline. Invoke
+QA Engineer via its raw-chart-string mode (pass the `mermaidDiagram` field
+value directly) — see `.claude/skills/mermaid-diagram-craft/SKILL.md` for
+the standard it's checked against.
 
 ## Shape B — Loose 2-role (skillup)
 
@@ -81,6 +92,11 @@ Lead — synthesize result back to user
 2. **The Security Gate is mandatory pre- and post-build, never skippable.**
    `PASS ✓` before any write; `POST-BUILD PASS ✓` after. A Lead that skips
    either step has broken the pipeline, not taken a shortcut.
+2a. **Shape A's QA Engineer diagram gate is equally mandatory whenever a
+    `mermaidDiagram` field is present** — the same hard-gate discipline as
+    the Security Gate, just scoped to diagram content. A Lead that publishes
+    an un-validated diagram has broken the pipeline the same way as one that
+    skips the Security Gate.
 3. **Publisher/Specialist scope is exactly one directory**, per that
    vertical's `contentRoot` in the registry — never wider "while I'm at it."
 4. **Adding a new vertical or changing the pipeline shape itself** happens

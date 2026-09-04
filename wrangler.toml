@@ -34,6 +34,16 @@ binding     = "DB"
 database_name = "aarya-subscribers"
 database_id = "2f397d9b-4d45-4c1d-aa1e-3c474f58dd32"
 
+# ── Plaintext vars (non-secret feature flags) ────────────────────────────────
+# IDEA-0009 Phase 2 — NFR-4 (privacy disclosure) resolved via the inline copy
+# in LightComments.tsx (no separate /legal/privacy page yet). Flipped on for
+# the Use Cases rollout (FR-9) now that LightComments.tsx is wired in.
+# Still fails closed at runtime (503) until `wrangler secret put
+# COMMENT_IP_SALT` is run against the deployed Worker — see the secrets list
+# below — so this flag alone does not make comment intake live in production.
+[vars]
+COMMENTS_ENABLED = "true"
+
 # ── Secrets — set via CLI, never commit values ────────────────────────────────
 # Run each of the following (you will be prompted to paste the value):
 #
@@ -77,6 +87,20 @@ database_id = "2f397d9b-4d45-4c1d-aa1e-3c474f58dd32"
 #   wrangler secret put SESSION_SIGNING_KEY
 #     → random 32+ byte string, e.g. `openssl rand -hex 32`. Signs the session
 #       tokens minted for Google logins (see workers/subscribe.ts).
+#
+#   wrangler secret put COMMENT_IP_SALT
+#     → random 32+ byte string, e.g. `openssl rand -hex 32`. Pepper mixed into
+#       the IP hash stored on each comment row (IDEA-0009 NFR-3) — without a
+#       real secret here, hashing falls back to a fixed dev-only string, which
+#       is fine locally but must be set before COMMENTS_ENABLED ever flips to
+#       "true" in production.
+#
+#   wrangler secret put ADMIN_API_SECRET
+#     → random 32+ byte string, e.g. `openssl rand -hex 32`. Interim admin auth
+#       for comment moderation (IDEA-0009 Phase 4, FR-6/FR-12) — checked as
+#       `Authorization: Bearer <token>` on the hide/unhide/lock/unlock routes.
+#       Unset = every moderation call 403s. A stopgap until a real per-admin
+#       identity path exists (see the Env doc comment in workers/subscribe.ts).
 #
 # Microsoft login is deferred (no Entra app registered yet) — when it's added,
 # it'll need MS_CLIENT_ID / MS_CLIENT_SECRET secrets in this same style, plus

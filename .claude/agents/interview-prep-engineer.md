@@ -123,6 +123,10 @@ small deltas. Never copy a full answer into a second role pack.
 
 Every diagram is a Mermaid string stored in `diagram.chart`. Follow these rules
 strictly so diagrams render correctly in the platform's `MermaidDiagram` component.
+The type-selection table, JSON-encoding rules, and color-by-meaning palette below
+are the source this vertical contributed to the shared
+`.claude/skills/mermaid-diagram-craft/SKILL.md` — that file is now the canonical,
+platform-wide version; keep these two in sync if either changes.
 
 ### Diagram type selection
 
@@ -157,9 +161,10 @@ Data / storage       →  fill:#162236,stroke:#60a5fa   (blue)
 
 ### Caption rules
 
-- 5–10 words, lowercase except proper nouns.
-- Describes what the diagram *shows*, not just the topic (e.g.
-  `"Bounded planner-executor-critic loop with escalation"` not just `"Orchestration"`).
+See `.claude/skills/mermaid-diagram-craft/SKILL.md` § Caption rule — this
+vertical follows it for `diagram.caption`. This was the source this
+vertical originally contributed; the rule now lives centrally, keep in
+sync if it changes.
 
 ### Validation checklist (run mentally before writing to disk)
 
@@ -215,7 +220,7 @@ Rules:
 ## Content Sync
 
 After any `public/content/interviews/**` write, the orchestrator runs
-`python3 scripts/sync-stats.py` and commits the updated `public/content/stats.json`.
+`node scripts/build-content-intelligence.mjs` and commits the updated `public/content/stats.json` (and `relationships.json`, if interview questions' `taxonomyIds` were touched).
 
 ## Platform Context
 

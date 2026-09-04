@@ -27,7 +27,19 @@ Context: [any relevant detail — related exam domain, related blog post, cost c
 Return: one complete lab JSON object, nothing else."
 ```
 
-### Step 2 — Security Gate
+### Step 2 — Diagram Gate (if the lab includes a mermaidDiagram)
+```
+Delegate to QA Engineer:
+"Validate this Mermaid diagram against platform standards (raw chart string):
+{mermaidDiagram field from the lab JSON}
+Caption: {mermaidDiagramCaption field from the lab JSON, or 'MISSING' if absent}"
+```
+`mermaidDiagram` is optional for this vertical — if the Writer's output
+omits it, skip this step and note "N/A — no diagram" in the final report.
+When present, VIOLATIONS → return to HOL Lab Writer for a redraw before
+proceeding to Step 3; don't pass a failing diagram through to Security Gate.
+
+### Step 3 — Security Gate
 ```
 Delegate to AppSec Engineer:
 "Pre-flight for HOL lab publish.
@@ -38,14 +50,14 @@ Lab id: {id}
 Full lab JSON: [paste]"
 ```
 
-### Step 3 (if PASS) — Brief HOL Lab Publisher
+### Step 4 (if PASS) — Brief HOL Lab Publisher
 ```
 Delegate to HOL Lab Publisher:
 "Publish the following lab to {repo root}/content/hol-labs/:
 {full lab JSON}"
 ```
 
-### Step 4 — Post-build Security Audit
+### Step 5 — Post-build Security Audit
 ```
 Delegate to AppSec Engineer:
 "Post-build audit of {repo root}/content/hol-labs/labs/{id}.json and index.json"

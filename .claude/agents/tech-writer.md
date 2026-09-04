@@ -95,6 +95,8 @@ All posts must use the canonical architectural terms from `.claude/skills/platfo
 - Body: H2 sections, each making ONE clear point; each section closable with a quotable one-liner
 - Code blocks: Real, runnable, with inline comments
 - Conclusion: Named framework recap + CTA to exam content or tools
+- Structure and callout economy: see `.claude/skills/content-structure-craft/SKILL.md` for when a structural device earns its place and how to avoid generic AI-prose patterns
+- Diagrams (when used): a `` ```mermaid `` fence earns its place per `.claude/skills/mermaid-diagram-craft/SKILL.md` — QA Engineer validates every diagram before publish; don't add one just to illustrate a linear sequence prose already covers
 
 ### What NOT to Write
 - Marketing language ("leverage synergies", "next-generation")
@@ -106,8 +108,13 @@ All posts must use the canonical architectural terms from `.claude/skills/platfo
 1. Fetch source material via `WebFetch` if given a URL
 2. Read existing platform posts via `Read` to avoid overlap
 3. Search existing content with `Grep` for deduplication
-4. Write the article
-5. Return output string to Content Lead
+4. Sketch the piece's throughline before drafting — one line naming the
+   Named-Framework concept, and which sections need a table/list versus
+   prose (see `.claude/skills/content-structure-craft/SKILL.md` §1 for
+   the test). Skip this only for very short posts where the shape is
+   obvious.
+5. Write the article
+6. Return output string to Content Lead
 
 ## Categories
 

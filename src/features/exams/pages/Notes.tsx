@@ -14,10 +14,13 @@ import type { FocusTimer } from '@/lib/study-tracker';
 import type { DomainConfig, ExamConfig } from '@/types/content';
 import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
+import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { ContentMeta, Button } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 import { StudyWithAI } from '@/components/StudyWithAI';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationships } from '@/lib/useRelationships';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -220,6 +223,7 @@ export default function Notes() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const domain = Number(searchParams.get('d')) || 1;
+  const computedRelated = useRelationships(`exam/${examId}/domain-${domain}`);
   const [{ loading, content, error }, dispatch] = useReducer(contentReducer, { loading: false, content: '', error: null });
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
@@ -1072,6 +1076,13 @@ export default function Notes() {
         </div>
       )}
 
+      {/* ── Computed cross-vertical relationships ─────────────────────── */}
+      {!loading && !error && content && (
+        <div className="mt-10 pt-6 border-t border-slate-800/70">
+          <ComputedRelatedList edges={computedRelated} heading="Related Content" />
+        </div>
+      )}
+
       {/* ── Community discussion ───────────────────────────────────────── */}
       {!loading && !error && content && (
         <div className="mt-12 pt-8 border-t border-slate-800/60">
@@ -1084,6 +1095,8 @@ export default function Notes() {
             slug={`${examId}-domain-${domain}`}
             context="skill-up"
           />
+          {/* IDEA-0009 Phase 5 pilot — CCA-F only, expand to other exams once moderation load is proven */}
+          {examId === 'ccaf' && <LightComments contentId={`${examId}-domain-${domain}`} />}
         </div>
       )}
     </div>

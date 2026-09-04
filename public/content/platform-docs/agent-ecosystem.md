@@ -74,7 +74,7 @@ Every agent in the system has hard-coded constraints:
 2. → **Product Manager**: Issue Gate
 3. → **AppSec Engineer**: Security pre-flight
 4. → **Domain Agent**: implements the change
-5. → **Content Sync**: `scripts/sync-stats.py` if any `public/content/` files changed
+5. → **Content Sync**: `node scripts/build-content-intelligence.mjs` if any `public/content/` files changed
 6. → **AppSec Engineer**: post-build audit
 7. → **Design Systems Engineer**: UX audit (if `.tsx` files changed)
 8. → **QA Engineer**: diagram validation (if `.md` files with mermaid blocks changed)

@@ -1,89 +1,167 @@
-import { vi } from 'vitest';
-import { findProgressGist, loadProgress, saveProgress } from './gist-sync';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-function jsonResponse(body: unknown, ok = true, status = 200) {
-  return { ok, status, json: () => Promise.resolve(body) } as Response;
+import { findProgressGist, loadProgress, saveProgress } from './gist-sync';
+import type { ProgressData } from './gist-sync';
+
+// Synthetic fake credential — never a real GitHub token.
+const FAKE_TOKEN = 'fake-test-token-not-a-real-credential';
+const GIST_DESCRIPTION = 'Aarya — AI Learning Hub Progress';
+const GIST_FILENAME = 'ccaf-progress.json';
+
+function jsonResponse(status: number, body: unknown): Response {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    json: async () => body,
+  } as Response;
 }
 
-beforeEach(() => {
-  vi.stubGlobal('fetch', vi.fn());
-});
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-});
+const minimalProgress: ProgressData = {
+  quizHistory: [],
+  domainProgress: {},
+  lastSync: '2026-01-01T00:00:00.000Z',
+};
 
 describe('findProgressGist', () => {
-  it('returns the gist id when a matching description + filename is found', async () => {
-    vi.mocked(fetch).mockResolvedValue(jsonResponse([
-      { id: 'other-gist', description: 'unrelated', files: {} },
-      { id: 'progress-gist', description: 'Aarya — AI Learning Hub Progress', files: { 'ccaf-progress.json': {} } },
-    ]));
-    await expect(findProgressGist('token')).resolves.toBe('progress-gist');
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
   });
 
-  it('returns null when no matching gist is found', async () => {
-    vi.mocked(fetch).mockResolvedValue(jsonResponse([{ id: 'x', description: 'unrelated', files: {} }]));
-    await expect(findProgressGist('token')).resolves.toBeNull();
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
-  it('returns null when the request fails (non-200)', async () => {
-    vi.mocked(fetch).mockResolvedValue(jsonResponse(null, false, 403));
-    await expect(findProgressGist('token')).resolves.toBeNull();
+  it('returns gist id when matching description + filename found', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      jsonResponse(200, [
+        { id: 'other-gist', description: 'unrelated gist', files: {} },
+        { id: 'progress-gist', description: GIST_DESCRIPTION, files: { [GIST_FILENAME]: {} } },
+      ]),
+    );
+
+    expect(await findProgressGist(FAKE_TOKEN)).toBe('progress-gist');
+  });
+
+  it('returns null when no matching gist found', async () => {
+    vi.mocked(fetch).mockResolvedValue(jsonResponse(200, []));
+
+    expect(await findProgressGist(FAKE_TOKEN)).toBeNull();
+  });
+
+  it('returns null when fetch fails (non-200)', async () => {
+    vi.mocked(fetch).mockResolvedValue(jsonResponse(403, {}));
+
+    expect(await findProgressGist(FAKE_TOKEN)).toBeNull();
+  });
+
+  it('sends the token as a Bearer authorization header', async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockResolvedValue(jsonResponse(200, []));
+
+    await findProgressGist(FAKE_TOKEN);
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('https://api.github.com/gists'),
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: `Bearer ${FAKE_TOKEN}` }),
+      }),
+    );
   });
 });
 
 describe('loadProgress', () => {
-  it('returns null when there is no progress gist yet', async () => {
-    vi.mocked(fetch).mockResolvedValue(jsonResponse([]));
-    await expect(loadProgress('token')).resolves.toBeNull();
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
   });
 
-  it('parses and returns the gist file content', async () => {
-    const progress = { quizHistory: [], domainProgress: {}, lastSync: '2026-01-01T00:00:00.000Z' };
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('returns null when no matching gist exists', async () => {
+    vi.mocked(fetch).mockResolvedValue(jsonResponse(200, []));
+
+    expect(await loadProgress(FAKE_TOKEN)).toBeNull();
+  });
+
+  it('returns null when the gist detail fetch fails', async () => {
     vi.mocked(fetch)
-      .mockResolvedValueOnce(jsonResponse([
-        { id: 'progress-gist', description: 'Aarya — AI Learning Hub Progress', files: { 'ccaf-progress.json': {} } },
-      ]))
-      .mockResolvedValueOnce(jsonResponse({ files: { 'ccaf-progress.json': { content: JSON.stringify(progress) } } }));
-    await expect(loadProgress('token')).resolves.toEqual(progress);
+      .mockResolvedValueOnce(
+        jsonResponse(200, [{ id: 'g1', description: GIST_DESCRIPTION, files: { [GIST_FILENAME]: {} } }]),
+      )
+      .mockResolvedValueOnce(jsonResponse(404, {}));
+
+    expect(await loadProgress(FAKE_TOKEN)).toBeNull();
+  });
+
+  it('returns parsed ProgressData when the gist content is valid JSON', async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(
+        jsonResponse(200, [{ id: 'g1', description: GIST_DESCRIPTION, files: { [GIST_FILENAME]: {} } }]),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse(200, { files: { [GIST_FILENAME]: { content: JSON.stringify(minimalProgress) } } }),
+      );
+
+    expect(await loadProgress(FAKE_TOKEN)).toEqual(minimalProgress);
   });
 
   it('returns null when the gist file content is invalid JSON', async () => {
     vi.mocked(fetch)
-      .mockResolvedValueOnce(jsonResponse([
-        { id: 'progress-gist', description: 'Aarya — AI Learning Hub Progress', files: { 'ccaf-progress.json': {} } },
-      ]))
-      .mockResolvedValueOnce(jsonResponse({ files: { 'ccaf-progress.json': { content: 'not-json' } } }));
-    await expect(loadProgress('token')).resolves.toBeNull();
+      .mockResolvedValueOnce(
+        jsonResponse(200, [{ id: 'g1', description: GIST_DESCRIPTION, files: { [GIST_FILENAME]: {} } }]),
+      )
+      .mockResolvedValueOnce(jsonResponse(200, { files: { [GIST_FILENAME]: { content: 'not-json' } } }));
+
+    expect(await loadProgress(FAKE_TOKEN)).toBeNull();
   });
 });
 
 describe('saveProgress', () => {
-  const progress = { quizHistory: [], domainProgress: {}, lastSync: '2026-01-01T00:00:00.000Z' };
-
-  it('PATCHes the existing gist when one is found', async () => {
-    vi.mocked(fetch)
-      .mockResolvedValueOnce(jsonResponse([
-        { id: 'progress-gist', description: 'Aarya — AI Learning Hub Progress', files: { 'ccaf-progress.json': {} } },
-      ]))
-      .mockResolvedValueOnce(jsonResponse({}));
-    await expect(saveProgress('token', progress)).resolves.toBe(true);
-    expect(vi.mocked(fetch).mock.calls[1][1]).toMatchObject({ method: 'PATCH' });
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
   });
 
-  it('POSTs a new gist when none is found', async () => {
-    vi.mocked(fetch)
-      .mockResolvedValueOnce(jsonResponse([]))
-      .mockResolvedValueOnce(jsonResponse({}));
-    await expect(saveProgress('token', progress)).resolves.toBe(true);
-    expect(vi.mocked(fetch).mock.calls[1][1]).toMatchObject({ method: 'POST' });
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
-  it('returns false and does not throw on a 403 Forbidden write', async () => {
-    vi.mocked(fetch)
-      .mockResolvedValueOnce(jsonResponse([]))
-      .mockResolvedValueOnce(jsonResponse(null, false, 403));
-    await expect(saveProgress('token', progress)).resolves.toBe(false);
+  it('PATCHes existing gist when gistId found', async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch
+      .mockResolvedValueOnce(
+        jsonResponse(200, [{ id: 'g1', description: GIST_DESCRIPTION, files: { [GIST_FILENAME]: {} } }]),
+      )
+      .mockResolvedValueOnce(jsonResponse(200, {}));
+
+    const ok = await saveProgress(FAKE_TOKEN, minimalProgress);
+
+    expect(ok).toBe(true);
+    expect(mockFetch).toHaveBeenNthCalledWith(
+      2,
+      'https://api.github.com/gists/g1',
+      expect.objectContaining({ method: 'PATCH' }),
+    );
+  });
+
+  it('POSTs new gist when no existing gist is found', async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockResolvedValueOnce(jsonResponse(200, [])).mockResolvedValueOnce(jsonResponse(201, {}));
+
+    const ok = await saveProgress(FAKE_TOKEN, minimalProgress);
+
+    expect(ok).toBe(true);
+    expect(mockFetch).toHaveBeenNthCalledWith(
+      2,
+      'https://api.github.com/gists',
+      expect.objectContaining({ method: 'POST' }),
+    );
+  });
+
+  it('returns false and does not throw on 403 Forbidden from the write request', async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockResolvedValueOnce(jsonResponse(200, [])).mockResolvedValueOnce(jsonResponse(403, {}));
+
+    await expect(saveProgress(FAKE_TOKEN, minimalProgress)).resolves.toBe(false);
   });
 });

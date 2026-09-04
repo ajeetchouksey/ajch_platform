@@ -1,4 +1,5 @@
 import type { Question, Scenario, ExamRegistry, BlogManifest } from '../types/content';
+import type { RelationshipEdge, RelationshipsFile } from './relationships';
 import {
   ensureContentManifestLoaded,
   resolveContentUrl,
@@ -178,6 +179,7 @@ export interface InterviewBankItem {
   followUps: Array<{ q: string; a: string }>;
   redFlags: string[];
   tags: string[];
+  taxonomyIds?: string[];
   diagram?: { caption: string; chart: string };
   roles: string[];
   relatedUseCases?: UseCaseRelatedLink[];
@@ -314,9 +316,15 @@ export interface PlatformStats {
     exams: number;
     notes: number;
     scenarios: number;
+    usecases?: number;
+    hol_labs?: number;
     agents: number;
     tools: number;
   };
+  // Per-vertical source/freshness info — added when stats.json is generated
+  // by scripts/build-content-intelligence.mjs (schema "2.0"). Absent on
+  // older stats.json payloads (schema "1.0"), so always optional-check.
+  freshness?: Record<string, { source: 'cdn' | 'local'; promotedAt?: string; sha?: string; contentUpdatedAt?: string | null }>;
   audience?: {
     users_today:  number | null;
     users_28d:    number | null;
@@ -398,6 +406,29 @@ export async function loadPlatformStats(): Promise<PlatformStats> {
   return _platformStatsInflight;
 }
 
+// ── Cross-vertical relationships ───────────────────────────────────────────
+// relationships.json is precomputed at build time (scripts/build-content-
+// intelligence.mjs, scoring logic mirrored from src/lib/relationships.ts) —
+// this is a pure O(1) lookup, never a runtime recompute.
+
+let _relationshipsCache: Promise<RelationshipsFile> | null = null;
+
+async function loadRelationshipsFile(): Promise<RelationshipsFile> {
+  if (!_relationshipsCache) {
+    _relationshipsCache = fetchJSON<RelationshipsFile>('content/relationships.json').catch((err) => {
+      _relationshipsCache = null; // allow retry on next call rather than caching a permanent failure
+      throw err;
+    });
+  }
+  return _relationshipsCache;
+}
+
+/** Precomputed related content for one doc id (e.g. "blog/my-post", "lab/some-lab") — see src/lib/search.ts for the id scheme. */
+export async function loadRelationshipsFor(docId: string): Promise<RelationshipEdge[]> {
+  const file = await loadRelationshipsFile();
+  return file.edges[docId] ?? [];
+}
+
 // ── Use Cases (AI UseCases section) ────────────────────────────────────────
 
 export interface UseCaseRelatedExam {
@@ -439,6 +470,7 @@ export interface FeaturedUseCase {
   workflowSteps?: string[];
   keyInsights?: string;
   mermaidDiagram?: string;
+  mermaidDiagramCaption?: string;
   architectureNotes?: string;
   techStack?: UseCaseTechStackCategory[];
   failureModes?: UseCaseFailureMode[];
@@ -451,6 +483,13 @@ export interface FeaturedUseCase {
   blogPotential?: string;
   publishedDate?: string;
   updatedDate?: string;
+  // Populated by scripts/backfill-taxonomy-ids.mjs — for use cases this is
+  // currently identical to `patterns` (already canonical taxonomy-shaped
+  // ids per content/usecases/index.json's patterns[] catalog), but kept as
+  // its own field so the relationship engine (IDEA-0008 Phase 3) reads one
+  // consistent field name across every vertical, not each vertical's own
+  // differently-named display-tag field.
+  taxonomyIds?: string[];
 }
 
 export interface CatalogUseCase {
@@ -458,6 +497,7 @@ export interface CatalogUseCase {
   title: string;
   vertical: string;
   patterns: string[];
+  taxonomyIds?: string[];
 }
 
 export interface SourceIntel {
@@ -552,6 +592,7 @@ export interface HolLab {
   problemStatement: string;
   approachRationale: string;
   mermaidDiagram?: string; // optional flow diagram — include when the lab's flow genuinely benefits from a picture
+  mermaidDiagramCaption?: string; // encouraged whenever mermaidDiagram is present — see mermaid-diagram-craft/SKILL.md
   prerequisites: string[];
   learningObjectives: string[];
   steps: HolLabStep[];
@@ -564,15 +605,23 @@ export interface HolLab {
   relatedUseCases: HolLabRelatedUseCase[];
   relatedLabs: HolLabRelatedLab[];
   tags: string[];
+  // Populated by scripts/backfill-taxonomy-ids.mjs — currently identical to
+  // `tags` (already clean kebab-case values registered as Tier-2 taxonomy
+  // nodes), kept as its own field for the same cross-vertical-consistency
+  // reason as FeaturedUseCase.taxonomyIds above.
+  taxonomyIds?: string[];
   publishedDate: string;
   updatedDate: string;
 }
 
-// Lightweight per-lab summary carried in index.json — enough for catalog cards,
-// filtering, and reverse-link lookups (see useRelatedLabs in related-labs.ts)
-// without fetching every lab file. hol-lab-publisher writes both the full lab
-// file AND this flattened summary at publish time, so no N+1 fetch is ever
-// needed to answer "what labs relate to this exam/usecase/blog/lab".
+// Lightweight per-lab summary carried in index.json — enough for catalog cards
+// and filtering without fetching every lab file. hol-lab-publisher writes
+// both the full lab file AND this flattened summary at publish time. Reverse-
+// link lookups ("what relates to this exam/usecase/blog/lab") are handled by
+// the computed relationship engine now (useRelationships/loadRelationshipsFor,
+// public/content/relationships.json) — the hand-rolled useRelatedLabs hook
+// this summary was originally built for was written but never adopted by any
+// page, and was removed rather than kept as unused dead code.
 export interface HolLabSummary {
   id: string;
   title: string;
@@ -582,6 +631,11 @@ export interface HolLabSummary {
   estimatedMinutes: number;
   costTier: HolLabCostEstimate['tier'];
   tags: string[];
+  taxonomyIds?: string[];
+  // Mirrors the full lab file's updatedDate — needed here (not just on
+  // HolLab) so the relationship engine can score recency without an N+1
+  // fetch per lab, same reasoning as taxonomyIds above.
+  updatedDate?: string;
   relatedExamIds: string[];
   relatedUseCaseIds: string[];
   relatedBlogSlugs: string[];

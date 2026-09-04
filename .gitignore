@@ -44,3 +44,5 @@ validate-test.txt
 branch-protection-log.txt
 
 __pycache__/
+
+coverage/

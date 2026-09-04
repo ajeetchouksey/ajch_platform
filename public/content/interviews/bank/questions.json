@@ -80,7 +80,8 @@
         "label": "Vendor Onboarding Agent",
         "vertical": "Finance & Ops"
       }
-    ]
+    ],
+    "taxonomyIds": []
   },
   {
     "id": "q-orch-002",
@@ -152,7 +153,8 @@
         "label": "Inbound Lead Magnet Agent",
         "vertical": "Sales & GTM"
       }
-    ]
+    ],
+    "taxonomyIds": []
   },
   {
     "id": "q-hitl-001",
@@ -235,6 +237,9 @@
         "label": "Internal Audit Testing Agent (Banking)",
         "vertical": "Banking"
       }
+    ],
+    "taxonomyIds": [
+      "domain-boundary"
     ]
   },
   {
@@ -329,6 +334,10 @@
         "label": "Scholarship Matching Agent",
         "vertical": "Education & Nonprofit"
       }
+    ],
+    "taxonomyIds": [
+      "rag",
+      "observability"
     ]
   },
   {
@@ -389,7 +398,8 @@
     "roles": [
       "agentic-ai-platform-architect",
       "agentic-ai-platform-architect-v2"
-    ]
+    ],
+    "taxonomyIds": []
   },
   {
     "id": "q-eval-001",
@@ -462,7 +472,8 @@
         "label": "Internal Audit Testing Agent (Banking)",
         "vertical": "Banking"
       }
-    ]
+    ],
+    "taxonomyIds": []
   },
   {
     "id": "q-frameworks-001",
@@ -523,7 +534,8 @@
     "roles": [
       "agentic-ai-platform-architect",
       "agentic-ai-platform-architect-v2"
-    ]
+    ],
+    "taxonomyIds": []
   },
   {
     "id": "q-leadership-001",
@@ -584,7 +596,8 @@
     "roles": [
       "agentic-ai-platform-architect",
       "hr-ai-lead"
-    ]
+    ],
+    "taxonomyIds": []
   },
   {
     "id": "q-hr-grounding-001",
@@ -650,6 +663,9 @@
     },
     "roles": [
       "hr-ai-lead"
+    ],
+    "taxonomyIds": [
+      "rag"
     ]
   },
   {
@@ -717,6 +733,9 @@
     },
     "roles": [
       "hr-ai-lead"
+    ],
+    "taxonomyIds": [
+      "responsible-ai"
     ]
   },
   {
@@ -785,6 +804,9 @@
     },
     "roles": [
       "hr-ai-lead"
+    ],
+    "taxonomyIds": [
+      "responsible-ai"
     ]
   }
 ]

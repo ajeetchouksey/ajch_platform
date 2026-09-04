@@ -1,0 +1,75 @@
+name: Content Intelligence Sync
+
+# Keeps public/content/stats.json (and, once Phase 3 lands, relationships.json)
+# current without a human remembering to run a script. Two triggers:
+#   - repository_dispatch: near-real-time, fired by each vertical repo's own
+#     CI on push to main (see scripts/dispatch-content-update.yml template —
+#     copied into ajch_skillup / ajch_aaryaai_blogs / ajch_ai_usecases /
+#     ajch_hol_labs). Uses the same aarya-platform-bot App already installed
+#     with all-repo access for sync-vertical-agents.yml — no new PAT.
+#   - schedule: a low-frequency safety net in case a dispatch is missed or
+#     fails (belt-and-suspenders, not the primary mechanism).
+#
+# promote-content.yml handles the promotion-event case directly (its own
+# "Regenerate content intelligence" step) — this workflow is for content
+# changes inside an ALREADY-promoted vertical repo, which promote-content.yml
+# has no visibility into.
+
+on:
+  repository_dispatch:
+    types: [content-updated]
+  schedule:
+    - cron: '17 */6 * * *' # every 6h, offset to avoid the top of the hour
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Regenerate stats.json
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Snapshot previous stats
+        run: cp public/content/stats.json /tmp/stats-before.json
+
+      - name: Regenerate content intelligence
+        run: node scripts/build-content-intelligence.mjs
+
+      - name: Check for a meaningful change
+        id: diff
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const before = JSON.parse(fs.readFileSync('/tmp/stats-before.json', 'utf-8'));
+          const after = JSON.parse(fs.readFileSync('public/content/stats.json', 'utf-8'));
+          // Compare only the fields that reflect real content changes —
+          // "generated" (and freshness timestamps for an already-promoted
+          // vertical whose sha hasn't moved) tick on every run regardless,
+          // so a raw diff would commit a no-op every 6 hours.
+          const meaningful = JSON.stringify(before.platform) !== JSON.stringify(after.platform)
+            || JSON.stringify(before.freshness) !== JSON.stringify(after.freshness);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `changed=${meaningful}\n`);
+          NODE
+
+      - name: Commit if changed
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/content/stats.json
+          git commit -m "chore(content): regenerate stats.json [skip ci]"
+          git push origin HEAD:main

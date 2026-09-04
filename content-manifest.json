@@ -1,26 +1,30 @@
 {
   "blog": {
     "repo": "ajeetchouksey/ajch_aaryaai_blogs",
-    "sha": "ee9ccf00e2a3bf7e81d6b5563713565e8a3a5ecf",
+    "sha": "af6ae26",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
-    "promotedAt": "2026-08-25T05:51:21.574Z"
+    "schemaVersion": 1,
+    "promotedAt": "2026-09-02T07:38:16Z"
   },
   "skillup": {
     "repo": "ajeetchouksey/ajch_skillup",
-    "sha": "ea48f4625968f1c91f1ddda3d35e65c5ca3a1e76",
+    "sha": "5f10b8968af3358bb1951055f656ac23f21b6820",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
-    "promotedAt": "2026-08-25T11:20:17.148Z"
+    "schemaVersion": 1,
+    "promotedAt": "2026-09-02T19:51:48Z"
   },
   "usecases": {
     "repo": "ajeetchouksey/ajch_ai_usecases",
-    "sha": "3bb7722266ea9ec71bb8058a4297c3953e74afc7",
+    "sha": "c2716343a8d55015247addfaf510be82b8994670",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
-    "promotedAt": "2026-08-25T06:38:44.852Z"
+    "schemaVersion": 1,
+    "promotedAt": "2026-09-01T20:22:06Z"
   },
   "hol-labs": {
     "repo": "ajeetchouksey/ajch_hol_labs",
-    "sha": "9667488637701758c04e94afce145d3444e715b5",
+    "sha": "38751285658d1b33fca03d6ed51396bb892be666",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
-    "promotedAt": "2026-08-27T20:38:23.346Z"
+    "schemaVersion": 1,
+    "promotedAt": "2026-09-01T20:13:37Z"
   }
 }

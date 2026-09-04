@@ -101,28 +101,34 @@ Notes files are markdown. Every notes file must:
 
 ### Hard rules
 - Must begin with `# D{N}: ...` H1 heading
-- Must contain at least one `## Exam Traps` section
+- Must contain at least one `### Exam Trap ⚠️` callout (H3, singular — this is the actual convention used across every exam in the catalog; not the H2 `## Exam Traps` you might expect)
 - Must not be empty (enforced by validate-content.mjs)
-- Frontmatter block (`<!-- ... -->`) is required on all new notes files
+- No frontmatter comment is required or expected — no note file in the catalog has ever used one, and it is not enforced by validate-content.mjs
 
 ---
 
 ## 4. Scenario Schema (RichScenario v2.0)
 
 Scenario files follow the discriminated union defined in `src/types/content.ts`.
-Use `"schemaVersion": "2.0"` for all new scenarios.
+Use `"schemaVersion": "2.0"` for all new scenarios. This is the real, current interface —
+keep this block in sync with `src/types/content.ts` rather than trusting this doc blindly.
 
 ```typescript
 interface RichScenario {
-  schemaVersion: "2.0";
-  id: string;            // Format: "{examId}-scenario-{NNN}"
+  schemaVersion: '2.0';
+  id: string;              // Format: "{examId}-scenario-{NNN}"
   title: string;
-  description: string;   // 2-4 sentences
-  domain: number;        // Matches a domain.id in index.json
+  description: string;     // 2-4 sentences
+  examId: string;
   difficulty: 'easy' | 'medium' | 'hard';
-  tags: string[];        // same taxonomy as questions
-  steps: ScenarioStep[];
-  keyTakeaways: string[];
+  estimatedMinutes: number;
+  domains: number[];       // plural — a scenario may span multiple domain ids
+  scenario: {
+    background: string;
+    characters: ScenarioCharacter[];
+  };
+  questions: ScenarioQuestion[];
+  keyLearnings: string[];  // NOT keyTakeaways
 }
 ```
 

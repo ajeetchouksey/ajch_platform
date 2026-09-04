@@ -58,7 +58,8 @@ When the Product Manager generates release notes and triggers a release:
    - [ ] c. Add new empty `[Unreleased]` section at the top of CHANGELOG
    - [ ] d. Commit: `chore(release): vX.Y.Z`
    - [ ] e. Tag: `git tag vX.Y.Z -m "Aarya — My AI Learning Hub vX.Y.Z"`
-   - [ ] f. Push: `git push origin main --tags`
+   - [ ] f. **Confirm with user via AskUserQuestion**: "Ready to push vX.Y.Z + tags to origin/main?" — proceed only on explicit yes
+   - [ ] g. Push: `git push origin main --tags`
 3. **`release.yml`** fires automatically on tag push:
    - Extracts the `[X.Y.Z]` section from CHANGELOG.md
    - Creates a structured **GitHub Release** at `github.com/ajeetchouksey/ajch_platform/releases`
@@ -115,3 +116,4 @@ Before creating any new `.github/workflows/` file:
 4. **`ci.yml` must always run** — if it is disabled or removed, re-enable it before any other task
 5. **No secrets in logs** — Bash command output must never echo secret values
 6. **release.yml is the only source of GitHub Releases** — never create releases manually outside this flow
+7. **Never push to origin without an explicit user confirmation immediately before doing so** — a request to "cut a release" authorizes steps a–e, not the push itself.

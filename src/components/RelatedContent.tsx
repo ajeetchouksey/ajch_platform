@@ -2,6 +2,25 @@
  * RelatedContent — Issue #63
  * Surfaces related SkillUp tracks and AI Tools based on tag/keyword overlap.
  * No network calls — all matching done at render time from static keyword maps.
+ *
+ * Partially superseded by the computed relationship engine (see
+ * ComputedRelatedList.tsx, useRelationships.ts, public/content/
+ * relationships.json), not fully retired — the two sections have different
+ * fates:
+ * - "Related Skill Tracks" (maxSkills prop): superseded wherever a page also
+ *   renders ComputedRelatedList — that engine's exam-domain matches (a
+ *   specific domain, from real taxonomyIds overlap) are strictly more
+ *   precise than this component's coarse whole-exam keyword match. BlogPost.tsx
+ *   passes `maxSkills={0}` to suppress this section there for exactly that
+ *   reason.
+ * - "AI Tools" (TOOLS_MAP): NOT superseded and can never be, by design —
+ *   tools have no content to carry taxonomyIds, so they were never part of
+ *   collectRelDocs/the relationship engine at all. This section stays
+ *   everywhere, including on BlogPost.tsx.
+ *
+ * ExamHome.tsx and Tools.tsx keep both sections as-is (maxSkills defaults to
+ * 2) — neither page renders ComputedRelatedList, so this remains their only
+ * related-content mechanism.
  */
 import { Link } from 'react-router-dom';
 import { BookOpen, Wrench, ArrowRight } from 'lucide-react';

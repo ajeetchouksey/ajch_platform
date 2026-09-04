@@ -42,12 +42,12 @@ const VERTICALS = {
   },
   usecases: {
     repo: 'ajeetchouksey/ajch_ai_usecases',
-    entryAgents: ['usecase-lead', 'usecase-writer', 'usecase-publisher', 'appsec-engineer'],
+    entryAgents: ['usecase-lead', 'usecase-writer', 'usecase-publisher', 'appsec-engineer', 'qa-engineer'],
     pathPrefix: 'usecases',
   },
   'hol-labs': {
     repo: 'ajeetchouksey/ajch_hol_labs',
-    entryAgents: ['hol-lab-lead', 'hol-lab-writer', 'hol-lab-publisher', 'appsec-engineer'],
+    entryAgents: ['hol-lab-lead', 'hol-lab-writer', 'hol-lab-publisher', 'appsec-engineer', 'qa-engineer'],
     pathPrefix: 'hol-labs',
   },
 };
@@ -128,10 +128,25 @@ function rewrite(content) {
     .replace(RELOCATION_NOTICE_RE, '');
 }
 
+// Every vertical repo also gets a copy of the root Copilot instructions —
+// written unconditionally (not resolved via entryAgents/skill deps, since
+// it isn't scoped to one agent) so Copilot reads the same diagram/prose
+// standards in every repo in this family. Written verbatim: it contains no
+// public/content/{vertical}/ path or "content moved" relocation notice, so
+// it needs no rewrite() pass.
+const copilotInstructionsPath = '.github/copilot-instructions.md';
+const fixedFiles = new Map();
+if (existsSync(join(ROOT, copilotInstructionsPath))) {
+  fixedFiles.set(copilotInstructionsPath, readFileSync(join(ROOT, copilotInstructionsPath), 'utf-8'));
+}
+
 const allFiles = new Map([...agentFiles, ...skillFiles]);
 const rewritten = new Map();
 for (const [relPath, content] of allFiles) {
   rewritten.set(relPath, rewrite(content));
+}
+for (const [relPath, content] of fixedFiles) {
+  rewritten.set(relPath, content);
 }
 
 // ── 3. Diff against target, write only what changed ────────────────────────
