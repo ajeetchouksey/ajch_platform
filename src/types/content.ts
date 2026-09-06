@@ -63,6 +63,47 @@ export interface ExamConfig {
   changelog?: ContentChangelog[];
   deprecatedAt?: string;
   prerequisites?: string[];
+  // ── Skill Tracks (IDEA-0016) ────────────────────────────────────────────
+  // A registry entry with kind: "skill-track" is a tool/framework mastery
+  // track, not a real certification — it omits questions/duration/passScore/
+  // passThreshold/examCode entirely (no fabricated exam metadata) and carries
+  // modules/practiceBank instead. Absent kind ⇒ "exam" (today's 9 entries
+  // need zero edits). Consumers must branch on `kind` before reading any
+  // exam-only field above; see ExamHome.tsx / ExamCatalog.tsx.
+  kind?: 'exam' | 'skill-track';
+  modules?: SkillTrackModule[];
+  practiceBank?: PracticeBank;
+}
+
+export interface KnowledgeCheckQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correct: number;
+  explanation: string;
+}
+
+export interface SkillTrackLesson {
+  id: string;
+  title: string;
+  objectives: string[];
+  notesFile: string;
+  /** Real, existing HOL Lab id in ajch_hol_labs — never fabricated. Omitted when no match exists. */
+  holLabId?: string;
+  knowledgeCheck: KnowledgeCheckQuestion[];
+}
+
+export interface SkillTrackModule {
+  id: string;
+  title: string;
+  lessons: SkillTrackLesson[];
+}
+
+/** A retained legacy exam-shaped MCQ bank, kept opt-in — never the primary content for a skill track. */
+export interface PracticeBank {
+  description: string;
+  questionFiles: string[];
+  questions: number;
 }
 
 export interface ExamRegistry {

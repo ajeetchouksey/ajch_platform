@@ -13,6 +13,7 @@ import RelatedContent from '@/components/RelatedContent';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import type { ExamConfig, DomainConfig, QuizSession, ContentType } from '@/types/content';
 import { recordExamVisit } from '@/lib/exam-stats';
+import SkillTrackHome from './SkillTrackHome';
 
 // ── Readiness helpers ─────────────────────────────────────────────────────────
 
@@ -196,12 +197,14 @@ export default function ExamHome() {
   const [mounted, setMounted] = useState(false);
   const { user, isLoading: authLoading, login } = useAuth();
   const sessions = useMemo(() => getSessions(), []);
+  // Skill Track (IDEA-0016) entries have no domains[] — this readiness/quiz
+  // machinery is exam-only; SkillTrackHome renders instead, below.
   const domainStatus = useMemo(
-    () => exam ? computeDomainQuizStatus(sessions, examId ?? '', exam.domains) : null,
+    () => exam && exam.kind !== 'skill-track' ? computeDomainQuizStatus(sessions, examId ?? '', exam.domains) : null,
     [sessions, examId, exam],
   );
   const readinessBreakdown: ReadinessBreakdown | null = useMemo(
-    () => exam ? getReadinessBreakdown(examId ?? '', exam.domains, sessions) : null,
+    () => exam && exam.kind !== 'skill-track' ? getReadinessBreakdown(examId ?? '', exam.domains, sessions) : null,
     [sessions, examId, exam],
   );
   const [readinessExplainOpen, setReadinessExplainOpen] = useState(false);
@@ -264,6 +267,10 @@ export default function ExamHome() {
         </div>
       </div>
     );
+  }
+
+  if (exam.kind === 'skill-track') {
+    return <SkillTrackHome exam={exam} examId={examId!} mounted={mounted} />;
   }
 
   const cards = buildContentCards(exam, examId!);

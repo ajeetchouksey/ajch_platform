@@ -1,6 +1,7 @@
 import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, GraduationCap, Newspaper, Wrench, Users, Search, GitPullRequest, CalendarDays, ChevronDown, User, Briefcase, Building2, FlaskConical, Activity, Compass, Lock } from 'lucide-react';
-import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { LoginWidget } from './LoginWidget';
 import { StarRepo } from './StarRepo';
 import SearchModal from './SearchModal';
@@ -34,23 +35,32 @@ const TOOL_NAV = [
   { to: '/tools/tool-schema-builder',   label: 'Schema Builder' },
 ];
 
+type NavGroupKey = 'learn' | 'build' | 'community';
+
 const platformLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
-  { to: '/skillup', label: 'Skill Up', icon: GraduationCap },
   { to: '/blog', label: 'Field Notes', icon: Newspaper },
-  { to: '/roleprep', label: 'Role Prep', icon: Briefcase },
-  { to: '/usecases', label: 'Use Cases', icon: Building2 },
-  { to: '/hol-labs', label: 'HOL Labs', icon: FlaskConical },
-  { to: '/tools', label: 'Tools', icon: Wrench },
+  { to: '/skillup', label: 'Skill Up', icon: GraduationCap, group: 'learn' as NavGroupKey },
+  { to: '/roleprep', label: 'Role Prep', icon: Briefcase, group: 'learn' as NavGroupKey },
+  { to: '/discovery', label: 'Discovery', icon: Compass, group: 'learn' as NavGroupKey },
+  { to: '/usecases', label: 'Use Cases', icon: Building2, group: 'build' as NavGroupKey },
+  { to: '/hol-labs', label: 'HOL Labs', icon: FlaskConical, group: 'build' as NavGroupKey },
+  { to: '/tools', label: 'Tools', icon: Wrench, group: 'build' as NavGroupKey },
+  { to: '/team', label: 'Team', icon: Users, group: 'community' as NavGroupKey },
+  { to: '/contribute', label: 'Contribute', icon: GitPullRequest, group: 'community' as NavGroupKey },
   { to: '/docs', label: 'Docs', icon: BookOpen, topNavHidden: true },
-  { to: '/contribute', label: 'Contribute', icon: GitPullRequest },
-  { to: '/discovery', label: 'Discovery', icon: Compass },
-  { to: '/team', label: 'Team', icon: Users },
   { to: '/profile', label: 'Profile', icon: User, sidebarOnly: true },
   { to: '/dashboard', label: 'Dashboard', icon: BarChart2, sidebarOnly: true },
   { to: '/monitoring', label: 'Monitoring', icon: Activity, sidebarOnly: true },
   { to: '/admin', label: 'Admin', icon: Lock, sidebarOnly: true },
 ];
+
+const NAV_GROUP_ORDER: NavGroupKey[] = ['learn', 'build', 'community'];
+const NAV_GROUP_META: Record<NavGroupKey, { label: string; icon: typeof GraduationCap }> = {
+  learn: { label: 'Learn', icon: GraduationCap },
+  build: { label: 'Build', icon: Wrench },
+  community: { label: 'Community', icon: Users },
+};
 
 const footerLinks = [
   { href: '/subscribe', label: 'Subscribe', external: false },
@@ -164,6 +174,10 @@ export default function Layout({ children }: { children: ReactNode }) {
   });
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [openNavGroup, setOpenNavGroup] = useState<NavGroupKey | null>(null);
+  const [navDropdownPos, setNavDropdownPos] = useState<{ top: number; left: number } | null>(null);
+  const navGroupsRef = useRef<HTMLDivElement>(null);
+  const navGroupButtonRefs = useRef<Partial<Record<NavGroupKey, HTMLButtonElement>>>({});
   const isOwner = useIsOwner();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -180,9 +194,37 @@ export default function Layout({ children }: { children: ReactNode }) {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSidebarOpen(false);
+     
+    setOpenNavGroup(null);
     const mainEl = document.querySelector('main');
     if (mainEl) mainEl.scrollTop = 0;
   }, [location.pathname, location.search]);
+
+  // Close an open nav-group dropdown on outside click, Escape, or resize.
+  // The dropdown panel itself is portaled to document.body (to escape the
+  // nav's overflow-hidden), so "inside" also covers anything tagged
+  // data-nav-dropdown, not just navGroupsRef's own subtree.
+  useEffect(() => {
+    if (!openNavGroup) return;
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (navGroupsRef.current?.contains(target)) return;
+      if (target.closest('[data-nav-dropdown]')) return;
+      setOpenNavGroup(null);
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpenNavGroup(null);
+    };
+    const handleResize = () => setOpenNavGroup(null);
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [openNavGroup]);
 
   // Lock body scroll when sidebar is open on mobile (iOS Safari fix)
   useEffect(() => {
@@ -272,8 +314,8 @@ export default function Layout({ children }: { children: ReactNode }) {
             </span>
           </NavLink>
 
-          <nav aria-label="Primary" className="hidden lg:flex flex-1 min-w-0 overflow-hidden items-center gap-0">
-            {platformLinks.filter((l) => !l.sidebarOnly && !l.topNavHidden).map(({ to, label, icon: Icon, end }) => (
+          <nav ref={navGroupsRef} aria-label="Primary" className="hidden lg:flex flex-1 min-w-0 overflow-hidden items-center gap-0">
+            {platformLinks.filter((l) => !l.sidebarOnly && !l.topNavHidden && !l.group).map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -298,6 +340,79 @@ export default function Layout({ children }: { children: ReactNode }) {
                 )}
               </NavLink>
             ))}
+            {NAV_GROUP_ORDER.map((key) => {
+              const meta = NAV_GROUP_META[key];
+              const items = platformLinks.filter((l) => l.group === key);
+              const isGroupActive = items.some(
+                (i) => location.pathname === i.to || location.pathname.startsWith(`${i.to}/`)
+              );
+              const isOpen = openNavGroup === key;
+              return (
+                <div key={key} className="relative">
+                  <button
+                    ref={(el) => { navGroupButtonRefs.current[key] = el ?? undefined; }}
+                    type="button"
+                    onClick={() => {
+                      if (isOpen) {
+                        setOpenNavGroup(null);
+                        return;
+                      }
+                      const btn = navGroupButtonRefs.current[key];
+                      if (btn) {
+                        const r = btn.getBoundingClientRect();
+                        setNavDropdownPos({ top: r.bottom + 4, left: r.left });
+                      }
+                      setOpenNavGroup(key);
+                    }}
+                    aria-expanded={isOpen}
+                    aria-haspopup="true"
+                    title={meta.label}
+                    className={`relative flex items-center gap-1 px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-medium transition-all duration-200 ${
+                      isGroupActive || isOpen
+                        ? 'text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <meta.icon size={14} className={isGroupActive ? 'text-violet-400' : ''} />
+                    <span>{meta.label}</span>
+                    <ChevronDown size={12} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                    {isGroupActive && (
+                      <span className="absolute bottom-0 left-2 right-2 xl:left-3 xl:right-3 h-0.5 bg-gradient-to-r from-violet-400 to-fuchsia-400 rounded-full" />
+                    )}
+                  </button>
+                  {isOpen && navDropdownPos && createPortal(
+                    <div
+                      role="menu"
+                      aria-label={meta.label}
+                      data-nav-dropdown
+                      style={{ position: 'fixed', top: navDropdownPos.top, left: navDropdownPos.left }}
+                      className="w-48 rounded-xl border border-slate-700/60 bg-slate-800/95 backdrop-blur-md shadow-xl shadow-black/30 py-1.5 z-[100]"
+                    >
+                      {items.map(({ to, label, icon: Icon, end }) => (
+                        <NavLink
+                          key={to}
+                          to={to}
+                          end={end}
+                          role="menuitem"
+                          onClick={() => setOpenNavGroup(null)}
+                          className={({ isActive }) =>
+                            `flex items-center gap-2.5 px-3 py-2 text-sm transition-colors duration-150 ${
+                              isActive
+                                ? 'text-violet-300 bg-violet-500/10'
+                                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                            }`
+                          }
+                        >
+                          <Icon size={15} />
+                          <span>{label}</span>
+                        </NavLink>
+                      ))}
+                    </div>,
+                    document.body
+                  )}
+                </div>
+              );
+            })}
             <AdminNavItem />
           </nav>
 
@@ -336,7 +451,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               Platform
             </p>
             <nav aria-label="Platform" className="space-y-0.5">
-              {platformLinks.filter((l) => !l.sidebarOnly && !l.topNavHidden).map(({ to, label, icon: Icon, end }) => (
+              {platformLinks.filter((l) => !l.sidebarOnly && !l.topNavHidden && !l.group).map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -354,6 +469,36 @@ export default function Layout({ children }: { children: ReactNode }) {
                 </NavLink>
               ))}
             </nav>
+            {NAV_GROUP_ORDER.map((key) => {
+              const meta = NAV_GROUP_META[key];
+              const items = platformLinks.filter((l) => l.group === key);
+              return (
+                <div key={key} className="mt-4">
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">
+                    {meta.label}
+                  </p>
+                  <nav aria-label={meta.label} className="space-y-0.5">
+                    {items.map(({ to, label, icon: Icon, end }) => (
+                      <NavLink
+                        key={to}
+                        to={to}
+                        end={end}
+                        className={({ isActive }) =>
+                          `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                            isActive
+                              ? 'bg-violet-500/15 text-violet-200 border-l-2 border-violet-400 ml-0 pl-2.5'
+                              : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
+                          }`
+                        }
+                      >
+                        <Icon size={16} />
+                        <span>{label}</span>
+                      </NavLink>
+                    ))}
+                  </nav>
+                </div>
+              );
+            })}
             {/* Admin link — owner only */}
             {isOwner && (
               <>
@@ -421,8 +566,10 @@ export default function Layout({ children }: { children: ReactNode }) {
             </nav>
           </div>
 
-          {/* Exam navigation — registry-driven */}
-          {isInExam && currentExam && (() => {
+          {/* Exam navigation — registry-driven. Skill Tracks (IDEA-0016) have no
+              domains/quiz/notes/scenarios/progress/plan routes — SkillTrackHome
+              is self-contained, so this exam-shaped sidebar doesn't apply. */}
+          {isInExam && currentExam && currentExam.kind !== 'skill-track' && (() => {
             const scheme = EXAM_SCHEMES[currentExam.colorScheme] ?? EXAM_SCHEMES['violet'];
             const examLinks = [
               { to: `/skillup/${currentExam.id}`, label: 'Overview', icon: GraduationCap, end: true },
@@ -638,7 +785,10 @@ export default function Layout({ children }: { children: ReactNode }) {
                   {currentExam.shortTitle}
                 </span>
               )}
-              {EXAM_NAV.map(({ slug, label, icon: Icon, end }) => {
+              {(currentExam?.kind === 'skill-track'
+                ? EXAM_NAV.filter(({ slug }) => slug === '' || (slug === 'quiz' && currentExam.practiceBank))
+                : EXAM_NAV
+              ).map(({ slug, label, icon: Icon, end }) => {
                 const to = slug ? `/skillup/${currentExamId}/${slug}` : `/skillup/${currentExamId}`;
                 return (
                   <NavLink

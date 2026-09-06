@@ -134,7 +134,10 @@ export async function loadQuestionsForExam(examId: string): Promise<Question[]> 
   const registry = await loadExamRegistry();
   const exam = registry.exams.find((e) => e.id === examId);
   if (!exam) throw new Error(`Exam "${examId}" not found in registry`);
-  const arrays = await Promise.all(exam.questionFiles.map((f) => fetchJSON<Question[]>(f)));
+  // Skill tracks (IDEA-0016) keep any retained legacy MCQ bank under
+  // practiceBank rather than the top-level questionFiles exams use.
+  const files = exam.kind === 'skill-track' ? (exam.practiceBank?.questionFiles ?? []) : exam.questionFiles;
+  const arrays = await Promise.all(files.map((f) => fetchJSON<Question[]>(f)));
   return arrays.flat();
 }
 
@@ -149,6 +152,11 @@ export async function loadNoteForExam(examId: string, domainId: number): Promise
   const domain = exam?.domains.find((d) => d.id === domainId);
   if (!domain) throw new Error(`Domain ${domainId} not found for exam "${examId}"`);
   return fetchText(domain.notesFile);
+}
+
+/** Skill Track (IDEA-0016) lesson notes — the lesson object already carries its full notesFile path, no domain lookup needed. */
+export async function loadLessonNote(notesFile: string): Promise<string> {
+  return fetchText(notesFile);
 }
 
 export async function loadScenariosForExam(examId: string): Promise<Scenario[]> {

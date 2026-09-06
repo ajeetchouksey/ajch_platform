@@ -9,12 +9,26 @@ import { useMeta } from '@/lib/useMeta';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import type { ExamConfig } from '@/types/content';
 
+/** Total practice questions this catalog entry offers, exam or skill-track alike. */
+function questionCount(exam: ExamConfig): number {
+  return exam.kind === 'skill-track' ? (exam.practiceBank?.questions ?? 0) : exam.questions;
+}
+
+/** Domain-equivalent sections (exam domains, or skill-track modules) for catalog stats/search/pills. */
+function sectionInfo(exam: ExamConfig): { title: string; color: string }[] {
+  return exam.kind === 'skill-track'
+    ? (exam.modules ?? []).map((m) => ({ title: m.title, color: 'bg-slate-500' }))
+    : exam.domains.map((d) => ({ title: d.title, color: d.color }));
+}
+
 // ── Single exam card ──────────────────────────────────────────────────────────
 function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
   const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const pal = exam.palette;
+  const isSkillTrack = exam.kind === 'skill-track';
+  const sections = sectionInfo(exam);
 
   useEffect(() => {
     const el = ref.current;
@@ -92,8 +106,17 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
             </span>
           )}
 
+          <span
+            className="text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-lg"
+            style={isSkillTrack
+              ? { color: '#38bdf8', background: 'rgba(56,189,248,0.10)', border: '1px solid rgba(56,189,248,0.25)' }
+              : { color: '#a78bfa', background: 'rgba(167,139,250,0.10)', border: '1px solid rgba(167,139,250,0.25)' }}
+          >
+            {isSkillTrack ? 'Skill Track' : 'Certification'}
+          </span>
+
           <span className="ml-auto text-[11px] font-bold" style={{ color: '#475569' }}>
-            {exam.passScore} to pass
+            {isSkillTrack ? 'Self-paced' : `${exam.passScore} to pass`}
           </span>
           {exam.contentLevel && (
             <span className="text-[10px] font-black px-2 py-0.5 rounded-full border"
@@ -111,43 +134,58 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
 
         {/* Stats row */}
         <div className="flex flex-wrap gap-x-6 gap-y-2 mb-6 text-[12px] text-slate-500">
-          <span className="flex items-center gap-1.5">
-            <Brain size={12} style={{ color: pal.color }} />
-            <span className="text-white font-bold">{exam.questions}</span>{' '}questions
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Target size={12} style={{ color: pal.color }} />
-            <span className="text-white font-bold">{exam.domains.length}</span>{' '}domains
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Clock size={12} style={{ color: pal.color }} />
-            {exam.duration}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <BarChart2 size={12} style={{ color: pal.color }} />
-            {exam.passThreshold}% pass threshold
-          </span>
+          {isSkillTrack ? (
+            <>
+              <span className="flex items-center gap-1.5">
+                <Brain size={12} style={{ color: pal.color }} />
+                <span className="text-white font-bold">{exam.modules?.reduce((n, m) => n + m.lessons.length, 0) ?? 0}</span>{' '}lessons
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Target size={12} style={{ color: pal.color }} />
+                <span className="text-white font-bold">{exam.modules?.length ?? 0}</span>{' '}modules
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="flex items-center gap-1.5">
+                <Brain size={12} style={{ color: pal.color }} />
+                <span className="text-white font-bold">{exam.questions}</span>{' '}questions
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Target size={12} style={{ color: pal.color }} />
+                <span className="text-white font-bold">{exam.domains.length}</span>{' '}domains
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Clock size={12} style={{ color: pal.color }} />
+                {exam.duration}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <BarChart2 size={12} style={{ color: pal.color }} />
+                {exam.passThreshold}% pass threshold
+              </span>
+            </>
+          )}
           <PageViewsBadge path={`/skillup/${exam.id}`} />
         </div>
 
-        {/* Domain pills */}
+        {/* Domain / module pills */}
         <div className="flex flex-wrap gap-1.5 mb-7">
-          {exam.domains.slice(0, 4).map((d) => (
+          {sections.slice(0, 4).map(({ title, color }, i) => (
             <span
-              key={d.id}
+              key={title}
               className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full font-medium"
               style={{ background: 'rgba(15,23,42,0.8)', color: '#64748b', border: '1px solid rgba(71,85,105,0.18)' }}
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${d.color}`} />
-              D{d.id}: {d.title}
+              <span className={`w-1.5 h-1.5 rounded-full ${color}`} />
+              {isSkillTrack ? `M${i + 1}` : `D${i + 1}`}: {title}
             </span>
           ))}
-          {exam.domains.length > 4 && (
+          {sections.length > 4 && (
             <span
               className="flex items-center text-[10px] px-2.5 py-1 rounded-full font-bold"
               style={{ background: 'rgba(15,23,42,0.8)', color: '#94a3b8', border: '1px solid rgba(71,85,105,0.18)' }}
             >
-              +{exam.domains.length - 4} more
+              +{sections.length - 4} more
             </span>
           )}
         </div>
@@ -163,17 +201,19 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
               style={{ background: pal.btn, boxShadow: `0 0 0 1px ${pal.border}` }}
             >
               <Zap size={14} />
-              Start Practicing
+              {isSkillTrack ? 'Start Learning' : 'Start Practicing'}
               <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
             </Link>
-            <Link
-              to={`/skillup/${exam.id}/notes`}
-              onClick={e => e.stopPropagation()}
-              className="flex items-center gap-1.5 text-xs font-bold transition-colors hover:text-slate-300"
-              style={{ color: '#475569' }}
-            >
-              <BookOpen size={12} /> Study Notes
-            </Link>
+            {!isSkillTrack && (
+              <Link
+                to={`/skillup/${exam.id}/notes`}
+                onClick={e => e.stopPropagation()}
+                className="flex items-center gap-1.5 text-xs font-bold transition-colors hover:text-slate-300"
+                style={{ color: '#475569' }}
+              >
+                <BookOpen size={12} /> Study Notes
+              </Link>
+            )}
           </div>
         ) : (
           <span
@@ -253,8 +293,9 @@ export default function ExamCatalog() {
   const provider = searchParams.get('provider') ?? '';
   const level = searchParams.get('level') ?? '';
   const status = searchParams.get('status') ?? '';
+  const kind = searchParams.get('kind') ?? '';
   const sort = searchParams.get('sort') ?? 'recommended';
-  const filtersActive = Boolean(q || provider || level || status || sort !== 'recommended');
+  const filtersActive = Boolean(q || provider || level || status || kind || sort !== 'recommended');
 
   const setParam = (key: string, value: string) => {
     const next = new URLSearchParams(searchParams);
@@ -270,8 +311,8 @@ export default function ExamCatalog() {
 
   const available = exams.filter((e) => e.available);
   const coming = exams.filter((e) => !e.available);
-  const totalQuestions = exams.reduce((a, e) => a + e.questions, 0);
-  const totalDomains = exams.reduce((a, e) => a + e.domains.length, 0);
+  const totalQuestions = exams.reduce((a, e) => a + questionCount(e), 0);
+  const totalDomains = exams.reduce((a, e) => a + sectionInfo(e).length, 0);
 
   const providers = useMemo(
     () => Array.from(new Set(exams.map((e) => e.provider))).sort(),
@@ -279,6 +320,12 @@ export default function ExamCatalog() {
   );
   const levels = useMemo(
     () => Array.from(new Set(exams.map((e) => e.contentLevel).filter(Boolean) as string[])).sort(),
+    [exams],
+  );
+  // Only worth showing once the catalog actually mixes real certifications with
+  // skill tracks — the whole point of this filter is telling them apart (IDEA-0016).
+  const hasKindMix = useMemo(
+    () => new Set(exams.map((e) => e.kind ?? 'exam')).size > 1,
     [exams],
   );
 
@@ -289,19 +336,20 @@ export default function ExamCatalog() {
       if (level && e.contentLevel !== level) return false;
       if (status === 'live' && !e.available) return false;
       if (status === 'soon' && e.available) return false;
+      if (kind && (e.kind ?? 'exam') !== kind) return false;
       if (needle) {
-        const hay = `${e.title} ${e.shortTitle} ${e.description} ${e.domains.map((d) => d.title).join(' ')}`.toLowerCase();
+        const hay = `${e.title} ${e.shortTitle} ${e.description} ${sectionInfo(e).map((s) => s.title).join(' ')}`.toLowerCase();
         if (!hay.includes(needle)) return false;
       }
       return true;
     });
     return [...list].sort((a, b) => {
-      if (sort === 'questions') return b.questions - a.questions;
+      if (sort === 'questions') return questionCount(b) - questionCount(a);
       if (sort === 'az') return a.title.localeCompare(b.title);
       if (a.available !== b.available) return a.available ? -1 : 1;
-      return b.questions - a.questions;
+      return questionCount(b) - questionCount(a);
     });
-  }, [exams, q, provider, level, status, sort]);
+  }, [exams, q, provider, level, status, kind, sort]);
 
   return (
     <div className="space-y-10">
@@ -417,6 +465,14 @@ export default function ExamCatalog() {
                 {levels.map((l) => (
                   <Chip key={l} active={level === l} onClick={() => toggleParam('level', l)}>L{l}</Chip>
                 ))}
+              </div>
+            )}
+
+            {hasKindMix && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-600 mr-0.5 ml-2">Type</span>
+                <Chip active={kind === 'exam'} onClick={() => toggleParam('kind', 'exam')}>Certification</Chip>
+                <Chip active={kind === 'skill-track'} onClick={() => toggleParam('kind', 'skill-track')}>Skill Track</Chip>
               </div>
             )}
 
