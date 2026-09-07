@@ -65,6 +65,7 @@ export default function Scenarios() {
   const [examShortTitle, setExamShortTitle] = useState('Exam');
   const [, setDomainTitles] = useState<Record<number, string>>({});
   const [isSkillTrack, setIsSkillTrack] = useState(false);
+  const [examDomainsLoadedFor, setExamDomainsLoadedFor] = useState<string | null>(null);
 
   useEffect(() => {
     loadExamRegistry().then((r) => {
@@ -76,16 +77,17 @@ export default function Scenarios() {
       if (exam.kind === 'skill-track') { setIsSkillTrack(true); navigate(`/skillup/${examId}`, { replace: true }); return; }
       setExamShortTitle(exam.shortTitle);
       setDomainTitles(Object.fromEntries(exam.domains.map((d) => [d.id, d.title])));
+      setExamDomainsLoadedFor(examId);
     }).catch(() => {});
   }, [examId, navigate]);
 
   useEffect(() => {
-    if (isSkillTrack) return;
+    if (isSkillTrack || examDomainsLoadedFor !== examId) return;
     setLoading(true); // eslint-disable-line react-hooks/set-state-in-effect
     loadScenariosForExam(examId)
       .then((s) => { setScenarios(s); setLoading(false); })
       .catch(() => setLoading(false));
-  }, [examId, isSkillTrack]);
+  }, [examId, isSkillTrack, examDomainsLoadedFor]);
 
   if (loading) return <p className="text-slate-500 text-sm animate-pulse">Loading scenarios…</p>;
 
