@@ -15,10 +15,10 @@
   },
   "usecases": {
     "repo": "ajeetchouksey/ajch_ai_usecases",
-    "sha": "4b561c4",
+    "sha": "718a1b6",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
     "schemaVersion": 1,
-    "promotedAt": "2026-09-07T11:03:31Z"
+    "promotedAt": "2026-09-07T11:13:25Z"
   },
   "hol-labs": {
     "repo": "ajeetchouksey/ajch_hol_labs",
