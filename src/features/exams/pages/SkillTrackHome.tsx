@@ -1,4 +1,4 @@
-import { useState, useCallback, Children, isValidElement, lazy, Suspense } from 'react';
+import { useState, useCallback, useEffect, Children, isValidElement, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -194,6 +194,53 @@ export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamCo
     });
   }, []);
 
+  // Active-section tracking for the quick-nav — "you are here" while
+  // scrolling, distinct from jumpToModule's "take me there" on click.
+  //
+  // NOT Notes.tsx's intersection-ratio approach: that's tuned for thin h2/h3
+  // heading markers, where "highest intersectionRatio" cleanly picks the one
+  // nearest the top. A module section here can be far taller than the
+  // viewport (a whole lesson list), so its own intersectionRatio against a
+  // narrow rootMargin band is tiny and not comparable across differently-
+  // sized modules (a short collapsed module vs. a tall expanded one would
+  // never compare fairly by ratio). Position-based instead: on scroll, find
+  // the last module (in document order) whose top has crossed above a fixed
+  // line near the top of `main` — the standard scrollspy technique for
+  // block-level sections rather than point-like markers.
+  const [activeModuleId, setActiveModuleId] = useState<string>('');
+  const ACTIVE_LINE_PX = 120;
+
+  useEffect(() => {
+    const mainEl = document.querySelector('main');
+    if (!mainEl) return;
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('[id^="module-"]'));
+    if (!sections.length) return;
+
+    const updateActive = () => {
+      const mainTop = mainEl.getBoundingClientRect().top;
+      let current = sections[0].id;
+      for (const el of sections) {
+        if (el.getBoundingClientRect().top - mainTop <= ACTIVE_LINE_PX) current = el.id;
+        else break;
+      }
+      setActiveModuleId(current.replace(/^module-/, ''));
+    };
+
+    // setTimeout, not requestAnimationFrame — rAF doesn't fire reliably in
+    // background tabs or headless Playwright (see platform-dev-expert.md's
+    // Known Failure Modes table); setTimeout(fn, 0) is this codebase's
+    // established fix for the same class of "never fires" bug.
+    let pending: ReturnType<typeof setTimeout> | undefined;
+    const onScroll = () => { clearTimeout(pending); pending = setTimeout(updateActive, 0); };
+    mainEl.addEventListener('scroll', onScroll, { passive: true });
+    updateActive();
+    return () => { mainEl.removeEventListener('scroll', onScroll); clearTimeout(pending); };
+    // modules.length: re-measure if the module list itself changes (new
+    // content); collapsing/expanding doesn't remove a module's own wrapper
+    // div (only its children), so collapse state isn't a dependency —
+    // updateActive() re-reads live layout on every scroll regardless.
+  }, [modules.length]);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -228,16 +275,24 @@ export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamCo
           <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-600 mr-1">
             <ListTree size={11} /> Jump to
           </span>
-          {modules.map((mod, i) => (
-            <button
-              key={mod.id}
-              type="button"
-              onClick={() => jumpToModule(mod.id)}
-              className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-slate-800/60 text-slate-400 border border-slate-700/50 hover:border-violet-500/50 hover:text-violet-300 transition-colors"
-            >
-              M{i + 1} · {mod.title}
-            </button>
-          ))}
+          {modules.map((mod, i) => {
+            const isActive = activeModuleId === mod.id;
+            return (
+              <button
+                key={mod.id}
+                type="button"
+                onClick={() => jumpToModule(mod.id)}
+                aria-current={isActive ? 'true' : undefined}
+                className={`text-[11px] font-medium px-2.5 py-1 rounded-full border transition-colors ${
+                  isActive
+                    ? 'bg-violet-500/15 text-violet-300 border-violet-500/50'
+                    : 'bg-slate-800/60 text-slate-400 border-slate-700/50 hover:border-violet-500/50 hover:text-violet-300'
+                }`}
+              >
+                M{i + 1} · {mod.title}
+              </button>
+            );
+          })}
         </div>
       )}
 
