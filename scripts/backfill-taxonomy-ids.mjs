@@ -143,14 +143,26 @@ function backfillUseCases(dir, knownIds, write, mentionMatcher) {
     }
   }
 
-  if (write) {
-    writeFileSync(sourceIntelPath, JSON.stringify(sourceIntel, null, 2) + '\n', 'utf-8');
-  }
-
   // Individual case files (cases/*.json) are a separate, richer detail copy
   // for a subset of use cases (see content-loader.ts's loadUseCaseById) —
   // must be updated independently, not derived from _source-intel.json.
   // These DO carry techStack, so taxonomyIds here is patterns ∪ tech mentions.
+  //
+  // build-content-intelligence.mjs's collectRelDocs() only ever reads
+  // _source-intel.json's featuredUseCases/catalogUseCases for the
+  // relationship engine — a case file whose id isn't in one of those two
+  // lists is invisible there no matter what its own taxonomyIds says.
+  // Verified against real data this isn't hypothetical: 4 real case files
+  // existed with no _source-intel.json entry at all (added directly as
+  // case files at some point, never synced back), silently excluding them
+  // from every relationship computed since. Track ids already known here so
+  // any case file missing from _source-intel.json gets a minimal summary
+  // entry appended, keeping the two in sync going forward.
+  const knownCaseIds = new Set(
+    [...(sourceIntel.featuredUseCases ?? []), ...(sourceIntel.catalogUseCases ?? [])].map((i) => i.id),
+  );
+  const newlyIndexed = [];
+
   if (existsSync(casesDir)) {
     for (const file of readdirSync(casesDir).filter((f) => f.endsWith('.json'))) {
       const path = join(casesDir, file);
@@ -166,7 +178,26 @@ function backfillUseCases(dir, knownIds, write, mentionMatcher) {
         item.taxonomyIds = taxonomyIds;
         writeFileSync(path, JSON.stringify(item, null, 2) + '\n', 'utf-8');
       }
+      if (!knownCaseIds.has(item.id)) {
+        console.log(`  ⚠ ${item.id}: not in _source-intel.json — adding a catalogUseCases summary entry`);
+        newlyIndexed.push({
+          id: item.id,
+          title: item.title,
+          vertical: item.vertical,
+          patterns: item.patterns ?? [],
+          taxonomyIds,
+        });
+      }
     }
+  }
+
+  if (newlyIndexed.length > 0) {
+    sourceIntel.catalogUseCases = [...(sourceIntel.catalogUseCases ?? []), ...newlyIndexed];
+    changed += newlyIndexed.length;
+  }
+
+  if (write) {
+    writeFileSync(sourceIntelPath, JSON.stringify(sourceIntel, null, 2) + '\n', 'utf-8');
   }
 
   return changed;
