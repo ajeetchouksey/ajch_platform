@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generated": "2026-09-07T11:05:53.909Z",
+  "generated": "2026-09-07T11:13:37.161Z",
   "edges": {
     "blog/the-degradation-ladder": [
       {
@@ -8,7 +8,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Agentic Architecture & Orchestration",
         "url": "/exams/ccaf/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "degradation-ladder"
         ],
@@ -19,7 +19,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Tool Design & MCP Integration",
         "url": "/exams/ccaf/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "degradation-ladder"
         ],
@@ -32,7 +32,7 @@
         "type": "blog",
         "title": "Your Retry Loop Is Not a Fallback Strategy",
         "url": "/blog/the-degradation-ladder",
-        "score": 4.472974190115413,
+        "score": 4.472789487120495,
         "sharedTaxonomyIds": [
           "degradation-ladder"
         ],
@@ -54,7 +54,7 @@
         "type": "blog",
         "title": "You're Wasting 60% of Your Context Window",
         "url": "/blog/context-budget-rule",
-        "score": 2.629097722025397,
+        "score": 2.628989158415917,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -65,7 +65,7 @@
         "type": "blog",
         "title": "The ADLC: A Software Engineering Discipline for AI Agents",
         "url": "/blog/adlc-engineering-discipline-for-ai-agents",
-        "score": 2.4094657339375516,
+        "score": 2.409366239614916,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -76,7 +76,7 @@
         "type": "blog",
         "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
         "url": "/blog/ai-architecture-blueprint-multi-agent-privacy-first",
-        "score": 2.354433460517815,
+        "score": 2.3543362386486493,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -87,7 +87,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 2.163186013103818,
+        "score": 2.1630966884356657,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -98,7 +98,7 @@
         "type": "blog",
         "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
         "url": "/blog/llm-observability",
-        "score": 2.0028392275063887,
+        "score": 2.0027565240549627,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -109,7 +109,7 @@
         "type": "blog",
         "title": "Agents Aren't a Feature — They're a New Execution Layer",
         "url": "/blog/agents-are-a-new-execution-layer",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -120,7 +120,7 @@
         "type": "blog",
         "title": "Securing Azure Network - 101",
         "url": "/blog/secnwaz",
-        "score": 1.6241598150555036e-8,
+        "score": 1.6240927484529894e-8,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -133,7 +133,7 @@
         "type": "blog",
         "title": "Your Retry Loop Is Not a Fallback Strategy",
         "url": "/blog/the-degradation-ladder",
-        "score": 4.472974190115413,
+        "score": 4.472789487120495,
         "sharedTaxonomyIds": [
           "degradation-ladder"
         ],
@@ -144,7 +144,7 @@
         "type": "blog",
         "title": "You're Wasting 60% of Your Context Window",
         "url": "/blog/context-budget-rule",
-        "score": 2.629097722025397,
+        "score": 2.628989158415917,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -155,7 +155,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 2.163186013103818,
+        "score": 2.1630966884356657,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -166,7 +166,7 @@
         "type": "blog",
         "title": "Agents Aren't a Feature — They're a New Execution Layer",
         "url": "/blog/agents-are-a-new-execution-layer",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -177,7 +177,7 @@
         "type": "blog",
         "title": "Securing Azure Network - 101",
         "url": "/blog/secnwaz",
-        "score": 1.6241598150555036e-8,
+        "score": 1.6240927484529894e-8,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -186,11 +186,55 @@
     ],
     "blog/microsoft-foundry-two-boundary-model": [
       {
+        "id": "usecase/contract-redline-playbook-agent",
+        "type": "usecase",
+        "title": "Contract Redline & Playbook Compliance Agent",
+        "url": "/usecases/contract-redline-playbook-agent",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/incident-postmortem-synthesis",
+        "type": "usecase",
+        "title": "Incident Postmortem Synthesis Agent",
+        "url": "/usecases/incident-postmortem-synthesis",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/insurance-claims-triage",
+        "type": "usecase",
+        "title": "FNOL Claims Intake Triage & Adjudication Support Agent",
+        "url": "/usecases/insurance-claims-triage",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/loan-application-underwriting",
+        "type": "usecase",
+        "title": "Loan Application Underwriting Agent",
+        "url": "/usecases/loan-application-underwriting",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
         "id": "exam/azure-ai-foundry/module-m1",
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Platform & Model Catalog",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -201,7 +245,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Building & Orchestrating AI Agents",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -212,7 +256,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -223,7 +267,7 @@
         "type": "lab",
         "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
         "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -234,7 +278,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -247,7 +291,7 @@
         "type": "lab",
         "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
         "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
-        "score": 8.239545010331158,
+        "score": 8.239204773930167,
         "sharedTaxonomyIds": [
           "azure-ai-foundry",
           "azure-openai",
@@ -260,10 +304,54 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 5.493030006887439,
+        "score": 5.492803182620111,
         "sharedTaxonomyIds": [
           "azure-ai-foundry",
           "prompt-flow"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/contract-redline-playbook-agent",
+        "type": "usecase",
+        "title": "Contract Redline & Playbook Compliance Agent",
+        "url": "/usecases/contract-redline-playbook-agent",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/incident-postmortem-synthesis",
+        "type": "usecase",
+        "title": "Incident Postmortem Synthesis Agent",
+        "url": "/usecases/incident-postmortem-synthesis",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/insurance-claims-triage",
+        "type": "usecase",
+        "title": "FNOL Claims Intake Triage & Adjudication Support Agent",
+        "url": "/usecases/insurance-claims-triage",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/loan-application-underwriting",
+        "type": "usecase",
+        "title": "Loan Application Underwriting Agent",
+        "url": "/usecases/loan-application-underwriting",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
         ],
         "why": null
       },
@@ -294,7 +382,7 @@
         "type": "blog",
         "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
         "url": "/blog/microsoft-foundry-two-boundary-model",
-        "score": 2.683784514069248,
+        "score": 2.683673692272297,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -305,18 +393,7 @@
         "type": "blog",
         "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
         "url": "/blog/what-is-a-vector-database",
-        "score": 2.1967640950412948,
-        "sharedTaxonomyIds": [
-          "rag"
-        ],
-        "why": null
-      },
-      {
-        "id": "blog/rag-vs-agentic-rag",
-        "type": "blog",
-        "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
-        "url": "/blog/rag-vs-agentic-rag",
-        "score": 2.163186013103818,
+        "score": 2.196673383829864,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -324,6 +401,50 @@
       }
     ],
     "exam/azure-ai-foundry/module-m2": [
+      {
+        "id": "usecase/contract-redline-playbook-agent",
+        "type": "usecase",
+        "title": "Contract Redline & Playbook Compliance Agent",
+        "url": "/usecases/contract-redline-playbook-agent",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/incident-postmortem-synthesis",
+        "type": "usecase",
+        "title": "Incident Postmortem Synthesis Agent",
+        "url": "/usecases/incident-postmortem-synthesis",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/insurance-claims-triage",
+        "type": "usecase",
+        "title": "FNOL Claims Intake Triage & Adjudication Support Agent",
+        "url": "/usecases/insurance-claims-triage",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/loan-application-underwriting",
+        "type": "usecase",
+        "title": "Loan Application Underwriting Agent",
+        "url": "/usecases/loan-application-underwriting",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
       {
         "id": "interview/q-rag-001",
         "type": "interview",
@@ -351,7 +472,7 @@
         "type": "lab",
         "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
         "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -362,7 +483,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -373,7 +494,7 @@
         "type": "blog",
         "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
         "url": "/blog/microsoft-foundry-two-boundary-model",
-        "score": 2.683784514069248,
+        "score": 2.683673692272297,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -384,18 +505,7 @@
         "type": "blog",
         "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
         "url": "/blog/what-is-a-vector-database",
-        "score": 2.1967640950412948,
-        "sharedTaxonomyIds": [
-          "rag"
-        ],
-        "why": null
-      },
-      {
-        "id": "blog/rag-vs-agentic-rag",
-        "type": "blog",
-        "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
-        "url": "/blog/rag-vs-agentic-rag",
-        "score": 2.163186013103818,
+        "score": 2.196673383829864,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -408,11 +518,55 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 8.239545010331158,
+        "score": 8.239204773930167,
         "sharedTaxonomyIds": [
           "azure-ai-foundry",
           "content-safety",
           "responsible-ai"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/contract-redline-playbook-agent",
+        "type": "usecase",
+        "title": "Contract Redline & Playbook Compliance Agent",
+        "url": "/usecases/contract-redline-playbook-agent",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/incident-postmortem-synthesis",
+        "type": "usecase",
+        "title": "Incident Postmortem Synthesis Agent",
+        "url": "/usecases/incident-postmortem-synthesis",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/insurance-claims-triage",
+        "type": "usecase",
+        "title": "FNOL Claims Intake Triage & Adjudication Support Agent",
+        "url": "/usecases/insurance-claims-triage",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/loan-application-underwriting",
+        "type": "usecase",
+        "title": "Loan Application Underwriting Agent",
+        "url": "/usecases/loan-application-underwriting",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
         ],
         "why": null
       },
@@ -454,7 +608,7 @@
         "type": "lab",
         "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
         "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -465,68 +619,22 @@
         "type": "blog",
         "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
         "url": "/blog/microsoft-foundry-two-boundary-model",
-        "score": 2.683784514069248,
+        "score": 2.683673692272297,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
         "why": null
-      },
-      {
-        "id": "blog/adlc-engineering-discipline-for-ai-agents",
-        "type": "blog",
-        "title": "The ADLC: A Software Engineering Discipline for AI Agents",
-        "url": "/blog/adlc-engineering-discipline-for-ai-agents",
-        "score": 2.4094657339375516,
-        "sharedTaxonomyIds": [
-          "observability"
-        ],
-        "why": null
-      },
-      {
-        "id": "blog/ai-architecture-blueprint-multi-agent-privacy-first",
-        "type": "blog",
-        "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
-        "url": "/blog/ai-architecture-blueprint-multi-agent-privacy-first",
-        "score": 2.354433460517815,
-        "sharedTaxonomyIds": [
-          "observability"
-        ],
-        "why": null
-      },
-      {
-        "id": "blog/llm-observability",
-        "type": "blog",
-        "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
-        "url": "/blog/llm-observability",
-        "score": 2.0028392275063887,
-        "sharedTaxonomyIds": [
-          "observability"
-        ],
-        "why": null
-      },
-      {
-        "id": "blog/guardrails-are-not-constraints",
-        "type": "blog",
-        "title": "Guardrails Are Not Constraints — They Are the Operating Model",
-        "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
-        "sharedTaxonomyIds": [
-          "responsible-ai"
-        ],
-        "why": null
       }
     ],
-    "lab/deploy-first-prompt-flow-azure-ai-foundry": [
+    "usecase/contract-redline-playbook-agent": [
       {
         "id": "exam/azure-ai-foundry/module-m1",
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Platform & Model Catalog",
         "url": "/skillup/azure-ai-foundry",
-        "score": 8.968003839822925,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
-          "azure-ai-foundry",
-          "azure-openai",
-          "prompt-flow"
+          "azure-ai-foundry"
         ],
         "why": null
       },
@@ -535,7 +643,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Building & Orchestrating AI Agents",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -546,7 +654,325 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "lab/deploy-first-prompt-flow-azure-ai-foundry",
+        "type": "lab",
+        "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
+        "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
+        "score": 2.7464015913100557,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "lab/wire-content-safety-foundry-endpoint",
+        "type": "lab",
+        "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
+        "url": "/hol-labs/wire-content-safety-foundry-endpoint",
+        "score": 2.7464015913100557,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/microsoft-foundry-two-boundary-model",
+        "type": "blog",
+        "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
+        "url": "/blog/microsoft-foundry-two-boundary-model",
+        "score": 2.683673692272297,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      }
+    ],
+    "usecase/incident-postmortem-synthesis": [
+      {
+        "id": "exam/azure-ai-foundry/module-m1",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Platform & Model Catalog",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 2.9892111743648897,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "exam/azure-ai-foundry/module-m2",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Building & Orchestrating AI Agents",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 2.9892111743648897,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "exam/azure-ai-foundry/module-m3",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 2.9892111743648897,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "lab/deploy-first-prompt-flow-azure-ai-foundry",
+        "type": "lab",
+        "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
+        "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
+        "score": 2.7464015913100557,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "lab/wire-content-safety-foundry-endpoint",
+        "type": "lab",
+        "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
+        "url": "/hol-labs/wire-content-safety-foundry-endpoint",
+        "score": 2.7464015913100557,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/microsoft-foundry-two-boundary-model",
+        "type": "blog",
+        "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
+        "url": "/blog/microsoft-foundry-two-boundary-model",
+        "score": 2.683673692272297,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      }
+    ],
+    "usecase/insurance-claims-triage": [
+      {
+        "id": "exam/azure-ai-foundry/module-m1",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Platform & Model Catalog",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 2.9892111743648897,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "exam/azure-ai-foundry/module-m2",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Building & Orchestrating AI Agents",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 2.9892111743648897,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "exam/azure-ai-foundry/module-m3",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 2.9892111743648897,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "lab/deploy-first-prompt-flow-azure-ai-foundry",
+        "type": "lab",
+        "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
+        "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
+        "score": 2.7464015913100557,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "lab/wire-content-safety-foundry-endpoint",
+        "type": "lab",
+        "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
+        "url": "/hol-labs/wire-content-safety-foundry-endpoint",
+        "score": 2.7464015913100557,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/microsoft-foundry-two-boundary-model",
+        "type": "blog",
+        "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
+        "url": "/blog/microsoft-foundry-two-boundary-model",
+        "score": 2.683673692272297,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      }
+    ],
+    "usecase/loan-application-underwriting": [
+      {
+        "id": "exam/azure-ai-foundry/module-m1",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Platform & Model Catalog",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 2.9892111743648897,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "exam/azure-ai-foundry/module-m2",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Building & Orchestrating AI Agents",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 2.9892111743648897,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "exam/azure-ai-foundry/module-m3",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 2.9892111743648897,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "lab/deploy-first-prompt-flow-azure-ai-foundry",
+        "type": "lab",
+        "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
+        "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
+        "score": 2.7464015913100557,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "lab/wire-content-safety-foundry-endpoint",
+        "type": "lab",
+        "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
+        "url": "/hol-labs/wire-content-safety-foundry-endpoint",
+        "score": 2.7464015913100557,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "blog/microsoft-foundry-two-boundary-model",
+        "type": "blog",
+        "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
+        "url": "/blog/microsoft-foundry-two-boundary-model",
+        "score": 2.683673692272297,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      }
+    ],
+    "lab/deploy-first-prompt-flow-azure-ai-foundry": [
+      {
+        "id": "exam/azure-ai-foundry/module-m1",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Platform & Model Catalog",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 8.967633523094669,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry",
+          "azure-openai",
+          "prompt-flow"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/contract-redline-playbook-agent",
+        "type": "usecase",
+        "title": "Contract Redline & Playbook Compliance Agent",
+        "url": "/usecases/contract-redline-playbook-agent",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/incident-postmortem-synthesis",
+        "type": "usecase",
+        "title": "Incident Postmortem Synthesis Agent",
+        "url": "/usecases/incident-postmortem-synthesis",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/insurance-claims-triage",
+        "type": "usecase",
+        "title": "FNOL Claims Intake Triage & Adjudication Support Agent",
+        "url": "/usecases/insurance-claims-triage",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/loan-application-underwriting",
+        "type": "usecase",
+        "title": "Loan Application Underwriting Agent",
+        "url": "/usecases/loan-application-underwriting",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "exam/azure-ai-foundry/module-m2",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Building & Orchestrating AI Agents",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 2.9892111743648897,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "exam/azure-ai-foundry/module-m3",
+        "type": "exam",
+        "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
+        "url": "/skillup/azure-ai-foundry",
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -557,7 +983,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Design AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "prompt-flow"
         ],
@@ -568,7 +994,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Deploy AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "azure-openai"
         ],
@@ -579,7 +1005,7 @@
         "type": "blog",
         "title": "Microsoft Foundry Has Two Boundaries. Most Teams Only Use One.",
         "url": "/blog/microsoft-foundry-two-boundary-model",
-        "score": 2.683784514069248,
+        "score": 2.683673692272297,
         "sharedTaxonomyIds": [
           "azure-ai-foundry"
         ],
@@ -592,7 +1018,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
         "url": "/skillup/azure-ai-foundry",
-        "score": 8.968003839822925,
+        "score": 8.967633523094669,
         "sharedTaxonomyIds": [
           "azure-ai-foundry",
           "content-safety",
@@ -605,7 +1031,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Platform & Model Catalog",
         "url": "/skillup/azure-ai-foundry",
-        "score": 5.978669226548616,
+        "score": 5.978422348729779,
         "sharedTaxonomyIds": [
           "azure-ai-foundry",
           "prompt-flow"
@@ -617,7 +1043,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Plan AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 5.752818042690561,
+        "score": 5.752580490968477,
         "sharedTaxonomyIds": [
           "responsible-ai",
           "content-safety"
@@ -629,7 +1055,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Deploy AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 5.752818042690561,
+        "score": 5.752580490968477,
         "sharedTaxonomyIds": [
           "content-safety",
           "responsible-ai"
@@ -641,10 +1067,54 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Responsible AI & Lifecycle Governance",
         "url": "/exams/ab100/notes",
-        "score": 5.752818042690561,
+        "score": 5.752580490968477,
         "sharedTaxonomyIds": [
           "responsible-ai",
           "content-safety"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/contract-redline-playbook-agent",
+        "type": "usecase",
+        "title": "Contract Redline & Playbook Compliance Agent",
+        "url": "/usecases/contract-redline-playbook-agent",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/incident-postmortem-synthesis",
+        "type": "usecase",
+        "title": "Incident Postmortem Synthesis Agent",
+        "url": "/usecases/incident-postmortem-synthesis",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/insurance-claims-triage",
+        "type": "usecase",
+        "title": "FNOL Claims Intake Triage & Adjudication Support Agent",
+        "url": "/usecases/insurance-claims-triage",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
+        ],
+        "why": null
+      },
+      {
+        "id": "usecase/loan-application-underwriting",
+        "type": "usecase",
+        "title": "Loan Application Underwriting Agent",
+        "url": "/usecases/loan-application-underwriting",
+        "score": 3,
+        "sharedTaxonomyIds": [
+          "azure-ai-foundry"
         ],
         "why": null
       },
@@ -654,50 +1124,6 @@
         "title": "You need sign-off from HR leadership, a Works Council, Data Privacy, and Cyber Security to launch an HR AI pilot. Walk through how you approach it.",
         "url": "/roleprep/q/q-hr-stakeholder-001",
         "score": 3,
-        "sharedTaxonomyIds": [
-          "responsible-ai"
-        ],
-        "why": null
-      },
-      {
-        "id": "interview/q-hr-responsible-ai-001",
-        "type": "interview",
-        "title": "What makes responsible AI especially hard in HR use cases â€” hiring decisions, performance scoring, workforce analytics â€” compared to other enterprise domains?",
-        "url": "/roleprep/q/q-hr-responsible-ai-001",
-        "score": 3,
-        "sharedTaxonomyIds": [
-          "responsible-ai"
-        ],
-        "why": null
-      },
-      {
-        "id": "exam/azure-ai-foundry/module-m2",
-        "type": "exam",
-        "title": "Azure AI Foundry Practitioner — Building & Orchestrating AI Agents",
-        "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
-        "sharedTaxonomyIds": [
-          "azure-ai-foundry"
-        ],
-        "why": null
-      },
-      {
-        "id": "exam/ab100/domain-2",
-        "type": "exam",
-        "title": "Agentic AI Business Solutions Architect Expert — Design AI-Powered Business Solutions",
-        "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
-        "sharedTaxonomyIds": [
-          "prompt-flow"
-        ],
-        "why": null
-      },
-      {
-        "id": "exam/ab731/domain-1",
-        "type": "exam",
-        "title": "Microsoft Certified: AI Transformation Leader — Business Value of Generative AI",
-        "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -721,7 +1147,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -732,7 +1158,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Agentic Architecture & Orchestration",
         "url": "/exams/ccaf/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -743,7 +1169,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Integration",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -754,7 +1180,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Evaluation, Testing & Optimization",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -765,7 +1191,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Developer Productivity & Operational Enablement",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -776,7 +1202,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Prepare Agent Architecture and SDLC Processes",
         "url": "/exams/gh600/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -787,7 +1213,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Orchestrate Multi-Agent Coordination",
         "url": "/exams/gh600/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -811,7 +1237,7 @@
         "type": "blog",
         "title": "You're Wasting 60% of Your Context Window",
         "url": "/blog/context-budget-rule",
-        "score": 2.629097722025397,
+        "score": 2.628989158415917,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -822,7 +1248,7 @@
         "type": "blog",
         "title": "The ADLC: A Software Engineering Discipline for AI Agents",
         "url": "/blog/adlc-engineering-discipline-for-ai-agents",
-        "score": 2.4094657339375516,
+        "score": 2.409366239614916,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -833,7 +1259,7 @@
         "type": "blog",
         "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
         "url": "/blog/ai-architecture-blueprint-multi-agent-privacy-first",
-        "score": 2.354433460517815,
+        "score": 2.3543362386486493,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -844,7 +1270,7 @@
         "type": "blog",
         "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
         "url": "/blog/llm-observability",
-        "score": 2.0028392275063887,
+        "score": 2.0027565240549627,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -868,7 +1294,7 @@
         "type": "blog",
         "title": "The ADLC: A Software Engineering Discipline for AI Agents",
         "url": "/blog/adlc-engineering-discipline-for-ai-agents",
-        "score": 2.4094657339375516,
+        "score": 2.409366239614916,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -879,7 +1305,7 @@
         "type": "blog",
         "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
         "url": "/blog/ai-architecture-blueprint-multi-agent-privacy-first",
-        "score": 2.354433460517815,
+        "score": 2.3543362386486493,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -890,7 +1316,7 @@
         "type": "blog",
         "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
         "url": "/blog/llm-observability",
-        "score": 2.0028392275063887,
+        "score": 2.0027565240549627,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -914,7 +1340,7 @@
         "type": "blog",
         "title": "You're Wasting 60% of Your Context Window",
         "url": "/blog/context-budget-rule",
-        "score": 2.629097722025397,
+        "score": 2.628989158415917,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -925,7 +1351,7 @@
         "type": "blog",
         "title": "The ADLC: A Software Engineering Discipline for AI Agents",
         "url": "/blog/adlc-engineering-discipline-for-ai-agents",
-        "score": 2.4094657339375516,
+        "score": 2.409366239614916,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -936,7 +1362,7 @@
         "type": "blog",
         "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
         "url": "/blog/ai-architecture-blueprint-multi-agent-privacy-first",
-        "score": 2.354433460517815,
+        "score": 2.3543362386486493,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -947,7 +1373,7 @@
         "type": "blog",
         "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
         "url": "/blog/llm-observability",
-        "score": 2.0028392275063887,
+        "score": 2.0027565240549627,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -971,7 +1397,7 @@
         "type": "blog",
         "title": "The ADLC: A Software Engineering Discipline for AI Agents",
         "url": "/blog/adlc-engineering-discipline-for-ai-agents",
-        "score": 2.4094657339375516,
+        "score": 2.409366239614916,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -982,7 +1408,7 @@
         "type": "blog",
         "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
         "url": "/blog/ai-architecture-blueprint-multi-agent-privacy-first",
-        "score": 2.354433460517815,
+        "score": 2.3543362386486493,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -993,7 +1419,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 2.163186013103818,
+        "score": 2.1630966884356657,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -1004,7 +1430,7 @@
         "type": "blog",
         "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
         "url": "/blog/llm-observability",
-        "score": 2.0028392275063887,
+        "score": 2.0027565240549627,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1015,7 +1441,7 @@
         "type": "blog",
         "title": "Agents Aren't a Feature — They're a New Execution Layer",
         "url": "/blog/agents-are-a-new-execution-layer",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -1026,7 +1452,7 @@
         "type": "blog",
         "title": "Securing Azure Network - 101",
         "url": "/blog/secnwaz",
-        "score": 1.6241598150555036e-8,
+        "score": 1.6240927484529894e-8,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -1050,7 +1476,7 @@
         "type": "blog",
         "title": "The ADLC: A Software Engineering Discipline for AI Agents",
         "url": "/blog/adlc-engineering-discipline-for-ai-agents",
-        "score": 2.4094657339375516,
+        "score": 2.409366239614916,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1061,7 +1487,7 @@
         "type": "blog",
         "title": "The AI Architecture Blueprint: Designing Production-Ready, Multi-Agent, Privacy-First Systems",
         "url": "/blog/ai-architecture-blueprint-multi-agent-privacy-first",
-        "score": 2.354433460517815,
+        "score": 2.3543362386486493,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1072,7 +1498,7 @@
         "type": "blog",
         "title": "Observability for LLMs: Logs, Traces, and the Token Meter",
         "url": "/blog/llm-observability",
-        "score": 2.0028392275063887,
+        "score": 2.0027565240549627,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1085,7 +1511,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Platform & Model Catalog",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1096,7 +1522,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Building & Orchestrating AI Agents",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1107,7 +1533,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1118,7 +1544,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Plan AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1129,7 +1555,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Design AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1140,7 +1566,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Deploy AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1151,7 +1577,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Business Value of Generative AI",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1162,7 +1588,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Microsoft AI Apps & Services",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1173,7 +1599,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Agentic Architecture & Orchestration",
         "url": "/exams/ccaf/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1184,7 +1610,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Integration",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1208,7 +1634,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1219,7 +1645,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Agentic Architecture & Orchestration",
         "url": "/exams/ccaf/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1230,7 +1656,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Integration",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1241,7 +1667,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Evaluation, Testing & Optimization",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1252,7 +1678,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Developer Productivity & Operational Enablement",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1263,7 +1689,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Prepare Agent Architecture and SDLC Processes",
         "url": "/exams/gh600/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1274,7 +1700,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Orchestrate Multi-Agent Coordination",
         "url": "/exams/gh600/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -1287,7 +1713,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Plan AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 5.752818042690561,
+        "score": 5.752580490968477,
         "sharedTaxonomyIds": [
           "rag",
           "enterprise-ai"
@@ -1321,7 +1747,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Platform & Model Catalog",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1332,7 +1758,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Building & Orchestrating AI Agents",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1343,7 +1769,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Design AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1354,7 +1780,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Deploy AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1365,7 +1791,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Business Value of Generative AI",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1376,7 +1802,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Microsoft AI Apps & Services",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1387,7 +1813,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Governance, Safety & Risk Management",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1400,7 +1826,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 6.489558039311454,
+        "score": 6.489290065306998,
         "sharedTaxonomyIds": [
           "rag",
           "enterprise-ai",
@@ -1413,7 +1839,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 5.493030006887439,
+        "score": 5.492803182620111,
         "sharedTaxonomyIds": [
           "responsible-ai",
           "content-safety"
@@ -1425,7 +1851,7 @@
         "type": "blog",
         "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
         "url": "/blog/what-is-a-vector-database",
-        "score": 4.3935281900825895,
+        "score": 4.393346767659728,
         "sharedTaxonomyIds": [
           "rag",
           "enterprise-ai"
@@ -1481,7 +1907,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -1492,7 +1918,7 @@
         "type": "blog",
         "title": "Agents Aren't a Feature — They're a New Execution Layer",
         "url": "/blog/agents-are-a-new-execution-layer",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -1503,7 +1929,7 @@
         "type": "blog",
         "title": "Securing Azure Network - 101",
         "url": "/blog/secnwaz",
-        "score": 1.6241598150555036e-8,
+        "score": 1.6240927484529894e-8,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -1516,7 +1942,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 5.768496034943515,
+        "score": 5.768257835828442,
         "sharedTaxonomyIds": [
           "rag",
           "agentic-execution-layer"
@@ -1550,7 +1976,7 @@
         "type": "lab",
         "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
         "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "prompt-flow"
         ],
@@ -1561,7 +1987,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "prompt-flow"
         ],
@@ -1572,7 +1998,7 @@
         "type": "blog",
         "title": "You're Wasting 60% of Your Context Window",
         "url": "/blog/context-budget-rule",
-        "score": 2.629097722025397,
+        "score": 2.628989158415917,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -1583,7 +2009,7 @@
         "type": "blog",
         "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
         "url": "/blog/what-is-a-vector-database",
-        "score": 2.1967640950412948,
+        "score": 2.196673383829864,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1596,7 +2022,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 5.493030006887439,
+        "score": 5.492803182620111,
         "sharedTaxonomyIds": [
           "content-safety",
           "responsible-ai"
@@ -1652,7 +2078,7 @@
         "type": "lab",
         "title": "Deploy Your First Prompt Flow in Azure AI Foundry",
         "url": "/hol-labs/deploy-first-prompt-flow-azure-ai-foundry",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "azure-openai"
         ],
@@ -1663,7 +2089,7 @@
         "type": "blog",
         "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
         "url": "/blog/what-is-a-vector-database",
-        "score": 2.1967640950412948,
+        "score": 2.196673383829864,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1674,7 +2100,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 2.163186013103818,
+        "score": 2.1630966884356657,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1685,7 +2111,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -1698,7 +2124,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 5.768496034943515,
+        "score": 5.768257835828442,
         "sharedTaxonomyIds": [
           "rag",
           "agentic-execution-layer"
@@ -1754,7 +2180,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -1765,7 +2191,7 @@
         "type": "blog",
         "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
         "url": "/blog/what-is-a-vector-database",
-        "score": 2.1967640950412948,
+        "score": 2.196673383829864,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1776,7 +2202,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -1811,7 +2237,7 @@
         "type": "blog",
         "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
         "url": "/blog/what-is-a-vector-database",
-        "score": 2.1967640950412948,
+        "score": 2.196673383829864,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1822,7 +2248,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 2.163186013103818,
+        "score": 2.1630966884356657,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1868,7 +2294,7 @@
         "type": "blog",
         "title": "When Your Burger Bot Goes Rogue: A Production Wake-Up Call",
         "url": "/blog/order-bot-domain-boundary",
-        "score": 2.6089271430220453,
+        "score": 2.608819412318411,
         "sharedTaxonomyIds": [
           "domain-boundary"
         ],
@@ -1879,7 +2305,7 @@
         "type": "blog",
         "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
         "url": "/blog/what-is-a-vector-database",
-        "score": 2.1967640950412948,
+        "score": 2.196673383829864,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1890,7 +2316,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 2.163186013103818,
+        "score": 2.1630966884356657,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1903,7 +2329,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Platform & Model Catalog",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1914,7 +2340,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Building & Orchestrating AI Agents",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1925,7 +2351,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Plan AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1936,7 +2362,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Design AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1947,7 +2373,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Deploy AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1958,7 +2384,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Business Value of Generative AI",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1969,7 +2395,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Microsoft AI Apps & Services",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1980,7 +2406,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Governance, Safety & Risk Management",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -1991,7 +2417,7 @@
         "type": "blog",
         "title": "What is a Vector Database? The Memory Layer Behind Modern AI",
         "url": "/blog/what-is-a-vector-database",
-        "score": 2.1967640950412948,
+        "score": 2.196673383829864,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -2002,7 +2428,7 @@
         "type": "blog",
         "title": "RAG vs Agentic RAG: From Search & Answer to Reason & Act",
         "url": "/blog/rag-vs-agentic-rag",
-        "score": 2.163186013103818,
+        "score": 2.1630966884356657,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -2015,7 +2441,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Plan AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 8.629227064035842,
+        "score": 8.628870736452715,
         "sharedTaxonomyIds": [
           "rag",
           "enterprise-ai",
@@ -2028,7 +2454,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Design AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 7.670424056920748,
+        "score": 7.670107321291302,
         "sharedTaxonomyIds": [
           "rag",
           "agentic-execution-layer"
@@ -2040,7 +2466,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Business Value of Generative AI",
         "url": "/exams/ab731/notes",
-        "score": 7.670424056920748,
+        "score": 7.670107321291302,
         "sharedTaxonomyIds": [
           "rag",
           "agentic-execution-layer"
@@ -2074,7 +2500,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Platform & Model Catalog",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -2085,7 +2511,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Building & Orchestrating AI Agents",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -2096,7 +2522,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Deploy AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -2107,7 +2533,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Microsoft AI Apps & Services",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "rag"
         ],
@@ -2118,7 +2544,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Agentic Architecture & Orchestration",
         "url": "/exams/ccaf/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -2142,7 +2568,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -2153,7 +2579,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Agentic Architecture & Orchestration",
         "url": "/exams/ccaf/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -2164,7 +2590,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Integration",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -2175,7 +2601,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Evaluation, Testing & Optimization",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -2186,7 +2612,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Developer Productivity & Operational Enablement",
         "url": "/exams/ccap/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -2197,7 +2623,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Prepare Agent Architecture and SDLC Processes",
         "url": "/exams/gh600/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -2208,7 +2634,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Orchestrate Multi-Agent Coordination",
         "url": "/exams/gh600/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "observability"
         ],
@@ -2221,7 +2647,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Design AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2232,7 +2658,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Agentic Architecture & Orchestration",
         "url": "/exams/ccaf/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2243,7 +2669,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Claude Code Configuration & Workflows",
         "url": "/exams/ccaf/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2254,7 +2680,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Prompt Engineering & Structured Output",
         "url": "/exams/ccaf/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2265,7 +2691,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Tool Design & MCP Integration",
         "url": "/exams/ccaf/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2276,7 +2702,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Context Management & Reliability",
         "url": "/exams/ccaf/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2287,7 +2713,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Claude Models, Prompting & Context Engineering",
         "url": "/exams/ccap/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2298,7 +2724,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Integration",
         "url": "/exams/ccap/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2309,7 +2735,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Developer Productivity & Operational Enablement",
         "url": "/exams/ccap/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2320,7 +2746,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Manage Memory, State, and Execution",
         "url": "/exams/gh600/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2333,7 +2759,7 @@
         "type": "blog",
         "title": "You're Wasting 60% of Your Context Window",
         "url": "/blog/context-budget-rule",
-        "score": 2.629097722025397,
+        "score": 2.628989158415917,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2346,7 +2772,7 @@
         "type": "blog",
         "title": "You're Wasting 60% of Your Context Window",
         "url": "/blog/context-budget-rule",
-        "score": 2.629097722025397,
+        "score": 2.628989158415917,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2359,7 +2785,7 @@
         "type": "blog",
         "title": "You're Wasting 60% of Your Context Window",
         "url": "/blog/context-budget-rule",
-        "score": 2.629097722025397,
+        "score": 2.628989158415917,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2383,7 +2809,7 @@
         "type": "blog",
         "title": "You're Wasting 60% of Your Context Window",
         "url": "/blog/context-budget-rule",
-        "score": 2.629097722025397,
+        "score": 2.628989158415917,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2394,7 +2820,7 @@
         "type": "blog",
         "title": "When Your Burger Bot Goes Rogue: A Production Wake-Up Call",
         "url": "/blog/order-bot-domain-boundary",
-        "score": 2.6089271430220453,
+        "score": 2.608819412318411,
         "sharedTaxonomyIds": [
           "domain-boundary"
         ],
@@ -2407,7 +2833,7 @@
         "type": "blog",
         "title": "You're Wasting 60% of Your Context Window",
         "url": "/blog/context-budget-rule",
-        "score": 2.629097722025397,
+        "score": 2.628989158415917,
         "sharedTaxonomyIds": [
           "context-budget-rule"
         ],
@@ -2431,7 +2857,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Claude Models, Prompting & Context Engineering",
         "url": "/exams/ccap/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "domain-boundary"
         ],
@@ -2442,7 +2868,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Governance, Safety & Risk Management",
         "url": "/exams/ccap/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "domain-boundary"
         ],
@@ -2453,7 +2879,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Implement Guardrails and Accountability",
         "url": "/exams/gh600/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "domain-boundary"
         ],
@@ -2499,7 +2925,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2510,7 +2936,7 @@
         "type": "blog",
         "title": "When Your Burger Bot Goes Rogue: A Production Wake-Up Call",
         "url": "/blog/order-bot-domain-boundary",
-        "score": 2.6089271430220453,
+        "score": 2.608819412318411,
         "sharedTaxonomyIds": [
           "domain-boundary"
         ],
@@ -2521,7 +2947,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2534,7 +2960,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Claude Models, Prompting & Context Engineering",
         "url": "/exams/ccap/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "domain-boundary"
         ],
@@ -2545,7 +2971,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Professional — Governance, Safety & Risk Management",
         "url": "/exams/ccap/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "domain-boundary"
         ],
@@ -2556,7 +2982,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Implement Guardrails and Accountability",
         "url": "/exams/gh600/notes",
-        "score": 4.794015035575468,
+        "score": 4.7938170758070635,
         "sharedTaxonomyIds": [
           "domain-boundary"
         ],
@@ -2567,7 +2993,7 @@
         "type": "blog",
         "title": "When Your Burger Bot Goes Rogue: A Production Wake-Up Call",
         "url": "/blog/order-bot-domain-boundary",
-        "score": 2.6089271430220453,
+        "score": 2.608819412318411,
         "sharedTaxonomyIds": [
           "domain-boundary"
         ],
@@ -2602,7 +3028,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2613,7 +3039,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Plan AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2624,7 +3050,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Deploy AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2635,7 +3061,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Responsible AI & Lifecycle Governance",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2646,7 +3072,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Business Value of Generative AI",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2657,7 +3083,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Implementation & Adoption Strategy",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2668,7 +3094,7 @@
         "type": "exam",
         "title": "GitHub Copilot Fundamentals — Prompt Engineering & Copilot Chat",
         "url": "/exams/gh300/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2679,7 +3105,7 @@
         "type": "exam",
         "title": "GitHub Copilot Fundamentals — AI Model, Data Pipeline & Core Concepts",
         "url": "/exams/gh300/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2692,7 +3118,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 5.493030006887439,
+        "score": 5.492803182620111,
         "sharedTaxonomyIds": [
           "responsible-ai",
           "content-safety"
@@ -2726,7 +3152,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2737,7 +3163,7 @@
         "type": "blog",
         "title": "Azure VNET provisioning using CLI",
         "url": "/blog/azurevnetusingcli",
-        "score": 1.8360291886277874e-11,
+        "score": 1.8359533732808885e-11,
         "sharedTaxonomyIds": [
           "vnet"
         ],
@@ -2748,7 +3174,7 @@
         "type": "blog",
         "title": "IaC - 101 - VNET",
         "url": "/blog/iac-vnet",
-        "score": 2.422161173907282e-12,
+        "score": 2.4220611553505065e-12,
         "sharedTaxonomyIds": [
           "vnet"
         ],
@@ -2783,7 +3209,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2794,7 +3220,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2829,7 +3255,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2840,7 +3266,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2875,7 +3301,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2886,7 +3312,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2921,7 +3347,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2932,7 +3358,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2967,7 +3393,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -2978,7 +3404,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3013,7 +3439,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3024,7 +3450,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3059,7 +3485,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3070,7 +3496,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3105,7 +3531,7 @@
         "type": "lab",
         "title": "Wire Azure AI Content Safety into a Foundry-Hosted Endpoint",
         "url": "/hol-labs/wire-content-safety-foundry-endpoint",
-        "score": 2.7465150034437196,
+        "score": 2.7464015913100557,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3116,7 +3542,7 @@
         "type": "blog",
         "title": "Guardrails Are Not Constraints — They Are the Operating Model",
         "url": "/blog/guardrails-are-not-constraints",
-        "score": 1.301183465733275,
+        "score": 1.301129735827212,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3129,7 +3555,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3140,7 +3566,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Plan AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3151,7 +3577,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Deploy AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3162,7 +3588,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Responsible AI & Lifecycle Governance",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3173,7 +3599,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Business Value of Generative AI",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3184,7 +3610,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Implementation & Adoption Strategy",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3195,7 +3621,7 @@
         "type": "exam",
         "title": "GitHub Copilot Fundamentals — Prompt Engineering & Copilot Chat",
         "url": "/exams/gh300/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3206,7 +3632,7 @@
         "type": "exam",
         "title": "GitHub Copilot Fundamentals — AI Model, Data Pipeline & Core Concepts",
         "url": "/exams/gh300/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3217,7 +3643,7 @@
         "type": "exam",
         "title": "GitHub Copilot Fundamentals — Privacy, Security & Trust Center",
         "url": "/exams/gh300/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3228,7 +3654,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Implement Guardrails and Accountability",
         "url": "/exams/gh600/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3241,7 +3667,7 @@
         "type": "exam",
         "title": "Azure AI Foundry Practitioner — Responsible AI, Security & Operations",
         "url": "/skillup/azure-ai-foundry",
-        "score": 2.989334613274308,
+        "score": 2.9892111743648897,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3252,7 +3678,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Plan AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3263,7 +3689,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Deploy AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3274,7 +3700,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Responsible AI & Lifecycle Governance",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3285,7 +3711,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Business Value of Generative AI",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3296,7 +3722,7 @@
         "type": "exam",
         "title": "Microsoft Certified: AI Transformation Leader — Implementation & Adoption Strategy",
         "url": "/exams/ab731/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3307,7 +3733,7 @@
         "type": "exam",
         "title": "GitHub Copilot Fundamentals — Prompt Engineering & Copilot Chat",
         "url": "/exams/gh300/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3318,7 +3744,7 @@
         "type": "exam",
         "title": "GitHub Copilot Fundamentals — AI Model, Data Pipeline & Core Concepts",
         "url": "/exams/gh300/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3329,7 +3755,7 @@
         "type": "exam",
         "title": "GitHub Copilot Fundamentals — Privacy, Security & Trust Center",
         "url": "/exams/gh300/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3340,7 +3766,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Implement Guardrails and Accountability",
         "url": "/exams/gh600/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "responsible-ai"
         ],
@@ -3353,7 +3779,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Plan AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -3364,7 +3790,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Agentic Architecture & Orchestration",
         "url": "/exams/ccaf/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -3375,7 +3801,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Tool Design & MCP Integration",
         "url": "/exams/ccaf/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -3386,7 +3812,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Prepare Agent Architecture and SDLC Processes",
         "url": "/exams/gh600/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -3399,7 +3825,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Plan AI-Powered Business Solutions",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -3410,7 +3836,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Agentic Architecture & Orchestration",
         "url": "/exams/ccaf/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -3421,7 +3847,7 @@
         "type": "exam",
         "title": "Claude Certified Architect – Foundations — Tool Design & MCP Integration",
         "url": "/exams/ccaf/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -3432,7 +3858,7 @@
         "type": "exam",
         "title": "GitHub Certified: Agentic AI Developer — Prepare Agent Architecture and SDLC Processes",
         "url": "/exams/gh600/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "architecture"
         ],
@@ -3445,7 +3871,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Responsible AI & Lifecycle Governance",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "vnet"
         ],
@@ -3458,7 +3884,7 @@
         "type": "exam",
         "title": "GitHub Engineering Best Practices — GitHub Actions & CI/CD",
         "url": "/exams/ghbp/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "configuration-management"
         ],
@@ -3471,7 +3897,7 @@
         "type": "blog",
         "title": "PowerShell DSC - Part 2",
         "url": "/blog/dscconfiguration101",
-        "score": 3.5055193551184783e-12,
+        "score": 3.5053746013380837e-12,
         "sharedTaxonomyIds": [
           "configuration-management"
         ],
@@ -3482,7 +3908,7 @@
         "type": "blog",
         "title": "PowerShell DSC - Part 1",
         "url": "/blog/psdsc",
-        "score": 1.3080393825226933e-12,
+        "score": 1.3079853695145357e-12,
         "sharedTaxonomyIds": [
           "configuration-management"
         ],
@@ -3495,7 +3921,7 @@
         "type": "exam",
         "title": "Agentic AI Business Solutions Architect Expert — Responsible AI & Lifecycle Governance",
         "url": "/exams/ab100/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "vnet"
         ],
@@ -3508,7 +3934,7 @@
         "type": "exam",
         "title": "GitHub Engineering Best Practices — GitHub Actions & CI/CD",
         "url": "/exams/ghbp/notes",
-        "score": 2.8764090213452804,
+        "score": 2.8762902454842383,
         "sharedTaxonomyIds": [
           "configuration-management"
         ],
