@@ -15,7 +15,9 @@ import PageViewsBadge from '@/components/PageViewsBadge';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationships } from '@/lib/useRelationships';
 import { loadLessonNote } from '@/lib/content-loader';
-import { TermTooltip, lookupGlossaryTerm } from '@/components/GlossaryTerm';
+import { TermTooltip } from '@/components/GlossaryTerm';
+import { useGlossary } from '@/lib/useGlossary';
+import { lookupGlossaryTerm } from '@/lib/glossary';
 import { getFocusTimer, setFocusTimer } from '@/lib/study-tracker';
 import type { FocusTimer } from '@/lib/study-tracker';
 import type { ExamConfig, SkillTrackModule, SkillTrackLesson, KnowledgeCheckQuestion } from '@/types/content';
@@ -65,6 +67,7 @@ function LessonCard({ lesson }: { lesson: SkillTrackLesson }) {
   const [notes, setNotes] = useState<string | null>(null);
   const [loadingNotes, setLoadingNotes] = useState(false);
   const [checkOpen, setCheckOpen] = useState(false);
+  const glossary = useGlossary();
 
   const toggleNotes = useCallback(() => {
     setNotesOpen((o) => !o);
@@ -154,8 +157,8 @@ function LessonCard({ lesson }: { lesson: SkillTrackLesson }) {
                     return <code className={`${className} block`} {...props}>{children}</code>;
                   }
                   const text = String(children).trim();
-                  const def = lookupGlossaryTerm(text);
-                  if (def) return <TermTooltip term={text} definition={def} />;
+                  const entry = glossary && lookupGlossaryTerm(glossary, text);
+                  if (entry) return <TermTooltip entry={entry} />;
                   return <code className={className} {...props}>{children}</code>;
                 },
               }}

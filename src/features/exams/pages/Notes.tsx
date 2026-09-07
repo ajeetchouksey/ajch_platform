@@ -21,7 +21,9 @@ import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordH
 import { StudyWithAI } from '@/components/StudyWithAI';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationships } from '@/lib/useRelationships';
-import { TermTooltip, lookupGlossaryTerm } from '@/components/GlossaryTerm';
+import { TermTooltip } from '@/components/GlossaryTerm';
+import { useGlossary } from '@/lib/useGlossary';
+import { lookupGlossaryTerm } from '@/lib/glossary';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -116,6 +118,7 @@ export default function Notes() {
   const domain = Number(searchParams.get('d')) || 1;
   const [isSkillTrack, setIsSkillTrack] = useState(false);
   const computedRelated = useRelationships(`exam/${examId}/domain-${domain}`);
+  const glossary = useGlossary();
   const [{ loading, content, error }, dispatch] = useReducer(contentReducer, { loading: false, content: '', error: null });
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
@@ -669,8 +672,8 @@ export default function Notes() {
                     return <code className={`${className} block`} {...props}>{children}</code>;
                   }
                   const text = String(children).trim();
-                  const def = lookupGlossaryTerm(text);
-                  if (def) return <TermTooltip term={text} definition={def} />;
+                  const entry = glossary && lookupGlossaryTerm(glossary, text);
+                  if (entry) return <TermTooltip entry={entry} />;
                   return <code className={className} {...props}>{children}</code>;
                 },
                 img({ src, alt, ...props }) {
