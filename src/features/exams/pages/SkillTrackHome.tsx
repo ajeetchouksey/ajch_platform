@@ -15,7 +15,12 @@ import PageViewsBadge from '@/components/PageViewsBadge';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationships } from '@/lib/useRelationships';
 import { loadLessonNote } from '@/lib/content-loader';
+import { TermTooltip, lookupGlossaryTerm } from '@/components/GlossaryTerm';
+import { getFocusTimer, setFocusTimer } from '@/lib/study-tracker';
+import type { FocusTimer } from '@/lib/study-tracker';
 import type { ExamConfig, SkillTrackModule, SkillTrackLesson, KnowledgeCheckQuestion } from '@/types/content';
+
+const FOCUS_PRESETS = [{ label: '15 min', ms: 900000 }, { label: '25 min', ms: 1500000 }, { label: '30 min', ms: 1800000 }, { label: '45 min', ms: 2700000 }, { label: '60 min', ms: 3600000 }];
 
 // ── Inline knowledge check (no separate route — light, ungated, no timer/score-gate) ──
 function KnowledgeCheckItem({ q, idx }: { q: KnowledgeCheckQuestion; idx: number }) {
@@ -143,6 +148,16 @@ function LessonCard({ lesson }: { lesson: SkillTrackLesson }) {
                   }
                   return <pre>{children}</pre>;
                 },
+                code({ className, children, ...props }) {
+                  const isBlock = className?.startsWith('language-');
+                  if (isBlock) {
+                    return <code className={`${className} block`} {...props}>{children}</code>;
+                  }
+                  const text = String(children).trim();
+                  const def = lookupGlossaryTerm(text);
+                  if (def) return <TermTooltip term={text} definition={def} />;
+                  return <code className={className} {...props}>{children}</code>;
+                },
               }}
             >
               {notes ?? ''}
@@ -173,6 +188,59 @@ function ModuleRelated({ examId, mod }: { examId: string; mod: SkillTrackModule 
 export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamConfig; examId: string; mounted: boolean }) {
   const modules = exam.modules ?? [];
   const totalLessons = modules.reduce((n, m) => n + m.lessons.length, 0);
+
+  // Focus timer (Pomodoro) — same shared timer as the exam Notes page (one
+  // global timer in localStorage, see study-tracker.ts). A skill track has
+  // no per-domain header to hang this off of, so it lives at page level here.
+  const [focusTimer, setFocusTimerState] = useState<FocusTimer | null>(() => getFocusTimer());
+  const [timerSecs, setTimerSecs] = useState(0);
+  const [showDurationPicker, setShowDurationPicker] = useState(false);
+
+  const startTimer = useCallback((durationMs: number) => {
+    const t: FocusTimer = { mode: 'focus', startedAt: Date.now(), durationMs, pomodoros: focusTimer ? focusTimer.pomodoros : 0, examId };
+    setFocusTimer(t); setFocusTimerState(t); setTimerSecs(Math.floor(durationMs / 1000));
+    setShowDurationPicker(false);
+  }, [focusTimer, examId]);
+
+  const handlePauseResume = useCallback(() => {
+    if (!focusTimer) return;
+    if (focusTimer.paused) {
+      const remaining = focusTimer.pausedRemainingMs ?? 0;
+      const next: FocusTimer = { ...focusTimer, paused: false, pausedRemainingMs: undefined, startedAt: Date.now() - (focusTimer.durationMs - remaining) };
+      setFocusTimer(next); setFocusTimerState(next);
+    } else {
+      const remaining = Math.max(0, focusTimer.durationMs - (Date.now() - focusTimer.startedAt));
+      const next: FocusTimer = { ...focusTimer, paused: true, pausedRemainingMs: remaining };
+      setFocusTimer(next); setFocusTimerState(next);
+    }
+  }, [focusTimer]);
+
+  useEffect(() => {
+    if (!focusTimer || focusTimer.paused) return;
+    const tick = () => {
+      const elapsed = Math.floor((Date.now() - focusTimer.startedAt) / 1000);
+      const total = Math.floor(focusTimer.durationMs / 1000);
+      const remaining = total - elapsed;
+      if (remaining <= 0) {
+        const next: FocusTimer = {
+          mode: focusTimer.mode === 'focus' ? 'break' : 'focus',
+          startedAt: Date.now(),
+          durationMs: focusTimer.mode === 'focus' ? 300000 : 1500000,
+          pomodoros: focusTimer.mode === 'focus' ? focusTimer.pomodoros + 1 : focusTimer.pomodoros,
+          examId,
+        };
+        setFocusTimer(next);
+        setFocusTimerState(next);
+        setTimerSecs(Math.floor(next.durationMs / 1000));
+      } else {
+        setTimerSecs(remaining);
+      }
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [focusTimer, examId]);
+
   // Collapsed-module tracking — a Set of module ids currently collapsed.
   // Everything starts expanded (matches the page's prior behavior); collapsing
   // is an opt-in way to cut scroll length on a long track, not a default.
@@ -266,8 +334,74 @@ export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamCo
             </>
           )}
         </p>
-        <PageViewsBadge path={`/skillup/${examId}`} className="mt-1" />
+        <div className="flex items-center gap-2 mt-3">
+          <PageViewsBadge path={`/skillup/${examId}`} />
+          <div className="relative ml-auto">
+            <button
+              type="button"
+              title={focusTimer ? 'Focus timer active' : 'Start focus timer'}
+              onClick={() => { if (!focusTimer) setShowDurationPicker(v => !v); }}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                focusTimer ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40' : 'bg-slate-800/60 text-slate-500 border border-slate-700/40 hover:text-slate-300'
+              }`}
+            >
+              🍅 {focusTimer ? `${String(Math.floor((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)/60)).padStart(2,'0')}:${String((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)%60).padStart(2,'0')}` : 'Focus'}
+            </button>
+            {showDurationPicker && !focusTimer && (
+              <div className="absolute top-full mt-2 right-0 z-50 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 min-w-[140px]">
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider px-2 pb-1">Choose duration</p>
+                {FOCUS_PRESETS.map(p => (
+                  <button key={p.ms} type="button" onClick={() => startTimer(p.ms)}
+                    className="w-full text-left px-3 py-1.5 text-xs text-slate-300 hover:bg-violet-600/20 hover:text-violet-300 rounded-lg transition-colors font-mono">
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Sticky focus-timer strip — visible while scrolling, matches exam Notes page */}
+      {focusTimer && (() => {
+        const displaySecs = focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs ?? 0) / 1000) : timerSecs;
+        const pct = focusTimer.paused
+          ? ((focusTimer.pausedRemainingMs ?? 0) / focusTimer.durationMs)
+          : (timerSecs / Math.floor(focusTimer.durationMs / 1000));
+        const isFocus = focusTimer.mode === 'focus';
+        return (
+          <div className="sticky top-14 z-30 rounded-xl overflow-hidden border"
+            style={{ borderColor: isFocus ? 'rgba(139,92,246,0.4)' : 'rgba(52,211,153,0.35)' }}>
+            <div className="h-0.5 w-full" style={{ background: isFocus ? 'rgba(139,92,246,0.2)' : 'rgba(52,211,153,0.15)' }}>
+              <div className="h-full transition-all duration-1000"
+                style={{ width: `${Math.max(0, pct * 100).toFixed(1)}%`, background: isFocus ? '#7c3aed' : '#059669' }} />
+            </div>
+            <div className="flex items-center gap-3 px-4 py-2.5"
+              style={{ background: isFocus ? 'rgba(46,16,101,0.92)' : 'rgba(4,65,50,0.92)', backdropFilter: 'blur(12px)' }}>
+              <span className="text-base">🍅</span>
+              <span className="font-mono font-bold text-lg tabular-nums" style={{ color: isFocus ? '#c4b5fd' : '#6ee7b7', minWidth: '3.5ch' }}>
+                {String(Math.floor(displaySecs / 60)).padStart(2, '0')}:{String(displaySecs % 60).padStart(2, '0')}
+              </span>
+              <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: isFocus ? '#a78bfa' : '#34d399' }}>
+                {focusTimer.paused ? 'paused' : isFocus ? 'focus' : 'break'}
+              </span>
+              <span className="text-[11px] text-slate-500 font-mono">×{focusTimer.pomodoros}</span>
+              <div className="ml-auto flex items-center gap-2">
+                <button type="button" onClick={handlePauseResume} className="text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+                  title={focusTimer.paused ? 'Resume' : 'Pause'}>
+                  {focusTimer.paused
+                    ? <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    : <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>}
+                </button>
+                <button type="button" onClick={() => { setFocusTimer(null); setFocusTimerState(null); }}
+                  className="text-slate-500 hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-white/10" title="Stop timer">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Quick nav — jump to any module, expanding it if collapsed */}
       {modules.length > 1 && (
