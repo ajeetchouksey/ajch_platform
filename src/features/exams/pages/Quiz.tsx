@@ -76,7 +76,7 @@ export default function Quiz() {
   const [session, setSession] = useState<QuizSession | null>(null);
   const [loading, setLoading] = useState(false);
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
-  const [passThreshold, setPassThreshold] = useState(72);
+  const [passThreshold, setPassThreshold] = useState<number | null>(null);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
   const [examTitle, setExamTitle] = useState('Exam');
   const [examTotalQuestions, setExamTotalQuestions] = useState<number | null>(null);
@@ -99,11 +99,16 @@ export default function Quiz() {
     loadExamRegistry().then((r) => {
       const exam = r.exams.find((e) => e.id === examId);
       if (exam) {
-        setExamDomains(exam.domains);
-        setPassThreshold(exam.passThreshold);
+        // Skill Tracks (IDEA-0016) have no domains/passThreshold/questions —
+        // any retained legacy bank lives under practiceBank instead. This
+        // page still serves that bank (Practice Bank card links here), so
+        // degrade to "no domain filter, no pass framing" rather than crash.
+        const isSkillTrack = exam.kind === 'skill-track';
+        setExamDomains(isSkillTrack ? [] : exam.domains);
+        setPassThreshold(isSkillTrack ? null : exam.passThreshold);
         setExamShortTitle(exam.shortTitle);
         setExamTitle(exam.title);
-        setExamTotalQuestions(exam.questions);
+        setExamTotalQuestions(isSkillTrack ? (exam.practiceBank?.questions ?? null) : exam.questions);
       }
     }).catch(() => {});
   }, [examId]);
@@ -216,7 +221,9 @@ export default function Quiz() {
         {/* Exam meta strip */}
         <div className="flex flex-wrap gap-4 text-sm text-slate-500">
           <span><span className="text-slate-300 font-semibold">{domainFilter === null ? (examTotalQuestions ?? '—') : 15}</span> questions</span>
-          <span><span className="text-slate-300 font-semibold">{passThreshold}%</span> to pass</span>
+          {passThreshold !== null && (
+            <span><span className="text-slate-300 font-semibold">{passThreshold}%</span> to pass</span>
+          )}
           <span>Scenario-based MCQ</span>
         </div>
 
@@ -268,7 +275,7 @@ export default function Quiz() {
   if (phase === 'review') {
     const score = questions.filter((q) => answers[q.id] === q.correct).length;
     const pct = Math.round((score / questions.length) * 100);
-    const passed = pct >= passThreshold;
+    const passed = passThreshold !== null ? pct >= passThreshold : null;
 
     return (
       <div className="max-w-lg mx-auto space-y-6">
@@ -278,18 +285,20 @@ export default function Quiz() {
         {/* Score card */}
         <div
           className={`rounded-xl p-6 text-center border ${
-            passed ? 'border-emerald-600 bg-emerald-900/20' : 'border-rose-600 bg-rose-900/20'
+            passed === null ? 'border-slate-700 bg-slate-900/20' : passed ? 'border-emerald-600 bg-emerald-900/20' : 'border-rose-600 bg-rose-900/20'
           }`}
         >
-          <div className="text-5xl font-bold mb-2" style={{ color: passed ? '#34d399' : '#f87171' }}>
+          <div className="text-5xl font-bold mb-2" style={{ color: passed === null ? '#e2e8f0' : passed ? '#34d399' : '#f87171' }}>
             {pct}%
           </div>
           <p className="text-slate-300 text-sm">
             {score} / {questions.length} correct
           </p>
-          <p className={`text-sm font-semibold mt-2 ${passed ? 'text-emerald-400' : 'text-rose-400'}`}>
-            {passed ? `✓ Above ${passThreshold}% pass threshold` : `✗ Below ${passThreshold}% pass threshold`}
-          </p>
+          {passThreshold !== null && (
+            <p className={`text-sm font-semibold mt-2 ${passed ? 'text-emerald-400' : 'text-rose-400'}`}>
+              {passed ? `✓ Above ${passThreshold}% pass threshold` : `✗ Below ${passThreshold}% pass threshold`}
+            </p>
+          )}
         </div>
 
         {/* Share card + email capture */}
@@ -303,7 +312,7 @@ export default function Quiz() {
         />
 
         {/* Domain breakdown */}
-        {examDomains.length > 1 && (() => {
+        {passThreshold !== null && examDomains.length > 1 && (() => {
           const breakdown = examDomains
             .map((d) => {
               const dqs = questions.filter((q) => q.domain === d.id);
@@ -337,7 +346,7 @@ export default function Quiz() {
         })()}
 
         {/* Study with AI handoff — focused on weak domains from this attempt */}
-        {examDomains.length > 0 && (() => {
+        {passThreshold !== null && examDomains.length > 0 && (() => {
           const weak = examDomains
             .map((d) => {
               const dqs = questions.filter((q) => q.domain === d.id);

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useReducer } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { CalendarDays, ChevronDown, ChevronRight, BookOpen, Brain, AlertTriangle, CheckCircle2, Circle, RefreshCw, Clock, Zap, Sparkles, RotateCcw, MessageCircle, X, LayoutList, Calendar, TrendingDown } from 'lucide-react';
@@ -406,6 +406,7 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
 
 export default function StudyPlan() {
   const { examId } = useParams<{ examId: string }>();
+  const navigate = useNavigate();
   // Validate examId early — needed by lazy useState initialisers below
   const validId = isValidExamId(examId) ? examId : null;
 
@@ -449,10 +450,17 @@ export default function StudyPlan() {
   useEffect(() => {
     if (!validId) return;
     loadExamRegistry()
-      .then((r) => setExam(r.exams.find((e) => e.id === validId) ?? null))
+      .then((r) => {
+        const found = r.exams.find((e) => e.id === validId) ?? null;
+        // Skill Tracks (IDEA-0016) have no domains — a domain-weighted study
+        // plan doesn't apply; send visitors (e.g. an old bookmarked URL)
+        // back to the track overview instead of crashing on exam.domains.
+        if (found?.kind === 'skill-track') { navigate(`/skillup/${validId}`, { replace: true }); return; }
+        setExam(found);
+      })
       .catch(() => {});
     requestAnimationFrame(() => setMounted(true));
-  }, [validId]);
+  }, [validId, navigate]);
 
   // Load or initialise plan when exam is ready
   useEffect(() => {

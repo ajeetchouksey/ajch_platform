@@ -144,7 +144,25 @@ export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabs
   // scheme matches src/lib/search.ts's buildExamDocs domain entries exactly
   // (id: exam/{examId}/domain-{domainId}, url: /exams/{examId}/notes) so a
   // relationship edge and a search result for the same domain agree.
+  //
+  // Skill tracks (IDEA-0016, kind: "skill-track") have modules[] instead of
+  // domains[] and no per-domain notes route — every lesson renders inline on
+  // the track's own overview page — so the doc id uses module- instead of
+  // domain- and the url always points at the track overview, not a sub-route.
   for (const e of skillupCatalog?.exams ?? []) {
+    if (e.kind === 'skill-track') {
+      for (const m of e.modules ?? []) {
+        docs.push({
+          id: `exam/${e.id}/module-${m.id}`,
+          type: 'exam',
+          title: `${e.title} — ${m.title}`,
+          url: `/skillup/${e.id}`,
+          taxonomyIds: m.taxonomyIds ?? [],
+          updatedAt: e.contentUpdatedAt,
+        });
+      }
+      continue;
+    }
     for (const d of e.domains ?? []) {
       docs.push({
         id: `exam/${e.id}/domain-${d.id}`,

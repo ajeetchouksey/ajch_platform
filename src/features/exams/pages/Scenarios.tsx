@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { loadScenariosForExam, loadExamRegistry } from '@/lib/content-loader';
 import { isRichScenario } from '@/types/content';
 import type { Scenario, ScenarioQuestion } from '@/types/content';
@@ -58,28 +58,36 @@ function ScenarioQuestionCard({ q, index }: { q: ScenarioQuestion; index: number
 
 export default function Scenarios() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
+  const navigate = useNavigate();
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
   const [, setDomainTitles] = useState<Record<number, string>>({});
+  const [isSkillTrack, setIsSkillTrack] = useState(false);
+  const [examDomainsLoadedFor, setExamDomainsLoadedFor] = useState<string | null>(null);
 
   useEffect(() => {
     loadExamRegistry().then((r) => {
       const exam = r.exams.find((e) => e.id === examId);
-      if (exam) {
-        setExamShortTitle(exam.shortTitle);
-        setDomainTitles(Object.fromEntries(exam.domains.map((d) => [d.id, d.title])));
-      }
+      if (!exam) return;
+      // Skill Tracks (IDEA-0016) have no domains/scenarioFiles — this page
+      // doesn't apply; send visitors (e.g. an old bookmarked URL) back to
+      // the track overview instead of crashing on exam.domains.
+      if (exam.kind === 'skill-track') { setIsSkillTrack(true); navigate(`/skillup/${examId}`, { replace: true }); return; }
+      setExamShortTitle(exam.shortTitle);
+      setDomainTitles(Object.fromEntries(exam.domains.map((d) => [d.id, d.title])));
+      setExamDomainsLoadedFor(examId);
     }).catch(() => {});
-  }, [examId]);
+  }, [examId, navigate]);
 
   useEffect(() => {
+    if (isSkillTrack || examDomainsLoadedFor !== examId) return;
     setLoading(true); // eslint-disable-line react-hooks/set-state-in-effect
     loadScenariosForExam(examId)
       .then((s) => { setScenarios(s); setLoading(false); })
       .catch(() => setLoading(false));
-  }, [examId]);
+  }, [examId, isSkillTrack, examDomainsLoadedFor]);
 
   if (loading) return <p className="text-slate-500 text-sm animate-pulse">Loading scenarios…</p>;
 

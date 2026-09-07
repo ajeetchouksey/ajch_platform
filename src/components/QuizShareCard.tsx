@@ -30,7 +30,7 @@ interface Props {
   pct: number;
   examShortTitle: string;
   examId: string;
-  passed: boolean;
+  passed: boolean | null;
 }
 
 export default function QuizShareCard({ score, total, pct, examShortTitle, examId, passed }: Props) {
@@ -101,7 +101,11 @@ export default function QuizShareCard({ score, total, pct, examShortTitle, examI
           </span>
         </div>
         <p className="text-xs font-semibold" style={{ color: passed ? '#34d399' : '#fbbf24' }}>
-          {passed ? '🏆 You passed! Keep the momentum.' : '📈 Good effort — review weak domains and try again.'}
+          {passed === null
+            ? '📊 Keep learning and try again.'
+            : passed
+              ? '🏆 You passed! Keep the momentum.'
+              : '📈 Good effort — review weak domains and try again.'}
         </p>
       </div>
 
