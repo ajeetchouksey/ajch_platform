@@ -6,16 +6,26 @@
  * content. Two modes, depending on how clean the vertical's existing tag
  * vocabulary already is:
  *
- * - IDENTITY (hol-labs, usecases): tags/patterns are already kebab-case and
- *   registered as taxonomy.json nodes by scripts/seed-taxonomy.mjs — this
- *   script just validates every id against taxonomy.json (catching a typo/
- *   rename before it ships) and copies it through as taxonomyIds.
- * - ALIAS-RESOLVED (blog, interviews): tags are free text and often mean an
- *   already-registered concept under a different string (e.g. a blog post
- *   tagged "resilience" means the degradation-ladder node) — resolved via
- *   scripts/lib/taxonomy.mjs's buildAliasIndex() instead of copied as-is.
+ * - IDENTITY (hol-labs; usecases' own `patterns`): tags/patterns are already
+ *   kebab-case and registered as taxonomy.json nodes by scripts/seed-
+ *   taxonomy.mjs — this script just validates every id against taxonomy.json
+ *   (catching a typo/rename before it ships) and copies it through as
+ *   taxonomyIds.
+ * - ALIAS-RESOLVED (blog, interviews, skillup): tags are free text and often
+ *   mean an already-registered concept under a different string (e.g. a blog
+ *   post tagged "resilience" means the degradation-ladder node) — resolved
+ *   via scripts/lib/taxonomy.mjs's buildAliasIndex() instead of copied as-is.
  *   An unresolvable tag is dropped, not invented as a new node (that's
  *   seed-taxonomy.mjs's job, run before this).
+ * - MENTION-MATCHED (usecases' `cases/*.json` techStack, additionally): a
+ *   tool/vendor name can appear inside a longer descriptive sentence
+ *   ("Azure AI Foundry agent framework") rather than as its own clean tag —
+ *   buildMentionMatcher() finds a taxonomy node's label/alias as a whole-word
+ *   substring instead of requiring an exact match. This is a genuinely
+ *   different taxonomy dimension from `patterns` (architecture shape, tool-
+ *   agnostic) — both are unioned into taxonomyIds, neither replaces the
+ *   other. See mentionsFromTechStack()'s own comment for why they're kept
+ *   distinct rather than merged into one vocabulary.
  *
  * Writes both the per-item files AND their index.json summary entries where
  * one exists, so reverse-link lookups never need an N+1 fetch.
@@ -36,7 +46,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { loadTaxonomyTopics, buildAliasIndex } from './lib/taxonomy.mjs';
+import { loadTaxonomyTopics, buildAliasIndex, buildMentionMatcher } from './lib/taxonomy.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..');
@@ -100,12 +110,30 @@ function backfillHolLabs(dir, knownIds, write) {
   return changed;
 }
 
-function backfillUseCases(dir, knownIds, write) {
+// techStack mentions are a SEPARATE resolution path from patterns, not an
+// alternative one — patterns describe the workflow-architecture shape
+// (hitl-approval-gate, document-rag), which is deliberately tool-agnostic;
+// techStack names the actual vendor/tool used to build it (Azure AI Foundry,
+// Azure AI Search). Both are real, both belong in taxonomyIds, and conflating
+// them (e.g. inventing a "pattern" for a specific tool name) would blur a
+// distinction the taxonomy keeps on purpose. See backfill-taxonomy-ids.mjs's
+// module docstring.
+function mentionsFromTechStack(techStack, mentionMatcher) {
+  const text = (techStack ?? [])
+    .flatMap((group) => group.tools ?? [])
+    .join(' \n ');
+  return text ? mentionMatcher.findMentions(text) : [];
+}
+
+function backfillUseCases(dir, knownIds, write, mentionMatcher) {
   const sourceIntelPath = join(dir, 'content', 'usecases', '_source-intel.json');
   const casesDir = join(dir, 'content', 'usecases', 'cases');
   const sourceIntel = JSON.parse(readFileSync(sourceIntelPath, 'utf-8'));
   let changed = 0;
 
+  // _source-intel.json entries carry `patterns` only (no techStack field at
+  // this level of detail — that only exists on the richer cases/*.json copy
+  // below), so this stays pattern-only IDENTITY resolution.
   for (const list of [sourceIntel.featuredUseCases, sourceIntel.catalogUseCases]) {
     for (const item of list ?? []) {
       const taxonomyIds = checkKnown(item.patterns ?? [], knownIds, `${item.id}.patterns`);
@@ -122,11 +150,18 @@ function backfillUseCases(dir, knownIds, write) {
   // Individual case files (cases/*.json) are a separate, richer detail copy
   // for a subset of use cases (see content-loader.ts's loadUseCaseById) —
   // must be updated independently, not derived from _source-intel.json.
+  // These DO carry techStack, so taxonomyIds here is patterns ∪ tech mentions.
   if (existsSync(casesDir)) {
     for (const file of readdirSync(casesDir).filter((f) => f.endsWith('.json'))) {
       const path = join(casesDir, file);
       const item = JSON.parse(readFileSync(path, 'utf-8'));
-      const taxonomyIds = checkKnown(item.patterns ?? [], knownIds, `cases/${file}.patterns`);
+      const patternIds = checkKnown(item.patterns ?? [], knownIds, `cases/${file}.patterns`);
+      const techIds = mentionsFromTechStack(item.techStack, mentionMatcher);
+      const taxonomyIds = [...new Set([...patternIds, ...techIds])];
+      const newTechIds = techIds.filter((id) => !patternIds.includes(id));
+      if (newTechIds.length > 0) {
+        console.log(`  cases/${file}: +[${newTechIds.join(', ')}] from techStack mentions`);
+      }
       if (write) {
         item.taxonomyIds = taxonomyIds;
         writeFileSync(path, JSON.stringify(item, null, 2) + '\n', 'utf-8');
@@ -250,15 +285,17 @@ function main() {
     process.exit(1);
   }
 
+  const topics = loadTaxonomyTopics();
   const knownIds = loadKnownIds();
-  const { resolve } = buildAliasIndex(loadTaxonomyTopics());
+  const { resolve } = buildAliasIndex(topics);
+  const mentionMatcher = buildMentionMatcher(topics);
   console.log(`${write ? 'Writing' : 'Dry run (pass --write to apply)'} — ${vertical} at ${dir}\n`);
 
   let changed;
   if (vertical === 'hol-labs') {
     changed = backfillHolLabs(dir, knownIds, write);
   } else if (vertical === 'usecases') {
-    changed = backfillUseCases(dir, knownIds, write);
+    changed = backfillUseCases(dir, knownIds, write, mentionMatcher);
   } else if (vertical === 'blog') {
     changed = backfillBlog(dir, resolve, write);
   } else if (vertical === 'interviews') {
