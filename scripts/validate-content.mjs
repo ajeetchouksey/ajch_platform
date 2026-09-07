@@ -156,6 +156,18 @@ const INDEX_REQUIRED = [
   'contentVersion', 'contentUpdatedAt', 'provider', 'palette',
 ];
 
+// Skill tracks (IDEA-0016) are deliberately exam-metadata-free — see
+// exam-registry SKILL.md's "Skill Tracks" section. modules[]/lessons[]
+// replace domains[]/questionFiles[], and any retained legacy MCQ bank
+// lives nested under practiceBank instead of the top level.
+const SKILL_TRACK_INDEX_REQUIRED = [
+  'schemaVersion', 'id', 'title', 'shortTitle',
+  'contentLevel', 'description', 'available',
+  'accentColor', 'colorScheme', 'modules', 'resources',
+  'contentVersion', 'contentUpdatedAt', 'provider', 'palette',
+];
+const EXAM_ONLY_FIELDS = ['examCode', 'duration', 'passScore', 'passThreshold', 'examFee'];
+
 // This script is a canonical copy synced verbatim across ajch_platform (where
 // content lives at public/content/...) and each standalone vertical repo
 // (where the same relative paths, e.g. "content/skillup/...", live directly
@@ -170,6 +182,8 @@ function absContent(relativePath) {
 }
 
 function validateExamIndex(file, data) {
+  if (data.kind === 'skill-track') return validateSkillTrackIndex(file, data);
+
   for (const f of INDEX_REQUIRED) {
     if (!(f in data)) fail(file, `missing required field "${f}"`);
   }
@@ -200,6 +214,48 @@ function validateExamIndex(file, data) {
   // taskStatementsFile reference
   if (data.taskStatementsFile && !existsSync(absContent(data.taskStatementsFile))) {
     fail(file, `taskStatementsFile not found → ${data.taskStatementsFile}`);
+  }
+}
+
+function validateSkillTrackIndex(file, data) {
+  for (const f of SKILL_TRACK_INDEX_REQUIRED) {
+    if (!(f in data)) fail(file, `missing required field "${f}"`);
+  }
+  for (const f of EXAM_ONLY_FIELDS) {
+    if (f in data) fail(file, `kind: "skill-track" must not carry exam-only field "${f}" (fabricated-exam-metadata risk — IDEA-0016 NFR-6)`);
+  }
+  if (data.palette && typeof data.palette === 'object') {
+    for (const pf of ['color', 'bg', 'border', 'glow', 'btn']) {
+      if (!(pf in data.palette)) fail(file, `palette missing required sub-field "${pf}"`);
+    }
+  }
+  if ('provider' in data && (typeof data.provider !== 'string' || !data.provider.trim())) {
+    fail(file, `"provider" must be a non-empty string`);
+  }
+  if (Array.isArray(data.modules)) {
+    for (const m of data.modules) {
+      if (!Array.isArray(m.lessons) || m.lessons.length === 0) {
+        fail(file, `module ${m.id}: no lessons`);
+        continue;
+      }
+      for (const l of m.lessons) {
+        if (l.notesFile && !existsSync(absContent(l.notesFile))) {
+          fail(file, `lesson ${l.id}: notesFile not found → ${l.notesFile}`);
+        }
+        if (!Array.isArray(l.knowledgeCheck) || l.knowledgeCheck.length === 0) {
+          fail(file, `lesson ${l.id}: knowledgeCheck must be a non-empty array`);
+        }
+      }
+    }
+  }
+  if (data.practiceBank) {
+    if (!Array.isArray(data.practiceBank.questionFiles)) {
+      fail(file, 'practiceBank present but questionFiles is not an array');
+    } else {
+      for (const qf of data.practiceBank.questionFiles) {
+        if (!existsSync(absContent(qf))) fail(file, `practiceBank questionFile not found → ${qf}`);
+      }
+    }
   }
 }
 
