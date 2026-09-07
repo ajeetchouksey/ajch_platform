@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getSessions, getScoreByDomain, clearSessions } from '@/lib/storage';
 import { loadExamRegistry } from '@/lib/content-loader';
 import type { DomainConfig } from '@/types/content';
@@ -7,6 +7,7 @@ import { Trash2, RotateCcw, TrendingUp, TrendingDown, Minus, BarChart2, Brain } 
 
 export default function Progress() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
+  const navigate = useNavigate();
   const [sessions, setSessions] = useState(() => getSessions().filter((s) => s.finishedAt && s.skillId === examId));
   const [domainScores, setDomainScores] = useState(() => getScoreByDomain(examId));
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
@@ -16,13 +17,16 @@ export default function Progress() {
   useEffect(() => {
     loadExamRegistry().then((r) => {
       const exam = r.exams.find((e) => e.id === examId);
-      if (exam) {
-        setExamDomains(exam.domains);
-        setExamShortTitle(exam.shortTitle);
-        setPassThreshold(exam.passThreshold);
-      }
+      if (!exam) return;
+      // Skill Tracks (IDEA-0016) have no domains — domain-based progress
+      // doesn't apply; send visitors (e.g. an old bookmarked URL) back to
+      // the track overview instead of crashing on exam.domains.
+      if (exam.kind === 'skill-track') { navigate(`/skillup/${examId}`, { replace: true }); return; }
+      setExamDomains(exam.domains);
+      setExamShortTitle(exam.shortTitle);
+      setPassThreshold(exam.passThreshold);
     }).catch(() => {});
-  }, [examId]);
+  }, [examId, navigate]);
 
   function handleClear() {
     if (!window.confirm('Clear all session history? This cannot be undone.')) return;

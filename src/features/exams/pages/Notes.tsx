@@ -1,5 +1,5 @@
 import { useReducer, useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense, Children, isValidElement } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -221,8 +221,10 @@ function contentReducer(_: ContentState, action: ContentAction): ContentState {
 
 export default function Notes() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const domain = Number(searchParams.get('d')) || 1;
+  const [isSkillTrack, setIsSkillTrack] = useState(false);
   const computedRelated = useRelationships(`exam/${examId}/domain-${domain}`);
   const [{ loading, content, error }, dispatch] = useReducer(contentReducer, { loading: false, content: '', error: null });
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
@@ -275,11 +277,19 @@ export default function Notes() {
   useEffect(() => {
     loadExamRegistry().then((r) => {
       const exam = r.exams.find((e) => e.id === examId);
-      if (exam) { setExamDomains(exam.domains); setExamConfig(exam); }
+      if (!exam) return;
+      // Skill Tracks (IDEA-0016) have no domains — this per-domain notes
+      // viewer doesn't apply (lesson notes render inline on the track
+      // overview instead); send visitors (e.g. an old bookmarked URL) back
+      // there rather than crashing on exam.domains.
+      if (exam.kind === 'skill-track') { setIsSkillTrack(true); navigate(`/skillup/${examId}`, { replace: true }); return; }
+      setExamDomains(exam.domains);
+      setExamConfig(exam);
     }).catch(() => {});
-  }, [examId]);
+  }, [examId, navigate]);
 
   useEffect(() => {
+    if (isSkillTrack) return;
     let cancelled = false;
     dispatch({ type: 'fetch' });
     loadNoteForExam(examId, domain)
@@ -294,7 +304,7 @@ export default function Notes() {
       })
       .catch((e: unknown) => { if (!cancelled) dispatch({ type: 'error', error: String(e) }); });
     return () => { cancelled = true; };
-  }, [examId, domain]);
+  }, [examId, domain, isSkillTrack]);
 
   // Update resume state as user reads (on activeId change)
   useEffect(() => {

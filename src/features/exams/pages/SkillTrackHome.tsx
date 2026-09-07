@@ -12,8 +12,10 @@ const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import GiscusComments from '@/components/GiscusComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import PageViewsBadge from '@/components/PageViewsBadge';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationships } from '@/lib/useRelationships';
 import { loadLessonNote } from '@/lib/content-loader';
-import type { ExamConfig, SkillTrackLesson, KnowledgeCheckQuestion } from '@/types/content';
+import type { ExamConfig, SkillTrackModule, SkillTrackLesson, KnowledgeCheckQuestion } from '@/types/content';
 
 // ── Inline knowledge check (no separate route — light, ungated, no timer/score-gate) ──
 function KnowledgeCheckItem({ q, idx }: { q: KnowledgeCheckQuestion; idx: number }) {
@@ -158,6 +160,16 @@ function LessonCard({ lesson }: { lesson: SkillTrackLesson }) {
   );
 }
 
+// ── Computed cross-vertical relationships for one module (IDEA-0008) ──
+// One panel per module, not one for the whole track — a module's taxonomyIds
+// are specific to its own subtopic, so scoping the query per-module surfaces
+// genuinely relevant HOL Labs/blog posts/use cases instead of one generic
+// list diluted across the whole track.
+function ModuleRelated({ examId, mod }: { examId: string; mod: SkillTrackModule }) {
+  const edges = useRelationships(`exam/${examId}/module-${mod.id}`);
+  return <ComputedRelatedList edges={edges} heading={`Related to ${mod.title}`} />;
+}
+
 export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamConfig; examId: string; mounted: boolean }) {
   const modules = exam.modules ?? [];
   const totalLessons = modules.reduce((n, m) => n + m.lessons.length, 0);
@@ -202,6 +214,7 @@ export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamCo
               <LessonCard key={lesson.id} lesson={lesson} />
             ))}
           </div>
+          <ModuleRelated examId={examId} mod={mod} />
         </div>
       ))}
 

@@ -99,11 +99,16 @@ export default function Quiz() {
     loadExamRegistry().then((r) => {
       const exam = r.exams.find((e) => e.id === examId);
       if (exam) {
-        setExamDomains(exam.domains);
-        setPassThreshold(exam.passThreshold);
+        // Skill Tracks (IDEA-0016) have no domains/passThreshold/questions —
+        // any retained legacy bank lives under practiceBank instead. This
+        // page still serves that bank (Practice Bank card links here), so
+        // degrade to "no domain filter, no pass framing" rather than crash.
+        const isSkillTrack = exam.kind === 'skill-track';
+        setExamDomains(isSkillTrack ? [] : exam.domains);
+        if (!isSkillTrack) setPassThreshold(exam.passThreshold);
         setExamShortTitle(exam.shortTitle);
         setExamTitle(exam.title);
-        setExamTotalQuestions(exam.questions);
+        setExamTotalQuestions(isSkillTrack ? (exam.practiceBank?.questions ?? null) : exam.questions);
       }
     }).catch(() => {});
   }, [examId]);

@@ -97,6 +97,10 @@ export interface SkillTrackModule {
   id: string;
   title: string;
   lessons: SkillTrackLesson[];
+  // Aggregated from the module's own lesson content, mirroring DomainConfig's
+  // taxonomyIds — this is what the cross-vertical relationship engine
+  // (build-content-intelligence.mjs, IDEA-0008) scores against.
+  taxonomyIds?: string[];
 }
 
 /** A retained legacy exam-shaped MCQ bank, kept opt-in — never the primary content for a skill track. */
