@@ -4,8 +4,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import {
-  BookOpen, ExternalLink, ChevronDown, ChevronRight, FlaskConical,
-  CheckCircle2, XCircle, MessageSquare, Layers, Compass,
+  BookOpen, ExternalLink, ChevronDown, ChevronRight, ChevronUp, FlaskConical,
+  CheckCircle2, XCircle, MessageSquare, Layers, Compass, ListTree,
 } from 'lucide-react';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
@@ -173,6 +173,26 @@ function ModuleRelated({ examId, mod }: { examId: string; mod: SkillTrackModule 
 export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamConfig; examId: string; mounted: boolean }) {
   const modules = exam.modules ?? [];
   const totalLessons = modules.reduce((n, m) => n + m.lessons.length, 0);
+  // Collapsed-module tracking — a Set of module ids currently collapsed.
+  // Everything starts expanded (matches the page's prior behavior); collapsing
+  // is an opt-in way to cut scroll length on a long track, not a default.
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+  const toggleModule = useCallback((id: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const jumpToModule = useCallback((id: string) => {
+    setCollapsed((prev) => { if (!prev.has(id)) return prev; const next = new Set(prev); next.delete(id); return next; });
+    // Let the (possibly just-reopened) section render before scrolling to it.
+    requestAnimationFrame(() => {
+      document.getElementById(`module-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -202,21 +222,60 @@ export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamCo
         <PageViewsBadge path={`/skillup/${examId}`} className="mt-1" />
       </div>
 
-      {/* Modules */}
-      {modules.map((mod) => (
-        <div key={mod.id} className="space-y-3">
-          <h2 className="section-heading flex items-center gap-2">
-            <Layers size={14} className="text-violet-400" />
-            {mod.title}
-          </h2>
-          <div className="space-y-3">
-            {mod.lessons.map((lesson) => (
-              <LessonCard key={lesson.id} lesson={lesson} />
-            ))}
-          </div>
-          <ModuleRelated examId={examId} mod={mod} />
+      {/* Quick nav — jump to any module, expanding it if collapsed */}
+      {modules.length > 1 && (
+        <div className="flex flex-wrap items-center gap-2 -mt-2">
+          <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-600 mr-1">
+            <ListTree size={11} /> Jump to
+          </span>
+          {modules.map((mod, i) => (
+            <button
+              key={mod.id}
+              type="button"
+              onClick={() => jumpToModule(mod.id)}
+              className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-slate-800/60 text-slate-400 border border-slate-700/50 hover:border-violet-500/50 hover:text-violet-300 transition-colors"
+            >
+              M{i + 1} · {mod.title}
+            </button>
+          ))}
         </div>
-      ))}
+      )}
+
+      {/* Modules — each collapsible, so a long track doesn't force scrolling past everything */}
+      {modules.map((mod) => {
+        const isCollapsed = collapsed.has(mod.id);
+        return (
+          <div key={mod.id} id={`module-${mod.id}`} className="space-y-3 scroll-mt-24">
+            <button
+              type="button"
+              onClick={() => toggleModule(mod.id)}
+              aria-expanded={!isCollapsed}
+              className="w-full flex items-center gap-2 text-left group"
+            >
+              <h2 className="section-heading flex items-center gap-2 flex-1">
+                <Layers size={14} className="text-violet-400" />
+                {mod.title}
+              </h2>
+              <span className="text-[11px] text-slate-500">{mod.lessons.length} lesson{mod.lessons.length === 1 ? '' : 's'}</span>
+              {isCollapsed ? (
+                <ChevronDown size={15} className="text-slate-500 group-hover:text-slate-300 transition-colors shrink-0" />
+              ) : (
+                <ChevronUp size={15} className="text-slate-500 group-hover:text-slate-300 transition-colors shrink-0" />
+              )}
+            </button>
+            {!isCollapsed && (
+              <>
+                <div className="space-y-3">
+                  {mod.lessons.map((lesson) => (
+                    <LessonCard key={lesson.id} lesson={lesson} />
+                  ))}
+                </div>
+                <ModuleRelated examId={examId} mod={mod} />
+              </>
+            )}
+          </div>
+        );
+      })}
 
       {/* Practice Bank — opt-in, retained legacy MCQ bank */}
       {exam.practiceBank && (
