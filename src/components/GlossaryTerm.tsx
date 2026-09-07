@@ -15,30 +15,34 @@ export const GLOSSARY: Record<string, string> = {
   'max_tokens':     'Hard limit on tokens Claude can generate in one response. Hitting this triggers stop_reason "max_tokens".',
   'temperature':    'Controls randomness. 0 = fully deterministic; 1 = default creative. Keep low (0–0.3) for structured output.',
   'context_window': 'Total token budget (input + output). Claude claude-3-5-sonnet: 200K. Claude claude-opus-4: 200K.',
-  'system':         'The system prompt role — sets Claude\'s persona, rules, and constraints before any user message.',
-  'user':           'The human turn in a conversation. Claude reads user messages to understand the current request.',
-  'assistant':      'Claude\'s turn in the conversation. The model generates text here.',
-  'MCP':            'Model Context Protocol — Anthropic\'s open standard for giving Claude access to tools and data sources via a uniform JSON-RPC interface.',
-  'RAG':            'Retrieval-Augmented Generation — fetch relevant context from a knowledge base before prompting Claude.',
-  'token':          'The basic unit Claude processes. ~¾ of an English word on average. 1 K tokens ≈ 750 words.',
-  'tokens':         'The basic unit Claude processes. ~¾ of an English word on average. 1 K tokens ≈ 750 words.',
-  'stream':         'Streaming mode — Claude sends tokens as they\'re generated instead of waiting to complete the full response.',
-  'streaming':      'Streaming mode — Claude sends tokens as they\'re generated instead of waiting to complete the full response.',
-  'JSON':           'JavaScript Object Notation — the structured data format used for tool inputs/outputs and Claude API calls.',
-  'XML':            'XML tags (e.g. <document>) help Claude parse structured prompt sections more reliably than plain delimiters.',
+  'system':         'The system role in a chat-completion message array — sets the model\'s persona, rules, and constraints before any user message. Same shape across Claude, Azure AI Foundry, and OpenAI-style APIs.',
+  'user':           'The human turn in a chat-completion conversation — the message array entry representing what the person asked.',
+  'assistant':      'The model\'s turn in a chat-completion conversation — where the generated response is recorded in the messages array.',
+  'MCP':            'Model Context Protocol — Anthropic\'s open standard for giving an LLM access to tools and data sources via a uniform JSON-RPC interface.',
+  'RAG':            'Retrieval-Augmented Generation — fetch relevant context from a knowledge base before prompting the model.',
+  'token':          'The basic unit an LLM processes. ~¾ of an English word on average. 1 K tokens ≈ 750 words.',
+  'tokens':         'The basic unit an LLM processes. ~¾ of an English word on average. 1 K tokens ≈ 750 words.',
+  'stream':         'Streaming mode — the model sends tokens as they\'re generated instead of waiting to complete the full response.',
+  'streaming':      'Streaming mode — the model sends tokens as they\'re generated instead of waiting to complete the full response.',
+  'JSON':           'JavaScript Object Notation — the structured data format used for tool inputs/outputs and most LLM API calls.',
+  'XML':            'XML tags (e.g. <document>) help an LLM parse structured prompt sections more reliably than plain delimiters.',
   'HITL':           'Human-In-The-Loop — pausing agent execution to get human approval before a high-risk action.',
-  'CoT':            'Chain-of-Thought — asking Claude to reason step-by-step before giving a final answer.',
-  'CoD':            'Chain-of-Draft — asking Claude to draft, critique, and refine its response iteratively.',
+  'CoT':            'Chain-of-Thought — asking the model to reason step-by-step before giving a final answer.',
+  'CoD':            'Chain-of-Draft — asking the model to draft, critique, and refine its response iteratively.',
   'CLAUDE.md':      'Claude Code\'s project config file. Place in the repo root to set persistent instructions, memory, and tool rules.',
   'claude':         'The Claude Code CLI command. Run `claude` in a terminal to start an agentic coding session.',
   'bash':           'Claude Code\'s primary tool for running shell commands, tests, builds, and file operations.',
   'grep':           'Text-search tool Claude Code uses to locate patterns across large codebases quickly.',
   'checkpoint':     'A saved snapshot of agent state. Allows rollback if a long-running task goes wrong.',
-  'while':          'The agentic loop pattern — Claude keeps running (calling tools → processing results) until stop_reason is "end_turn".',
+  'while':          'The agentic loop pattern — the model keeps running (calling tools → processing results) until stop_reason is "end_turn".',
   'retry':          'Automatic retry logic for transient API errors. Use exponential back-off with jitter to avoid thundering-herd.',
-  'prompt':         'The full input sent to Claude — usually a combination of system prompt + conversation messages.',
-  'messages':       'The array of {role, content} objects sent to the Claude API representing the conversation history.',
+  'prompt':         'The full input sent to an LLM — usually a combination of system prompt + conversation messages.',
+  'messages':       'The array of {role, content} objects sent to a chat-completion API (system/user/assistant) representing the conversation history.',
   'content_block':  'A single unit inside a Claude message — text, tool_use, tool_result, or image.',
+  // ── Azure AI Foundry ──────────────────────────────────────────────────────
+  'azure-ai-projects':  'Azure AI Foundry\'s management-plane SDK — lists connections, deployments, agents, and datasets. Not used for making chat/completion calls.',
+  'azure-ai-inference': 'Azure AI Foundry\'s data-plane SDK — the one your app calls on every user request to get a chat/embeddings completion back.',
+  'Owner':          'The broadest built-in Azure RBAC role — full control over a resource, including managing access for others. Assigning it "to save time" violates least privilege; scope contributors to a narrower role instead (e.g. Azure AI Developer) on just the project they need.',
 };
 
 export function TermTooltip({ term, definition }: { term: string; definition: string }) {
@@ -104,7 +108,7 @@ export function TermTooltip({ term, definition }: { term: string; definition: st
           } as React.CSSProperties}
         >
           <span style={{ display: 'block', fontFamily: 'monospace', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#a78bfa', background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '4px', padding: '1px 6px', marginBottom: '6px' }}>
-            exam term
+            key term
           </span>
           {definition}
           {/* caret */}
