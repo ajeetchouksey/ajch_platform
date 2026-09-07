@@ -149,6 +149,16 @@ All genuine section titles inside cards use `.section-heading` for a violet left
 | `.page-eyebrow` | `<p>` before h1 — violet uppercase dot + label |
 | `.section-heading` | `<h2>` — `font-semibold white border-l-2 border-violet-600 pl-3` |
 
+## Shared Type Consumer Audit (required whenever you touch a type used by multiple pages)
+
+If your change makes a field on a shared type (`ExamConfig`, etc.) conditionally present — a new discriminated variant like `kind`, a new enum value, anything that's required for one shape but absent for another — grep the **entire** `src/` tree for every consumer of that field before considering the task done, not just the files you're actively editing:
+
+```bash
+grep -rn "\.fieldName\b" src/
+```
+
+Then check every route in `router.tsx` that's reachable for the new variant (e.g. every generic `/:examId/*` route), not just the ones your own new UI links to — a page can be reached by a direct URL, an old bookmark, or a search-indexed link even when nothing in the current nav points at it. This is not hypothetical: IDEA-0016's Skill Track rollout shipped a new `ExamConfig.kind` variant but missed 5 pages (`Quiz`, `Progress`, `Scenarios`, `Notes`, `StudyPlan`) that read `exam.domains`/`.passThreshold`/`.questions` unconditionally — a live production crash, caught by a user, not by review.
+
 ## What NOT to Do
 
 - Do not touch `src/App.tsx` or `src/components/Layout.tsx` (that's Platform Engineer's job)

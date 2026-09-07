@@ -184,11 +184,13 @@ User Request
 2. PO returns issue # and acceptance criteria
 3. → **Security Gate** (pre-build): validate planned file paths + inputs
 4. → **Domain Agent** (Platform Architect / Content Lead / Platform Docs / Curriculum Engineer): implement, referencing issue #
+4b. **Consumer audit (mandatory whenever a shared type/schema gains a new discriminated variant** — e.g. an optional `kind` field on `ExamConfig`, a new enum value, a field that's required for one variant but absent for another): grep the **entire** `src/` tree (`grep -rn "\.fieldName\b" src/`) for every consumer of the field(s) that become conditional — not just the files already being edited, and not relying on memory of "which pages exist." Cross-reference every route in `router.tsx` that's reachable for the new variant (`grep ":examId"` etc.), not just the ones the new UI itself links to — an old bookmark or search-indexed link can reach a route your own nav never mentions. This step exists because it was skipped once (IDEA-0016's Skill Track rollout): a new `kind: "skill-track"` variant shipped, but 5 separate pages (`Quiz`, `Progress`, `Scenarios`, `Notes`, `StudyPlan`) that unconditionally read now-conditional fields (`exam.domains`, `.passThreshold`, `.questions`) weren't found until a live production crash was reported by a user. Same rule applies content-side: when a content schema drops or renames a field a downstream consumer reads (e.g. `taxonomyIds` needed by the relationship engine), grep **that** repo's `scripts/*.mjs` and `.github/workflows/*.yml` too, not just the scripts you already know about.
 5. → **Content Sync** (if any `public/content/` writes): `node scripts/build-content-intelligence.mjs` → commit `public/content/stats.json [skip ci]`
 6. → **Security Gate** (post-build): audit all changed files for OWASP/secret/schema issues
 7. → **Design Systems Engineer** (post-build): UX audit if any `.tsx` files changed
 8. → **QA Engineer** (post-build): validate Mermaid diagrams if any `.md` files with diagram blocks changed
-9. → **Product Manager**: mark issue Done — only after all post-build gates pass
+8b. Ship via a feature branch + PR, not a direct push to `main` (this repo's branch protection expects a PR and passing status checks — bypassing it with admin rights is not the same as it passing). Confirm the **actual PR's CI checks are green** (`gh pr checks <n>`) — a clean local `tsc`/`eslint`/script run is necessary but not sufficient; this repo has separate CI-only scripts (e.g. `validate-content.mjs`) that a local dev-tool run doesn't exercise.
+9. → **Product Manager**: mark issue Done — only after all post-build gates pass **and** the shipping PR's CI is confirmed green
 
 ### "Add content from this URL and update the blog"
 1. → **Product Manager**: Issue Gate — find or create issue
