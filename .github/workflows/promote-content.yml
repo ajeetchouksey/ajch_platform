@@ -151,7 +151,7 @@ jobs:
 
           branch="chore/promote-${VERTICAL}-${SHA:0:12}"
           git checkout -B "${branch}"
-          git add content-manifest.json public/content-manifest.json public/content/stats.json public/content/relationships.json
+          git add content-manifest.json public/content-manifest.json public/content/stats.json public/content/relationships.json public/content/glossary.json
 
           if git diff --cached --quiet; then
             echo "No manifest change to promote."

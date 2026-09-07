@@ -1,5 +1,6 @@
 import type { Question, Scenario, ExamRegistry, BlogManifest } from '../types/content';
 import type { RelationshipEdge, RelationshipsFile } from './relationships';
+import type { GlossaryFile, GlossaryTermEntry } from './glossary';
 import {
   ensureContentManifestLoaded,
   resolveContentUrl,
@@ -435,6 +436,26 @@ async function loadRelationshipsFile(): Promise<RelationshipsFile> {
 export async function loadRelationshipsFor(docId: string): Promise<RelationshipEdge[]> {
   const file = await loadRelationshipsFile();
   return file.edges[docId] ?? [];
+}
+
+// ── Key Term Store (glossary) ──────────────────────────────────────────────
+// glossary.json is precomputed at build time (scripts/build-glossary.mjs,
+// called from build-content-intelligence.mjs) — same "fetch once, O(1)
+// lookup" shape as relationships.json above, never a runtime recompute.
+
+let _glossaryCache: Promise<Map<string, GlossaryTermEntry>> | null = null;
+
+/** The full glossary as a Map keyed by each term's exact display casing (see GlossaryTermEntry.term) — use lookupGlossaryTerm from src/lib/glossary.ts for case-insensitive fallback lookup. */
+export async function loadGlossaryMap(): Promise<Map<string, GlossaryTermEntry>> {
+  if (!_glossaryCache) {
+    _glossaryCache = fetchJSON<GlossaryFile>('content/glossary.json')
+      .then((file) => new Map(file.terms.map((t) => [t.term, t])))
+      .catch((err) => {
+        _glossaryCache = null; // allow retry on next call rather than caching a permanent failure
+        throw err;
+      });
+  }
+  return _glossaryCache;
 }
 
 // ── Use Cases (AI UseCases section) ────────────────────────────────────────

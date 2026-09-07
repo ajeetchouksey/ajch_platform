@@ -97,6 +97,31 @@ export async function loadSkillupQuestionFile(relativePath) {
   return JSON.parse(readFileSync(localPath, 'utf-8'));
 }
 
+// One skillup lesson/domain note file, as plain markdown text (path already
+// looks like "content/skillup/{examId}/notes/{file}.md", exactly as stored
+// in a domain's/lesson's notesFile) — CDN when skillup is promoted, else
+// local. Unlike fetchFromCdn's other callers, a missing/renamed note here
+// is non-fatal: it means one glossary-usage data point is skipped, not that
+// the whole content-intelligence build should abort (see build-glossary.mjs).
+async function fetchTextFromCdn(entry, contentPath) {
+  const baseUrl = resolveCdnBase(entry, 'skillup');
+  const url = `${baseUrl}/${entry.repo}@${entry.sha}/${contentPath}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${url}`);
+  return res.text();
+}
+
+export async function loadSkillupNoteFile(relativePath) {
+  const manifest = loadManifest();
+  const skillup = manifest?.skillup;
+  if (skillup?.repo && skillup?.sha) {
+    return fetchTextFromCdn(skillup, relativePath);
+  }
+  const localPath = join(root, 'public', relativePath);
+  if (!existsSync(localPath)) return null;
+  return readFileSync(localPath, 'utf-8');
+}
+
 // interviews/index.json — not yet a promoted vertical, always local.
 export async function loadInterviewsIndex() {
   const localPath = join(contentDir, 'interviews', 'index.json');
