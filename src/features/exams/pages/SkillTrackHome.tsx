@@ -348,7 +348,7 @@ export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamCo
               🍅 {focusTimer ? `${String(Math.floor((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)/60)).padStart(2,'0')}:${String((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)%60).padStart(2,'0')}` : 'Focus'}
             </button>
             {showDurationPicker && !focusTimer && (
-              <div className="absolute top-full mt-2 right-0 z-50 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 min-w-[140px]">
+              <div className="absolute bottom-full mb-2 right-0 z-50 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 min-w-[140px]">
                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider px-2 pb-1">Choose duration</p>
                 {FOCUS_PRESETS.map(p => (
                   <button key={p.ms} type="button" onClick={() => startTimer(p.ms)}
