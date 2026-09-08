@@ -359,7 +359,7 @@ export default function Quiz() {
           return (
             <StudyWithAI
               variant="row"
-              context={{ source: 'quiz-review', examTitle, weakDomains: weak.length > 0 ? weak : undefined }}
+              context={{ source: 'quiz-review', examId, examTitle, weakDomains: weak.length > 0 ? weak : undefined }}
             />
           );
         })()}

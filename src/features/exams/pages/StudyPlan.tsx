@@ -370,6 +370,7 @@ function SessionCard({ session, examId, examTitle, weakDomains, onToggle, defaul
         variant="row"
         context={{
           source: 'study-plan',
+          examId,
           examTitle,
           domainTitle: session.domainTitle,
           weakDomains: weakDomains.map((w) => ({ title: w.title, pct: w.pct })),

@@ -1,12 +1,20 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronRight, Sparkles, Copy, Check } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui';
-import { AI_TOOLS, composeHandoffPrompt, getPreferredAiTool, setPreferredAiTool } from '@/lib/ai-handoff';
-import type { HandoffContext, AiToolId } from '@/lib/ai-handoff';
-import { copyToClipboard } from '@/lib/clipboard';
+import { callMentorChat } from '@/lib/mentor-api';
+
+export interface StudyWithAIContext {
+  source: 'notes' | 'study-plan' | 'quiz-review';
+  examId: string;
+  examTitle: string;
+  domainTitle?: string;
+  weakDomains?: { title: string; pct: number }[];
+}
 
 interface StudyWithAIProps {
-  context: HandoffContext;
+  context: StudyWithAIContext;
   variant: 'icon' | 'row';
   /** Controlled open state — omit to keep the component's default
    *  uncontrolled behavior (internal toggle on trigger click). Pass both
@@ -14,10 +22,29 @@ interface StudyWithAIProps {
    *  external trigger (e.g. a floating "explain this" button). */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  /** A user-selected excerpt to seed the prompt with. Recomposes the
-   *  prompt (leading with this excerpt) whenever it changes, without
-   *  clobbering in-progress edits on unrelated re-renders. */
+  /** A user-selected passage — seeds a fresh default question leading with
+   *  it whenever it changes, without clobbering an in-progress edit on
+   *  unrelated re-renders. */
   initialSelectedText?: string;
+}
+
+/** A sensible starting question for the mentor, mirroring the same
+ * selectedText > weakDomains > domainTitle > generic priority the old
+ * external-handoff prompt composer used — just phrased as a direct question
+ * to our own mentor instead of an instructive prompt for a third-party tool. */
+function buildDefaultQuestion(context: StudyWithAIContext, selectedText?: string): string {
+  if (selectedText) {
+    const excerpt = selectedText.length > 160 ? `${selectedText.slice(0, 160)}...` : selectedText;
+    return `Explain this in the context of the ${context.examTitle} exam: "${excerpt}"`;
+  }
+  if (context.weakDomains && context.weakDomains.length > 0) {
+    const top = context.weakDomains.slice(0, 3).map((d) => d.title).join(', ');
+    return `I'm weakest in ${top} — what should I focus on first and why?`;
+  }
+  if (context.domainTitle) {
+    return `Why is ${context.domainTitle} important and what are the most likely exam questions?`;
+  }
+  return `What should I focus on to prepare for the ${context.examTitle} exam?`;
 }
 
 export function StudyWithAI({ context, variant, open: openProp, onOpenChange, initialSelectedText }: StudyWithAIProps) {
@@ -29,38 +56,41 @@ export function StudyWithAI({ context, variant, open: openProp, onOpenChange, in
     if (!isControlled) setInternalOpen(next);
     onOpenChange?.(next);
   };
-  const [promptText, setPromptText] = useState(() => (
-    initialSelectedText ? composeHandoffPrompt({ ...context, selectedText: initialSelectedText }) : composeHandoffPrompt(context)
-  ));
-  const [copied, setCopied] = useState(false);
-  const [preferred, setPreferred] = useState<AiToolId | null>(() => getPreferredAiTool());
 
-  // Recompose the prompt when a new selection comes in from an external
-  // trigger. Deliberately keyed only on initialSelectedText (not `context`)
-  // so it doesn't fire — and clobber a user's in-progress edit — on
-  // unrelated re-renders of the icon/row trigger usages, which never pass
-  // this prop at all. Recomputed during render (not an effect) per React's
-  // "adjusting state when a prop changes" pattern, to avoid an extra render.
+  const [question, setQuestion] = useState(() => buildDefaultQuestion(context, initialSelectedText));
+  const [loading, setLoading] = useState(false);
+  const [answer, setAnswer] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // A newly selected passage seeds a fresh question and clears any previous
+  // answer. Deliberately keyed only on initialSelectedText (not `context`) so
+  // it doesn't fire — and clobber an in-progress edit — on unrelated
+  // re-renders of the icon/row trigger usages, which never pass this prop at
+  // all. Recomputed during render per React's "adjusting state when a prop
+  // changes" pattern, to avoid an extra render.
   const [prevSelectedText, setPrevSelectedText] = useState(initialSelectedText);
   if (initialSelectedText !== prevSelectedText) {
     setPrevSelectedText(initialSelectedText);
     if (initialSelectedText) {
-      setPromptText(composeHandoffPrompt({ ...context, selectedText: initialSelectedText }));
+      setQuestion(buildDefaultQuestion(context, initialSelectedText));
+      setAnswer(null);
+      setError(null);
     }
   }
 
-  const handleCopy = async () => {
-    const ok = await copyToClipboard(promptText);
-    setCopied(ok);
-    if (ok) setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleToolClick = (id: AiToolId) => {
-    void copyToClipboard(promptText);
-    setPreferredAiTool(id);
-    setPreferred(id);
-    // no preventDefault — anchor's href+target="_blank" handles navigation
-  };
+  const ask = useCallback(async () => {
+    if (!question.trim() || loading) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const resp = await callMentorChat(context.examId, context.domainTitle ?? context.examTitle, question);
+      setAnswer(resp);
+    } catch {
+      setError('Mentor is unavailable right now — please try again shortly.');
+    } finally {
+      setLoading(false);
+    }
+  }, [context.examId, context.domainTitle, context.examTitle, question, loading]);
 
   return (
     <div>
@@ -71,7 +101,7 @@ export function StudyWithAI({ context, variant, open: openProp, onOpenChange, in
           size="sm"
           icon={Sparkles}
           onClick={() => setOpen((o) => !o)}
-          title="Study with AI — compose a prompt for ChatGPT, Claude, Gemini, or Microsoft Copilot"
+          title="Study with AI — ask the mentor about this"
         />
       ) : (
         <button
@@ -89,36 +119,47 @@ export function StudyWithAI({ context, variant, open: openProp, onOpenChange, in
       {open && (
         <div className="px-4 pb-4 pt-3 space-y-3">
           <textarea
-            value={promptText}
-            onChange={(e) => setPromptText(e.target.value)}
-            rows={5}
+            value={question}
+            onChange={(e) => setQuestion(e.target.value.substring(0, 300))}
+            rows={3}
             className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-300 placeholder-slate-600 resize-none focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+            placeholder="Ask the mentor anything about this..."
           />
-          <button
-            onClick={handleCopy}
-            className="text-xs px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700/60 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-1.5"
-          >
-            {copied ? <Check size={11} /> : <Copy size={11} />}
-            {copied ? 'Copied!' : 'Copy prompt'}
-          </button>
-          <div className="flex gap-2">
-            {AI_TOOLS.map((tool) => (
-              <a
-                key={tool.id}
-                href={tool.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => handleToolClick(tool.id)}
-                className={`flex-1 flex items-center justify-center gap-2 text-xs font-semibold py-2.5 rounded-xl transition-all hover:scale-[1.02] ${
-                  preferred === tool.id
-                    ? 'ring-1 ring-violet-500/60 bg-violet-500/15 border border-violet-500/40 text-violet-200'
-                    : 'bg-slate-800/60 border border-slate-700/60 text-slate-300'
-                }`}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={ask}
+              disabled={loading || !question.trim()}
+              className="btn-primary text-xs px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+            >
+              {loading ? (
+                <>
+                  <span className="animate-spin inline-block w-3 h-3 border border-white border-t-transparent rounded-full" />
+                  Asking…
+                </>
+              ) : (
+                <>
+                  <Sparkles size={11} />
+                  Ask
+                </>
+              )}
+            </button>
+            {answer && (
+              <button
+                onClick={() => { setAnswer(null); setQuestion(buildDefaultQuestion(context, initialSelectedText)); }}
+                className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
               >
-                {tool.label}
-              </a>
-            ))}
+                Clear
+              </button>
+            )}
           </div>
+
+          {error && <p className="text-xs text-rose-400">{error}</p>}
+
+          {answer && !error && (
+            <div className="prose prose-invert prose-xs max-w-none text-slate-300 [&>p]:text-xs [&>p]:leading-relaxed [&>ul]:text-xs [&>ul]:leading-relaxed bg-slate-800/40 rounded-lg p-3">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer}</ReactMarkdown>
+            </div>
+          )}
         </div>
       )}
     </div>
