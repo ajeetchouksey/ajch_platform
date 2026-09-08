@@ -18,7 +18,7 @@ import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { ContentMeta, Button } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
-import { StudyWithAI } from '@/components/StudyWithAI';
+import { AskMentor } from '@/components/AskMentor';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationships } from '@/lib/useRelationships';
 import { TermTooltip } from '@/components/GlossaryTerm';
@@ -804,7 +804,7 @@ export default function Notes() {
                   {copied ? <Check size={11} /> : <Share2 size={11} />}
                   {copied ? 'Copied!' : 'Share'}
                 </button>
-                <StudyWithAI
+                <AskMentor
                   variant="icon"
                   open={aiPanelOpen}
                   onOpenChange={handleAiOpenChange}
@@ -856,7 +856,7 @@ export default function Notes() {
       </div>{/* end two-column grid */}
 
       {/* Floating "explain this" trigger — shown when the user selects text
-          inside the article body. Reuses the same StudyWithAI instance(s)
+          inside the article body. Reuses the same AskMentor instance(s)
           driven by aiPanelOpen/aiSelectedText below (sidebar icon on xl+,
           modal on smaller viewports), opening it pre-seeded with the
           selection instead of a second copy of the panel UI. */}
@@ -898,7 +898,7 @@ export default function Notes() {
       })()}
 
       {/* Below-xl "Study with AI" modal — the sidebar <aside> above that
-          hosts the sole StudyWithAI instance is `hidden` below the xl
+          hosts the sole AskMentor instance is `hidden` below the xl
           breakpoint, so the floating "Explain" trigger's state change had
           nowhere visible to render into on narrower viewports. This second
           controlled instance is driven by the exact same lifted
@@ -906,7 +906,7 @@ export default function Notes() {
           sidebar instance — both simply reflect one source of truth) and
           only mounts while that state is open, so it never shows a
           redundant floating trigger of its own while idle. Reuses the real
-          StudyWithAI component/logic — no duplicated panel UI. */}
+          AskMentor component/logic — no duplicated panel UI. */}
       {aiPanelOpen && (
         <div className="xl:hidden fixed inset-0 z-[80] flex items-end sm:items-center justify-center">
           <div
@@ -921,7 +921,7 @@ export default function Notes() {
             className="relative w-full sm:max-w-md sm:mx-4 max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl"
             style={{ background: 'rgba(15,23,42,0.98)', border: '1px solid rgba(139,92,246,0.28)' }}
           >
-            <StudyWithAI
+            <AskMentor
               variant="row"
               open={aiPanelOpen}
               onOpenChange={handleAiOpenChange}

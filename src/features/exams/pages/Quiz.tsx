@@ -8,7 +8,7 @@ import { trackEvent } from '@/lib/analytics';
 import { type Question, type QuizSession, type DomainConfig } from '@/types/content';
 import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X } from 'lucide-react';
 import QuizShareCard from '@/components/QuizShareCard';
-import { StudyWithAI } from '@/components/StudyWithAI';
+import { AskMentor } from '@/components/AskMentor';
 
 type Phase = 'setup' | 'quiz' | 'review';
 
@@ -357,7 +357,7 @@ export default function Quiz() {
             })
             .filter((d): d is { title: string; pct: number } => d !== null);
           return (
-            <StudyWithAI
+            <AskMentor
               variant="row"
               context={{ source: 'quiz-review', examId, examTitle, weakDomains: weak.length > 0 ? weak : undefined }}
             />
