@@ -18,6 +18,7 @@ import { loadLessonNote } from '@/lib/content-loader';
 import { TermTooltip } from '@/components/GlossaryTerm';
 import { useGlossary } from '@/lib/useGlossary';
 import { lookupGlossaryTerm } from '@/lib/glossary';
+import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 import { getFocusTimer, setFocusTimer } from '@/lib/study-tracker';
 import type { FocusTimer } from '@/lib/study-tracker';
 import type { ExamConfig, SkillTrackModule, SkillTrackLesson, KnowledgeCheckQuestion } from '@/types/content';
@@ -62,7 +63,7 @@ function KnowledgeCheckItem({ q, idx }: { q: KnowledgeCheckQuestion; idx: number
 }
 
 // ── One lesson card: objectives, optional hands-on mission, notes toggle, knowledge check ──
-function LessonCard({ lesson }: { lesson: SkillTrackLesson }) {
+function LessonCard({ lesson, highlightEnabled }: { lesson: SkillTrackLesson; highlightEnabled: boolean }) {
   const [notesOpen, setNotesOpen] = useState(false);
   const [notes, setNotes] = useState<string | null>(null);
   const [loadingNotes, setLoadingNotes] = useState(false);
@@ -128,6 +129,12 @@ function LessonCard({ lesson }: { lesson: SkillTrackLesson }) {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
               components={{
+                p({ children }) {
+                  return <p>{highlightEnabled ? applyHighlighting(children) : children}</p>;
+                },
+                li({ children }) {
+                  return <li>{highlightEnabled ? applyHighlighting(children) : children}</li>;
+                },
                 pre({ children }) {
                   // Intercept mermaid code blocks — same convention as the exam Notes page.
                   const nodeArray = Children.toArray(children);
@@ -248,6 +255,11 @@ export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamCo
   // Everything starts expanded (matches the page's prior behavior); collapsing
   // is an opt-in way to cut scroll length on a long track, not a default.
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  // Prose keyword highlighting ("Terms on/off") — defaults on, matching the
+  // exam Notes page, so a lesson's plain-text mentions of known terms (Azure
+  // RBAC, architecture patterns, etc. — src/lib/keywords.ts) are highlighted
+  // automatically without the content author needing to backtick-wrap them.
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
 
   const toggleModule = useCallback((id: string) => {
     setCollapsed((prev) => {
@@ -339,6 +351,10 @@ export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamCo
         </p>
         <div className="flex items-center gap-2 mt-3">
           <PageViewsBadge path={`/skillup/${examId}`} />
+          <KeywordHighlightToggle
+            enabled={highlightEnabled}
+            onToggle={() => setHighlightEnabled((v) => !v)}
+          />
           <div className="relative ml-auto">
             <button
               type="button"
@@ -459,7 +475,7 @@ export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamCo
               <>
                 <div className="space-y-3">
                   {mod.lessons.map((lesson) => (
-                    <LessonCard key={lesson.id} lesson={lesson} />
+                    <LessonCard key={lesson.id} lesson={lesson} highlightEnabled={highlightEnabled} />
                   ))}
                 </div>
                 <ModuleRelated examId={examId} mod={mod} />
