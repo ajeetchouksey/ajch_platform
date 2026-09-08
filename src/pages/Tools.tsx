@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import RelatedContent from '@/components/RelatedContent';
 import GiscusComments from '@/components/GiscusComments';
+import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { MessageSquare } from 'lucide-react';
 import { useMeta } from '@/lib/useMeta';
@@ -284,6 +285,7 @@ export default function Tools() {
           slug="tools-index"
           context="tools"
         />
+        <LightComments contentId="tools" />
       </div>
     </div>
   );
