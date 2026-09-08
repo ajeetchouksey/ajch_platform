@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, GraduationCap, Lock, Zap, FlaskConical, CalendarDays, Clock, X, MessageSquare, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
+import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { useAuth } from '@/lib/auth';
@@ -648,6 +649,7 @@ export default function ExamHome() {
           slug={`exam-${examId}`}
           context="skill-up"
         />
+        <LightComments contentId={`exam-${examId}`} />
       </div>
     </div>
   );
