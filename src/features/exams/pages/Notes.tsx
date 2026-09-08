@@ -384,9 +384,9 @@ export default function Notes() {
   // prompts never drift from one another.
   const aiContext = {
     source: 'notes' as const,
+    examId,
     examTitle: examConfig?.title ?? '',
     domainTitle: currentDomainConfig?.title,
-    noteExcerpt: content ? content.slice(0, 500) : undefined,
   };
 
   function goTo(d: DomainConfig) {

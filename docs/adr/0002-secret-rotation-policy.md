@@ -2,6 +2,13 @@
 
 - Status: Accepted
 - Date: 2026-08-23
+- **Update (2026-09-08)**: `/mentor/*` no longer calls Anthropic — it runs on
+  Cloudflare Workers AI (open-weight Llama models via the `[ai]` binding, no
+  API key, no per-token spend). `ANTHROPIC_API_KEY` has been removed from
+  `wrangler.toml`/`workers/subscribe.ts` entirely, so every rotation
+  instruction below that names it no longer applies — kept for historical
+  record, not as a live runbook. The `GH_APP_PRIVATE_KEY`/`GH_CLIENT_SECRET`/
+  `GIST_TOKEN` rotation policy is unaffected and still applies as written.
 
 ## Context
 

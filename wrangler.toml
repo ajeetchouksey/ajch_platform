@@ -44,6 +44,14 @@ binding     = "DB"
 database_name = "aarya-subscribers"
 database_id = "2f397d9b-4d45-4c1d-aa1e-3c474f58dd32"
 
+# ── Workers AI — powers /mentor/* (open-weight Llama models, no API key) ─────
+# No id/create step — unlike KV/D1, this binding just needs to exist. Usage
+# draws from the account's free daily neuron allowance, shared account-wide
+# with germ_skill's own Workers AI feature — see workers/subscribe.ts's header
+# comment and its mentorGlobal rate-limit policy.
+[ai]
+binding = "AI"
+
 # ── Plaintext vars (non-secret feature flags) ────────────────────────────────
 # IDEA-0009 Phase 2 — NFR-4 (privacy disclosure) resolved via the inline copy
 # in LightComments.tsx (no separate /legal/privacy page yet). Flipped on for
@@ -73,9 +81,6 @@ COMMENTS_ENABLED = "true"
 #
 #   wrangler secret put GH_APP_INSTALLATION_ID
 #     → <REPLACE_WITH_GH_APP_INSTALLATION_ID>
-#
-#   wrangler secret put ANTHROPIC_API_KEY
-#     → paste your Anthropic API key (powers /mentor/* endpoints)
 #
 #   wrangler secret put GH_CLIENT_ID
 #     → paste your GitHub OAuth App client_id (from github.com/settings/developers)
