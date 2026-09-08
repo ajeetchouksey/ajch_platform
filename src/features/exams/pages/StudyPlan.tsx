@@ -1,8 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useReducer } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { CalendarDays, ChevronDown, ChevronRight, BookOpen, Brain, AlertTriangle, CheckCircle2, Circle, RefreshCw, Clock, Zap, Sparkles, RotateCcw, MessageCircle, X, LayoutList, Calendar, TrendingDown } from 'lucide-react';
+import { CalendarDays, ChevronDown, ChevronRight, BookOpen, Brain, AlertTriangle, CheckCircle2, Circle, RefreshCw, Clock, Zap, Sparkles, RotateCcw, X, LayoutList, Calendar, TrendingDown } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { getSessions } from '@/lib/storage';
 import {
@@ -24,16 +22,11 @@ import {
 import type { DailyMinutes, DomainQuizScore, WeakDomain } from '@/lib/plan-generator';
 import { getDailyCard, getStreak, getReadinessBreakdown } from '@/lib/study-tracker';
 import { predictPassProbabilityFromSessions } from '@/lib/adaptive-quiz';
-import {
-  callMentorPlan,
-  callMentorChat,
-  loadMentorChat,
-  saveMentorChat,
-} from '@/lib/mentor-api';
+import { callMentorPlan } from '@/lib/mentor-api';
 import type { StudyPlan as StudyPlanType, StudySession, Activity } from '@/lib/plan-generator';
 import type { ExamConfig } from '@/types/content';
 import { useProgressSync } from '@/lib/useProgressSync';
-import { StudyWithAI } from '@/components/StudyWithAI';
+import { AskMentor } from '@/components/AskMentor';
 import { TodaysMissionHero } from './TodaysMissionHero';
 
 // ── Activity icon ─────────────────────────────────────────────────────────────
@@ -42,119 +35,6 @@ function ActivityIcon({ type }: { type: Activity['type'] }) {
   if (type === 'notes')  return <BookOpen  size={13} className="text-blue-400   shrink-0" />;
   if (type === 'quiz')   return <Brain      size={13} className="text-violet-400 shrink-0" />;
   return                        <AlertTriangle size={13} className="text-rose-400   shrink-0" />;
-}
-
-// ── Ask Mentor panel (per session) ────────────────────────────────────────────
-
-interface AskMentorPanelProps {
-  examId: string;
-  day: number;
-  domainTitle: string;
-}
-
-function AskMentorPanel({ examId, day, domainTitle }: AskMentorPanelProps) {
-  const defaultQ = `Why is ${domainTitle} important and what are the most likely exam questions?`;
-  const MENTOR_SHORTCUT_CHIPS = [
-    `Why is ${domainTitle} important and what are the most likely exam questions?`,
-    `Give me a realistic exam scenario for ${domainTitle}`,
-    `What's the trickiest thing people get wrong in ${domainTitle}?`,
-  ];
-  const [open, setOpen] = useState(false);
-  const [question, setQuestion] = useState(defaultQ);
-  const [loading, setLoading] = useState(false);
-  const [answer, setAnswer] = useState<string | null>(() => loadMentorChat(examId, day));
-  const [error, setError] = useState<string | null>(null);
-
-  const ask = useCallback(async () => {
-    if (!question.trim() || loading) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const resp = await callMentorChat(examId, domainTitle, question);
-      setAnswer(resp);
-      saveMentorChat(examId, day, resp);
-    } catch {
-      setError('Mentor is unavailable — please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  }, [examId, domainTitle, day, question, loading]);
-
-  return (
-    <div className="border-t border-slate-800/60">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center gap-2 px-4 py-2.5 text-left text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/20 transition-colors"
-        aria-expanded={open}
-      >
-        <MessageCircle size={12} className="text-violet-400 shrink-0" />
-        <span className="font-medium">Ask Mentor</span>
-        {open ? <ChevronDown size={12} className="ml-auto" /> : <ChevronRight size={12} className="ml-auto" />}
-      </button>
-
-      {open && (
-        <div className="px-4 pb-4 space-y-3">
-          <div className="flex flex-wrap gap-2">
-            {MENTOR_SHORTCUT_CHIPS.map((chip) => (
-              <button
-                key={chip}
-                onClick={() => setQuestion(chip)}
-                className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                  question === chip
-                    ? 'bg-violet-600 border-violet-500 text-white'
-                    : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:border-violet-500/50 hover:text-slate-200'
-                }`}
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
-          <textarea
-            value={question}
-            onChange={(e) => setQuestion(e.target.value.substring(0, 300))}
-            rows={2}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-300 placeholder-slate-600 resize-none focus:outline-none focus:ring-1 focus:ring-violet-500/50"
-            placeholder="Ask the mentor about this domain..."
-          />
-          <div className="flex items-center gap-2">
-            <button
-              onClick={ask}
-              disabled={loading || !question.trim()}
-              className="btn-primary text-xs px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
-            >
-              {loading ? (
-                <>
-                  <span className="animate-spin inline-block w-3 h-3 border border-white border-t-transparent rounded-full" />
-                  Asking…
-                </>
-              ) : (
-                <>
-                  <Sparkles size={11} />
-                  Ask
-                </>
-              )}
-            </button>
-            {answer && (
-              <button
-                onClick={() => { setAnswer(null); saveMentorChat(examId, day, ''); setQuestion(defaultQ); }}
-                className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-
-          {error && <p className="text-xs text-rose-400">{error}</p>}
-
-          {answer && !error && (
-            <div className="prose prose-invert prose-xs max-w-none text-slate-300 [&>p]:text-xs [&>p]:leading-relaxed [&>ul]:text-xs [&>ul]:leading-relaxed bg-slate-800/40 rounded-lg p-3">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer}</ReactMarkdown>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
 }
 
 // ── Mini calendar view ────────────────────────────────────────────────────────
@@ -363,11 +243,14 @@ function SessionCard({ session, examId, examTitle, weakDomains, onToggle, defaul
       )}
 
       {/* Ask Mentor panel */}
-      <AskMentorPanel examId={examId} day={session.day} domainTitle={session.domainTitle} />
-
-      {/* Study with AI handoff */}
-      <StudyWithAI
+      <AskMentor
         variant="row"
+        day={session.day}
+        shortcutChips={[
+          `Why is ${session.domainTitle} important and what are the most likely exam questions?`,
+          `Give me a realistic exam scenario for ${session.domainTitle}`,
+          `What's the trickiest thing people get wrong in ${session.domainTitle}?`,
+        ]}
         context={{
           source: 'study-plan',
           examId,

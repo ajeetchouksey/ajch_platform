@@ -3,9 +3,9 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui';
-import { callMentorChat } from '@/lib/mentor-api';
+import { callMentorChat, loadMentorChat, saveMentorChat } from '@/lib/mentor-api';
 
-export interface StudyWithAIContext {
+export interface AskMentorContext {
   source: 'notes' | 'study-plan' | 'quiz-review';
   examId: string;
   examTitle: string;
@@ -13,8 +13,8 @@ export interface StudyWithAIContext {
   weakDomains?: { title: string; pct: number }[];
 }
 
-interface StudyWithAIProps {
-  context: StudyWithAIContext;
+interface AskMentorProps {
+  context: AskMentorContext;
   variant: 'icon' | 'row';
   /** Controlled open state — omit to keep the component's default
    *  uncontrolled behavior (internal toggle on trigger click). Pass both
@@ -26,13 +26,18 @@ interface StudyWithAIProps {
    *  it whenever it changes, without clobbering an in-progress edit on
    *  unrelated re-renders. */
   initialSelectedText?: string;
+  /** Quick-fill question chips shown above the textarea (Study Plan's
+   *  per-session shortcuts). Omit for a plain textarea with no chips. */
+  shortcutChips?: string[];
+  /** When provided (Study Plan's per-day session cards), the last answer
+   *  persists to localStorage keyed on `examId`+`day` and survives a reload.
+   *  Omit for a one-off, non-persisted ask (Notes.tsx, Quiz.tsx). */
+  day?: number;
 }
 
-/** A sensible starting question for the mentor, mirroring the same
- * selectedText > weakDomains > domainTitle > generic priority the old
- * external-handoff prompt composer used — just phrased as a direct question
- * to our own mentor instead of an instructive prompt for a third-party tool. */
-function buildDefaultQuestion(context: StudyWithAIContext, selectedText?: string): string {
+/** A sensible starting question for the mentor: selectedText > weakDomains >
+ * domainTitle > generic, in that priority order. */
+function buildDefaultQuestion(context: AskMentorContext, selectedText?: string): string {
   if (selectedText) {
     const excerpt = selectedText.length > 160 ? `${selectedText.slice(0, 160)}...` : selectedText;
     return `Explain this in the context of the ${context.examTitle} exam: "${excerpt}"`;
@@ -47,7 +52,7 @@ function buildDefaultQuestion(context: StudyWithAIContext, selectedText?: string
   return `What should I focus on to prepare for the ${context.examTitle} exam?`;
 }
 
-export function StudyWithAI({ context, variant, open: openProp, onOpenChange, initialSelectedText }: StudyWithAIProps) {
+export function AskMentor({ context, variant, open: openProp, onOpenChange, initialSelectedText, shortcutChips, day }: AskMentorProps) {
   const isControlled = openProp !== undefined;
   const [internalOpen, setInternalOpen] = useState(false);
   const open = isControlled ? openProp : internalOpen;
@@ -57,9 +62,10 @@ export function StudyWithAI({ context, variant, open: openProp, onOpenChange, in
     onOpenChange?.(next);
   };
 
-  const [question, setQuestion] = useState(() => buildDefaultQuestion(context, initialSelectedText));
+  const defaultQuestion = buildDefaultQuestion(context, initialSelectedText);
+  const [question, setQuestion] = useState(defaultQuestion);
   const [loading, setLoading] = useState(false);
-  const [answer, setAnswer] = useState<string | null>(null);
+  const [answer, setAnswer] = useState<string | null>(() => (day !== undefined ? loadMentorChat(context.examId, day) : null));
   const [error, setError] = useState<string | null>(null);
 
   // A newly selected passage seeds a fresh question and clears any previous
@@ -85,12 +91,19 @@ export function StudyWithAI({ context, variant, open: openProp, onOpenChange, in
     try {
       const resp = await callMentorChat(context.examId, context.domainTitle ?? context.examTitle, question);
       setAnswer(resp);
+      if (day !== undefined) saveMentorChat(context.examId, day, resp);
     } catch {
       setError('Mentor is unavailable right now — please try again shortly.');
     } finally {
       setLoading(false);
     }
-  }, [context.examId, context.domainTitle, context.examTitle, question, loading]);
+  }, [context.examId, context.domainTitle, context.examTitle, question, loading, day]);
+
+  const clear = () => {
+    setAnswer(null);
+    setQuestion(defaultQuestion);
+    if (day !== undefined) saveMentorChat(context.examId, day, '');
+  };
 
   return (
     <div>
@@ -101,7 +114,7 @@ export function StudyWithAI({ context, variant, open: openProp, onOpenChange, in
           size="sm"
           icon={Sparkles}
           onClick={() => setOpen((o) => !o)}
-          title="Study with AI — ask the mentor about this"
+          title="Ask Mentor — ask a question about this"
         />
       ) : (
         <button
@@ -110,7 +123,7 @@ export function StudyWithAI({ context, variant, open: openProp, onOpenChange, in
           aria-expanded={open}
         >
           <Sparkles size={12} className="text-violet-400 shrink-0" />
-          <span className="font-medium">Study with AI</span>
+          <span className="font-medium">Ask Mentor</span>
           {open ? <ChevronDown size={12} className="ml-auto" /> : <ChevronRight size={12} className="ml-auto" />}
         </button>
       )}
@@ -118,6 +131,23 @@ export function StudyWithAI({ context, variant, open: openProp, onOpenChange, in
       {/* Disclosure panel */}
       {open && (
         <div className="px-4 pb-4 pt-3 space-y-3">
+          {shortcutChips && shortcutChips.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {shortcutChips.map((chip) => (
+                <button
+                  key={chip}
+                  onClick={() => setQuestion(chip)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                    question === chip
+                      ? 'bg-violet-600 border-violet-500 text-white'
+                      : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:border-violet-500/50 hover:text-slate-200'
+                  }`}
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          )}
           <textarea
             value={question}
             onChange={(e) => setQuestion(e.target.value.substring(0, 300))}
@@ -144,10 +174,7 @@ export function StudyWithAI({ context, variant, open: openProp, onOpenChange, in
               )}
             </button>
             {answer && (
-              <button
-                onClick={() => { setAnswer(null); setQuestion(buildDefaultQuestion(context, initialSelectedText)); }}
-                className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
-              >
+              <button onClick={clear} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
                 Clear
               </button>
             )}
