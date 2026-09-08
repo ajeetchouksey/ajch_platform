@@ -10,6 +10,7 @@ import {
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import GiscusComments from '@/components/GiscusComments';
+import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
@@ -529,6 +530,9 @@ export default function SkillTrackHome({ exam, examId, mounted }: { exam: ExamCo
           <div className="ml-auto"><ContentFeedback contentId={`exam-${examId}`} compact /></div>
         </div>
         <GiscusComments slug={`exam-${examId}`} context="skill-up" />
+        {/* IDEA-0009 Phase 5 — Skill Tracks didn't exist yet when this rolled
+            out to every classic exam's Notes.tsx; same contentId scheme. */}
+        <LightComments contentId={`exam-${examId}`} />
       </div>
     </div>
   );
