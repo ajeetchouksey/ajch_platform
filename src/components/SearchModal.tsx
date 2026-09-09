@@ -1,29 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, X, FileText, GraduationCap, Wrench, ArrowRight, Briefcase, Building2, FlaskConical } from 'lucide-react';
+import { Search, X, ArrowRight } from 'lucide-react';
 import { search, buildFullIndex } from '@/lib/search';
 import type { SearchDocument, SearchResult } from '@/lib/search';
 import { loadBlogManifest, loadExamRegistry, loadInterviewBank, loadAllUseCases, loadHolLabsIndex } from '@/lib/content-loader';
-
-// ── Icon by content type ───────────────────────────────────────────────────
-const TYPE_ICON: Record<SearchDocument['type'], React.ElementType> = {
-  blog: FileText,
-  exam: GraduationCap,
-  tool: Wrench,
-  note: FileText,
-  interview: Briefcase,
-  usecase: Building2,
-  lab: FlaskConical,
-};
-const TYPE_COLOR: Record<SearchDocument['type'], string> = {
-  blog: '#a78bfa',
-  exam: '#34d399',
-  tool: '#60a5fa',
-  note: '#fb923c',
-  interview: '#f472b6',
-  usecase: '#22d3ee',
-  lab: '#facc15',
-};
+import { TYPE_ICON, TYPE_COLOR } from '@/lib/content-types';
 
 // ── Component ──────────────────────────────────────────────────────────────
 

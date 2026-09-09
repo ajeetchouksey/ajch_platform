@@ -415,7 +415,7 @@ export default function UseCaseDetail() {
           )}
 
           {/* Computed cross-vertical relationships — see ComputedRelatedList */}
-          <ComputedRelatedList edges={computedRelated} heading="Related Content" />
+          <ComputedRelatedList edges={computedRelated} />
 
           {/* Related interview questions */}
           {featured.relatedInterviewQs && featured.relatedInterviewQs.length > 0 && (

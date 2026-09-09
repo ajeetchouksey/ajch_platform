@@ -1,6 +1,7 @@
 import type { Question, Scenario, ExamRegistry, BlogManifest } from '../types/content';
 import type { RelationshipEdge, RelationshipsFile } from './relationships';
 import type { GlossaryFile, GlossaryTermEntry } from './glossary';
+import type { TaxonomyFile } from './taxonomy';
 import {
   ensureContentManifestLoaded,
   resolveContentUrl,
@@ -456,6 +457,27 @@ export async function loadGlossaryMap(): Promise<Map<string, GlossaryTermEntry>>
       });
   }
   return _glossaryCache;
+}
+
+// ── Taxonomy labels ─────────────────────────────────────────────────────────
+// taxonomy.json is precomputed at build time (scripts/seed-taxonomy.mjs) —
+// the frontend only ever needs id -> label lookups (e.g. ComputedRelatedList
+// humanizing a sharedTaxonomyIds fallback), never the alias/mention-
+// resolution machinery that produced it, which stays build-time-only.
+
+let _taxonomyLabelsCache: Promise<Map<string, string>> | null = null;
+
+/** id -> label map from every taxonomy.json topic. */
+export async function loadTaxonomyLabels(): Promise<Map<string, string>> {
+  if (!_taxonomyLabelsCache) {
+    _taxonomyLabelsCache = fetchJSON<TaxonomyFile>('content/taxonomy.json')
+      .then((file) => new Map(file.topics.map((t) => [t.id, t.label])))
+      .catch((err) => {
+        _taxonomyLabelsCache = null; // allow retry on next call rather than caching a permanent failure
+        throw err;
+      });
+  }
+  return _taxonomyLabelsCache;
 }
 
 // ── Use Cases (AI UseCases section) ────────────────────────────────────────

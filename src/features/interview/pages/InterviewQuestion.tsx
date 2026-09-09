@@ -272,7 +272,7 @@ export default function InterviewQuestion() {
 
       {/* Computed cross-vertical relationships — see ComputedRelatedList */}
       <div className="mt-8">
-        <ComputedRelatedList edges={computedRelated} heading="Related Content" />
+        <ComputedRelatedList edges={computedRelated} />
       </div>
 
       {/* IDEA-0009 — closes the zero-discussion-channel gap, keyed off the shared
