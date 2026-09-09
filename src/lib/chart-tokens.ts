@@ -79,3 +79,26 @@ export const STATUS = {
 } as const;
 
 export type StatusKey = keyof typeof STATUS;
+
+/**
+ * GA4 channel/device-name → CATEGORICAL slot. ajch_food_for_thoughts#52 —
+ * was two file-local hardcoded hex maps inside Monitoring.tsx. The mapping
+ * is semantic (nearest hue family to what each channel/device used to be:
+ * "Organic Social" was pink, no pink slot exists here, so it takes rose;
+ * "Email" was orange, so it takes amber), not a literal 1:1 hex carryover —
+ * every value is still one of the validated CATEGORICAL slots above, in
+ * fixed assignment (never cycled per the dataviz method's non-negotiable).
+ */
+export const CHANNEL_COLORS: Record<string, string> = {
+  'Organic Search': CATEGORICAL.violet,
+  'Direct': CATEGORICAL.blue,
+  'Referral': CATEGORICAL.emerald,
+  'Organic Social': CATEGORICAL.rose,
+  'Email': CATEGORICAL.amber,
+};
+
+export const DEVICE_COLORS: Record<string, string> = {
+  desktop: CATEGORICAL.violet,
+  mobile: CATEGORICAL.blue,
+  tablet: CATEGORICAL.emerald,
+};

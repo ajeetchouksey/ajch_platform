@@ -18,6 +18,8 @@ export { SectionHeader } from './SectionHeader';
 export { StatGrid } from './StatGrid';
 export type { StatItem } from './StatGrid';
 
+export { CircularProgress } from './CircularProgress';
+
 export { SparkLine } from './SparkLine';
 export { HBarChart } from './HBarChart';
 export { DonutChart } from './DonutChart';

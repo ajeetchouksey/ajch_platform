@@ -16,7 +16,7 @@ import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp
 import GiscusComments from '@/components/GiscusComments';
 import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
-import { ContentMeta, Button } from '@/components/ui';
+import { ContentMeta, Button, CircularProgress } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 import { AskMentor } from '@/components/AskMentor';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
@@ -29,41 +29,6 @@ const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
 function readingTime(md: string) {
   return Math.max(1, Math.ceil(md.split(/\s+/).filter(Boolean).length / 200));
-}
-
-// ── Circular reading progress (matches BlogPost sidebar) ─────────────────────
-function CircularProgress({ pct, readTime }: { pct: number; readTime: number }) {
-  const r = 18;
-  const c = 2 * Math.PI * r;
-  const remaining = Math.max(0, Math.round(readTime * (1 - pct / 100)));
-  return (
-    <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
-      style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.18)' }}>
-      <div className="relative w-11 h-11 shrink-0">
-        <svg className="w-11 h-11 -rotate-90" viewBox="0 0 44 44">
-          <circle cx="22" cy="22" r={r} fill="none" stroke="rgba(71,85,105,0.25)" strokeWidth="2.5" />
-          <circle cx="22" cy="22" r={r} fill="none" stroke="url(#notes-pgr)" strokeWidth="2.5"
-            strokeDasharray={c} strokeDashoffset={c * (1 - pct / 100)}
-            strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.4s ease' }} />
-          <defs>
-            <linearGradient id="notes-pgr" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#a78bfa" />
-              <stop offset="100%" stopColor="#38bdf8" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white">
-          {Math.round(pct)}%
-        </span>
-      </div>
-      <div>
-        <p className="text-xs font-bold text-slate-200">Reading</p>
-        <p className="text-[10px] text-slate-500">
-          {pct >= 99 ? 'Complete ✓' : `${remaining} min left`}
-        </p>
-      </div>
-    </div>
-  );
 }
 
 // ── TOC helpers ────────────────────────────────────────────────────────────────

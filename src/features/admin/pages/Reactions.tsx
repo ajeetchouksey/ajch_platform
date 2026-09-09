@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth, useIsOwner } from '@/lib/auth';
 import { ThumbsUp, ThumbsDown, Star, ChevronLeft, Lock, Trash2, BarChart2, TrendingUp } from 'lucide-react';
+import { CATEGORICAL } from '@/lib/chart-tokens';
+
+// "Platform Signal Analytics" below used a bg-pink-500/text-pink-300/400
+// accent found nowhere else in the app's color system
+// (ajch_food_for_thoughts#52) — mapped onto CATEGORICAL.rose, the nearest
+// existing categorical slot, rather than keeping an 8th one-off hue.
+const SIGNAL_ACCENT = CATEGORICAL.rose;
 
 const WORKER_URL = (import.meta.env.VITE_SUBSCRIBE_WORKER_URL as string | undefined) ?? '';
 
@@ -182,11 +189,11 @@ export default function Reactions() {
       {/* ── Platform Signal Analytics (from Worker Gist) ── */}
       <div className="mt-10">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp size={15} className="text-pink-400" />
+          <TrendingUp size={15} style={{ color: SIGNAL_ACCENT }} />
           <h2 className="text-sm font-bold text-slate-200 tracking-tight">Platform Signal Analytics</h2>
           <span className="text-[10px] text-slate-600 ml-1">all users · from Worker Gist</span>
           {signalData && (
-            <span className="ml-auto text-[11px] font-semibold text-pink-300">
+            <span className="ml-auto text-[11px] font-semibold" style={{ color: SIGNAL_ACCENT }}>
               {signalData.total} total helpful signals
             </span>
           )}
@@ -197,10 +204,10 @@ export default function Reactions() {
         ) : Object.keys(signalData.byContent).length === 0 ? (
           <p className="text-xs text-slate-600 py-4">No signals recorded yet.</p>
         ) : (
-          <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(244,114,182,0.15)' }}>
+          <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(235,81,105,0.15)' }}>
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ background: 'rgba(15,23,42,0.8)', borderBottom: '1px solid rgba(244,114,182,0.12)' }}>
+                <tr style={{ background: 'rgba(15,23,42,0.8)', borderBottom: '1px solid rgba(235,81,105,0.12)' }}>
                   <th className="text-left px-4 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Content</th>
                   <th className="text-left px-3 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Type</th>
                   <th className="text-right px-4 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Helpful ♥</th>
@@ -220,7 +227,9 @@ export default function Reactions() {
                         }}>
                         <td className="px-4 py-2.5">
                           <Link to={href}
-                            className="text-xs text-slate-300 hover:text-pink-300 transition-colors font-medium truncate block max-w-[260px]">
+                            className="text-xs text-slate-300 transition-colors font-medium truncate block max-w-[260px]"
+                            onMouseEnter={e => { e.currentTarget.style.color = SIGNAL_ACCENT; }}
+                            onMouseLeave={e => { e.currentTarget.style.color = ''; }}>
                             {label.replace(/-/g, ' ')}
                           </Link>
                         </td>
@@ -233,9 +242,9 @@ export default function Reactions() {
                         <td className="px-4 py-2.5 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <div className="w-16 h-1 rounded-full bg-slate-800 overflow-hidden">
-                              <div className="h-full rounded-full bg-pink-500" style={{ width: `${pct}%` }} />
+                              <div className="h-full rounded-full" style={{ width: `${pct}%`, background: SIGNAL_ACCENT }} />
                             </div>
-                            <span className="text-xs font-bold text-pink-300 w-5 text-right">{count}</span>
+                            <span className="text-xs font-bold w-5 text-right" style={{ color: SIGNAL_ACCENT }}>{count}</span>
                           </div>
                         </td>
                       </tr>

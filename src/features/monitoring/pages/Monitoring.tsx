@@ -10,6 +10,7 @@ import { useGA4Retention } from '../hooks/useGA4Retention';
 import { useCloudflareOverview } from '../hooks/useCloudflareOverview';
 import { useCloudflareStatus } from '../hooks/useCloudflareStatus';
 import { KpiCard, HBarChart, DonutChart, SparkLine } from '@/components/ui';
+import { CHANNEL_COLORS, DEVICE_COLORS } from '@/lib/chart-tokens';
 import { RetentionTable, type RetentionWeek } from '../components/RetentionTable';
 import { SkeletonCard, SkeletonRow } from '../components/Skeleton';
 import { forecast, detectAnomalies } from '../lib/forecast';
@@ -633,16 +634,6 @@ function ExamsTab({ dateRange }: { dateRange: DateRange }) {
     </div>
   );
 }
-
-// Color maps outside components to avoid useMemo exhaustive-deps warnings
-const CHANNEL_COLORS: Record<string, string> = {
-  'Organic Search': '#a78bfa',
-  'Direct': '#67e8f9',
-  'Referral': '#4ade80',
-  'Organic Social': '#f472b6',
-  'Email': '#fb923c',
-};
-const DEVICE_COLORS: Record<string, string> = { desktop: '#a78bfa', mobile: '#67e8f9', tablet: '#4ade80' };
 
 // ── Sources tab ───────────────────────────────────────────────────────────────
 
