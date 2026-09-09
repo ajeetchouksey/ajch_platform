@@ -10,7 +10,6 @@ import { getSessions } from '@/lib/storage';
 import { loadPlan, nextIncompleteSession } from '@/lib/plan-generator';
 import { getStreak, getDomainCompletion, getReadinessBreakdown } from '@/lib/study-tracker';
 import type { ReadinessBreakdown } from '@/lib/study-tracker';
-import RelatedContent from '@/components/RelatedContent';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationshipsForIds } from '@/lib/useRelationships';
 import PageViewsBadge from '@/components/PageViewsBadge';
@@ -231,15 +230,6 @@ export default function ExamHome() {
     catch { /* storage unavailable — banner stays for this session only */ }
     setBannerDismissed(true);
   }, []);
-
-  // Static keyword set per exam for cross-link matching
-  const EXAM_TAGS: Record<string, string[]> = useMemo(() => ({
-    ccaf:  ['claude', 'anthropic', 'mcp', 'prompt-engineering', 'agentic', 'ai', 'llm', 'context', 'tool-design', 'system-prompt'],
-    ab100: ['azure', 'azure-ai', 'agentic', 'responsible-ai', 'copilot-studio', 'azure-openai', 'governance'],
-    ghbp:  ['github', 'branch-protection', 'devops', 'ci-cd', 'platform-engineering', 'governance', 'security'],
-  }), []);
-
-  const examTags = useMemo(() => (examId ? (EXAM_TAGS[examId] ?? [examId]) : []), [examId, EXAM_TAGS]);
 
   useEffect(() => {
     if (!examId) return;
@@ -637,15 +627,6 @@ export default function ExamHome() {
           ))}
         </ul>
       </div>
-
-      {/* Related resources — cross-links to other SkillUp tracks & AI Tools */}
-      <RelatedContent
-        tags={examTags}
-        currentPath={`/skillup/${examId}`}
-        heading="Continue Learning"
-        maxSkills={2}
-        maxTools={3}
-      />
 
       {/* Computed cross-vertical relationships — see ComputedRelatedList */}
       <ComputedRelatedList edges={computedRelated} heading="Related Content" />

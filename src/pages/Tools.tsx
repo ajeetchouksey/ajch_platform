@@ -4,10 +4,11 @@ import {
   Terminal, Hash, Eye, Server, FileText,
   Calculator, Layers, FileJson, BookMarked, ArrowRight, Zap,
 } from 'lucide-react';
-import RelatedContent from '@/components/RelatedContent';
 import GiscusComments from '@/components/GiscusComments';
 import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationshipsForIds } from '@/lib/useRelationships';
 import { MessageSquare } from 'lucide-react';
 import { useMeta } from '@/lib/useMeta';
 
@@ -97,6 +98,11 @@ const TOOLS: ToolDef[] = [
 
 const LIVE_TOOLS = TOOLS.filter(t => t.live && t.href);
 
+// tool/{id} doc-ids for every live tool, derived from the same hrefs already
+// rendered above rather than a second hardcoded id list — must match the id
+// scheme scripts/lib/tools-registry.mjs uses to build these docs at build time.
+const LIVE_TOOL_DOC_IDS = LIVE_TOOLS.map(t => `tool/${t.href!.replace('/tools/', '')}`);
+
 const CATEGORY_META: Record<string, { label: string; color: string; border: string; bg: string }> = {
   prompting: { label: 'Prompting',  color: '#a78bfa', border: 'rgba(139,92,246,0.35)', bg: 'rgba(139,92,246,0.10)' },
   tokens:    { label: 'Tokens',     color: '#38bdf8', border: 'rgba(56,189,248,0.35)',  bg: 'rgba(56,189,248,0.08)'  },
@@ -110,6 +116,7 @@ export default function Tools() {
     description: 'Free browser-based tools for AI engineers: token counter, context visualizer, prompt tester, MCP scaffold builder, and more.',
   });
   const [mounted, setMounted] = useState(false);
+  const computedRelated = useRelationshipsForIds(LIVE_TOOL_DOC_IDS);
 
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
@@ -265,14 +272,13 @@ export default function Tools() {
         </div>
       </section>
 
-      {/* ── Related SkillUp tracks ─────────────────────────────────────── */}
-      <RelatedContent
-        tags={['ai', 'llm', 'prompt-engineering', 'mcp', 'claude', 'azure-ai', 'github', 'context', 'tokens']}
-        currentPath="/tools"
-        heading="Sharpen Your Skills"
-        maxSkills={3}
-        maxTools={0}
-      />
+      {/* Computed cross-vertical relationships — union across every live
+          tool's own edges, since this is a catalog page with no single
+          content item's taxonomyIds to scope a match to (see
+          ajch_food_for_thoughts#42). Real matches only — a tool with no
+          genuine overlap anywhere just contributes nothing, same precision
+          rule as everywhere else in this pipeline. */}
+      <ComputedRelatedList edges={computedRelated} heading="Sharpen Your Skills" />
 
       {/* ── Community discussion ───────────────────────────────────────── */}
       <div className="mt-12 pt-8 border-t border-slate-800/60">
