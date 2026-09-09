@@ -9,7 +9,7 @@
  * module is browser-oriented).
  */
 
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -161,6 +161,64 @@ export async function loadUsecasesIndex() {
   const localPath = join(contentDir, 'usecases', 'index.json');
   if (!existsSync(localPath)) return null;
   return JSON.parse(readFileSync(localPath, 'utf-8'));
+}
+
+// Every content/usecases/cases/{id}.json file that exists in the promoted
+// repo, discovered via jsDelivr's data API (a real directory listing, not
+// GitHub's own API — no token needed, same trust boundary as the raw-file
+// CDN already used everywhere else in this file). Closes the permanent
+// sync-drift risk collectRelDocs() otherwise has: a case file this list
+// finds that _source-intel.json's summary arrays don't mention is exactly
+// the "invisible forever, not just until the next backfill run" gap
+// ajch_food_for_thoughts#40 was filed to close. Local (non-promoted) mode
+// just reads the directory directly — no network call needed.
+export async function listUsecasesCaseFileIds() {
+  const manifest = loadManifest();
+  const usecases = manifest?.usecases;
+  if (usecases?.repo && usecases?.sha) {
+    resolveCdnBase(usecases, 'usecases'); // validates repo/sha shape before use, same as every other CDN call here
+    const url = `https://data.jsdelivr.com/v1/packages/gh/${usecases.repo}@${usecases.sha}?structure=flat`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.error(`⚠ listUsecasesCaseFileIds: could not list ${url} — HTTP ${res.status}`);
+      return [];
+    }
+    const data = await res.json();
+    return (data.files ?? [])
+      .filter((f) => f.name.startsWith('/content/usecases/cases/') && f.name.endsWith('.json'))
+      .map((f) => f.name.slice('/content/usecases/cases/'.length, -'.json'.length));
+  }
+  const localDir = join(contentDir, 'usecases', 'cases');
+  if (!existsSync(localDir)) return [];
+  return readdirSync(localDir)
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => f.slice(0, -'.json'.length));
+}
+
+// One individual content/usecases/cases/{id}.json file — CDN when promoted,
+// else local. Non-fatal on a missing/unreadable file (returns null) —
+// deliberately NOT fetchFromCdn, whose HTTP-error path is process.exit(1)
+// (uncatchable by a try/catch around the call). This is only ever called for
+// an id listUsecasesCaseFileIds() found but _source-intel.json didn't
+// summarize, an edge case that should degrade to "skip this one doc," not
+// abort the whole content-intelligence build.
+export async function loadUsecaseCaseFile(id) {
+  const manifest = loadManifest();
+  const usecases = manifest?.usecases;
+  try {
+    if (usecases?.repo && usecases?.sha) {
+      const baseUrl = resolveCdnBase(usecases, 'usecases');
+      const url = `${baseUrl}/${usecases.repo}@${usecases.sha}/content/usecases/cases/${id}.json`;
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      return await res.json();
+    }
+    const localPath = join(contentDir, 'usecases', 'cases', `${id}.json`);
+    if (!existsSync(localPath)) return null;
+    return JSON.parse(readFileSync(localPath, 'utf-8'));
+  } catch {
+    return null;
+  }
 }
 
 // hol-labs/index.json — CDN when promoted, else local. Manifest key is
