@@ -18,6 +18,11 @@ export { SectionHeader } from './SectionHeader';
 export { StatGrid } from './StatGrid';
 export type { StatItem } from './StatGrid';
 
+export { SparkLine } from './SparkLine';
+export { HBarChart } from './HBarChart';
+export { DonutChart } from './DonutChart';
+export { KpiCard } from './KpiCard';
+
 export { Timeline } from './Timeline';
 export type { TimelineEntry } from './Timeline';
 

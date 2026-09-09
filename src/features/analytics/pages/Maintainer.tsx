@@ -3,10 +3,19 @@ import { Link } from 'react-router-dom';
 import { useIsOwner } from '@/lib/auth';
 import { maintainer } from '@/data/maintainer';
 import { ProfileCard } from '@/components/ProfileCard';
-import { StatGrid } from '@/components/StatGrid';
+import { StatGrid } from '@/components/ui';
 import { SkillBadges } from '@/components/SkillBadges';
 import { TimelineSection } from '@/components/TimelineSection';
-import { ExternalLink, Rocket, Target, LayoutDashboard, Users } from 'lucide-react';
+import { ExternalLink, Rocket, Target, LayoutDashboard, Users, Calendar, GitCommit, FolderGit, Award } from 'lucide-react';
+
+// maintainer.stats carries icon as a plain string key (content-data shape,
+// src/data/maintainer.ts) — ui/StatGrid.tsx wants a real component ref.
+const STAT_ICON = {
+  calendar: Calendar,
+  'git-commit': GitCommit,
+  'folder-git': FolderGit,
+  award: Award,
+} as const;
 
 export default function Maintainer() {
   const isOwner = useIsOwner();
@@ -30,7 +39,12 @@ export default function Maintainer() {
       />
 
       {/* Stats */}
-      <StatGrid stats={maintainer.stats} />
+      <StatGrid
+        stats={maintainer.stats.map((stat) => ({
+          ...stat,
+          icon: STAT_ICON[stat.icon as keyof typeof STAT_ICON] ?? Calendar,
+        }))}
+      />
 
       {/* Owner-only links */}
       {isOwner && (

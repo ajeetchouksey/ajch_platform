@@ -1,9 +1,16 @@
 import { useState } from 'react';
+import { CATEGORICAL } from '@/lib/chart-tokens';
 
 interface SparkLineProps {
   points: number[];
   width?: number;
   height?: number;
+  /**
+   * Accepts any hex — most call sites use a fixed chart-tokens.CATEGORICAL
+   * value, but Monitoring's per-channel/per-device charts feed a dynamic
+   * color keyed off runtime data (ajch_food_for_thoughts#52's scope), so
+   * this stays `string` rather than `CategoricalKey`.
+   */
   color?: string;
   /** Index in `points` where a dashed (projected/forecast) style begins — the point at this index is shared by both segments so the line stays continuous. Omit for a plain solid line. */
   dashedFromIndex?: number;
@@ -17,8 +24,8 @@ interface SparkLineProps {
 }
 
 export function SparkLine({
-  points, width = 200, height = 40, color = '#a78bfa', dashedFromIndex,
-  labels, formatValue, markers, markerColor = '#fb923c',
+  points, width = 200, height = 40, color = CATEGORICAL.violet, dashedFromIndex,
+  labels, formatValue, markers, markerColor = CATEGORICAL.amber,
 }: SparkLineProps) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   if (points.length < 2) return null;
