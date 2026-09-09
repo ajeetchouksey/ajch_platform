@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { STATUS } from '@/lib/chart-tokens';
 import { exportStudyPlanAsIcal } from '@/lib/study-tracker';
 import type { DailyCard, ReadinessBreakdown } from '@/lib/study-tracker';
 import type { StudyPlan as StudyPlanType } from '@/lib/plan-generator';
@@ -28,6 +29,19 @@ function forecastColor(probability: number): string {
   if (probability >= 0.7) return 'text-emerald-400';
   if (probability >= 0.4) return 'text-amber-400';
   return 'text-rose-400';
+}
+
+/**
+ * Domain readiness (pointsEarned, 0-100) reuses Progress.tsx's per-domain
+ * score-bar color bands (ajch_food_for_thoughts#52) — good at 70+, warning
+ * once any progress exists, and an empty (unfilled) track at exactly 0,
+ * matching Progress.tsx's own "not attempted" convention rather than
+ * treating "hasn't started yet" as a critical/alarm state.
+ */
+function readinessBarColor(pct: number): string | undefined {
+  if (pct >= 70) return STATUS.good;
+  if (pct > 0) return STATUS.warning;
+  return undefined;
 }
 
 export function TodaysMissionHero({ exam, plan, card, streak, readiness, forecast }: TodaysMissionHeroProps) {
@@ -105,12 +119,27 @@ export function TodaysMissionHero({ exam, plan, card, streak, readiness, forecas
           </button>
 
           {explainOpen && (
-            <div className="space-y-1 rounded-lg bg-slate-900/60 border border-slate-800/60 p-2.5">
-              {readiness.byDomain.map((d) => (
-                <p key={d.domainId} className="text-[10px] text-slate-400 leading-relaxed">
-                  D{d.domainId}: {d.title} — {d.weight}% of exam · Notes {d.notesRead ? '✓' : '✗'} · Quiz {d.bestScore}% · {d.pointsEarned}/{d.pointsPossible} pts
-                </p>
-              ))}
+            <div className="space-y-2.5 rounded-lg bg-slate-900/60 border border-slate-800/60 p-2.5">
+              {readiness.byDomain.map((d) => {
+                const pct = Math.round(d.pointsEarned);
+                const barColor = readinessBarColor(pct);
+                return (
+                  <div key={d.domainId}>
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 mb-0.5">
+                      <span>D{d.domainId}: {d.title} <span className="text-slate-600">({d.weight}%)</span></span>
+                      <span className="font-mono" style={{ color: barColor ?? '#64748b' }}>{pct}%</span>
+                    </div>
+                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      {barColor && (
+                        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: barColor }} />
+                      )}
+                    </div>
+                    <p className="text-[9px] text-slate-600 mt-0.5">
+                      Notes {d.notesRead ? '✓' : '✗'} · Quiz {d.bestScore}%
+                    </p>
+                  </div>
+                );
+              })}
               <p className="text-[10px] text-slate-500 italic mt-1">
                 Readiness = 30% for notes read + up to 70% for best quiz score, per domain, weighted by exam domain weight.
               </p>

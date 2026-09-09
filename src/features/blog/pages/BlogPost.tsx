@@ -17,7 +17,7 @@ import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationships } from '@/lib/useRelationships';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import { ContentFeedback } from '@/components/ContentFeedback';
-import { ContentMeta } from '@/components/ui';
+import { ContentMeta, CircularProgress } from '@/components/ui';
 import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
@@ -90,41 +90,6 @@ function ReadingBar() {
     <div className="fixed top-0 left-0 right-0 z-50 h-[2px]" style={{ background: 'rgba(15,23,42,0.5)' }}>
       <div className="h-full transition-[width] duration-100"
         style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #a78bfa 0%, #38bdf8 100%)' }} />
-    </div>
-  );
-}
-
-// ── Circular reading progress ────────────────────────────────────────────────
-function CircularProgress({ pct, readTime }: { pct: number; readTime: number }) {
-  const r = 18;
-  const c = 2 * Math.PI * r;
-  const remaining = Math.max(0, Math.round(readTime * (1 - pct / 100)));
-  return (
-    <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
-      style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.18)' }}>
-      <div className="relative w-11 h-11 shrink-0">
-        <svg className="w-11 h-11 -rotate-90" viewBox="0 0 44 44">
-          <circle cx="22" cy="22" r={r} fill="none" stroke="rgba(71,85,105,0.25)" strokeWidth="2.5" />
-          <circle cx="22" cy="22" r={r} fill="none" stroke="url(#pgr)" strokeWidth="2.5"
-            strokeDasharray={c} strokeDashoffset={c * (1 - pct / 100)}
-            strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.4s ease' }} />
-          <defs>
-            <linearGradient id="pgr" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#a78bfa" />
-              <stop offset="100%" stopColor="#38bdf8" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white">
-          {Math.round(pct)}%
-        </span>
-      </div>
-      <div>
-        <p className="text-xs font-bold text-slate-200">Reading</p>
-        <p className="text-[10px] text-slate-500">
-          {pct >= 99 ? 'Complete ✓' : `${remaining} min left`}
-        </p>
-      </div>
     </div>
   );
 }
