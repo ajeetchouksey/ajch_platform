@@ -32,7 +32,7 @@ export const TYPE_LABEL: Record<SearchDocType, string> = {
   exam: 'Exam',
   tool: 'Tool',
   note: 'Note',
-  interview: 'Interview',
+  interview: 'Role Prep',
   usecase: 'Use Case',
   lab: 'Lab',
 };
