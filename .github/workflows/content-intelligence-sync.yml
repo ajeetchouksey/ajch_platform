@@ -14,6 +14,18 @@ name: Content Intelligence Sync
 # "Regenerate content intelligence" step) — this workflow is for content
 # changes inside an ALREADY-promoted vertical repo, which promote-content.yml
 # has no visibility into.
+#
+# Commits via a PR + auto-merge, not a direct push to main (fixed 2026-09-09
+# — branch protection now requires a PR + passing checks for every push to
+# main, which broke the previous direct-push model: 5 consecutive scheduled
+# runs failed silently from 2026-09-08 onward, computing fresh data every
+# time but never landing it). Uses STATS_PAT (a classic PAT, already
+# provisioned but unused until now) rather than the default GITHUB_TOKEN —
+# a PR/push authenticated as GITHUB_TOKEN does not trigger other workflows,
+# so the "TypeScript + Build" required check would never run and the PR
+# would sit open forever. Repo-wide auto-merge was enabled specifically to
+# let this land unattended; it does not weaken branch protection itself —
+# nothing merges until its required checks pass.
 
 on:
   repository_dispatch:
@@ -24,6 +36,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   sync:
@@ -33,6 +46,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.STATS_PAT }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -64,12 +79,24 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `changed=${meaningful}\n`);
           NODE
 
-      - name: Commit if changed
+      - name: Open PR and enable auto-merge if changed
         if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.STATS_PAT }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          branch="chore/content-intelligence-sync-$(date -u +%Y%m%d-%H%M%S)"
+          git checkout -B "${branch}"
           git add public/content/stats.json public/content/relationships.json public/content/glossary.json
-          git commit -m "chore(content): regenerate stats.json, relationships.json, glossary.json [skip ci]"
-          git push origin HEAD:main
+          git commit -m "chore(content): regenerate stats.json, relationships.json, glossary.json"
+          git push --set-upstream origin "${branch}"
+
+          pr_url=$(gh pr create \
+            --base main \
+            --head "${branch}" \
+            --title "chore(content): regenerate stats.json, relationships.json, glossary.json" \
+            --body "Automated — see Content Intelligence Sync workflow run for the diff summary.")
+          gh pr merge "${pr_url}" --squash --auto --delete-branch
