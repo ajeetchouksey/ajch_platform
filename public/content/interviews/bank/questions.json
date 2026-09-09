@@ -81,7 +81,9 @@
         "vertical": "Finance & Ops"
       }
     ],
-    "taxonomyIds": []
+    "taxonomyIds": [
+      "coordinator"
+    ]
   },
   {
     "id": "q-orch-002",
@@ -239,7 +241,8 @@
       }
     ],
     "taxonomyIds": [
-      "domain-boundary"
+      "domain-boundary",
+      "human-in-the-loop"
     ]
   },
   {
@@ -399,7 +402,9 @@
       "agentic-ai-platform-architect",
       "agentic-ai-platform-architect-v2"
     ],
-    "taxonomyIds": []
+    "taxonomyIds": [
+      "prompt-caching"
+    ]
   },
   {
     "id": "q-eval-001",
@@ -473,7 +478,9 @@
         "vertical": "Banking"
       }
     ],
-    "taxonomyIds": []
+    "taxonomyIds": [
+      "evaluation"
+    ]
   },
   {
     "id": "q-frameworks-001",
@@ -535,7 +542,9 @@
       "agentic-ai-platform-architect",
       "agentic-ai-platform-architect-v2"
     ],
-    "taxonomyIds": []
+    "taxonomyIds": [
+      "mcp"
+    ]
   },
   {
     "id": "q-leadership-001",
@@ -665,7 +674,8 @@
       "hr-ai-lead"
     ],
     "taxonomyIds": [
-      "rag"
+      "rag",
+      "responsible-ai"
     ]
   },
   {
@@ -735,7 +745,8 @@
       "hr-ai-lead"
     ],
     "taxonomyIds": [
-      "responsible-ai"
+      "responsible-ai",
+      "azure-ai-foundry"
     ]
   },
   {
@@ -806,7 +817,8 @@
       "hr-ai-lead"
     ],
     "taxonomyIds": [
-      "responsible-ai"
+      "responsible-ai",
+      "enterprise-ai"
     ]
   }
 ]
