@@ -19,13 +19,16 @@ name: Content Intelligence Sync
 # — branch protection now requires a PR + passing checks for every push to
 # main, which broke the previous direct-push model: 5 consecutive scheduled
 # runs failed silently from 2026-09-08 onward, computing fresh data every
-# time but never landing it). Uses STATS_PAT (a classic PAT, already
-# provisioned but unused until now) rather than the default GITHUB_TOKEN —
-# a PR/push authenticated as GITHUB_TOKEN does not trigger other workflows,
-# so the "TypeScript + Build" required check would never run and the PR
-# would sit open forever. Repo-wide auto-merge was enabled specifically to
-# let this land unattended; it does not weaken branch protection itself —
-# nothing merges until its required checks pass.
+# time but never landing it). Mints an aarya-platform-bot App installation
+# token (same App/pattern as sync-vertical-agents.yml) rather than using the
+# default GITHUB_TOKEN — a PR/push authenticated as GITHUB_TOKEN does not
+# trigger other workflows, so the "TypeScript + Build" required check would
+# never run and the PR would sit open forever. (STATS_PAT, a classic PAT
+# already sitting in this repo's secrets, was tried first — it can push but
+# failed on `gh pr create` with "Resource not accessible by personal access
+# token", missing the PR-creation scope.) Repo-wide auto-merge was enabled
+# specifically to let this land unattended; it does not weaken branch
+# protection itself — nothing merges until its required checks pass.
 
 on:
   repository_dispatch:
@@ -44,10 +47,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Mints a short-lived installation token for aarya-platform-bot — same
+      # App, same pattern as sync-vertical-agents.yml. STATS_PAT (a classic
+      # PAT) was tried first and failed with "Resource not accessible by
+      # personal access token" on `gh pr create` — it can push but can't
+      # open PRs. Requires the App to have Pull requests: Read & write
+      # (Contents: Read & write is already granted, proven by the successful
+      # push below) — same one-time manual grant sync-vertical-agents.yml's
+      # own comment already calls out.
+      - name: Mint App installation token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.STATS_PAT }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -82,7 +100,7 @@ jobs:
       - name: Open PR and enable auto-merge if changed
         if: steps.diff.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ secrets.STATS_PAT }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
