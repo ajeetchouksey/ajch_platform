@@ -125,6 +125,27 @@ function mentionsFromTechStack(techStack, mentionMatcher) {
   return text ? mentionMatcher.findMentions(text) : [];
 }
 
+// ajch_food_for_thoughts#43 — techStack mention-matching alone only found 4
+// of the 8% of use cases with any computed edge; the rest of a case file's
+// prose (problem, solution, workflowSteps, keyInsights, architectureNotes,
+// failureModes, scalingConsiderations) can equally well name a concept
+// inline ("...uses human-in-the-loop review before...") without it ever
+// becoming a `pattern`. Scans the same way techStack does — real matches
+// only, same precision rule (multi-word phrases via buildMentionMatcher).
+function mentionsFromCaseProse(item, mentionMatcher) {
+  const parts = [
+    item.problem,
+    item.solution,
+    ...(item.workflowSteps ?? []),
+    item.keyInsights,
+    item.architectureNotes,
+    ...(item.failureModes ?? []).flatMap((f) => [f.mode, f.mitigation]),
+    ...(item.scalingConsiderations ?? []),
+  ].filter(Boolean);
+  const text = parts.join(' \n ');
+  return text ? mentionMatcher.findMentions(text) : [];
+}
+
 function backfillUseCases(dir, knownIds, write, mentionMatcher) {
   const sourceIntelPath = join(dir, 'content', 'usecases', '_source-intel.json');
   const casesDir = join(dir, 'content', 'usecases', 'cases');
@@ -133,14 +154,29 @@ function backfillUseCases(dir, knownIds, write, mentionMatcher) {
 
   // _source-intel.json entries carry `patterns` only (no techStack field at
   // this level of detail — that only exists on the richer cases/*.json copy
-  // below), so this stays pattern-only IDENTITY resolution.
-  for (const list of [sourceIntel.featuredUseCases, sourceIntel.catalogUseCases]) {
-    for (const item of list ?? []) {
-      const taxonomyIds = checkKnown(item.patterns ?? [], knownIds, `${item.id}.patterns`);
-      console.log(`  ${item.id}: patterns=[${(item.patterns ?? []).join(', ')}] -> taxonomyIds=[${taxonomyIds.join(', ')}]`);
-      if (write) item.taxonomyIds = taxonomyIds;
-      changed++;
-    }
+  // below). featuredUseCases DOES also carry the same prose fields
+  // (problem/solution/workflowSteps/keyInsights) cases/*.json has, so those
+  // 15 get mention-matching too (ajch_food_for_thoughts#43) — but
+  // catalogUseCases entries are id/title/vertical/patterns/taxonomyIds only,
+  // structurally no prose to scan. That's a real content-depth ceiling, not
+  // a script limitation: the 34 catalog-only items can't gain anything here
+  // no matter how this function is extended; more coverage for THEM means
+  // the usecase-writer agent authoring richer summaries upstream, or
+  // promoting them to a full cases/*.json file, not a backfill pass.
+  for (const item of sourceIntel.featuredUseCases ?? []) {
+    const patternIds = checkKnown(item.patterns ?? [], knownIds, `${item.id}.patterns`);
+    const proseIds = mentionsFromCaseProse(item, mentionMatcher);
+    const taxonomyIds = [...new Set([...patternIds, ...proseIds])];
+    const newProseIds = proseIds.filter((id) => !patternIds.includes(id));
+    console.log(`  ${item.id}: patterns=[${(item.patterns ?? []).join(', ')}] -> taxonomyIds=[${taxonomyIds.join(', ')}]${newProseIds.length > 0 ? ` (+[${newProseIds.join(', ')}] from prose mentions)` : ''}`);
+    if (write) item.taxonomyIds = taxonomyIds;
+    changed++;
+  }
+  for (const item of sourceIntel.catalogUseCases ?? []) {
+    const taxonomyIds = checkKnown(item.patterns ?? [], knownIds, `${item.id}.patterns`);
+    console.log(`  ${item.id}: patterns=[${(item.patterns ?? []).join(', ')}] -> taxonomyIds=[${taxonomyIds.join(', ')}]`);
+    if (write) item.taxonomyIds = taxonomyIds;
+    changed++;
   }
 
   // Individual case files (cases/*.json) are a separate, richer detail copy
@@ -169,10 +205,15 @@ function backfillUseCases(dir, knownIds, write, mentionMatcher) {
       const item = JSON.parse(readFileSync(path, 'utf-8'));
       const patternIds = checkKnown(item.patterns ?? [], knownIds, `cases/${file}.patterns`);
       const techIds = mentionsFromTechStack(item.techStack, mentionMatcher);
-      const taxonomyIds = [...new Set([...patternIds, ...techIds])];
+      const proseIds = mentionsFromCaseProse(item, mentionMatcher);
+      const taxonomyIds = [...new Set([...patternIds, ...techIds, ...proseIds])];
       const newTechIds = techIds.filter((id) => !patternIds.includes(id));
+      const newProseIds = proseIds.filter((id) => !patternIds.includes(id) && !techIds.includes(id));
       if (newTechIds.length > 0) {
         console.log(`  cases/${file}: +[${newTechIds.join(', ')}] from techStack mentions`);
+      }
+      if (newProseIds.length > 0) {
+        console.log(`  cases/${file}: +[${newProseIds.join(', ')}] from problem/solution/workflow/etc. mentions`);
       }
       if (write) {
         item.taxonomyIds = taxonomyIds;
@@ -203,15 +244,34 @@ function backfillUseCases(dir, knownIds, write, mentionMatcher) {
   return changed;
 }
 
-function backfillBlog(dir, resolve, write) {
+// Blog post bodies routinely name a concept inline ("...using Retrieval-
+// Augmented Generation to ground the response...") without it ever becoming
+// one of the post's own hand-picked tags — the same gap techStack mentions
+// closed for use cases (mentionsFromTechStack, above). Strips the YAML
+// frontmatter block first so the raw tags list embedded there doesn't get
+// double-counted as prose (harmless either way since results are deduped
+// into a Set, but scanning only the real body matches "scan post bodies"
+// literally instead of accidentally re-deriving the same tags twice).
+function mentionsFromBody(dir, slug, mentionMatcher) {
+  const path = join(dir, 'content', 'blog', 'posts', `${slug}.md`);
+  if (!existsSync(path)) return [];
+  const raw = readFileSync(path, 'utf-8');
+  const body = raw.startsWith('---') ? raw.replace(/^---\n[\s\S]*?\n---\n/, '') : raw;
+  return mentionMatcher.findMentions(body);
+}
+
+function backfillBlog(dir, resolve, write, mentionMatcher) {
   const indexPath = join(dir, 'content', 'blog', 'index.json');
   const index = JSON.parse(readFileSync(indexPath, 'utf-8'));
   const unresolved = new Set();
   let changed = 0;
 
   for (const post of index.posts ?? []) {
-    const taxonomyIds = resolveViaAlias(post.tags ?? [], resolve, unresolved);
-    console.log(`  ${post.slug}: tags=[${(post.tags ?? []).join(', ')}] -> taxonomyIds=[${taxonomyIds.join(', ')}]`);
+    const tagIds = resolveViaAlias(post.tags ?? [], resolve, unresolved);
+    const bodyIds = mentionsFromBody(dir, post.slug, mentionMatcher);
+    const taxonomyIds = [...new Set([...tagIds, ...bodyIds])];
+    const newBodyIds = bodyIds.filter((id) => !tagIds.includes(id));
+    console.log(`  ${post.slug}: tags=[${(post.tags ?? []).join(', ')}] -> taxonomyIds=[${taxonomyIds.join(', ')}]${newBodyIds.length > 0 ? ` (+[${newBodyIds.join(', ')}] from body mentions)` : ''}`);
     if (write) post.taxonomyIds = taxonomyIds;
     changed++;
   }
@@ -279,15 +339,33 @@ function backfillSkillup(dir, resolve, write) {
   return changed;
 }
 
-function backfillInterviews(dir, resolve, write) {
+// Same "a concept named inline, not as its own tag" gap blog/use-cases had —
+// the question text and detailedAnswer prose routinely name a concept
+// (e.g. "grounded in policy documents" -> rag, "per-region access control"
+// -> rbac) that never made it into the hand-picked `tags` list.
+function mentionsFromInterviewText(q, mentionMatcher) {
+  const parts = [
+    q.question,
+    q.detailedAnswer?.summary,
+    q.detailedAnswer?.deepDive,
+    q.detailedAnswer?.realScenario,
+  ].filter(Boolean);
+  const text = parts.join(' \n ');
+  return text ? mentionMatcher.findMentions(text) : [];
+}
+
+function backfillInterviews(dir, resolve, write, mentionMatcher) {
   const path = join(dir, 'public', 'content', 'interviews', 'bank', 'questions.json');
   const questions = JSON.parse(readFileSync(path, 'utf-8'));
   const unresolved = new Set();
   let changed = 0;
 
   for (const q of questions) {
-    const taxonomyIds = resolveViaAlias(q.tags ?? [], resolve, unresolved);
-    console.log(`  ${q.id}: tags=[${(q.tags ?? []).join(', ')}] -> taxonomyIds=[${taxonomyIds.join(', ')}]`);
+    const tagIds = resolveViaAlias(q.tags ?? [], resolve, unresolved);
+    const textIds = mentionsFromInterviewText(q, mentionMatcher);
+    const taxonomyIds = [...new Set([...tagIds, ...textIds])];
+    const newTextIds = textIds.filter((id) => !tagIds.includes(id));
+    console.log(`  ${q.id}: tags=[${(q.tags ?? []).join(', ')}] -> taxonomyIds=[${taxonomyIds.join(', ')}]${newTextIds.length > 0 ? ` (+[${newTextIds.join(', ')}] from question/answer mentions)` : ''}`);
     if (write) q.taxonomyIds = taxonomyIds;
     changed++;
   }
@@ -328,9 +406,9 @@ function main() {
   } else if (vertical === 'usecases') {
     changed = backfillUseCases(dir, knownIds, write, mentionMatcher);
   } else if (vertical === 'blog') {
-    changed = backfillBlog(dir, resolve, write);
+    changed = backfillBlog(dir, resolve, write, mentionMatcher);
   } else if (vertical === 'interviews') {
-    changed = backfillInterviews(dir, resolve, write);
+    changed = backfillInterviews(dir, resolve, write, mentionMatcher);
   } else if (vertical === 'skillup') {
     changed = backfillSkillup(dir, resolve, write);
   } else {
