@@ -40,6 +40,18 @@ function ActivityIcon({ type }: { type: Activity['type'] }) {
 }
 
 // ── Mini calendar view ────────────────────────────────────────────────────────
+// Stated encoding decision (ajch_food_for_thoughts#53): this calendar LOOKS
+// like a GitHub-contribution heatmap but isn't one, deliberately. Each cell
+// is one of three real, mutually-exclusive STATES — no study day planned /
+// day planned / day completed — plus an independent exam-day marker, not a
+// continuous magnitude. `sessionDays.length` (sessions crammed onto one
+// calendar day) exists but is a scheduling artifact, not something worth
+// visualizing — collapsing two days onto one slot isn't "twice the
+// readiness," it just means two sessions share a date. So this stays
+// categorical (fixed violet=planned / emerald=done / rose dot=exam-day),
+// not remapped onto the sequential ramp — RetentionTable's real percentage
+// is the actual magnitude case in this Epic; this calendar isn't a second
+// one wearing the same clothes.
 
 interface PlanCalendarProps {
   plan: import('@/lib/plan-generator').StudyPlan;
