@@ -3,6 +3,8 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { CalendarDays, ChevronDown, ChevronRight, BookOpen, Brain, AlertTriangle, CheckCircle2, Circle, RefreshCw, Clock, Zap, Sparkles, RotateCcw, X, LayoutList, Calendar, TrendingDown } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { getSessions } from '@/lib/storage';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationshipsForIds } from '@/lib/useRelationships';
 import {
   loadPlan,
   savePlan,
@@ -466,6 +468,14 @@ export default function StudyPlan() {
     [exam, validId, sessions],
   );
 
+  // relationships.json has no whole-exam key, only one per domain — union
+  // across every domain's own edges (see useRelationshipsForIds's own doc).
+  const relDocIds = useMemo(
+    () => (exam ? exam.domains.map((d) => `exam/${validId}/domain-${d.id}`) : []),
+    [exam, validId],
+  );
+  const computedRelated = useRelationshipsForIds(relDocIds);
+
   const scrollToDay = useCallback((day: number) => {
     const el = document.getElementById(`session-day-${day}`);
     if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setViewMode('timeline'); }
@@ -824,6 +834,9 @@ export default function StudyPlan() {
           </div>
         ))}
       </div>
+
+      {/* Computed cross-vertical relationships — see ComputedRelatedList */}
+      <ComputedRelatedList edges={computedRelated} heading="Related Content" />
     </div>
   );
 }

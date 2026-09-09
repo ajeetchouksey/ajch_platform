@@ -9,6 +9,8 @@ import { type Question, type QuizSession, type DomainConfig } from '@/types/cont
 import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X } from 'lucide-react';
 import QuizShareCard from '@/components/QuizShareCard';
 import { AskMentor } from '@/components/AskMentor';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationshipsForIds } from '@/lib/useRelationships';
 
 type Phase = 'setup' | 'quiz' | 'review';
 
@@ -87,6 +89,11 @@ export default function Quiz() {
      
     catch { return false; }
   });
+
+  // relationships.json has no whole-exam key, only one per domain — union
+  // across every domain's own edges (see useRelationshipsForIds's own doc).
+  const relDocIds = examDomains.map((d) => `exam/${examId}/domain-${d.id}`);
+  const computedRelated = useRelationshipsForIds(relDocIds);
 
   const dismissNudge = useCallback(() => {
     try { sessionStorage.setItem(`nudge_dismissed_${examId}`, '1'); }
@@ -398,6 +405,9 @@ export default function Quiz() {
             );
           })}
         </div>
+
+        {/* Computed cross-vertical relationships — see ComputedRelatedList */}
+        <ComputedRelatedList edges={computedRelated} heading="Related Content" />
 
         {user ? (
           /* Logged-in: confirm score was synced to GitHub */
