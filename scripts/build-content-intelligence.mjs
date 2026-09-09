@@ -33,6 +33,18 @@
  * architecture extension, not a backfill) — deliberately deferred rather
  * than shipping a low-precision shortcut.
  *
+ * Gap-closure Epic (ajch_food_for_thoughts#39/#40, 2026-09): use cases now
+ * cross-check the real cases/*.json file list against _source-intel.json
+ * instead of trusting that summary alone (findExtraUsecaseDocs) — closes a
+ * permanent sync-drift risk, not just a periodic backfill gap. The 9 AI
+ * Tools pages now participate too, via alias-resolved keywords (buildToolDocs,
+ * scripts/lib/tools-registry.mjs) — the same alias-resolution machinery
+ * blog's free-text tags already use, so a tool only gets a taxonomyId where
+ * a real taxonomy.json match exists, never a hand-guessed one. Discovery/
+ * Pathways, individual skill-track lessons, and interview role-pack deltas
+ * remain deliberately out of scope — see that issue's closing comment for
+ * the written decision on each.
+ *
  * Usage: node scripts/build-content-intelligence.mjs
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
@@ -45,8 +57,12 @@ import {
   loadHolLabsIndex,
   loadHolLabFile,
   loadInterviewsBank,
+  listUsecasesCaseFileIds,
+  loadUsecaseCaseFile,
 } from './lib/content-sources.mjs';
 import { buildGlossaryTerms } from './build-glossary.mjs';
+import { loadTaxonomyTopics, buildAliasIndex } from './lib/taxonomy.mjs';
+import { TOOLS } from './lib/tools-registry.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -125,6 +141,47 @@ function loadTaxonomyTier1Ids() {
   return new Set(taxonomy.topics.filter((t) => t.tier === 1).map((t) => t.id));
 }
 
+// ajch_food_for_thoughts#40 item 1 — any content/usecases/cases/{id}.json
+// that exists but isn't summarized in _source-intel.json's featuredUseCases/
+// catalogUseCases arrays used to be structurally invisible to collectRelDocs
+// forever, not just until the next backfill run. Cross-checks the real file
+// list (via listUsecasesCaseFileIds — a genuine CDN directory listing, not
+// another read of the same summary file) against sourceIntel's coverage, and
+// fetches the handful likely to differ directly.
+async function findExtraUsecaseDocs(sourceIntel) {
+  const covered = new Set([
+    ...(sourceIntel?.featuredUseCases ?? []).map((u) => u.id),
+    ...(sourceIntel?.catalogUseCases ?? []).map((u) => u.id),
+  ]);
+  const allCaseIds = await listUsecasesCaseFileIds().catch((e) => {
+    console.error(`⚠ listUsecasesCaseFileIds: ${e.message}`);
+    return [];
+  });
+  const missingIds = allCaseIds.filter((id) => !covered.has(id));
+  if (missingIds.length === 0) return [];
+
+  console.log(`Use cases: ${missingIds.length} case file(s) not in _source-intel.json — fetching directly: ${missingIds.join(', ')}`);
+  const files = await Promise.all(missingIds.map((id) => loadUsecaseCaseFile(id)));
+  return files.filter(Boolean);
+}
+
+// ajch_food_for_thoughts#40 item 2 — the 9 AI Tools pages have no content
+// repo/taxonomyIds field of their own. Resolves each tool's existing
+// TOOLS_MAP-derived keyword list (scripts/lib/tools-registry.mjs) through
+// the same alias-resolution machinery blog's free-text tags already use —
+// only a real taxonomy.json alias match counts, so this stays precision-safe
+// rather than treating every keyword as if it were already canonical.
+function buildToolDocs() {
+  const { resolve } = buildAliasIndex(loadTaxonomyTopics());
+  return TOOLS.map((tool) => ({
+    id: `tool/${tool.id}`,
+    type: 'tool',
+    title: tool.title,
+    url: tool.url,
+    taxonomyIds: [...new Set(tool.keywords.map((k) => resolve(k)).filter(Boolean))],
+  }));
+}
+
 // Flatten every currently-integrated vertical into the {id, type, title, url,
 // taxonomyIds, updatedAt} shape relationship scoring needs. Ids/urls mirror
 // src/lib/search.ts's scheme exactly (blog/{slug}, exam/{id}, usecase/{id},
@@ -132,7 +189,7 @@ function loadTaxonomyTier1Ids() {
 // Skillup only has an exam-level entry here (no domain-level breakdown) since
 // exams don't carry taxonomyIds yet (Phase 4) — nothing is lost by keeping
 // this minimal until that phase actually needs the finer granularity.
-export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex, interviewsBank }) {
+export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex, interviewsBank, extraUsecaseDocs = [], toolDocs = [] }) {
   const docs = [];
 
   for (const p of blogIndex?.posts ?? []) {
@@ -181,6 +238,15 @@ export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabs
   for (const u of [...featured, ...catalogOnly]) {
     docs.push({ id: `usecase/${u.id}`, type: 'usecase', title: u.title, url: `/usecases/${u.id}`, taxonomyIds: u.taxonomyIds ?? [], updatedAt: u.updatedDate ?? u.publishedDate });
   }
+
+  // Case files present on disk/CDN but not summarized in _source-intel.json
+  // — see findExtraUsecaseDocs(). taxonomyIds falls back to patterns (the
+  // same convention loadUseCaseById's individual-file path already uses).
+  for (const u of extraUsecaseDocs) {
+    docs.push({ id: `usecase/${u.id}`, type: 'usecase', title: u.title, url: `/usecases/${u.id}`, taxonomyIds: u.taxonomyIds ?? u.patterns ?? [], updatedAt: u.updatedDate ?? u.publishedDate });
+  }
+
+  docs.push(...toolDocs);
 
   for (const l of holLabsIndex?.labs ?? []) {
     docs.push({ id: `lab/${l.id}`, type: 'lab', title: l.title, url: `/hol-labs/${l.id}`, taxonomyIds: l.taxonomyIds ?? [], updatedAt: l.updatedDate });
@@ -323,7 +389,9 @@ async function main() {
   console.log(`Glossary written: ${glossaryTerms.length} term(s), ${p.glossary_terms} in active use across content`);
 
   const now = Date.now();
-  const relDocs = collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex, interviewsBank });
+  const extraUsecaseDocs = await findExtraUsecaseDocs(sourceIntel);
+  const toolDocs = buildToolDocs();
+  const relDocs = collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex, interviewsBank, extraUsecaseDocs, toolDocs });
   const tier1Ids = loadTaxonomyTier1Ids();
   const whyLookup = await buildWhyLookup(holLabsIndex, sourceIntel);
   const edges = computeRelationshipEdges(relDocs, { tier1Ids, now, whyLookup });
