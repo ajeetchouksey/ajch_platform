@@ -196,7 +196,7 @@ export default function Progress() {
       </div>
 
       {/* Computed cross-vertical relationships — see ComputedRelatedList */}
-      <ComputedRelatedList edges={computedRelated} heading="Related Content" />
+      <ComputedRelatedList edges={computedRelated} />
     </div>
   );
 }

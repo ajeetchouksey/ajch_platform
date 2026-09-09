@@ -982,7 +982,7 @@ export default function Notes() {
       {/* ── Computed cross-vertical relationships ─────────────────────── */}
       {!loading && !error && content && (
         <div className="mt-10 pt-6 border-t border-slate-800/70">
-          <ComputedRelatedList edges={computedRelated} heading="Related Content" />
+          <ComputedRelatedList edges={computedRelated} />
         </div>
       )}
 

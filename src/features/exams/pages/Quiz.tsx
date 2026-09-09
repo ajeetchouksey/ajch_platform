@@ -407,7 +407,7 @@ export default function Quiz() {
         </div>
 
         {/* Computed cross-vertical relationships — see ComputedRelatedList */}
-        <ComputedRelatedList edges={computedRelated} heading="Related Content" />
+        <ComputedRelatedList edges={computedRelated} />
 
         {user ? (
           /* Logged-in: confirm score was synced to GitHub */

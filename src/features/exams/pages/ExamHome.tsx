@@ -629,7 +629,7 @@ export default function ExamHome() {
       </div>
 
       {/* Computed cross-vertical relationships — see ComputedRelatedList */}
-      <ComputedRelatedList edges={computedRelated} heading="Related Content" />
+      <ComputedRelatedList edges={computedRelated} />
 
       {/* ── Community discussion ───────────────────────────────────────── */}
       <div className="mt-12 pt-8 border-t border-slate-800/60">

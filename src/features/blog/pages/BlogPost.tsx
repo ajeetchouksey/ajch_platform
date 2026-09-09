@@ -707,7 +707,7 @@ export default function BlogPost() {
               tools per post via real overlap, more precise than the old
               hardcoded "always show all 9 tools" fallback it replaced
               (see ajch_food_for_thoughts#42). */}
-          <ComputedRelatedList edges={computedRelated} heading="Also Related" />
+          <ComputedRelatedList edges={computedRelated} />
         </div>
 
         {/* ───── Sticky sidebar ─────────────────────────────────────────── */}
