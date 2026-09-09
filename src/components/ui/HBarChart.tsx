@@ -1,14 +1,21 @@
+import { CATEGORICAL } from '@/lib/chart-tokens';
+
 interface BarRow { label: string; value: number; }
 
 interface HBarChartProps {
   rows: BarRow[];
+  /**
+   * Accepts any hex — Monitoring's per-channel/per-device charts feed a
+   * dynamic color keyed off runtime data (ajch_food_for_thoughts#52's
+   * scope), so this stays `string` rather than `CategoricalKey`.
+   */
   accent?: string;
   formatValue?: (v: number) => string;
   maxRows?: number;
   onRowClick?: (row: BarRow) => void;
 }
 
-export function HBarChart({ rows, accent = '#a78bfa', formatValue, maxRows = 10, onRowClick }: HBarChartProps) {
+export function HBarChart({ rows, accent = CATEGORICAL.violet, formatValue, maxRows = 10, onRowClick }: HBarChartProps) {
   const display = rows.slice(0, maxRows);
   const max = Math.max(...display.map(r => r.value), 1);
   return (
