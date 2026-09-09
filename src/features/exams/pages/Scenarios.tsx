@@ -4,6 +4,8 @@ import { loadScenariosForExam, loadExamRegistry } from '@/lib/content-loader';
 import { isRichScenario } from '@/types/content';
 import type { Scenario, ScenarioQuestion } from '@/types/content';
 import { ChevronDown, ChevronUp, Clock, Users, CheckCircle2, XCircle } from 'lucide-react';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationshipsForIds } from '@/lib/useRelationships';
 
 const DIFFICULTY_STYLES: Record<string, string> = {
   easy: 'bg-emerald-900/40 text-emerald-300 border-emerald-800',
@@ -63,7 +65,7 @@ export default function Scenarios() {
   const [open, setOpen] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
-  const [, setDomainTitles] = useState<Record<number, string>>({});
+  const [domainTitles, setDomainTitles] = useState<Record<number, string>>({});
   const [isSkillTrack, setIsSkillTrack] = useState(false);
   const [examDomainsLoadedFor, setExamDomainsLoadedFor] = useState<string | null>(null);
 
@@ -88,6 +90,11 @@ export default function Scenarios() {
       .then((s) => { setScenarios(s); setLoading(false); })
       .catch(() => setLoading(false));
   }, [examId, isSkillTrack, examDomainsLoadedFor]);
+
+  // relationships.json has no whole-exam key, only one per domain — union
+  // across every domain's own edges (see useRelationshipsForIds's own doc).
+  const relDocIds = Object.keys(domainTitles).map((id) => `exam/${examId}/domain-${id}`);
+  const computedRelated = useRelationshipsForIds(relDocIds);
 
   if (loading) return <p className="text-slate-500 text-sm animate-pulse">Loading scenarios…</p>;
 
@@ -251,6 +258,9 @@ export default function Scenarios() {
           </div>
         );
       })}
+
+      {/* Computed cross-vertical relationships — see ComputedRelatedList */}
+      <ComputedRelatedList edges={computedRelated} heading="Related Content" />
     </div>
   );
 }

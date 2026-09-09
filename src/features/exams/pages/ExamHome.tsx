@@ -11,6 +11,8 @@ import { loadPlan, nextIncompleteSession } from '@/lib/plan-generator';
 import { getStreak, getDomainCompletion, getReadinessBreakdown } from '@/lib/study-tracker';
 import type { ReadinessBreakdown } from '@/lib/study-tracker';
 import RelatedContent from '@/components/RelatedContent';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationshipsForIds } from '@/lib/useRelationships';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import type { ExamConfig, DomainConfig, QuizSession, ContentType } from '@/types/content';
 import { recordExamVisit } from '@/lib/exam-stats';
@@ -208,6 +210,13 @@ export default function ExamHome() {
     () => exam && exam.kind !== 'skill-track' ? getReadinessBreakdown(examId ?? '', exam.domains, sessions) : null,
     [sessions, examId, exam],
   );
+  // relationships.json has no whole-exam key, only one per domain — union
+  // across every domain's own edges (see useRelationshipsForIds's own doc).
+  const relDocIds = useMemo(
+    () => exam && exam.kind !== 'skill-track' ? exam.domains.map((d) => `exam/${examId}/domain-${d.id}`) : [],
+    [exam, examId],
+  );
+  const computedRelated = useRelationshipsForIds(relDocIds);
   const [readinessExplainOpen, setReadinessExplainOpen] = useState(false);
   // Guest mode banner dismissal (persists across page refreshes)
   const [bannerDismissed, setBannerDismissed] = useState(() => {
@@ -637,6 +646,9 @@ export default function ExamHome() {
         maxSkills={2}
         maxTools={3}
       />
+
+      {/* Computed cross-vertical relationships — see ComputedRelatedList */}
+      <ComputedRelatedList edges={computedRelated} heading="Related Content" />
 
       {/* ── Community discussion ───────────────────────────────────────── */}
       <div className="mt-12 pt-8 border-t border-slate-800/60">

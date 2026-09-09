@@ -13,6 +13,8 @@ import { useMeta } from '@/lib/useMeta';
 import { GlassCard, Badge, type BadgeVariant } from '@/components/ui';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { LightComments } from '@/components/LightComments';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationships } from '@/lib/useRelationships';
 
 const TYPE_VARIANT: Record<string, BadgeVariant> = {
   technical: 'blue', behavioral: 'emerald', 'system-design': 'amber',
@@ -79,6 +81,8 @@ export default function InterviewQuestion() {
     const m = new Map(competencies.map((c) => [c.id, c.title]));
     return (cid: string) => m.get(cid) ?? cid;
   }, [competencies]);
+
+  const computedRelated = useRelationships(id ? `interview/${id}` : undefined);
 
   if (error) {
     return (
@@ -264,6 +268,11 @@ export default function InterviewQuestion() {
       {/* Tags */}
       <div className="mt-8 flex flex-wrap gap-1.5">
         {item.tags.map((t) => <Badge key={t} label={`#${t}`} variant="slate" size="xs" />)}
+      </div>
+
+      {/* Computed cross-vertical relationships — see ComputedRelatedList */}
+      <div className="mt-8">
+        <ComputedRelatedList edges={computedRelated} heading="Related Content" />
       </div>
 
       {/* IDEA-0009 — closes the zero-discussion-channel gap, keyed off the shared

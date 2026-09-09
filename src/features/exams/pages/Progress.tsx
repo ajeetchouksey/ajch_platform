@@ -4,6 +4,8 @@ import { getSessions, getScoreByDomain, clearSessions } from '@/lib/storage';
 import { loadExamRegistry } from '@/lib/content-loader';
 import type { DomainConfig } from '@/types/content';
 import { Trash2, RotateCcw, TrendingUp, TrendingDown, Minus, BarChart2, Brain } from 'lucide-react';
+import ComputedRelatedList from '@/components/ComputedRelatedList';
+import { useRelationshipsForIds } from '@/lib/useRelationships';
 
 export default function Progress() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
@@ -34,6 +36,11 @@ export default function Progress() {
     setSessions([]);
     setDomainScores(getScoreByDomain(examId));
   }
+
+  // relationships.json has no whole-exam key, only one per domain — union
+  // across every domain's own edges (see useRelationshipsForIds's own doc).
+  const relDocIds = examDomains.map((d) => `exam/${examId}/domain-${d.id}`);
+  const computedRelated = useRelationshipsForIds(relDocIds);
 
   if (sessions.length === 0) {
     return (
@@ -187,6 +194,9 @@ export default function Progress() {
           })()}
         </div>
       </div>
+
+      {/* Computed cross-vertical relationships — see ComputedRelatedList */}
+      <ComputedRelatedList edges={computedRelated} heading="Related Content" />
     </div>
   );
 }
