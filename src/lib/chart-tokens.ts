@@ -102,3 +102,64 @@ export const DEVICE_COLORS: Record<string, string> = {
   mobile: CATEGORICAL.blue,
   tablet: CATEGORICAL.emerald,
 };
+
+/**
+ * Sequential (magnitude) ramp — ajch_food_for_thoughts#53. One hue (violet,
+ * H=295, matching CATEGORICAL.violet for brand consistency), 5 steps,
+ * monotone lightness, dark-mode anchored: low magnitude is dark and allowed
+ * to recede toward the app's real surface (#0b1220), high magnitude is
+ * bright. This is the "magnitude" job from the dataviz method's four-jobs
+ * taxonomy — never reuse CATEGORICAL (identity) for a continuous value.
+ *
+ * Validated via the ordinal ramp checks (the closest fit — this repo's
+ * validator has no dedicated "sequential" mode, and running the categorical
+ * six-checks on a ramp fails by design per the skill's own docs):
+ *
+ *   node validate_palette.js \
+ *     "#261d3e,#49317a,#6d47b8,#9167ea,#b492ff" --mode dark \
+ *     --surface "#0b1220" --ordinal
+ *
+ *   [PASS] Lightness monotone   steps read light→dark
+ *   [PASS] Adjacent ΔL          all gaps >= 0.06
+ *   [FAIL] Light-end contrast   #261d3e at 1.18:1 vs surface — below 2:1
+ *   [PASS] Single hue           hue spread 2°
+ *
+ * The one FAIL is expected and correct, not a defect: the light-end-contrast
+ * floor is specifically an ORDINAL requirement (a discrete tier mark must
+ * stay visible even at its palest step). A true SEQUENTIAL ramp's near-zero
+ * step is explicitly allowed to fade into the surface — see the dataviz
+ * skill's palette.md ("the lightest step means 'near zero' and is allowed to
+ * recede toward the surface"). Don't "fix" this ramp to force that check to
+ * pass; it would just make near-zero cells falsely read as "some value."
+ */
+export const SEQUENTIAL = ['#261d3e', '#49317a', '#6d47b8', '#9167ea', '#b492ff'] as const;
+
+function hexToRgb(hex: string): [number, number, number] {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function rgbToHex([r, g, b]: [number, number, number]): string {
+  const c = (v: number) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0');
+  return `#${c(r)}${c(g)}${c(b)}`;
+}
+
+/**
+ * Maps a magnitude in [0, 1] onto the SEQUENTIAL ramp, linearly interpolating
+ * between the two nearest validated stops in sRGB space. A UI heat-tint, not
+ * a scientific visualization — sRGB interpolation is the standard, pragmatic
+ * choice here (true OKLab interpolation would over-engineer a 5-stop ramp
+ * whose stops are already individually validated).
+ */
+export function sequentialColor(t: number): string {
+  const clamped = Math.min(1, Math.max(0, Number.isFinite(t) ? t : 0));
+  const steps = SEQUENTIAL.length - 1;
+  const pos = clamped * steps;
+  const lo = Math.floor(pos);
+  const hi = Math.min(steps, lo + 1);
+  const frac = pos - lo;
+  if (lo === hi) return SEQUENTIAL[lo];
+  const [r1, g1, b1] = hexToRgb(SEQUENTIAL[lo]);
+  const [r2, g2, b2] = hexToRgb(SEQUENTIAL[hi]);
+  return rgbToHex([r1 + (r2 - r1) * frac, g1 + (g2 - g1) * frac, b1 + (b2 - b1) * frac]);
+}
