@@ -3,10 +3,28 @@
  * sync-vertical-agents.mjs
  *
  * Resolves an entry-point agent's full skill-dependency chain in
- * .claude/agents/ and .claude/skills/, rewrites public/content/{vertical}/
- * references to content/{vertical}/ (this repo's own layout uses the
- * public/ prefix; every vertical repo does not), and writes the result
- * into a second, already-checked-out copy of the target vertical repo.
+ * .claude/agents/ and .claude/skills/, strips the "content moved, go
+ * elsewhere" relocation notice (meaningless once the file is already
+ * "elsewhere"), and writes the result into a second, already-checked-out
+ * copy of the target vertical repo.
+ *
+ * Deliberately does NOT rewrite `public/content/{vertical}/` anywhere in
+ * the source text. Every occurrence of that exact string in these agent
+ * files is the "never write to ajch_platform's own stale local directory"
+ * warning — a fact about ajch_platform's structure, not about the current
+ * repo's layout, and it must read the same regardless of which repo the
+ * copy lands in. An earlier version of this script blanket-rewrote
+ * `public/content/{vertical}/` → `content/{vertical}/` on the theory that
+ * a vertical's own live content root needed de-prefixing for spoke repos
+ * — but no agent file actually uses that string to mean "my own live
+ * root" (that's always plain `content/{vertical}/` already, hub and
+ * spoke alike). The blanket rewrite instead silently inverted the "never
+ * write here" warning in release-engineer.md, usecase-publisher.md, and
+ * all 3 hol-lab-*.md files — telling the spoke to avoid its own correct
+ * live path. Caught only because a human happened to check the live
+ * site. Do not reintroduce a path rewrite here without first confirming,
+ * for every entry agent in every vertical, which specific string a
+ * `public/content/{vertical}/` occurrence actually is.
  *
  * This exists because .claude/agents/*.md copies in vertical repos have
  * been "kept in sync manually" (release-engineer.md's own words) — a
@@ -33,22 +51,18 @@ const VERTICALS = {
   blog: {
     repo: 'ajeetchouksey/ajch_aaryaai_blogs',
     entryAgents: ['content-lead', 'tech-writer', 'release-engineer', 'appsec-engineer'],
-    pathPrefix: 'blog',
   },
   skillup: {
     repo: 'ajeetchouksey/ajch_skillup',
     entryAgents: ['curriculum-engineer', 'assessment-engineer', 'docs-engineer', 'scenario-engineer', 'appsec-engineer'],
-    pathPrefix: 'skillup',
   },
   usecases: {
     repo: 'ajeetchouksey/ajch_ai_usecases',
     entryAgents: ['usecase-lead', 'usecase-writer', 'usecase-publisher', 'appsec-engineer', 'qa-engineer'],
-    pathPrefix: 'usecases',
   },
   'hol-labs': {
     repo: 'ajeetchouksey/ajch_hol_labs',
     entryAgents: ['hol-lab-lead', 'hol-lab-writer', 'hol-lab-publisher', 'appsec-engineer', 'qa-engineer'],
-    pathPrefix: 'hol-labs',
   },
 };
 
@@ -119,13 +133,21 @@ console.log(`  Skills: ${[...skillFiles.keys()].join(', ')}`);
 // meaningless — actively self-contradictory — inside the vertical repo
 // itself, which IS "elsewhere". Strip it before writing. Caught by this
 // script's own dry-run verification before ever reaching a real sync.
-const RELOCATION_NOTICE_RE = /^> \*\*[A-Za-z]+ content moved\.\*\*.*\n\n/m;
+//
+// The banner is sometimes one blockquote paragraph (usecase-lead.md,
+// curriculum-engineer.md), sometimes two, joined by a bare "&gt;" line
+// (content-lead.md, release-engineer.md — a second "Cross-repo write
+// target" paragraph). `[\s\S]*?` (not `.*`) is required to span that
+// internal line break; `.*` alone silently matched only the first
+// paragraph and left the second one — including its own correct
+// `public/content/{vertical}/` mention — sitting in the spoke's copy
+// telling it to "invoke this agent from ajch_aaryaai_blogs instead"
+// while already being the ajch_aaryaai_blogs copy. Lazy (`*?`) so it
+// stops at the first genuine blank line, not the last one in the file.
+const RELOCATION_NOTICE_RE = /^> \*\*[A-Za-z ]+ content moved\.\*\*[\s\S]*?\n\n/m;
 
 function rewrite(content) {
-  const pathPattern = new RegExp(`public/content/${config.pathPrefix}/`, 'g');
-  return content
-    .replace(pathPattern, `content/${config.pathPrefix}/`)
-    .replace(RELOCATION_NOTICE_RE, '');
+  return content.replace(RELOCATION_NOTICE_RE, '');
 }
 
 // Every vertical repo also gets a copy of the root Copilot instructions —

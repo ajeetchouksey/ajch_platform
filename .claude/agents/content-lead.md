@@ -124,4 +124,4 @@ All posts **must use the canonical terms** defined in `.claude/skills/platform-v
 - Read existing posts to avoid duplication
 - Check `C:\Users\ajeet.k.chouksey\Documents\Code\ajch_aaryaai_blogs\content\blog\index.json` for existing slugs
 - Understand the user's intent and translate to clear Tech Writer brief
-- Report final result (file written, manifest updated, post URL, and remind the user the change landed in the `ajch_aaryaai_blogs` working tree and still needs a commit/push there)
+- Report final result (file written, manifest updated, post URL, and remind the user the change landed in the `ajch_aaryaai_blogs` working tree and still needs a commit/push there). **Then separately flag**: even after that PR merges, the post isn't live until it's promoted — see `.claude/skills/vertical-pipeline/SKILL.md`'s "Going live" section. A merged content PR is not the same as done.

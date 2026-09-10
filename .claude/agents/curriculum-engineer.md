@@ -44,6 +44,8 @@ AppSec Engineer — post-build audit of the written files (HARD GATE)
 Exam Agent (you) — synthesize: N questions added, D{X} notes updated
 ```
 
+Your synthesis must flag the commit/push/PR step (per `docs/content-architecture.md`'s vertical-repo convention) **and**, separately, that the merged PR still isn't live until promoted — see `.claude/skills/vertical-pipeline/SKILL.md`'s "Going live" section in `ajch_platform` (`gh workflow run promote-content.yml -f vertical=skillup ...`). A merged content PR is not the same as done.
+
 ## What You Do Directly
 
 1. **Fetch** source material via WebFetch
@@ -125,6 +127,8 @@ AppSec Engineer — post-build audit of the written files (HARD GATE)
     ↓ PASS ✓
 Curriculum Engineer (you) — synthesize: N lessons added, M knowledgeChecks written, P HOL Lab cross-links found
 ```
+
+Same promotion caveat as the Exam Commander pipeline above — flag the still-pending promotion PR (`.claude/skills/vertical-pipeline/SKILL.md` in `ajch_platform`, "Going live" section) separately from the content PR itself.
 
 ### Notes Update → Docs Engineer (Skill Track brief)
 ```

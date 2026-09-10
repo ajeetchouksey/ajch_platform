@@ -84,6 +84,24 @@ AppSec Engineer — post-build audit (HARD GATE)
 Lead — synthesize result back to user
 ```
 
+## Going live: promoting the pinned CDN SHA (both shapes — do not skip)
+
+Merging a content PR into a vertical repo (`ajch_aaryaai_blogs`, `ajch_skillup`, `ajch_ai_usecases`, `ajch_hol_labs`) does **not** make that content live on the platform site. `ajch_platform` never reads a vertical's `main` branch directly — `content-manifest.json` (both the repo-root copy and `public/content-manifest.json`; a promotion must update **both** or it silently never reaches the live site) pins each vertical to one exact commit SHA, fetched via jsDelivr CDN at that SHA (`https://cdn.jsdelivr.net/gh/{repo}@{sha}/...`). A vertical PR merging just moves that vertical repo's `main` forward — the pin stays wherever it was until a separate **promotion** step moves it.
+
+After a vertical's content PR is merged, get its merge-commit SHA, then trigger:
+
+```bash
+gh workflow run promote-content.yml \
+  -R ajeetchouksey/ajch_platform \
+  -f vertical=<blog|skillup|usecases|hol-labs> \
+  -f repo=<owner/repo of the vertical> \
+  -f sha=<merge commit SHA>
+```
+
+This `workflow_dispatch` job (`.github/workflows/promote-content.yml`) validates the SHA exists and the fetched content's `schemaVersion` is supported, bumps both `content-manifest.json` copies, regenerates `public/content/stats.json`/`relationships.json`/`glossary.json`, and **opens a PR** (`chore/promote-<vertical>-<sha>`) — it never auto-merges. That promotion PR still needs its own review and merge before the content is actually live (the platform redeploys on push to `main`).
+
+**A Lead's "synthesize result back to user" step is not complete until this is surfaced.** Reporting "PR opened, needs commit/push/PR" and stopping there — without saying a *second*, separate promotion PR is also required — leaves the user believing the work is live when it isn't. This is exactly the bug class that motivated writing this section: a new HOL lab's PR merged clean, but the lab stayed invisible on the live site because nothing in the pipeline said promotion was a distinct remaining step.
+
 ## Non-negotiable rules (both shapes)
 
 1. **Only the Publisher (Shape A) or a Specialist (Shape B) ever writes
@@ -105,3 +123,8 @@ Lead — synthesize result back to user
    `###` subsection in `appsec-engineer.md`'s "Vertical Schema & Path
    Addenda". Never by editing the generic routing/checklist logic in
    `staff-engineer.md` or `appsec-engineer.md`'s Core sections.
+5. **A vertical PR merging is not the end state — promotion is a separate,
+   equally mandatory step.** See "Going live" above. A Lead that reports a
+   vertical content change as done once its own PR is merged, without
+   flagging the still-pending promotion PR, has broken the pipeline the
+   same way as one that skips the Security Gate.

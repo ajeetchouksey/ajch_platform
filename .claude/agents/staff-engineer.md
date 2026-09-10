@@ -186,7 +186,8 @@ User Request
 3. → **Security Gate** (pre-build): validate planned file paths + inputs
 4. → **Domain Agent** (Platform Architect / Content Lead / Platform Docs / Curriculum Engineer): implement, referencing issue #
 4b. **Consumer audit (mandatory whenever a shared type/schema gains a new discriminated variant** — e.g. an optional `kind` field on `ExamConfig`, a new enum value, a field that's required for one variant but absent for another): grep the **entire** `src/` tree (`grep -rn "\.fieldName\b" src/`) for every consumer of the field(s) that become conditional — not just the files already being edited, and not relying on memory of "which pages exist." Cross-reference every route in `router.tsx` that's reachable for the new variant (`grep ":examId"` etc.), not just the ones the new UI itself links to — an old bookmark or search-indexed link can reach a route your own nav never mentions. This step exists because it was skipped once (IDEA-0016's Skill Track rollout): a new `kind: "skill-track"` variant shipped, but 5 separate pages (`Quiz`, `Progress`, `Scenarios`, `Notes`, `StudyPlan`) that unconditionally read now-conditional fields (`exam.domains`, `.passThreshold`, `.questions`) weren't found until a live production crash was reported by a user. Same rule applies content-side: when a content schema drops or renames a field a downstream consumer reads (e.g. `taxonomyIds` needed by the relationship engine), grep **that** repo's `scripts/*.mjs` and `.github/workflows/*.yml` too, not just the scripts you already know about.
-5. → **Content Sync** (if any `public/content/` writes): `node scripts/build-content-intelligence.mjs` → commit `public/content/stats.json [skip ci]`
+5. → **Content Sync** (if any `public/content/` writes — this repo's own local content only): `node scripts/build-content-intelligence.mjs` → commit `public/content/stats.json [skip ci]`
+5b. → **Promote to live** (if any writes landed in a vertical repo instead — `ajch_aaryaai_blogs`, `ajch_skillup`, `ajch_ai_usecases`, `ajch_hol_labs`): distinct from Content Sync above and from that vertical PR merging. See `vertical-pipeline` skill's "Going live" section — `gh workflow run promote-content.yml -f vertical=... -f repo=... -f sha=<vertical's merge commit>` opens a **second** PR in this repo that itself needs review/merge. Do not report the task done once only the vertical repo's own PR has merged.
 6. → **Security Gate** (post-build): audit all changed files for OWASP/secret/schema issues
 7. → **Design Systems Engineer** (post-build): UX audit if any `.tsx` files changed
 8. → **QA Engineer** (post-build): validate Mermaid diagrams if any `.md` files with diagram blocks changed
@@ -196,23 +197,26 @@ User Request
 ### "Add content from this URL and update the blog"
 1. → **Product Manager**: Issue Gate — find or create issue
 2. → **Security Gate**: validate URL + planned file paths
-3. → **Curriculum Engineer**: extract exam-relevant concepts
-4. → **Content Lead**: write companion blog post
-5. → **Product Manager**: mark Done
+3. → **Curriculum Engineer**: extract exam-relevant concepts (writes into `ajch_skillup`)
+4. → **Content Lead**: write companion blog post (writes into `ajch_aaryaai_blogs`)
+5. → **Promote to live**: once each vertical PR merges, `gh workflow run promote-content.yml` for **both** `skillup` and `blog` — two separate promotions, two separate PRs (see `vertical-pipeline` skill)
+6. → **Product Manager**: mark Done — only after both promotion PRs are merged, not just the two content PRs
 
 ### "Create a new exam section with its own page"
 1. → **Product Manager**: Issue Gate — find or create issue
 2. → **Security Gate**: validate file paths
 3. → **Platform Architect**: scaffold route + page + nav
-4. → **Curriculum Engineer**: populate with initial content
-5. → **Product Manager**: mark Done
+4. → **Curriculum Engineer**: populate with initial content (writes into `ajch_skillup`)
+5. → **Promote to live**: `gh workflow run promote-content.yml -f vertical=skillup ...` once the content PR merges
+6. → **Product Manager**: mark Done
 
 ### "Create a new hands-on lab"
 1. → **Product Manager**: Issue Gate — find or create issue
 2. → **Security Gate**: validate planned file paths in `ajch_hol_labs`
-3. → **HOL Lab Lead**: delegate write → HOL Lab Writer → Security Gate → HOL Lab Publisher
+3. → **HOL Lab Lead**: delegate write → HOL Lab Writer → Security Gate → HOL Lab Publisher (writes into `ajch_hol_labs`)
 4. → **Content Sync** (if any `public/content/` writes occurred, e.g. `mvp-progress.json`): `node scripts/build-content-intelligence.mjs`
-5. → **Product Manager**: mark Done
+5. → **Promote to live**: once the `ajch_hol_labs` PR merges, `gh workflow run promote-content.yml -f vertical=hol-labs -f repo=ajeetchouksey/ajch_hol_labs -f sha=<merge commit>` — opens a second PR in this repo that also needs review/merge before the lab is visible on the site (see `vertical-pipeline` skill)
+6. → **Product Manager**: mark Done — only after the promotion PR is merged too, not just the lab's own PR
 
 ### "Teach me about [topic], then quiz me"
 1. → **Principal Mentor**: explain + Socratic method
