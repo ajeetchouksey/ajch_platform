@@ -672,6 +672,16 @@ export default function BlogPost() {
           <GiscusComments slug={slug ?? ''} context="field-notes" />
           {/* IDEA-0009 Phase 5 — login-gated supplement for non-GitHub (Google) readers */}
           {meta && <LightComments contentId={`blog-${meta.slug}`} />}
+
+          {/* Related content, mobile/tablet copy — TocSidebar (below) is
+              `hidden lg:flex`, so below lg nothing rendered
+              ComputedRelatedList at all; MobileToc is TOC-only. Same
+              controlled-duplicate pattern used elsewhere for breakpoint-
+              split widgets: identical props, only one instance ever
+              visible since the breakpoints are mutually exclusive. */}
+          <div className="lg:hidden">
+            <ComputedRelatedList edges={computedRelated} />
+          </div>
         </div>
 
         {/* ───── Sticky sidebar ─────────────────────────────────────────── */}
