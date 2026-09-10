@@ -15,6 +15,7 @@ import GiscusComments from '@/components/GiscusComments';
 import { LightComments } from '@/components/LightComments';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationships } from '@/lib/useRelationships';
+import type { RelationshipEdge } from '@/lib/relationships';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import { ContentFeedback } from '@/components/ContentFeedback';
 import { ContentMeta, CircularProgress } from '@/components/ui';
@@ -96,7 +97,7 @@ function ReadingBar() {
 
 // ── TOC Sidebar ───────────────────────────────────────────────────────────────
 function TocSidebar({
-  headings, activeId, readPct, meta, onShare, copied,
+  headings, activeId, readPct, meta, onShare, copied, computedRelated,
 }: {
   headings: Heading[];
   activeId: string;
@@ -104,6 +105,7 @@ function TocSidebar({
   meta: BlogPostMeta;
   onShare: () => void;
   copied: boolean;
+  computedRelated: RelationshipEdge[];
 }) {
   const pal = CAT_PALETTE[meta.category] ?? { color: '#94a3b8', bg: 'rgba(30,41,59,0.5)', border: 'rgba(71,85,105,0.3)' };
   const activeIdx = headings.findIndex(h => h.id === activeId);
@@ -242,6 +244,11 @@ function TocSidebar({
             </div>
           </div>
         )}
+
+        {/* Related content — vertical-layout Phase B: moved into the
+            sidebar to match Use Cases/HOL Labs' convention, instead of
+            rendering full-width below the article/comments. */}
+        <ComputedRelatedList edges={computedRelated} />
       </div>
     </aside>
   );
@@ -665,17 +672,16 @@ export default function BlogPost() {
           <GiscusComments slug={slug ?? ''} context="field-notes" />
           {/* IDEA-0009 Phase 5 — login-gated supplement for non-GitHub (Google) readers */}
           {meta && <LightComments contentId={`blog-${meta.slug}`} />}
-
-          {/* ── Computed cross-vertical relationships ─────────────────────── */}
-          {/* Tools joined the relationship engine in #40 (they didn't have
-              taxonomyIds before) — this already surfaces genuinely-relevant
-              tools per post via real overlap, more precise than the old
-              hardcoded "always show all 9 tools" fallback it replaced
-              (see ajch_food_for_thoughts#42). */}
-          <ComputedRelatedList edges={computedRelated} />
         </div>
 
         {/* ───── Sticky sidebar ─────────────────────────────────────────── */}
+        {/* Computed cross-vertical relationships now render inside the
+            sidebar (vertical-layout Phase B), not full-width here. Tools
+            joined the relationship engine in #40 (they didn't have
+            taxonomyIds before) — this already surfaces genuinely-relevant
+            tools per post via real overlap, more precise than the old
+            hardcoded "always show all 9 tools" fallback it replaced
+            (see ajch_food_for_thoughts#42). */}
         {meta && (
           <TocSidebar
             headings={headings}
@@ -684,6 +690,7 @@ export default function BlogPost() {
             meta={meta}
             onShare={handleShare}
             copied={copied}
+            computedRelated={computedRelated}
           />
         )}
       </div>
