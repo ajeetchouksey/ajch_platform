@@ -309,6 +309,9 @@ export default function ExamHome() {
           </div>
         </div>
       )}
+      {/* ── Main column + sidebar (vertical-layout Phase C) ──────────────── */}
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <div className="flex-1 min-w-0 space-y-8">
       {/* Header */}
       <div className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-3 ${badgeStyle}`}>
@@ -571,7 +574,10 @@ export default function ExamHome() {
 
       {/* ── Today's Task ──────────────────────────────────────────────── */}
       <TodaysTask examId={examId!} mounted={mounted} />
+      </div>
 
+      {/* ── Sidebar — reference/discovery content, not primary actions ──── */}
+      <aside className="w-full lg:w-[300px] xl:w-[320px] shrink-0 lg:sticky lg:top-4 self-start space-y-6">
       {/* Domain weights */}
       <div
         className={`glass-card glass-edge card-accent-top rounded-xl p-5 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
@@ -630,6 +636,8 @@ export default function ExamHome() {
 
       {/* Computed cross-vertical relationships — see ComputedRelatedList */}
       <ComputedRelatedList edges={computedRelated} />
+      </aside>
+      </div>
 
       {/* ── Community discussion ───────────────────────────────────────── */}
       <div className="mt-12 pt-8 border-t border-slate-800/60">
