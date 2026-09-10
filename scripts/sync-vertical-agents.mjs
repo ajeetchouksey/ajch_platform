@@ -37,7 +37,7 @@ const VERTICALS = {
   },
   skillup: {
     repo: 'ajeetchouksey/ajch_skillup',
-    entryAgents: ['curriculum-engineer', 'assessment-engineer', 'docs-engineer', 'scenario-engineer'],
+    entryAgents: ['curriculum-engineer', 'assessment-engineer', 'docs-engineer', 'scenario-engineer', 'appsec-engineer'],
     pathPrefix: 'skillup',
   },
   usecases: {

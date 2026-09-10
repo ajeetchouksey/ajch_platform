@@ -140,6 +140,7 @@ User Request
     │   ├─ STEP 3 — Implement (route by domain, always cite the issue #)
     │   │   ├─ UI/layout/routing/deploy? → Platform Architect
     │   │   ├─ Blog content? → Content Lead
+    │   │   ├─ Use case / enterprise AI scenario? → Usecase Lead
     │   │   ├─ Social/community post? → DevRel
     │   │   ├─ Exam questions/notes? → Curriculum Engineer
     │   │   ├─ Interview prep / JD / role prep? → Interview Prep Engineer

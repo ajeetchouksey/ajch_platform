@@ -26,6 +26,8 @@ AppSec Engineer — validates content + planned paths (HARD GATE)
     ↓ PASS ✓
 Release Engineer — writes .md file + updates index.json
     ↓
+AppSec Engineer — post-build audit of the written files (HARD GATE)
+    ↓ PASS ✓
 Content Lead (you) — synthesize result back to user
 ```
 
@@ -60,6 +62,14 @@ Slug: {slug}
 Metadata: {title, category, tags, readingTime, featured, date}
 Content: [full markdown string from Tech Writer]"
 ```
+
+### Step 4 — Post-build Security Audit
+```
+Delegate to AppSec Engineer:
+"Post-build audit of C:\Users\ajeet.k.chouksey\Documents\Code\ajch_aaryaai_blogs\content\blog\posts\{slug}.md
+and C:\Users\ajeet.k.chouksey\Documents\Code\ajch_aaryaai_blogs\content\blog\index.json"
+```
+Not optional — a pre-build check validates the plan, not the bytes actually written to disk.
 
 ## Content Strategy
 

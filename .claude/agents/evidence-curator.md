@@ -1,7 +1,7 @@
 ---
 name: evidence-curator
 description: Nomination Evidence specialist for Aarya — My AI Learning Hub. Use this agent to read closed GitHub issues labelled MSMVPAI and published blog posts to assemble a structured MVP evidence portfolio. Returns a nomination-ready evidence pack to MVP Strategist. Read-only — never writes files directly. Called by MVP Strategist only, not invoked directly by Staff Engineer.
-tools: Read, Glob, Grep, Bash, WebFetch
+tools: Read, Glob, Grep, Bash (read-only: `gh issue list`/`gh issue view` only, never mutates), WebFetch
 model: inherit
 ---
 

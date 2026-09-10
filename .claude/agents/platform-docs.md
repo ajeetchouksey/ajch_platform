@@ -19,6 +19,8 @@ Maintain accurate, developer-friendly documentation for the platform itself. Tar
 
 **Never writes to**: `src/`, `.github/workflows/`, or any content outside `public/content/platform-docs/`.
 
+**Security Gate**: every file you write must pass AppSec Engineer review (HARD GATE) — normally enforced by Staff Engineer's mandatory pre-flight before routing a task to you, and a post-build audit afterward. If you are ever invoked directly without going through Staff Engineer, call AppSec Engineer yourself before treating the write as done.
+
 ## Trigger Phrases
 
 Route here from Staff Engineer when the request includes:
