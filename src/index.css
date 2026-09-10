@@ -1,23 +1,44 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* ─── AaryaAI brand tokens (ajch_food_for_thoughts/brand/BRAND.md §5) ────────
+   Values must match every other app in the family (german_skill's
+   src/index.css already implements these under different variable names —
+   same hexes, same brand). --color-brand-bg and --color-brand-success are
+   the only two values here that aren't from BRAND.md directly: the dark
+   app ground (matches german_skill's --color-bg) and one deliberate,
+   named semantic addition, not a raw Tailwind color grab. */
+@theme {
+  --color-brand-ink:         #14122B;
+  --color-brand-indigo:      #5B4BD6;
+  --color-brand-indigo-deep: #4C3FBD;
+  --color-brand-lilac:       #A99BFF;
+  --color-brand-tint:        #F0EDFF;
+  --color-brand-paper:       #F2F2F3;
+  --color-brand-bg:          #0e1a2d;
+  --color-brand-success:     #2fbf71;
+}
+
 @layer base {
   html {
     overflow: hidden;
   }
   body {
     @apply text-slate-100 antialiased;
-    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Barlow', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     background:
-      radial-gradient(ellipse 100% 60% at 50% -5%,  rgba(139,92,246,0.22) 0%, transparent 65%),
-      radial-gradient(ellipse 70%  50% at 85% 85%,  rgba(59,130,246,0.14) 0%, transparent 55%),
-      radial-gradient(ellipse 50%  40% at 10% 60%,  rgba(99,102,241,0.08) 0%, transparent 50%),
-      radial-gradient(ellipse 55%  45% at 100% 45%, rgba(59,130,246,0.10) 0%, transparent 60%),
-      radial-gradient(ellipse 45%  35% at 0%   95%, rgba(139,92,246,0.09) 0%, transparent 55%),
-      #0e1a2d;
+      radial-gradient(ellipse 100% 60% at 50% -5%,  rgba(91,75,214,0.22) 0%, transparent 65%),
+      radial-gradient(ellipse 70%  50% at 85% 85%,  rgba(169,155,255,0.14) 0%, transparent 55%),
+      radial-gradient(ellipse 50%  40% at 10% 60%,  rgba(91,75,214,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 55%  45% at 100% 45%, rgba(169,155,255,0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 45%  35% at 0%   95%, rgba(91,75,214,0.09) 0%, transparent 55%),
+      var(--color-brand-bg);
     background-attachment: scroll;
     -webkit-font-smoothing: antialiased;
     overflow: hidden;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif;
   }
 }
 
@@ -68,12 +89,12 @@
   position: fixed;
   top: 0; left: 0;
   height: 2px;
-  background: linear-gradient(90deg, #7c3aed, #a78bfa, #38bdf8);
+  background: linear-gradient(90deg, var(--color-brand-indigo-deep), var(--color-brand-indigo), var(--color-brand-lilac));
   animation: navProgress 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   z-index: 9999;
   pointer-events: none;
   border-radius: 0 2px 2px 0;
-  box-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+  box-shadow: 0 0 8px rgba(91, 75, 214, 0.6);
 }
 
 @keyframes sheen {
@@ -102,7 +123,7 @@
 }
 
 .heading-gradient {
-  background: linear-gradient(135deg, #a78bfa 0%, #38bdf8 50%, #a78bfa 100%);
+  background: linear-gradient(135deg, var(--color-brand-indigo) 0%, var(--color-brand-lilac) 50%, var(--color-brand-indigo) 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -121,7 +142,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #a78bfa;
+  color: var(--color-brand-lilac);
   margin-bottom: 0.35rem;
 }
 .page-eyebrow::before {
@@ -129,7 +150,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #7c3aed;
+  background: var(--color-brand-indigo);
   flex-shrink: 0;
 }
 
@@ -139,7 +160,7 @@
   font-size: 0.9375rem;
   font-weight: 600;
   color: white;
-  border-left: 2px solid #7c3aed;
+  border-left: 2px solid var(--color-brand-indigo);
   padding-left: 0.75rem;
   letter-spacing: -0.01em;
 }
@@ -161,7 +182,7 @@
     0 0 0 1px rgba(148, 163, 184, 0.08),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.07),
     0 8px 40px -8px rgba(0, 0, 0, 0.35),
-    0 0 40px -8px rgba(139, 92, 246, 0.20);
+    0 0 40px -8px rgba(91, 75, 214, 0.20);
 }
 
 /* Sheen sweep on hover */
@@ -240,7 +261,7 @@
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
-  background: var(--accent-color, linear-gradient(90deg, #8b5cf6, #a78bfa));
+  background: var(--accent-color, linear-gradient(90deg, var(--color-brand-indigo), var(--color-brand-lilac)));
   border-radius: 12px 12px 0 0;
   opacity: 0.7;
   pointer-events: none;
@@ -271,11 +292,11 @@
   position: relative;
   margin: 1.2em 0;
   padding: 0.8em 1em 0.8em 2.8em;
-  border-left: 3px solid rgba(139, 92, 246, 0.5);
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.06), rgba(59, 130, 246, 0.04));
+  border-left: 3px solid rgba(91, 75, 214, 0.5);
+  background: linear-gradient(135deg, rgba(91, 75, 214, 0.06), rgba(169, 155, 255, 0.05));
   border-radius: 0 8px 8px 0;
   font-style: italic;
-  color: #c4b5fd;
+  color: var(--color-brand-lilac);
   font-size: 0.9em;
   line-height: 1.6;
 }
