@@ -6,6 +6,7 @@ import type { DomainConfig } from '@/types/content';
 import { Trash2, RotateCcw, TrendingUp, TrendingDown, Minus, BarChart2, Brain } from 'lucide-react';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationshipsForIds } from '@/lib/useRelationships';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 export default function Progress() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
@@ -15,6 +16,7 @@ export default function Progress() {
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
   const [passThreshold, setPassThreshold] = useState(72);
+  const [confirmClearOpen, setConfirmClearOpen] = useState(false);
 
   useEffect(() => {
     loadExamRegistry().then((r) => {
@@ -31,10 +33,10 @@ export default function Progress() {
   }, [examId, navigate]);
 
   function handleClear() {
-    if (!window.confirm('Clear all session history? This cannot be undone.')) return;
     clearSessions();
     setSessions([]);
     setDomainScores(getScoreByDomain(examId));
+    setConfirmClearOpen(false);
   }
 
   // relationships.json has no whole-exam key, only one per domain — union
@@ -74,12 +76,25 @@ export default function Progress() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight"><span className="heading-gradient">Progress</span></h1>
         <button
-          onClick={handleClear}
+          onClick={() => setConfirmClearOpen(true)}
           className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-rose-400 transition-colors"
         >
           <Trash2 size={13} /> Clear history
         </button>
       </div>
+
+      <ConfirmDialog
+        open={confirmClearOpen}
+        title="Clear all session history?"
+        description="This removes every quiz attempt and domain score for this exam. This cannot be undone."
+        confirmLabel="Clear history"
+        danger
+        onConfirm={handleClear}
+        onCancel={() => setConfirmClearOpen(false)}
+      />
+
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <div className="flex-1 min-w-0 space-y-8">
 
       {/* Summary stat cards */}
       {(() => {
@@ -195,8 +210,13 @@ export default function Progress() {
         </div>
       </div>
 
-      {/* Computed cross-vertical relationships — see ComputedRelatedList */}
-      <ComputedRelatedList edges={computedRelated} />
+      </div>
+
+      {/* ── Sidebar — related content across verticals ────────────────────── */}
+      <aside className="w-full lg:w-[300px] xl:w-[320px] shrink-0 lg:sticky lg:top-4 self-start space-y-6">
+        <ComputedRelatedList edges={computedRelated} />
+      </aside>
+      </div>
     </div>
   );
 }

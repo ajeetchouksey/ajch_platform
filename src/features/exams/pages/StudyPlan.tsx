@@ -543,6 +543,9 @@ export default function StudyPlan() {
         </p>
       </div>
 
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <div className="flex-1 min-w-0 space-y-6">
+
       {/* Content-staleness warning */}
       {isStale && (
         <div className="flex items-start gap-3 rounded-xl border border-amber-700/50 bg-amber-900/10 px-4 py-3">
@@ -847,8 +850,13 @@ export default function StudyPlan() {
         ))}
       </div>
 
-      {/* Computed cross-vertical relationships — see ComputedRelatedList */}
-      <ComputedRelatedList edges={computedRelated} />
+      </div>
+
+      {/* ── Sidebar — related content across verticals ────────────────────── */}
+      <aside className="w-full lg:w-[300px] xl:w-[320px] shrink-0 lg:sticky lg:top-4 self-start space-y-6">
+        <ComputedRelatedList edges={computedRelated} />
+      </aside>
+      </div>
     </div>
   );
 }
