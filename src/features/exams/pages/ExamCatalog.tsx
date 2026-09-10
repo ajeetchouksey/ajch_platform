@@ -8,6 +8,7 @@ import { loadExamRegistry } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import type { ExamConfig } from '@/types/content';
+import { SectionHeader } from '@/components/ui';
 
 /** Total practice questions this catalog entry offers, exam or skill-track alike. */
 function questionCount(exam: ExamConfig): number {
@@ -354,73 +355,45 @@ export default function ExamCatalog() {
   return (
     <div className="space-y-10">
 
-      {/* ── Page header ── */}
+      {/* ── Page header — shared SectionHeader shell (vertical-layout Phase A) ── */}
       <div
         className={`relative transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
       >
         {/* Ambient orb */}
         <div
           className="absolute -top-12 -left-20 w-96 h-96 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(circle, rgba(91,75,214,0.06) 0%, transparent 70%)' }}
         />
 
         <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <span
-              className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full"
-              style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.10)', border: '1px solid rgba(139,92,246,0.25)' }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-              AI Certification Prep
-            </span>
-          </div>
+          <p className="page-eyebrow">AI Certification Prep</p>
 
-          <h1 className="text-4xl sm:text-5xl font-black text-white leading-[1.06] tracking-tight mb-3">
-            Skill Up.{' '}
-            <span style={{
-              background: 'linear-gradient(100deg, #a78bfa 0%, #38bdf8 55%, #34d399 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}>
-              Get Certified.
-            </span>
-          </h1>
-          <p className="text-base text-slate-400 max-w-xl leading-relaxed">
-            Scenario-based MCQs, deep study notes, and real-world situations — built by a practitioner, for practitioners who ship.
-          </p>
+          <SectionHeader
+            title="Skill Up. Get Certified."
+            subtitle="Scenario-based MCQs, deep study notes, and real-world situations — built by a practitioner, for practitioners who ship."
+            stats={!loading && exams.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                    Live · Free forever
+                  </span>
+                </div>
+                {[
+                  { value: available.length,   label: 'Exams live',          color: 'text-[color:var(--color-brand-lilac)]' },
+                  { value: totalQuestions,      label: 'Practice questions',  color: 'text-[color:var(--color-brand-lilac)]' },
+                  { value: totalDomains,        label: 'Domains covered',     color: 'text-emerald-400' },
+                ].map(({ value, label, color }) => (
+                  <div key={label} className="flex flex-col items-center gap-0.5">
+                    <span className={`text-xl font-black ${color}`}>{value}</span>
+                    <span className="text-[10px] text-slate-500 uppercase tracking-wider whitespace-nowrap">{label}</span>
+                  </div>
+                ))}
+              </div>
+            ) : undefined}
+          />
         </div>
       </div>
-
-      {/* ── Stats bar ── */}
-      {!loading && exams.length > 0 && (
-        <div
-          className={`rounded-2xl px-6 py-4 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-          style={{
-            background: 'linear-gradient(135deg, rgba(139,92,246,0.07) 0%, rgba(8,15,30,0.97) 100%)',
-            border: '1px solid rgba(139,92,246,0.14)',
-            transitionDelay: '80ms',
-          }}
-        >
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-            <div className="flex items-center gap-1.5 shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                Live · Free forever
-              </span>
-            </div>
-            {[
-              { value: available.length,   label: 'Exams live',          color: 'text-violet-400'  },
-              { value: totalQuestions,      label: 'Practice questions',  color: 'text-blue-400'    },
-              { value: totalDomains,        label: 'Domains covered',     color: 'text-emerald-400' },
-            ].map(({ value, label, color }) => (
-              <div key={label} className="flex flex-col items-center gap-0.5">
-                <span className={`text-xl font-black ${color}`}>{value}</span>
-                <span className="text-[10px] text-slate-500 uppercase tracking-wider whitespace-nowrap">{label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* ── Discovery toolbar ── */}
       {!loading && exams.length > 0 && (
