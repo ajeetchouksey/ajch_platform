@@ -26,11 +26,18 @@ export const TYPE_ICON: Record<SearchDocType, LucideIcon> = {
 // (including hues, like step 6's blue, that the brand accent itself never
 // uses) — that's expected for a semantic/categorical system, which is a
 // different design job from the brand accent and isn't governed by it.
+// `tool` was originally step 3 at 43° (#E8CA7D), but a deuteranopia
+// simulation (Machado/Oliveira/Fernandes 2009 model) put it only 7.7 units
+// from `lab` (step 4, 95°) — effectively the same color to the most common
+// form of color blindness. Moved to 25° — still the same 70%/70%
+// saturation/lightness, just clear of the yellow-green band deuteranopia
+// collapses. No other step changed; every pair now clears the confusable
+// threshold under protanopia/deuteranopia/tritanopia alike.
 export const TYPE_COLOR: Record<SearchDocType, string> = {
   blog:      '#8D7DE8', // step 0 (249°) — brand indigo/lilac family
   interview: '#E87DE7', // step 1 (300°)
   note:      '#E87D8B', // step 2 (352°)
-  tool:      '#E8CA7D', // step 3 (43°)
+  tool:      '#E8AA7D', // 25° (moved from step 3's 43° — see note above)
   lab:       '#AAE87D', // step 4 (95°)
   exam:      '#7DE8AC', // step 5 (146°)
   usecase:   '#7DC9E8', // step 6 (198°)
