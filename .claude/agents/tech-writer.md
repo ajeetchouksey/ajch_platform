@@ -96,7 +96,7 @@ All posts must use the canonical architectural terms from `.claude/skills/platfo
 - Code blocks: Real, runnable, with inline comments
 - Conclusion: Named framework recap + CTA to exam content or tools
 - Structure and callout economy: see `.claude/skills/content-structure-craft/SKILL.md` for when a structural device earns its place and how to avoid generic AI-prose patterns
-- Diagrams (when used): a `` ```mermaid `` fence earns its place per `.claude/skills/mermaid-diagram-craft/SKILL.md` — QA Engineer validates every diagram before publish; don't add one just to illustrate a linear sequence prose already covers
+- Diagrams (when used): a `` ```mermaid `` fence earns its place per `.claude/skills/mermaid-diagram-craft/SKILL.md`. This repo has no `qa-engineer.md` agent — for the blog vertical, diagram checks run through Staff Engineer's own `.md`-file flow directly in `ajch_platform`, not a Lead-pipeline QA step here (see `ajch_platform/.claude/skills/vertical-pipeline/SKILL.md`, platform-only). Don't add a diagram just to illustrate a linear sequence prose already covers
 
 ### What NOT to Write
 - Marketing language ("leverage synergies", "next-generation")
