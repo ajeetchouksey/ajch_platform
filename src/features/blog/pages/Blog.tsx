@@ -8,6 +8,7 @@ import { loadBlogManifest } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import type { BlogPostMeta } from '@/types/content';
 import PageViewsBadge from '@/components/PageViewsBadge';
+import { SectionHeader } from '@/components/ui';
 
 // ── Category palette ─────────────────────────────────────────────────────────
 const CAT_PALETTE: Record<string, { color: string; bg: string; border: string }> = {
@@ -302,58 +303,44 @@ export default function Blog() {
 
   return (
     <div className="space-y-8">
-      {/* ── Page header ── */}
+      {/* ── Page header — shared SectionHeader shell (vertical-layout Phase A) ── */}
       <div
         className={`relative pb-8 transition-all duration-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
       >
         <div className="absolute -top-12 -left-20 w-96 h-96 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(91,75,214,0.06) 0%, transparent 70%)' }} />
 
         <div className="relative z-10 lg:max-w-[75%]">
-          <span
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-4"
-            style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.10)', border: '1px solid rgba(139,92,246,0.25)' }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-            Practitioner Writing
-          </span>
+          <p className="page-eyebrow">Practitioner Writing</p>
 
-          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-[1.06] mb-4">
-            Field{' '}
-            <span style={{ background: 'linear-gradient(100deg, #a78bfa 0%, #38bdf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Notes
-            </span>.
-          </h1>
-
-          <p className="text-sm text-slate-400 leading-relaxed mb-6">
-            Architecture decisions, field notes, and patterns from building AI systems in production. No padding. No filler.
-          </p>
-
-          {/* Inline stats row */}
-          {!loading && posts.length > 0 && (
-            <div className="flex flex-wrap items-center text-xs">
-              {[
-                { value: posts.length,        label: 'articles',   color: '#a78bfa' },
-                { value: dateRange,            label: 'span',       color: '#38bdf8' },
-                { value: allCategories.length, label: 'categories', color: '#10b981' },
-                { value: tagCounts.length,     label: 'tags',       color: '#f59e0b' },
-              ].map(({ value, label, color }, i) => (
-                <div key={label} className="flex items-center">
-                  {i > 0 && <span className="mx-3.5" style={{ color: 'rgba(71,85,105,0.40)' }}>|</span>}
-                  <span className="font-black" style={{ color }}>{value}</span>
-                  <span className="text-slate-600 ml-1.5">{label}</span>
-                </div>
-              ))}
-              {readCount > 0 && (
-                <div className="flex items-center">
-                  <span className="mx-3.5" style={{ color: 'rgba(71,85,105,0.40)' }}>|</span>
-                  <BookOpen size={10} style={{ color: '#34d399' }} className="mr-1" />
-                  <span className="font-black" style={{ color: '#34d399' }}>{readCount}</span>
-                  <span className="text-slate-600 ml-1.5">read</span>
-                </div>
-              )}
-            </div>
-          )}
+          <SectionHeader
+            title="Field Notes."
+            subtitle="Architecture decisions, field notes, and patterns from building AI systems in production. No padding. No filler."
+            stats={!loading && posts.length > 0 ? (
+              <div className="flex flex-wrap items-center text-xs">
+                {[
+                  { value: posts.length,        label: 'articles',   color: 'var(--color-brand-lilac)' },
+                  { value: dateRange,            label: 'span',       color: 'var(--color-brand-lilac)' },
+                  { value: allCategories.length, label: 'categories', color: '#34d399' },
+                  { value: tagCounts.length,     label: 'tags',       color: '#f59e0b' },
+                ].map(({ value, label, color }, i) => (
+                  <div key={label} className="flex items-center">
+                    {i > 0 && <span className="mx-3.5" style={{ color: 'rgba(71,85,105,0.40)' }}>|</span>}
+                    <span className="font-black" style={{ color }}>{value}</span>
+                    <span className="text-slate-600 ml-1.5">{label}</span>
+                  </div>
+                ))}
+                {readCount > 0 && (
+                  <div className="flex items-center">
+                    <span className="mx-3.5" style={{ color: 'rgba(71,85,105,0.40)' }}>|</span>
+                    <BookOpen size={10} style={{ color: '#34d399' }} className="mr-1" />
+                    <span className="font-black" style={{ color: '#34d399' }}>{readCount}</span>
+                    <span className="text-slate-600 ml-1.5">read</span>
+                  </div>
+                )}
+              </div>
+            ) : undefined}
+          />
         </div>
       </div>
 
