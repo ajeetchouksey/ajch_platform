@@ -808,6 +808,11 @@ export default function Notes() {
             </div>
           )}
 
+          {/* Related content — vertical-layout Phase B/D: moved into the
+              sidebar to match BlogPost/Use Cases/HOL Labs' convention,
+              instead of rendering full-width below the article/nav. */}
+          {!loading && !error && content && <ComputedRelatedList edges={computedRelated} />}
+
           {/* Back to top */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -944,9 +949,15 @@ export default function Notes() {
         </div>
       )}
 
-      {/* ── Computed cross-vertical relationships ─────────────────────── */}
+      {/* Related content, mobile/tablet copy — the sidebar's copy above is
+          `hidden xl:flex`, so below xl nothing rendered it at all (the
+          `xl:hidden` dropdown near the top of this page is TOC-only). Same
+          controlled-duplicate pattern as the AskMentor panel elsewhere in
+          this file: identical props, only one instance ever visible at a
+          time since the breakpoints are mutually exclusive, no real
+          duplication. */}
       {!loading && !error && content && (
-        <div className="mt-10 pt-6 border-t border-slate-800/70">
+        <div className="xl:hidden mt-10 pt-6 border-t border-slate-800/70">
           <ComputedRelatedList edges={computedRelated} />
         </div>
       )}
