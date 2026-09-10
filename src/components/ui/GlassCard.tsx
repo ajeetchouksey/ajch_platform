@@ -1,13 +1,15 @@
 import React from 'react';
 
 // ─── Accent token map ───────────────────────────────────────────────────────
+// `violet`/`purple` render the real brand gradient (indigo → lilac) — see
+// Badge.tsx's variant map for the same convention and rationale.
 export const ACCENT = { // eslint-disable-line react-refresh/only-export-components
-  violet:  'linear-gradient(90deg,#7c3aed,#a78bfa)',
+  violet:  'linear-gradient(90deg,#4C3FBD,#5B4BD6)',
+  purple:  'linear-gradient(90deg,#5B4BD6,#A99BFF)',
   blue:    'linear-gradient(90deg,#1d4ed8,#60a5fa)',
   emerald: 'linear-gradient(90deg,#065f46,#34d399)',
   amber:   'linear-gradient(90deg,#92400e,#fbbf24)',
   rose:    'linear-gradient(90deg,#9f1239,#fb7185)',
-  purple:  'linear-gradient(90deg,#581c87,#c084fc)',
   slate:   'linear-gradient(90deg,#334155,#94a3b8)',
 } as const;
 
