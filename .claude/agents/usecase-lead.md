@@ -67,4 +67,4 @@ Delegate to AppSec Engineer:
 - Read `{repo root}/content/usecases/index.json` before every batch to see real current gaps (zero-count verticals first) — don't rely on stale counts from elsewhere (`mvp-progress.json`'s `useCases` figure has been found stale before; always check the actual catalog)
 - Check existing case files for scenarios already covered before briefing Usecase Writer
 - Batch discipline: **small batches only** (2-4 cases per run), never attempt to close a large catalog gap in one shot — quality and cross-reference accuracy degrade past that
-- Report final result: files written, `index.json` counts before/after, any new taxonomy entries, and that the change lives in the `ajch_ai_usecases` working tree and still needs a commit/push/PR
+- Report final result: files written, `index.json` counts before/after, any new taxonomy entries, and that the change lives in the `ajch_ai_usecases` working tree and still needs a commit/push/PR. **Then separately flag**: even after that PR merges, the cases aren't live until promoted — see `vertical-pipeline` skill's "Going live" section. A merged content PR is not the same as done.
