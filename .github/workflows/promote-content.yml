@@ -38,8 +38,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Mints a short-lived installation token for aarya-platform-bot -- same
+      # App, same pattern as content-intelligence-sync.yml /
+      # monitoring-snapshot-sync.yml. Without this, the "Open promotion PR"
+      # step below authenticates as the default GITHUB_TOKEN, which does NOT
+      # trigger other pull_request-triggered workflows (GitHub's
+      # anti-recursion safeguard) -- so ci.yml's required "TypeScript +
+      # Build" check never fires and the PR sits mergeStateStatus=BLOCKED
+      # forever. Confirmed live: PR #617 (promoting hol-labs) needed a manual
+      # `gh pr merge --admin` because of exactly this.
+      - name: Mint App installation token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -139,9 +157,9 @@ jobs:
         run: node scripts/build-content-intelligence.mjs
         continue-on-error: true # a stats-fetch failure must not block the manifest promotion itself
 
-      - name: Open promotion PR
+      - name: Open promotion PR and merge if changed
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERTICAL: ${{ inputs.vertical }}
           SHA: ${{ inputs.sha }}
         run: |
@@ -160,8 +178,29 @@ jobs:
 
           git commit -m "chore(content): promote ${VERTICAL} to ${SHA}"
           git push --set-upstream origin "${branch}"
-          gh pr create \
+          pr_url=$(gh pr create \
             --base main \
             --head "${branch}" \
             --title "chore(content): promote ${VERTICAL} to ${SHA}" \
-            --body "Promotes ${VERTICAL} to commit ${SHA} via the content promotion workflow."
+            --body "Promotes ${VERTICAL} to commit ${SHA} via the content promotion workflow.")
+
+          # Poll for the required check, then merge explicitly with --admin
+          # (this App's ID is already an "always" bypass actor on this
+          # repo's ruleset) -- see the "Mint App installation token" step's
+          # comment for why native `gh pr merge --auto` doesn't work here
+          # (content-intelligence-sync.yml's own investigation, 2026-09-09).
+          for _ in $(seq 1 20); do
+            checks_output=$(gh pr checks "${pr_url}" --required 2>&1) || true
+            if echo "${checks_output}" | grep -qE 'fail|cancel'; then
+              echo "::error::Required check failed on ${pr_url} — leaving PR open for manual review."
+              echo "${checks_output}"
+              exit 1
+            fi
+            if ! echo "${checks_output}" | grep -qi 'pending'; then
+              gh pr merge "${pr_url}" --squash --delete-branch --admin
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::Required check on ${pr_url} did not resolve within 5 minutes — leaving PR open for manual review."
+          exit 1
