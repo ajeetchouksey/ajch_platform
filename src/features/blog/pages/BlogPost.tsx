@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -107,7 +108,6 @@ function TocSidebar({
   copied: boolean;
   computedRelated: RelationshipEdge[];
 }) {
-  const pal = CAT_PALETTE[meta.category] ?? { color: '#94a3b8', bg: 'rgba(30,41,59,0.5)', border: 'rgba(71,85,105,0.3)' };
   const activeIdx = headings.findIndex(h => h.id === activeId);
   const authorHref = !meta.authorGitHub ? AUTHOR_PORTAL[meta.author] : undefined;
   return (
@@ -151,15 +151,11 @@ function TocSidebar({
           </div>
         )}
 
-        {/* Meta */}
+        {/* Meta — category already shown once in the header pill above the
+            title; repeating it here was a genuine always-on duplicate (not
+            a breakpoint split like the TOC), so it isn't restated. */}
         <div className="rounded-xl p-4 space-y-2.5 text-[11px]"
           style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
-          {meta.category && (
-            <span className="inline-block font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-lg text-[9px]"
-              style={{ color: pal.color, background: pal.bg, border: `1px solid ${pal.border}` }}>
-              {meta.category}
-            </span>
-          )}
           <div className="flex items-center gap-2">
             {meta.authorGitHub ? (
               <>
@@ -255,8 +251,17 @@ function TocSidebar({
 }
 
 // ── Mobile TOC bottom drawer ─────────────────────────────────────────────────
+// Rendered via a portal to document.body — routed page content sits inside
+// Layout.tsx's `animate-[fadeIn_..._both]` wrapper, whose keyframes touch
+// `transform`; the browser leaves a non-`none` computed transform on that
+// wrapper even after the animation ends, which silently repositions any
+// non-portaled `fixed` descendant relative to that wrapper instead of the
+// viewport (confirmed live: this drawer rendered thousands of pixels below
+// the visible screen, anchored to the full article's scroll height, so the
+// "Contents" trigger opened nothing a reader could see). Same fix already
+// applied to ConfirmDialog.tsx/Notes.tsx's equivalent modal.
 function MobileToc({ headings, activeId, onClose }: { headings: Heading[]; activeId: string; onClose: () => void }) {
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 lg:hidden" onClick={onClose}>
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }} />
       <div className="absolute bottom-0 left-0 right-0 rounded-t-2xl p-5 max-h-[72vh] overflow-y-auto"
@@ -281,7 +286,8 @@ function MobileToc({ headings, activeId, onClose }: { headings: Heading[]; activ
           ))}
         </nav>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
