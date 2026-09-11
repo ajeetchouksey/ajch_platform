@@ -108,6 +108,16 @@ const COMMANDS = {
     return href;
   },
 
+  // `viewport <width> <height>` — resize the page viewport, for responsive
+  // breakpoint checks (e.g. `viewport 1024 900`).
+  async viewport(argsStr) {
+    if (!page) return console.log('ERROR: launch first');
+    const [w, h] = argsStr.trim().split(/\s+/).map(Number);
+    if (!w || !h) return console.log('ERROR: usage — viewport <width> <height>');
+    await page.setViewportSize({ width: w, height: h });
+    console.log('viewport ->', w, 'x', h);
+  },
+
   async errors() {
     console.log('console errors so far:', consoleErrors.length);
     consoleErrors.forEach((e) => console.log(' -', e));
