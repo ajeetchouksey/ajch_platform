@@ -59,22 +59,6 @@ const STATUS_LABEL: Record<DomainStatus, string> = {
   strong: 'Strong', progress: 'In progress', new: 'Not started',
 };
 
-function AnimatedBar({ width, color, delay }: { width: number; color: string; delay: number }) {
-  const [animated, setAnimated] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setAnimated(true), delay);
-    return () => clearTimeout(t);
-  }, [delay]);
-  return (
-    <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
-      <div
-        className={`h-full ${color} rounded-full transition-all duration-1000 ease-out`}
-        style={{ width: animated ? `${width}%` : '0%', boxShadow: animated ? '0 0 8px 0 currentColor' : 'none' }}
-      />
-    </div>
-  );
-}
-
 // ── Today's Task widget ────────────────────────────────────────────────────────
 
 function TodaysTask({ examId, mounted }: { examId: string; mounted: boolean }) {
@@ -585,7 +569,7 @@ export default function ExamHome() {
       >
         <h2 className="section-heading mb-4">Exam Domain Weights</h2>
         <div className="space-y-3">
-          {exam.domains.map((domain, idx) => {
+          {exam.domains.map((domain) => {
             const dr = domainStatus?.byDomain[domain.id];
             return (
               <div key={domain.id} className="group cursor-default">
@@ -607,7 +591,6 @@ export default function ExamHome() {
                     <span className="text-slate-400 font-mono group-hover:text-white transition-colors">{domain.weight}%</span>
                   </div>
                 </div>
-                <AnimatedBar width={domain.weight} color={domain.color} delay={700 + idx * 150} />
               </div>
             );
           })}
