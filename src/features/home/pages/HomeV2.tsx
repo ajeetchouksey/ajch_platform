@@ -423,7 +423,7 @@ export default function HomeV2() {
                 <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
                   <Eye size={12} className="text-violet-400" />
                   <span className="text-white font-bold">{(pStats?.pageViews?.total ?? 0).toLocaleString()}</span>
-                  &nbsp;views
+                  &nbsp;view{(pStats?.pageViews?.total ?? 0) === 1 ? '' : 's'}
                 </span>
               )}
               {ghRepo != null && ghRepo.stars > 0 && (
@@ -432,7 +432,7 @@ export default function HomeV2() {
                   <span className="flex items-center gap-1.5 text-[12px] text-slate-400">
                     <span style={{ color: '#fbbf24' }}>⭐</span>
                     <span className="text-white font-bold">{ghRepo.stars.toLocaleString()}</span>
-                    &nbsp;stars
+                    &nbsp;star{ghRepo.stars === 1 ? '' : 's'}
                   </span>
                 </>
               )}
