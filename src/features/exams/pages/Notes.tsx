@@ -1,4 +1,5 @@
 import { useReducer, useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense, Children, isValidElement } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -12,7 +13,7 @@ import {
 } from '@/lib/study-tracker';
 import type { FocusTimer } from '@/lib/study-tracker';
 import type { DomainConfig, ExamConfig } from '@/types/content';
-import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ChevronUp, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles, X } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
@@ -59,6 +60,37 @@ function extractToc(markdown: string): TocItem[] {
     items.push({ id: count === 0 ? base : `${base}-${count}`, text: raw, level });
   }
   return items;
+}
+
+// Shared between the desktop sticky sidebar and the mobile bottom-sheet
+// (see the "Mobile TOC" render below) so the active/past highlighting logic
+// lives in exactly one place instead of a second hand-rolled copy.
+function TocNav({ toc, activeId, onSelect }: { toc: TocItem[]; activeId: string; onSelect: (id: string) => void }) {
+  const activeIdx = toc.findIndex((i) => i.id === activeId);
+  return (
+    <nav aria-label="Table of contents" className="space-y-0.5">
+      {toc.map(({ id, text, level }, idx) => {
+        const isActive = activeId === id;
+        const isPast = activeIdx >= 0 && idx < activeIdx;
+        return (
+          <button
+            key={id}
+            onClick={() => onSelect(id)}
+            className="block w-full text-left text-[11px] leading-snug py-1 rounded-r-lg transition-all duration-200"
+            style={{
+              paddingLeft: level === 3 ? '16px' : '6px',
+              color: isActive ? '#a78bfa' : isPast ? '#34d399' : '#64748b',
+              fontWeight: isActive ? 700 : 400,
+              borderLeft: `2px solid ${isActive ? '#a78bfa' : isPast ? 'rgba(52,211,153,0.45)' : 'transparent'}`,
+              opacity: isPast ? 0.7 : 1,
+            }}
+          >
+            {text}
+          </button>
+        );
+      })}
+    </nav>
+  );
 }
 
 // ── Content fetch reducer ──────────────────────────────────────────────────────
@@ -485,12 +517,16 @@ export default function Notes() {
         </div>
       )}
 
-      {/* Mobile TOC — collapsible strip */}
+      {/* Mobile TOC trigger — sticky (below the exam sub-nav strip), so it
+          stays reachable while scrolling instead of the previous inline
+          accordion, which scrolled out of reach after the first heading.
+          Opens the same list as the desktop sidebar (TocNav) in a bottom
+          sheet, portaled below. */}
       {!loading && !error && toc.length > 0 && (
-        <div className="xl:hidden mb-5 rounded-xl border border-slate-700/50 overflow-hidden">
+        <div className="lg:hidden sticky top-14 z-30 mb-5 rounded-xl border border-slate-700/50 overflow-hidden bg-slate-900/90 backdrop-blur-md">
           <button
-            onClick={() => setMobileTocOpen((o) => !o)}
-            className="w-full flex items-center justify-between px-4 py-2.5 bg-slate-900/70 text-left"
+            onClick={() => setMobileTocOpen(true)}
+            className="w-full flex items-center justify-between px-4 py-2.5 text-left"
           >
             <span className="flex items-center gap-2 text-xs font-semibold text-slate-400">
               <List size={13} />
@@ -502,28 +538,35 @@ export default function Notes() {
                 </span>
               )}
             </span>
-            {mobileTocOpen ? <ChevronUp size={14} className="text-slate-500" /> : <ChevronDown size={14} className="text-slate-500" />}
+            <ChevronDown size={14} className="text-slate-500" />
           </button>
-          {mobileTocOpen && (
-            <div className="px-4 py-3 bg-slate-950/60 border-t border-slate-800/60 flex flex-col gap-1">
-              {toc.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToHeading(item.id)}
-                  className={`text-left text-xs py-1 transition-colors ${
-                    item.level === 3 ? 'pl-4 text-slate-600 hover:text-slate-400' : 'text-slate-500 hover:text-slate-300'
-                  } ${activeId === item.id ? 'text-violet-400 font-medium' : ''}`}
-                >
-                  {item.text}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       )}
 
-      {/* Content — two-column on xl: article + sticky TOC */}
-      <div className="xl:grid xl:grid-cols-[1fr_280px] xl:gap-8 xl:items-start">
+      {/* Mobile TOC sheet — see the "Study with AI" modal below for why this
+          is portaled to document.body rather than a plain fixed div. */}
+      {mobileTocOpen && createPortal(
+        <div className="fixed inset-0 z-[80] lg:hidden" onClick={() => setMobileTocOpen(false)}>
+          <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }} />
+          <div
+            className="absolute bottom-0 left-0 right-0 rounded-t-2xl p-5 max-h-[72vh] overflow-y-auto"
+            style={{ background: 'rgba(15,23,42,0.99)', border: '1px solid rgba(71,85,105,0.30)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-black text-white flex items-center gap-2"><List size={14} />On this page</p>
+              <button onClick={() => setMobileTocOpen(false)} className="text-slate-500 hover:text-white transition-colors"><X size={16} /></button>
+            </div>
+            <TocNav toc={toc} activeId={activeId} onSelect={scrollToHeading} />
+          </div>
+        </div>,
+        document.body,
+      )}
+
+      {/* Content — two-column on lg: article + sticky TOC (matches
+          BlogPost's TocSidebar breakpoint, not the wider xl this used to
+          gate on) */}
+      <div className="lg:grid lg:grid-cols-[1fr_280px] lg:gap-8 lg:items-start">
 
       {/* Content */}
       <article ref={articleRef} className="min-w-0">
@@ -536,7 +579,7 @@ export default function Notes() {
             : (timerSecs / Math.floor(focusTimer.durationMs / 1000));
           const isFocus = focusTimer.mode === 'focus';
           return (
-            <div className="sticky top-14 z-30 -mx-1 mb-6 rounded-xl overflow-hidden border"
+            <div className="sticky top-24 lg:top-14 z-30 -mx-1 mb-6 rounded-xl overflow-hidden border"
               style={{ borderColor: isFocus ? 'rgba(139,92,246,0.4)' : 'rgba(52,211,153,0.35)' }}>
               {/* depleting progress bar */}
               <div className="h-0.5 w-full" style={{ background: isFocus ? 'rgba(139,92,246,0.2)' : 'rgba(52,211,153,0.15)' }}>
@@ -660,43 +703,19 @@ export default function Notes() {
 
       {/* Floating timer removed — replaced by sticky strip above article */}
 
-      {/* Sticky in-page TOC — desktop xl+ only */}
+      {/* Sticky in-page TOC — desktop lg+ only */}
       {toc.length > 0 && (
-        <aside className="hidden xl:flex xl:flex-col gap-3 shrink-0 sticky top-4 self-start max-h-[calc(100vh-5rem)] overflow-y-auto pb-4"
+        <aside className="hidden lg:flex lg:flex-col gap-3 shrink-0 sticky top-4 self-start max-h-[calc(100vh-5rem)] overflow-y-auto pb-4"
           style={{ scrollbarWidth: 'none' }}>
 
           {/* Circular reading progress */}
           {minutes && <CircularProgress pct={readPct} readTime={minutes} />}
 
-          {/* Domain switcher */}
-          {examDomains.length > 1 && (
-            <div className="rounded-xl p-3"
-              style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
-              <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Domains</p>
-              <div className="flex flex-col gap-1">
-                {examDomains.map((d) => (
-                  <button
-                    key={d.id}
-                    onClick={() => goTo(d)}
-                    className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-left transition-all"
-                    style={{
-                      background: domain === d.id ? 'rgba(139,92,246,0.15)' : 'transparent',
-                      border: domain === d.id ? '1px solid rgba(139,92,246,0.35)' : '1px solid transparent',
-                      color: domain === d.id ? '#a78bfa' : '#64748b',
-                    }}
-                    onMouseEnter={e => { if (domain !== d.id) { e.currentTarget.style.background = 'rgba(30,41,59,0.6)'; e.currentTarget.style.color = '#94a3b8'; } }}
-                    onMouseLeave={e => { if (domain !== d.id) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; } }}
-                  >
-                    <span className="flex items-center gap-1.5 min-w-0">
-                      <span className="font-mono text-[10px] font-bold shrink-0">D{d.id}</span>
-                      <span className="text-[11px] truncate">{d.title}</span>
-                    </span>
-                    <span className="text-[9px] font-mono shrink-0 opacity-60">{d.weight}%</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Domain switching lives solely in the header pill row above the
+              article (visible at every width, not just this sidebar) — a
+              second "jump to any domain" list here duplicated it on every
+              viewport wide enough to show both at once. See the Study Notes
+              Teardown analysis. */}
 
           {/* In This Article TOC */}
           <div className="rounded-xl p-4"
@@ -704,31 +723,7 @@ export default function Notes() {
             <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5">
               <List size={9} /> In this article
             </p>
-            <nav aria-label="Table of contents" className="space-y-0.5">
-              {(() => {
-                const activeIdx = toc.findIndex(i => i.id === activeId);
-                return toc.map(({ id, text, level }, idx) => {
-                  const isActive = activeId === id;
-                  const isPast = activeIdx >= 0 && idx < activeIdx;
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => scrollToHeading(id)}
-                      className="block w-full text-left text-[11px] leading-snug py-1 rounded-r-lg transition-all duration-200"
-                      style={{
-                        paddingLeft: level === 3 ? '16px' : '6px',
-                        color: isActive ? '#a78bfa' : isPast ? '#34d399' : '#64748b',
-                        fontWeight: isActive ? 700 : 400,
-                        borderLeft: `2px solid ${isActive ? '#a78bfa' : isPast ? 'rgba(52,211,153,0.45)' : 'transparent'}`,
-                        opacity: isPast ? 0.7 : 1,
-                      }}
-                    >
-                      {text}
-                    </button>
-                  );
-                });
-              })()}
-            </nav>
+            <TocNav toc={toc} activeId={activeId} onSelect={scrollToHeading} />
           </div>
 
           {/* Meta card */}
@@ -867,8 +862,8 @@ export default function Notes() {
         );
       })()}
 
-      {/* Below-xl "Study with AI" modal — the sidebar <aside> above that
-          hosts the sole AskMentor instance is `hidden` below the xl
+      {/* Below-lg "Study with AI" modal — the sidebar <aside> above that
+          hosts the sole AskMentor instance is `hidden` below the lg
           breakpoint, so the floating "Explain" trigger's state change had
           nowhere visible to render into on narrower viewports. This second
           controlled instance is driven by the exact same lifted
@@ -876,9 +871,19 @@ export default function Notes() {
           sidebar instance — both simply reflect one source of truth) and
           only mounts while that state is open, so it never shows a
           redundant floating trigger of its own while idle. Reuses the real
-          AskMentor component/logic — no duplicated panel UI. */}
-      {aiPanelOpen && (
-        <div className="xl:hidden fixed inset-0 z-[80] flex items-end sm:items-center justify-center">
+          AskMentor component/logic — no duplicated panel UI.
+
+          Rendered via a portal to document.body — routed page content sits
+          inside Layout.tsx's `animate-[fadeIn_..._both]` wrapper, whose
+          keyframes touch `transform`; the browser leaves a non-`none`
+          computed transform on that wrapper even after the animation ends,
+          which silently repositions any non-portaled `fixed` descendant
+          relative to that wrapper instead of the viewport (confirmed live:
+          this modal rendered thousands of pixels below the visible screen,
+          anchored to the full article's scroll height). Same fix already
+          applied to ConfirmDialog.tsx. */}
+      {aiPanelOpen && createPortal(
+        <div className="lg:hidden fixed inset-0 z-[80] flex items-end sm:items-center justify-center">
           <div
             className="absolute inset-0"
             style={{ background: 'rgba(2,6,23,0.72)', backdropFilter: 'blur(2px)' }}
@@ -899,7 +904,8 @@ export default function Notes() {
               context={aiContext}
             />
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Quiz this domain CTA */}
@@ -950,14 +956,13 @@ export default function Notes() {
       )}
 
       {/* Related content, mobile/tablet copy — the sidebar's copy above is
-          `hidden xl:flex`, so below xl nothing rendered it at all (the
-          `xl:hidden` dropdown near the top of this page is TOC-only). Same
-          controlled-duplicate pattern as the AskMentor panel elsewhere in
-          this file: identical props, only one instance ever visible at a
-          time since the breakpoints are mutually exclusive, no real
-          duplication. */}
+          `hidden lg:flex`, so below lg nothing rendered it at all (the
+          mobile TOC sheet above is TOC-only). Same controlled-duplicate
+          pattern as the AskMentor panel elsewhere in this file: identical
+          props, only one instance ever visible at a time since the
+          breakpoints are mutually exclusive, no real duplication. */}
       {!loading && !error && content && (
-        <div className="xl:hidden mt-10 pt-6 border-t border-slate-800/70">
+        <div className="lg:hidden mt-10 pt-6 border-t border-slate-800/70">
           <ComputedRelatedList edges={computedRelated} />
         </div>
       )}
