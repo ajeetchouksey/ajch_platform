@@ -22,7 +22,7 @@ import { forecast, detectAnomalies } from '../lib/forecast';
 const HISTORY_START_DATE = '2026-06-02';
 
 type Tab = 'overview' | 'content' | 'exams' | 'sources' | 'audience' | 'retention' | 'cloudflare';
-type DateRange = '7d' | '28d' | '90d';
+type DateRange = '7d' | '28d' | '90d' | 'all';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'overview',   label: 'Overview',   icon: <BarChart2 size={14} /> },
@@ -38,6 +38,13 @@ const DATE_RANGES: { id: DateRange; label: string; start: string }[] = [
   { id: '7d',  label: '7 days',  start: '7daysAgo'  },
   { id: '28d', label: '28 days', start: '28daysAgo' },
   { id: '90d', label: '90 days', start: '90daysAgo' },
+  // Matches the Overview tab's own persisted-history start (HISTORY_START_DATE) --
+  // GA4 has no data before this date (tracking simply wasn't collecting yet,
+  // confirmed via a direct query), so this is genuinely "since tracking began,"
+  // not an arbitrary cutoff. Lets Content/Exams/Sources/Audience/Cloudflare see
+  // the same full range Overview's chart already does, instead of being capped
+  // at 90 days.
+  { id: 'all', label: 'Since Jun 1', start: HISTORY_START_DATE },
 ];
 
 // Equal-length immediately-prior period for each preset, used for KPI
@@ -46,6 +53,11 @@ const PRIOR_RANGES: Record<DateRange, { startDate: string; endDate: string }> = 
   '7d':  { startDate: '14daysAgo', endDate: '8daysAgo' },
   '28d': { startDate: '56daysAgo', endDate: '29daysAgo' },
   '90d': { startDate: '180daysAgo', endDate: '91daysAgo' },
+  // "All time" has no natural prior-equal-length period to compare against --
+  // pointed at a window before tracking started so the query legitimately
+  // returns zero, which delta() already treats as "no comparison available"
+  // (see its `!prior` check) rather than showing a misleading delta.
+  all: { startDate: '2026-01-01', endDate: '2026-01-01' },
 };
 
 // GA4's raw `date` dimension is YYYYMMDD with no separators. D1 history rows
@@ -897,7 +909,11 @@ function RetentionTab() {
 
 function CloudflareTab({ dateRange }: { dateRange: DateRange }) {
   const cfStatus = useCloudflareStatus();
-  const { data, loading, error } = useCloudflareOverview(dateRange);
+  // Cloudflare's GraphQL Analytics API only exposes these three fixed lookback
+  // windows -- "Since Jun 1" has no equivalent there (and would likely exceed
+  // the account's retention window anyway), so clamp to the widest real option
+  // rather than widening the hook's own type to accept a range it can't serve.
+  const { data, loading, error } = useCloudflareOverview(dateRange === 'all' ? '90d' : dateRange);
 
   if (!import.meta.env.VITE_CF_MONITOR_PROXY_URL) {
     return (
