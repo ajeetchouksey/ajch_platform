@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, lazy, Suspense, Children, isValidElement } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -231,8 +232,13 @@ function extractHeadings(md: string): Heading[] {
 }
 
 // ── Mobile TOC drawer ─────────────────────────────────────────────────────────
+// Rendered via a portal to document.body — see BlogPost.tsx's identical
+// MobileToc for why: Layout.tsx's routed-page fadeIn wrapper leaves a
+// non-`none` computed transform in place, which silently repositions any
+// non-portaled `fixed` descendant relative to that wrapper instead of the
+// viewport.
 function MobileToc({ headings, activeId, onClose }: { headings: Heading[]; activeId: string; onClose: () => void }) {
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 lg:hidden" onClick={onClose}>
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }} />
       <div
@@ -258,7 +264,8 @@ function MobileToc({ headings, activeId, onClose }: { headings: Heading[]; activ
           ))}
         </nav>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
