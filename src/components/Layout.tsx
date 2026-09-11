@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useSearchParams, Link } from 'react-router-dom';
+import { NavLink, useLocation, Link } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { BookOpen, Brain, Layers, BarChart2, Home, Menu, X, GraduationCap, Newspaper, Wrench, Users, Search, GitPullRequest, CalendarDays, ChevronDown, User, Briefcase, Building2, FlaskConical, Activity, Compass, Lock } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
@@ -7,8 +7,6 @@ import { StarRepo } from './StarRepo';
 import SearchModal from './SearchModal';
 import { Breadcrumb, Badge, VersionTag, type BreadcrumbItem } from './ui';
 import { loadExamRegistry } from '@/lib/content-loader';
-import { getNotesSeen } from '@/lib/storage';
-import { EXAM_SCHEMES } from '@/types/content';
 import type { ExamConfig } from '@/types/content';
 import { SubscribeForm } from './SubscribeForm';
 import { GrowthPrompt } from './GrowthPrompt';
@@ -172,7 +170,6 @@ export default function Layout({ children }: { children: ReactNode }) {
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(() => {
     try { return localStorage.getItem('sidebar_desktop_open') === '1'; } catch { return false; }
   });
-  const [resourcesOpen, setResourcesOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [openNavGroup, setOpenNavGroup] = useState<NavGroupKey | null>(null);
   const [navDropdownPos, setNavDropdownPos] = useState<{ top: number; left: number } | null>(null);
@@ -180,7 +177,6 @@ export default function Layout({ children }: { children: ReactNode }) {
   const navGroupButtonRefs = useRef<Partial<Record<NavGroupKey, HTMLButtonElement>>>({});
   const isOwner = useIsOwner();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
   const pageKey = location.pathname + location.search;
   const [currentExam, setCurrentExam] = useState<ExamConfig | null>(null);
 
@@ -189,7 +185,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const isInExam = Boolean(currentExamId);
   const isInTeam = location.pathname.startsWith('/team') || location.pathname.startsWith('/maintainer/team');
   const isInTool = Boolean(location.pathname.match(/^\/tools\/.+/));
-  const hasSidebar = isInExam || isInTeam;
+  const hasSidebar = isInTeam;
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -566,100 +562,10 @@ export default function Layout({ children }: { children: ReactNode }) {
             </nav>
           </div>
 
-          {/* Exam navigation — registry-driven. Skill Tracks (IDEA-0016) have no
-              domains/quiz/notes/scenarios/progress/plan routes — SkillTrackHome
-              is self-contained, so this exam-shaped sidebar doesn't apply. */}
-          {isInExam && currentExam && currentExam.kind !== 'skill-track' && (() => {
-            const scheme = EXAM_SCHEMES[currentExam.colorScheme] ?? EXAM_SCHEMES['violet'];
-            const examLinks = [
-              { to: `/skillup/${currentExam.id}`, label: 'Overview', icon: GraduationCap, end: true },
-              { to: `/skillup/${currentExam.id}/quiz`, label: 'Quiz', icon: Brain },
-              { to: `/skillup/${currentExam.id}/notes`, label: 'Study Notes', icon: BookOpen },
-              { to: `/skillup/${currentExam.id}/scenarios`, label: 'Scenarios', icon: Layers },
-              { to: `/skillup/${currentExam.id}/progress`, label: 'Progress', icon: BarChart2 },
-              { to: `/skillup/${currentExam.id}/plan`, label: 'Study Plan', icon: CalendarDays },
-            ];
-            return (
-              <>
-                <div className="px-4 pb-4">
-                  <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
-                    {currentExam.shortTitle} Exam
-                  </h3>
-                  <nav aria-label={`${currentExam.shortTitle} exam sections`} className="space-y-0.5">
-                    {examLinks.map(({ to, label, icon: Icon, end }) => (
-                      <NavLink
-                        key={to}
-                        to={to}
-                        end={end}
-                        className={({ isActive }) =>
-                          `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                            isActive
-                              ? scheme.sidebarActive
-                              : 'text-slate-400 hover:text-white hover:bg-slate-800/70 hover:translate-x-0.5'
-                          }`
-                        }
-                      >
-                        <Icon size={16} />
-                        <span>{label}</span>
-                      </NavLink>
-                    ))}
-                  </nav>
-                </div>
-
-                <div className="px-4 pb-4">
-                  <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
-                    Exam Domains
-                  </h3>
-                  <div className="space-y-0.5">
-                    {currentExam.domains.map((domain) => {
-                      const isActive = location.pathname === `/skillup/${currentExam.id}/notes` && searchParams.get('d') === String(domain.id);
-                      const seen = !!getNotesSeen()[`${currentExam.id}:${domain.id}`];
-                      return (
-                        <Link
-                          key={domain.id}
-                          to={`/skillup/${currentExam.id}/notes?d=${domain.id}`}
-                          className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-all duration-200 ${
-                            isActive
-                              ? 'bg-slate-800/80 text-white scale-[1.02] shadow-sm'
-                              : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:translate-x-0.5'
-                          }`}
-                        >
-                          <span className={`w-2 h-2 rounded-full ${seen ? 'bg-emerald-500' : domain.color} ${isActive ? 'ring-2 ring-offset-1 ring-offset-slate-900' : ''} transition-all`} />
-                          <span>D{domain.id}: {domain.title}</span>
-                          {seen && !isActive && <span className="ml-auto text-[9px] text-emerald-600 font-mono">✓</span>}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {currentExam.resources.length > 0 && (
-                  <div className="px-4 pt-2 border-t border-slate-800/50">
-                    <button
-                      onClick={() => setResourcesOpen((o) => !o)}
-                      className="w-full flex items-center justify-between py-2 group"
-                    >
-                      <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest group-hover:text-slate-400 transition-colors">
-                        Resources
-                      </span>
-                      <ChevronDown size={12} className={`text-slate-600 transition-transform duration-200 ${resourcesOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                    {resourcesOpen && (
-                      <div className="space-y-1.5 text-xs pb-2">
-                        {currentExam.resources.map((res) => (
-                          <a key={res.url} href={res.url} target="_blank" rel="noopener noreferrer" className={`block text-slate-400 ${scheme.resourceHover} hover:translate-x-0.5 transition-all duration-200`}>
-                            {res.label} ↗
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
-            );
-          })()}
-
-
+          {/* Exam-specific nav/domains/resources deliberately don't live here
+              any more — they duplicated the exam sub-nav strip below, Notes.tsx's
+              own header pill row, and ExamHome's own "Official Resources" card
+              respectively. See the Study Notes Teardown analysis. */}
 
           {/* Team sidebar */}
           {isInTeam && (
