@@ -17,15 +17,23 @@ name: Monitoring Snapshot Sync
 # (required PR + "TypeScript + Build" status check) started rejecting this
 # job's direct `git push origin HEAD:main` once that ruleset was added, so
 # every run silently fetched fresh data and then discarded it at the push
-# step. Auto-merge is requested on the PR, but note: a PR whose commits are
-# pushed using the default GITHUB_TOKEN does NOT trigger other
-# `pull_request`-triggered workflows (GitHub's anti-recursion safeguard) --
-# so ci.yml's required "TypeScript + Build" check will NOT run automatically
-# on this PR, and auto-merge will sit waiting on it indefinitely. Until this
-# repo either (a) swaps GITHUB_TOKEN here for a real PAT/GitHub App token, or
-# (b) adds a branch-protection bypass for this workflow, someone needs to
-# manually re-run "TypeScript + Build" on the PR (or just merge it by hand --
-# it's a single generated JSON file, low-risk to eyeball) each week.
+# step. Same root cause and same fix as content-intelligence-sync.yml (fixed
+# 2026-09-09) -- copying its proven pattern rather than reinventing it:
+#
+# Mints an aarya-platform-bot App installation token (App ID 3972716, an
+# "always" bypass actor on this repo's branch ruleset) instead of the default
+# GITHUB_TOKEN -- a PR/push authenticated as GITHUB_TOKEN does not trigger
+# other pull_request-triggered workflows (GitHub's anti-recursion
+# safeguard), so the required "TypeScript + Build" check would never run at
+# all and the PR would sit blocked forever.
+#
+# Merges the PR itself by polling for the required check then calling
+# `gh pr merge --admin`, NOT GitHub's native queued `--auto` merge --
+# content-intelligence-sync.yml's own investigation found native auto-merge
+# does not apply the App's bypass_actors entry the same way an explicit
+# synchronous merge call does (PR sat mergeStateStatus=BLOCKED even after
+# every check passed; an explicit --admin merge with the same App token
+# succeeded immediately).
 
 on:
   schedule:
@@ -41,8 +49,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Mints a short-lived installation token for aarya-platform-bot -- same
+      # App, same pattern as content-intelligence-sync.yml /
+      # sync-vertical-agents.yml. Requires the App to have Pull requests:
+      # Read & write (Contents: Read & write is already granted).
+      - name: Mint App installation token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
       - name: Checkout
         uses: actions/checkout@v7.0.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -56,9 +77,9 @@ jobs:
           MONITORING_SYNC_KEY: ${{ secrets.MONITORING_SYNC_KEY }}
         run: node scripts/build-monitoring-snapshot.mjs
 
-      - name: Open PR with the refreshed snapshot, if changed
+      - name: Open PR and merge if changed
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -71,20 +92,33 @@ jobs:
             exit 0
           fi
 
-          branch="chore/monitoring-snapshot-$(date -u +%Y%m%d)-${{ github.run_number }}"
-          git checkout -b "$branch"
+          branch="chore/monitoring-snapshot-$(date -u +%Y%m%d-%H%M%S)"
+          git checkout -B "${branch}"
           git commit -m "chore(monitoring): refresh weekly snapshot"
-          git push origin "$branch"
+          git push --set-upstream origin "${branch}"
 
           pr_url=$(gh pr create \
-            --title "chore(monitoring): refresh weekly snapshot ($(date -u +%Y-%m-%d))" \
-            --body "Automated weekly GA4 + Cloudflare snapshot refresh — see \`scripts/build-monitoring-snapshot.mjs\`. Single generated JSON file, no app code touched." \
             --base main \
-            --head "$branch")
-          echo "Opened $pr_url"
+            --head "${branch}" \
+            --title "chore(monitoring): refresh weekly snapshot ($(date -u +%Y-%m-%d))" \
+            --body "Automated weekly GA4 + Cloudflare snapshot refresh — see \`scripts/build-monitoring-snapshot.mjs\`. Single generated JSON file, no app code touched.")
 
-          # Best-effort -- see the file header comment for why the required
-          # status check may never fire on a PR pushed via GITHUB_TOKEN, in
-          # which case this queues auto-merge but a human still needs to
-          # nudge the check (re-run it, or merge by hand) for it to land.
-          gh pr merge --auto --squash "$pr_url" || echo "::warning::Could not enable auto-merge -- merge this PR manually."
+          # Poll for the required check, then merge explicitly with --admin
+          # (this App's ID is already an "always" bypass actor on this
+          # repo's ruleset) -- see the file header comment for why native
+          # `gh pr merge --auto` doesn't work here.
+          for _ in $(seq 1 20); do
+            checks_output=$(gh pr checks "${pr_url}" --required 2>&1) || true
+            if echo "${checks_output}" | grep -qE 'fail|cancel'; then
+              echo "::error::Required check failed on ${pr_url} — leaving PR open for manual review."
+              echo "${checks_output}"
+              exit 1
+            fi
+            if ! echo "${checks_output}" | grep -qi 'pending'; then
+              gh pr merge "${pr_url}" --squash --delete-branch --admin
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::Required check on ${pr_url} did not resolve within 5 minutes — leaving PR open for manual review."
+          exit 1
