@@ -1,6 +1,7 @@
-import type { QuizSession } from '../types/content';
+import type { QuizSession, QuizDraft } from '../types/content';
 
 const SESSIONS_KEY = 'aarya_quiz_sessions'; // RC-4: was 'cca_sessions' — now skill-agnostic
+const QUIZ_DRAFT_KEY_PREFIX = 'aarya_quiz_draft_';
 
 export function getSessions(): QuizSession[] {
   try {
@@ -16,6 +17,33 @@ export function saveSession(session: QuizSession): void {
   if (idx >= 0) sessions[idx] = session;
   else sessions.push(session);
   localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+}
+
+/** In-progress quiz attempt, autosaved per exam — see `QuizDraft`'s own doc
+ *  comment for why this is kept separate from the finished-session history. */
+export function saveQuizDraft(examId: string, draft: QuizDraft): void {
+  try {
+    localStorage.setItem(QUIZ_DRAFT_KEY_PREFIX + examId, JSON.stringify(draft));
+  } catch {
+    /* storage unavailable — draft is best-effort, not required for the quiz to function */
+  }
+}
+
+export function loadQuizDraft(examId: string): QuizDraft | null {
+  try {
+    const raw = localStorage.getItem(QUIZ_DRAFT_KEY_PREFIX + examId);
+    return raw ? (JSON.parse(raw) as QuizDraft) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearQuizDraft(examId: string): void {
+  try {
+    localStorage.removeItem(QUIZ_DRAFT_KEY_PREFIX + examId);
+  } catch {
+    /* storage unavailable — nothing to clean up */
+  }
 }
 
 /**

@@ -211,6 +211,20 @@ export interface QuizSession {
   userId?: string;         // GitHub user ID — set on login, undefined for anonymous
 }
 
+/** An in-progress, unfinished quiz attempt — autosaved so closing the tab
+ *  mid-quiz doesn't silently lose it. Kept separate from `QuizSession`
+ *  (the finished-session history `getSessions()` reads) rather than reusing
+ *  it, since pages like Progress already filter that array by `finishedAt`. */
+export interface QuizDraft {
+  domainFilter: number | null;
+  questions: Question[];
+  current: number;
+  answers: Record<string, number>;
+  chosen: number | null;
+  revealed: boolean;
+  savedAt: number;
+}
+
 export interface BlogPostMeta {
   slug: string;
   title: string;

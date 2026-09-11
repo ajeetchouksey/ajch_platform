@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { loadScenariosForExam, loadExamRegistry } from '@/lib/content-loader';
 import { isRichScenario } from '@/types/content';
 import type { Scenario, ScenarioQuestion } from '@/types/content';
-import { ChevronDown, ChevronUp, Clock, Users, CheckCircle2, XCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Clock, Users, CheckCircle2, XCircle, AlertTriangle, RotateCcw } from 'lucide-react';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationshipsForIds } from '@/lib/useRelationships';
 
@@ -64,6 +64,8 @@ export default function Scenarios() {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
   const [examShortTitle, setExamShortTitle] = useState('Exam');
   const [domainTitles, setDomainTitles] = useState<Record<number, string>>({});
   const [isSkillTrack, setIsSkillTrack] = useState(false);
@@ -85,11 +87,11 @@ export default function Scenarios() {
 
   useEffect(() => {
     if (isSkillTrack || examDomainsLoadedFor !== examId) return;
-    setLoading(true); // eslint-disable-line react-hooks/set-state-in-effect
+    setLoading(true); setError(null); // eslint-disable-line react-hooks/set-state-in-effect
     loadScenariosForExam(examId)
       .then((s) => { setScenarios(s); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [examId, isSkillTrack, examDomainsLoadedFor]);
+      .catch((e) => { setError(String(e)); setLoading(false); });
+  }, [examId, isSkillTrack, examDomainsLoadedFor, retryKey]);
 
   // relationships.json has no whole-exam key, only one per domain — union
   // across every domain's own edges (see useRelationshipsForIds's own doc).
@@ -98,8 +100,28 @@ export default function Scenarios() {
 
   if (loading) return <p className="text-slate-500 text-sm animate-pulse">Loading scenarios…</p>;
 
+  // ── Error ─────────────────────────────────────────────────────────────────
+  // A failed fetch (e.g. a blocked CDN request) must never look like "this
+  // exam just has zero scenarios" — see the SkillUp UX assessment finding.
+  if (error) {
+    return (
+      <div className="rounded-xl border border-rose-800/50 bg-rose-950/20 px-5 py-8 text-center">
+        <AlertTriangle size={22} className="text-rose-400 mx-auto mb-3" />
+        <p className="text-sm font-semibold text-rose-300 mb-1">Couldn't load scenarios</p>
+        <p className="text-xs text-slate-500 mb-4">{error}</p>
+        <button
+          onClick={() => setRetryKey((k) => k + 1)}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-rose-900/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/60 transition-colors"
+        >
+          <RotateCcw size={12} /> Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col lg:flex-row gap-8 items-start">
+    <div className="flex-1 min-w-0 space-y-4">
       <div className="space-y-1">
         <p className="page-eyebrow">{examShortTitle} Exam</p>
         <h1 className="text-2xl font-bold tracking-tight">Exam <span className="heading-gradient">Scenarios</span></h1>
@@ -258,9 +280,12 @@ export default function Scenarios() {
           </div>
         );
       })}
+    </div>
 
-      {/* Computed cross-vertical relationships — see ComputedRelatedList */}
+    {/* ── Sidebar — related content across verticals ────────────────────── */}
+    <aside className="w-full lg:w-[300px] xl:w-[320px] shrink-0 lg:sticky lg:top-4 self-start space-y-6">
       <ComputedRelatedList edges={computedRelated} />
+    </aside>
     </div>
   );
 }
