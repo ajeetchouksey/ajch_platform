@@ -124,8 +124,11 @@ export default function Notes() {
   const [readPct, setReadPct] = useState(0);
   const [copied, setCopied] = useState(false);
   const [highlightEnabled, setHighlightEnabled] = useState(true);
+  // Opt-in, not opt-out — the cursive styling roughly doubles scroll length
+  // for a dense reference doc, so a first-time visitor sees the calmer,
+  // denser default and can switch on request.
   const [handwritingMode, setHandwritingMode] = useState(() => {
-    try { const v = localStorage.getItem('notes_handwriting'); return v === null ? true : v === '1'; } catch { return true; }
+    try { return localStorage.getItem('notes_handwriting') === '1'; } catch { return false; }
   });
   const observerRef = useRef<IntersectionObserver | null>(null);
   const toc = content ? extractToc(content) : [];
@@ -471,7 +474,9 @@ export default function Notes() {
             <p className="text-base font-bold font-mono text-blue-400">{domainQCount}</p>
             <p className="text-[10px] text-slate-500 mt-0.5">Quiz questions</p>
           </div>
-          <div className="flex items-center justify-center px-2 gap-2">
+          {/* Settings cluster — visually separated from the stat tiles above
+              (read-only facts vs. things you can click) with a divider. */}
+          <div className="flex items-center justify-center pl-3 ml-1 gap-2 border-l border-slate-700/50">
             <div className="relative">
               <button
                 title={focusTimer ? 'Focus timer active' : 'Start focus timer'}
@@ -624,7 +629,7 @@ export default function Notes() {
         )}
         {!loading && !error && (
           <div
-            className={`prose prose-invert max-w-none prose-a:text-violet-400 prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-blockquote:border-violet-500 prose-blockquote:text-slate-400 prose-p:text-[0.9375rem] prose-p:leading-7 [&_img]:block [&_img]:mx-auto [&_img]:h-auto [&_img]:w-full [&_img]:max-w-[680px] [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-700/40 [&_img]:shadow-lg ${
+            className={`prose prose-invert max-w-[75ch] prose-a:text-violet-400 prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-blockquote:border-violet-500 prose-blockquote:text-slate-400 prose-p:text-[0.9375rem] prose-p:leading-7 prose-table:block prose-table:overflow-x-auto [&_img]:block [&_img]:mx-auto [&_img]:h-auto [&_img]:w-full [&_img]:max-w-[680px] [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-700/40 [&_img]:shadow-lg ${
               handwritingMode
                 ? '[&_h1]:text-white [&_h2]:text-white [&_h3]:text-white prose-headings:font-bold'
                 : 'prose-headings:text-white'
