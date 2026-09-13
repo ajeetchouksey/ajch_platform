@@ -15,11 +15,14 @@ import { RetentionTable, type RetentionWeek } from '../components/RetentionTable
 import { SkeletonCard, SkeletonRow } from '../components/Skeleton';
 import { forecast, detectAnomalies } from '../lib/forecast';
 
-// 2026-05-01 was the originally requested backfill start, but GA4 has no data
-// before this date — tracking simply wasn't collecting before then (confirmed
-// via a direct GA4 query, not a retention-window truncation). Using the real
-// earliest available date avoids the chart claiming a range it can't back up.
-const HISTORY_START_DATE = '2026-06-02';
+// 2026-05-01 was the originally requested backfill start; an earlier pass
+// moved this to 2026-06-02 after a direct GA4 query appeared to show no data
+// before then. Reverted back to 2026-05-01 per explicit request, and because
+// the real GA4 console's own "1 May – 11 Sept 2026" custom-range report
+// returns real, non-zero totals for that period — if May genuinely turns out
+// to be all zeros here, the chart just renders a flat lead-in, which is
+// harmless; if it doesn't, this recovers data the earlier check missed.
+const HISTORY_START_DATE = '2026-05-01';
 
 type Tab = 'overview' | 'content' | 'exams' | 'sources' | 'audience' | 'retention' | 'cloudflare';
 type DateRange = '7d' | '28d' | '90d' | 'all';
@@ -44,7 +47,7 @@ const DATE_RANGES: { id: DateRange; label: string; start: string }[] = [
   // not an arbitrary cutoff. Lets Content/Exams/Sources/Audience/Cloudflare see
   // the same full range Overview's chart already does, instead of being capped
   // at 90 days.
-  { id: 'all', label: 'Since Jun 1', start: HISTORY_START_DATE },
+  { id: 'all', label: 'Since May 1', start: HISTORY_START_DATE },
 ];
 
 // Equal-length immediately-prior period for each preset, used for KPI
@@ -910,7 +913,7 @@ function RetentionTab() {
 function CloudflareTab({ dateRange }: { dateRange: DateRange }) {
   const cfStatus = useCloudflareStatus();
   // Cloudflare's GraphQL Analytics API only exposes these three fixed lookback
-  // windows -- "Since Jun 1" has no equivalent there (and would likely exceed
+  // windows -- "Since May 1" has no equivalent there (and would likely exceed
   // the account's retention window anyway), so clamp to the widest real option
   // rather than widening the hook's own type to accept a range it can't serve.
   const { data, loading, error } = useCloudflareOverview(dateRange === 'all' ? '90d' : dateRange);
