@@ -1,8 +1,8 @@
 {
   "schema": "1.0",
-  "generatedAt": "2026-09-11T21:07:34.555Z",
-  "since": "2026-08-14",
-  "until": "2026-09-10",
+  "generatedAt": "2026-09-13T06:30:01.618Z",
+  "since": "2026-08-16",
+  "until": "2026-09-12",
   "traffic": {
     "last7d": {
       "sessions": 0,
@@ -10,37 +10,37 @@
       "users": 0
     },
     "dailyAvg28d": {
-      "sessions": 8.7,
-      "pageviews": 38,
-      "users": 5
+      "sessions": 10.6,
+      "pageviews": 50.2,
+      "users": 6.2
     },
     "vsQuarterTarget": {
       "quarterId": "Q2",
       "paceRatio": {
-        "sessions": 0.613,
-        "pageviews": 0.34700000000000003,
-        "users": 0.833
+        "sessions": 0.746,
+        "pageviews": 0.45899999999999996,
+        "users": 1.033
       }
     }
   },
   "cloudflareWorkers": [
     {
       "scriptName": "aarya-cf-monitor",
-      "requests": 125,
+      "requests": 127,
       "errorRate28d": 0,
       "errorRate7d": 0,
       "cpuTimeP99Ms": 15278
     },
     {
       "scriptName": "aarya-ga4-proxy",
-      "requests": 4610674,
-      "errorRate28d": 0.1486574414066143,
+      "requests": 4610678,
+      "errorRate28d": 0.14865731243864785,
       "errorRate7d": 0,
       "cpuTimeP99Ms": 1734
     },
     {
       "scriptName": "aarya-subscribe",
-      "requests": 2610,
+      "requests": 2632,
       "errorRate28d": 0,
       "errorRate7d": 0,
       "cpuTimeP99Ms": 3997
@@ -59,25 +59,20 @@
     },
     {
       "database": "aarya-analytics",
-      "rowsRead": 2588,
+      "rowsRead": 2595,
       "rowsWritten": 141
     }
   ],
   "alerts": [
     {
-      "severity": "critical",
-      "area": "traffic",
-      "message": "sessions pacing at 61% of Q2 baseline daily average — well off the pace needed to hit the quarter's traffic target."
-    },
-    {
-      "severity": "critical",
-      "area": "traffic",
-      "message": "pageviews pacing at 35% of Q2 baseline daily average — well off the pace needed to hit the quarter's traffic target."
-    },
-    {
       "severity": "warning",
       "area": "traffic",
-      "message": "users pacing at 83% of Q2 baseline daily average — behind pace for the quarter's traffic target."
+      "message": "sessions pacing at 75% of Q2 baseline daily average — behind pace for the quarter's traffic target."
+    },
+    {
+      "severity": "critical",
+      "area": "traffic",
+      "message": "pageviews pacing at 46% of Q2 baseline daily average — well off the pace needed to hit the quarter's traffic target."
     }
   ]
 }
