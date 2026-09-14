@@ -2,6 +2,7 @@
  * aarya-ga4-proxy — Cloudflare Worker
  * GET  /api/ga/realtime  — active users, top pages, top countries (60 s KV cache)
  * POST /api/ga/report    — GA4 Data API report {dateRange, dimensions, metrics}
+ * GET  /api/ga/health    — real (uncached) credential check: {ok, reason?, checkedAt}
  *
  * Auth: every request must carry either Authorization: Bearer <github_token>
  *   1. SHA-256 hash token → 16-char key
@@ -488,6 +489,32 @@ export default {
         const hasOAuth = Boolean(await env.GA4_CACHE.get('ga4:oauth_refresh_token'));
         const method = hasSA ? 'service_account' : hasOAuth ? 'oauth' : 'none';
         return json({ connected: hasSA || hasOAuth, method }, 200, origin);
+      }
+
+      // GET /api/ga/health — verifies the GA4 credential itself is actually
+      // valid, distinct from "the report happened to return zero rows."
+      // Every other route trusts a cached access token for up to 55 minutes
+      // (getAccessToken()'s KV/mem cache), so a broken credential can surface
+      // as a plausible-looking empty/zero report for a long time before
+      // anyone notices. This calls the real token-exchange function directly
+      // (getAccessTokenSA/getAccessTokenOAuth, not the cached getAccessToken
+      // orchestrator) so every call is a fresh, genuine credential check.
+      // Always 200 — the caller reads the `ok` field, since "the health
+      // check successfully determined the credential is broken" is not
+      // itself a server error.
+      if (url.pathname === '/api/ga/health' && request.method === 'GET') {
+        try {
+          if (env.GA4_SERVICE_ACCOUNT_B64) {
+            await getAccessTokenSA(env);
+          } else {
+            await getAccessTokenOAuth(env);
+          }
+          return json({ ok: true, checkedAt: new Date().toISOString() }, 200, origin);
+        } catch (err) {
+          const reason = err instanceof Error ? err.message : 'Unknown error';
+          console.error('[ga4-proxy] health check failed', reason);
+          return json({ ok: false, reason, checkedAt: new Date().toISOString() }, 200, origin);
+        }
       }
 
       // GET /oauth/start — returns Google consent URL for the owner to navigate to

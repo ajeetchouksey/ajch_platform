@@ -27,11 +27,30 @@
  * the aarya-ga4-proxy scriptThrewException spike fixed in PR #450 alone
  * would have kept alerting into late September on a 28d window). Both
  * windows are still reported in the snapshot for context.
+ *
+ * GA4 credential health check (added after a real incident): /api/ga/history
+ * reads from D1, not a live GA4 call — it's populated by a daily Cron Trigger
+ * inside the Worker itself, which fails silently (console.error only, no
+ * alerting) if the GA4 credential breaks. That means this script can run
+ * successfully every week, "sync" fresh-looking data, and still just be
+ * re-committing the same stale D1 rows from before the credential broke,
+ * indistinguishable from genuinely flat traffic — exactly what happened for
+ * roughly three weeks before a human noticed stale numbers on the homepage.
+ * Calling /api/ga/health first (a real, uncached credential check — see
+ * workers/ga4-proxy.ts) turns that into an explicit, visible alert instead.
+ *
+ * Pipeline-health alerting (added after the same incident): a broken
+ * credential-rotation workflow (sync-ga4-proxy-secrets.yml) sat failing for
+ * three weeks with nothing surfacing it. Checking recent runs of the
+ * critical scheduled workflows via `gh run list` and alerting on repeated
+ * failures or a stuck promotion PR closes that same "nobody was watching"
+ * gap for CI, not just for GA4 itself.
  */
 
 import { readFileSync, writeFileSync } from 'fs';
 import { resolve, join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { execFileSync } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -76,6 +95,109 @@ function findActiveQuarter(mvpProgress) {
   return (mvpProgress.quarters ?? []).find(q => q.status === 'active') ?? null;
 }
 
+// ── GA4 credential health ────────────────────────────────────────────────────
+
+async function fetchGa4Health(proxyUrl) {
+  try {
+    const res = await fetch(`${proxyUrl}/api/ga/health`, { headers: { 'X-Sync-Key': SYNC_KEY } });
+    if (!res.ok) return { ok: false, reason: `health endpoint returned HTTP ${res.status}` };
+    return await res.json();
+  } catch (err) {
+    return { ok: false, reason: err.message };
+  }
+}
+
+// ── Pipeline (CI) health — closes the "nobody was watching" gap ─────────────
+// Scheduled workflows that fail silently (no PR, no push, nothing user-facing
+// to notice) can go unnoticed for weeks — sync-ga4-proxy-secrets.yml did,
+// for three. Checking recent run history surfaces that the same way traffic
+// pacing already surfaces a slow quarter.
+
+const CRITICAL_WORKFLOWS = [
+  'analytics-sync.yml',
+  'monitoring-snapshot-sync.yml',
+  'promote-content.yml',
+  'content-intelligence-sync.yml',
+  'sync-ga4-proxy-secrets.yml',
+];
+
+// sync-ga4-proxy-secrets.yml is workflow_dispatch-only (manual, on-demand) —
+// a lack of recent runs there is normal, not a failure signal. The rest are
+// schedule-driven, so silence would itself be suspicious, but this check
+// only looks at runs that did happen; a truly hung scheduler is a GitHub
+// platform issue outside this script's reach.
+const MANUAL_ONLY_WORKFLOWS = new Set(['sync-ga4-proxy-secrets.yml']);
+
+function checkWorkflowHealth(repoSlug) {
+  const alerts = [];
+  for (const wf of CRITICAL_WORKFLOWS) {
+    try {
+      const raw = execFileSync('gh', [
+        'run', 'list',
+        '--repo', repoSlug,
+        '--workflow', wf,
+        '--limit', '2',
+        '--json', 'conclusion,createdAt,url',
+      ], { encoding: 'utf8' });
+      const runs = JSON.parse(raw);
+      if (runs.length === 0) {
+        if (!MANUAL_ONLY_WORKFLOWS.has(wf)) {
+          alerts.push({ severity: 'warning', area: 'ci', message: `${wf} has no recorded runs at all — confirm it's actually scheduled/enabled.` });
+        }
+        continue;
+      }
+      const allFailed = runs.every(r => r.conclusion === 'failure');
+      if (allFailed) {
+        alerts.push({
+          severity: MANUAL_ONLY_WORKFLOWS.has(wf) ? 'warning' : 'critical',
+          area: 'ci',
+          message: `${wf} has failed its last ${runs.length} run(s) — ${runs[0].url}`,
+        });
+      }
+    } catch (err) {
+      alerts.push({ severity: 'warning', area: 'ci', message: `Could not check ${wf}'s run health: ${err.message}` });
+    }
+  }
+  return alerts;
+}
+
+// A PR opened by one of these automated jobs that's been sitting BLOCKED for
+// hours means the "open PR, poll checks, admin-merge" pattern hit something
+// it doesn't handle (e.g. the code-owner-review requirement discovered on
+// #622) — the job itself may report "success" up to the point it gives up,
+// so this catches the PR getting stranded even when the workflow run isn't
+// technically a failure.
+const AUTOMATED_PR_BRANCH_PREFIXES = ['chore/promote-', 'chore/monitoring-snapshot-', 'chore/content-intelligence-sync-'];
+const STUCK_PR_THRESHOLD_HOURS = 3;
+
+function checkStuckAutomatedPRs(repoSlug) {
+  const alerts = [];
+  try {
+    const raw = execFileSync('gh', [
+      'pr', 'list',
+      '--repo', repoSlug,
+      '--state', 'open',
+      '--json', 'title,url,createdAt,mergeStateStatus,headRefName',
+    ], { encoding: 'utf8' });
+    const prs = JSON.parse(raw);
+    const now = Date.now();
+    for (const pr of prs) {
+      if (!AUTOMATED_PR_BRANCH_PREFIXES.some(p => pr.headRefName.startsWith(p))) continue;
+      const ageHours = (now - new Date(pr.createdAt).getTime()) / 3_600_000;
+      if (pr.mergeStateStatus === 'BLOCKED' && ageHours > STUCK_PR_THRESHOLD_HOURS) {
+        alerts.push({
+          severity: 'critical',
+          area: 'ci',
+          message: `Automated PR "${pr.title}" has been stuck BLOCKED for ${Math.round(ageHours)}h — ${pr.url}`,
+        });
+      }
+    }
+  } catch (err) {
+    alerts.push({ severity: 'warning', area: 'ci', message: `Could not check for stuck automated PRs: ${err.message}` });
+  }
+  return alerts;
+}
+
 async function main() {
   const today = new Date();
   const until = new Date(today.getTime() - 24 * 60 * 60 * 1000); // yesterday — today's GA4 row is always partial
@@ -86,7 +208,8 @@ async function main() {
   const since28Str = toDateStr(since28);
   const since7Str = toDateStr(since7);
 
-  const [history, cfOverview28d, cfOverview7d] = await Promise.all([
+  const [ga4Health, history, cfOverview28d, cfOverview7d] = await Promise.all([
+    fetchGa4Health(GA4_PROXY_URL),
     fetchJson(`${GA4_PROXY_URL}/api/ga/history?start=${since28Str}&end=${untilStr}`, 'GA4 history'),
     fetchJson(`${CF_MONITOR_URL}/api/cf/overview?range=28d`, 'Cloudflare overview (28d)'),
     fetchJson(`${CF_MONITOR_URL}/api/cf/overview?range=7d`, 'Cloudflare overview (7d)'),
@@ -113,6 +236,18 @@ async function main() {
   const baseline = activeQuarter?.trafficBaseline?.baselineDailyAvg ?? null;
 
   const alerts = [];
+
+  if (!ga4Health.ok) {
+    alerts.push({
+      severity: 'critical',
+      area: 'ga4',
+      message: `GA4 credential check failed: ${ga4Health.reason ?? 'unknown reason'} — the traffic figures below may be stale (the Worker's daily D1 snapshot cron likely stopped updating silently rather than the report genuinely being empty).`,
+    });
+  }
+
+  const repoSlug = process.env.GITHUB_REPOSITORY ?? 'ajeetchouksey/ajch_platform';
+  alerts.push(...checkWorkflowHealth(repoSlug));
+  alerts.push(...checkStuckAutomatedPRs(repoSlug));
 
   let vsQuarterTarget = null;
   if (baseline) {
@@ -181,10 +316,11 @@ async function main() {
   }));
 
   const snapshot = {
-    schema: '1.0',
+    schema: '1.1',
     generatedAt: new Date().toISOString(),
     since: since28Str,
     until: untilStr,
+    ga4Health,
     traffic: {
       last7d,
       dailyAvg28d,
@@ -196,7 +332,7 @@ async function main() {
   };
 
   writeFileSync(SNAPSHOT_PATH, JSON.stringify(snapshot, null, 2) + '\n');
-  console.log(`Wrote ${SNAPSHOT_PATH} — ${alerts.length} alert(s), ${cloudflareWorkers.length} worker(s), ${d1Usage.length} D1 database(s).`);
+  console.log(`Wrote ${SNAPSHOT_PATH} — ${alerts.length} alert(s), ${cloudflareWorkers.length} worker(s), ${d1Usage.length} D1 database(s), GA4 health: ${ga4Health.ok ? 'ok' : `BROKEN (${ga4Health.reason})`}.`);
 }
 
 main().catch(err => {
