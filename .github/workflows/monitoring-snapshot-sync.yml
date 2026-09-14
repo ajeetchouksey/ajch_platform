@@ -30,6 +30,9 @@ name: Monitoring Snapshot Sync
 # credential health + CI pipeline health checks) under this same App token,
 # which needs the App to have Actions: Read in addition to the
 # Contents/Pull-requests permissions the other workflows already required.
+#
+# The actual commit/PR/merge sequence lives in .github/actions/commit-and-merge
+# — shared with content-intelligence-sync.yml and promote-content.yml.
 
 on:
   schedule:
@@ -75,51 +78,11 @@ jobs:
         run: node scripts/build-monitoring-snapshot.mjs
 
       - name: Open PR and merge if changed
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add public/content/monitoring-snapshot.json
-
-          if git diff --cached --quiet; then
-            echo "No change to monitoring snapshot."
-            exit 0
-          fi
-
-          branch="chore/monitoring-snapshot-$(date -u +%Y%m%d-%H%M%S)"
-          git checkout -B "${branch}"
-          git commit -m "chore(monitoring): refresh weekly snapshot"
-          git push --set-upstream origin "${branch}"
-
-          pr_url=$(gh pr create \
-            --base main \
-            --head "${branch}" \
-            --title "chore(monitoring): refresh weekly snapshot ($(date -u +%Y-%m-%d))" \
-            --body "Automated weekly GA4 + Cloudflare snapshot refresh — see \`scripts/build-monitoring-snapshot.mjs\`. Single generated JSON file, no app code touched.")
-
-          # Poll for the required check, then merge explicitly with --admin
-          # (this App's ID is already an "always" bypass actor on this
-          # repo's ruleset) -- native `gh pr merge --auto` does NOT apply
-          # that bypass the same way (confirmed on promote-content.yml's
-          # own investigation). A code-owner-review requirement can still
-          # block even --admin (seen on PR #622) -- that case fails loudly
-          # here rather than silently, per the pipeline-health check this
-          # same run just added.
-          for _ in $(seq 1 20); do
-            checks_output=$(gh pr checks "${pr_url}" --required 2>&1) || true
-            if echo "${checks_output}" | grep -qE 'fail|cancel'; then
-              echo "::error::Required check failed on ${pr_url} — leaving PR open for manual review."
-              echo "${checks_output}"
-              exit 1
-            fi
-            if ! echo "${checks_output}" | grep -qi 'pending'; then
-              gh pr merge "${pr_url}" --squash --delete-branch --admin
-              exit 0
-            fi
-            sleep 15
-          done
-          echo "::error::Required check on ${pr_url} did not resolve within 5 minutes — leaving PR open for manual review."
-          exit 1
+        uses: ./.github/actions/commit-and-merge
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          branch-name: chore/monitoring-snapshot-${{ github.run_id }}
+          files: public/content/monitoring-snapshot.json
+          commit-message: "chore(monitoring): refresh weekly snapshot"
+          pr-title: "chore(monitoring): refresh weekly snapshot"
+          pr-body: "Automated weekly GA4 + Cloudflare snapshot refresh — see `scripts/build-monitoring-snapshot.mjs`. Single generated JSON file, no app code touched."
