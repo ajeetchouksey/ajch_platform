@@ -1,0 +1,148 @@
+name: 'Commit, open PR, and merge'
+description: >
+  Commits the given files (if changed), opens a PR against main, and merges
+  it once required checks pass. Shared by every scheduled/dispatch job that
+  writes generated content back to this repo (content-intelligence-sync.yml,
+  monitoring-snapshot-sync.yml, promote-content.yml).
+
+  Extracted after the same fix was applied by hand to 3 separate workflows
+  in one day, each as its own copy-pasted bash block -- and one of those
+  copies (monitoring-snapshot-sync.yml) silently reverted to its old, broken
+  form because the fix lived only in a workflow file's own history, not in
+  one place a future edit could accidentally touch without noticing it was
+  load-bearing. One implementation, one place to fix it next time.
+
+  Requires a GitHub App installation token (not the default GITHUB_TOKEN) as
+  `github-token` -- a commit/PR authenticated as GITHUB_TOKEN does not
+  trigger other pull_request-triggered workflows (GitHub's anti-recursion
+  safeguard), so a required status check like "TypeScript + Build" would
+  never fire and the PR would sit blocked forever. See
+  actions/create-github-app-token in each calling workflow.
+
+  Merges via poll-then-explicit `gh pr merge --admin`, not GitHub's native
+  queued `gh pr merge --auto` -- confirmed live (content-intelligence-sync.yml,
+  2026-09-09) that native auto-merge does not apply an App's bypass_actors
+  ruleset entry the same way an explicit synchronous merge call does; a
+  queued PR sat mergeStateStatus=BLOCKED even after every check passed,
+  while an explicit --admin merge with the same token succeeded immediately.
+
+  A code-owner-review requirement can still block even --admin (seen on
+  PR #622, promoting skillup) -- that's a real gap this action does not
+  paper over: it fails loudly (non-zero exit, PR left open) rather than
+  hanging, so the calling workflow's own failure is visible instead of a
+  silent stuck PR.
+
+inputs:
+  github-token:
+    description: 'GitHub App installation token (from actions/create-github-app-token) -- NOT the default GITHUB_TOKEN.'
+    required: true
+  branch-name:
+    description: 'Branch to create and push. Include a timestamp/run-id suffix if this job can run more than once with the same logical change.'
+    required: true
+  files:
+    description: 'Newline- or space-separated list of file paths to `git add` (relative to repo root).'
+    required: true
+  commit-message:
+    description: 'Commit message for the change.'
+    required: true
+  pr-title:
+    description: 'Title for the opened PR.'
+    required: true
+  pr-body:
+    description: 'Body for the opened PR.'
+    required: true
+  base-branch:
+    description: 'Branch to open the PR against.'
+    required: false
+    default: 'main'
+  check-poll-attempts:
+    description: 'How many 15s polls to wait for required checks before giving up.'
+    required: false
+    default: '20'
+
+outputs:
+  changed:
+    description: '"true" if there were staged changes to commit, "false" if the working tree was already clean.'
+    value: ${{ steps.commit.outputs.changed }}
+  pr-url:
+    description: 'URL of the opened PR. Empty if changed=false.'
+    value: ${{ steps.open-pr.outputs.pr_url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Configure git identity
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    - name: Stage files and check for changes
+      id: commit
+      shell: bash
+      run: |
+        set -euo pipefail
+        git checkout -B "${{ inputs.branch-name }}"
+        git add ${{ inputs.files }}
+
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        git commit -m "${{ inputs.commit-message }}"
+        echo "changed=true" >> "$GITHUB_OUTPUT"
+
+    - name: Push branch
+      if: steps.commit.outputs.changed == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: git push --set-upstream origin "${{ inputs.branch-name }}"
+
+    - name: Open PR
+      if: steps.commit.outputs.changed == 'true'
+      id: open-pr
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        set -euo pipefail
+        pr_url=$(gh pr create \
+          --base "${{ inputs.base-branch }}" \
+          --head "${{ inputs.branch-name }}" \
+          --title "${{ inputs.pr-title }}" \
+          --body "${{ inputs.pr-body }}")
+        echo "Opened ${pr_url}"
+        echo "pr_url=${pr_url}" >> "$GITHUB_OUTPUT"
+
+    # Poll for the required check, then merge explicitly with --admin (the
+    # calling workflow's App is already an "always" bypass actor on this
+    # repo's ruleset -- see this action's own description for why native
+    # `gh pr merge --auto` doesn't work here). A code-owner-review
+    # requirement can still block even --admin -- that fails this step
+    # loudly rather than hanging silently.
+    - name: Poll required checks, then merge
+      if: steps.commit.outputs.changed == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        set -euo pipefail
+        pr_url="${{ steps.open-pr.outputs.pr_url }}"
+        for _ in $(seq 1 ${{ inputs.check-poll-attempts }}); do
+          checks_output=$(gh pr checks "${pr_url}" --required 2>&1) || true
+          if echo "${checks_output}" | grep -qE 'fail|cancel'; then
+            echo "::error::Required check failed on ${pr_url} — leaving PR open for manual review."
+            echo "${checks_output}"
+            exit 1
+          fi
+          if ! echo "${checks_output}" | grep -qi 'pending'; then
+            gh pr merge "${pr_url}" --squash --delete-branch --admin
+            exit 0
+          fi
+          sleep 15
+        done
+        echo "::error::Required check on ${pr_url} did not resolve within the poll budget — leaving PR open for manual review (this can be a code-owner-review requirement --admin doesn't bypass, not just a slow check — see PR #622)."
+        exit 1
