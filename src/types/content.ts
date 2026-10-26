@@ -61,7 +61,10 @@ export interface ExamConfig {
   scenarioFiles: string[];
   resources: ExamResource[];
   changelog?: ContentChangelog[];
+  /** Set when a track is retired: it leaves the catalog but stays reachable by URL. */
   deprecatedAt?: string;
+  /** Id of the track that replaces a retired one (shown as a notice on its pages). */
+  supersededBy?: string;
   prerequisites?: string[];
   /** Official study-guide objectives → question IDs (ajch_skillup task-statements.json). */
   taskStatementsFile?: string;

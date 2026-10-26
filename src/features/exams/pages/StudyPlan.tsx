@@ -467,7 +467,7 @@ export default function StudyPlan() {
   );
 
   const readinessBreakdown = useMemo(
-    () => (exam ? getReadinessBreakdown(validId ?? '', exam.domains, sessions) : null),
+    () => (exam ? getReadinessBreakdown(validId ?? '', exam.domains, sessions, exam.questions) : null),
     [exam, validId, sessions],
   );
   const streak = useMemo(() => getStreak(validId ?? ''), [validId]);

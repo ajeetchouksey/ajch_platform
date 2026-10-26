@@ -12,13 +12,14 @@ import { SubscribeForm } from './SubscribeForm';
 import { GrowthPrompt } from './GrowthPrompt';
 import { useIsOwner } from '@/lib/auth';
 
+// Exam sub-nav: four goal-based tabs; Learn and Progress & Plan each hold two
+// pages, shown as a second set of pills when that tab is active. Every route
+// is unchanged — only the grouping is.
 const EXAM_NAV = [
-  { slug: '',          label: 'Overview',    icon: GraduationCap, end: true },
-  { slug: 'quiz',      label: 'Quiz',        icon: Brain              },
-  { slug: 'notes',     label: 'Study Notes', icon: BookOpen           },
-  { slug: 'scenarios', label: 'Scenarios',   icon: Layers             },
-  { slug: 'progress',  label: 'Progress',    icon: BarChart2          },
-  { slug: 'plan',      label: 'Study Plan',  icon: CalendarDays       },
+  { key: 'overview', label: 'Overview',        icon: GraduationCap, items: [{ slug: '',          label: 'Overview',    icon: GraduationCap }] },
+  { key: 'learn',    label: 'Learn',           icon: BookOpen,      items: [{ slug: 'notes',     label: 'Study Notes', icon: BookOpen }, { slug: 'scenarios', label: 'Scenarios', icon: Layers }] },
+  { key: 'practice', label: 'Practice',        icon: Brain,         items: [{ slug: 'quiz',      label: 'Quiz',        icon: Brain }] },
+  { key: 'track',    label: 'Progress & Plan', icon: BarChart2,     items: [{ slug: 'progress',  label: 'Progress',    icon: BarChart2 }, { slug: 'plan', label: 'Study Plan', icon: CalendarDays }] },
 ];
 
 const TOOL_NAV = [
@@ -699,29 +700,52 @@ export default function Layout({ children }: { children: ReactNode }) {
                   {currentExam.shortTitle}
                 </span>
               )}
-              {(currentExam?.kind === 'skill-track'
-                ? EXAM_NAV.filter(({ slug }) => slug === '' || (slug === 'quiz' && currentExam.practiceBank))
-                : EXAM_NAV
-              ).map(({ slug, label, icon: Icon, end }) => {
-                const to = slug ? `/skillup/${currentExamId}/${slug}` : `/skillup/${currentExamId}`;
+              {(() => {
+                const base = `/skillup/${currentExamId}`;
+                const sub = location.pathname.startsWith(base) ? location.pathname.slice(base.length).replace(/^\/|\/$/g, '') : '';
+                // Skill tracks only have an overview (+ the legacy practice bank, if any).
+                const groups = currentExam?.kind === 'skill-track'
+                  ? EXAM_NAV.filter((g) => g.key === 'overview' || (g.key === 'practice' && currentExam.practiceBank))
+                  : EXAM_NAV;
+                const active = groups.find((g) => g.items.some((i) => i.slug === sub)) ?? groups[0];
+                const tabCls = (on: boolean) =>
+                  `flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+                    on
+                      ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30'
+                      : 'text-slate-500 hover:text-white hover:bg-slate-800/60 border border-transparent'
+                  }`;
                 return (
-                  <NavLink
-                    key={to}
-                    to={to}
-                    end={end}
-                    className={({ isActive }) =>
-                      `flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
-                        isActive
-                          ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30'
-                          : 'text-slate-500 hover:text-white hover:bg-slate-800/60 border border-transparent'
-                      }`
-                    }
-                  >
-                    <Icon size={12} />
-                    {label}
-                  </NavLink>
+                  <>
+                    {groups.map((g) => {
+                      const Icon = g.icon;
+                      const first = g.items[0].slug;
+                      return (
+                        <Link key={g.key} to={first ? `${base}/${first}` : base} className={tabCls(g === active)} aria-current={g === active ? 'page' : undefined}>
+                          <Icon size={12} />
+                          {g.label}
+                        </Link>
+                      );
+                    })}
+                    {active.items.length > 1 && (
+                      <span className="flex items-center gap-1 pl-3 ml-1 border-l border-slate-700/40 shrink-0">
+                        {active.items.map((i) => (
+                          <NavLink
+                            key={i.slug}
+                            to={`${base}/${i.slug}`}
+                            className={({ isActive }) =>
+                              `px-2 py-0.5 rounded-md text-[11px] whitespace-nowrap transition-colors ${
+                                isActive ? 'text-white bg-slate-700/60' : 'text-slate-500 hover:text-slate-200'
+                              }`
+                            }
+                          >
+                            {i.label}
+                          </NavLink>
+                        ))}
+                      </span>
+                    )}
+                  </>
                 );
-              })}
+              })()}
             </div>
           )}
           <div className="flex-1 p-4 lg:p-8">

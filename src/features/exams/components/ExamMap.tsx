@@ -43,7 +43,7 @@ export function PrepPath({ exam, sessions, mastery, readiness }: {
       cta: mastery?.weakest ? `Drill ${mastery.weakest.task.id}` : 'Drill' },
     { key: 'simulate', title: 'Simulate', detail: `Timed exam · ${exam.duration}`,
       done: simulated, to: `${base}/quiz?mode=timed`, cta: 'Start timed exam' },
-    // readiness = getReadinessBreakdown (notes read + best domain-quiz score).
+    // readiness = getReadinessBreakdown: notes read + best of domain-quiz and per-question attempt scores.
     { key: 'ready', title: 'Ready', detail: `Readiness ${readiness}% · need ${exam.passThreshold}%`,
       done: readiness >= exam.passThreshold && coverage >= COVERAGE_TARGET && simulated },
   ];

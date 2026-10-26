@@ -16,7 +16,7 @@ import type { ReadinessBreakdown } from '@/lib/study-tracker';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationshipsForIds } from '@/lib/useRelationships';
 import PageViewsBadge from '@/components/PageViewsBadge';
-import type { ExamConfig, DomainConfig, QuizSession, ContentType, TaskStatementsFile } from '@/types/content';
+import type { ExamConfig, ContentType, TaskStatementsFile } from '@/types/content';
 import { recordExamVisit } from '@/lib/exam-stats';
 import SkillTrackHome from './SkillTrackHome';
 
@@ -26,29 +26,16 @@ type DomainStatus = 'strong' | 'progress' | 'new';
 
 interface DomainReadiness { pct: number; total: number; status: DomainStatus }
 
-function computeDomainQuizStatus(
-  sessions: QuizSession[],
-  examId: string,
-  domains: DomainConfig[],
-): {
+function domainStatusFromBreakdown(b: ReadinessBreakdown): {
   byDomain: Record<number, DomainReadiness>;
   domainsStarted: number;
 } {
-  const scores: Record<number, { correct: number; total: number }> = {};
-  for (const d of domains) scores[d.id] = { correct: 0, total: 0 };
-  for (const s of sessions) {
-    if (!s.finishedAt || s.skillId !== examId || s.domainFilter === null) continue;
-    const sc = scores[s.domainFilter];
-    if (sc) { sc.correct += s.score; sc.total += s.total; }
-  }
-  let domainsStarted = 0;
   const byDomain: Record<number, DomainReadiness> = {};
-  for (const d of domains) {
-    const sc = scores[d.id];
-    const pct = sc.total > 0 ? Math.round((sc.correct / sc.total) * 100) : 0;
-    const status: DomainStatus = pct >= 70 ? 'strong' : sc.total > 0 ? 'progress' : 'new';
-    if (sc.total > 0) domainsStarted++;
-    byDomain[d.id] = { pct, total: sc.total, status };
+  let domainsStarted = 0;
+  for (const d of b.byDomain) {
+    const status: DomainStatus = d.bestScore >= 70 ? 'strong' : d.quizAttempted ? 'progress' : 'new';
+    if (d.quizAttempted) domainsStarted++;
+    byDomain[d.domainId] = { pct: d.bestScore, total: d.quizAttempted ? 1 : 0, status };
   }
   return { byDomain, domainsStarted };
 }
@@ -188,13 +175,15 @@ export default function ExamHome() {
   const sessions = useMemo(() => getSessions(), []);
   // Skill Track (IDEA-0016) entries have no domains[] — this readiness/quiz
   // machinery is exam-only; SkillTrackHome renders instead, below.
-  const domainStatus = useMemo(
-    () => exam && exam.kind !== 'skill-track' ? computeDomainQuizStatus(sessions, examId ?? '', exam.domains) : null,
+  const readinessBreakdown: ReadinessBreakdown | null = useMemo(
+    () => exam && exam.kind !== 'skill-track' ? getReadinessBreakdown(examId ?? '', exam.domains, sessions, exam.questions) : null,
     [sessions, examId, exam],
   );
-  const readinessBreakdown: ReadinessBreakdown | null = useMemo(
-    () => exam && exam.kind !== 'skill-track' ? getReadinessBreakdown(examId ?? '', exam.domains, sessions) : null,
-    [sessions, examId, exam],
+  // Domain chips use the same scores as readiness, so drills and timed exams
+  // count here too (not only domain-filtered quiz sessions).
+  const domainStatus = useMemo(
+    () => (readinessBreakdown ? domainStatusFromBreakdown(readinessBreakdown) : null),
+    [readinessBreakdown],
   );
   // relationships.json has no whole-exam key, only one per domain — union
   // across every domain's own edges (see useRelationshipsForIds's own doc).
@@ -282,6 +271,20 @@ export default function ExamHome() {
 
   return (
     <div className="space-y-8">
+      {/* Retired track — point to its replacement */}
+      {exam.deprecatedAt && (
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-xl border border-amber-700/50 bg-amber-950/30 text-sm">
+          <span className="text-amber-200">
+            This track was retired on {new Date(exam.deprecatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            {exam.supersededBy ? ' and merged into a newer, syllabus-aligned track.' : '.'} Your progress here is kept.
+          </span>
+          {exam.supersededBy && (
+            <Link to={`/skillup/${exam.supersededBy}`} className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-100 hover:bg-amber-500/30 transition-colors">
+              Go to the current track <ArrowRight size={12} />
+            </Link>
+          )}
+        </div>
+      )}
       {/* Guest mode banner */}
       {!user && !authLoading && !bannerDismissed && (
         <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-slate-800/70 border border-slate-700/60 rounded-xl text-sm">
@@ -343,7 +346,7 @@ export default function ExamHome() {
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Prerequisites</span>
           {prereqExams.map((prereq) => {
-            const pr = getReadinessBreakdown(prereq.id, prereq.domains, sessions);
+            const pr = getReadinessBreakdown(prereq.id, prereq.domains, sessions, prereq.questions);
             const passed = pr.overall >= prereq.passThreshold;
             return (
               <Link
@@ -446,7 +449,7 @@ export default function ExamHome() {
                       <span title="Notes read" className={`text-[10px] ${comp.notesRead ? 'text-emerald-400' : 'text-slate-700'}`}>{comp.notesRead ? '📖' : '○'}</span>
                       <span title={comp.quizPassed ? `Quiz ${comp.bestScore}%` : comp.quizAttempted ? `Quiz ${comp.bestScore}% (need 70%)` : 'Quiz not started'} className={`text-[10px] ${comp.quizPassed ? 'text-emerald-400' : comp.quizAttempted ? 'text-amber-400' : 'text-slate-700'}`}>{comp.quizPassed ? '✅' : comp.quizAttempted ? '⚠' : '○'}</span>
                     </div>
-                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${STATUS_CHIP[dr?.status ?? 'new']}`}>
+                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${STATUS_CHIP[dr?.status ?? 'new']}`}>
                       {STATUS_LABEL[dr?.status ?? 'new']}
                     </span>
                   </div>
@@ -494,7 +497,7 @@ export default function ExamHome() {
                   </p>
                 ))}
                 <p className="text-[10px] text-slate-500 italic mt-1">
-                  Readiness = 30% for notes read + up to 70% for best quiz score, per domain, weighted by exam domain weight.
+                  Readiness = 30% for notes read + up to 70% for the domain's best quiz score, per domain, weighted by exam domain weight. The quiz score is the better of your best domain quiz and your latest answers across every mode, counted against the domain's share of the bank.
                 </p>
               </div>
             )}
@@ -554,7 +557,7 @@ export default function ExamHome() {
                   <span className="text-slate-300 group-hover:text-white transition-colors">D{domain.id}: {domain.title}</span>
                   <div className="flex items-center gap-2">
                     {dr && dr.total > 0 && (
-                      <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${STATUS_CHIP[dr.status]}`}>
+                      <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${STATUS_CHIP[dr.status]}`}>
                         {STATUS_LABEL[dr.status]}
                       </span>
                     )}
@@ -566,6 +569,26 @@ export default function ExamHome() {
           })}
         </div>
       </div>
+
+      {/* What's new — the exam's own content changelog, newest first */}
+      {(exam.changelog?.length ?? 0) > 0 && (
+        <details className="glass-card glass-edge rounded-xl p-5 group/cl" open>
+          <summary className="section-heading cursor-pointer list-none flex items-center justify-between">
+            What's new
+            <span className="text-[10px] font-mono text-slate-500">v{exam.contentVersion}</span>
+          </summary>
+          <ol className="mt-3 space-y-3">
+            {[...(exam.changelog ?? [])].reverse().slice(0, 3).map((c) => (
+              <li key={c.version} className="text-xs leading-relaxed">
+                <p className="text-slate-500">
+                  <span className="font-mono text-slate-400">v{c.version}</span> · {new Date(c.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                </p>
+                <p className="text-slate-300 line-clamp-3" title={c.summary}>{c.summary}</p>
+              </li>
+            ))}
+          </ol>
+        </details>
+      )}
 
       {/* Official resources */}
       <div className={`glass-card glass-edge rounded-xl p-5 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`} style={{ transitionDelay: '800ms' }}>

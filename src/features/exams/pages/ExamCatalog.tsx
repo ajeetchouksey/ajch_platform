@@ -131,7 +131,13 @@ function ExamCard({ exam, idx }: { exam: ExamConfig; idx: number }) {
         <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight mb-2 transition-colors duration-200 group-hover:text-violet-100">
           {exam.title}
         </h2>
-        <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-2xl">{exam.description}</p>
+        <p className="text-slate-400 text-sm leading-relaxed mb-2 max-w-2xl">{exam.description}</p>
+        {exam.contentUpdatedAt && (
+          <p className="text-[11px] text-slate-500 mb-6">
+            Updated {new Date(exam.contentUpdatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            {exam.contentVersion ? <span className="font-mono text-slate-600"> · v{exam.contentVersion}</span> : null}
+          </p>
+        )}
 
         {/* Stats row */}
         <div className="flex flex-wrap gap-x-6 gap-y-2 mb-6 text-[12px] text-slate-500">
@@ -284,7 +290,8 @@ export default function ExamCatalog() {
 
   useEffect(() => {
     loadExamRegistry()
-      .then((r) => { setExams(r.exams); setLoading(false); })
+      // Retired tracks (deprecatedAt) stay reachable by URL but leave the catalog.
+      .then((r) => { setExams(r.exams.filter((e) => !e.deprecatedAt)); setLoading(false); })
       .catch(() => setLoading(false));
     requestAnimationFrame(() => setMounted(true));
   }, []);
@@ -311,6 +318,15 @@ export default function ExamCatalog() {
   const clearFilters = () => setSearchParams(new URLSearchParams(), { replace: true });
 
   const available = exams.filter((e) => e.available);
+  // Curated view: one group per provider, ordered along the 101 → 201 → 301 ladder.
+  const byProvider = useMemo(() => {
+    const groups = new Map<string, ExamConfig[]>();
+    for (const e of available) groups.set(e.provider, [...(groups.get(e.provider) ?? []), e]);
+    for (const list of groups.values()) {
+      list.sort((a, b) => (a.contentLevel ?? '999').localeCompare(b.contentLevel ?? '999') || a.title.localeCompare(b.title));
+    }
+    return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
+  }, [available]);
   const coming = exams.filter((e) => !e.available);
   const totalQuestions = exams.reduce((a, e) => a + questionCount(e), 0);
   const totalDomains = exams.reduce((a, e) => a + sectionInfo(e).length, 0);
@@ -517,19 +533,26 @@ export default function ExamCatalog() {
       )}
 
       {/* ── Available exams (curated) ── */}
-      {!loading && !filtersActive && available.length > 0 && (
-        <div className="space-y-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
-            <GraduationCap size={12} className="text-violet-400" />
-            Available Now
-          </p>
+      {!loading && !filtersActive && byProvider.map(([prov, list], gi) => (
+        <section key={prov} className="space-y-5" aria-labelledby={`prov-${prov}`}>
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-slate-800/70 pb-2">
+            <h2 id={`prov-${prov}`} className="text-lg font-semibold text-white flex items-center gap-2">
+              <GraduationCap size={15} className="text-brand-lilac" /> {prov}
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              {list.length} {list.length === 1 ? 'track' : 'tracks'}
+              {list.some((e) => e.contentLevel) && (
+                <> · {list.map((e) => e.contentLevel).filter(Boolean).map((l) => `L${l}`).join(' → ')}</>
+              )}
+            </span>
+          </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-            {available.map((exam, idx) => (
-              <ExamCard key={exam.id} exam={exam} idx={idx} />
+            {list.map((exam, idx) => (
+              <ExamCard key={exam.id} exam={exam} idx={gi * 2 + idx} />
             ))}
           </div>
-        </div>
-      )}
+        </section>
+      ))}
 
       {/* ── Coming soon (curated) ── */}
       {!loading && !filtersActive && coming.length > 0 && (
