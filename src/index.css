@@ -382,3 +382,12 @@
   font-size: 0.875em !important;
   color: #c4b5fd !important;
 }
+
+/* ─── Blockquotes: no auto quote marks ───
+   @tailwindcss/typography wraps every blockquote paragraph in open/close
+   quotes, but notes already write their own ("“The Golden Rule…”") and many
+   blockquotes are callouts, not quotations — so readers saw doubled marks. */
+.prose blockquote p:first-of-type::before,
+.prose blockquote p:last-of-type::after {
+  content: none;
+}

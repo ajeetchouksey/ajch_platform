@@ -1,18 +1,41 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { loadQuestionsForExam, loadQuestionsByDomainForExam, loadExamRegistry } from '@/lib/content-loader';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { loadQuestionsForExam, loadQuestionsByDomainForExam, loadExamRegistry, loadTaskStatementsForExam } from '@/lib/content-loader';
 import { saveSession, saveQuizDraft, loadQuizDraft, clearQuizDraft } from '@/lib/storage';
 import { addQuizResult, useProgressSync } from '@/lib/useProgressSync';
+import { saveAttempt, getAttempts } from '@/lib/adaptive-quiz';
+import { getFlagged, toggleFlag, reviewQueueIds } from '@/lib/objective-mastery';
 import { useAuth } from '@/lib/auth';
 import { trackEvent } from '@/lib/analytics';
-import { type Question, type QuizSession, type QuizDraft, type DomainConfig } from '@/types/content';
-import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X, History, LogOut } from 'lucide-react';
+import { type Question, type QuizSession, type QuizDraft, type DomainConfig, type QuizMode, type TaskStatement } from '@/types/content';
+import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X, History, LogOut, Flag, Timer, Target, BookOpenCheck } from 'lucide-react';
 import QuizShareCard from '@/components/QuizShareCard';
 import { AskMentor } from '@/components/AskMentor';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationshipsForIds } from '@/lib/useRelationships';
 
 type Phase = 'setup' | 'quiz' | 'review';
+
+/** Questions in a timed simulation. Real exams in the catalog run roughly
+ *  40–60 items; banks smaller than this use every question and a pro-rated clock. */
+const TIMED_COUNT = 50;
+/** Questions per domain drill (unchanged from before modes existed). */
+const DRILL_COUNT = 15;
+
+/** "100 min" → 100. Falls back to 60 so a malformed registry value never yields a 0s clock. */
+function parseMinutes(duration: string | undefined): number {
+  const m = duration?.match(/(\d+)/);
+  return m ? Number(m[1]) : 60;
+}
+
+function formatClock(ms: number): string {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function isQuizMode(v: string | null): v is QuizMode {
+  return v === 'review' || v === 'timed' || v === 'missed' || v === 'objective';
+}
 
 function randomId() {
   return Math.random().toString(36).slice(2);
@@ -85,6 +108,24 @@ export default function Quiz() {
   const [examTitle, setExamTitle] = useState('Exam');
   const [examTotalQuestions, setExamTotalQuestions] = useState<number | null>(null);
   const [showPalette, setShowPalette] = useState(false);
+  // ── Modes (see QuizMode) — preselected from ?mode= / ?task= links on the exam map
+  const [searchParams] = useSearchParams();
+  const [mode, setMode] = useState<QuizMode>(() => {
+    if (searchParams.get('task')) return 'objective';
+    const m = searchParams.get('mode');
+    return isQuizMode(m) ? m : 'review';
+  });
+  const [tasks, setTasks] = useState<TaskStatement[]>([]);
+  const [taskId, setTaskId] = useState<string | null>(() => searchParams.get('task'));
+  const [examMinutes, setExamMinutes] = useState(60);
+  const [endsAt, setEndsAt] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+  const [flagged, setFlagged] = useState<Set<string>>(() => new Set(getFlagged(examId)));
+  const [emptyPoolMsg, setEmptyPoolMsg] = useState<string | null>(null);
+  const shownAtRef = useRef(0); // set when each question is shown (effect below)
+  const isTimed = mode === 'timed';
+  const reviewQueueCount = phase === 'setup' ? reviewQueueIds(examId, getAttempts(examId)).length : 0;
+  const selectedTask = tasks.find((t) => t.id === taskId) ?? null;
   // One-time-per-session nudge dismissal
   const [nudgeDismissed, setNudgeDismissed] = useState(() => {
     try { return !!sessionStorage.getItem(`nudge_dismissed_${examId}`); }
@@ -112,10 +153,48 @@ export default function Quiz() {
 
   // Autosave the active attempt on every question interaction, so closing the
   // tab mid-quiz doesn't silently lose it (see the SkillUp UX assessment).
+  // Timed attempts aren't drafted: resuming would either restart or freeze the clock,
+  // and neither matches the real exam.
   useEffect(() => {
-    if (phase !== 'quiz' || questions.length === 0) return;
+    if (phase !== 'quiz' || questions.length === 0 || mode === 'timed') return;
     saveQuizDraft(examId, { domainFilter, questions, current, answers, chosen, revealed, savedAt: Date.now() });
-  }, [examId, phase, domainFilter, questions, current, answers, chosen, revealed]);
+  }, [examId, phase, mode, domainFilter, questions, current, answers, chosen, revealed]);
+
+  // Exam clock — ends the attempt when it runs out.
+  useEffect(() => {
+    if (phase !== 'quiz' || endsAt === null) return;
+    const t = setInterval(() => {
+      const n = Date.now();
+      setNow(n);
+      if (n >= endsAt) setPhase('review');
+    }, 1000);
+    return () => clearInterval(t);
+  }, [phase, endsAt]);
+
+  // Start the per-question timer whenever a new question is shown.
+  useEffect(() => { shownAtRef.current = Date.now(); }, [current, phase]);
+
+  const recordAttempt = useCallback((q: Question, chosenIndex: number) => {
+    saveAttempt({
+      questionId: q.id,
+      examId,
+      domain: q.domain,
+      chosenIndex,
+      correct: chosenIndex === q.correct,
+      timeSpentMs: Date.now() - shownAtRef.current,
+      attemptedAt: Date.now(),
+      loop: 1,
+    });
+  }, [examId]);
+
+  const handleToggleFlag = useCallback((questionId: string) => {
+    const on = toggleFlag(examId, questionId);
+    setFlagged((prev) => {
+      const next = new Set(prev);
+      if (on) next.add(questionId); else next.delete(questionId);
+      return next;
+    });
+  }, [examId]);
 
   const resumeDraft = useCallback(() => {
     if (!draft) return;
@@ -135,7 +214,10 @@ export default function Quiz() {
     setAnswers(draft.answers);
     setRevealed(draft.revealed);
     setDomainFilter(draft.domainFilter);
-    setSession(newSession);
+    // Drafts are never timed (see autosave), so a resumed attempt is always review-style.
+    setMode('review');
+    setEndsAt(null);
+    setSession({ ...newSession, mode: 'review' });
     setPhase('quiz');
   }, [draft, examId, user]);
 
@@ -163,24 +245,55 @@ export default function Quiz() {
         setExamShortTitle(exam.shortTitle);
         setExamTitle(exam.title);
         setExamTotalQuestions(isSkillTrack ? (exam.practiceBank?.questions ?? null) : exam.questions);
+        setExamMinutes(parseMinutes(exam.duration));
       }
     }).catch(() => {});
+    loadTaskStatementsForExam(examId)
+      .then((ts) => setTasks(ts ? ts.domains.flatMap((d) => d.tasks).filter((t) => t.questionIds.length > 0) : []))
+      .catch(() => setTasks([]));
   }, [examId]);
 
   const startQuiz = useCallback(async () => {
     setLoading(true);
-    const qs = domainFilter
-      ? await loadQuestionsByDomainForExam(examId, domainFilter)
+    setEmptyPoolMsg(null);
+    // Domain filter only applies to review mode; the others pick their own pool.
+    const filter = mode === 'review' ? domainFilter : null;
+    const qs = filter
+      ? await loadQuestionsByDomainForExam(examId, filter)
       : await loadQuestionsForExam(examId);
-    const picked = shuffle(qs).slice(0, domainFilter ? 15 : qs.length);
+    let picked: Question[];
+    if (mode === 'timed') {
+      picked = shuffle(qs).slice(0, TIMED_COUNT);
+    } else if (mode === 'missed') {
+      const ids = new Set(reviewQueueIds(examId, getAttempts(examId)));
+      picked = shuffle(qs.filter((q) => ids.has(q.id)));
+    } else if (mode === 'objective') {
+      const ids = new Set(selectedTask?.questionIds ?? []);
+      picked = shuffle(qs.filter((q) => ids.has(q.id)));
+    } else {
+      picked = shuffle(qs).slice(0, filter ? DRILL_COUNT : qs.length);
+    }
+    if (picked.length === 0) {
+      setEmptyPoolMsg(mode === 'missed'
+        ? 'Nothing to review yet — questions you get wrong or flag will collect here.'
+        : 'Pick an objective to drill.');
+      setLoading(false);
+      return;
+    }
+    // Pro-rate the clock when the bank is smaller than a full simulation.
+    setEndsAt(mode === 'timed'
+      ? Date.now() + examMinutes * 60_000 * (picked.length / TIMED_COUNT)
+      : null);
+    setNow(Date.now());
     const newSession: QuizSession = {
       id: randomId(),
       skillId: examId,  // RC-4: scope session to this skill
       startedAt: Date.now(),
-      domainFilter,
+      domainFilter: filter,
       answers: {},
       score: 0,
       total: picked.length,
+      mode,
       ...(user?.login ? { userId: user.login } : {}),
     };
     setQuestions(picked);
@@ -191,12 +304,17 @@ export default function Quiz() {
     setSession(newSession);
     setPhase('quiz');
     setLoading(false);
-    trackEvent('quiz_start', { exam_id: examId, domain: domainFilter ?? 'all' });
+    trackEvent('quiz_start', { exam_id: examId, domain: filter ?? 'all', mode });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [domainFilter]);
+  }, [domainFilter, mode, selectedTask, examMinutes]);
 
   useEffect(() => {
     if (phase === 'review' && session) {
+      // Timed answers stay hidden until the end, so they're recorded here
+      // (once, final answer) rather than on reveal like the other modes.
+      if (session.mode === 'timed') {
+        for (const q of questions) if (answers[q.id] !== undefined) recordAttempt(q, answers[q.id]);
+      }
       const score = questions.filter((q) => answers[q.id] === q.correct).length;
       const finished: QuizSession = { ...session, finishedAt: Date.now(), answers, score };
       saveSession(finished);
@@ -226,6 +344,8 @@ export default function Quiz() {
   function handleChoose(idx: number) {
     if (revealed) return;
     setChosen(idx);
+    // Timed: the choice *is* the answer (changeable until the clock or Finish).
+    if (isTimed) setAnswers((prev) => ({ ...prev, [questions[current].id]: idx }));
   }
 
   function handleReveal() {
@@ -234,6 +354,7 @@ export default function Quiz() {
     if (session) {
       const q = questions[current];
       setAnswers((prev) => ({ ...prev, [q.id]: chosen }));
+      recordAttempt(q, chosen);
     }
   }
 
@@ -241,8 +362,10 @@ export default function Quiz() {
     if (current + 1 >= questions.length) {
       setPhase('review');
     } else {
+      const nextAns = answers[questions[current + 1].id];
       setCurrent((c) => c + 1);
-      setChosen(null);
+      // Timed: moving back and forth must keep earlier answers selected.
+      setChosen(isTimed && nextAns !== undefined ? nextAns : null);
       setRevealed(false);
     }
   }
@@ -253,7 +376,7 @@ export default function Quiz() {
     const prevChosen = answers[prevQ.id];
     setCurrent((c) => c - 1);
     setChosen(prevChosen !== undefined ? prevChosen : null);
-    setRevealed(prevChosen !== undefined);
+    setRevealed(!isTimed && prevChosen !== undefined);
   }
 
   function handleJump(idx: number) {
@@ -262,7 +385,7 @@ export default function Quiz() {
     const targetChosen = answers[targetQ.id];
     setCurrent(idx);
     setChosen(targetChosen !== undefined ? targetChosen : null);
-    setRevealed(targetChosen !== undefined);
+    setRevealed(!isTimed && targetChosen !== undefined);
     setShowPalette(false);
   }
 
@@ -273,14 +396,73 @@ export default function Quiz() {
         <p className="page-eyebrow">{examShortTitle} Exam</p>
         <h1 className="text-2xl font-bold tracking-tight">Practice <span className="heading-gradient">Quiz</span></h1>
 
+        {/* Mode picker — same question bank, different ways to use it */}
+        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Practice mode">
+          {([
+            { id: 'review', icon: BookOpenCheck, title: 'Review', desc: 'Answers and reasons as you go' },
+            { id: 'timed', icon: Timer, title: 'Timed exam', desc: `${TIMED_COUNT} questions · ${examMinutes} min · results at the end` },
+            { id: 'missed', icon: Flag, title: 'Missed & flagged', desc: reviewQueueCount ? `${reviewQueueCount} to review` : 'Wrong answers and flags collect here' },
+            { id: 'objective', icon: Target, title: 'Objective drill', desc: tasks.length ? 'One official exam objective' : 'Not available for this exam' },
+          ] as const).map(({ id, icon: Icon, title, desc }) => {
+            const disabled = id === 'objective' && tasks.length === 0;
+            return (
+              <button
+                key={id}
+                role="radio"
+                aria-checked={mode === id}
+                disabled={disabled}
+                onClick={() => { setMode(id); setEmptyPoolMsg(null); }}
+                className={`text-left p-3 rounded-xl border transition-colors disabled:opacity-40 ${
+                  mode === id
+                    ? 'border-brand-lilac/70 bg-brand-indigo/20 text-white'
+                    : 'border-slate-700 text-slate-400 hover:border-slate-600'
+                }`}
+              >
+                <Icon size={15} className={mode === id ? 'text-brand-lilac' : 'text-slate-500'} />
+                <p className="text-sm font-semibold mt-1.5">{title}</p>
+                <p className="text-xs text-slate-500 mt-0.5 leading-snug">{desc}</p>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Exam meta strip */}
         <div className="flex flex-wrap gap-4 text-sm text-slate-500">
-          <span><span className="text-slate-300 font-semibold">{domainFilter === null ? (examTotalQuestions ?? '—') : 15}</span> questions</span>
+          <span><span className="text-slate-300 font-semibold">{
+            mode === 'timed' ? Math.min(TIMED_COUNT, examTotalQuestions ?? TIMED_COUNT)
+              : mode === 'missed' ? reviewQueueCount
+                : mode === 'objective' ? (selectedTask?.questionIds.length ?? '—')
+                  : domainFilter === null ? (examTotalQuestions ?? '—') : DRILL_COUNT
+          }</span> questions</span>
           {passThreshold !== null && (
             <span><span className="text-slate-300 font-semibold">{passThreshold}%</span> to pass</span>
           )}
           <span>Scenario-based MCQ</span>
         </div>
+
+        {emptyPoolMsg && (
+          <p className="text-sm text-amber-300 bg-amber-950/30 border border-amber-800/40 rounded-lg px-3 py-2">{emptyPoolMsg}</p>
+        )}
+
+        {/* Objective picker */}
+        {mode === 'objective' && tasks.length > 0 && (
+          <div className="glass-card rounded-xl p-5 space-y-2">
+            <div className="flex items-center gap-2 text-slate-400 text-sm">
+              <Target size={14} />
+              <span>Official exam objective</span>
+            </div>
+            <select
+              value={taskId ?? ''}
+              onChange={(e) => { setTaskId(e.target.value || null); setEmptyPoolMsg(null); }}
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-200"
+            >
+              <option value="">Choose an objective…</option>
+              {tasks.map((t) => (
+                <option key={t.id} value={t.id}>{t.id} · {t.title} ({t.questionIds.length})</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Unfinished attempt — see QuizDraft's doc comment for why this exists */}
         {draft && (
@@ -308,6 +490,7 @@ export default function Quiz() {
           </div>
         )}
 
+        {mode === 'review' && (
         <div className="glass-card rounded-xl p-5 space-y-4">
           <div className="flex items-center gap-2 text-slate-400 text-sm">
             <Filter size={14} />
@@ -340,14 +523,15 @@ export default function Quiz() {
             ))}
           </div>
         </div>
+        )}
 
         <button
           ref={ctaRef}
           onClick={startQuiz}
-          disabled={loading}
+          disabled={loading || (mode === 'objective' && !selectedTask)}
           className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors"
         >
-          {loading ? 'Loading…' : 'Start Quiz →'}
+          {loading ? 'Loading…' : mode === 'timed' ? 'Start timed exam →' : 'Start Quiz →'}
         </button>
       </div>
     );
@@ -364,6 +548,14 @@ export default function Quiz() {
       <div className="flex-1 min-w-0 max-w-lg space-y-6">
         <p className="page-eyebrow">{examShortTitle} Exam</p>
         <h1 className="text-2xl font-bold tracking-tight">Session <span className="heading-gradient">Complete</span></h1>
+        {session?.mode && session.mode !== 'review' && (
+          <p className="text-xs text-slate-500 -mt-4">
+            {session.mode === 'timed'
+              ? `Timed exam · ${Object.keys(answers).length} of ${questions.length} answered`
+              : session.mode === 'missed' ? 'Missed & flagged review'
+                : `Objective drill${selectedTask ? ` · ${selectedTask.id} ${selectedTask.title}` : ''}`}
+          </p>
+        )}
 
         {/* Score card */}
         <div
@@ -544,7 +736,24 @@ export default function Quiz() {
             Question {current + 1} of {questions.length}
           </span>
           <div className="flex items-center gap-3">
+            {endsAt !== null && (
+              <span
+                className={`flex items-center gap-1 font-mono font-semibold ${endsAt - now < 5 * 60_000 ? 'text-amber-400' : 'text-slate-300'}`}
+                aria-live="off"
+                title="Time remaining"
+              >
+                <Timer size={12} /> {formatClock(endsAt - now)}
+              </span>
+            )}
             <span>D{q.domain} · {examDomains.find(d => d.id === q.domain)?.title ?? `Domain ${q.domain}`}</span>
+            <button
+              onClick={() => handleToggleFlag(q.id)}
+              aria-pressed={flagged.has(q.id)}
+              className={`flex items-center gap-1 text-xs transition-colors ${flagged.has(q.id) ? 'text-amber-400' : 'text-slate-500 hover:text-white'}`}
+              title="Flag for the Missed & flagged review"
+            >
+              <Flag size={11} fill={flagged.has(q.id) ? 'currentColor' : 'none'} /> {flagged.has(q.id) ? 'Flagged' : 'Flag'}
+            </button>
             <button
               onClick={() => setShowPalette((v) => !v)}
               className="text-xs text-violet-400 hover:text-violet-300 underline underline-offset-2 transition-colors"
@@ -573,8 +782,14 @@ export default function Quiz() {
         <div className="glass-card rounded-xl p-3">
           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-2">
             <span>Click a number to jump</span>
-            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-emerald-700" /> correct</span>
-            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-rose-800" /> wrong</span>
+            {isTimed ? (
+              <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-violet-900" /> answered</span>
+            ) : (
+              <>
+                <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-emerald-700" /> correct</span>
+                <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-rose-800" /> wrong</span>
+              </>
+            )}
             <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-slate-700" /> unanswered</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -588,6 +803,8 @@ export default function Quiz() {
                 cls += 'ring-2 ring-violet-400 bg-violet-700 text-white';
               else if (!isAnswered)
                 cls += 'bg-slate-700 text-slate-400 hover:bg-slate-600';
+              else if (isTimed)
+                cls += 'bg-violet-900 text-violet-200 hover:bg-violet-800';
               else if (isCorrectAns)
                 cls += 'bg-emerald-800/70 text-emerald-300 hover:bg-emerald-700/70';
               else
@@ -719,7 +936,16 @@ export default function Quiz() {
             Back
           </button>
         )}
-        {!revealed && (
+        {isTimed && (
+          <button
+            onClick={handleNext}
+            className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
+          >
+            {current + 1 >= questions.length ? 'Finish exam' : chosen === null ? 'Skip' : 'Next'}
+            <ChevronRight size={15} />
+          </button>
+        )}
+        {!isTimed && !revealed && (
           <button
             disabled={chosen === null}
             onClick={handleReveal}

@@ -4,16 +4,19 @@ import { Brain, BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, Graduatio
 import GiscusComments from '@/components/GiscusComments';
 import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
-import { loadExamRegistry } from '@/lib/content-loader';
+import { loadExamRegistry, loadTaskStatementsForExam } from '@/lib/content-loader';
 import { useAuth } from '@/lib/auth';
 import { getSessions } from '@/lib/storage';
+import { getAttempts } from '@/lib/adaptive-quiz';
+import { examMastery } from '@/lib/objective-mastery';
+import { ExamMap, PrepPath } from '../components/ExamMap';
 import { loadPlan, nextIncompleteSession } from '@/lib/plan-generator';
 import { getStreak, getDomainCompletion, getReadinessBreakdown } from '@/lib/study-tracker';
 import type { ReadinessBreakdown } from '@/lib/study-tracker';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationshipsForIds } from '@/lib/useRelationships';
 import PageViewsBadge from '@/components/PageViewsBadge';
-import type { ExamConfig, DomainConfig, QuizSession, ContentType } from '@/types/content';
+import type { ExamConfig, DomainConfig, QuizSession, ContentType, TaskStatementsFile } from '@/types/content';
 import { recordExamVisit } from '@/lib/exam-stats';
 import SkillTrackHome from './SkillTrackHome';
 
@@ -200,6 +203,12 @@ export default function ExamHome() {
     [exam, examId],
   );
   const computedRelated = useRelationshipsForIds(relDocIds);
+  // Official objectives + per-question attempts → exam map and Practice step.
+  const [statements, setStatements] = useState<TaskStatementsFile | null>(null);
+  const mastery = useMemo(
+    () => (statements && examId ? examMastery(statements, getAttempts(examId)) : null),
+    [statements, examId],
+  );
   const [readinessExplainOpen, setReadinessExplainOpen] = useState(false);
   // Guest mode banner dismissal (persists across page refreshes)
   const [bannerDismissed, setBannerDismissed] = useState(() => {
@@ -226,6 +235,7 @@ export default function ExamHome() {
         }
       })
       .catch(() => {});
+    loadTaskStatementsForExam(examId).then(setStatements).catch(() => setStatements(null));
     recordExamVisit(examId);
     requestAnimationFrame(() => setMounted(true));
   }, [examId]);
@@ -352,6 +362,9 @@ export default function ExamHome() {
           })}
         </div>
       )}
+      {/* ── Guided path: what to do next ─────────────────────────────── */}
+      <PrepPath exam={exam} sessions={sessions} mastery={mastery} readiness={readinessBreakdown?.overall ?? 0} />
+
       {authLoading ? (
         <div className="glass-card rounded-xl p-5 animate-pulse space-y-3">
           <div className="h-3 w-28 bg-slate-800 rounded-full" />
@@ -362,51 +375,12 @@ export default function ExamHome() {
             </div>
           </div>
         </div>
-      ) : !user ? (
-        // ── Locked teaser (logged-out) ──────────────────────────────────
-        <div
-          className={`glass-card glass-edge rounded-xl overflow-hidden relative transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-          style={{ transitionDelay: '150ms' }}
-        >
-          {/* blurred preview */}
-          <div className="p-5 blur-[3px] pointer-events-none select-none" aria-hidden="true">
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 mb-3">Your Readiness</p>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-14 h-14 rounded-full bg-violet-900/40 border-4 border-violet-800/30 flex items-center justify-center">
-                <span className="text-sm font-bold text-violet-600">–%</span>
-              </div>
-              <div className="space-y-1">
-                <div className="text-xs text-slate-600">0 of {exam?.domains.length} domains started</div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              {exam?.domains.map((d) => (
-                <div key={d.id} className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono text-slate-700 w-5">D{d.id}</span>
-                  <div className="flex-1 h-1 bg-slate-800 rounded-full" />
-                  <span className="text-[9px] text-slate-700 w-16">Not started</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* lock overlay */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950/75 backdrop-blur-[2px]">
-            <Lock size={18} className="text-violet-400" />
-            <div className="text-center px-4">
-              <p className="text-sm font-semibold text-white">Track your readiness</p>
-              <p className="text-xs text-slate-400 mt-1">Sign in to save quiz scores and see your domain progress</p>
-            </div>
-            <button
-              onClick={() => void login()}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600/60 rounded-lg text-sm font-medium text-white transition-colors"
-            >
-              <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" /></svg>
-              Sign in with GitHub
-            </button>
-          </div>
-        </div>
+      ) : domainStatus && domainStatus.domainsStarted === 0 && mastery ? (
+        // No domain quizzes yet, but the path + exam map below already say
+        // what to do next — a second "take a quiz" card would contradict them.
+        null
       ) : domainStatus && domainStatus.domainsStarted === 0 ? (
-        // ── Logged in but no quiz data yet ─────────────────────────────
+        // ── No quiz data yet ────────────────────────────────────────────
         <div
           className={`glass-card rounded-xl p-5 flex items-center gap-4 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
           style={{ transitionDelay: '150ms' }}
@@ -416,7 +390,7 @@ export default function ExamHome() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white">Start tracking your readiness</p>
-            <p className="text-xs text-slate-400 mt-0.5">Take a domain quiz to see your scores here — logged in as <span className="text-violet-400">{user.login}</span></p>
+            <p className="text-xs text-slate-400 mt-0.5">Take a domain quiz to see your scores here{user ? <> — logged in as <span className="text-violet-400">{user.login}</span></> : ' — saved in this browser'}</p>
           </div>
           <Link
             to={`/skillup/${examId}/quiz`}
@@ -528,6 +502,9 @@ export default function ExamHome() {
         </div>
       ) : null}
 
+      {/* ── Exam map: official objectives with coverage × accuracy ──────── */}
+      {mastery && <ExamMap exam={exam} mastery={mastery} />}
+
       {/* Nav cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {cards.map(({ to, icon: Icon, title, desc, cta }, idx) => (
@@ -576,18 +553,11 @@ export default function ExamHome() {
                 <div className="flex justify-between items-center text-sm mb-1">
                   <span className="text-slate-300 group-hover:text-white transition-colors">D{domain.id}: {domain.title}</span>
                   <div className="flex items-center gap-2">
-                    {!user && !authLoading ? (
-                      <button
-                        onClick={() => { void login(); }}
-                        className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-800 text-violet-400 border border-violet-800 hover:bg-violet-900/40 transition-colors"
-                      >
-                        Sign in to track →
-                      </button>
-                    ) : (dr && dr.total > 0 && (
+                    {dr && dr.total > 0 && (
                       <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${STATUS_CHIP[dr.status]}`}>
                         {STATUS_LABEL[dr.status]}
                       </span>
-                    ))}
+                    )}
                     <span className="text-slate-400 font-mono group-hover:text-white transition-colors">{domain.weight}%</span>
                   </div>
                 </div>

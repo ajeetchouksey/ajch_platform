@@ -67,14 +67,34 @@ function extractToc(markdown: string): TocItem[] {
 // lives in exactly one place instead of a second hand-rolled copy.
 function TocNav({ toc, activeId, onSelect }: { toc: TocItem[]; activeId: string; onSelect: (id: string) => void }) {
   const activeIdx = toc.findIndex((i) => i.id === activeId);
+  const navRef = useRef<HTMLElement>(null);
+
+  // Keep the active entry visible. The TOC is taller than its sticky container,
+  // so scroll that container only — never <main>, or reading position jumps.
+  useEffect(() => {
+    const nav = navRef.current;
+    const item = nav?.querySelector<HTMLElement>(`[data-toc-id="${CSS.escape(activeId)}"]`);
+    if (!nav || !item) return;
+    let box: HTMLElement | null = nav.parentElement;
+    while (box && box.tagName !== 'MAIN' && !/(auto|scroll)/.test(getComputedStyle(box).overflowY)) box = box.parentElement;
+    if (!box || box.tagName === 'MAIN') return;
+    const b = box.getBoundingClientRect();
+    const r = item.getBoundingClientRect();
+    if (r.top < b.top + 40 || r.bottom > b.bottom - 40) {
+      box.scrollTo({ top: box.scrollTop + (r.top - b.top) - b.height / 3, behavior: 'smooth' });
+    }
+  }, [activeId]);
+
   return (
-    <nav aria-label="Table of contents" className="space-y-0.5">
+    <nav ref={navRef} aria-label="Table of contents" className="space-y-0.5">
       {toc.map(({ id, text, level }, idx) => {
         const isActive = activeId === id;
         const isPast = activeIdx >= 0 && idx < activeIdx;
         return (
           <button
             key={id}
+            data-toc-id={id}
+            aria-current={isActive ? 'location' : undefined}
             onClick={() => onSelect(id)}
             className="block w-full text-left text-[11px] leading-snug py-1 rounded-r-lg transition-all duration-200"
             style={{
@@ -130,7 +150,6 @@ export default function Notes() {
   const [handwritingMode, setHandwritingMode] = useState(() => {
     try { return localStorage.getItem('notes_handwriting') === '1'; } catch { return false; }
   });
-  const observerRef = useRef<IntersectionObserver | null>(null);
   const toc = content ? extractToc(content) : [];
   // ── Study tracker state ────────────────────────────────────────────────────
   const [dismissedBannerKey, setDismissedBannerKey] = useState<string | null>(null);
@@ -314,38 +333,38 @@ export default function Notes() {
     setSelectionTrigger(null);
   }
 
-  const setupObserver = useCallback(() => {
-    if (!articleRef.current) return;
-    observerRef.current?.disconnect();
-    const headings = articleRef.current.querySelectorAll<HTMLElement>('h2[id], h3[id]');
-    if (!headings.length) return;
-    const visible = new Map<string, number>();
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          visible.set(e.target.id, e.intersectionRatio);
-        });
-        let best = '';
-        let bestRatio = -1;
-        visible.forEach((ratio, id) => {
-          if (ratio > bestRatio) { bestRatio = ratio; best = id; }
-        });
-        if (best) setActiveId(best);
-      },
-      { rootMargin: '-10% 0px -75% 0px', threshold: [0, 0.25, 0.5, 1] },
-    );
-    headings.forEach((h) => observerRef.current!.observe(h));
-  }, []);
-
+  // Scroll-spy: the active section is the last heading that has scrolled above
+  // a line near the top of the reading area. (An IntersectionObserver band
+  // misses long sections entirely — with no heading in the band it fell back
+  // to the first heading, so the TOC stayed stuck on section 1.)
   useEffect(() => {
-    if (!loading && content) {
-      // Wait one tick for DOM paint
-      const t = setTimeout(setupObserver, 80);
-      return () => clearTimeout(t);
-    }
-  }, [loading, content, setupObserver]);
-
-  useEffect(() => () => observerRef.current?.disconnect(), []);
+    if (loading || !content) return;
+    const main = document.querySelector('main') as HTMLElement | null;
+    const scroller: HTMLElement | Window = main ?? window;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const article = articleRef.current;
+      if (!article) return;
+      const headings = article.querySelectorAll<HTMLElement>('h2[id], h3[id]');
+      if (!headings.length) return;
+      const top = (main?.getBoundingClientRect().top ?? 0) + 120;
+      let current = headings[0].id;
+      for (const h of headings) {
+        if (h.getBoundingClientRect().top <= top) current = h.id;
+        else break;
+      }
+      setActiveId(current);
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+    const t = setTimeout(update, 80); // after first paint of the rendered markdown
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      clearTimeout(t);
+      if (frame) cancelAnimationFrame(frame);
+      scroller.removeEventListener('scroll', onScroll);
+    };
+  }, [loading, content]);
 
   // Scroll-based reading progress
   useEffect(() => {
@@ -391,7 +410,10 @@ export default function Notes() {
 
   function goTo(d: DomainConfig) {
     setSearchParams({ d: String(d.id) });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // The page scrolls inside <main> (html/body are overflow:hidden), so
+    // window.scrollTo was a no-op and the next domain opened mid-page.
+    const main = document.querySelector('main');
+    (main ?? window).scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function scrollToHeading(id: string) {

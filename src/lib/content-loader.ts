@@ -1,4 +1,4 @@
-import type { Question, Scenario, ExamRegistry, BlogManifest } from '../types/content';
+import type { Question, Scenario, ExamRegistry, BlogManifest, TaskStatementsFile } from '../types/content';
 import type { RelationshipEdge, RelationshipsFile } from './relationships';
 import type { GlossaryFile, GlossaryTermEntry } from './glossary';
 import type { TaxonomyFile } from './taxonomy';
@@ -159,6 +159,13 @@ export async function loadNoteForExam(examId: string, domainId: number): Promise
 /** Skill Track (IDEA-0016) lesson notes — the lesson object already carries its full notesFile path, no domain lookup needed. */
 export async function loadLessonNote(notesFile: string): Promise<string> {
   return fetchText(notesFile);
+}
+
+/** Official objectives for an exam, or null when it has none (e.g. skill tracks). */
+export async function loadTaskStatementsForExam(examId: string): Promise<TaskStatementsFile | null> {
+  const registry = await loadExamRegistry();
+  const file = registry.exams.find((e) => e.id === examId)?.taskStatementsFile;
+  return file ? fetchJSON<TaskStatementsFile>(file) : null;
 }
 
 export async function loadScenariosForExam(examId: string): Promise<Scenario[]> {

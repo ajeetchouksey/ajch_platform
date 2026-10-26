@@ -75,6 +75,14 @@ const footerLinks = [
 function Breadcrumbs() {
   const location = useLocation();
   const segments = location.pathname.split('/').filter(Boolean);
+  // Exam IDs → their codes from the catalog (e.g. ab731 → AB-731), so new
+  // exams don't fall through to title-casing ("Ab731").
+  const [examLabels, setExamLabels] = useState<Record<string, string>>({});
+  useEffect(() => {
+    loadExamRegistry()
+      .then((r) => setExamLabels(Object.fromEntries(r.exams.map((e) => [e.id, e.shortTitle]))))
+      .catch(() => {});
+  }, []);
   if (segments.length === 0) return null;
 
   // Full label map — URL segment → human label
@@ -124,7 +132,7 @@ function Breadcrumbs() {
   };
 
   const toTitle = (seg: string) =>
-    labelMap[seg] ?? seg.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    labelMap[seg] ?? examLabels[seg] ?? seg.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
   const items: BreadcrumbItem[] = [];
   let path = '';
