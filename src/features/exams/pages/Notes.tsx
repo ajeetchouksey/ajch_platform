@@ -1,4 +1,4 @@
-import { useReducer, useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense, Children, isValidElement } from 'react';
+import { useReducer, useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense, Children, isValidElement, cloneElement, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -27,6 +27,7 @@ import { useRelationships } from '@/lib/useRelationships';
 import { TermTooltip } from '@/components/GlossaryTerm';
 import { useGlossary } from '@/lib/useGlossary';
 import { lookupGlossaryTerm } from '@/lib/glossary';
+import { stripEmoji, stripEmojiChildren, headingKicker } from '../components/notes-format';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -48,19 +49,27 @@ interface TocItem {
   id: string;
   text: string;
   level: 2 | 3;
+  /** 1-based source line — lets the heading renderers find their deduplicated id. */
+  line: number;
 }
 
 function extractToc(markdown: string): TocItem[] {
   const items: TocItem[] = [];
   const seen = new Map<string, number>();
-  for (const match of markdown.matchAll(/^(#{2,3})\s+(.+)$/gm)) {
+  let fence: string | null = null; // headings inside ``` blocks (e.g. CLAUDE.md samples) aren't sections
+  markdown.split('\n').forEach((lineText, i) => {
+    const f = lineText.match(/^\s*(```|~~~)/);
+    if (f) { fence = fence === null ? f[1] : (fence === f[1] ? null : fence); return; }
+    if (fence) return;
+    const match = lineText.match(/^(#{2,3})\s+(.+?)\s*$/);
+    if (!match) return;
     const level = match[1].length as 2 | 3;
     const raw = match[2].replace(/`[^`]*`/g, '').trim();
     const base = slugify(raw);
     const count = seen.get(base) ?? 0;
     seen.set(base, count + 1);
-    items.push({ id: count === 0 ? base : `${base}-${count}`, text: raw, level });
-  }
+    items.push({ id: count === 0 ? base : `${base}-${count}`, text: raw, level, line: i + 1 });
+  });
   return items;
 }
 
@@ -109,13 +118,13 @@ function TocNav({ toc, activeId, onSelect }: { toc: TocItem[]; activeId: string;
             className="block w-full text-left text-[11px] leading-snug py-1 rounded-r-lg transition-all duration-200"
             style={{
               paddingLeft: level === 3 ? '16px' : '6px',
-              color: isActive ? '#a78bfa' : isPast ? '#34d399' : '#64748b',
-              fontWeight: isActive ? 700 : 400,
-              borderLeft: `2px solid ${isActive ? '#a78bfa' : isPast ? 'rgba(52,211,153,0.45)' : 'transparent'}`,
-              opacity: isPast ? 0.7 : 1,
+              color: isActive ? '#F0EDFF' : isPast ? '#94a3b8' : '#64748b',
+              fontWeight: isActive ? 600 : 400,
+              borderLeft: `2px solid ${isActive ? '#A99BFF' : 'transparent'}`,
+              background: isActive ? 'rgba(91,75,214,0.14)' : 'transparent',
             }}
           >
-            {text}
+            {stripEmoji(text)}
           </button>
         );
       })}
@@ -413,6 +422,14 @@ export default function Notes() {
   const minutes = content ? readingTime(content) : null;
   const trapCount = content ? (content.match(/class="note-trap"/g) ?? []).length : 0;
   const trapItems = toc.filter((item) => item.level === 3 && item.text.includes('Exam Trap'));
+  // "Exam Trap: The Runaway Loop" → "The Runaway Loop"; bare "Exam Trap" → its section's title.
+  const trapLabel = (item: TocItem) => {
+    const own = stripEmoji(item.text).replace(/^Exam Trap[:\s—–-]*/i, '').replace(/^["“](.*)["”]$/, '$1').trim();
+    if (own) return own;
+    const idx = toc.indexOf(item);
+    for (let i = idx - 1; i >= 0; i--) if (toc[i].level === 2) return stripEmoji(toc[i].text);
+    return 'Exam trap';
+  };
   const domainQCount = examConfig && currentDomainConfig
     ? Math.round((examConfig.questions * currentDomainConfig.weight) / 100)
     : 0;
@@ -440,6 +457,10 @@ export default function Notes() {
     setActiveId(id);
     setMobileTocOpen(false);
   }
+
+  // Heading renderers look their id up by source line: React may render the
+  // markdown more than once per pass, so a running counter drifts.
+  const tocByLine = new Map(toc.map((t) => [t.line, t]));
 
   return (
     <div className="max-w-[1060px] mx-auto">
@@ -568,7 +589,7 @@ export default function Notes() {
           Opens the same list as the desktop sidebar (TocNav) in a bottom
           sheet, portaled below. */}
       {!loading && !error && toc.length > 0 && (
-        <div className="lg:hidden sticky top-14 z-30 mb-5 rounded-xl border border-slate-700/50 overflow-hidden bg-slate-900/90 backdrop-blur-md">
+        <div className="lg:hidden sticky top-14 z-30 mb-5 rounded-xl border border-slate-700/50 overflow-hidden bg-slate-950 shadow-lg shadow-black/30">
           <button
             onClick={() => setMobileTocOpen(true)}
             className="w-full flex items-center justify-between px-4 py-2.5 text-left"
@@ -669,7 +690,7 @@ export default function Notes() {
         )}
         {!loading && !error && (
           <div
-            className={`prose prose-invert max-w-[75ch] prose-a:text-violet-400 prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-blockquote:border-violet-500 prose-blockquote:text-slate-400 prose-p:text-[0.9375rem] prose-p:leading-7 prose-table:block prose-table:overflow-x-auto [&_img]:block [&_img]:mx-auto [&_img]:h-auto [&_img]:w-full [&_img]:max-w-[680px] [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-700/40 [&_img]:shadow-lg ${
+            className={`notes-body prose prose-invert max-w-[72ch] prose-a:text-brand-lilac prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-p:text-[1.0625rem] prose-p:leading-[1.75] prose-li:text-[1.0625rem] prose-li:leading-[1.7] prose-p:text-slate-300 prose-li:text-slate-300 prose-strong:text-slate-100 [&_img]:block [&_img]:mx-auto [&_img]:h-auto [&_img]:w-full [&_img]:max-w-[680px] [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-700/40 [&_img]:shadow-lg ${
               handwritingMode
                 ? '[&_h1]:text-white [&_h2]:text-white [&_h3]:text-white prose-headings:font-bold'
                 : 'prose-headings:text-white'
@@ -686,15 +707,35 @@ export default function Notes() {
                 li({ children }) {
                   return <li>{highlightEnabled ? applyHighlighting(children) : children}</li>;
                 },
-                h2({ children }) {
-                  const text = String(children);
-                  const id = slugify(text.replace(/`[^`]*`/g, ''));
-                  return <h2 id={id}>{children}</h2>;
+                h2({ children, node }) {
+                  const id = tocByLine.get(node?.position?.start.line ?? -1)?.id ?? slugify(String(children));
+                  return <h2 id={id}>{stripEmojiChildren(children)}</h2>;
                 },
-                h3({ children }) {
-                  const text = String(children);
-                  const id = slugify(text.replace(/`[^`]*`/g, ''));
-                  return <h3 id={id}>{children}</h3>;
+                h3({ children, node }) {
+                  const item = tocByLine.get(node?.position?.start.line ?? -1);
+                  const id = item?.id ?? slugify(String(children));
+                  const k = headingKicker(item?.text ?? String(children));
+                  if (!k) return <h3 id={id}>{stripEmojiChildren(children)}</h3>;
+                  const Icon = k.kicker.icon;
+                  return (
+                    <h3 id={id} className={`notes-kicker ${k.kicker.tone}`}>
+                      <span className="notes-kicker-label"><Icon size={13} aria-hidden="true" />{k.kicker.label}</span>
+                      {k.rest && <span className="notes-kicker-title">{k.rest}</span>}
+                    </h3>
+                  );
+                },
+                blockquote({ children }) {
+                  // Drop the decorative emoji that opens many callouts ("🧠 The Golden Rule").
+                  let first = true;
+                  const kids = Children.map(children, (child) => {
+                    if (!first || !isValidElement<{ children?: ReactNode }>(child)) return child;
+                    first = false;
+                    return cloneElement(child, {}, stripEmojiChildren(child.props.children));
+                  });
+                  return <blockquote className="callout">{kids}</blockquote>;
+                },
+                table({ children }) {
+                  return <div className="notes-table"><table>{children}</table></div>;
                 },
                 pre({ children }) {
                   // Intercept mermaid code blocks — avoids wrapping diagram in a styled <pre>
@@ -839,7 +880,7 @@ export default function Notes() {
                     onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(248,113,113,0.45)'; }}
                     onMouseLeave={e => { if (activeId !== item.id) { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = 'rgba(71,85,105,0.20)'; } }}
                   >
-                    #{item.text.replace(/^[^A-Za-z]*Exam Trap[:\s"]+/i, '').replace(/["+]+$/, '').toLowerCase().replace(/\s+/g, '-')}
+                    {trapLabel(item)}
                   </button>
                 ))}
               </div>

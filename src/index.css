@@ -391,3 +391,143 @@
 .prose blockquote p:last-of-type::after {
   content: none;
 }
+
+/* ═══ Study notes — reading styles (scoped to .notes-body) ═════════════════
+   One presentation for every exam's notes, whatever authoring style the
+   markdown uses. Brand: Barlow Condensed 600 for headings and labels,
+   Barlow body at 16–18px, indigo/lilac as the single accent; status hues
+   (emerald/amber/rose) only where they carry meaning. */
+
+.notes-body h1 {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+/* The line under the title ("Exam Weight: 38% — …") reads as a subtitle */
+.notes-body h1 + p { font-size: 1.05rem; color: #94a3b8; }
+.notes-body h1 + p strong { font-weight: 500; color: inherit; }
+
+/* h2 carries the section break, so markdown `---` rules would double it */
+.notes-body hr { display: none; }
+
+.notes-body h2 {
+  margin-top: 3.25rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(51, 65, 85, 0.55);
+  font-size: 1.75rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.notes-body h1 + p + h2,
+.notes-body h1 + h2 { border-top: 0; padding-top: 0; margin-top: 2rem; }
+.notes-body h3 { font-size: 1.3rem; margin-top: 2.25rem; letter-spacing: -0.01em; }
+
+/* Study-block headings: Key concept / In practice / Exam trap / … */
+.notes-body h3.notes-kicker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+.notes-kicker-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--kicker, #A99BFF);
+}
+.notes-kicker-title { font-size: 1.3rem; color: #fff; }
+.kicker-indigo  { --kicker: #A99BFF; }
+.kicker-emerald { --kicker: #34d399; }
+.kicker-rose    { --kicker: #fb7185; }
+.kicker-amber   { --kicker: #fbbf24; }
+.kicker-slate   { --kicker: #94a3b8; }
+
+/* Callouts — blockquotes and the three authored note boxes share one shape */
+.notes-body blockquote.callout,
+.notes-body .note-scribble,
+.notes-body .note-important,
+.notes-body .note-trap {
+  --c: #A99BFF;
+  position: relative;
+  margin: 1.75rem 0;
+  padding: 0.95rem 1.15rem;
+  border: 1px solid rgba(71, 85, 105, 0.35);
+  border-left: 3px solid var(--c);
+  border-radius: 0 10px 10px 0;
+  background: rgba(91, 75, 214, 0.07);
+  color: #cbd5e1;
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.7;
+  transform: none;
+  box-shadow: none;
+}
+.notes-body blockquote.callout p { margin: 0; color: #cbd5e1; font-style: normal; }
+.notes-body blockquote.callout p + p { margin-top: 0.65em; }
+.notes-body blockquote.callout strong { color: #fff; }
+
+.notes-body .note-scribble::before,
+.notes-body .note-important::before,
+.notes-body .note-trap::before {
+  position: static;
+  display: block;
+  margin-bottom: 0.45rem;
+  font-family: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c);
+}
+.notes-body .note-scribble  { --c: #A99BFF; }
+.notes-body .note-scribble::before  { content: 'Tip'; }
+.notes-body .note-important { --c: #fbbf24; background: rgba(251, 191, 36, 0.06); }
+.notes-body .note-important::before { content: 'Important'; }
+.notes-body .note-trap      { --c: #fb7185; background: rgba(251, 113, 133, 0.06); }
+.notes-body .note-trap::before      { content: 'Exam trap'; }
+
+/* Tables — framed, full width, shaded header */
+.notes-table {
+  overflow-x: auto;
+  margin: 1.75rem 0;
+  border: 1px solid rgba(71, 85, 105, 0.45);
+  border-radius: 10px;
+}
+.notes-table table { width: 100%; margin: 0 !important; border-collapse: collapse; font-size: 0.9375rem; }
+.notes-table thead th {
+  background: rgba(30, 41, 59, 0.85);
+  color: #e2e8f0;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.65rem 0.9rem !important;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.55);
+}
+.notes-table td {
+  padding: 0.6rem 0.9rem !important;
+  vertical-align: top;
+  color: #cbd5e1;
+  border-top: 1px solid rgba(51, 65, 85, 0.45);
+}
+.notes-table tbody tr:first-child td { border-top: 0; }
+.notes-table tbody tr:nth-child(even) td { background: rgba(15, 23, 42, 0.35); }
+
+/* Glossary terms render as <code> for the tooltip — read as a word, not code */
+.prose code.glossary-term {
+  background: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+  font: inherit !important;
+  color: inherit !important;
+}
+/* A trap box directly under an "Exam trap" heading doesn't need its own label */
+.notes-body h3.kicker-rose + .note-trap::before { display: none; }

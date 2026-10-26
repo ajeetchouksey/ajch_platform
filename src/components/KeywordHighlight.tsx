@@ -87,16 +87,18 @@ function KeywordMark({ term, category, description }: TooltipProps) {
         position: 'relative',
         display: 'inline-block',
         verticalAlign: 'baseline',
-        background: style.bg,
-        color: style.color,
-        borderRadius: '3px',
-        padding: '0 3px',
-        fontWeight: 600,
+        // Reads as the word itself with a dotted underline in the category
+        // colour — a filled chip on every term made paragraphs look noisy.
+        background: 'transparent',
+        color: 'inherit',
+        padding: 0,
+        fontWeight: 'inherit',
         cursor: 'help',
         textDecorationLine: 'underline',
         textDecorationStyle: 'dotted',
         textDecorationColor: style.color,
-        textUnderlineOffset: '2px',
+        textDecorationThickness: '1.5px',
+        textUnderlineOffset: '3px',
         whiteSpace: 'nowrap',
       }}
       onMouseEnter={handleShow}

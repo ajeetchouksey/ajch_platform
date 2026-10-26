@@ -41,7 +41,7 @@ export function TermTooltip({ entry }: { entry: GlossaryTermEntry }) {
   return (
     <code
       ref={ref as React.RefObject<HTMLElement>}
-      className="cursor-help"
+      className="glossary-term cursor-help"
       style={{ textDecorationLine: 'underline', textDecorationStyle: 'dotted', textDecorationColor: 'rgba(167,139,250,0.8)', textUnderlineOffset: '2px', position: 'relative' }}
       onMouseEnter={handleShow}
       onMouseLeave={() => setVisible(false)}
