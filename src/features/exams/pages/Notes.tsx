@@ -4,7 +4,9 @@ import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { loadNoteForExam, loadExamRegistry } from '@/lib/content-loader';
+import { loadNoteForExam, loadExamRegistry, loadTaskStatementsForExam } from '@/lib/content-loader';
+import { getAttempts } from '@/lib/adaptive-quiz';
+import { examMastery } from '@/lib/objective-mastery';
 import { resolveContentUrl } from '@/lib/content-manifest';
 import { markNotesSeen } from '@/lib/storage';
 import {
@@ -12,12 +14,12 @@ import {
   getFocusTimer, setFocusTimer,
 } from '@/lib/study-tracker';
 import type { FocusTimer } from '@/lib/study-tracker';
-import type { DomainConfig, ExamConfig } from '@/types/content';
-import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles, X } from 'lucide-react';
+import type { DomainConfig, ExamConfig, TaskStatementsFile } from '@/types/content';
+import { ChevronLeft, ChevronRight, List, ChevronDown, ArrowUp, Zap, Target, Layers, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles, X } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
-import { ContentMeta, Button, CircularProgress } from '@/components/ui';
+import { ContentMeta, Button } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 import { AskMentor } from '@/components/AskMentor';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
@@ -68,6 +70,13 @@ function extractToc(markdown: string): TocItem[] {
 function TocNav({ toc, activeId, onSelect }: { toc: TocItem[]; activeId: string; onSelect: (id: string) => void }) {
   const activeIdx = toc.findIndex((i) => i.id === activeId);
   const navRef = useRef<HTMLElement>(null);
+  // Section = index of the h2 an entry belongs to. Sub-headings (h3) are only
+  // listed for the section being read — 30+ always-expanded entries buried
+  // the outline.
+  const sectionOf: number[] = [];
+  let sec = -1;
+  for (const item of toc) { if (item.level !== 3) sec += 1; sectionOf.push(Math.max(sec, 0)); }
+  const activeSection = activeIdx >= 0 ? sectionOf[activeIdx] : 0;
 
   // Keep the active entry visible. The TOC is taller than its sticky container,
   // so scroll that container only — never <main>, or reading position jumps.
@@ -88,6 +97,7 @@ function TocNav({ toc, activeId, onSelect }: { toc: TocItem[]; activeId: string;
   return (
     <nav ref={navRef} aria-label="Table of contents" className="space-y-0.5">
       {toc.map(({ id, text, level }, idx) => {
+        if (level === 3 && sectionOf[idx] !== activeSection) return null;
         const isActive = activeId === id;
         const isPast = activeIdx >= 0 && idx < activeIdx;
         return (
@@ -139,6 +149,15 @@ export default function Notes() {
   const [{ loading, content, error }, dispatch] = useReducer(contentReducer, { loading: false, content: '', error: null });
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
+  // Official objectives — drives the "Check your understanding" block after the notes.
+  const [statements, setStatements] = useState<TaskStatementsFile | null>(null);
+  useEffect(() => {
+    loadTaskStatementsForExam(examId).then(setStatements).catch(() => setStatements(null));
+  }, [examId]);
+  const domainObjectives = useMemo(
+    () => (statements ? examMastery(statements, getAttempts(examId)).objectives.filter((o) => o.domainId === domain && o.total > 0) : []),
+    [statements, examId, domain],
+  );
   const [activeId, setActiveId] = useState<string>('');
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
   const [readPct, setReadPct] = useState(0);
@@ -423,7 +442,7 @@ export default function Notes() {
   }
 
   return (
-    <div>
+    <div className="max-w-[1060px] mx-auto">
       {/* Resume banner — shown when returning from a different domain */}
       {resumeBanner && (
         <div className="mb-4 flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-violet-950/30 border border-violet-700/30 text-sm">
@@ -452,7 +471,12 @@ export default function Notes() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">
-              Domain {domain} of {examDomains.length}{minutes ? <span className="normal-case not-italic"> · {minutes} min read</span> : null}
+              Domain {domain} of {examDomains.length}
+              <span className="normal-case tracking-normal">
+                {' · '}{currentDomainConfig.weight}% of exam
+                {minutes ? ` · ${minutes} min read` : ''}
+                {trapCount > 0 ? <> · <span className="text-rose-400/90">{trapCount} exam traps</span></> : null}
+              </span>
             </p>
             <h2 className="text-base font-semibold text-white truncate">{currentDomainConfig.title}</h2>
           </div>
@@ -471,7 +495,7 @@ export default function Notes() {
                   }`}
                 >
                   <span className="font-mono font-bold text-[11px]">D{d.id}</span>
-                  <span className={`text-[8px] font-mono leading-none ${domain === d.id ? 'text-violet-300' : 'text-slate-700'}`}>
+                  <span className={`text-[10px] font-mono leading-none ${domain === d.id ? 'text-violet-200' : 'text-slate-500'}`}>
                     {d.weight}%
                   </span>
                 </button>
@@ -481,25 +505,12 @@ export default function Notes() {
         </div>
       )}
 
-      {/* Quick Facts — shown when content is loaded */}
+      {/* Reading toolbar — one slim row instead of the old stat-tile strip
+          (weight/minutes/traps now live in the domain header line above). */}
       {!loading && !error && content && currentDomainConfig && (
-        <div className="flex gap-2 mb-5 p-3 rounded-xl bg-violet-950/20 border border-violet-800/20">
-          <div className="flex-1 text-center py-2 bg-slate-950/60 rounded-lg border border-slate-800/60">
-            <p className="text-base font-bold font-mono text-rose-400">{trapCount}</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">Exam traps</p>
-          </div>
-          <div className="flex-1 text-center py-2 bg-slate-950/60 rounded-lg border border-slate-800/60">
-            <p className="text-base font-bold font-mono text-violet-400">{currentDomainConfig.weight}%</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">Domain weight</p>
-          </div>
-          <div className="flex-1 text-center py-2 bg-slate-950/60 rounded-lg border border-slate-800/60">
-            <p className="text-base font-bold font-mono text-blue-400">{domainQCount}</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">Quiz questions</p>
-          </div>
-          {/* Settings cluster — visually separated from the stat tiles above
-              (read-only facts vs. things you can click) with a divider. */}
-          <div className="flex items-center justify-center pl-3 ml-1 gap-2 border-l border-slate-700/50">
-            <div className="relative">
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-600 mr-1">Reading</span>
+          <div className="relative">
               <button
                 title={focusTimer ? 'Focus timer active' : 'Start focus timer'}
                 onClick={() => { if (!focusTimer) setShowDurationPicker(v => !v); }}
@@ -507,10 +518,10 @@ export default function Notes() {
                   focusTimer ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40' : 'bg-slate-800/60 text-slate-500 border border-slate-700/40 hover:text-slate-300'
                 }`}
               >
-                🍅 {focusTimer ? `${String(Math.floor((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)/60)).padStart(2,'0')}:${String((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)%60).padStart(2,'0')}` : 'Focus'}
+                {focusTimer ? `${String(Math.floor((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)/60)).padStart(2,'0')}:${String((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)%60).padStart(2,'0')}` : 'Focus timer'}
               </button>
               {showDurationPicker && !focusTimer && (
-                <div className="absolute bottom-full mb-2 left-0 z-50 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 min-w-[140px]">
+                <div className="absolute top-full mt-2 left-0 z-50 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 min-w-[140px]">
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider px-2 pb-1">Choose duration</p>
                   {FOCUS_PRESETS.map(p => (
                     <button key={p.ms} onClick={() => startTimer(p.ms)}
@@ -534,13 +545,20 @@ export default function Notes() {
                   : 'bg-slate-800/60 text-slate-500 border border-slate-700/40 hover:text-slate-300'
               }`}
             >
-              ✍️ Hand
+              {handwritingMode ? 'Handwriting font on' : 'Handwriting font'}
             </button>
             <KeywordHighlightToggle
               enabled={highlightEnabled}
               onToggle={() => setHighlightEnabled((v) => !v)}
             />
-          </div>
+          {domainQCount > 0 && (
+            <Link
+              to={`/skillup/${examId}/quiz?d=${domain}`}
+              className="ml-auto inline-flex items-center gap-1.5 text-[11px] font-semibold text-brand-lilac hover:text-white transition-colors"
+            >
+              <Zap size={12} /> Practice D{domain} · ~{domainQCount} questions
+            </Link>
+          )}
         </div>
       )}
 
@@ -735,8 +753,6 @@ export default function Notes() {
         <aside className="hidden lg:flex lg:flex-col gap-3 shrink-0 sticky top-4 self-start max-h-[calc(100vh-5rem)] overflow-y-auto pb-4"
           style={{ scrollbarWidth: 'none' }}>
 
-          {/* Circular reading progress */}
-          {minutes && <CircularProgress pct={readPct} readTime={minutes} />}
 
           {/* Domain switching lives solely in the header pill row above the
               article (visible at every width, not just this sidebar) — a
@@ -747,9 +763,21 @@ export default function Notes() {
           {/* In This Article TOC */}
           <div className="rounded-xl p-4"
             style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
-            <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5">
-              <List size={9} /> In this article
-            </p>
+            <div className="mb-3">
+              <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-1.5">
+                <List size={9} /> In this article
+                {minutes && (
+                  <span className="ml-auto normal-case tracking-normal font-semibold text-[10px] text-slate-500">
+                    {Math.round(readPct)}% · {Math.max(0, Math.ceil(minutes * (1 - readPct / 100)))} min left
+                  </span>
+                )}
+              </p>
+              {minutes && (
+                <div className="mt-2 h-1 rounded-full bg-slate-800 overflow-hidden" aria-hidden="true">
+                  <div className="h-full rounded-full bg-brand-indigo transition-[width] duration-300" style={{ width: `${readPct}%` }} />
+                </div>
+              )}
+            </div>
             <TocNav toc={toc} activeId={activeId} onSelect={scrollToHeading} />
           </div>
 
@@ -757,18 +785,6 @@ export default function Notes() {
           {currentDomainConfig && (
             <div className="rounded-xl p-4 space-y-2.5"
               style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
-              <span className="inline-block font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-lg text-[9px]"
-                style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)' }}>
-                Domain {domain} · {currentDomainConfig.weight}% of exam
-              </span>
-              <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                <Clock size={10} className="shrink-0" />{minutes} min read
-              </div>
-              {domainQCount > 0 && (
-                <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                  <Zap size={10} className="shrink-0" />~{domainQCount} quiz questions
-                </div>
-              )}
               {/*
                 contentUpdatedAt/contentVersion are exam-wide fields sourced
                 from index.json, NOT per-domain-note-file — switching domains
@@ -837,7 +853,7 @@ export default function Notes() {
 
           {/* Back to top */}
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => (document.querySelector('main') ?? window).scrollTo({ top: 0, behavior: 'smooth' })}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-500 hover:text-slate-300 hover:bg-slate-800/40 transition-all"
           >
             <ArrowUp size={12} /> Back to top
@@ -935,17 +951,51 @@ export default function Notes() {
         document.body,
       )}
 
-      {/* Quiz this domain CTA */}
+      {/* Check your understanding — close the loop from reading to practice:
+          a domain drill, this domain's official objectives (with the learner's
+          current status from the attempt log), and the case-based scenarios. */}
       {!loading && !error && content && (
-        <div className="mt-8">
-          <Link
-            to={`/skillup/${examId}/quiz`}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-violet-900/30 border border-violet-700/40 hover:bg-violet-900/50 hover:border-violet-600/60 text-violet-300 font-semibold text-sm transition-all group"
-          >
-            <Zap size={14} className="group-hover:scale-110 transition-transform" />
-            Quiz this domain{domainQCount > 0 ? ` (~${domainQCount} questions)` : ''}
-          </Link>
-        </div>
+        <section className="mt-10 glass-card glass-edge card-accent-top rounded-xl p-5 space-y-4" aria-labelledby="check-h">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Finished D{domain}?</p>
+              <h2 id="check-h" className="text-lg font-semibold text-white">Check your understanding</h2>
+            </div>
+            <Link
+              to={`/skillup/${examId}/quiz?d=${domain}`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-indigo hover:bg-brand-indigo-deep text-white text-sm font-semibold transition-colors"
+            >
+              <Zap size={14} /> Domain drill{domainQCount > 0 ? ` · 15 of ~${domainQCount}` : ''}
+            </Link>
+          </div>
+          {domainObjectives.length > 0 && (
+            <ul className="divide-y divide-slate-800/70 rounded-lg border border-slate-800/70">
+              {domainObjectives.map((o) => {
+                const label = o.status === 'new' ? 'Not started' : o.status === 'strong' ? 'Strong' : o.status === 'weak' ? 'Weak' : 'Building';
+                const tone = o.status === 'strong' ? 'text-emerald-400' : o.status === 'weak' ? 'text-rose-300' : o.status === 'building' ? 'text-amber-300' : 'text-slate-500';
+                return (
+                  <li key={o.task.id} className="flex items-center gap-3 px-3 py-2.5">
+                    <span className="font-mono text-xs text-slate-500 w-8">{o.task.id}</span>
+                    <span className="flex-1 min-w-0 text-sm text-slate-300">{o.task.title}</span>
+                    <span className={`hidden sm:inline text-[11px] font-semibold ${tone}`}>{label}</span>
+                    <Link
+                      to={`/skillup/${examId}/quiz?task=${encodeURIComponent(o.task.id)}`}
+                      className="inline-flex items-center gap-1 text-xs font-medium text-brand-lilac hover:text-white transition-colors"
+                      aria-label={`Practice objective ${o.task.id}`}
+                    >
+                      <Target size={12} /> {o.total}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {(examConfig?.scenarioFiles?.length ?? 0) > 0 && (
+            <Link to={`/skillup/${examId}/scenarios`} className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
+              <Layers size={12} /> Apply it in a scenario walkthrough
+            </Link>
+          )}
+        </section>
       )}
 
       {/* Prev / Next domain navigation */}

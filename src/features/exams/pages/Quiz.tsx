@@ -94,7 +94,11 @@ export default function Quiz() {
   const ctaRef = useRef<HTMLButtonElement>(null);
   const [phase, setPhase] = useState<Phase>('setup');
   const [draft, setDraft] = useState<QuizDraft | null>(null);
-  const [domainFilter, setDomainFilter] = useState<number | null>(null);
+  const [domainFilter, setDomainFilter] = useState<number | null>(() => {
+    // ?d= preselects a domain drill (e.g. the "Practice this domain" link at the end of notes)
+    const d = Number(new URLSearchParams(window.location.search).get('d'));
+    return Number.isInteger(d) && d > 0 ? d : null;
+  });
   const [questions, setQuestions] = useState<Question[]>([]);
   const [current, setCurrent] = useState(0);
   const [chosen, setChosen] = useState<number | null>(null);
@@ -126,6 +130,11 @@ export default function Quiz() {
   const isTimed = mode === 'timed';
   const reviewQueueCount = phase === 'setup' ? reviewQueueIds(examId, getAttempts(examId)).length : 0;
   const selectedTask = tasks.find((t) => t.id === taskId) ?? null;
+  // question id → the official objective it's mapped to (first match wins)
+  const taskByQuestion = new Map<string, TaskStatement>();
+  for (const t of tasks) for (const id of t.questionIds) if (!taskByQuestion.has(id)) taskByQuestion.set(id, t);
+  const [showAllReview, setShowAllReview] = useState(false);
+  const keyHandlerRef = useRef<(e: KeyboardEvent) => void>(() => {});
   // One-time-per-session nudge dismissal
   const [nudgeDismissed, setNudgeDismissed] = useState(() => {
     try { return !!sessionStorage.getItem(`nudge_dismissed_${examId}`); }
@@ -377,6 +386,51 @@ export default function Quiz() {
     setCurrent((c) => c - 1);
     setChosen(prevChosen !== undefined ? prevChosen : null);
     setRevealed(!isTimed && prevChosen !== undefined);
+  }
+
+  // Keyboard: A–F / 1–6 choose, Enter checks (or moves on). Latest handler is
+  // kept in a ref so the single window listener never sees stale state.
+  useEffect(() => {
+    keyHandlerRef.current = (e: KeyboardEvent) => {
+      if (phase !== 'quiz' || e.metaKey || e.ctrlKey || e.altKey) return;
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      const q = questions[current];
+      if (!q) return;
+      const k = e.key.toLowerCase();
+      const idx = /^[1-6]$/.test(k) ? Number(k) - 1 : /^[a-f]$/.test(k) ? k.charCodeAt(0) - 97 : -1;
+      if (idx >= 0 && idx < q.options.length) { e.preventDefault(); handleChoose(idx); return; }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (isTimed || revealed) handleNext();
+        else if (chosen !== null) handleReveal();
+      }
+    };
+  });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => keyHandlerRef.current(e);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  /** Restart with just the questions answered wrong in this attempt. */
+  function retryWrong() {
+    const wrong = questions.filter((q) => answers[q.id] !== q.correct);
+    if (!wrong.length) return;
+    setMode('review');
+    setEndsAt(null);
+    setQuestions(shuffle(wrong));
+    setCurrent(0);
+    setChosen(null);
+    setAnswers({});
+    setRevealed(false);
+    setShowAllReview(false);
+    setSession({
+      id: randomId(), skillId: examId, startedAt: Date.now(), domainFilter: null,
+      answers: {}, score: 0, total: wrong.length, mode: 'missed',
+      ...(user?.login ? { userId: user.login } : {}),
+    });
+    setPhase('quiz');
   }
 
   function handleJump(idx: number) {
@@ -639,10 +693,35 @@ export default function Quiz() {
           );
         })()}
 
+        {/* Answer review — wrong answers first; the full list is one click away */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-xs font-semibold uppercase text-slate-500 tracking-wide">
+            {score === questions.length ? 'All correct' : showAllReview ? `All ${questions.length} questions` : `${questions.length - score} to review`}
+          </h3>
+          <div className="flex items-center gap-2">
+            {score < questions.length && (
+              <button
+                onClick={() => setShowAllReview((v) => !v)}
+                className="text-xs text-slate-400 hover:text-white transition-colors"
+              >
+                {showAllReview ? 'Show incorrect only' : 'Show all'}
+              </button>
+            )}
+            {score < questions.length && (
+              <button
+                onClick={retryWrong}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand-indigo hover:bg-brand-indigo-deep text-white transition-colors"
+              >
+                <RotateCcw size={12} /> Retry the {questions.length - score} I missed
+              </button>
+            )}
+          </div>
+        </div>
         <div className="space-y-3">
           {questions.map((q, i) => {
             const userAns = answers[q.id];
             const correct = userAns === q.correct;
+            if (correct && !showAllReview && score < questions.length) return null;
             return (
               <div
                 key={q.id}
@@ -658,6 +737,9 @@ export default function Quiz() {
                   )}
                   <span className="text-slate-300">
                     Q{i + 1}: {q.question}
+                    {taskByQuestion.get(q.id) && (
+                      <span className="block text-[11px] text-slate-500 mt-1">Objective {taskByQuestion.get(q.id)!.id} · {taskByQuestion.get(q.id)!.title}</span>
+                    )}
                   </span>
                 </div>
                 {!correct && (
@@ -776,6 +858,14 @@ export default function Quiz() {
           />
         </div>
       </div>
+
+      {/* Which official objective this question tests */}
+      {taskByQuestion.get(q.id) && (
+        <p className="-mt-3 text-[11px] text-slate-500 flex items-center gap-1.5">
+          <Target size={11} className="text-brand-lilac" />
+          Objective {taskByQuestion.get(q.id)!.id} · {taskByQuestion.get(q.id)!.title}
+        </p>
+      )}
 
       {/* Question palette */}
       {showPalette && (
@@ -963,6 +1053,10 @@ export default function Quiz() {
             <ChevronRight size={15} />
           </button>
         )}
+        <span className="hidden sm:flex items-center ml-auto text-[11px] text-slate-600">
+          <kbd className="font-mono px-1 rounded bg-slate-800 text-slate-400 mr-1">A–{String.fromCharCode(64 + q.options.length)}</kbd> choose
+          <kbd className="font-mono px-1 rounded bg-slate-800 text-slate-400 mx-1">Enter</kbd> {isTimed ? 'next' : revealed ? 'next' : 'check'}
+        </span>
       </div>
     </div>
   );

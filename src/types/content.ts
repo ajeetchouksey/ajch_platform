@@ -200,6 +200,10 @@ export function isRichScenario(s: Scenario): s is RichScenario {
   return (s as RichScenario).schemaVersion === '2.0';
 }
 
+export function scenarioQuestionText(q: ScenarioQuestion): string {
+  return q.stem ?? q.question ?? '';
+}
+
 export interface ScenarioCharacter {
   name: string;
   role: string;
@@ -208,7 +212,9 @@ export interface ScenarioCharacter {
 
 export interface ScenarioQuestion {
   id: string;
-  question: string;
+  /** Older files use `question`; most RichScenario files (115 of 131 items) use `stem`. Read via scenarioQuestionText(). */
+  question?: string;
+  stem?: string;
   options: string[];
   correct: number;
   explanation: string;
