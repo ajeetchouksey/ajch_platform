@@ -11,6 +11,8 @@ const Notes = lazy(() => import('@/features/exams/pages/Notes'));
 const Scenarios = lazy(() => import('@/features/exams/pages/Scenarios'));
 const Progress = lazy(() => import('@/features/exams/pages/Progress'));
 const StudyPlan = lazy(() => import('@/features/exams/pages/StudyPlan'));
+const MyLearning = lazy(() => import('@/features/exams/pages/MyLearning'));
+const Flashcards = lazy(() => import('@/features/exams/pages/Flashcards'));
 
 // ── Pathways ──────────────────────────────────────────────────────────────────
 const Pathways = lazy(() => import('@/features/pathways/pages/Pathways'));
@@ -93,7 +95,9 @@ export default function AppRoutes() {
 
       {/* Skill Up — primary routes */}
       <Route path="/skillup" element={<ExamCatalog />} />
+      <Route path="/skillup/my-learning" element={<MyLearning />} />
       <Route path="/skillup/:examId" element={<ExamHome />} />
+      <Route path="/skillup/:examId/flashcards" element={<Flashcards />} />
       <Route path="/skillup/:examId/quiz" element={<Quiz />} />
       <Route path="/skillup/:examId/notes" element={<Notes />} />
       <Route path="/notes" element={<Notes />} />

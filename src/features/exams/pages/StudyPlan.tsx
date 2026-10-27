@@ -3,8 +3,6 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { CalendarDays, ChevronDown, ChevronRight, BookOpen, Brain, AlertTriangle, CheckCircle2, Circle, RefreshCw, Clock, Zap, Sparkles, RotateCcw, X, LayoutList, Calendar, TrendingDown } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { getSessions } from '@/lib/storage';
-import ComputedRelatedList from '@/components/ComputedRelatedList';
-import { useRelationshipsForIds } from '@/lib/useRelationships';
 import {
   loadPlan,
   savePlan,
@@ -480,14 +478,6 @@ export default function StudyPlan() {
     [exam, validId, sessions],
   );
 
-  // relationships.json has no whole-exam key, only one per domain — union
-  // across every domain's own edges (see useRelationshipsForIds's own doc).
-  const relDocIds = useMemo(
-    () => (exam ? exam.domains.map((d) => `exam/${validId}/domain-${d.id}`) : []),
-    [exam, validId],
-  );
-  const computedRelated = useRelationshipsForIds(relDocIds);
-
   const scrollToDay = useCallback((day: number) => {
     const el = document.getElementById(`session-day-${day}`);
     if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setViewMode('timeline'); }
@@ -543,8 +533,8 @@ export default function StudyPlan() {
         </p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
-      <div className="flex-1 min-w-0 space-y-6">
+      <div className="max-w-3xl">
+      <div className="min-w-0 space-y-6">
 
       {/* Content-staleness warning */}
       {isStale && (
@@ -851,11 +841,6 @@ export default function StudyPlan() {
       </div>
 
       </div>
-
-      {/* ── Sidebar — related content across verticals ────────────────────── */}
-      <aside className="w-full lg:w-[300px] xl:w-[320px] shrink-0 lg:sticky lg:top-4 self-start space-y-6">
-        <ComputedRelatedList edges={computedRelated} />
-      </aside>
       </div>
     </div>
   );

@@ -34,15 +34,15 @@ export function PrepPath({ exam, sessions, mastery, readiness }: {
 
   const steps: Step[] = [
     { key: 'diagnose', title: 'Diagnose', detail: 'Any quiz gives you a baseline',
-      done: mine.length > 0, to: `${base}/quiz?mode=review`, cta: 'Take a quiz' },
+      done: mine.length > 0, to: `${base}/quiz?mode=review`, cta: 'take a quiz' },
     { key: 'learn', title: 'Learn', detail: unread ? `Next: D${unread.id} notes` : 'All domain notes read',
-      done: !unread, to: `${base}/notes${unread ? `?d=${unread.id}` : ''}`, cta: 'Read notes' },
+      done: !unread, to: `${base}/notes${unread ? `?d=${unread.id}` : ''}`, cta: 'read notes' },
     { key: 'practice', title: 'Practice', detail: mastery ? `${Math.round(coverage * 100)}% of objectives covered` : 'Drill by domain',
       done: coverage >= COVERAGE_TARGET,
       to: mastery?.weakest ? `${base}/quiz?task=${encodeURIComponent(mastery.weakest.task.id)}` : `${base}/quiz`,
-      cta: mastery?.weakest ? `Drill ${mastery.weakest.task.id}` : 'Drill' },
+      cta: mastery?.weakest ? `drill objective ${mastery.weakest.task.id}` : 'drill a domain' },
     { key: 'simulate', title: 'Simulate', detail: `Timed exam · ${exam.duration}`,
-      done: simulated, to: `${base}/quiz?mode=timed`, cta: 'Start timed exam' },
+      done: simulated, to: `${base}/quiz?mode=timed`, cta: 'start the timed exam' },
     // readiness = getReadinessBreakdown: notes read + best of domain-quiz and per-question attempt scores.
     { key: 'ready', title: 'Ready', detail: `Readiness ${readiness}% · need ${exam.passThreshold}%`,
       done: readiness >= exam.passThreshold && coverage >= COVERAGE_TARGET && simulated },
@@ -51,37 +51,40 @@ export function PrepPath({ exam, sessions, mastery, readiness }: {
   const next = nextIdx >= 0 ? steps[nextIdx] : null;
 
   return (
-    <section className="glass-card glass-edge rounded-xl p-5 space-y-4" aria-labelledby="prep-path-h">
-      <div className="flex items-center justify-between gap-3">
+    <section className="glass-card glass-edge rounded-2xl p-5 space-y-4" aria-labelledby="prep-path-h">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="prep-path-h" className="section-heading">Your path</h2>
         {next?.to && (
           <Link
             to={next.to}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand-indigo hover:bg-brand-indigo-deep text-white transition-colors"
+            className="inline-flex items-center gap-2 min-h-11 px-4 rounded-xl bg-brand-indigo hover:bg-brand-indigo-deep text-white text-sm font-semibold transition-colors"
           >
-            {next.cta} <ArrowRight size={12} />
+            Next: {next.cta} <ArrowRight size={14} />
           </Link>
         )}
       </div>
-      <ol className="grid grid-cols-5 gap-2">
+      <ol className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-3">
         {steps.map((s, i) => {
           const isNext = i === nextIdx;
           return (
-            <li key={s.key} className="min-w-0">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <span
-                  className={`w-5 h-5 shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    s.done ? 'bg-emerald-500/90 text-slate-950'
-                      : isNext ? 'bg-brand-indigo text-white ring-2 ring-brand-lilac/50'
-                        : 'bg-slate-800 text-slate-500'
-                  }`}
-                >
-                  {s.done ? <Check size={11} strokeWidth={3} /> : i + 1}
-                </span>
-                <span className={`h-px flex-1 ${i < steps.length - 1 ? (s.done ? 'bg-emerald-600/60' : 'bg-slate-700') : 'bg-transparent'}`} />
-              </div>
-              <p className={`text-sm font-semibold ${isNext ? 'text-white' : s.done ? 'text-slate-300' : 'text-slate-500'}`}>{s.title}</p>
-              <p className="text-[11px] text-slate-500 leading-snug">{s.detail}</p>
+            <li
+              key={s.key}
+              aria-current={isNext ? 'step' : undefined}
+              className={`min-w-0 flex flex-col gap-1.5 p-3 rounded-xl border ${
+                isNext ? 'bg-brand-indigo/20 border-brand-lilac/50' : 'bg-slate-900/45 border-slate-700/40'
+              }`}
+            >
+              <span
+                className={`w-6 h-6 shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${
+                  s.done ? 'bg-emerald-400 text-slate-950'
+                    : isNext ? 'bg-brand-indigo text-white'
+                      : 'bg-slate-700/60 text-slate-300'
+                }`}
+              >
+                {s.done ? <Check size={13} strokeWidth={3} aria-label="Done" /> : i + 1}
+              </span>
+              <p className={`text-[15px] font-semibold ${s.done || isNext ? 'text-white' : 'text-slate-300'}`}>{s.title}</p>
+              <p className="text-xs text-slate-400 leading-snug">{s.detail}</p>
             </li>
           );
         })}
@@ -95,26 +98,26 @@ export function PrepPath({ exam, sessions, mastery, readiness }: {
 function ObjectiveRow({ o, examId }: { o: ObjectiveMastery; examId: string }) {
   const st = STATUS_STYLE[o.status];
   return (
-    <li className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-x-3 py-2 border-t border-slate-800/60 first:border-t-0">
-      <span className="font-mono text-xs text-slate-500">{o.task.id}</span>
-      <div className="min-w-0">
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3 border-t border-slate-800/60 first:border-t-0">
+      <span className="font-mono text-xs text-slate-400 w-8 shrink-0">{o.task.id}</span>
+      <div className="flex-[1_1_220px] min-w-0">
         <p className="text-sm text-slate-200 leading-snug">{o.task.title}</p>
         <div className="flex items-center gap-2 mt-1">
           <div className="h-1 w-24 bg-slate-800 rounded-full overflow-hidden" title={`${Math.round(o.mastery * 100)}% mastery`}>
             <div className={`h-full rounded-full ${st.bar}`} style={{ width: `${Math.round(o.mastery * 100)}%` }} />
           </div>
-          <span className="text-[11px] text-slate-500">{o.attempted}/{o.total} answered{o.attempted ? ` · ${Math.round(o.accuracy * 100)}% right` : ''}</span>
+          <span className="text-[11px] text-slate-400">{o.attempted}/{o.total} answered{o.attempted ? ` · ${Math.round(o.accuracy * 100)}% right` : ''}</span>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <span className={`hidden sm:inline text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${st.chip}`}>{st.label}</span>
+      <div className="flex items-center gap-2 ml-auto">
+        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${st.chip}`}>{st.label}</span>
         {o.total > 0 && (
           <Link
             to={`/skillup/${examId}/quiz?task=${encodeURIComponent(o.task.id)}`}
-            className="inline-flex items-center gap-1 text-xs font-medium text-brand-lilac hover:text-white transition-colors"
-            aria-label={`Practice objective ${o.task.id}`}
+            className="inline-flex items-center gap-1 min-h-10 px-3 rounded-lg border border-brand-lilac/35 text-xs font-semibold text-brand-lilac hover:text-white hover:border-brand-lilac/70 transition-colors"
+            aria-label={`Practise objective ${o.task.id}`}
           >
-            <Target size={12} /> Practice
+            <Target size={12} /> Practise
           </Link>
         )}
       </div>
@@ -135,16 +138,18 @@ function DomainGroup({ domain, objectives, examId, defaultOpen }: {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="w-full flex items-center gap-3 px-3 py-2.5 text-left"
+        className="w-full flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 py-3 min-h-14 text-left rounded-lg hover:bg-slate-800/40 transition-colors"
       >
-        {open ? <ChevronDown size={14} className="text-slate-500" /> : <ChevronRight size={14} className="text-slate-500" />}
-        <span className="font-mono text-xs text-slate-500 w-6">D{domain.id}</span>
-        <span className="flex-1 min-w-0 text-sm font-medium text-slate-200 truncate">{domain.title}</span>
-        <span className="text-[11px] text-slate-500 hidden sm:inline">{strong}/{objectives.length} strong</span>
-        <div className="h-1.5 w-16 bg-slate-800 rounded-full overflow-hidden">
-          <div className="h-full rounded-full bg-brand-indigo" style={{ width: `${Math.round(mastery * 100)}%` }} />
-        </div>
-        <span className="font-mono text-xs text-slate-400 w-9 text-right">{domain.weight}%</span>
+        {open ? <ChevronDown size={14} className="text-slate-400" /> : <ChevronRight size={14} className="text-slate-400" />}
+        <span className="font-mono text-xs text-brand-lilac w-6">D{domain.id}</span>
+        <span className="flex-[1_1_180px] min-w-0 text-sm font-semibold text-slate-100">{domain.title}</span>
+        <span className="flex items-center gap-2.5 ml-auto">
+          <span className="text-[11px] text-slate-400">{strong}/{objectives.length} strong</span>
+          <span className="h-1.5 w-16 bg-slate-800 rounded-full overflow-hidden" aria-hidden="true">
+            <span className="block h-full rounded-full bg-brand-lilac" style={{ width: `${Math.round(mastery * 100)}%` }} />
+          </span>
+          <span className="font-mono text-xs text-slate-300 w-9 text-right">{domain.weight}%</span>
+        </span>
       </button>
       {open && (
         <ul className="px-3 pb-2">
@@ -158,11 +163,11 @@ function DomainGroup({ domain, objectives, examId, defaultOpen }: {
 export function ExamMap({ exam, mastery }: { exam: ExamConfig; mastery: ExamMastery }) {
   const weakestDomain = mastery.weakest?.domainId;
   return (
-    <section className="glass-card glass-edge rounded-xl p-5 space-y-3" aria-labelledby="exam-map-h">
-      <div className="flex items-baseline justify-between gap-3">
+    <section className="glass-card glass-edge rounded-2xl p-5 space-y-3" aria-labelledby="exam-map-h">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h2 id="exam-map-h" className="section-heading">Exam map</h2>
-        <span className="text-[11px] text-slate-500">
-          Official objectives · mastery = accuracy × coverage · {Math.round(mastery.coverage * 100)}% covered
+        <span className="text-xs text-slate-400">
+          Official objectives · {Math.round(mastery.coverage * 100)}% covered · open a domain to practise
         </span>
       </div>
       <div className="space-y-2">

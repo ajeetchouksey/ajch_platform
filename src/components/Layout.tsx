@@ -18,7 +18,7 @@ import { useIsOwner } from '@/lib/auth';
 const EXAM_NAV = [
   { key: 'overview', label: 'Overview',        icon: GraduationCap, items: [{ slug: '',          label: 'Overview',    icon: GraduationCap }] },
   { key: 'learn',    label: 'Learn',           icon: BookOpen,      items: [{ slug: 'notes',     label: 'Study Notes', icon: BookOpen }, { slug: 'scenarios', label: 'Scenarios', icon: Layers }] },
-  { key: 'practice', label: 'Practice',        icon: Brain,         items: [{ slug: 'quiz',      label: 'Quiz',        icon: Brain }] },
+  { key: 'practice', label: 'Practice',        icon: Brain,         items: [{ slug: 'quiz',      label: 'Quiz',        icon: Brain }, { slug: 'flashcards', label: 'Flashcards', icon: Layers }] },
   { key: 'track',    label: 'Progress & Plan', icon: BarChart2,     items: [{ slug: 'progress',  label: 'Progress',    icon: BarChart2 }, { slug: 'plan', label: 'Study Plan', icon: CalendarDays }] },
 ];
 
@@ -190,7 +190,8 @@ export default function Layout({ children }: { children: ReactNode }) {
   const [currentExam, setCurrentExam] = useState<ExamConfig | null>(null);
 
   const examIdMatch = location.pathname.match(/^\/(?:exams|skillup)\/([^/]+)/);
-  const currentExamId = examIdMatch ? examIdMatch[1] : null;
+  // /skillup/my-learning is the cross-exam dashboard, not an exam.
+  const currentExamId = examIdMatch && examIdMatch[1] !== 'my-learning' ? examIdMatch[1] : null;
   const isInExam = Boolean(currentExamId);
   const isInTeam = location.pathname.startsWith('/team') || location.pathname.startsWith('/maintainer/team');
   const isInTool = Boolean(location.pathname.match(/^\/tools\/.+/));

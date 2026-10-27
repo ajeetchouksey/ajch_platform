@@ -292,6 +292,8 @@ export interface QuestionAttempt {
   loop: 1 | 2;
   /** Loop 2 only: student's free-text reasoning before answer reveal. */
   reasoning?: string;
+  /** How sure the learner said they were before checking (quiz confidence picker). */
+  confidence?: 'guess' | 'unsure' | 'sure';
 }
 
 export interface DomainReadiness {
