@@ -192,6 +192,12 @@ export function setResumeState(examId: string, state: ResumeState): void {
   lsSet(`notes_resume_${examId}`, JSON.stringify(state));
 }
 
+/** Readable section name — older states stored the heading's slug, newer ones its text. */
+export function resumeLabel(r: ResumeState | null): string | null {
+  if (!r?.sectionTitle) return null;
+  return /\s/.test(r.sectionTitle) ? r.sectionTitle : r.sectionTitle.replace(/-/g, ' ');
+}
+
 export function clearResumeState(examId: string): void {
   lsDel(`notes_resume_${examId}`);
 }

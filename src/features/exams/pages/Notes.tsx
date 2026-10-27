@@ -4,17 +4,19 @@ import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { loadNoteForExam, loadExamRegistry, loadTaskStatementsForExam } from '@/lib/content-loader';
+import { loadNoteForExam, loadExamRegistry, loadTaskStatementsForExam, loadQuestionsForExam } from '@/lib/content-loader';
+import { SectionCheck } from '../components/SectionCheck';
+import { matchQuestionsToSections } from '@/lib/section-match';
 import { getAttempts } from '@/lib/adaptive-quiz';
 import { examMastery } from '@/lib/objective-mastery';
 import { resolveContentUrl } from '@/lib/content-manifest';
 import { markNotesSeen } from '@/lib/storage';
 import {
-  recordStudyDay, getResumeState, setResumeState, clearResumeState,
+  recordStudyDay, getResumeState, setResumeState, clearResumeState, resumeLabel,
   getFocusTimer, setFocusTimer,
 } from '@/lib/study-tracker';
 import type { FocusTimer } from '@/lib/study-tracker';
-import type { DomainConfig, ExamConfig, TaskStatementsFile } from '@/types/content';
+import type { DomainConfig, ExamConfig, Question, TaskStatementsFile } from '@/types/content';
 import { ChevronLeft, ChevronRight, List, ChevronDown, ArrowUp, Zap, Target, Layers, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles, X } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 import { LightComments } from '@/components/LightComments';
@@ -167,6 +169,15 @@ export default function Notes() {
     () => (statements ? examMastery(statements, getAttempts(examId)).objectives.filter((o) => o.domainId === domain && o.total > 0) : []),
     [statements, examId, domain],
   );
+  // Bank questions → a short self-check after each notes section.
+  const [questions, setQuestions] = useState<Question[]>([]);
+  useEffect(() => {
+    loadQuestionsForExam(examId).then(setQuestions).catch(() => setQuestions([]));
+  }, [examId]);
+  const sectionChecks = useMemo(
+    () => (content ? matchQuestionsToSections(content, questions.filter((q) => q.domain === domain)) : new Map<string, Question[]>()),
+    [content, questions, domain],
+  );
   const [activeId, setActiveId] = useState<string>('');
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
   const [readPct, setReadPct] = useState(0);
@@ -187,7 +198,7 @@ export default function Notes() {
     const key = `${examId}-${r.domainId}-${r.sectionTitle}`;
     if (key === dismissedBannerKey) return null;
     const dom = examDomains.find(d => d.id === r.domainId);
-    return dom ? { domainId: r.domainId, title: r.sectionTitle ?? dom.title, key } : null;
+    return dom ? { domainId: r.domainId, title: resumeLabel(r) ?? dom.title, key } : null;
   }, [examId, domain, examDomains, dismissedBannerKey]);
   const [focusTimer, setFocusTimerState] = useState<FocusTimer | null>(() => getFocusTimer());
   const [timerSecs, setTimerSecs] = useState(0);
@@ -248,7 +259,9 @@ export default function Notes() {
 
   // Update resume state as user reads (on activeId change)
   useEffect(() => {
-    if (activeId && content) setResumeState(examId, { domainId: domain, sectionTitle: activeId, ts: Date.now() });
+    if (!activeId || !content) return;
+    const text = extractToc(content).find((t) => t.id === activeId)?.text;
+    setResumeState(examId, { domainId: domain, sectionTitle: text ? stripEmoji(text) : activeId, ts: Date.now() });
   }, [examId, domain, activeId, content]);
 
   // Focus timer countdown — respects paused state
@@ -461,6 +474,15 @@ export default function Notes() {
   // Heading renderers look their id up by source line: React may render the
   // markdown more than once per pass, so a running counter drifts.
   const tocByLine = new Map(toc.map((t) => [t.line, t]));
+  // A section's check renders just before the next ## heading (and after the last section).
+  const h2s = toc.filter((t) => t.level === 2);
+  const checkFor = (item: TocItem | undefined) => {
+    if (!item) return null;
+    const qs = sectionChecks.get(item.text);
+    return qs?.length ? (
+      <SectionCheck key={`${examId}-${domain}-${item.id}`} examId={examId} domain={domain} heading={item.text} candidates={qs} markdown={content} />
+    ) : null;
+  };
 
   return (
     <div className="max-w-[1060px] mx-auto">
@@ -468,7 +490,7 @@ export default function Notes() {
       {resumeBanner && (
         <div className="mb-4 flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-violet-950/30 border border-violet-700/30 text-sm">
           <span className="text-violet-300">↩</span>
-          <span className="flex-1 text-slate-300 text-xs">Last reading: <span className="font-semibold text-violet-300">D{resumeBanner.domainId}</span> — {resumeBanner.title.replace(/-/g, ' ')}</span>
+          <span className="flex-1 text-slate-300 text-xs">Last reading: <span className="font-semibold text-violet-300">D{resumeBanner.domainId}</span> — {resumeBanner.title}</span>
           <button
             onClick={() => { setDismissedBannerKey(resumeBanner.key); clearResumeState(examId); }}
             className="text-slate-500 hover:text-slate-300 transition-colors"
@@ -708,8 +730,10 @@ export default function Notes() {
                   return <li>{highlightEnabled ? applyHighlighting(children) : children}</li>;
                 },
                 h2({ children, node }) {
-                  const id = tocByLine.get(node?.position?.start.line ?? -1)?.id ?? slugify(String(children));
-                  return <h2 id={id}>{stripEmojiChildren(children)}</h2>;
+                  const item = tocByLine.get(node?.position?.start.line ?? -1);
+                  const id = item?.id ?? slugify(String(children));
+                  const prev = item ? h2s[h2s.indexOf(item) - 1] : undefined;
+                  return <>{checkFor(prev)}<h2 id={id}>{stripEmojiChildren(children)}</h2></>;
                 },
                 h3({ children, node }) {
                   const item = tocByLine.get(node?.position?.start.line ?? -1);
@@ -783,6 +807,7 @@ export default function Notes() {
             >
               {content}
             </ReactMarkdown>
+            {checkFor(h2s[h2s.length - 1])}
           </div>
         )}
       </article>

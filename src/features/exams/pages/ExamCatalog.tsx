@@ -2,9 +2,11 @@ import { useState, useEffect, useRef, useMemo, type ReactNode } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   GraduationCap, Clock, Target, ArrowRight,
-  Lock, Brain, BarChart2, Zap, BookOpen, Search, X,
+  Lock, Brain, BarChart2, Zap, BookOpen, Search, X, LayoutDashboard,
 } from 'lucide-react';
 import { loadExamRegistry } from '@/lib/content-loader';
+import { getAllAttempts } from '@/lib/adaptive-quiz';
+import { getNotesSeen } from '@/lib/storage';
 import { useMeta } from '@/lib/useMeta';
 import PageViewsBadge from '@/components/PageViewsBadge';
 import type { ExamConfig } from '@/types/content';
@@ -410,6 +412,36 @@ export default function ExamCatalog() {
           />
         </div>
       </div>
+
+      {/* ── Personal entry point ── */}
+      {!loading && exams.length > 0 && (() => {
+        const startedIds = new Set([
+          ...Object.entries(getAllAttempts()).filter(([, a]) => a.length).map(([id]) => id),
+          ...Object.keys(getNotesSeen()).map((k) => k.split(':')[0]),
+        ]);
+        const mine = exams.filter((e) => startedIds.has(e.id));
+        return (
+          <Link
+            to="/skillup/my-learning"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl px-5 py-4 border border-brand-lilac/30 bg-brand-indigo/15 hover:border-brand-lilac/60 transition-colors group"
+          >
+            <span className="flex items-center gap-3 min-w-0">
+              <LayoutDashboard size={18} className="text-brand-lilac shrink-0" aria-hidden="true" />
+              <span className="min-w-0">
+                <span className="block text-[15px] font-semibold text-white">My learning</span>
+                <span className="block text-xs text-slate-300">
+                  {mine.length
+                    ? `${mine.map((e) => e.shortTitle).slice(0, 3).join(', ')}${mine.length > 3 ? ` +${mine.length - 3}` : ''} in progress · readiness, today's plan and cards due`
+                    : 'Your readiness, streak and review cards appear here once you start an exam'}
+                </span>
+              </span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-lilac group-hover:text-white">
+              {mine.length ? 'Continue' : 'Open'} <ArrowRight size={14} aria-hidden="true" />
+            </span>
+          </Link>
+        );
+      })()}
 
       {/* ── Discovery toolbar ── */}
       {!loading && exams.length > 0 && (

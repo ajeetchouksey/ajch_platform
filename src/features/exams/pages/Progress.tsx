@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getSessions, getScoreByDomain, clearSessions } from '@/lib/storage';
+import { getSessions, getScoreByDomain, saveSessions } from '@/lib/storage';
+import { getAttempts, clearAttempts } from '@/lib/adaptive-quiz';
+import { latestAttemptByQuestion } from '@/lib/objective-mastery';
 import { loadExamRegistry } from '@/lib/content-loader';
 import type { DomainConfig } from '@/types/content';
 import { Trash2, RotateCcw, TrendingUp, TrendingDown, Minus, BarChart2, Brain } from 'lucide-react';
@@ -17,6 +19,9 @@ export default function Progress() {
   const [examShortTitle, setExamShortTitle] = useState('Exam');
   const [passThreshold, setPassThreshold] = useState(72);
   const [confirmClearOpen, setConfirmClearOpen] = useState(false);
+  // Per-question answers from every mode (drills, notes checks, missed review) —
+  // latest answer per question, so the numbers match the exam map.
+  const [latest, setLatest] = useState(() => [...latestAttemptByQuestion(getAttempts(examId)).values()]);
 
   useEffect(() => {
     loadExamRegistry().then((r) => {
@@ -33,7 +38,9 @@ export default function Progress() {
   }, [examId, navigate]);
 
   function handleClear() {
-    clearSessions();
+    try { saveSessions(getSessions().filter((s) => s.skillId !== examId)); } catch { /* storage unavailable */ }
+    clearAttempts(examId);
+    setLatest([]);
     setSessions([]);
     setDomainScores(getScoreByDomain(examId));
     setConfirmClearOpen(false);
@@ -44,7 +51,17 @@ export default function Progress() {
   const relDocIds = examDomains.map((d) => `exam/${examId}/domain-${d.id}`);
   const computedRelated = useRelationshipsForIds(relDocIds);
 
-  if (sessions.length === 0) {
+  const answered = latest.length;
+  const right = latest.filter((a) => a.correct).length;
+  const byDomain: Record<number, { correct: number; total: number }> = {};
+  for (const a of latest) {
+    const d = (byDomain[a.domain] ??= { correct: 0, total: 0 });
+    d.total += 1;
+    if (a.correct) d.correct += 1;
+  }
+  const domainStats = (id: number) => (byDomain[id]?.total ? byDomain[id] : domainScores[id]);
+
+  if (sessions.length === 0 && answered === 0) {
     return (
       <div className="space-y-3">
         <p className="page-eyebrow">{examShortTitle} Tracking</p>
@@ -53,9 +70,9 @@ export default function Progress() {
           <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mb-5">
             <BarChart2 size={26} className="text-slate-500" />
           </div>
-          <h2 className="text-base font-semibold text-white mb-2">No sessions yet</h2>
+          <h2 className="text-base font-semibold text-white mb-2">Nothing answered yet</h2>
           <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-            Complete a quiz to start tracking your progress, domain scores, and readiness over time.
+            Answer a few questions in a quiz, a drill or the checks inside the notes, and your scores by domain show up here.
           </p>
           <Link
             to={`/skillup/${examId}/quiz`}
@@ -98,14 +115,14 @@ export default function Progress() {
 
       {/* Summary stat cards */}
       {(() => {
-        const best = Math.max(...sessions.map((s) => Math.round((s.score / s.total) * 100)));
-        const avg = Math.round(sessions.reduce((acc, s) => acc + (s.score / s.total), 0) / sessions.length * 100);
+        const accuracy = answered ? Math.round((right / answered) * 100) : null;
+        const best = sessions.length ? Math.max(...sessions.map((s) => Math.round((s.score / s.total) * 100))) : null;
         return (
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: 'Sessions', value: sessions.length, color: 'text-sky-400' },
-              { label: 'Best Score', value: `${best}%`, color: best >= passThreshold ? 'text-emerald-400' : 'text-rose-400' },
-              { label: 'Avg Score', value: `${avg}%`, color: avg >= passThreshold ? 'text-emerald-400' : 'text-amber-400' },
+              { label: 'Questions answered', value: answered, color: 'text-brand-lilac' },
+              { label: 'Latest accuracy', value: accuracy === null ? '–' : `${accuracy}%`, color: accuracy === null ? 'text-slate-400' : accuracy >= passThreshold ? 'text-emerald-400' : 'text-amber-400' },
+              { label: 'Best session', value: best === null ? '–' : `${best}%`, color: best === null ? 'text-slate-400' : best >= passThreshold ? 'text-emerald-400' : 'text-rose-400' },
             ].map(({ label, value, color }) => (
               <div key={label} className="glass-card rounded-xl p-4 text-center">
                 <div className={`text-2xl font-bold ${color}`}>{value}</div>
@@ -120,7 +137,7 @@ export default function Progress() {
       <div className="glass-card rounded-xl p-5">
         <div className="space-y-4">
           {examDomains.map((domain) => {
-            const stats = domainScores[domain.id];
+            const stats = domainStats(domain.id);
             const attempted = (stats?.total ?? 0) > 0;
             const pct = attempted ? Math.round((stats.correct / stats.total) * 100) : null;
             // colour: green ≥ threshold, amber = attempted-but-0, red = below threshold
@@ -157,6 +174,9 @@ export default function Progress() {
       {/* Session history */}
       <div className="glass-card rounded-xl p-5">
         <h2 className="section-heading mb-4">Session History</h2>
+        {sessions.length === 0 && (
+          <p className="text-sm text-slate-400">No finished quiz sessions yet. The scores above come from your drills and notes checks.</p>
+        )}
         <div className="space-y-2">
           {(() => {
             const reversed = [...sessions].reverse();

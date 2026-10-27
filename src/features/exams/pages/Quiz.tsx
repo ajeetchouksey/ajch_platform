@@ -1,20 +1,35 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { loadQuestionsForExam, loadQuestionsByDomainForExam, loadExamRegistry, loadTaskStatementsForExam } from '@/lib/content-loader';
 import { saveSession, saveQuizDraft, loadQuizDraft, clearQuizDraft } from '@/lib/storage';
 import { addQuizResult, useProgressSync } from '@/lib/useProgressSync';
 import { saveAttempt, getAttempts } from '@/lib/adaptive-quiz';
 import { getFlagged, toggleFlag, reviewQueueIds } from '@/lib/objective-mastery';
+import { addQuestionCard } from '@/lib/flashcards';
 import { useAuth } from '@/lib/auth';
 import { trackEvent } from '@/lib/analytics';
-import { type Question, type QuizSession, type QuizDraft, type DomainConfig, type QuizMode, type TaskStatement } from '@/types/content';
-import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X, History, LogOut, Flag, Timer, Target, BookOpenCheck } from 'lucide-react';
+import { type Question, type QuestionAttempt, type QuizSession, type QuizDraft, type DomainConfig, type QuizMode, type TaskStatement } from '@/types/content';
+import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X, History, LogOut, Flag, Timer, Target, BookOpenCheck, Lightbulb, Flame, Layers } from 'lucide-react';
 import QuizShareCard from '@/components/QuizShareCard';
 import { AskMentor } from '@/components/AskMentor';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
 import { useRelationshipsForIds } from '@/lib/useRelationships';
 
 type Phase = 'setup' | 'quiz' | 'review';
+
+type Confidence = NonNullable<QuestionAttempt['confidence']>;
+const CONFIDENCE: { id: Confidence; label: string }[] = [
+  { id: 'guess', label: 'Guessing' },
+  { id: 'unsure', label: 'Unsure' },
+  { id: 'sure', label: 'Sure' },
+];
+
+/** One line on how the learner's confidence matched the result. */
+function calibrationNote(correct: boolean, c: Confidence | undefined): string | null {
+  if (!c) return null;
+  if (correct) return c === 'sure' ? 'Right, and you knew it.' : c === 'unsure' ? 'Right. Your doubt was unneeded here.' : 'Right, but it was a guess. Read why so it sticks.';
+  return c === 'sure' ? 'You were sure, but this is a trap. It is now a flashcard, so it comes back first.' : 'You sensed doubt, which was right. Read the reasons below.';
+}
 
 /** Questions in a timed simulation. Real exams in the catalog run roughly
  *  40–60 items; banks smaller than this use every question and a pro-rated clock. */
@@ -104,6 +119,10 @@ export default function Quiz() {
   const [chosen, setChosen] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [revealed, setRevealed] = useState(false);
+  // Per-attempt extras (non-timed modes): how sure the learner was, options a hint removed, run of correct answers.
+  const [confidence, setConfidence] = useState<Record<string, Confidence>>({});
+  const [eliminated, setEliminated] = useState<Record<string, number[]>>({});
+  const [streak, setStreak] = useState(0);
   const [session, setSession] = useState<QuizSession | null>(null);
   const [loading, setLoading] = useState(false);
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
@@ -183,7 +202,7 @@ export default function Quiz() {
   // Start the per-question timer whenever a new question is shown.
   useEffect(() => { shownAtRef.current = Date.now(); }, [current, phase]);
 
-  const recordAttempt = useCallback((q: Question, chosenIndex: number) => {
+  const recordAttempt = useCallback((q: Question, chosenIndex: number, conf?: Confidence) => {
     saveAttempt({
       questionId: q.id,
       examId,
@@ -193,8 +212,11 @@ export default function Quiz() {
       timeSpentMs: Date.now() - shownAtRef.current,
       attemptedAt: Date.now(),
       loop: 1,
+      ...(conf ? { confidence: conf } : {}),
     });
   }, [examId]);
+
+  const resetExtras = () => { setConfidence({}); setEliminated({}); setStreak(0); };
 
   const handleToggleFlag = useCallback((questionId: string) => {
     const on = toggleFlag(examId, questionId);
@@ -222,6 +244,7 @@ export default function Quiz() {
     setChosen(draft.chosen);
     setAnswers(draft.answers);
     setRevealed(draft.revealed);
+    resetExtras();
     setDomainFilter(draft.domainFilter);
     // Drafts are never timed (see autosave), so a resumed attempt is always review-style.
     setMode('review');
@@ -310,6 +333,7 @@ export default function Quiz() {
     setChosen(null);
     setAnswers({});
     setRevealed(false);
+    resetExtras();
     setSession(newSession);
     setPhase('quiz');
     setLoading(false);
@@ -351,7 +375,7 @@ export default function Quiz() {
   }, [revealed]);
 
   function handleChoose(idx: number) {
-    if (revealed) return;
+    if (revealed || eliminated[questions[current]?.id]?.includes(idx)) return;
     setChosen(idx);
     // Timed: the choice *is* the answer (changeable until the clock or Finish).
     if (isTimed) setAnswers((prev) => ({ ...prev, [questions[current].id]: idx }));
@@ -362,9 +386,24 @@ export default function Quiz() {
     setRevealed(true);
     if (session) {
       const q = questions[current];
+      const conf = confidence[q.id];
+      const right = chosen === q.correct;
       setAnswers((prev) => ({ ...prev, [q.id]: chosen }));
-      recordAttempt(q, chosen);
+      recordAttempt(q, chosen, conf);
+      setStreak((s) => (right ? s + 1 : 0));
+      // Confidently wrong is the most useful thing to revisit — make it a flashcard.
+      if (!right && conf === 'sure') addQuestionCard(examId, q);
     }
+  }
+
+  /** 50/50: strike out two wrong options. Counts the answer as unsure unless the learner already said. */
+  function applyHint() {
+    const q = questions[current];
+    if (!q || revealed || eliminated[q.id]) return;
+    const wrong = q.options.map((_, i) => i).filter((i) => i !== q.correct && i !== chosen);
+    const out = wrong.sort(() => Math.random() - 0.5).slice(0, Math.max(0, Math.min(2, q.options.length - 2)));
+    setEliminated((m) => ({ ...m, [q.id]: out }));
+    setConfidence((m) => (m[q.id] ? m : { ...m, [q.id]: 'unsure' }));
   }
 
   function handleNext() {
@@ -424,6 +463,7 @@ export default function Quiz() {
     setChosen(null);
     setAnswers({});
     setRevealed(false);
+    resetExtras();
     setShowAllReview(false);
     setSession({
       id: randomId(), skillId: examId, startedAt: Date.now(), domainFilter: null,
@@ -674,6 +714,35 @@ export default function Quiz() {
           );
         })()}
 
+        {/* Calibration — how the learner's confidence matched their results */}
+        {Object.keys(confidence).length > 0 && (() => {
+          const rows = CONFIDENCE.map((c) => {
+            const qs = questions.filter((q) => confidence[q.id] === c.id && answers[q.id] !== undefined);
+            return { ...c, total: qs.length, right: qs.filter((q) => answers[q.id] === q.correct).length };
+          }).filter((r) => r.total > 0);
+          const sureWrong = questions.filter((q) => confidence[q.id] === 'sure' && answers[q.id] !== undefined && answers[q.id] !== q.correct).length;
+          return (
+            <div className="glass-card rounded-xl p-4 space-y-2">
+              <h3 className="text-xs font-semibold uppercase text-slate-400 tracking-wide">How well you judged yourself</h3>
+              {rows.map((r) => (
+                <div key={r.id} className="flex justify-between gap-3 text-sm">
+                  <span className="text-slate-300">When you said “{r.label.toLowerCase()}”</span>
+                  <span className="font-mono text-slate-100">{r.right} of {r.total} right</span>
+                </div>
+              ))}
+              {sureWrong > 0 && (
+                <p className="text-xs text-amber-200 pt-1 flex items-start gap-1.5">
+                  <Layers size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
+                  <span>
+                    You were sure and wrong {sureWrong === 1 ? 'once' : `${sureWrong} times`}. {sureWrong === 1 ? 'That question is' : 'Those questions are'} now flashcards, so they come back first.{' '}
+                    <Link to={`/skillup/${examId}/flashcards`} className="font-semibold text-brand-lilac hover:text-white">Review flashcards</Link>
+                  </span>
+                </p>
+              )}
+            </div>
+          );
+        })()}
+
         {/* Study with AI handoff — focused on weak domains from this attempt */}
         {passThreshold !== null && examDomains.length > 0 && (() => {
           const weak = examDomains
@@ -817,7 +886,12 @@ export default function Quiz() {
           <span>
             Question {current + 1} of {questions.length}
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
+            {!isTimed && streak >= 2 && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-200 font-semibold" aria-live="polite">
+                <Flame size={12} aria-hidden="true" /> {streak} in a row
+              </span>
+            )}
             {endsAt !== null && (
               <span
                 className={`flex items-center gap-1 font-mono font-semibold ${endsAt - now < 5 * 60_000 ? 'text-amber-400' : 'text-slate-300'}`}
@@ -928,10 +1002,13 @@ export default function Quiz() {
           const isCorrectOpt = idx === q.correct;
           const isChosenOpt = chosen === idx;
           const optReason = parsedExpl.optionReasons[idx];
+          const isOut = !revealed && (eliminated[q.id]?.includes(idx) ?? false);
 
           let btnCls =
-            'w-full text-left px-4 py-3 rounded-xl border text-sm transition-colors ';
-          if (!revealed) {
+            'w-full text-left px-4 py-3 min-h-11 rounded-xl border text-sm transition-colors ';
+          if (isOut) {
+            btnCls += 'border-slate-800 text-slate-600 line-through cursor-not-allowed';
+          } else if (!revealed) {
             btnCls +=
               isChosenOpt
                 ? 'border-violet-500 bg-violet-900/30 text-white'
@@ -949,7 +1026,9 @@ export default function Quiz() {
             <div key={idx}>
               <button
                 onClick={() => handleChoose(idx)}
-                disabled={revealed}
+                disabled={revealed || isOut}
+                aria-pressed={!revealed ? isChosenOpt : undefined}
+                aria-label={isOut ? `${String.fromCharCode(65 + idx)}. ${opt} (ruled out by hint)` : undefined}
                 className={btnCls}
               >
                 <span className="font-mono text-xs mr-2 opacity-60">
@@ -988,22 +1067,59 @@ export default function Quiz() {
         })}
       </div>
 
+      {/* Confidence + hint — before checking, non-timed modes only */}
+      {!isTimed && !revealed && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span className="text-xs text-slate-400">How sure are you?</span>
+          <div role="group" aria-label="Confidence" className="inline-flex p-1 rounded-xl bg-slate-800/70 border border-slate-600/30">
+            {CONFIDENCE.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                aria-pressed={confidence[q.id] === c.id}
+                onClick={() => setConfidence((m) => ({ ...m, [q.id]: c.id }))}
+                className={`min-h-9 px-3 rounded-lg text-xs font-semibold transition-colors ${
+                  confidence[q.id] === c.id ? 'bg-brand-indigo text-white' : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+          {q.options.length > 2 && (
+            <button
+              type="button"
+              onClick={applyHint}
+              disabled={!!eliminated[q.id]}
+              className="inline-flex items-center gap-1.5 min-h-9 px-3 rounded-lg border border-slate-600/40 text-xs font-semibold text-slate-300 hover:text-white hover:border-brand-lilac/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <Lightbulb size={13} aria-hidden="true" /> {eliminated[q.id] ? 'Two options ruled out' : 'Hint: rule out two'}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Summary banner + tags after reveal */}
       {revealed && (
         <div
-          className={`rounded-xl px-4 py-3 text-sm border flex items-center justify-between gap-3 ${
+          className={`rounded-xl px-4 py-3 text-sm border flex flex-wrap items-center justify-between gap-3 ${
             isCorrect ? 'border-emerald-700/50 bg-emerald-900/10' : 'border-rose-700/50 bg-rose-900/10'
           }`}
         >
-          <div className="flex items-center gap-2 font-semibold">
-            {isCorrect ? (
-              <CheckCircle size={15} className="text-emerald-400 shrink-0" />
-            ) : (
-              <XCircle size={15} className="text-rose-400 shrink-0" />
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 font-semibold">
+              {isCorrect ? (
+                <CheckCircle size={15} className="text-emerald-400 shrink-0" />
+              ) : (
+                <XCircle size={15} className="text-rose-400 shrink-0" />
+              )}
+              <span className={isCorrect ? 'text-emerald-300' : 'text-rose-300'}>
+                {isCorrect ? 'Correct!' : `Incorrect — correct answer: ${String.fromCharCode(65 + q.correct)}`}
+              </span>
+            </div>
+            {calibrationNote(isCorrect, confidence[q.id]) && (
+              <p className="text-xs text-slate-300 mt-1">{calibrationNote(isCorrect, confidence[q.id])}</p>
             )}
-            <span className={isCorrect ? 'text-emerald-300' : 'text-rose-300'}>
-              {isCorrect ? 'Correct!' : `Incorrect — correct answer: ${String.fromCharCode(65 + q.correct)}`}
-            </span>
           </div>
           <div className="flex flex-wrap gap-1 justify-end">
             {q.tags.slice(0, 3).map((t) => (
