@@ -1,10 +1,12 @@
-import { useReducer, useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense, Children, isValidElement } from 'react';
+import { useReducer, useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense, Children, isValidElement, cloneElement, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { loadNoteForExam, loadExamRegistry } from '@/lib/content-loader';
+import { loadNoteForExam, loadExamRegistry, loadTaskStatementsForExam } from '@/lib/content-loader';
+import { getAttempts } from '@/lib/adaptive-quiz';
+import { examMastery } from '@/lib/objective-mastery';
 import { resolveContentUrl } from '@/lib/content-manifest';
 import { markNotesSeen } from '@/lib/storage';
 import {
@@ -12,12 +14,12 @@ import {
   getFocusTimer, setFocusTimer,
 } from '@/lib/study-tracker';
 import type { FocusTimer } from '@/lib/study-tracker';
-import type { DomainConfig, ExamConfig } from '@/types/content';
-import { Clock, ChevronLeft, ChevronRight, List, ChevronDown, ArrowUp, Zap, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles, X } from 'lucide-react';
+import type { DomainConfig, ExamConfig, TaskStatementsFile } from '@/types/content';
+import { ChevronLeft, ChevronRight, List, ChevronDown, ArrowUp, Zap, Target, Layers, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles, X } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
-import { ContentMeta, Button, CircularProgress } from '@/components/ui';
+import { ContentMeta, Button } from '@/components/ui';
 import { applyHighlighting, KeywordHighlightToggle } from '@/components/KeywordHighlight';
 import { AskMentor } from '@/components/AskMentor';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
@@ -25,6 +27,7 @@ import { useRelationships } from '@/lib/useRelationships';
 import { TermTooltip } from '@/components/GlossaryTerm';
 import { useGlossary } from '@/lib/useGlossary';
 import { lookupGlossaryTerm } from '@/lib/glossary';
+import { stripEmoji, stripEmojiChildren, headingKicker } from '../components/notes-format';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 
@@ -46,19 +49,27 @@ interface TocItem {
   id: string;
   text: string;
   level: 2 | 3;
+  /** 1-based source line — lets the heading renderers find their deduplicated id. */
+  line: number;
 }
 
 function extractToc(markdown: string): TocItem[] {
   const items: TocItem[] = [];
   const seen = new Map<string, number>();
-  for (const match of markdown.matchAll(/^(#{2,3})\s+(.+)$/gm)) {
+  let fence: string | null = null; // headings inside ``` blocks (e.g. CLAUDE.md samples) aren't sections
+  markdown.split('\n').forEach((lineText, i) => {
+    const f = lineText.match(/^\s*(```|~~~)/);
+    if (f) { fence = fence === null ? f[1] : (fence === f[1] ? null : fence); return; }
+    if (fence) return;
+    const match = lineText.match(/^(#{2,3})\s+(.+?)\s*$/);
+    if (!match) return;
     const level = match[1].length as 2 | 3;
     const raw = match[2].replace(/`[^`]*`/g, '').trim();
     const base = slugify(raw);
     const count = seen.get(base) ?? 0;
     seen.set(base, count + 1);
-    items.push({ id: count === 0 ? base : `${base}-${count}`, text: raw, level });
-  }
+    items.push({ id: count === 0 ? base : `${base}-${count}`, text: raw, level, line: i + 1 });
+  });
   return items;
 }
 
@@ -67,25 +78,53 @@ function extractToc(markdown: string): TocItem[] {
 // lives in exactly one place instead of a second hand-rolled copy.
 function TocNav({ toc, activeId, onSelect }: { toc: TocItem[]; activeId: string; onSelect: (id: string) => void }) {
   const activeIdx = toc.findIndex((i) => i.id === activeId);
+  const navRef = useRef<HTMLElement>(null);
+  // Section = index of the h2 an entry belongs to. Sub-headings (h3) are only
+  // listed for the section being read — 30+ always-expanded entries buried
+  // the outline.
+  const sectionOf: number[] = [];
+  let sec = -1;
+  for (const item of toc) { if (item.level !== 3) sec += 1; sectionOf.push(Math.max(sec, 0)); }
+  const activeSection = activeIdx >= 0 ? sectionOf[activeIdx] : 0;
+
+  // Keep the active entry visible. The TOC is taller than its sticky container,
+  // so scroll that container only — never <main>, or reading position jumps.
+  useEffect(() => {
+    const nav = navRef.current;
+    const item = nav?.querySelector<HTMLElement>(`[data-toc-id="${CSS.escape(activeId)}"]`);
+    if (!nav || !item) return;
+    let box: HTMLElement | null = nav.parentElement;
+    while (box && box.tagName !== 'MAIN' && !/(auto|scroll)/.test(getComputedStyle(box).overflowY)) box = box.parentElement;
+    if (!box || box.tagName === 'MAIN') return;
+    const b = box.getBoundingClientRect();
+    const r = item.getBoundingClientRect();
+    if (r.top < b.top + 40 || r.bottom > b.bottom - 40) {
+      box.scrollTo({ top: box.scrollTop + (r.top - b.top) - b.height / 3, behavior: 'smooth' });
+    }
+  }, [activeId]);
+
   return (
-    <nav aria-label="Table of contents" className="space-y-0.5">
+    <nav ref={navRef} aria-label="Table of contents" className="space-y-0.5">
       {toc.map(({ id, text, level }, idx) => {
+        if (level === 3 && sectionOf[idx] !== activeSection) return null;
         const isActive = activeId === id;
         const isPast = activeIdx >= 0 && idx < activeIdx;
         return (
           <button
             key={id}
+            data-toc-id={id}
+            aria-current={isActive ? 'location' : undefined}
             onClick={() => onSelect(id)}
             className="block w-full text-left text-[11px] leading-snug py-1 rounded-r-lg transition-all duration-200"
             style={{
               paddingLeft: level === 3 ? '16px' : '6px',
-              color: isActive ? '#a78bfa' : isPast ? '#34d399' : '#64748b',
-              fontWeight: isActive ? 700 : 400,
-              borderLeft: `2px solid ${isActive ? '#a78bfa' : isPast ? 'rgba(52,211,153,0.45)' : 'transparent'}`,
-              opacity: isPast ? 0.7 : 1,
+              color: isActive ? '#F0EDFF' : isPast ? '#94a3b8' : '#64748b',
+              fontWeight: isActive ? 600 : 400,
+              borderLeft: `2px solid ${isActive ? '#A99BFF' : 'transparent'}`,
+              background: isActive ? 'rgba(91,75,214,0.14)' : 'transparent',
             }}
           >
-            {text}
+            {stripEmoji(text)}
           </button>
         );
       })}
@@ -119,6 +158,15 @@ export default function Notes() {
   const [{ loading, content, error }, dispatch] = useReducer(contentReducer, { loading: false, content: '', error: null });
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
+  // Official objectives — drives the "Check your understanding" block after the notes.
+  const [statements, setStatements] = useState<TaskStatementsFile | null>(null);
+  useEffect(() => {
+    loadTaskStatementsForExam(examId).then(setStatements).catch(() => setStatements(null));
+  }, [examId]);
+  const domainObjectives = useMemo(
+    () => (statements ? examMastery(statements, getAttempts(examId)).objectives.filter((o) => o.domainId === domain && o.total > 0) : []),
+    [statements, examId, domain],
+  );
   const [activeId, setActiveId] = useState<string>('');
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
   const [readPct, setReadPct] = useState(0);
@@ -130,7 +178,6 @@ export default function Notes() {
   const [handwritingMode, setHandwritingMode] = useState(() => {
     try { return localStorage.getItem('notes_handwriting') === '1'; } catch { return false; }
   });
-  const observerRef = useRef<IntersectionObserver | null>(null);
   const toc = content ? extractToc(content) : [];
   // ── Study tracker state ────────────────────────────────────────────────────
   const [dismissedBannerKey, setDismissedBannerKey] = useState<string | null>(null);
@@ -314,38 +361,38 @@ export default function Notes() {
     setSelectionTrigger(null);
   }
 
-  const setupObserver = useCallback(() => {
-    if (!articleRef.current) return;
-    observerRef.current?.disconnect();
-    const headings = articleRef.current.querySelectorAll<HTMLElement>('h2[id], h3[id]');
-    if (!headings.length) return;
-    const visible = new Map<string, number>();
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          visible.set(e.target.id, e.intersectionRatio);
-        });
-        let best = '';
-        let bestRatio = -1;
-        visible.forEach((ratio, id) => {
-          if (ratio > bestRatio) { bestRatio = ratio; best = id; }
-        });
-        if (best) setActiveId(best);
-      },
-      { rootMargin: '-10% 0px -75% 0px', threshold: [0, 0.25, 0.5, 1] },
-    );
-    headings.forEach((h) => observerRef.current!.observe(h));
-  }, []);
-
+  // Scroll-spy: the active section is the last heading that has scrolled above
+  // a line near the top of the reading area. (An IntersectionObserver band
+  // misses long sections entirely — with no heading in the band it fell back
+  // to the first heading, so the TOC stayed stuck on section 1.)
   useEffect(() => {
-    if (!loading && content) {
-      // Wait one tick for DOM paint
-      const t = setTimeout(setupObserver, 80);
-      return () => clearTimeout(t);
-    }
-  }, [loading, content, setupObserver]);
-
-  useEffect(() => () => observerRef.current?.disconnect(), []);
+    if (loading || !content) return;
+    const main = document.querySelector('main') as HTMLElement | null;
+    const scroller: HTMLElement | Window = main ?? window;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const article = articleRef.current;
+      if (!article) return;
+      const headings = article.querySelectorAll<HTMLElement>('h2[id], h3[id]');
+      if (!headings.length) return;
+      const top = (main?.getBoundingClientRect().top ?? 0) + 120;
+      let current = headings[0].id;
+      for (const h of headings) {
+        if (h.getBoundingClientRect().top <= top) current = h.id;
+        else break;
+      }
+      setActiveId(current);
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+    const t = setTimeout(update, 80); // after first paint of the rendered markdown
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      clearTimeout(t);
+      if (frame) cancelAnimationFrame(frame);
+      scroller.removeEventListener('scroll', onScroll);
+    };
+  }, [loading, content]);
 
   // Scroll-based reading progress
   useEffect(() => {
@@ -375,6 +422,14 @@ export default function Notes() {
   const minutes = content ? readingTime(content) : null;
   const trapCount = content ? (content.match(/class="note-trap"/g) ?? []).length : 0;
   const trapItems = toc.filter((item) => item.level === 3 && item.text.includes('Exam Trap'));
+  // "Exam Trap: The Runaway Loop" → "The Runaway Loop"; bare "Exam Trap" → its section's title.
+  const trapLabel = (item: TocItem) => {
+    const own = stripEmoji(item.text).replace(/^Exam Trap[:\s—–-]*/i, '').replace(/^["“](.*)["”]$/, '$1').trim();
+    if (own) return own;
+    const idx = toc.indexOf(item);
+    for (let i = idx - 1; i >= 0; i--) if (toc[i].level === 2) return stripEmoji(toc[i].text);
+    return 'Exam trap';
+  };
   const domainQCount = examConfig && currentDomainConfig
     ? Math.round((examConfig.questions * currentDomainConfig.weight) / 100)
     : 0;
@@ -391,7 +446,10 @@ export default function Notes() {
 
   function goTo(d: DomainConfig) {
     setSearchParams({ d: String(d.id) });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // The page scrolls inside <main> (html/body are overflow:hidden), so
+    // window.scrollTo was a no-op and the next domain opened mid-page.
+    const main = document.querySelector('main');
+    (main ?? window).scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function scrollToHeading(id: string) {
@@ -400,8 +458,12 @@ export default function Notes() {
     setMobileTocOpen(false);
   }
 
+  // Heading renderers look their id up by source line: React may render the
+  // markdown more than once per pass, so a running counter drifts.
+  const tocByLine = new Map(toc.map((t) => [t.line, t]));
+
   return (
-    <div>
+    <div className="max-w-[1060px] mx-auto">
       {/* Resume banner — shown when returning from a different domain */}
       {resumeBanner && (
         <div className="mb-4 flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-violet-950/30 border border-violet-700/30 text-sm">
@@ -430,7 +492,12 @@ export default function Notes() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">
-              Domain {domain} of {examDomains.length}{minutes ? <span className="normal-case not-italic"> · {minutes} min read</span> : null}
+              Domain {domain} of {examDomains.length}
+              <span className="normal-case tracking-normal">
+                {' · '}{currentDomainConfig.weight}% of exam
+                {minutes ? ` · ${minutes} min read` : ''}
+                {trapCount > 0 ? <> · <span className="text-rose-400/90">{trapCount} exam traps</span></> : null}
+              </span>
             </p>
             <h2 className="text-base font-semibold text-white truncate">{currentDomainConfig.title}</h2>
           </div>
@@ -449,7 +516,7 @@ export default function Notes() {
                   }`}
                 >
                   <span className="font-mono font-bold text-[11px]">D{d.id}</span>
-                  <span className={`text-[8px] font-mono leading-none ${domain === d.id ? 'text-violet-300' : 'text-slate-700'}`}>
+                  <span className={`text-[10px] font-mono leading-none ${domain === d.id ? 'text-violet-200' : 'text-slate-500'}`}>
                     {d.weight}%
                   </span>
                 </button>
@@ -459,25 +526,12 @@ export default function Notes() {
         </div>
       )}
 
-      {/* Quick Facts — shown when content is loaded */}
+      {/* Reading toolbar — one slim row instead of the old stat-tile strip
+          (weight/minutes/traps now live in the domain header line above). */}
       {!loading && !error && content && currentDomainConfig && (
-        <div className="flex gap-2 mb-5 p-3 rounded-xl bg-violet-950/20 border border-violet-800/20">
-          <div className="flex-1 text-center py-2 bg-slate-950/60 rounded-lg border border-slate-800/60">
-            <p className="text-base font-bold font-mono text-rose-400">{trapCount}</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">Exam traps</p>
-          </div>
-          <div className="flex-1 text-center py-2 bg-slate-950/60 rounded-lg border border-slate-800/60">
-            <p className="text-base font-bold font-mono text-violet-400">{currentDomainConfig.weight}%</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">Domain weight</p>
-          </div>
-          <div className="flex-1 text-center py-2 bg-slate-950/60 rounded-lg border border-slate-800/60">
-            <p className="text-base font-bold font-mono text-blue-400">{domainQCount}</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">Quiz questions</p>
-          </div>
-          {/* Settings cluster — visually separated from the stat tiles above
-              (read-only facts vs. things you can click) with a divider. */}
-          <div className="flex items-center justify-center pl-3 ml-1 gap-2 border-l border-slate-700/50">
-            <div className="relative">
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-600 mr-1">Reading</span>
+          <div className="relative">
               <button
                 title={focusTimer ? 'Focus timer active' : 'Start focus timer'}
                 onClick={() => { if (!focusTimer) setShowDurationPicker(v => !v); }}
@@ -485,10 +539,10 @@ export default function Notes() {
                   focusTimer ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40' : 'bg-slate-800/60 text-slate-500 border border-slate-700/40 hover:text-slate-300'
                 }`}
               >
-                🍅 {focusTimer ? `${String(Math.floor((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)/60)).padStart(2,'0')}:${String((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)%60).padStart(2,'0')}` : 'Focus'}
+                {focusTimer ? `${String(Math.floor((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)/60)).padStart(2,'0')}:${String((focusTimer.paused ? Math.floor((focusTimer.pausedRemainingMs??0)/1000) : timerSecs)%60).padStart(2,'0')}` : 'Focus timer'}
               </button>
               {showDurationPicker && !focusTimer && (
-                <div className="absolute bottom-full mb-2 left-0 z-50 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 min-w-[140px]">
+                <div className="absolute top-full mt-2 left-0 z-50 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 min-w-[140px]">
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider px-2 pb-1">Choose duration</p>
                   {FOCUS_PRESETS.map(p => (
                     <button key={p.ms} onClick={() => startTimer(p.ms)}
@@ -512,13 +566,20 @@ export default function Notes() {
                   : 'bg-slate-800/60 text-slate-500 border border-slate-700/40 hover:text-slate-300'
               }`}
             >
-              ✍️ Hand
+              {handwritingMode ? 'Handwriting font on' : 'Handwriting font'}
             </button>
             <KeywordHighlightToggle
               enabled={highlightEnabled}
               onToggle={() => setHighlightEnabled((v) => !v)}
             />
-          </div>
+          {domainQCount > 0 && (
+            <Link
+              to={`/skillup/${examId}/quiz?d=${domain}`}
+              className="ml-auto inline-flex items-center gap-1.5 text-[11px] font-semibold text-brand-lilac hover:text-white transition-colors"
+            >
+              <Zap size={12} /> Practice D{domain} · ~{domainQCount} questions
+            </Link>
+          )}
         </div>
       )}
 
@@ -528,7 +589,7 @@ export default function Notes() {
           Opens the same list as the desktop sidebar (TocNav) in a bottom
           sheet, portaled below. */}
       {!loading && !error && toc.length > 0 && (
-        <div className="lg:hidden sticky top-14 z-30 mb-5 rounded-xl border border-slate-700/50 overflow-hidden bg-slate-900/90 backdrop-blur-md">
+        <div className="lg:hidden sticky top-14 z-30 mb-5 rounded-xl border border-slate-700/50 overflow-hidden bg-slate-950 shadow-lg shadow-black/30">
           <button
             onClick={() => setMobileTocOpen(true)}
             className="w-full flex items-center justify-between px-4 py-2.5 text-left"
@@ -629,7 +690,7 @@ export default function Notes() {
         )}
         {!loading && !error && (
           <div
-            className={`prose prose-invert max-w-[75ch] prose-a:text-violet-400 prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-blockquote:border-violet-500 prose-blockquote:text-slate-400 prose-p:text-[0.9375rem] prose-p:leading-7 prose-table:block prose-table:overflow-x-auto [&_img]:block [&_img]:mx-auto [&_img]:h-auto [&_img]:w-full [&_img]:max-w-[680px] [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-700/40 [&_img]:shadow-lg ${
+            className={`notes-body prose prose-invert max-w-[72ch] prose-a:text-brand-lilac prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-p:text-[1.0625rem] prose-p:leading-[1.75] prose-li:text-[1.0625rem] prose-li:leading-[1.7] prose-p:text-slate-300 prose-li:text-slate-300 prose-strong:text-slate-100 [&_img]:block [&_img]:mx-auto [&_img]:h-auto [&_img]:w-full [&_img]:max-w-[680px] [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-700/40 [&_img]:shadow-lg ${
               handwritingMode
                 ? '[&_h1]:text-white [&_h2]:text-white [&_h3]:text-white prose-headings:font-bold'
                 : 'prose-headings:text-white'
@@ -646,15 +707,35 @@ export default function Notes() {
                 li({ children }) {
                   return <li>{highlightEnabled ? applyHighlighting(children) : children}</li>;
                 },
-                h2({ children }) {
-                  const text = String(children);
-                  const id = slugify(text.replace(/`[^`]*`/g, ''));
-                  return <h2 id={id}>{children}</h2>;
+                h2({ children, node }) {
+                  const id = tocByLine.get(node?.position?.start.line ?? -1)?.id ?? slugify(String(children));
+                  return <h2 id={id}>{stripEmojiChildren(children)}</h2>;
                 },
-                h3({ children }) {
-                  const text = String(children);
-                  const id = slugify(text.replace(/`[^`]*`/g, ''));
-                  return <h3 id={id}>{children}</h3>;
+                h3({ children, node }) {
+                  const item = tocByLine.get(node?.position?.start.line ?? -1);
+                  const id = item?.id ?? slugify(String(children));
+                  const k = headingKicker(item?.text ?? String(children));
+                  if (!k) return <h3 id={id}>{stripEmojiChildren(children)}</h3>;
+                  const Icon = k.kicker.icon;
+                  return (
+                    <h3 id={id} className={`notes-kicker ${k.kicker.tone}`}>
+                      <span className="notes-kicker-label"><Icon size={13} aria-hidden="true" />{k.kicker.label}</span>
+                      {k.rest && <span className="notes-kicker-title">{k.rest}</span>}
+                    </h3>
+                  );
+                },
+                blockquote({ children }) {
+                  // Drop the decorative emoji that opens many callouts ("🧠 The Golden Rule").
+                  let first = true;
+                  const kids = Children.map(children, (child) => {
+                    if (!first || !isValidElement<{ children?: ReactNode }>(child)) return child;
+                    first = false;
+                    return cloneElement(child, {}, stripEmojiChildren(child.props.children));
+                  });
+                  return <blockquote className="callout">{kids}</blockquote>;
+                },
+                table({ children }) {
+                  return <div className="notes-table"><table>{children}</table></div>;
                 },
                 pre({ children }) {
                   // Intercept mermaid code blocks — avoids wrapping diagram in a styled <pre>
@@ -713,8 +794,6 @@ export default function Notes() {
         <aside className="hidden lg:flex lg:flex-col gap-3 shrink-0 sticky top-4 self-start max-h-[calc(100vh-5rem)] overflow-y-auto pb-4"
           style={{ scrollbarWidth: 'none' }}>
 
-          {/* Circular reading progress */}
-          {minutes && <CircularProgress pct={readPct} readTime={minutes} />}
 
           {/* Domain switching lives solely in the header pill row above the
               article (visible at every width, not just this sidebar) — a
@@ -725,9 +804,21 @@ export default function Notes() {
           {/* In This Article TOC */}
           <div className="rounded-xl p-4"
             style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
-            <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5">
-              <List size={9} /> In this article
-            </p>
+            <div className="mb-3">
+              <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-1.5">
+                <List size={9} /> In this article
+                {minutes && (
+                  <span className="ml-auto normal-case tracking-normal font-semibold text-[10px] text-slate-500">
+                    {Math.round(readPct)}% · {Math.max(0, Math.ceil(minutes * (1 - readPct / 100)))} min left
+                  </span>
+                )}
+              </p>
+              {minutes && (
+                <div className="mt-2 h-1 rounded-full bg-slate-800 overflow-hidden" aria-hidden="true">
+                  <div className="h-full rounded-full bg-brand-indigo transition-[width] duration-300" style={{ width: `${readPct}%` }} />
+                </div>
+              )}
+            </div>
             <TocNav toc={toc} activeId={activeId} onSelect={scrollToHeading} />
           </div>
 
@@ -735,18 +826,6 @@ export default function Notes() {
           {currentDomainConfig && (
             <div className="rounded-xl p-4 space-y-2.5"
               style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
-              <span className="inline-block font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-lg text-[9px]"
-                style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)' }}>
-                Domain {domain} · {currentDomainConfig.weight}% of exam
-              </span>
-              <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                <Clock size={10} className="shrink-0" />{minutes} min read
-              </div>
-              {domainQCount > 0 && (
-                <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                  <Zap size={10} className="shrink-0" />~{domainQCount} quiz questions
-                </div>
-              )}
               {/*
                 contentUpdatedAt/contentVersion are exam-wide fields sourced
                 from index.json, NOT per-domain-note-file — switching domains
@@ -801,7 +880,7 @@ export default function Notes() {
                     onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(248,113,113,0.45)'; }}
                     onMouseLeave={e => { if (activeId !== item.id) { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = 'rgba(71,85,105,0.20)'; } }}
                   >
-                    #{item.text.replace(/^[^A-Za-z]*Exam Trap[:\s"]+/i, '').replace(/["+]+$/, '').toLowerCase().replace(/\s+/g, '-')}
+                    {trapLabel(item)}
                   </button>
                 ))}
               </div>
@@ -815,7 +894,7 @@ export default function Notes() {
 
           {/* Back to top */}
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => (document.querySelector('main') ?? window).scrollTo({ top: 0, behavior: 'smooth' })}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-500 hover:text-slate-300 hover:bg-slate-800/40 transition-all"
           >
             <ArrowUp size={12} /> Back to top
@@ -913,17 +992,51 @@ export default function Notes() {
         document.body,
       )}
 
-      {/* Quiz this domain CTA */}
+      {/* Check your understanding — close the loop from reading to practice:
+          a domain drill, this domain's official objectives (with the learner's
+          current status from the attempt log), and the case-based scenarios. */}
       {!loading && !error && content && (
-        <div className="mt-8">
-          <Link
-            to={`/skillup/${examId}/quiz`}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-violet-900/30 border border-violet-700/40 hover:bg-violet-900/50 hover:border-violet-600/60 text-violet-300 font-semibold text-sm transition-all group"
-          >
-            <Zap size={14} className="group-hover:scale-110 transition-transform" />
-            Quiz this domain{domainQCount > 0 ? ` (~${domainQCount} questions)` : ''}
-          </Link>
-        </div>
+        <section className="mt-10 glass-card glass-edge card-accent-top rounded-xl p-5 space-y-4" aria-labelledby="check-h">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Finished D{domain}?</p>
+              <h2 id="check-h" className="text-lg font-semibold text-white">Check your understanding</h2>
+            </div>
+            <Link
+              to={`/skillup/${examId}/quiz?d=${domain}`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-indigo hover:bg-brand-indigo-deep text-white text-sm font-semibold transition-colors"
+            >
+              <Zap size={14} /> Domain drill{domainQCount > 0 ? ` · 15 of ~${domainQCount}` : ''}
+            </Link>
+          </div>
+          {domainObjectives.length > 0 && (
+            <ul className="divide-y divide-slate-800/70 rounded-lg border border-slate-800/70">
+              {domainObjectives.map((o) => {
+                const label = o.status === 'new' ? 'Not started' : o.status === 'strong' ? 'Strong' : o.status === 'weak' ? 'Weak' : 'Building';
+                const tone = o.status === 'strong' ? 'text-emerald-400' : o.status === 'weak' ? 'text-rose-300' : o.status === 'building' ? 'text-amber-300' : 'text-slate-500';
+                return (
+                  <li key={o.task.id} className="flex items-center gap-3 px-3 py-2.5">
+                    <span className="font-mono text-xs text-slate-500 w-8">{o.task.id}</span>
+                    <span className="flex-1 min-w-0 text-sm text-slate-300">{o.task.title}</span>
+                    <span className={`hidden sm:inline text-[11px] font-semibold ${tone}`}>{label}</span>
+                    <Link
+                      to={`/skillup/${examId}/quiz?task=${encodeURIComponent(o.task.id)}`}
+                      className="inline-flex items-center gap-1 text-xs font-medium text-brand-lilac hover:text-white transition-colors"
+                      aria-label={`Practice objective ${o.task.id}`}
+                    >
+                      <Target size={12} /> {o.total}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {(examConfig?.scenarioFiles?.length ?? 0) > 0 && (
+            <Link to={`/skillup/${examId}/scenarios`} className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
+              <Layers size={12} /> Apply it in a scenario walkthrough
+            </Link>
+          )}
+        </section>
       )}
 
       {/* Prev / Next domain navigation */}

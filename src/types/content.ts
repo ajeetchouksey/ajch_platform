@@ -61,8 +61,13 @@ export interface ExamConfig {
   scenarioFiles: string[];
   resources: ExamResource[];
   changelog?: ContentChangelog[];
+  /** Set when a track is retired: it leaves the catalog but stays reachable by URL. */
   deprecatedAt?: string;
+  /** Id of the track that replaces a retired one (shown as a notice on its pages). */
+  supersededBy?: string;
   prerequisites?: string[];
+  /** Official study-guide objectives → question IDs (ajch_skillup task-statements.json). */
+  taskStatementsFile?: string;
   // ── Skill Tracks (IDEA-0016) ────────────────────────────────────────────
   // A registry entry with kind: "skill-track" is a tool/framework mastery
   // track, not a real certification — it omits questions/duration/passScore/
@@ -73,6 +78,19 @@ export interface ExamConfig {
   kind?: 'exam' | 'skill-track';
   modules?: SkillTrackModule[];
   practiceBank?: PracticeBank;
+}
+
+// ── Official objectives (task-statements.json) ──────────────────────────────
+export interface TaskStatement {
+  id: string;            // e.g. "1.2" — the study guide's own numbering
+  title: string;
+  questionIds: string[];
+}
+
+export interface TaskStatementsFile {
+  schemaVersion: string;
+  examCode: string;
+  domains: { id: number; tasks: TaskStatement[] }[];
 }
 
 export interface KnowledgeCheckQuestion {
@@ -185,6 +203,10 @@ export function isRichScenario(s: Scenario): s is RichScenario {
   return (s as RichScenario).schemaVersion === '2.0';
 }
 
+export function scenarioQuestionText(q: ScenarioQuestion): string {
+  return q.stem ?? q.question ?? '';
+}
+
 export interface ScenarioCharacter {
   name: string;
   role: string;
@@ -193,7 +215,9 @@ export interface ScenarioCharacter {
 
 export interface ScenarioQuestion {
   id: string;
-  question: string;
+  /** Older files use `question`; most RichScenario files (115 of 131 items) use `stem`. Read via scenarioQuestionText(). */
+  question?: string;
+  stem?: string;
   options: string[];
   correct: number;
   explanation: string;
@@ -209,7 +233,13 @@ export interface QuizSession {
   score: number;
   total: number;
   userId?: string;         // GitHub user ID — set on login, undefined for anonymous
+  /** How the attempt was run; absent on sessions saved before modes existed (= 'review'). */
+  mode?: QuizMode;
 }
+
+/** review = answers shown as you go · timed = exam simulation, answers at the end ·
+ *  missed = wrong-last-time + flagged · objective = one official objective. */
+export type QuizMode = 'review' | 'timed' | 'missed' | 'objective';
 
 /** An in-progress, unfinished quiz attempt — autosaved so closing the tab
  *  mid-quiz doesn't silently lose it. Kept separate from `QuizSession`
