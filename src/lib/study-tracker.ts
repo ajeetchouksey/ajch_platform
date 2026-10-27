@@ -6,6 +6,8 @@
 import type { QuizSession } from '../types/content';
 import type { DomainConfig } from '../types/content';
 import { getNotesSeen } from './storage';
+import { getAttempts } from './adaptive-quiz';
+import { latestAttemptByQuestion } from './objective-mastery';
 import type { StudyPlan } from './plan-generator';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -97,15 +99,52 @@ export interface ReadinessBreakdown {
   recommendedFocusDomain: number | null;  // domainId with lowest pointsEarned/pointsPossible ratio; weight (descending) as tiebreak
 }
 
-export function getReadinessBreakdown(examId: string, domains: DomainConfig[], sessions: QuizSession[]): ReadinessBreakdown {
+/**
+ * Per-domain score from per-question attempts, so drills, timed exams and
+ * missed-question reviews count — not only domain-filtered quiz sessions.
+ * Latest-correct answers ÷ the domain's estimated share of the bank, so it
+ * rises with coverage as well as accuracy (9/9 right on a 25-question domain
+ * is 36%, not 100%). 0–100, per domain id.
+ */
+function attemptScoresByDomain(examId: string, domains: DomainConfig[], totalQuestions: number): Record<number, { score: number; attempted: number }> {
+  const out: Record<number, { score: number; attempted: number }> = {};
+  const latest = latestAttemptByQuestion(getAttempts(examId));
+  for (const d of domains) {
+    let correct = 0; let attempted = 0;
+    for (const a of latest.values()) {
+      if (a.domain !== d.id) continue;
+      attempted += 1;
+      if (a.correct) correct += 1;
+    }
+    const domainSize = Math.max(1, Math.round((totalQuestions * d.weight) / 100), attempted);
+    out[d.id] = { score: Math.round((correct / domainSize) * 100), attempted };
+  }
+  return out;
+}
+
+export function getReadinessBreakdown(
+  examId: string,
+  domains: DomainConfig[],
+  sessions: QuizSession[],
+  /** The exam's bank size; when given, per-question attempts also count toward readiness. */
+  totalQuestions?: number,
+): ReadinessBreakdown {
   if (!domains.length) return { byDomain: [], overall: 0, recommendedFocusDomain: null };
+  const fromAttempts = totalQuestions ? attemptScoresByDomain(examId, domains, totalQuestions) : {};
 
   let weightedScore = 0;
   let totalWeight = 0;
   const byDomain: DomainReadinessDetail[] = [];
 
   for (const d of domains) {
-    const c = getDomainCompletion(examId, d.id, sessions);
+    const session = getDomainCompletion(examId, d.id, sessions);
+    const att = fromAttempts[d.id];
+    // Best of the domain-quiz score and the attempt-based score (see above).
+    const c = {
+      ...session,
+      quizAttempted: session.quizAttempted || (att?.attempted ?? 0) > 0,
+      bestScore: Math.max(session.bestScore, att?.score ?? 0),
+    };
     // Notes contributes 30%, quiz contributes 70% of each domain's contribution
     const notesPoints = c.notesRead ? 30 : 0;
     const quizPoints = c.quizAttempted ? Math.min(100, c.bestScore) * 0.7 : 0;
