@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import {
   getSessions,
+  loadQuizDraft,
   saveSession,
   saveSessions,
   clearSessions,
@@ -181,5 +182,19 @@ describe('clearAllProgressData', () => {
     localStorage.setItem('preferred_ai_tool', 'copilot');
     clearAllProgressData();
     expect(localStorage.getItem('preferred_ai_tool')).toBe('copilot');
+  });
+});
+
+describe('loadQuizDraft', () => {
+  it('converts drafts saved with one number per answer', () => {
+    localStorage.setItem('aarya_quiz_draft_x', JSON.stringify({ domainFilter: null, questions: [], current: 0, answers: { a: 2 }, chosen: 1, revealed: false, savedAt: 1 }));
+    const d = loadQuizDraft('x');
+    expect(d?.answers).toEqual({ a: [2] });
+    expect(d?.chosen).toEqual([1]);
+  });
+
+  it('turns a missing pick into an empty list', () => {
+    localStorage.setItem('aarya_quiz_draft_x', JSON.stringify({ domainFilter: null, questions: [], current: 0, answers: {}, chosen: null, revealed: false, savedAt: 1 }));
+    expect(loadQuizDraft('x')?.chosen).toEqual([]);
   });
 });

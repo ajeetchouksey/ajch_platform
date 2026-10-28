@@ -156,8 +156,12 @@ export interface Question {
   id: string;
   scenario: string;
   question: string;
-  options: [string, string, string, string];
-  correct: 0 | 1 | 2 | 3;
+  /** Usually four; multiple-select items may have five or six. */
+  options: string[];
+  /** Index of the answer. For multiple-select items, the first of `answers`. */
+  correct: number;
+  /** Multiple-select ("choose two") items only: every correct index, two or more. */
+  answers?: number[];
   explanation: string;
   tags: string[];
   difficulty?: 'easy' | 'medium' | 'hard';
@@ -249,8 +253,9 @@ export interface QuizDraft {
   domainFilter: number | null;
   questions: Question[];
   current: number;
-  answers: Record<string, number>;
-  chosen: number | null;
+  /** questionId → picked option indices (one for single-answer items). */
+  answers: Record<string, number[]>;
+  chosen: number[];
   revealed: boolean;
   savedAt: number;
 }
@@ -286,6 +291,8 @@ export interface QuestionAttempt {
   examId: string;
   domain: number;
   chosenIndex: number;
+  /** Multiple-select items: every option picked (chosenIndex is the first). */
+  chosen?: number[];
   correct: boolean;
   timeSpentMs: number;
   attemptedAt: number; // Unix ms

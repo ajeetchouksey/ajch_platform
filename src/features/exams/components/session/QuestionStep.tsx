@@ -7,6 +7,7 @@ import { getAttempts, saveAttempt } from '@/lib/adaptive-quiz';
 import { latestAttemptByQuestion, objectiveMastery, type MasteryStatus } from '@/lib/objective-mastery';
 import { addQuestionCard, plainText } from '@/lib/flashcards';
 import { parseExplanation } from '@/lib/explanation';
+import { answerLetters, correctSet, isMulti, isRight as pickedRight, letter, pickComplete, pickPrompt, togglePick } from '@/lib/question-answer';
 import type { Question, QuestionAttempt, TaskStatementsFile } from '@/types/content';
 
 type Confidence = NonNullable<QuestionAttempt['confidence']>;
@@ -26,7 +27,7 @@ export function QuestionStep({ examId, questions, statements, revealAtEnd = fals
   onDone: (results: QuestionResult[]) => void;
 }) {
   const [i, setI] = useState(0);
-  const [chosen, setChosen] = useState<number | null>(null);
+  const [chosen, setChosen] = useState<number[]>([]);
   const [checked, setChecked] = useState(false);
   const [conf, setConf] = useState<Confidence | undefined>();
   const [out, setOut] = useState<number[]>([]);
@@ -44,14 +45,14 @@ export function QuestionStep({ examId, questions, statements, revealAtEnd = fals
 
   const q = questions[i];
   if (!q) return null;
-  const right = chosen === q.correct;
+  const right = pickedRight(q, chosen);
   const reasons = parseExplanation(q.explanation, q.options.length, q.correct).optionReasons;
 
   const check = () => {
-    if (chosen === null) return;
+    if (!pickComplete(q, chosen)) return;
     const task = taskOf.get(q.id);
     const before = task ? objectiveMastery({ id: task.id, title: task.title, questionIds: task.questionIds }, task.domainId, latestAttemptByQuestion(getAttempts(examId))) : null;
-    saveAttempt({ questionId: q.id, examId, domain: q.domain, chosenIndex: chosen, correct: right, timeSpentMs: Date.now() - shownAt.current, attemptedAt: Date.now(), loop: 1, ...(conf ? { confidence: conf } : {}) });
+    saveAttempt({ questionId: q.id, examId, domain: q.domain, chosenIndex: chosen[0], ...(isMulti(q) ? { chosen } : {}), correct: right, timeSpentMs: Date.now() - shownAt.current, attemptedAt: Date.now(), loop: 1, ...(conf ? { confidence: conf } : {}) });
     if (!right && conf === 'sure') addQuestionCard(examId, q);
     if (task && before) {
       const after = objectiveMastery({ id: task.id, title: task.title, questionIds: task.questionIds }, task.domainId, latestAttemptByQuestion(getAttempts(examId)));
@@ -67,16 +68,17 @@ export function QuestionStep({ examId, questions, statements, revealAtEnd = fals
   function next(skipReveal = false) {
     const done = i + 1 >= questions.length;
     if (done) {
-      const final = skipReveal ? [...results, { id: q.id, correct: chosen === q.correct, confidence: conf }] : results;
+      const final = skipReveal ? [...results, { id: q.id, correct: right, confidence: conf }] : results;
       onDone(final);
       return;
     }
-    setI((n) => n + 1); setChosen(null); setChecked(false); setConf(undefined); setOut([]); setMoved(null);
+    setI((n) => n + 1); setChosen([]); setChecked(false); setConf(undefined); setOut([]); setMoved(null);
   }
 
   const hint = () => {
-    const wrong = q.options.map((_, k) => k).filter((k) => k !== q.correct && k !== chosen);
-    setOut(wrong.sort(() => Math.random() - 0.5).slice(0, Math.max(0, Math.min(2, q.options.length - 2))));
+    const wrong = q.options.map((_, k) => k).filter((k) => !correctSet(q).includes(k) && !chosen.includes(k));
+    setOut(wrong.sort(() => Math.random() - 0.5).slice(0, Math.max(0, Math.min(2, q.options.length - correctSet(q).length - 1))));
+    setChosen((c) => c.filter((k) => correctSet(q).includes(k) || !wrong.includes(k)));
     if (!conf) setConf('unsure');
   };
 
@@ -92,30 +94,33 @@ export function QuestionStep({ examId, questions, statements, revealAtEnd = fals
       </div>
 
       {q.scenario && <p className="text-sm text-slate-300 leading-relaxed rounded-xl bg-slate-800/50 border border-slate-600/30 px-4 py-3">{plainText(q.scenario)}</p>}
-      <p className="text-base font-semibold text-white leading-snug">{plainText(q.question)}</p>
+      <p className="text-base font-semibold text-white leading-snug">
+        {plainText(q.question)}
+        {pickPrompt(q) && <span className="ml-1.5 text-brand-tint">{pickPrompt(q)}</span>}
+      </p>
 
       <div className="grid gap-2" role="group" aria-label="Answer options">
         {q.options.map((opt, k) => {
           const isOut = !checked && out.includes(k);
-          const isRight = checked && k === q.correct;
-          const isWrong = checked && k === chosen && !right;
+          const isRight = checked && correctSet(q).includes(k);
+          const isWrong = checked && chosen.includes(k) && !correctSet(q).includes(k);
           return (
             <div key={k}>
               <button
                 type="button"
                 disabled={checked || isOut}
-                aria-pressed={!checked ? chosen === k : undefined}
-                onClick={() => setChosen(k)}
+                aria-pressed={!checked ? chosen.includes(k) : undefined}
+                onClick={() => setChosen((c) => togglePick(q, c, k))}
                 className={`w-full flex items-start gap-3 min-h-12 px-4 py-3 rounded-xl border text-left text-sm transition-colors ${
                   isOut ? 'border-slate-800 text-slate-600 line-through'
                     : isRight ? 'border-emerald-400 bg-emerald-400/10 text-emerald-50'
                       : isWrong ? 'border-rose-400 bg-rose-400/10 text-rose-50'
-                        : chosen === k ? 'border-brand-lilac bg-brand-indigo/25 text-white'
+                        : chosen.includes(k) ? 'border-brand-lilac bg-brand-indigo/25 text-white'
                           : checked ? 'border-slate-700/60 text-slate-400'
                             : 'border-slate-500/30 bg-slate-900/45 text-slate-200 hover:border-brand-lilac/60'
                 }`}
               >
-                <span className={`font-bold shrink-0 ${isRight ? 'text-emerald-300' : 'text-brand-lilac'}`}>{'ABCD'[k]}</span>
+                <span className={`font-bold shrink-0 ${isRight ? 'text-emerald-300' : 'text-brand-lilac'}`}>{letter(k)}</span>
                 <span className="flex-1">{plainText(opt)}</span>
                 {isRight && <Check size={16} className="text-emerald-300 shrink-0" aria-label="Correct answer" />}
                 {isWrong && <X size={16} className="text-rose-300 shrink-0" aria-label="Your answer" />}
@@ -153,16 +158,16 @@ export function QuestionStep({ examId, questions, statements, revealAtEnd = fals
       {checked && (
         <div aria-live="polite" className={`rounded-xl px-4 py-3 border anim-rise ${right ? 'border-emerald-600/50 bg-emerald-900/15' : 'border-rose-600/50 bg-rose-900/15'}`}>
           <p className={`text-sm font-semibold ${right ? 'text-emerald-300' : 'text-rose-300'}`}>
-            {right ? 'Correct' : `Not quite: the answer is ${'ABCD'[q.correct]}`}
+            {right ? 'Correct' : `Not quite: the answer is ${answerLetters(q)}`}
             {!right && conf === 'sure' && <span className="font-normal text-slate-300"> · you were sure, so it's now a flashcard</span>}
           </p>
           {moved && <p className="text-xs text-brand-tint mt-1">{moved}</p>}
         </div>
       )}
 
-      <div className="sticky bottom-3 z-10 sm:static flex gap-2 rounded-2xl sm:rounded-none bg-[#0e1a2d]/95 sm:bg-transparent p-2 sm:p-0 shadow-lg sm:shadow-none">
+      <div className="sticky bottom-3 z-10 sm:static flex gap-2 rounded-2xl sm:rounded-none bg-slate-950/95 sm:bg-transparent p-2 sm:p-0 shadow-lg sm:shadow-none">
         {!checked ? (
-          <button type="button" onClick={check} disabled={chosen === null}
+          <button type="button" onClick={check} disabled={!pickComplete(q, chosen)}
             className="flex-1 sm:flex-none min-h-12 px-6 rounded-xl bg-brand-indigo hover:bg-brand-indigo-deep disabled:opacity-45 text-white text-sm font-semibold">
             {revealAtEnd ? (i + 1 >= questions.length ? 'Finish' : 'Next') : 'Check answer'}
           </button>
