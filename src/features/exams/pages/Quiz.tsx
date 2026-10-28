@@ -6,10 +6,13 @@ import { addQuizResult, useProgressSync } from '@/lib/useProgressSync';
 import { saveAttempt, getAttempts } from '@/lib/adaptive-quiz';
 import { getFlagged, toggleFlag, reviewQueueIds } from '@/lib/objective-mastery';
 import { addQuestionCard } from '@/lib/flashcards';
+import { parseExplanation } from '@/lib/explanation';
+import { ChangeList } from '../components/journey/ChangeList';
+import { diffSnapshots, newMilestones, snapshot, type Change, type Milestone, type Snapshot } from '@/lib/progress-snapshot';
 import { useAuth } from '@/lib/auth';
 import { trackEvent } from '@/lib/analytics';
-import { type Question, type QuestionAttempt, type QuizSession, type QuizDraft, type DomainConfig, type QuizMode, type TaskStatement } from '@/types/content';
-import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X, History, LogOut, Flag, Timer, Target, BookOpenCheck, Lightbulb, Flame, Layers } from 'lucide-react';
+import { type Question, type QuestionAttempt, type QuizSession, type QuizDraft, type DomainConfig, type QuizMode, type TaskStatement, type ExamConfig, type TaskStatementsFile } from '@/types/content';
+import { CheckCircle, XCircle, ChevronRight, ChevronLeft, RotateCcw, Filter, X, History, LogOut, Flag, Timer, Target, BookOpenCheck, Lightbulb, Flame, Layers, Award } from 'lucide-react';
 import QuizShareCard from '@/components/QuizShareCard';
 import { AskMentor } from '@/components/AskMentor';
 import ComputedRelatedList from '@/components/ComputedRelatedList';
@@ -65,42 +68,6 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-/** Parse a flat explanation string into per-option reasons.
- *  Format: "[Letter]. [correct reason]... Incorrect: [A]. [reason] [B]. [reason]..."
- */
-function parseExplanation(
-  explanation: string,
-  optionCount: number,
-  correctIdx: number
-): { correctReason: string; optionReasons: Record<number, string> } {
-  const [correctPart, incorrectPart = ''] = explanation.split(/Incorrect:\s*/i);
-
-  // Extract the reason for the correct answer (strip leading letter prefix e.g. "C. ")
-  const correctReason = correctPart.replace(/^[A-E]\.\s+/, '').trim();
-
-  const optionReasons: Record<number, string> = {};
-
-  // Map correct option to the correctReason
-  optionReasons[correctIdx] = correctReason;
-
-  // Parse wrong-answer reasons from the "Incorrect:" section
-  if (incorrectPart) {
-    // Split on letter+period boundaries: "A. ", "B. ", etc.
-    const parts = incorrectPart.split(/(?=[A-E]\.\s)/);
-    for (const part of parts) {
-      const m = part.match(/^([A-E])\.\s+([\s\S]+)/);
-      if (m) {
-        const idx = m[1].charCodeAt(0) - 65;
-        if (idx >= 0 && idx < optionCount && idx !== correctIdx) {
-          optionReasons[idx] = m[2].replace(/\s+/g, ' ').trim();
-        }
-      }
-    }
-  }
-
-  return { correctReason, optionReasons };
-}
-
 export default function Quiz() {
   const { examId = 'ccaf' } = useParams<{ examId: string }>();
   const { user, login } = useAuth();
@@ -123,6 +90,11 @@ export default function Quiz() {
   const [confidence, setConfidence] = useState<Record<string, Confidence>>({});
   const [eliminated, setEliminated] = useState<Record<string, number[]>>({});
   const [streak, setStreak] = useState(0);
+  // Before/after progress for this attempt (what it changed, milestones reached).
+  const [examCfg, setExamCfg] = useState<ExamConfig | null>(null);
+  const [stmts, setStmts] = useState<TaskStatementsFile | null>(null);
+  const snapRef = useRef<Snapshot | null>(null);
+  const [outcome, setOutcome] = useState<{ changes: Change[]; milestones: Milestone[] } | null>(null);
   const [session, setSession] = useState<QuizSession | null>(null);
   const [loading, setLoading] = useState(false);
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
@@ -216,7 +188,12 @@ export default function Quiz() {
     });
   }, [examId]);
 
-  const resetExtras = () => { setConfidence({}); setEliminated({}); setStreak(0); };
+  const resetExtras = () => { setConfidence({}); setEliminated({}); setStreak(0); setOutcome(null); snapRef.current = null; };
+
+  // Snapshot progress as an attempt starts, so the results can say what it changed.
+  useEffect(() => {
+    if (phase === 'quiz' && examCfg && !snapRef.current) snapRef.current = snapshot(examCfg, stmts);
+  }, [phase, examCfg, stmts]);
 
   const handleToggleFlag = useCallback((questionId: string) => {
     const on = toggleFlag(examId, questionId);
@@ -278,10 +255,11 @@ export default function Quiz() {
         setExamTitle(exam.title);
         setExamTotalQuestions(isSkillTrack ? (exam.practiceBank?.questions ?? null) : exam.questions);
         setExamMinutes(parseMinutes(exam.duration));
+        setExamCfg(isSkillTrack ? null : exam);
       }
     }).catch(() => {});
     loadTaskStatementsForExam(examId)
-      .then((ts) => setTasks(ts ? ts.domains.flatMap((d) => d.tasks).filter((t) => t.questionIds.length > 0) : []))
+      .then((ts) => { setStmts(ts); setTasks(ts ? ts.domains.flatMap((d) => d.tasks).filter((t) => t.questionIds.length > 0) : []); })
       .catch(() => setTasks([]));
   }, [examId]);
 
@@ -356,7 +334,11 @@ export default function Quiz() {
       void syncToGist(); // push to GitHub Gist if logged in (fire-and-forget)
       trackEvent('quiz_complete', { exam_id: examId, score: finished.score, total: finished.total, pct: Math.round((finished.score / finished.total) * 100) });
       clearQuizDraft(examId); // attempt is finished — the draft's job is done
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (examCfg && snapRef.current) {
+        const after = snapshot(examCfg, stmts);
+        setOutcome({ changes: diffSnapshots(snapRef.current, after), milestones: newMilestones(examCfg, after) });
+        snapRef.current = null;
+      }
       setSession(finished);
     }
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -669,6 +651,27 @@ export default function Quiz() {
             </p>
           )}
         </div>
+
+        {/* What this attempt changed + milestones reached */}
+        {outcome && (outcome.changes.length > 0 || outcome.milestones.length > 0) && (
+          <div className="space-y-3">
+            {outcome.milestones.map((m, k) => (
+              <div key={m.id} role="status" className="anim-pop flex items-start gap-3 rounded-2xl p-4 border border-amber-300/40 bg-amber-400/10" style={{ animationDelay: `${150 + k * 150}ms` }}>
+                <Award size={20} className="text-amber-300 shrink-0" aria-hidden="true" />
+                <div>
+                  <p className="font-bold text-amber-100">Milestone: {m.title}</p>
+                  <p className="text-sm text-amber-100/80">{m.detail}</p>
+                </div>
+              </div>
+            ))}
+            {outcome.changes.length > 0 && (
+              <div className="glass-card rounded-xl p-4 space-y-2">
+                <h3 className="text-xs font-semibold uppercase text-slate-400 tracking-wide">What this attempt changed</h3>
+                <ChangeList changes={outcome.changes} />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Share card + email capture */}
         <QuizShareCard

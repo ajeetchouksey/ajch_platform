@@ -531,3 +531,14 @@
 }
 /* A trap box directly under an "Exam trap" heading doesn't need its own label */
 .notes-body h3.kicker-rose + .note-trap::before { display: none; }
+
+/* ── Journey motion: small, purposeful, off for reduced-motion users ── */
+@keyframes aarya-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes aarya-pop { 0% { opacity: 0; transform: scale(.6); } 70% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes aarya-glow { 0% { box-shadow: 0 0 0 0 rgba(169,155,255,.55); } 100% { box-shadow: 0 0 0 14px rgba(169,155,255,0); } }
+.anim-rise { animation: aarya-rise .35s ease both; }
+.anim-pop { animation: aarya-pop .35s ease both; }
+.anim-glow { animation: aarya-glow .9s ease; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise, .anim-pop, .anim-glow { animation: none; }
+}

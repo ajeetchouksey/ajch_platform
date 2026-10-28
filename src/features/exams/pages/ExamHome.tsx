@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, Lock, FlaskConical, CalendarDays, Timer, X, MessageSquare, CheckCircle2, ChevronDown, ChevronRight, Flame, LayoutDashboard } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { BookOpen, Layers, BarChart2, ExternalLink, ArrowRight, Lock, FlaskConical, CalendarDays, Timer, X, MessageSquare, CheckCircle2, ChevronDown, ChevronRight, LayoutDashboard } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
@@ -10,9 +10,10 @@ import { getSessions } from '@/lib/storage';
 import { getAttempts } from '@/lib/adaptive-quiz';
 import { examMastery } from '@/lib/objective-mastery';
 import { ExamMap, PrepPath } from '../components/ExamMap';
-import { ReadinessRing } from '../components/ReadinessRing';
+import { TodayHub } from '../components/journey/TodayHub';
+import { getProfile, setupSkipped } from '@/lib/prep-profile';
 import { loadPlan, nextIncompleteSession } from '@/lib/plan-generator';
-import { getStreak, getReadinessBreakdown, getResumeState, resumeLabel } from '@/lib/study-tracker';
+import { getReadinessBreakdown, getResumeState, resumeLabel } from '@/lib/study-tracker';
 import type { ReadinessBreakdown } from '@/lib/study-tracker';
 import { dueCount, getCardStates } from '@/lib/flashcards';
 import { getScenarioResults } from '@/lib/scenario-progress';
@@ -78,6 +79,7 @@ function buildTiles(exam: ExamConfig, examId: string): Tile[] {
 
 export default function ExamHome() {
   const { examId } = useParams<{ examId: string }>();
+  const navigate = useNavigate();
   const [exam, setExam] = useState<ExamConfig | null>(null);
   const [prereqExams, setPrereqExams] = useState<ExamConfig[]>([]);
   const { user, isLoading: authLoading, login } = useAuth();
@@ -119,6 +121,11 @@ export default function ExamHome() {
     loadExamRegistry()
       .then((r) => {
         const found = r.exams.find((e) => e.id === examId) ?? null;
+        // First visit to an exam (no plan, no answers, setup not skipped): start with the setup.
+        if (found && found.kind !== 'skill-track' && !found.deprecatedAt && !getProfile(examId) && !setupSkipped(examId) && getAttempts(examId).length === 0) {
+          navigate(`/skillup/${examId}/start`, { replace: true });
+          return;
+        }
         setExam(found);
         if (found?.prerequisites?.length) {
           setPrereqExams(r.exams.filter((e) => found.prerequisites!.includes(e.id)));
@@ -127,7 +134,7 @@ export default function ExamHome() {
       .catch(() => {});
     loadTaskStatementsForExam(examId).then(setStatements).catch(() => setStatements(null));
     recordExamVisit(examId);
-  }, [examId]);
+  }, [examId, navigate]);
 
   if (!exam) {
     return (
@@ -152,9 +159,6 @@ export default function ExamHome() {
 
   const tiles = buildTiles(exam, examId!);
   const readiness = readinessBreakdown?.overall ?? 0;
-  const coverage = Math.round((mastery?.coverage ?? 0) * 100);
-  const streak = getStreak(examId!);
-  const started = readinessBreakdown?.byDomain.some((d) => d.quizAttempted || d.notesRead) ?? false;
   const kicker = [exam.shortTitle, `${exam.provider} certification`, exam.contentLevel ? `L${exam.contentLevel}` : null].filter(Boolean).join(' · ');
   const chips = [`${exam.questions} questions`, exam.duration, `${exam.passScore} to pass`, `${exam.domains.length} domains`];
 
@@ -196,7 +200,7 @@ export default function ExamHome() {
         </div>
       )}
 
-      {/* ── Header: identity + readiness ─────────────────────────────────── */}
+      {/* ── Header: identity (readiness lives in the hub below) ─────────── */}
       <header className="flex flex-wrap items-center justify-between gap-5">
         <div className="flex-[999_1_420px] min-w-0 space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-lilac">{kicker}</p>
@@ -209,20 +213,8 @@ export default function ExamHome() {
               <li className="px-2.5 py-1 rounded-full border border-slate-700/50 text-xs font-mono text-slate-400">v{exam.contentVersion}</li>
             )}
           </ul>
-          <p className="text-sm text-slate-400 leading-relaxed max-w-3xl">{exam.description}</p>
-          <PageViewsBadge path={`/skillup/${examId}`} />
-        </div>
-        <div className="flex-[1_1_240px] glass-card glass-edge rounded-2xl p-4 flex items-center gap-4">
-          <ReadinessRing pct={readiness} size={68} />
-          <div className="min-w-0">
-            <p className="text-base font-semibold text-white">{started ? 'Ready' : 'Not started yet'}</p>
-            <p className="text-xs text-slate-400">Need {exam.passThreshold}% · coverage {coverage}%</p>
-            {streak > 0 && (
-              <p className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-amber-300">
-                <Flame size={12} aria-hidden="true" /> {streak}-day streak
-              </p>
-            )}
-          </div>
+          <p className="hidden sm:block text-sm text-slate-400 leading-relaxed max-w-3xl">{exam.description}</p>
+          <div className="hidden sm:block"><PageViewsBadge path={`/skillup/${examId}`} /></div>
         </div>
       </header>
 
@@ -251,7 +243,10 @@ export default function ExamHome() {
         </div>
       )}
 
-      {/* ── Guided path: what to do next ─────────────────────────────────── */}
+      {/* ── Today: time available → an adaptive session, or free choice ───── */}
+      <TodayHub exam={exam} mastery={mastery} readiness={readiness} />
+
+      {/* ── The bigger picture: path stages ──────────────────────────────── */}
       <PrepPath exam={exam} sessions={sessions} mastery={mastery} readiness={readiness} />
 
       {/* ── Exam map + action tiles ──────────────────────────────────────── */}

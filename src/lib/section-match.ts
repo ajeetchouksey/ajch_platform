@@ -14,6 +14,14 @@ function tokens(text: string): string[] {
   return plainText(text).toLowerCase().match(/[a-z][a-z0-9-]{3,}/g)?.filter((w) => !STOP.has(w)) ?? [];
 }
 
+/** A note's study sections (`## ` blocks), minus overview/cheat-sheet style ones. */
+export function noteSections(markdown: string): { heading: string; body: string }[] {
+  return markdown.split(/^## +/m).slice(1).map((sec) => {
+    const nl = sec.indexOf('\n');
+    return { heading: (nl === -1 ? sec : sec.slice(0, nl)).replace(/`[^`]*`/g, '').trim(), body: nl === -1 ? '' : sec.slice(nl + 1) };
+  }).filter((s) => s.heading && !SKIP.test(plainText(s.heading)));
+}
+
 /** `## ` heading text (as the notes TOC shows it) → candidate questions, best match first. */
 export function matchQuestionsToSections(markdown: string, questions: Question[]): Map<string, Question[]> {
   const out = new Map<string, Question[]>();
