@@ -8,10 +8,10 @@
   },
   "skillup": {
     "repo": "ajeetchouksey/ajch_skillup",
-    "sha": "a1da1dfdd619743b0babf22e0cb100e43e442e92",
+    "sha": "fedb98a9fddf17a4eaa23898bdc60c488ea691db",
     "baseUrl": "https://cdn.jsdelivr.net/gh",
     "schemaVersion": 1,
-    "promotedAt": "2026-10-27T13:23:55Z"
+    "promotedAt": "2026-10-28T12:36:59Z"
   },
   "usecases": {
     "repo": "ajeetchouksey/ajch_ai_usecases",
