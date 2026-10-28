@@ -5,19 +5,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Brain, CheckCircle2, Layers, RotateCcw } from 'lucide-react';
 import { loadExamRegistry, loadNoteForExam } from '@/lib/content-loader';
-import { buildNoteCards, getCardStates, getQuestionCards, previewInterval, rate, type Flashcard, type Rating } from '@/lib/flashcards';
+import { buildNoteCards, getCardStates, getQuestionCards, rate, type Flashcard, type Rating } from '@/lib/flashcards';
+import { FlashCard } from '../components/FlashCard';
+
+const KEY_RATING: Record<string, Rating> = { '1': 'again', '2': 'hard', '3': 'good' };
 import { recordStudyDay } from '@/lib/study-tracker';
 import type { ExamConfig } from '@/types/content';
 
 const NEW_PER_SESSION = 10;
-
-const KIND_TAG: Record<Flashcard['kind'], string> = { concept: 'Key concept', trap: 'Exam trap', question: 'Missed question' };
-
-const RATINGS: { r: Rating; label: string; key: string; cls: string }[] = [
-  { r: 'again', label: "Didn't know", key: '1', cls: 'border-rose-400/40 text-rose-200 hover:bg-rose-500/15' },
-  { r: 'hard', label: 'Hard', key: '2', cls: 'border-amber-400/40 text-amber-200 hover:bg-amber-500/15' },
-  { r: 'good', label: 'Knew it', key: '3', cls: 'border-emerald-400/40 text-emerald-200 hover:bg-emerald-500/15' },
-];
 
 function buildDeck(examId: string, cards: Flashcard[], domain: number | null): string[] {
   const states = getCardStates(examId);
@@ -86,8 +81,8 @@ export default function Flashcards() {
     const onKey = (e: KeyboardEvent) => {
       if (!card || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.key === ' ' && !(e.target instanceof HTMLButtonElement)) { e.preventDefault(); setFlipped((f) => !f); }
-      const hit = RATINGS.find((x) => x.key === e.key);
-      if (hit && flipped) onRate(hit.r);
+      const hit = KEY_RATING[e.key];
+      if (hit && flipped) onRate(hit);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -175,43 +170,7 @@ export default function Flashcards() {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setFlipped((f) => !f)}
-            aria-label={flipped ? 'Show the question again' : 'Reveal the answer'}
-            className={`w-full min-h-72 rounded-2xl p-6 sm:p-8 flex flex-col gap-4 text-left border transition-colors ${
-              flipped
-                ? 'bg-gradient-to-br from-brand-indigo/30 to-slate-800/90 border-brand-lilac/50'
-                : 'bg-gradient-to-br from-slate-700/60 to-slate-800/90 border-slate-500/25 hover:border-brand-lilac/60'
-            }`}
-          >
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-lilac">
-              {KIND_TAG[card.kind]} · D{card.domain} · {flipped ? 'Answer' : 'Question'}
-            </span>
-            <span aria-live="polite" className={`flex-1 text-white leading-snug ${flipped ? 'text-lg font-medium' : 'text-xl sm:text-2xl font-semibold'}`}>
-              {flipped ? card.back : card.front}
-            </span>
-            {card.kind !== 'question' && <span className="text-xs text-slate-400">From the notes: {card.source}</span>}
-            <span className="text-xs text-slate-400">{flipped ? 'Tap to see the question' : 'Tap or press Space to reveal'}</span>
-          </button>
-
-          {flipped ? (
-            <div role="group" aria-label="How well did you know it?" className="grid grid-cols-3 gap-2">
-              {RATINGS.map(({ r, label, key, cls }) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => onRate(r)}
-                  className={`min-h-14 rounded-xl border bg-slate-800/60 px-2 py-2 flex flex-col items-center justify-center gap-0.5 font-semibold text-sm transition-colors ${cls}`}
-                >
-                  {label}
-                  <span className="text-[11px] font-normal text-slate-400">{previewInterval(examId, card.id, r)}<span className="hidden sm:inline"> · key {key}</span></span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-sm text-slate-400">Think of your answer, then tap the card to check it.</p>
-          )}
+          <FlashCard examId={examId} card={card} flipped={flipped} onFlip={() => setFlipped((f) => !f)} onRate={onRate} />
         </>
       )}
 
