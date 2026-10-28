@@ -9,6 +9,7 @@ import { addQuestionCard } from '@/lib/flashcards';
 import { parseExplanation } from '@/lib/explanation';
 import { ChangeList } from '../components/journey/ChangeList';
 import { domainColor } from '@/lib/skillup-colors';
+import { answerLetters, correctSet, isMulti, isRight, pickComplete, pickPrompt, togglePick } from '@/lib/question-answer';
 import { diffSnapshots, newMilestones, snapshot, type Change, type Milestone, type Snapshot } from '@/lib/progress-snapshot';
 import { useAuth } from '@/lib/auth';
 import { trackEvent } from '@/lib/analytics';
@@ -60,6 +61,11 @@ function randomId() {
   return Math.random().toString(36).slice(2);
 }
 
+/** Saved sessions keep one index per question (their stored shape predates multiple-select). */
+function firstPicks(a: Record<string, number[]>): Record<string, number> {
+  return Object.fromEntries(Object.entries(a).map(([k, v]) => [k, v[0]]));
+}
+
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -84,8 +90,9 @@ export default function Quiz() {
   });
   const [questions, setQuestions] = useState<Question[]>([]);
   const [current, setCurrent] = useState(0);
-  const [chosen, setChosen] = useState<number | null>(null);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [chosen, setChosen] = useState<number[]>([]);
+  const [answers, setAnswers] = useState<Record<string, number[]>>({});
+  const ansRight = (q: Question) => answers[q.id] !== undefined && isRight(q, answers[q.id]);
   const [revealed, setRevealed] = useState(false);
   // Per-attempt extras (non-timed modes): how sure the learner was, options a hint removed, run of correct answers.
   const [confidence, setConfidence] = useState<Record<string, Confidence>>({});
@@ -175,13 +182,14 @@ export default function Quiz() {
   // Start the per-question timer whenever a new question is shown.
   useEffect(() => { shownAtRef.current = Date.now(); }, [current, phase]);
 
-  const recordAttempt = useCallback((q: Question, chosenIndex: number, conf?: Confidence) => {
+  const recordAttempt = useCallback((q: Question, picks: number[], conf?: Confidence) => {
     saveAttempt({
       questionId: q.id,
       examId,
       domain: q.domain,
-      chosenIndex,
-      correct: chosenIndex === q.correct,
+      chosenIndex: picks[0],
+      ...(isMulti(q) ? { chosen: picks } : {}),
+      correct: isRight(q, picks),
       timeSpentMs: Date.now() - shownAtRef.current,
       attemptedAt: Date.now(),
       loop: 1,
@@ -212,7 +220,7 @@ export default function Quiz() {
       skillId: examId,
       startedAt: Date.now(),
       domainFilter: draft.domainFilter,
-      answers: draft.answers,
+      answers: firstPicks(draft.answers),
       score: 0,
       total: draft.questions.length,
       ...(user?.login ? { userId: user.login } : {}),
@@ -309,7 +317,7 @@ export default function Quiz() {
     };
     setQuestions(picked);
     setCurrent(0);
-    setChosen(null);
+    setChosen([]);
     setAnswers({});
     setRevealed(false);
     resetExtras();
@@ -327,8 +335,8 @@ export default function Quiz() {
       if (session.mode === 'timed') {
         for (const q of questions) if (answers[q.id] !== undefined) recordAttempt(q, answers[q.id]);
       }
-      const score = questions.filter((q) => answers[q.id] === q.correct).length;
-      const finished: QuizSession = { ...session, finishedAt: Date.now(), answers, score };
+      const score = questions.filter(ansRight).length;
+      const finished: QuizSession = { ...session, finishedAt: Date.now(), answers: firstPicks(answers), score };
       saveSession(finished);
       // Keep ccaf_progress in sync for Gist cloud backup
       addQuizResult(examId, String(finished.domainFilter ?? 'all'), finished.score, finished.total);
@@ -358,19 +366,25 @@ export default function Quiz() {
   }, [revealed]);
 
   function handleChoose(idx: number) {
-    if (revealed || eliminated[questions[current]?.id]?.includes(idx)) return;
-    setChosen(idx);
+    const q = questions[current];
+    if (!q || revealed || eliminated[q.id]?.includes(idx)) return;
+    const next = togglePick(q, chosen, idx);
+    setChosen(next);
     // Timed: the choice *is* the answer (changeable until the clock or Finish).
-    if (isTimed) setAnswers((prev) => ({ ...prev, [questions[current].id]: idx }));
+    if (isTimed) setAnswers((prev) => {
+      const rest = { ...prev };
+      delete rest[q.id];
+      return next.length ? { ...rest, [q.id]: next } : rest;
+    });
   }
 
   function handleReveal() {
-    if (chosen === null) return;
+    const q = questions[current];
+    if (!q || !pickComplete(q, chosen)) return;
     setRevealed(true);
     if (session) {
-      const q = questions[current];
       const conf = confidence[q.id];
-      const right = chosen === q.correct;
+      const right = isRight(q, chosen);
       setAnswers((prev) => ({ ...prev, [q.id]: chosen }));
       recordAttempt(q, chosen, conf);
       setStreak((s) => (right ? s + 1 : 0));
@@ -383,8 +397,8 @@ export default function Quiz() {
   function applyHint() {
     const q = questions[current];
     if (!q || revealed || eliminated[q.id]) return;
-    const wrong = q.options.map((_, i) => i).filter((i) => i !== q.correct && i !== chosen);
-    const out = wrong.sort(() => Math.random() - 0.5).slice(0, Math.max(0, Math.min(2, q.options.length - 2)));
+    const wrong = q.options.map((_, i) => i).filter((i) => !correctSet(q).includes(i) && !chosen.includes(i));
+    const out = wrong.sort(() => Math.random() - 0.5).slice(0, Math.max(0, Math.min(2, q.options.length - correctSet(q).length - 1)));
     setEliminated((m) => ({ ...m, [q.id]: out }));
     setConfidence((m) => (m[q.id] ? m : { ...m, [q.id]: 'unsure' }));
   }
@@ -396,7 +410,7 @@ export default function Quiz() {
       const nextAns = answers[questions[current + 1].id];
       setCurrent((c) => c + 1);
       // Timed: moving back and forth must keep earlier answers selected.
-      setChosen(isTimed && nextAns !== undefined ? nextAns : null);
+      setChosen(isTimed && nextAns !== undefined ? nextAns : []);
       setRevealed(false);
     }
   }
@@ -406,7 +420,7 @@ export default function Quiz() {
     const prevQ = questions[current - 1];
     const prevChosen = answers[prevQ.id];
     setCurrent((c) => c - 1);
-    setChosen(prevChosen !== undefined ? prevChosen : null);
+    setChosen(prevChosen ?? []);
     setRevealed(!isTimed && prevChosen !== undefined);
   }
 
@@ -425,7 +439,7 @@ export default function Quiz() {
       if (e.key === 'Enter') {
         e.preventDefault();
         if (isTimed || revealed) handleNext();
-        else if (chosen !== null) handleReveal();
+        else if (pickComplete(q, chosen)) handleReveal();
       }
     };
   });
@@ -437,13 +451,13 @@ export default function Quiz() {
 
   /** Restart with just the questions answered wrong in this attempt. */
   function retryWrong() {
-    const wrong = questions.filter((q) => answers[q.id] !== q.correct);
+    const wrong = questions.filter((q) => !ansRight(q));
     if (!wrong.length) return;
     setMode('review');
     setEndsAt(null);
     setQuestions(shuffle(wrong));
     setCurrent(0);
-    setChosen(null);
+    setChosen([]);
     setAnswers({});
     setRevealed(false);
     resetExtras();
@@ -461,7 +475,7 @@ export default function Quiz() {
     const targetQ = questions[idx];
     const targetChosen = answers[targetQ.id];
     setCurrent(idx);
-    setChosen(targetChosen !== undefined ? targetChosen : null);
+    setChosen(targetChosen ?? []);
     setRevealed(!isTimed && targetChosen !== undefined);
     setShowPalette(false);
   }
@@ -616,7 +630,7 @@ export default function Quiz() {
 
   // ── REVIEW ─────────────────────────────────────────────────────────────────
   if (phase === 'review') {
-    const score = questions.filter((q) => answers[q.id] === q.correct).length;
+    const score = questions.filter((q) => ansRight(q)).length;
     const pct = Math.round((score / questions.length) * 100);
     const passed = passThreshold !== null ? pct >= passThreshold : null;
 
@@ -690,7 +704,7 @@ export default function Quiz() {
             .map((d) => {
               const dqs = questions.filter((q) => q.domain === d.id);
               if (dqs.length === 0) return null;
-              const correct = dqs.filter((q) => answers[q.id] === q.correct).length;
+              const correct = dqs.filter((q) => ansRight(q)).length;
               return { id: d.id, title: d.title, correct, total: dqs.length, pct: Math.round((correct / dqs.length) * 100) };
             })
             .filter(Boolean);
@@ -722,9 +736,9 @@ export default function Quiz() {
         {Object.keys(confidence).length > 0 && (() => {
           const rows = CONFIDENCE.map((c) => {
             const qs = questions.filter((q) => confidence[q.id] === c.id && answers[q.id] !== undefined);
-            return { ...c, total: qs.length, right: qs.filter((q) => answers[q.id] === q.correct).length };
+            return { ...c, total: qs.length, right: qs.filter((q) => ansRight(q)).length };
           }).filter((r) => r.total > 0);
-          const sureWrong = questions.filter((q) => confidence[q.id] === 'sure' && answers[q.id] !== undefined && answers[q.id] !== q.correct).length;
+          const sureWrong = questions.filter((q) => confidence[q.id] === 'sure' && answers[q.id] !== undefined && !ansRight(q)).length;
           return (
             <div className="glass-card rounded-xl p-4 space-y-2">
               <h3 className="text-xs font-semibold uppercase text-slate-400 tracking-wide">How well you judged yourself</h3>
@@ -753,7 +767,7 @@ export default function Quiz() {
             .map((d) => {
               const dqs = questions.filter((q) => q.domain === d.id);
               if (dqs.length === 0) return null;
-              const correct = dqs.filter((q) => answers[q.id] === q.correct).length;
+              const correct = dqs.filter((q) => ansRight(q)).length;
               const pct = Math.round((correct / dqs.length) * 100);
               return pct < passThreshold ? { title: d.title, pct } : null;
             })
@@ -793,7 +807,7 @@ export default function Quiz() {
         <div className="space-y-3">
           {questions.map((q, i) => {
             const userAns = answers[q.id];
-            const correct = userAns === q.correct;
+            const correct = ansRight(q);
             if (correct && !showAllReview && score < questions.length) return null;
             return (
               <div
@@ -818,9 +832,9 @@ export default function Quiz() {
                 {!correct && (
                   <div className="ml-6 space-y-1">
                     <p className="text-rose-400 text-xs">
-                      Your answer: {userAns !== undefined ? q.options[userAns] : 'skipped'}
+                      Your answer: {userAns !== undefined ? userAns.map((i) => q.options[i]).join(' + ') : 'skipped'}
                     </p>
-                    <p className="text-emerald-400 text-xs">Correct: {q.options[q.correct]}</p>
+                    <p className="text-emerald-400 text-xs">Correct: {correctSet(q).map((i) => q.options[i]).join(' + ')}</p>
                     <p className="text-slate-500 text-xs mt-1">{q.explanation}</p>
                   </div>
                 )}
@@ -879,7 +893,7 @@ export default function Quiz() {
 
   // ── QUIZ ───────────────────────────────────────────────────────────────────
   const q = questions[current];
-  const isCorrect = chosen === q.correct;
+  const isCorrect = isRight(q, chosen);
   const parsedExpl = parseExplanation(q.explanation, q.options.length, q.correct);
 
   return (
@@ -964,7 +978,7 @@ export default function Quiz() {
             {questions.map((pq, idx) => {
               const ans = answers[pq.id];
               const isAnswered = ans !== undefined;
-              const isCorrectAns = isAnswered && ans === pq.correct;
+              const isCorrectAns = isAnswered && isRight(pq, ans);
               const isCurrent = idx === current;
               let cls = 'w-8 h-8 rounded-lg text-xs font-mono font-semibold transition-colors ';
               if (isCurrent)
@@ -998,13 +1012,16 @@ export default function Quiz() {
       )}
 
       {/* Question */}
-      <div className="text-white font-medium text-base">{q.question}</div>
+      <div className="text-white font-medium text-base">
+        {q.question}
+        {pickPrompt(q) && <span className="ml-1.5 text-brand-tint">{pickPrompt(q)}</span>}
+      </div>
 
       {/* Options */}
       <div className="space-y-2" ref={feedbackRef}>
         {q.options.map((opt, idx) => {
-          const isCorrectOpt = idx === q.correct;
-          const isChosenOpt = chosen === idx;
+          const isCorrectOpt = correctSet(q).includes(idx);
+          const isChosenOpt = chosen.includes(idx);
           const optReason = parsedExpl.optionReasons[idx];
           const isOut = !revealed && (eliminated[q.id]?.includes(idx) ?? false);
 
@@ -1118,7 +1135,7 @@ export default function Quiz() {
                 <XCircle size={15} className="text-rose-400 shrink-0" />
               )}
               <span className={isCorrect ? 'text-emerald-300' : 'text-rose-300'}>
-                {isCorrect ? 'Correct!' : `Incorrect — correct answer: ${String.fromCharCode(65 + q.correct)}`}
+                {isCorrect ? 'Correct!' : `Incorrect — correct answer: ${answerLetters(q)}`}
               </span>
             </div>
             {calibrationNote(isCorrect, confidence[q.id]) && (
@@ -1151,13 +1168,13 @@ export default function Quiz() {
             onClick={handleNext}
             className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
           >
-            {current + 1 >= questions.length ? 'Finish exam' : chosen === null ? 'Skip' : 'Next'}
+            {current + 1 >= questions.length ? 'Finish exam' : chosen.length === 0 ? 'Skip' : 'Next'}
             <ChevronRight size={15} />
           </button>
         )}
         {!isTimed && !revealed && (
           <button
-            disabled={chosen === null}
+            disabled={!pickComplete(q, chosen)}
             onClick={handleReveal}
             className="bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
           >

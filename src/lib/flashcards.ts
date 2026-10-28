@@ -7,6 +7,7 @@
 // rated; after that `rate()` schedules it. localStorage keys:
 //   aarya_cards_{examId}      review state per card id
 //   aarya_cardtext_{examId}   front/back of question-derived cards
+import { correctSet } from '@/lib/question-answer';
 import type { Question } from '@/types/content';
 import { isValidExamId } from '@/lib/plan-generator';
 
@@ -113,7 +114,7 @@ export function addQuestionCard(examId: string, q: Question): Flashcard | null {
   const card: Flashcard = {
     id: `${examId}:q:${q.id}`, examId, domain: q.domain, kind: 'question', source: q.id,
     front: q.question,
-    back: `${q.options[q.correct]}. ${plainText(firstSentence)}`.trim(),
+    back: `${correctSet(q).map((i) => q.options[i]).join(' + ')}. ${plainText(firstSentence)}`.trim(),
   };
   const texts = read<Record<string, Flashcard>>(textKey(examId), {});
   texts[card.id] = card;

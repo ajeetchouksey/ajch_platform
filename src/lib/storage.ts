@@ -32,7 +32,11 @@ export function saveQuizDraft(examId: string, draft: QuizDraft): void {
 export function loadQuizDraft(examId: string): QuizDraft | null {
   try {
     const raw = localStorage.getItem(QUIZ_DRAFT_KEY_PREFIX + examId);
-    return raw ? (JSON.parse(raw) as QuizDraft) : null;
+    if (!raw) return null;
+    // Drafts saved before multiple-select stored one number per answer.
+    const d = JSON.parse(raw) as Omit<QuizDraft, 'answers' | 'chosen'> & { answers: Record<string, number | number[]>; chosen: number | number[] | null };
+    const asList = (v: number | number[] | null | undefined) => (v == null ? [] : Array.isArray(v) ? v : [v]);
+    return { ...d, answers: Object.fromEntries(Object.entries(d.answers ?? {}).map(([k, v]) => [k, asList(v)])), chosen: asList(d.chosen) };
   } catch {
     return null;
   }

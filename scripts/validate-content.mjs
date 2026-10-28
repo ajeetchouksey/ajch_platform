@@ -52,6 +52,21 @@ function validateQuestion(file, item, index) {
   ) {
     fail(file, `item[${index}] "correct" index ${item.correct} is out of range (${item.options.length} options)`);
   }
+  // multiple-select: answers lists 2+ distinct in-range indices, and correct is one of them
+  if ('answers' in item) {
+    const n = Array.isArray(item.options) ? item.options.length : 0;
+    const a = item.answers;
+    if (!Array.isArray(a) || a.length < 2 || new Set(a).size !== a.length || a.some((x) => !Number.isInteger(x) || x < 0 || x >= n)) {
+      fail(file, `item[${index}] "answers" must list 2+ distinct option indices in range (${n} options)`);
+    } else if (a.length >= n) {
+      fail(file, `item[${index}] "answers" can't mark every option correct`);
+    } else if (!a.includes(item.correct)) {
+      fail(file, `item[${index}] "correct" must be one of "answers"`);
+    }
+  }
+  if (Array.isArray(item.options) && item.options.length > 6) {
+    fail(file, `item[${index}] "options" can have at most 6 entries`);
+  }
   // tags must be a non-empty array of strings
   if ('tags' in item) {
     if (!Array.isArray(item.tags) || item.tags.length === 0) {

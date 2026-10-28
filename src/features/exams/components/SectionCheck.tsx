@@ -8,6 +8,7 @@ import { getAttempts, saveAttempt } from '@/lib/adaptive-quiz';
 import { latestAttemptByQuestion } from '@/lib/objective-mastery';
 import { addCards, addQuestionCard, buildNoteCards, plainText } from '@/lib/flashcards';
 import { CHECKS_PER_SECTION } from '@/lib/section-match';
+import { answerLetters, isMulti, isRight as pickedRight, letter, pickComplete, pickPrompt, togglePick, correctSet } from '@/lib/question-answer';
 import type { Question } from '@/types/content';
 
 export function SectionCheck({ examId, domain, heading, candidates, markdown }: {
@@ -20,7 +21,7 @@ export function SectionCheck({ examId, domain, heading, candidates, markdown }: 
     return [...candidates].sort((a, b) => rank(a) - rank(b)).slice(0, CHECKS_PER_SECTION);
   });
   const [idx, setIdx] = useState(0);
-  const [chosen, setChosen] = useState<number | null>(null);
+  const [chosen, setChosen] = useState<number[]>([]);
   const [checked, setChecked] = useState(false);
   const [right, setRight] = useState(0);
   const [startedAt, setStartedAt] = useState(() => Date.now());
@@ -35,14 +36,14 @@ export function SectionCheck({ examId, domain, heading, candidates, markdown }: 
   const q = qs[Math.min(idx, qs.length - 1)];
 
   const check = () => {
-    if (chosen === null) return;
-    const correct = chosen === q.correct;
-    saveAttempt({ questionId: q.id, examId, domain: q.domain, chosenIndex: chosen, correct, timeSpentMs: Date.now() - startedAt, attemptedAt: Date.now(), loop: 1 });
+    if (!pickComplete(q, chosen)) return;
+    const correct = pickedRight(q, chosen);
+    saveAttempt({ questionId: q.id, examId, domain: q.domain, chosenIndex: chosen[0], ...(isMulti(q) ? { chosen } : {}), correct, timeSpentMs: Date.now() - startedAt, attemptedAt: Date.now(), loop: 1 });
     if (!correct) addQuestionCard(examId, q);
     if (correct) setRight((n) => n + 1);
     setChecked(true);
   };
-  const next = () => { setIdx((n) => n + 1); setChosen(null); setChecked(false); setStartedAt(Date.now()); };
+  const next = () => { setIdx((n) => n + 1); setChosen([]); setChecked(false); setStartedAt(Date.now()); };
   const makeCards = () => setCardsAdded(addCards(examId, sectionCards.map((c) => c.id)));
 
   return (
@@ -61,26 +62,29 @@ export function SectionCheck({ examId, domain, heading, candidates, markdown }: 
       {!done ? (
         <>
           {q.scenario && <p className="text-sm text-slate-300 leading-relaxed">{plainText(q.scenario)}</p>}
-          <p className="text-[15px] font-semibold text-white leading-snug">{plainText(q.question)}</p>
+          <p className="text-[15px] font-semibold text-white leading-snug">
+            {plainText(q.question)}
+            {pickPrompt(q) && <span className="ml-1.5 text-brand-tint">{pickPrompt(q)}</span>}
+          </p>
           <div className="grid gap-2" role="group" aria-label="Answer options">
             {q.options.map((opt, i) => {
-              const isRight = checked && i === q.correct;
-              const isWrong = checked && i === chosen && i !== q.correct;
+              const isRight = checked && correctSet(q).includes(i);
+              const isWrong = checked && chosen.includes(i) && !correctSet(q).includes(i);
               return (
                 <button
                   key={i}
                   type="button"
                   disabled={checked}
-                  aria-pressed={chosen === i}
-                  onClick={() => setChosen(i)}
+                  aria-pressed={chosen.includes(i)}
+                  onClick={() => setChosen((c) => togglePick(q, c, i))}
                   className={`flex items-start gap-3 min-h-11 px-3 py-2.5 rounded-xl border text-left text-sm transition-colors ${
                     isRight ? 'border-emerald-400 bg-emerald-400/10 text-emerald-50'
                       : isWrong ? 'border-rose-400 bg-rose-400/10 text-rose-50'
-                        : chosen === i ? 'border-brand-lilac bg-brand-indigo/25 text-white'
+                        : chosen.includes(i) ? 'border-brand-lilac bg-brand-indigo/25 text-white'
                           : 'border-slate-500/30 bg-slate-900/45 text-slate-200 hover:border-brand-lilac/60'
                   }`}
                 >
-                  <span className={`font-bold shrink-0 ${isRight ? 'text-emerald-300' : 'text-brand-lilac'}`}>{'ABCD'[i]}</span>
+                  <span className={`font-bold shrink-0 ${isRight ? 'text-emerald-300' : 'text-brand-lilac'}`}>{letter(i)}</span>
                   <span className="flex-1">{plainText(opt)}</span>
                   {isRight && <Check size={16} className="text-emerald-300 shrink-0" aria-label="Correct answer" />}
                   {isWrong && <X size={16} className="text-rose-300 shrink-0" aria-label="Your answer" />}
@@ -90,16 +94,16 @@ export function SectionCheck({ examId, domain, heading, candidates, markdown }: 
           </div>
           {checked && (
             <div aria-live="polite" className="rounded-xl bg-slate-900/55 border border-slate-600/30 p-3 space-y-1">
-              <p className={`text-sm font-semibold ${chosen === q.correct ? 'text-emerald-300' : 'text-rose-300'}`}>
-                {chosen === q.correct ? 'Correct' : `Not quite: the answer is ${'ABCD'[q.correct]}`}
+              <p className={`text-sm font-semibold ${pickedRight(q, chosen) ? 'text-emerald-300' : 'text-rose-300'}`}>
+                {pickedRight(q, chosen) ? 'Correct' : `Not quite: the answer is ${answerLetters(q)}`}
               </p>
               <p className="text-sm text-slate-300 leading-relaxed">{plainText(q.explanation)}</p>
-              {chosen !== q.correct && <p className="text-xs text-slate-400">Added to your flashcards so it comes back.</p>}
+              {!pickedRight(q, chosen) && <p className="text-xs text-slate-400">Added to your flashcards so it comes back.</p>}
             </div>
           )}
           <div className="flex flex-wrap gap-2">
             {!checked ? (
-              <button type="button" onClick={check} disabled={chosen === null}
+              <button type="button" onClick={check} disabled={!pickComplete(q, chosen)}
                 className="min-h-11 px-4 rounded-xl bg-brand-indigo hover:bg-brand-indigo-deep disabled:opacity-45 disabled:cursor-not-allowed text-white text-sm font-semibold">
                 Check answer
               </button>
