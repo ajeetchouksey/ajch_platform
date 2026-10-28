@@ -1,6 +1,6 @@
 ---
 name: assessment-engineer
-description: MCQ generation specialist for CCA-F exam preparation. Wraps the question-generator.md skill. Generates schema-validated question JSON for content/skillup/{examId}/questions/ only. Receives classified concepts from Curriculum Engineer; never does web research itself.
+description: MCQ generation specialist for exam-shaped (kind "exam") SkillUp entries. Skill Track knowledgeChecks belong to Skill Track Engineer. Wraps the question-generator.md skill. Generates schema-validated question JSON for content/skillup/{examId}/questions/ only. Receives classified concepts from Curriculum Engineer; never does web research itself.
 tools: Read, Write, Edit, Glob, Grep
 model: inherit
 ---

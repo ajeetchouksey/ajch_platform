@@ -49,9 +49,9 @@ Your synthesis must flag the commit/push/PR step (per `docs/content-architecture
 ## What You Do Directly
 
 1. **Fetch** source material via WebFetch
-2. **Extract** key concepts relevant to CCA-F domains
+2. **Extract** key concepts relevant to the target exam's domains (from its `index.json`)
 3. **Search** `content/skillup/{examId}/` (in `ajch_skillup`) for overlap (deduplication)
-4. **Classify** each concept into Domain 1–5
+4. **Classify** each concept into one of that exam's `domains[]`
 5. **Brief** sub-agents with classified concepts
 
 ## Delegation Instructions
@@ -108,7 +108,7 @@ Before generating any question or note:
 
 ## Skill Track Mode (`kind: "skill-track"`)
 
-Same research → classify → delegate loop as Exam Commander mode, run over `modules[]`/`lessons[]` instead of `domains[]`/`questionFiles[]`. See the `exam-registry` SKILL.md's "Skill Tracks" section for the full schema. No new agent file — reuse the same three specialists, briefed differently:
+Same research → classify → delegate loop as Exam Commander mode, run over `modules[]`/`lessons[]` instead of `domains[]`/`questionFiles[]`. See the `exam-registry` SKILL.md's "Skill Tracks" section for the full schema. Lesson structure and knowledge checks go to the dedicated Skill Track Engineer (`.claude/agents/skill-track-engineer.md`); concept notes still go to Docs Engineer:
 
 ```
 User request (URL / topic / tool)
@@ -116,8 +116,7 @@ User request (URL / topic / tool)
 Curriculum Engineer (you) — fetch + extract + classify into modules/lessons + dedupe
     ↓
     ├─ Lesson concept notes needed?      → Docs Engineer (lesson-flavored brief)
-    ├─ knowledgeCheck questions needed?  → Assessment Engineer (light-brief, see below)
-    └─ Hands-on mission cross-link?      → read-only lookup against hol-lab-writer's published labs
+    └─ Lessons / knowledgeCheck / holLabId? → Skill Track Engineer (see below)
     ↓
 AppSec Engineer — schema + path validation (HARD GATE)
     ↓ PASS ✓
@@ -140,23 +139,17 @@ Concept: [extracted concept with detail]
 Human Angle: [same convention as Exam mode — max 1 sentence, omit if no natural fit]"
 ```
 
-### knowledgeCheck Generation → Assessment Engineer (Skill Track brief — explicitly NOT the exam-MCQ brief)
+### Lessons, knowledgeCheck, holLabId → Skill Track Engineer
 ```
-Delegate to Assessment Engineer skill:
-"Generate 3-5 knowledgeCheck questions for lesson [lessonId]: [lesson title].
-This is a LIGHT knowledge check, not an exam MCQ set — no timer framing, no
-scoring-gate framing, no domain-weight language in the scenario/explanation text.
-Concepts to cover: [list of extracted concepts]
-Schema: { id, question, options[4], correct, explanation } — no `domain` field, no `difficulty` requirement.
-Ensure no overlap with existing knowledgeCheck ids in this lesson."
+Delegate to Skill Track Engineer:
+"Track: [trackId]. Module: [moduleId — new or existing].
+Lesson: [lessonId]: [action-oriented title]
+Objectives: [2-4 observable-verb objectives]
+Concepts to cover in knowledgeCheck: [list of extracted concepts]
+Notes file (written by Docs Engineer): [path]
+Look up a matching holLabId; omit it if no real lab matches."
 ```
-
-### Hands-on Mission Cross-Link → read-only lookup (no delegation, no write)
-
-1. Read `{ajch_hol_labs repo root}/content/hol-labs/index.json` (path via `.claude/vertical-registry.json` → `hol-labs.localCheckoutWindows` when invoked from outside `ajch_hol_labs`)
-2. Search `labs[]` for an existing lab whose `domain`/topic genuinely matches the lesson's subject
-3. If found, set that lesson's `holLabId` to the real lab id — never invent one, never guess a plausible-looking id
-4. If no real match exists, omit `holLabId` entirely rather than leaving a placeholder
+Brief Docs Engineer first, so the lesson's `notesFile` exists before Skill Track Engineer references it.
 
 ### Legacy MCQ Bank → `practiceBank`, not deleted
 
