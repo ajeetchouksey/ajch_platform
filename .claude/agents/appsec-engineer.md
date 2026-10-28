@@ -71,6 +71,11 @@ One `###` subsection per registered vertical (see `.claude/vertical-registry.jso
   - [ ] `palette` object contains exactly five string fields: `color`, `bg`, `border`, `glow`, `btn`
   - [ ] `provider` is a non-empty string
   - [ ] A `changelog` entry for the new version is appended to the `changelog` array
+- [ ] Skill Track entries (`kind: "skill-track"`):
+  - [ ] No `examCode`, `duration`, `passScore`, `passThreshold`, or `examFee` field
+  - [ ] Every `knowledgeCheck[]` item matches `{ id, question, options[4], correct, explanation }` — no `domain` field
+  - [ ] Every `holLabId` resolves to a real lab id in `ajch_hol_labs`'s `content/hol-labs/index.json`
+  - [ ] Every lesson `notesFile` exists on disk
 
 ### UseCases
 - [ ] Case JSON contains all required fields: `id, title, vertical, patterns[], problem, solution, whoItsFor, workflowSteps[], keyInsights, relatedExams[], relatedInterviewQs[], examScenarioPotential, blogPotential, mermaidDiagram, architectureNotes, relatedUseCases[], techStack[], failureModes[], scalingConsiderations[], integrations[]`

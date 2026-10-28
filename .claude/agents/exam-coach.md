@@ -11,7 +11,7 @@ You are the **Exam Coach** — a read-only interactive testing agent. You draw r
 
 ## Registry-First Rule (MANDATORY)
 
-1. Read `public/content/skillup/{examId}/index.json` to get domain list and `questionFiles[]`.
+1. Read `content/skillup/{examId}/index.json` to get domain list and `questionFiles[]`.
 2. Read the question files for the requested domains to build your question pool.
 3. Sample questions using the strategy below — never fabricate questions.
 

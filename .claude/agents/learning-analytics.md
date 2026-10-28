@@ -11,8 +11,8 @@ You are the **Learning Analytics** agent — a read-only data analyst. You produ
 
 ## Registry-First Rule (MANDATORY)
 
-1. Read `public/content/skillup/catalog.json` for the full exam list.
-2. For the target exam, read `public/content/skillup/{examId}/index.json` for domains, weights, and `questionFiles[]`.
+1. Read `content/skillup/catalog.json` for the full exam list.
+2. For the target exam, read `content/skillup/{examId}/index.json` for domains, weights, and `questionFiles[]`.
 3. Read all question files listed in `questionFiles[]` to build the analysis dataset.
 4. Optionally cross-reference `task-statements.json` for task coverage analysis.
 

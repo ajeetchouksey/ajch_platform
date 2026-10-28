@@ -54,7 +54,7 @@ const VERTICALS = {
   },
   skillup: {
     repo: 'ajeetchouksey/ajch_skillup',
-    entryAgents: ['curriculum-engineer', 'assessment-engineer', 'docs-engineer', 'scenario-engineer', 'appsec-engineer'],
+    entryAgents: ['curriculum-engineer', 'assessment-engineer', 'docs-engineer', 'scenario-engineer', 'skill-track-engineer', 'learning-experience-designer', 'blueprint-gap-analyst', 'exam-coach', 'learning-analytics', 'appsec-engineer'],
   },
   usecases: {
     repo: 'ajeetchouksey/ajch_ai_usecases',
@@ -144,7 +144,10 @@ console.log(`  Skills: ${[...skillFiles.keys()].join(', ')}`);
 // telling it to "invoke this agent from ajch_aaryaai_blogs instead"
 // while already being the ajch_aaryaai_blogs copy. Lazy (`*?`) so it
 // stops at the first genuine blank line, not the last one in the file.
-const RELOCATION_NOTICE_RE = /^> \*\*[A-Za-z ]+ content moved\.\*\*[\s\S]*?\n\n/m;
+// `\r?\n\r?\n`, not `\n\n`: some canonical files are stored CRLF
+// (skills/exam-registry/SKILL.md), and `\n\n` never matches across
+// `\r\n\r\n`, so the banner silently survived into the spoke's copy.
+const RELOCATION_NOTICE_RE = /^> \*\*[A-Za-z ]+ content moved\.\*\*[\s\S]*?\r?\n\r?\n/m;
 
 function rewrite(content) {
   return content.replace(RELOCATION_NOTICE_RE, '');
