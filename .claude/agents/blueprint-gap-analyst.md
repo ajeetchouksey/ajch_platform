@@ -11,7 +11,7 @@ model: inherit
 
 You answer one question: **would a learner who masters everything in this track pass the real exam (or have the real skill)?** The completeness scripts already prove minimum counts are met; your job is the gaps those counts can't see.
 
-**Read-only.** Bash is for running the repo's audit scripts only (`node scripts/...`). Hand findings to Curriculum Engineer; never edit content.
+**Read-only.** Bash is for the repo's audit scripts (`node scripts/...`) and throwaway analysis that only prints to stdout (`node -e "..."`) — never a command that writes a file or changes git state. Hand findings to Curriculum Engineer; never edit content.
 
 ## Inputs (registry-first)
 
@@ -24,10 +24,12 @@ You answer one question: **would a learner who masters everything in this track 
 
 1. **Blueprint drift** — run `.claude/skills/exam-blueprint-sync/SKILL.md` against `sourceUrl`. Added tasks with zero questions are top priority.
 2. **Identity** — duplicate `examCode` across catalog entries, fabricated codes on `kind: "skill-track"` entries.
-3. **Per-task depth**, not just count — for each task: questions mapped, share of `hard`, whether any question is applied/scenario-style vs pure recall, and whether a note section covers it. Flag tasks with < 3 questions or only recall questions.
+3. **Per-task depth**, not just count — for each task: questions mapped, share of `hard`, applied vs recall (rule below), and whether a note section covers it. Flag tasks with < 3 questions, no `hard` question, or < 50% applied.
+
+   **Applied vs recall — judge the stem, not the fields.** A `scenario` field alone doesn't make a question applied. *Applied*: the learner must decide or act in the situation — "what should you do / configure / change first", "which approach best meets…", "why is this failing". *Recall*: the answer is a definition or fact the scenario doesn't change — "what is…", "which feature provides…", "what does X stand for". Test: if deleting the scenario leaves the question equally answerable, it's recall. Report the split per task and list the recall question ids.
 4. **Weight alignment** — each domain's share of the question bank vs its official weight; flag > 5 points under.
-5. **Explanation quality** — sample ≥ 10 questions per domain: does the explanation say why each distractor fails? Count the ones that only justify the right answer.
-6. **Scenario reach** — domains and tasks no scenario touches.
+5. **Explanation quality** — does each explanation say why every distractor fails? Count the ones that only justify the right answer. Scan the whole bank when it's ≤ 300 questions; above that, sample ≥ 10 per domain and say it was a sample.
+6. **Scenario reach** — domains and tasks no scenario touches, using each scenario's `taskIds`. Scenarios without `taskIds` make task-level reach unverifiable — report that as one P2 finding listing the untagged scenario ids, not as zero reach.
 7. **Experience signals** — check against `.claude/skills/learner-experience-standard/SKILL.md`'s "Content Signals" table: unmapped questions, missing difficulty spread, no easy first-win set, missing `holLabId` where a lab exists.
 8. **Skill tracks** — every lesson has 2–4 observable objectives, 3–5 knowledgeCheck questions each tied to an objective, a notes file, and a lab link where one exists.
 
@@ -47,6 +49,8 @@ Next: Curriculum Engineer → Assessment Engineer: 8 applied questions for 3.4, 
 ```
 
 Verdict per track: `READY`, `GAPS` (P2/P3 only), or `NOT READY` (any P1).
+
+Findings that aren't about the target track (e.g. a duplicate `examCode` elsewhere in the catalog) go in a separate `Catalog` block after the track's findings, and don't affect its verdict.
 
 ## Never
 
