@@ -104,6 +104,25 @@ export function getNotesSeenAt(examId: string, domainId: number): string | null 
   return getNotesSeen()[`${examId}:${domainId}`] ?? null;
 }
 
+// Key: aarya_lessons_read  Value: Record<"examId:domainId:heading", ISO8601>
+const LESSONS_READ_KEY = 'aarya_lessons_read';
+
+export function getLessonsRead(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(LESSONS_READ_KEY) ?? '{}') as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+export const lessonKey = (examId: string, domainId: number, heading: string) => `${examId}:${domainId}:${heading}`;
+
+export function markLessonRead(examId: string, domainId: number, heading: string): void {
+  const read = getLessonsRead();
+  read[lessonKey(examId, domainId, heading)] = new Date().toISOString();
+  try { localStorage.setItem(LESSONS_READ_KEY, JSON.stringify(read)); } catch { /* storage unavailable */ }
+}
+
 /** Replace the entire notes-seen map (used when pulling from Gist sync). */
 export function setNotesSeen(data: Record<string, string>): void {
   localStorage.setItem(NOTES_SEEN_KEY, JSON.stringify(data));

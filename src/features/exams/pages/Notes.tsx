@@ -6,6 +6,12 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { loadNoteForExam, loadExamRegistry, loadTaskStatementsForExam, loadQuestionsForExam } from '@/lib/content-loader';
 import { SectionCheck } from '../components/SectionCheck';
+import { ObjectiveList } from '../components/notes/ObjectiveList';
+import { LessonPlayer } from '../components/notes/LessonPlayer';
+import { lessonsByObjective } from '@/lib/objective-sections';
+import { rehypeNoteBlocks } from '../components/note-blocks';
+import { DiagramImage } from '../components/DiagramImage';
+import { domainColor, tint } from '@/lib/skillup-colors';
 import { matchQuestionsToSections } from '@/lib/section-match';
 import { getAttempts } from '@/lib/adaptive-quiz';
 import { examMastery } from '@/lib/objective-mastery';
@@ -17,7 +23,7 @@ import {
 } from '@/lib/study-tracker';
 import type { FocusTimer } from '@/lib/study-tracker';
 import type { DomainConfig, ExamConfig, Question, TaskStatementsFile } from '@/types/content';
-import { ChevronLeft, ChevronRight, List, ChevronDown, ArrowUp, Zap, Target, Layers, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, List, ChevronDown, ArrowUp, Zap, Target, Layers, AlertTriangle, MessageSquare, Share2, Check, Tag, Sparkles, X, Maximize2, Minimize2, Timer, Type } from 'lucide-react';
 import GiscusComments from '@/components/GiscusComments';
 import { LightComments } from '@/components/LightComments';
 import { ContentFeedback } from '@/components/ContentFeedback';
@@ -32,6 +38,9 @@ import { lookupGlossaryTerm } from '@/lib/glossary';
 import { stripEmoji, stripEmojiChildren, headingKicker } from '../components/notes-format';
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
+
+type ReadTheme = 'dim' | 'dark' | 'paper';
+const READ_THEMES: { id: ReadTheme; label: string }[] = [{ id: 'dim', label: 'Dim' }, { id: 'dark', label: 'Dark' }, { id: 'paper', label: 'Paper' }];
 
 function readingTime(md: string) {
   return Math.max(1, Math.ceil(md.split(/\s+/).filter(Boolean).length / 200));
@@ -117,14 +126,9 @@ function TocNav({ toc, activeId, onSelect }: { toc: TocItem[]; activeId: string;
             data-toc-id={id}
             aria-current={isActive ? 'location' : undefined}
             onClick={() => onSelect(id)}
-            className="block w-full text-left text-[11px] leading-snug py-1 rounded-r-lg transition-all duration-200"
-            style={{
-              paddingLeft: level === 3 ? '16px' : '6px',
-              color: isActive ? '#F0EDFF' : isPast ? '#94a3b8' : '#64748b',
-              fontWeight: isActive ? 600 : 400,
-              borderLeft: `2px solid ${isActive ? '#A99BFF' : 'transparent'}`,
-              background: isActive ? 'rgba(91,75,214,0.14)' : 'transparent',
-            }}
+            className={`block w-full text-left text-[11px] leading-snug py-1 rounded-r-lg border-l-2 transition-all duration-200 ${level === 3 ? 'pl-4' : 'pl-1.5'} ${
+              isActive ? 'text-brand-tint font-semibold border-brand-lilac bg-brand-indigo/15' : `border-transparent ${isPast ? 'text-slate-400' : 'text-slate-500'} hover:text-slate-200`
+            }`}
           >
             {stripEmoji(text)}
           </button>
@@ -155,13 +159,19 @@ export default function Notes() {
   const [searchParams, setSearchParams] = useSearchParams();
   const domain = Number(searchParams.get('d')) || 1;
   const [isSkillTrack, setIsSkillTrack] = useState(false);
+  // Three views, all in the URL so they survive a refresh and can be linked:
+  // the objective list (default), one lesson (?obj=1.2&l=1), the whole domain (?view=full).
+  const objParam = searchParams.get('obj');
+  const lessonParam = Math.max(1, Number(searchParams.get('l')) || 1);
+  const [statements, setStatements] = useState<TaskStatementsFile | null | undefined>(undefined);
+  // Exams without official objectives keep the single-page reader.
+  const isFull = searchParams.get('view') === 'full' || statements === null;
   const computedRelated = useRelationships(`exam/${examId}/domain-${domain}`);
   const glossary = useGlossary();
   const [{ loading, content, error }, dispatch] = useReducer(contentReducer, { loading: false, content: '', error: null });
   const [examDomains, setExamDomains] = useState<DomainConfig[]>([]);
   const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
   // Official objectives — drives the "Check your understanding" block after the notes.
-  const [statements, setStatements] = useState<TaskStatementsFile | null>(null);
   useEffect(() => {
     loadTaskStatementsForExam(examId).then(setStatements).catch(() => setStatements(null));
   }, [examId]);
@@ -190,6 +200,25 @@ export default function Notes() {
     try { return localStorage.getItem('notes_handwriting') === '1'; } catch { return false; }
   });
   const toc = content ? extractToc(content) : [];
+  // Reading preferences — remembered per browser, shared across exams.
+  const [readTheme, setReadTheme] = useState<ReadTheme>(() => {
+    try { const v = localStorage.getItem('notes_theme'); return v === 'dark' || v === 'paper' ? v : 'dim'; } catch { return 'dim'; }
+  });
+  const [readSize, setReadSize] = useState<number>(() => {
+    try { const v = Number(localStorage.getItem('notes_size')); return v === 0 || v === 2 ? v : 1; } catch { return 1; }
+  });
+  const [focusMode, setFocusMode] = useState(false);
+  const [displayOpen, setDisplayOpen] = useState(false);
+  const displayRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!displayOpen) return;
+    const onDown = (e: MouseEvent) => { if (!displayRef.current?.contains(e.target as Node)) setDisplayOpen(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setDisplayOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [displayOpen]);
+  const savePref = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } };
   // ── Study tracker state ────────────────────────────────────────────────────
   const [dismissedBannerKey, setDismissedBannerKey] = useState<string | null>(null);
   const resumeBanner = useMemo(() => {
@@ -447,6 +476,25 @@ export default function Notes() {
     ? Math.round((examConfig.questions * currentDomainConfig.weight) / 100)
     : 0;
 
+  const domainQuestions = useMemo(() => questions.filter((q) => q.domain === domain), [questions, domain]);
+  const domainLessons = useMemo(() => {
+    const tasks = statements?.domains.find((x) => x.id === domain)?.tasks;
+    return content && tasks ? lessonsByObjective(content, domainQuestions, tasks) : null;
+  }, [content, statements, domain, domainQuestions]);
+
+  function scrollTop() {
+    // The page scrolls inside <main> (html/body are overflow:hidden).
+    (document.querySelector('main') ?? window).scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function openLesson(objectiveId: string, lessonNo: number) {
+    setSearchParams({ d: String(domain), obj: objectiveId, l: String(lessonNo) });
+    scrollTop();
+  }
+  function showList() {
+    setSearchParams({ d: String(domain) });
+    scrollTop();
+  }
+
   // Shared Study With AI context — both the xl+ sidebar instance and the
   // below-xl modal instance pass the exact same object so their composed
   // prompts never drift from one another.
@@ -509,8 +557,9 @@ export default function Notes() {
       {/* Domain identity header — domain pills live here on the right */}
       {currentDomainConfig && (
         <div className="flex items-center gap-3 pb-5 mb-5 border-b border-slate-800/70">
-          <div className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700/50 flex items-center justify-center shrink-0">
-            <span className="text-violet-400 font-mono font-bold text-sm">D{domain}</span>
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border"
+            style={{ background: tint(domainColor(domain), 0.16), borderColor: tint(domainColor(domain), 0.5) }}>
+            <span className="font-mono font-bold text-sm" style={{ color: domainColor(domain) }}>D{domain}</span>
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">
@@ -525,7 +574,7 @@ export default function Notes() {
           </div>
           {/* Domain switcher pills — right side of header */}
           {examDomains.length > 1 && (
-            <div className="flex gap-1 p-0.5 rounded-xl shrink-0 overflow-x-auto" style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(51,65,85,0.45)', scrollbarWidth: 'none' }}>
+            <div className="flex gap-1 p-0.5 rounded-xl shrink-0 overflow-x-auto bg-slate-900/90 border border-slate-700/45 [scrollbar-width:none]">
               {examDomains.map((d) => (
                 <button
                   key={d.id}
@@ -548,9 +597,37 @@ export default function Notes() {
         </div>
       )}
 
+      {!isFull && !loading && !error && content && (
+        domainLessons === null ? (
+          <div className="glass-card rounded-2xl h-64 animate-pulse" aria-busy="true" />
+        ) : objParam ? (
+          <LessonPlayer
+            key={`${objParam}-${lessonParam}`}
+            examId={examId}
+            domain={domain}
+            lessons={domainLessons}
+            objectiveId={objParam}
+            lessonNo={lessonParam}
+            bank={domainQuestions}
+            markdown={content}
+            onOpen={openLesson}
+            onBack={showList}
+          />
+        ) : (
+          <ObjectiveList
+            examId={examId}
+            domain={domain}
+            lessons={domainLessons}
+            mastery={domainObjectives}
+            onOpen={openLesson}
+            onReadAll={() => setSearchParams({ d: String(domain), view: 'full' })}
+          />
+        )
+      )}
+
       {/* Reading toolbar — one slim row instead of the old stat-tile strip
           (weight/minutes/traps now live in the domain header line above). */}
-      {!loading && !error && content && currentDomainConfig && (
+      {!loading && !error && content && currentDomainConfig && isFull && (
         <div className="flex flex-wrap items-center gap-2 mb-6">
           <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-600 mr-1">Reading</span>
           <div className="relative">
@@ -575,25 +652,68 @@ export default function Notes() {
                 </div>
               )}
             </div>
-            <button
-              onClick={() => setHandwritingMode((v) => {
-                const next = !v;
-                try { localStorage.setItem('notes_handwriting', next ? '1' : '0'); } catch { /* noop */ }
-                return next;
-              })}
-              title={handwritingMode ? 'Switch to digital mode' : 'Switch to handwriting mode'}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
-                handwritingMode
-                  ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                  : 'bg-slate-800/60 text-slate-500 border border-slate-700/40 hover:text-slate-300'
-              }`}
-            >
-              {handwritingMode ? 'Handwriting font on' : 'Handwriting font'}
+            <div className="relative" ref={displayRef}>
+              <button
+                type="button"
+                aria-expanded={displayOpen}
+                aria-haspopup="true"
+                onClick={() => setDisplayOpen((v) => !v)}
+                className={`inline-flex items-center gap-1.5 min-h-8 px-2.5 rounded-lg text-[11px] font-bold border transition-colors ${displayOpen ? 'bg-slate-700/70 text-white border-slate-500/60' : 'bg-slate-800/60 text-slate-300 border-slate-700/40 hover:text-white'}`}
+              >
+                <Type size={12} aria-hidden="true" /> Text &amp; display <ChevronDown size={12} aria-hidden="true" />
+              </button>
+              {displayOpen && (
+                <div className="absolute top-full mt-2 left-0 z-50 w-[min(18rem,calc(100vw-2rem))] rounded-xl border border-slate-700 bg-slate-900 shadow-2xl p-3 space-y-3">
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Theme</p>
+                    <div role="group" aria-label="Reading theme" className="flex p-0.5 rounded-lg border border-slate-700/50 bg-slate-950/60">
+                      {READ_THEMES.map((t) => (
+                        <button key={t.id} type="button" aria-pressed={readTheme === t.id}
+                          onClick={() => { setReadTheme(t.id); savePref('notes_theme', t.id); }}
+                          className={`flex-1 min-h-9 rounded-md text-xs font-bold transition-colors ${readTheme === t.id ? 'bg-brand-indigo text-white' : 'text-slate-400 hover:text-white'}`}>
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Text size</p>
+                    <div role="group" aria-label="Text size" className="flex p-0.5 rounded-lg border border-slate-700/50 bg-slate-950/60">
+                      {[0, 1, 2].map((s) => (
+                        <button key={s} type="button" aria-pressed={readSize === s} aria-label={['Smaller text', 'Default text size', 'Larger text'][s]}
+                          onClick={() => { setReadSize(s); savePref('notes_size', String(s)); }}
+                          className={`flex-1 min-h-9 rounded-md font-bold transition-colors ${readSize === s ? 'bg-brand-indigo text-white' : 'text-slate-400 hover:text-white'}`}
+                          style={{ fontSize: [11, 13, 15][s] }}>
+                          A
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-800">
+                    <KeywordHighlightToggle enabled={highlightEnabled} onToggle={() => setHighlightEnabled((v) => !v)} />
+                    <button
+                      type="button"
+                      aria-pressed={handwritingMode}
+                      onClick={() => setHandwritingMode((v) => {
+                        const next = !v;
+                        try { localStorage.setItem('notes_handwriting', next ? '1' : '0'); } catch { /* noop */ }
+                        return next;
+                      })}
+                      className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-colors ${
+                        handwritingMode ? 'bg-amber-500/15 text-amber-300 border-amber-500/30' : 'bg-slate-800/60 text-slate-400 border-slate-700/40 hover:text-white'
+                      }`}
+                    >
+                      Handwriting font
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            <button type="button" aria-pressed={focusMode} onClick={() => setFocusMode((v) => !v)}
+              className={`hidden lg:inline-flex items-center gap-1.5 min-h-8 px-2.5 rounded-lg text-[11px] font-bold border transition-colors ${focusMode ? 'bg-brand-indigo text-white border-brand-indigo' : 'bg-slate-800/60 text-slate-400 border-slate-700/40 hover:text-white'}`}>
+              {focusMode ? <Minimize2 size={12} aria-hidden="true" /> : <Maximize2 size={12} aria-hidden="true" />}
+              {focusMode ? 'Exit focus' : 'Focus mode'}
             </button>
-            <KeywordHighlightToggle
-              enabled={highlightEnabled}
-              onToggle={() => setHighlightEnabled((v) => !v)}
-            />
           {domainQCount > 0 && (
             <Link
               to={`/skillup/${examId}/quiz?d=${domain}`}
@@ -610,7 +730,7 @@ export default function Notes() {
           accordion, which scrolled out of reach after the first heading.
           Opens the same list as the desktop sidebar (TocNav) in a bottom
           sheet, portaled below. */}
-      {!loading && !error && toc.length > 0 && (
+      {!loading && !error && toc.length > 0 && isFull && (
         <div className="lg:hidden sticky top-14 z-30 mb-5 rounded-xl border border-slate-700/50 overflow-hidden bg-slate-950 shadow-lg shadow-black/30">
           <button
             onClick={() => setMobileTocOpen(true)}
@@ -635,10 +755,9 @@ export default function Notes() {
           is portaled to document.body rather than a plain fixed div. */}
       {mobileTocOpen && createPortal(
         <div className="fixed inset-0 z-[80] lg:hidden" onClick={() => setMobileTocOpen(false)}>
-          <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }} />
+          <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" />
           <div
-            className="absolute bottom-0 left-0 right-0 rounded-t-2xl p-5 max-h-[72vh] overflow-y-auto"
-            style={{ background: 'rgba(15,23,42,0.99)', border: '1px solid rgba(71,85,105,0.30)' }}
+            className="absolute bottom-0 left-0 right-0 rounded-t-2xl p-5 max-h-[72vh] overflow-y-auto bg-slate-900 border border-slate-600/30"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -654,10 +773,10 @@ export default function Notes() {
       {/* Content — two-column on lg: article + sticky TOC (matches
           BlogPost's TocSidebar breakpoint, not the wider xl this used to
           gate on) */}
-      <div className="lg:grid lg:grid-cols-[1fr_280px] lg:gap-8 lg:items-start">
+      <div className={!isFull ? '' : focusMode ? 'max-w-[860px] mx-auto' : 'lg:grid lg:grid-cols-[1fr_280px] lg:gap-8 lg:items-start'}>
 
       {/* Content */}
-      <article ref={articleRef} className="min-w-0">
+      <article ref={articleRef} className={`min-w-0 ${isFull ? '' : 'hidden'}`}>
 
         {/* Sticky timer strip — visible while scrolling */}
         {focusTimer && (() => {
@@ -667,20 +786,18 @@ export default function Notes() {
             : (timerSecs / Math.floor(focusTimer.durationMs / 1000));
           const isFocus = focusTimer.mode === 'focus';
           return (
-            <div className="sticky top-24 lg:top-14 z-30 -mx-1 mb-6 rounded-xl overflow-hidden border"
-              style={{ borderColor: isFocus ? 'rgba(139,92,246,0.4)' : 'rgba(52,211,153,0.35)' }}>
+            <div className={`sticky top-24 lg:top-14 z-30 -mx-1 mb-6 rounded-xl overflow-hidden border ${isFocus ? 'border-violet-500/40' : 'border-emerald-400/35'}`}>
               {/* depleting progress bar */}
-              <div className="h-0.5 w-full" style={{ background: isFocus ? 'rgba(139,92,246,0.2)' : 'rgba(52,211,153,0.15)' }}>
-                <div className="h-full transition-all duration-1000"
-                  style={{ width: `${Math.max(0, pct * 100).toFixed(1)}%`, background: isFocus ? '#7c3aed' : '#059669' }} />
+              <div className={`h-0.5 w-full ${isFocus ? 'bg-violet-500/20' : 'bg-emerald-400/15'}`}>
+                <div className={`h-full transition-all duration-1000 ${isFocus ? 'bg-violet-600' : 'bg-emerald-600'}`}
+                  style={{ width: `${Math.max(0, pct * 100).toFixed(1)}%` }} />
               </div>
-              <div className="flex items-center gap-3 px-4 py-2.5"
-                style={{ background: isFocus ? 'rgba(46,16,101,0.92)' : 'rgba(4,65,50,0.92)', backdropFilter: 'blur(12px)' }}>
-                <span className="text-base">🍅</span>
-                <span className="font-mono font-bold text-lg tabular-nums" style={{ color: isFocus ? '#c4b5fd' : '#6ee7b7', minWidth: '3.5ch' }}>
+              <div className={`flex items-center gap-3 px-4 py-2.5 backdrop-blur-md ${isFocus ? 'bg-violet-950/90' : 'bg-emerald-950/90'}`}>
+                <Timer size={16} aria-hidden="true" className={isFocus ? 'text-violet-300' : 'text-emerald-300'} />
+                <span className={`font-mono font-bold text-lg tabular-nums min-w-[3.5ch] ${isFocus ? 'text-violet-300' : 'text-emerald-300'}`}>
                   {String(Math.floor(displaySecs / 60)).padStart(2, '0')}:{String(displaySecs % 60).padStart(2, '0')}
                 </span>
-                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: isFocus ? '#a78bfa' : '#34d399' }}>
+                <span className={`text-[11px] font-bold uppercase tracking-widest ${isFocus ? 'text-violet-400' : 'text-emerald-400'}`}>
                   {focusTimer.paused ? 'paused' : isFocus ? 'focus' : 'break'}
                 </span>
                 <span className="text-[11px] text-slate-500 font-mono">×{focusTimer.pomodoros}</span>
@@ -700,6 +817,15 @@ export default function Notes() {
             </div>
           );
         })()}
+        {isFull && (
+          <button
+            onClick={showList}
+            className="mb-6 inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+          >
+            <ChevronLeft size={14} /> Back to objectives
+          </button>
+        )}
+
         {loading && (
           <div className="space-y-3 animate-pulse">
             {[80, 55, 90, 70, 40, 85, 60, 75, 50, 88].map((w, i) => (
@@ -711,17 +837,16 @@ export default function Notes() {
           <div className="text-rose-400 text-sm">Failed to load: {error}</div>
         )}
         {!loading && !error && (
+          <div className="notes-reader" data-theme={readTheme} data-size={readSize}>
           <div
-            className={`notes-body prose prose-invert max-w-[72ch] prose-a:text-brand-lilac prose-code:text-violet-300 prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed prose-p:text-[1.0625rem] prose-p:leading-[1.75] prose-li:text-[1.0625rem] prose-li:leading-[1.7] prose-p:text-slate-300 prose-li:text-slate-300 prose-strong:text-slate-100 [&_img]:block [&_img]:mx-auto [&_img]:h-auto [&_img]:w-full [&_img]:max-w-[680px] [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-700/40 [&_img]:shadow-lg ${
-              handwritingMode
-                ? '[&_h1]:text-white [&_h2]:text-white [&_h3]:text-white prose-headings:font-bold'
-                : 'prose-headings:text-white'
+            className={`notes-body prose prose-invert max-w-[72ch] mx-auto prose-a:text-brand-lilac prose-pre:bg-slate-900/70 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:text-sm prose-pre:leading-relaxed [&_img]:block [&_img]:mx-auto [&_img]:h-auto [&_img]:w-full [&_img]:max-w-[680px] [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-700/40 [&_img]:shadow-lg ${
+              handwritingMode ? 'prose-headings:font-bold' : ''
             }`}
             style={handwritingMode ? { fontFamily: "'Patrick Hand', cursive", fontSize: '1.55rem', lineHeight: '2.2', letterSpacing: '0.015em' } : undefined}
           >
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw]}
+              rehypePlugins={[rehypeRaw, rehypeNoteBlocks]}
               components={{
                 p({ children }) {
                   return <p>{highlightEnabled ? applyHighlighting(children) : children}</p>;
@@ -801,6 +926,7 @@ export default function Notes() {
                   // promoted vertical's images route to its CDN pin instead of
                   // 404ing against a since-removed local path.
                   const resolvedSrc = typeof src === 'string' ? resolveContentUrl(src) : src;
+                  if (typeof resolvedSrc === 'string' && /\.svg(\?|$)/i.test(resolvedSrc)) return <DiagramImage src={resolvedSrc} alt={alt ?? ''} />;
                   return <img src={resolvedSrc} alt={alt ?? ''} {...props} />;
                 },
               }}
@@ -809,13 +935,14 @@ export default function Notes() {
             </ReactMarkdown>
             {checkFor(h2s[h2s.length - 1])}
           </div>
+          </div>
         )}
       </article>
 
       {/* Floating timer removed — replaced by sticky strip above article */}
 
-      {/* Sticky in-page TOC — desktop lg+ only */}
-      {toc.length > 0 && (
+      {/* Sticky in-page TOC — desktop lg+ only; hidden in focus mode and objectives view */}
+      {toc.length > 0 && !focusMode && isFull && (
         <aside className="hidden lg:flex lg:flex-col gap-3 shrink-0 sticky top-4 self-start max-h-[calc(100vh-5rem)] overflow-y-auto pb-4"
           style={{ scrollbarWidth: 'none' }}>
 
@@ -827,8 +954,7 @@ export default function Notes() {
               Teardown analysis. */}
 
           {/* In This Article TOC */}
-          <div className="rounded-xl p-4"
-            style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
+          <div className="rounded-xl p-4 bg-slate-900/95 border border-slate-600/20">
             <div className="mb-3">
               <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-1.5">
                 <List size={9} /> In this article
@@ -849,8 +975,7 @@ export default function Notes() {
 
           {/* Meta card */}
           {currentDomainConfig && (
-            <div className="rounded-xl p-4 space-y-2.5"
-              style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
+            <div className="rounded-xl p-4 space-y-2.5 bg-slate-900/95 border border-slate-600/20">
               {/*
                 contentUpdatedAt/contentVersion are exam-wide fields sourced
                 from index.json, NOT per-domain-note-file — switching domains
@@ -867,8 +992,7 @@ export default function Notes() {
               <div className="flex gap-1.5 mt-1">
                 <button
                   onClick={handleShare}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition-all"
-                  style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', color: '#a78bfa' }}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition-all bg-violet-500/10 border border-violet-500/30 text-violet-300 hover:bg-violet-500/20"
                 >
                   {copied ? <Check size={11} /> : <Share2 size={11} />}
                   {copied ? 'Copied!' : 'Share'}
@@ -886,8 +1010,7 @@ export default function Notes() {
 
           {/* Exam Traps as tags */}
           {trapItems.length > 0 && (
-            <div className="rounded-xl p-4"
-              style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(71,85,105,0.20)' }}>
+            <div className="rounded-xl p-4 bg-slate-900/95 border border-slate-600/20">
               <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 flex items-center gap-1.5">
                 <Tag size={9} /> <span className="text-rose-400/80">Exam Traps</span>
               </p>
@@ -896,14 +1019,9 @@ export default function Notes() {
                   <button
                     key={item.id}
                     onClick={() => scrollToHeading(item.id)}
-                    className="text-left text-[10px] px-2 py-0.5 rounded-lg transition-all"
-                    style={{
-                      background: 'rgba(30,41,59,0.8)',
-                      color: activeId === item.id ? '#f87171' : '#64748b',
-                      border: activeId === item.id ? '1px solid rgba(248,113,113,0.45)' : '1px solid rgba(71,85,105,0.20)',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(248,113,113,0.45)'; }}
-                    onMouseLeave={e => { if (activeId !== item.id) { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = 'rgba(71,85,105,0.20)'; } }}
+                    className={`text-left text-[10px] px-2 py-0.5 rounded-lg border bg-slate-800/80 transition-all hover:text-red-400 hover:border-red-400/45 ${
+                      activeId === item.id ? 'text-red-400 border-red-400/45' : 'text-slate-500 border-slate-600/20'
+                    }`}
                   >
                     {trapLabel(item)}
                   </button>
@@ -994,16 +1112,14 @@ export default function Notes() {
       {aiPanelOpen && createPortal(
         <div className="lg:hidden fixed inset-0 z-[80] flex items-end sm:items-center justify-center">
           <div
-            className="absolute inset-0"
-            style={{ background: 'rgba(2,6,23,0.72)', backdropFilter: 'blur(2px)' }}
+            className="absolute inset-0 bg-slate-950/70 backdrop-blur-[2px]"
             onClick={() => handleAiOpenChange(false)}
           />
           <div
             role="dialog"
             aria-modal="true"
             aria-label="Study with AI"
-            className="relative w-full sm:max-w-md sm:mx-4 max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl"
-            style={{ background: 'rgba(15,23,42,0.98)', border: '1px solid rgba(139,92,246,0.28)' }}
+            className="relative w-full sm:max-w-md sm:mx-4 max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl bg-slate-900 border border-violet-500/30"
           >
             <AskMentor
               variant="row"
@@ -1020,7 +1136,7 @@ export default function Notes() {
       {/* Check your understanding — close the loop from reading to practice:
           a domain drill, this domain's official objectives (with the learner's
           current status from the attempt log), and the case-based scenarios. */}
-      {!loading && !error && content && (
+      {!loading && !error && content && isFull && (
         <section className="mt-10 glass-card glass-edge card-accent-top rounded-xl p-5 space-y-4" aria-labelledby="check-h">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -1065,7 +1181,7 @@ export default function Notes() {
       )}
 
       {/* Prev / Next domain navigation */}
-      {!loading && !error && content && (prevDomain || nextDomain) && (
+      {!loading && !error && content && isFull && (prevDomain || nextDomain) && (
         <div className="flex items-stretch justify-between gap-3 mt-10 pt-6 border-t border-slate-800/70">
           {prevDomain ? (
             <button
@@ -1104,26 +1220,28 @@ export default function Notes() {
           pattern as the AskMentor panel elsewhere in this file: identical
           props, only one instance ever visible at a time since the
           breakpoints are mutually exclusive, no real duplication. */}
-      {!loading && !error && content && (
+      {!loading && !error && content && isFull && (
         <div className="lg:hidden mt-10 pt-6 border-t border-slate-800/70">
           <ComputedRelatedList edges={computedRelated} />
         </div>
       )}
 
       {/* ── Community discussion ───────────────────────────────────────── */}
-      {!loading && !error && content && (
+      {!loading && !error && content && isFull && (
         <div className="mt-12 pt-8 border-t border-slate-800/60">
-          <div className="flex items-center gap-2 mb-6">
-            <MessageSquare size={16} className="text-violet-400" />
-            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Community Discussion</h2>
-          </div>
           <ContentFeedback contentId={`${examId}-domain-${domain}`} />
-          <GiscusComments
-            slug={`${examId}-domain-${domain}`}
-            context="skill-up"
-          />
-          {/* IDEA-0009 Phase 5 — rolled out to all exams after the CCA-F pilot proved manageable */}
-          <LightComments contentId={`${examId}-domain-${domain}`} />
+          <details className="group mt-6 rounded-xl border border-slate-700/40 bg-slate-900/40">
+            <summary className="flex items-center gap-2 min-h-12 px-4 cursor-pointer list-none text-sm font-semibold text-slate-300 hover:text-white">
+              <MessageSquare size={15} aria-hidden="true" className="text-violet-400" />
+              Discussion and comments
+              <ChevronDown size={15} aria-hidden="true" className="ml-auto transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="px-4 pb-4 space-y-6">
+              <GiscusComments slug={`${examId}-domain-${domain}`} context="skill-up" />
+              {/* IDEA-0009 Phase 5 — rolled out to all exams after the CCA-F pilot proved manageable */}
+              <LightComments contentId={`${examId}-domain-${domain}`} />
+            </div>
+          </details>
         </div>
       )}
     </div>

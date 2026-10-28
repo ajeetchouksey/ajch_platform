@@ -5,12 +5,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, BookOpen, Brain, ChevronDown, Flame, Layers, Play, Settings2, Timer, Sparkles } from 'lucide-react';
 import type { ExamConfig } from '@/types/content';
-import type { ExamMastery } from '@/lib/objective-mastery';
+import { masteryLabel, type ExamMastery } from '@/lib/objective-mastery';
 import { getAttempts } from '@/lib/adaptive-quiz';
 import { dueCount } from '@/lib/flashcards';
 import { getResumeState, getStreak, resumeLabel } from '@/lib/study-tracker';
 import { daysPerWeek, daysToExam, getProfile, saveProfile, type PrepProfile } from '@/lib/prep-profile';
-import { buildToday, recentMisses } from '@/lib/today-session';
+import { buildToday, recentMisses, stepActivity } from '@/lib/today-session';
+import { ACTIVITY_COLORS, type Activity } from '@/lib/skillup-colors';
 
 const NOW_OPTS = [5, 15, 30, 45] as const;
 
@@ -69,7 +70,7 @@ export function TodayHub({ exam, mastery, readiness }: { exam: ExamConfig; maste
       detail: resume ? `Resume D${resume.domainId}${resumeLabel(resume) ? ` · ${resumeLabel(resume)}` : ''}` : `${exam.domains.length} domains, with quick checks`,
       to: resume ? `${base}/notes?d=${resume.domainId}` : `${base}/notes` },
     { id: 'practise', need: 10, icon: Brain, kicker: 'Practise', title: weakest ? `Drill objective ${weakest.task.id}` : 'Drill a domain',
-      detail: weakest ? `${weakest.task.title} · ${Math.round(weakest.mastery * 100)}% mastery` : 'Questions with full explanations',
+      detail: weakest ? `${weakest.task.title} · ${masteryLabel(weakest.status)}` : 'Questions with full explanations',
       to: weakest ? `${base}/quiz?task=${encodeURIComponent(weakest.task.id)}` : `${base}/quiz` },
     { id: 'review', need: 5, icon: Layers, kicker: 'Review', title: 'Flashcards and misses',
       detail: due || misses ? `${due} card${due === 1 ? '' : 's'} due · ${misses} recent miss${misses === 1 ? '' : 'es'}` : 'Nothing due. Learn new cards.',
@@ -135,7 +136,7 @@ export function TodayHub({ exam, mastery, readiness }: { exam: ExamConfig; maste
         <ol key={mins} className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-2.5">
           {plan.steps.map((s, k) => (
             <li key={`${s.kind}-${k}`} className="anim-rise flex gap-3 items-start rounded-xl p-3 bg-[#0e1a2d]/55 border border-slate-600/20" style={{ animationDelay: `${k * 70}ms` }}>
-              <span className="w-6 h-6 shrink-0 rounded-full bg-brand-lilac/30 text-white text-xs font-bold flex items-center justify-center" aria-hidden="true">{k + 1}</span>
+              <span className="w-6 h-6 shrink-0 rounded-full text-[#0e1a2d] text-xs font-bold flex items-center justify-center" style={{ background: ACTIVITY_COLORS[stepActivity(s.kind)] }} aria-hidden="true">{k + 1}</span>
               <span className="min-w-0">
                 <span className="block text-[15px] font-semibold text-white leading-snug">{s.title}</span>
                 <span className="block text-xs text-slate-400">{s.meta}</span>
@@ -178,7 +179,7 @@ export function TodayHub({ exam, mastery, readiness }: { exam: ExamConfig; maste
                 m.best ? 'border-brand-lilac bg-brand-indigo/20' : 'border-slate-600/25 bg-slate-800/60 hover:border-brand-lilac/50'
               } ${m.fits ? '' : 'opacity-70'}`}>
               <span className="flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-lilac"><m.icon size={14} aria-hidden="true" />{m.kicker}</span>
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: ACTIVITY_COLORS[m.id as Activity] }}><m.icon size={14} aria-hidden="true" />{m.kicker}</span>
                 <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${m.best ? 'bg-emerald-400/15 text-emerald-300' : m.fits ? 'bg-brand-lilac/15 text-[#d4ccff]' : 'bg-slate-500/15 text-slate-400'}`}>
                   {m.best ? 'Best fit now' : m.fits ? `Fits ${mins} min` : `Needs ${m.need} min`}
                 </span>

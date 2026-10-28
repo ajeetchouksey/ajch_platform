@@ -4,6 +4,7 @@ import { Check, ChevronDown, ChevronRight, Target, ArrowRight } from 'lucide-rea
 import type { DomainConfig, ExamConfig, QuizSession } from '@/types/content';
 import type { ExamMastery, MasteryStatus, ObjectiveMastery } from '@/lib/objective-mastery';
 import { getDomainCompletion } from '@/lib/study-tracker';
+import { domainColor } from '@/lib/skillup-colors';
 
 /** Objective coverage the Practice step (and Ready) require — mirrors the
  *  "readiness stays low until the whole syllabus is covered" rule. */
@@ -37,7 +38,7 @@ export function PrepPath({ exam, sessions, mastery, readiness }: {
       done: mine.length > 0, to: `${base}/quiz?mode=review`, cta: 'take a quiz' },
     { key: 'learn', title: 'Learn', detail: unread ? `Next: D${unread.id} notes` : 'All domain notes read',
       done: !unread, to: `${base}/notes${unread ? `?d=${unread.id}` : ''}`, cta: 'read notes' },
-    { key: 'practice', title: 'Practice', detail: mastery ? `${Math.round(coverage * 100)}% of objectives covered` : 'Drill by domain',
+    { key: 'practice', title: 'Practice', detail: mastery ? `${mastery.objectives.filter((o) => o.attempted > 0).length} of ${mastery.objectives.length} objectives practised` : 'Drill by domain',
       done: coverage >= COVERAGE_TARGET,
       to: mastery?.weakest ? `${base}/quiz?task=${encodeURIComponent(mastery.weakest.task.id)}` : `${base}/quiz`,
       cta: mastery?.weakest ? `drill objective ${mastery.weakest.task.id}` : 'drill a domain' },
@@ -134,19 +135,19 @@ function DomainGroup({ domain, objectives, examId, defaultOpen }: {
   const mastery = total ? objectives.reduce((n, o) => n + o.mastery * o.total, 0) / total : 0;
   const strong = objectives.filter((o) => o.status === 'strong').length;
   return (
-    <div className="rounded-lg border border-slate-800/70 bg-slate-900/30">
+    <div className="rounded-lg border border-slate-800/70 border-l-4 bg-slate-900/30" style={{ borderLeftColor: domainColor(domain.id) }}>
       <button
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         className="w-full flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 py-3 min-h-14 text-left rounded-lg hover:bg-slate-800/40 transition-colors"
       >
         {open ? <ChevronDown size={14} className="text-slate-400" /> : <ChevronRight size={14} className="text-slate-400" />}
-        <span className="font-mono text-xs text-brand-lilac w-6">D{domain.id}</span>
+        <span className="font-mono text-xs font-bold w-6" style={{ color: domainColor(domain.id) }}>D{domain.id}</span>
         <span className="flex-[1_1_180px] min-w-0 text-sm font-semibold text-slate-100">{domain.title}</span>
         <span className="flex items-center gap-2.5 ml-auto">
           <span className="text-[11px] text-slate-400">{strong}/{objectives.length} strong</span>
           <span className="h-1.5 w-16 bg-slate-800 rounded-full overflow-hidden" aria-hidden="true">
-            <span className="block h-full rounded-full bg-brand-lilac" style={{ width: `${Math.round(mastery * 100)}%` }} />
+            <span className="block h-full rounded-full" style={{ width: `${Math.round(mastery * 100)}%`, background: domainColor(domain.id) }} />
           </span>
           <span className="font-mono text-xs text-slate-300 w-9 text-right">{domain.weight}%</span>
         </span>
@@ -167,7 +168,7 @@ export function ExamMap({ exam, mastery }: { exam: ExamConfig; mastery: ExamMast
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h2 id="exam-map-h" className="section-heading">Exam map</h2>
         <span className="text-xs text-slate-400">
-          Official objectives · {Math.round(mastery.coverage * 100)}% covered · open a domain to practise
+          Official objectives · {mastery.objectives.filter((o) => o.attempted > 0).length} of {mastery.objectives.length} practised · open a domain to practise
         </span>
       </div>
       <div className="space-y-2">

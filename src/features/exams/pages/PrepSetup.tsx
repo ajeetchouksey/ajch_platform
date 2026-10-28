@@ -2,7 +2,10 @@
 // Route: /skillup/:examId/start (?step=N to jump back and edit one answer).
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, BellRing, Check, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BellRing, Check, ChevronDown, Sparkles } from 'lucide-react';
+import { getAttempts } from '@/lib/adaptive-quiz';
+import { dueCount } from '@/lib/flashcards';
+import { buildToday } from '@/lib/today-session';
 import { loadExamRegistry } from '@/lib/content-loader';
 import { getReadinessBreakdown } from '@/lib/study-tracker';
 import { getSessions } from '@/lib/storage';
@@ -130,27 +133,19 @@ export default function PrepSetup() {
     );
   }
 
-  // ── Plan ──
+  // ── Plan: today first, then this week; the long view is one tap away ──
   if (phase === 'plan') {
     const p = getProfile(examId)!;
-    const studyItems = p.start === 'learn' || p.level === 'new'
-      ? ['D1 notes', 'D1 notes + check', 'Drill D1', 'Cards + notes', 'Drill weakest', 'D2 notes', 'Cards + drill']
-      : ['Baseline quiz', 'Drill weakest', 'Notes on gaps', 'Cards + drill', 'Drill weakest', 'Missed + cards', 'Mini mock'];
-    let k = 0;
-    const cal = Array.from({ length: 14 }, (_, i) => {
+    const attempts = getAttempts(examId);
+    const today = buildToday({ exam, profile: p, mastery: null, attempts, dueCards: dueCount(examId), readiness, minutes: p.minsPerDay, now });
+    const days = (n: number) => Array.from({ length: n }, (_, i) => {
       const day = new Date(now + i * DAY);
       const di = (day.getDay() + 6) % 7;
-      const isExam = p.examDate === iso(day);
-      const study = p.days[di];
-      return { i, dow: DOW[di].slice(0, 2), date: day.getDate(), isExam, study, what: isExam ? 'Exam day' : study ? studyItems[Math.min(k++, studyItems.length - 1)] : 'Rest' };
+      return { i, dow: DOW[di].slice(0, 2), date: day.getDate(), isExam: p.examDate === iso(day), study: p.days[di] };
     });
-    const W = weeks ?? 8;
-    const cuts = [0, Math.max(1, Math.round(W * 0.25)), Math.max(2, Math.round(W * 0.6)), Math.max(3, Math.round(W * 0.8)), W];
-    const phaseDefs = p.level === 'pro'
-      ? [['Diagnose', 'A baseline, then skip what you know.'], ['Fix gaps', 'Drill only the objectives you miss.'], ['Recall', 'Flashcards on traps and misses.'], ['Simulate', 'Timed exams under exam conditions.']]
-      : p.level === 'new'
-        ? [['Learn', 'Notes domain by domain, with quick checks.'], ['Practise', 'Drills on each objective as you finish it.'], ['Recall', 'Daily flashcards so it sticks.'], ['Simulate', 'A timed exam once 60% is covered.']]
-        : [['Baseline', 'Find where you stand.'], ['Learn + practise', 'Notes for weak domains, drills for the rest.'], ['Recall', 'Daily flashcards.'], ['Simulate', 'Timed exams in the final stretch.']];
+    const week = days(7);
+    const longView = days(deadline && weeks ? Math.min(weeks * 7 + 1, 56) : 28);
+    const studyDaysLeft = longView.filter((c) => c.study && !c.isExam).length;
     const addReminder = () => {
       saveProfile(examId, { ...p, reminder });
       const blob = new Blob([reminderIcs(exam.shortTitle, examId, p, reminder, window.location.origin)], { type: 'text/calendar' });
@@ -164,16 +159,79 @@ export default function PrepSetup() {
       [`${p.minsPerDay} min · ${daysPerWeek(p)} days a week`, 2],
       [{ test: 'Test first', learn: 'Learn first', practise: 'Practise first' }[p.start], 3],
     ];
+    const dayCell = (c: { i: number; dow: string; date: number; isExam: boolean; study: boolean }) => (
+      <li key={c.i} className={`min-h-14 rounded-lg p-1.5 flex flex-col gap-0.5 border ${
+        c.isExam ? 'border-amber-400/60 bg-amber-400/10' : c.i === 0 ? 'bg-brand-indigo/35 border-brand-lilac' : c.study ? 'bg-slate-800/90 border-slate-600/30' : 'border-slate-700/20'
+      }`}>
+        <span className="text-[10px] text-slate-400">{c.dow} {c.date}</span>
+        <span className={`text-[11px] font-semibold leading-tight ${c.isExam ? 'text-amber-300' : c.study ? 'text-slate-100' : 'text-slate-500'}`}>
+          {c.isExam ? 'Exam' : c.i === 0 && c.study ? 'Today' : c.study ? <><span className="sm:hidden">Study</span><span className="hidden sm:inline">{p.minsPerDay} min</span></> : 'Rest'}
+        </span>
+      </li>
+    );
+
     return (
-      <div className="max-w-5xl mx-auto space-y-6 anim-rise">
-        <div className="space-y-1.5">
+      <div className="max-w-3xl mx-auto space-y-5 anim-rise">
+        <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-lilac">Your {exam.shortTitle} plan</p>
-          <h1 className="text-[clamp(1.75rem,5vw,2.4rem)] font-bold leading-tight text-white">
+          <h1 className="text-[clamp(1.6rem,4.5vw,2.2rem)] font-bold leading-tight text-white">
             {deadline ? `${sessions} sessions of ${p.minsPerDay} minutes to exam day` : `A ${p.minsPerDay}-minute habit, ${daysPerWeek(p)} days a week`}
           </h1>
-          <p className={`inline-block rounded-xl px-3 py-2 text-sm ${verdictCls}`}>{verdict.text}</p>
+          <div className={`flex flex-wrap items-center gap-2 rounded-xl px-3 py-2 text-sm ${verdictCls}`}>
+            <span className="flex-[1_1_240px]">{verdict.text}</span>
+            {deadline && f.end < PASS_LINE && f.minsNeeded && (
+              <button
+                type="button"
+                onClick={() => { saveProfile(examId, { ...p, minsPerDay: f.minsNeeded! }); setD((x) => ({ ...x, minsPerDay: f.minsNeeded! })); }}
+                className="min-h-10 px-3 rounded-lg bg-white/10 hover:bg-white/20 font-semibold text-white"
+              >
+                Use {f.minsNeeded} min a day
+              </button>
+            )}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+
+        {/* Today — the one thing to do now */}
+        <section aria-labelledby="today-h" className="rounded-2xl p-5 space-y-4 border border-brand-lilac/45 bg-gradient-to-br from-brand-indigo/35 to-slate-800/75">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-tint">{today.restDay ? 'Rest day · optional' : 'Today'} · about {today.minutes} min</p>
+            <h2 id="today-h" className="text-xl font-bold text-white">
+              {today.steps.length > 1 ? `Your session: ${today.steps.length} steps` : today.steps[0]?.title ?? 'A short practice round'}
+            </h2>
+          </div>
+          {today.steps.length > 1 && (
+            <ol className="space-y-1.5">
+              {today.steps.map((s, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm">
+                  <span className="w-6 h-6 shrink-0 rounded-full bg-slate-900/70 text-xs font-bold text-slate-200 flex items-center justify-center">{i + 1}</span>
+                  <span className="flex-1 min-w-0 text-slate-100">{s.title}</span>
+                  <span className="text-xs text-slate-400">{s.minutes} min</span>
+                </li>
+              ))}
+            </ol>
+          )}
+          {today.reasons[0] && <p className="text-sm text-slate-300">{today.reasons[0]}</p>}
+          <div className="flex flex-wrap gap-2">
+            <Link to={`/skillup/${examId}/session?mins=${p.minsPerDay}`} className="anim-glow inline-flex items-center gap-2 min-h-12 px-6 rounded-xl bg-brand-indigo hover:bg-brand-indigo-deep text-white font-semibold">
+              Start now <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+            <Link to={`/skillup/${examId}`} className="inline-flex items-center min-h-12 px-4 rounded-xl border border-slate-500/40 text-slate-200 hover:text-white text-sm font-semibold">Later</Link>
+          </div>
+        </section>
+
+        {/* This week */}
+        <section aria-labelledby="week-h" className="glass-card rounded-2xl p-4 sm:p-5 space-y-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="week-h" className="text-base font-bold text-white">This week</h2>
+            <p className="text-xs text-slate-400">{week.filter((c) => c.study && !c.isExam).length} study days</p>
+          </div>
+          <ol className="grid grid-cols-7 gap-1.5">{week.map(dayCell)}</ol>
+          <p className="text-sm text-slate-300">
+            Every session mixes a short lesson, practice questions and flashcard review, picked from how the last one went.
+          </p>
+        </section>
+
+        <div className="flex flex-wrap gap-2" aria-label="Your answers">
           {chips.map(([label, s]) => (
             <button key={s} type="button" onClick={() => { setPhase('ask'); go(s); }} aria-label={`Change: ${label}`}
               className="inline-flex items-center gap-2 min-h-10 px-3 rounded-full border border-slate-500/30 bg-slate-800/80 text-sm text-slate-100 hover:border-brand-lilac/60">
@@ -182,54 +240,35 @@ export default function PrepSetup() {
           ))}
         </div>
 
-        <div className="glass-card rounded-2xl p-4 sm:p-5 space-y-3">
-          <h2 className="text-base font-bold text-white">Your next two weeks</h2>
-          <ol className="grid grid-cols-7 gap-1.5">
-            {cal.map((c) => (
-              <li key={c.i} className={`anim-rise min-h-16 rounded-lg p-1.5 flex flex-col gap-1 border ${
-                c.i === 0 ? 'bg-brand-indigo/35 border-brand-lilac' : c.study ? 'bg-slate-800/90 border-slate-600/30' : 'border-slate-700/20'
-              }`} style={{ animationDelay: `${c.i * 30}ms` }}>
-                <span className="text-[10px] text-slate-400">{c.dow} {c.date}</span>
-                <span className={`text-[11px] font-semibold leading-tight ${c.isExam ? 'text-amber-300' : c.study ? 'text-slate-100' : 'text-slate-500'}`}>{c.i === 0 && c.study ? `Today: ${c.what}` : c.what}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        <ol className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3" aria-label="Your route">
-          {phaseDefs.map(([t, desc], i) => (
-            <li key={t} className={`anim-rise rounded-2xl p-4 border ${i === 0 ? 'bg-brand-indigo/20 border-brand-lilac/50' : 'bg-slate-800/60 border-slate-600/20'}`} style={{ animationDelay: `${i * 110}ms` }}>
-              <p className="text-xs font-semibold uppercase tracking-wider text-brand-lilac">Week {cuts[i] + 1}{cuts[i + 1] > cuts[i] + 1 ? `–${cuts[i + 1]}` : ''}</p>
-              <p className="text-base font-semibold text-white">{t}</p>
-              <p className="text-sm text-slate-400">{desc}</p>
-            </li>
-          ))}
-        </ol>
-
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl p-5 border border-brand-lilac/45 bg-gradient-to-br from-brand-indigo/35 to-slate-800/75">
-          <div className="min-w-0 flex-[1_1_300px]">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#c9c0ff]">Today · {p.minsPerDay} min</p>
-            <p className="text-xl font-bold text-white">{{ test: 'Start with a 10-question baseline', learn: 'Start with the D1 notes', practise: 'Start with a drill' }[p.start]}</p>
-            <p className="text-sm text-slate-300">Your plan re-orders itself around how it goes.</p>
+        {/* The long view and settings, folded away */}
+        <details className="group glass-card rounded-2xl">
+          <summary className="flex items-center gap-2 min-h-12 px-4 sm:px-5 cursor-pointer list-none font-semibold text-slate-200 hover:text-white">
+            See full plan and reminders
+            <ChevronDown size={16} aria-hidden="true" className="ml-auto transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="px-4 sm:px-5 pb-5 space-y-5">
+            <div className="space-y-2">
+              <p className="text-sm text-slate-300">
+                {deadline ? `${studyDaysLeft} study days until ${nice(p.examDate!)}.` : 'Your next four weeks.'}
+              </p>
+              <ol className="grid grid-cols-7 gap-1.5">{longView.map(dayCell)}</ol>
+            </div>
+            <ul className="space-y-2 text-sm text-slate-300">
+              <li><span className="font-semibold text-white">Weakest first.</span> Practice goes to the objective you're weakest on.</li>
+              <li><span className="font-semibold text-white">Review before you forget.</span> Flashcards come back on the day they're due.</li>
+              <li><span className="font-semibold text-white">Timed mock when you're ready.</span> Longer sessions end with a mini mock once enough of the exam is covered.</li>
+            </ul>
+            <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-700/40">
+              <BellRing size={18} className="text-brand-lilac" aria-hidden="true" />
+              <label htmlFor="rem" className="text-sm text-slate-200">Remind me on study days at</label>
+              <input id="rem" type="time" value={reminder} onChange={(e) => setReminder(e.target.value)}
+                className="min-h-10 rounded-lg bg-slate-900 border border-slate-600/50 px-2 text-sm text-white" />
+              <button type="button" onClick={addReminder} className="min-h-10 px-3 rounded-lg border border-brand-lilac/40 text-sm font-semibold text-brand-tint hover:bg-brand-indigo/20">
+                Add to my calendar
+              </button>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link to={`/skillup/${examId}/session?mins=${p.minsPerDay}`} className="anim-glow inline-flex items-center gap-2 min-h-12 px-6 rounded-xl bg-brand-indigo hover:bg-brand-indigo-deep text-white font-semibold">
-              Start now <ArrowRight size={16} aria-hidden="true" />
-            </Link>
-            <Link to={`/skillup/${examId}`} className="inline-flex items-center min-h-12 px-4 rounded-xl border border-slate-500/40 text-slate-200 hover:text-white text-sm font-semibold">Later</Link>
-          </div>
-        </div>
-
-        <div className="glass-card rounded-2xl p-4 flex flex-wrap items-center gap-3">
-          <BellRing size={18} className="text-brand-lilac" aria-hidden="true" />
-          <label htmlFor="rem" className="text-sm text-slate-200">Remind me on study days at</label>
-          <input id="rem" type="time" value={reminder} onChange={(e) => setReminder(e.target.value)}
-            className="min-h-10 rounded-lg bg-slate-900 border border-slate-600/50 px-2 text-sm text-white" />
-          <button type="button" onClick={addReminder} className="min-h-10 px-3 rounded-lg border border-brand-lilac/40 text-sm font-semibold text-brand-tint hover:bg-brand-indigo/20">
-            Add to my calendar
-          </button>
-          <span className="text-xs text-slate-400">Downloads a repeating event for your calendar app.</span>
-        </div>
+        </details>
       </div>
     );
   }

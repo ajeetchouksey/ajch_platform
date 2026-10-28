@@ -1,16 +1,14 @@
 // ── One notes section inside a session, then its quick check ──────────────────
 import { useEffect, useMemo, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import { BookOpen } from 'lucide-react';
+import { markLessonRead } from '@/lib/storage';
 import { loadNoteForExam } from '@/lib/content-loader';
 import { matchQuestionsToSections, noteSections } from '@/lib/section-match';
 import { getResumeState, resumeLabel, setResumeState } from '@/lib/study-tracker';
 import { plainText } from '@/lib/flashcards';
 import type { Question } from '@/types/content';
 import { SectionCheck } from '../SectionCheck';
-import { headingKicker, stripEmojiChildren } from '../notes-format';
+import { LessonBody } from '../notes/LessonBody';
 
 export function NotesStep({ examId, domain, heading, bank, onDone }: {
   examId: string; domain: number; heading?: string; bank: Question[]; onDone: () => void;
@@ -43,6 +41,7 @@ export function NotesStep({ examId, domain, heading, bank, onDone }: {
   );
 
   const finish = () => {
+    if (section) markLessonRead(examId, domain, section.heading);
     if (section) setResumeState(examId, { domainId: domain, sectionTitle: plainText(section.next?.heading ?? section.heading), ts: Date.now() });
     onDone();
   };
@@ -62,33 +61,9 @@ export function NotesStep({ examId, domain, heading, bank, onDone }: {
       <p className="text-xs text-slate-400 flex items-center gap-1.5">
         <BookOpen size={13} aria-hidden="true" /> Domain {domain} · section {section.index + 1} of {section.total}
       </p>
-      <article className="notes-body prose prose-invert max-w-none prose-p:text-slate-300 prose-li:text-slate-300 prose-strong:text-slate-100 prose-headings:text-white">
-        <h2>{plainText(section.heading)}</h2>
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeRaw]}
-          components={{
-            h3({ children }) {
-              const k = headingKicker(String(children));
-              if (!k) return <h3>{stripEmojiChildren(children)}</h3>;
-              const Icon = k.kicker.icon;
-              return (
-                <h3 className={`notes-kicker ${k.kicker.tone}`}>
-                  <span className="notes-kicker-label"><Icon size={13} aria-hidden="true" />{k.kicker.label}</span>
-                  {k.rest && <span className="notes-kicker-title">{k.rest}</span>}
-                </h3>
-              );
-            },
-            table({ children }) { return <div className="notes-table"><table>{children}</table></div>; },
-            // Diagrams live in the full notes; keep the session light.
-            pre({ children }) { return <pre>{children}</pre>; },
-          }}
-        >
-          {section.body}
-        </ReactMarkdown>
-      </article>
+      <LessonBody heading={section.heading} body={section.body} diagrams={false} />
       {checks.length > 0 && <SectionCheck examId={examId} domain={domain} heading={section.heading} candidates={checks} markdown={md} />}
-      <div className="sticky bottom-3 z-10 sm:static flex gap-2 rounded-2xl sm:rounded-none bg-[#0e1a2d]/95 sm:bg-transparent p-2 sm:p-0 shadow-lg sm:shadow-none">
+      <div className="sticky bottom-3 z-10 sm:static flex gap-2 rounded-2xl sm:rounded-none bg-slate-950/95 sm:bg-transparent p-2 sm:p-0 shadow-lg sm:shadow-none">
         <button type="button" onClick={finish} className="flex-1 sm:flex-none min-h-12 px-6 rounded-xl bg-brand-indigo hover:bg-brand-indigo-deep text-white text-sm font-semibold">
           Done reading
         </button>

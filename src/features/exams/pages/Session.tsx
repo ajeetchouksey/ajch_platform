@@ -6,12 +6,13 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Award, Check, Flame } from 'lucide-react';
 import { loadExamRegistry, loadQuestionsForExam, loadTaskStatementsForExam } from '@/lib/content-loader';
 import { getAttempts } from '@/lib/adaptive-quiz';
-import { examMastery } from '@/lib/objective-mastery';
+import { examMastery, domainWeights } from '@/lib/objective-mastery';
 import { dueCount } from '@/lib/flashcards';
 import { getReadinessBreakdown, recordStudyDay } from '@/lib/study-tracker';
 import { getSessions } from '@/lib/storage';
 import { getProfile } from '@/lib/prep-profile';
-import { buildToday, questionsForStep, type SessionStep } from '@/lib/today-session';
+import { buildToday, questionsForStep, stepActivity, type SessionStep } from '@/lib/today-session';
+import { ACTIVITY_COLORS } from '@/lib/skillup-colors';
 import { diffSnapshots, newMilestones, snapshot, type Change, type Milestone, type Snapshot } from '@/lib/progress-snapshot';
 import type { ExamConfig, Question, TaskStatementsFile } from '@/types/content';
 import { QuestionStep, type QuestionResult } from '../components/session/QuestionStep';
@@ -47,7 +48,7 @@ export default function Session() {
       if (!alive) return;
       // Freeze the plan for this run, so answering doesn't reshuffle the steps.
       const attempts = getAttempts(examId);
-      const mastery = statements ? examMastery(statements, attempts) : null;
+      const mastery = statements ? examMastery(statements, attempts, domainWeights(exam.domains)) : null;
       const readiness = getReadinessBreakdown(examId, exam.domains, getSessions(), exam.questions).overall;
       const plan = buildToday({ exam, profile: getProfile(examId), mastery, attempts, dueCards: dueCount(examId), readiness, minutes });
       before.current = snapshot(exam, statements);
@@ -107,7 +108,8 @@ export default function Session() {
       <ol className="flex gap-1.5" aria-label="Session steps">
         {steps.map((s, k) => (
           <li key={k} className="flex-1 min-w-0" aria-current={k === at ? 'step' : undefined}>
-            <div className={`h-1.5 rounded-full transition-colors duration-500 ${k < at ? 'bg-emerald-400' : k === at ? 'bg-brand-lilac' : 'bg-slate-700/60'}`} />
+            <div className="h-1.5 rounded-full transition-all duration-500"
+              style={{ background: ACTIVITY_COLORS[stepActivity(s.kind)], opacity: k < at ? 0.45 : k === at ? 1 : 0.2 }} />
             <p className={`mt-1.5 text-[11px] truncate ${k === at ? 'text-white font-semibold' : 'text-slate-400'}`}>{k < at ? '✓ ' : ''}{s.title}</p>
           </li>
         ))}

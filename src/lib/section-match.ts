@@ -23,7 +23,7 @@ export function noteSections(markdown: string): { heading: string; body: string 
 }
 
 /** `## ` heading text (as the notes TOC shows it) → candidate questions, best match first. */
-export function matchQuestionsToSections(markdown: string, questions: Question[]): Map<string, Question[]> {
+export function matchQuestionsToSections(markdown: string, questions: Question[], limit = 6): Map<string, Question[]> {
   const out = new Map<string, Question[]>();
   if (!questions.length) return out;
   const text = markdown.replace(/```[\s\S]*?```/g, '');
@@ -52,7 +52,7 @@ export function matchQuestionsToSections(markdown: string, questions: Question[]
     if (best >= 0 && bestScore >= 4) scored.set(best, [...(scored.get(best) ?? []), { q, score: bestScore }]);
   }
   for (const [i, list] of scored) {
-    out.set(sections[i].heading, list.sort((a, b) => b.score - a.score).slice(0, 6).map((x) => x.q));
+    out.set(sections[i].heading, list.sort((a, b) => b.score - a.score).slice(0, limit).map((x) => x.q));
   }
   return out;
 }

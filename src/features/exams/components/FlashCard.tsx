@@ -3,8 +3,11 @@
 // On phones the rating buttons sit in a bar at the bottom, within thumb reach.
 import { useRef, useState } from 'react';
 import { previewInterval, type Flashcard, type Rating } from '@/lib/flashcards';
+import { domainColor, tint } from '@/lib/skillup-colors';
 
 const KIND_TAG: Record<Flashcard['kind'], string> = { concept: 'Key concept', trap: 'Exam trap', question: 'Missed question' };
+// Same hues as the note blocks they come from (key concept lilac, exam trap rose); misses are review amber.
+const KIND_COLOR: Record<Flashcard['kind'], string> = { concept: '#A99BFF', trap: '#fb7185', question: '#fbbf24' };
 
 const RATINGS: { r: Rating; label: string; key: string; cls: string }[] = [
   { r: 'again', label: "Didn't know", key: '1', cls: 'border-rose-400/40 text-rose-200 hover:bg-rose-500/15' },
@@ -54,8 +57,10 @@ export function FlashCard({ examId, card, flipped, onFlip, onRate }: {
             : 'bg-gradient-to-br from-slate-700/60 to-slate-800/90 border-slate-500/25 hover:border-brand-lilac/60'
         }`}
       >
-        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-lilac">
-          {KIND_TAG[card.kind]} · D{card.domain} · {flipped ? 'Answer' : 'Question'}
+        <span className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em]">
+          <span style={{ color: KIND_COLOR[card.kind] }}>{KIND_TAG[card.kind]}</span>
+          <span className="px-1.5 py-0.5 rounded-md normal-case tracking-normal font-bold" style={{ color: domainColor(card.domain), background: tint(domainColor(card.domain), 0.15) }}>D{card.domain}</span>
+          <span className="text-slate-400">{flipped ? 'Answer' : 'Question'}</span>
         </span>
         <span aria-live="polite" className={`flex-1 text-white leading-snug ${flipped ? 'text-lg font-medium' : 'text-xl sm:text-2xl font-semibold'}`}>
           {flipped ? card.back : card.front}

@@ -83,7 +83,8 @@ export function objectiveMastery(
     const a = latest.get(id);
     if (!a) continue;
     attempted += 1;
-    if (a.correct) correct += 1;
+    // A right answer the learner marked as a guess only half counts.
+    if (a.correct) correct += a.confidence === 'guess' ? 0.5 : 1;
   }
   const coverage = total > 0 ? attempted / total : 0;
   const accuracy = attempted > 0 ? correct / attempted : 0;
@@ -100,11 +101,18 @@ export interface ExamMastery {
   objectives: ObjectiveMastery[];
   /** Share of all mapped questions answered at least once, 0–1. */
   coverage: number;
-  /** Lowest-mastery objective that still has questions — the next thing to drill. */
+  /** The next thing to drill: highest domain weight × (1 − mastery) among objectives with questions. */
   weakest: ObjectiveMastery | null;
 }
 
-export function examMastery(statements: TaskStatementsFile, attempts: QuestionAttempt[]): ExamMastery {
+const STATUS_LABEL: Record<MasteryStatus, string> = { new: 'Not practised', weak: 'Weak', building: 'Building', strong: 'Strong' };
+export const masteryLabel = (s: MasteryStatus) => STATUS_LABEL[s];
+
+export const domainWeights = (domains: { id: number; weight: number }[]): Record<number, number> =>
+  Object.fromEntries(domains.map((d) => [d.id, d.weight]));
+
+/** `domainWeights` (domain id → exam %) makes a big weak objective outrank a small weaker one. */
+export function examMastery(statements: TaskStatementsFile, attempts: QuestionAttempt[], domainWeights?: Record<number, number>): ExamMastery {
   const latest = latestAttemptByQuestion(attempts);
   const objectives = statements.domains.flatMap((d) =>
     d.tasks.map((t) => objectiveMastery(t, d.id, latest)),
@@ -113,8 +121,9 @@ export function examMastery(statements: TaskStatementsFile, attempts: QuestionAt
   let seen = 0;
   for (const id of mapped) if (latest.has(id)) seen += 1;
   const drillable = objectives.filter((o) => o.total > 0);
+  const priority = (o: ObjectiveMastery) => (domainWeights?.[o.domainId] ?? 1) * (1 - o.mastery);
   const weakest = drillable.length
-    ? drillable.reduce((min, o) => (o.mastery < min.mastery ? o : min))
+    ? drillable.reduce((best, o) => (priority(o) > priority(best) ? o : best))
     : null;
   return { objectives, coverage: mapped.size ? seen / mapped.size : 0, weakest };
 }

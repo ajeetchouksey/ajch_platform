@@ -8,6 +8,7 @@ import { getFlagged, toggleFlag, reviewQueueIds } from '@/lib/objective-mastery'
 import { addQuestionCard } from '@/lib/flashcards';
 import { parseExplanation } from '@/lib/explanation';
 import { ChangeList } from '../components/journey/ChangeList';
+import { domainColor } from '@/lib/skillup-colors';
 import { diffSnapshots, newMilestones, snapshot, type Change, type Milestone, type Snapshot } from '@/lib/progress-snapshot';
 import { useAuth } from '@/lib/auth';
 import { trackEvent } from '@/lib/analytics';
@@ -904,7 +905,7 @@ export default function Quiz() {
                 <Timer size={12} /> {formatClock(endsAt - now)}
               </span>
             )}
-            <span>D{q.domain} · {examDomains.find(d => d.id === q.domain)?.title ?? `Domain ${q.domain}`}</span>
+            <span><span className="font-bold" style={{ color: domainColor(q.domain) }}>D{q.domain}</span> · {examDomains.find(d => d.id === q.domain)?.title ?? `Domain ${q.domain}`}</span>
             <button
               onClick={() => handleToggleFlag(q.id)}
               aria-pressed={flagged.has(q.id)}

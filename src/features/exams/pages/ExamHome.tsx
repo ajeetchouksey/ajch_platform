@@ -8,10 +8,11 @@ import { loadExamRegistry, loadTaskStatementsForExam } from '@/lib/content-loade
 import { useAuth } from '@/lib/auth';
 import { getSessions } from '@/lib/storage';
 import { getAttempts } from '@/lib/adaptive-quiz';
-import { examMastery } from '@/lib/objective-mastery';
+import { examMastery, domainWeights } from '@/lib/objective-mastery';
 import { ExamMap, PrepPath } from '../components/ExamMap';
 import { TodayHub } from '../components/journey/TodayHub';
-import { getProfile, setupSkipped } from '@/lib/prep-profile';
+import { getProfile, setupSkipped, skipSetup } from '@/lib/prep-profile';
+import { SetupSheet } from '../components/journey/SetupSheet';
 import { loadPlan, nextIncompleteSession } from '@/lib/plan-generator';
 import { getReadinessBreakdown, getResumeState, resumeLabel } from '@/lib/study-tracker';
 import type { ReadinessBreakdown } from '@/lib/study-tracker';
@@ -100,10 +101,12 @@ export default function ExamHome() {
   // Official objectives + per-question attempts → exam map and Practice step.
   const [statements, setStatements] = useState<TaskStatementsFile | null>(null);
   const mastery = useMemo(
-    () => (statements && examId ? examMastery(statements, getAttempts(examId)) : null),
-    [statements, examId],
+    () => (statements && examId ? examMastery(statements, getAttempts(examId), exam ? domainWeights(exam.domains) : undefined) : null),
+    [statements, examId, exam],
   );
   const [readinessExplainOpen, setReadinessExplainOpen] = useState(false);
+  const [showSetup, setShowSetup] = useState(false);
+  const skipFirstSetup = useCallback(() => { if (examId) skipSetup(examId); setShowSetup(false); }, [examId]);
   // Guest mode banner dismissal (persists across page refreshes)
   const [bannerDismissed, setBannerDismissed] = useState(() => {
     try { return !!localStorage.getItem('guest_banner_dismissed'); }
@@ -121,11 +124,8 @@ export default function ExamHome() {
     loadExamRegistry()
       .then((r) => {
         const found = r.exams.find((e) => e.id === examId) ?? null;
-        // First visit to an exam (no plan, no answers, setup not skipped): start with the setup.
-        if (found && found.kind !== 'skill-track' && !found.deprecatedAt && !getProfile(examId) && !setupSkipped(examId) && getAttempts(examId).length === 0) {
-          navigate(`/skillup/${examId}/start`, { replace: true });
-          return;
-        }
+        // First visit to an exam (no plan, no answers, setup not skipped): ask the setup over the overview.
+        setShowSetup(Boolean(found && found.kind !== 'skill-track' && !found.deprecatedAt && !getProfile(examId) && !setupSkipped(examId) && getAttempts(examId).length === 0));
         setExam(found);
         if (found?.prerequisites?.length) {
           setPrereqExams(r.exams.filter((e) => found.prerequisites!.includes(e.id)));
@@ -164,6 +164,14 @@ export default function ExamHome() {
 
   return (
     <div className="space-y-6">
+      {showSetup && (
+        <SetupSheet
+          exam={exam}
+          readiness={readiness}
+          onSkip={skipFirstSetup}
+          onDone={(p) => navigate(`/skillup/${examId}/session?mins=${p.minsPerDay}`)}
+        />
+      )}
       {/* Retired track — point to its replacement */}
       {exam.deprecatedAt && (
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-xl border border-amber-700/50 bg-amber-950/30 text-sm">

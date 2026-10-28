@@ -5,7 +5,7 @@
 // the learner ("why this today").
 import type { ExamConfig, Question, QuestionAttempt, TaskStatementsFile } from '@/types/content';
 import type { ExamMastery } from '@/lib/objective-mastery';
-import { latestAttemptByQuestion } from '@/lib/objective-mastery';
+import { latestAttemptByQuestion, masteryLabel } from '@/lib/objective-mastery';
 import { getDomainCompletion, getResumeState, resumeLabel } from '@/lib/study-tracker';
 import { getSessions } from '@/lib/storage';
 import { expectedToday, isStudyDay, type PrepProfile } from '@/lib/prep-profile';
@@ -13,6 +13,11 @@ import { expectedToday, isStudyDay, type PrepProfile } from '@/lib/prep-profile'
 const DAY = 86_400_000;
 
 export type StepKind = 'cards' | 'missed' | 'notes' | 'drill' | 'baseline' | 'mixed';
+
+/** Which activity colour a step wears (see lib/skillup-colors). */
+export function stepActivity(kind: StepKind): 'learn' | 'practise' | 'review' | 'mock' {
+  return kind === 'notes' ? 'learn' : kind === 'cards' || kind === 'missed' ? 'review' : kind === 'mixed' ? 'mock' : 'practise';
+}
 
 export interface SessionStep {
   kind: StepKind;
@@ -130,7 +135,7 @@ export function buildToday(i: TodayInput): TodayPlan {
     const n = Math.max(5, Math.min(15, Math.round(left / 1.2)));
     steps.push({ kind: 'drill', title: `Drill objective ${weakest.task.id}`, meta: `${n} questions · ${weakest.task.title}`, minutes: Math.round(n * 1.2), count: n, taskId: weakest.task.id, domain: weakest.domainId });
     used += Math.round(n * 1.2);
-    reasons.push(`Objective ${weakest.task.id} is your weakest (${Math.round(weakest.mastery * 100)}% mastery).`);
+    reasons.push(`Objective ${weakest.task.id} is your top priority: ${weakest.status === 'new' ? 'not practised yet' : masteryLabel(weakest.status).toLowerCase()}, in a domain worth ${i.exam.domains.find((d) => d.id === weakest.domainId)?.weight ?? '?'}% of the exam.`);
   } else if (left >= 5) {
     steps.push(quickDrill(Math.max(5, Math.round(left / 1.2))));
     used += left;
