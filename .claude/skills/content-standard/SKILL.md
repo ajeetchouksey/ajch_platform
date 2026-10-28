@@ -123,6 +123,7 @@ interface RichScenario {
   difficulty: 'easy' | 'medium' | 'hard';
   estimatedMinutes: number;
   domains: number[];       // plural — a scenario may span multiple domain ids
+  taskIds?: string[];      // task-statement ids the scenario tests, e.g. ["1.2", "3.1"] — required for new scenarios
   scenario: {
     background: string;
     characters: ScenarioCharacter[];
