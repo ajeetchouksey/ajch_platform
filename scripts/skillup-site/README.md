@@ -40,7 +40,13 @@ Without `--embed`, the build still produces a standalone `index.html`, used for 
 
 ## Colour code
 
-`colour-code.json` is the only place a SkillUp hue is defined: six domain colours, the four lesson parts, the answer states, the five mastery levels, provider colours, and the diagram node kinds. `build.mjs --embed` validates it and writes it as custom properties (`--d1`…`--d6`, `--k-key`, `--ok`, `--m1`…) ahead of `aaryaai-theme.css`, which only refers to the variables. `ajch_skillup/scripts/build-svg-diagrams.py` mirrors the `diagram` block, so diagrams use the same colours. The rules for using them (only indigo is clickable, colour always paired with an icon and a word, mastery never red) are in `.claude/skills/learner-experience-standard/SKILL.md` under Visual Language. To change a colour, edit the JSON, rebuild, and regenerate the diagrams if you changed the `diagram` block.
+`colour-code.json` is the only place a SkillUp hue is defined: six domain colours, the four lesson parts, the answer states, the five mastery levels, provider colours, and the diagram node kinds. `build.mjs --embed` validates it and writes it as custom properties (`--d1`…`--d6`, `--k-key`, `--ok`, `--m1`…, `--pv-microsoft`…) ahead of `aaryaai-theme.css`, which only refers to the variables. `ajch_skillup/scripts/build-svg-diagrams.py` mirrors the `diagram` block, so diagrams use the same colours. The rules for using them (only indigo is clickable, colour always paired with an icon and a word, mastery never red) are in `.claude/skills/learner-experience-standard/SKILL.md` under Visual Language. To change a colour, edit the JSON, rebuild, and regenerate the diagrams if you changed the `diagram` block.
+
+Where the colours show: exam cards take their provider colour; the exam home tiles take a lesson-part colour (notes = key idea, practice = choose when, case studies = real use); topic numbers, case-study stripes and topic chips take their domain colour; status pills and Today's session ticks use the answer states.
+
+## Live feel
+
+The exam home shows **Today's session**: up to three tasks (read the next topic, test it, refresh one flagged topic) fixed for the day and stored with the learner's progress. A task is ticked only when the learner actually does it, and each tick confirms with a toast. Readiness rings fill from the last value the learner saw and count up; result rings count up from zero. Answers pop or shake, and lists arrive in sequence. All motion is off under `prefers-reduced-motion`. Nothing shows invented activity (no "N learners online"). While the assets load, `SkillUpHost.tsx` shows a placeholder shaped like the catalog.
 
 ## Content modes
 

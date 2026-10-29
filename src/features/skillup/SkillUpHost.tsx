@@ -56,6 +56,7 @@ export default function SkillUpHost() {
   const appRef = useRef<SkillUpInstance | null>(null);
   const initialExam = useRef(examId);
   const [failed, setFailed] = useState(false);
+  const [ready, setReady] = useState(false);
 
   // Load and mount once; the instance lives as long as the user stays in /skillup.
   useEffect(() => {
@@ -72,6 +73,7 @@ export default function SkillUpHost() {
             if (window.location.pathname.replace(/\/$/, '') !== to) navigate(to);
           },
         });
+        setReady(true);
       })
       .catch(() => { if (!cancelled) setFailed(true); });
     return () => {
@@ -95,5 +97,25 @@ export default function SkillUpHost() {
       </div>
     );
   }
-  return <div ref={hostRef} className="skillup-host w-full" />;
+  return (
+    <>
+      {!ready && <LoadingShimmer />}
+      <div ref={hostRef} className="skillup-host w-full" />
+    </>
+  );
+}
+
+/** Placeholder shaped like the catalog while the SkillUp assets load, so the page never sits blank. */
+function LoadingShimmer() {
+  const bar = 'rounded-lg bg-slate-700/40 animate-pulse motion-reduce:animate-none';
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6" role="status" aria-label="Loading SkillUp">
+      <div className={`${bar} h-4 w-32`} />
+      <div className={`${bar} h-12 w-2/3`} />
+      <div className={`${bar} h-4 w-1/2`} />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 pt-4">
+        {[0, 1, 2].map((i) => <div key={i} className={`${bar} h-48 rounded-2xl`} />)}
+      </div>
+    </div>
+  );
 }

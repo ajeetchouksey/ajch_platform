@@ -191,6 +191,7 @@ const ccVars = [
   ...Object.entries(CC.lessonParts).map(([k, v]) => [`k-${k}`, v.hex]),
   ...Object.entries(CC.states).map(([k, v]) => [k, v.hex]),
   ...CC.mastery.map((m, i) => [`m${i + 1}`, m.hex]),
+  ...Object.entries(CC.providers).map(([k, v]) => [`pv-${k.toLowerCase().replace(/[^a-z0-9]+/g, '')}`, v]),
 ];
 for (const [k, v] of ccVars) if (!/^#[0-9A-Fa-f]{6}$/.test(v)) throw new Error(`colour-code.json: ${k} is not a #RRGGBB colour`);
 const tokensCss = `/* generated from colour-code.json v${CC.version} */\n.skillup-host{${ccVars.map(([k, v]) => `--${k}:${v.toLowerCase()}`).join(';')}}\n`;
