@@ -183,6 +183,17 @@ for (const e of entries) {
   console.log(`  ${e.id.padEnd(17)} ${m.mode.padEnd(8)} v${m.version.padEnd(7)} ${String(Object.keys(data.topics).length).padStart(3)} topics ${String(m.questions).padStart(4)} q ${String(data.cases.length).padStart(2)} cases ${String(images.size).padStart(3)} img`);
 }
 const style = readFileSync(join(HERE, 'styles.css'), 'utf-8');
+// Colour code → custom properties. colour-code.json is the one place a SkillUp hue is defined.
+const CC = JSON.parse(readFileSync(join(HERE, 'colour-code.json'), 'utf-8'));
+if (CC.domains.length !== 6 || CC.mastery.length !== 5) throw new Error('colour-code.json: expected 6 domains and 5 mastery levels');
+const ccVars = [
+  ...CC.domains.map((d, i) => [`d${i + 1}`, d.hex]),
+  ...Object.entries(CC.lessonParts).map(([k, v]) => [`k-${k}`, v.hex]),
+  ...Object.entries(CC.states).map(([k, v]) => [k, v.hex]),
+  ...CC.mastery.map((m, i) => [`m${i + 1}`, m.hex]),
+];
+for (const [k, v] of ccVars) if (!/^#[0-9A-Fa-f]{6}$/.test(v)) throw new Error(`colour-code.json: ${k} is not a #RRGGBB colour`);
+const tokensCss = `/* generated from colour-code.json v${CC.version} */\n.skillup-host{${ccVars.map(([k, v]) => `--${k}:${v.toLowerCase()}`).join(';')}}\n`;
 const app = readFileSync(join(HERE, 'app.js'), 'utf-8');
 const catalogJs = `var SKILLUP={exams:{},catalog:${jsSafe(JSON.stringify({ built: new Date().toISOString().slice(0, 10), exams: list }))}};`;
 
@@ -191,7 +202,7 @@ if (EMBED) {
   const data = catalogJs + '\n' + dataLines.join('\n');
   writeFileSync(join(OUT, 'skillup-data.js'), data);
   writeFileSync(join(OUT, 'skillup-app.js'), app);
-  const css = scopeCss(style, '.skillup-host') + '\n' + readFileSync(join(HERE, 'aaryaai-theme.css'), 'utf-8');
+  const css = scopeCss(style, '.skillup-host') + '\n' + tokensCss + readFileSync(join(HERE, 'aaryaai-theme.css'), 'utf-8');
   writeFileSync(join(OUT, 'skillup.css'), css);
   console.log(`✓ ${entries.length} entries → ${OUT}/skillup-{data,app}.js + skillup.css (${(data.length / 1048576).toFixed(1)} MB data)`);
 } else {
