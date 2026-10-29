@@ -531,3 +531,141 @@
 }
 /* A trap box directly under an "Exam trap" heading doesn't need its own label */
 .notes-body h3.kicker-rose + .note-trap::before { display: none; }
+
+/* ── Journey motion: small, purposeful, off for reduced-motion users ── */
+@keyframes aarya-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes aarya-pop { 0% { opacity: 0; transform: scale(.6); } 70% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes aarya-glow { 0% { box-shadow: 0 0 0 0 rgba(169,155,255,.55); } 100% { box-shadow: 0 0 0 14px rgba(169,155,255,0); } }
+.anim-rise { animation: aarya-rise .35s ease both; }
+.anim-pop { animation: aarya-pop .35s ease both; }
+.anim-glow { animation: aarya-glow .9s ease; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise, .anim-pop, .anim-glow { animation: none; }
+}
+
+/* ═══ Study notes — reading surface, themes and colour-coded blocks ═══════════
+   .notes-reader[data-theme] sets the palette; the user picks Dim (default),
+   Dark or Paper and a text size on the notes toolbar. Block colours follow
+   the SkillUp colour code (src/lib/skillup-colors.ts): story sand, mental
+   model teal, key concept lilac, in practice emerald, exam trap rose,
+   watch out amber, reference slate. */
+.notes-reader {
+  --nr-fs: 1.0625rem;
+  --nr-paper: #222c40; --nr-ink: #f8fafc; --nr-body: #e2e8f0; --nr-muted: #a8b5c8;
+  --nr-line: rgba(148, 163, 184, 0.22); --nr-tint: 14%;
+  --nr-code-bg: rgba(15, 23, 42, 0.55); --nr-code-fg: #e0dbff; --nr-th: #1a2233; --nr-stripe: rgba(15, 23, 42, 0.3);
+  background: var(--nr-paper);
+  border: 1px solid var(--nr-line);
+  border-radius: 20px;
+  padding: clamp(1.1rem, 4vw, 3rem);
+  box-shadow: 0 10px 40px -14px rgba(0, 0, 0, 0.45);
+  transition: background-color .3s, color .3s;
+}
+.notes-reader[data-theme='dark'] {
+  --nr-paper: #13223a; --nr-ink: #ffffff; --nr-body: #dbe3ee; --nr-muted: #9fb0c8;
+  --nr-line: rgba(148, 163, 184, 0.18); --nr-tint: 12%;
+  --nr-code-bg: rgba(91, 75, 214, 0.18); --nr-code-fg: #d4ccff; --nr-th: #0e1a2d; --nr-stripe: rgba(14, 26, 45, 0.45);
+  box-shadow: none;
+}
+.notes-reader[data-theme='paper'] {
+  --nr-paper: #FBFAFE; --nr-ink: #14122B; --nr-body: #2a2840; --nr-muted: #5b5873;
+  --nr-line: rgba(20, 18, 43, 0.12); --nr-tint: 9%;
+  --nr-code-bg: #EFECFB; --nr-code-fg: #3b2fa8; --nr-th: #F1EFF8; --nr-stripe: #F7F5FC;
+  box-shadow: 0 12px 40px -16px rgba(0, 0, 0, 0.5);
+}
+.notes-reader[data-size='0'] { --nr-fs: 1rem; }
+.notes-reader[data-size='2'] { --nr-fs: 1.25rem; }
+
+.notes-reader .notes-body {
+  --tw-prose-body: var(--nr-body);
+  --tw-prose-headings: var(--nr-ink);
+  --tw-prose-bold: var(--nr-ink);
+  --tw-prose-links: var(--nr-code-fg);
+  --tw-prose-bullets: var(--nr-muted);
+  --tw-prose-counters: var(--nr-muted);
+  --tw-prose-quotes: var(--nr-body);
+  --tw-prose-captions: var(--nr-muted);
+  --tw-prose-hr: var(--nr-line);
+  font-size: var(--nr-fs);
+  line-height: 1.75;
+  color: var(--nr-body);
+}
+.notes-reader .notes-body p,
+.notes-reader .notes-body li { color: var(--nr-body); }
+.notes-reader .notes-body strong { color: var(--nr-ink); }
+.notes-reader .notes-body h1,
+.notes-reader .notes-body h2,
+.notes-reader .notes-body h3,
+.notes-reader .notes-body .notes-kicker-title { color: var(--nr-ink); }
+.notes-reader .notes-body h1 + p { color: var(--nr-muted); }
+.notes-reader .notes-body h2 { border-top-color: var(--nr-line); }
+.notes-reader .notes-body :not(pre) > code:not(.glossary-term) {
+  background: var(--nr-code-bg) !important;
+  border-color: transparent !important;
+  color: var(--nr-code-fg) !important;
+}
+.notes-reader .notes-table { border-color: var(--nr-line); }
+.notes-reader .notes-table thead th { background: var(--nr-th); color: var(--nr-ink); border-bottom-color: var(--nr-line); }
+.notes-reader .notes-table td { color: var(--nr-body); border-top-color: var(--nr-line); }
+.notes-reader .notes-table tbody tr:nth-child(even) td { background: var(--nr-stripe); }
+.notes-reader .notes-body blockquote.callout,
+.notes-reader .notes-body .note-scribble,
+.notes-reader .notes-body .note-important,
+.notes-reader .notes-body .note-trap {
+  color: var(--nr-body);
+  border-color: var(--nr-line);
+  border-left-color: var(--c);
+  background: color-mix(in srgb, var(--c) var(--nr-tint), transparent);
+}
+.notes-reader .notes-body blockquote.callout p { color: var(--nr-body); }
+.notes-reader .notes-body blockquote.callout strong { color: var(--nr-ink); }
+
+/* Colour-coded study blocks (grouped by the note-blocks rehype plugin) */
+.note-block {
+  --k: #A99BFF;
+  margin: 1.75rem 0;
+  padding: 1rem 1.25rem 1.1rem;
+  border-radius: 14px;
+  border-left: 4px solid var(--k);
+  background: color-mix(in srgb, var(--k) var(--nr-tint, 12%), transparent);
+}
+.note-block > :last-child { margin-bottom: 0; }
+.notes-body .note-block > h3.notes-kicker:first-child { margin-top: 0; }
+.note-block .notes-kicker-label { color: var(--k); }
+.note-block[data-kind='story']     { --k: #E7C59A; }
+.note-block[data-kind='model']     { --k: #2DD4BF; }
+.note-block[data-kind='concept']   { --k: #A99BFF; }
+.note-block[data-kind='practice']  { --k: #34d399; }
+.note-block[data-kind='trap']      { --k: #fb7185; }
+.note-block[data-kind='watch']     { --k: #fbbf24; }
+.note-block[data-kind='reference'] { --k: #94a3b8; }
+/* Paper theme: deeper hues so labels and edges keep their contrast on white */
+.notes-reader[data-theme='paper'] .note-block[data-kind='story']     { --k: #a16207; }
+.notes-reader[data-theme='paper'] .note-block[data-kind='model']     { --k: #0f766e; }
+.notes-reader[data-theme='paper'] .note-block[data-kind='concept']   { --k: #4C3FBD; }
+.notes-reader[data-theme='paper'] .note-block[data-kind='practice']  { --k: #047857; }
+.notes-reader[data-theme='paper'] .note-block[data-kind='trap']      { --k: #be123c; }
+.notes-reader[data-theme='paper'] .note-block[data-kind='watch']     { --k: #b45309; }
+.notes-reader[data-theme='paper'] .note-block[data-kind='reference'] { --k: #475569; }
+/* A block already is the box: its own trap/tip boxes become plain text inside it */
+.notes-reader .notes-body .note-block .note-trap,
+.notes-reader .notes-body .note-block .note-scribble,
+.notes-reader .notes-body .note-block .note-important {
+  margin: 0.6rem 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.note-block .note-trap::before,
+.note-block .note-scribble::before,
+.note-block .note-important::before { display: none; }
+/* Callouts inside a block: keep the edge, drop the second box */
+.notes-reader .notes-body .note-block blockquote.callout {
+  background: none;
+  border-top: 0; border-right: 0; border-bottom: 0;
+  border-radius: 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+  margin: 1rem 0;
+}
+/* Diagrams sit on their own dark plate so they read the same in every theme */
+.notes-reader .notes-body img { background: #0e1a2d; }

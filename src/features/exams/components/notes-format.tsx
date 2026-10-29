@@ -35,21 +35,24 @@ export function stripEmojiChildren(children: ReactNode): ReactNode {
 
 // ── Study-block headings ──────────────────────────────────────────────────────
 
-export interface Kicker { label: string; icon: LucideIcon; tone: string }
+/** Note-block kinds — each has one colour in the SkillUp colour code (index.css .note-block). */
+export type BlockKind = 'story' | 'model' | 'concept' | 'practice' | 'trap' | 'watch' | 'reference';
+
+export interface Kicker { label: string; icon: LucideIcon; tone: string; kind: BlockKind }
 
 const KICKERS: [RegExp, Kicker][] = [
-  [/^key concept\b/i,        { label: 'Key concept',    icon: Lightbulb,     tone: 'kicker-indigo' }],
-  [/^in practice\b/i,        { label: 'In practice',    icon: Wrench,        tone: 'kicker-emerald' }],
-  [/^exam trap\b/i,          { label: 'Exam trap',      icon: AlertTriangle, tone: 'kicker-rose' }],
-  [/^mental model\b/i,       { label: 'Mental model',   icon: Brain,         tone: 'kicker-indigo' }],
-  [/^the story\b/i,          { label: 'Story',          icon: BookOpen,      tone: 'kicker-slate' }],
-  [/^(\d+\.\s*)?worked scenario\b/i, { label: 'Worked scenario', icon: FileText, tone: 'kicker-slate' }],
-  [/^(\d+\.\s*)?memory aid\b/i,      { label: 'Memory aid',      icon: Brain,    tone: 'kicker-indigo' }],
-  [/^(\d+\.\s*)?exam strategy\b/i,   { label: 'Exam strategy',   icon: Target,   tone: 'kicker-amber' }],
-  [/^(\d+\.\s*)?the connective narrative\b/i, { label: 'Narrative', icon: Compass, tone: 'kicker-slate' }],
-  [/^cheat ?sheet\b/i,       { label: 'Cheat sheet',    icon: ListChecks,    tone: 'kicker-amber' }],
+  [/^key concept\b/i,        { label: 'Key concept',    icon: Lightbulb,     tone: 'kicker-indigo',  kind: 'concept' }],
+  [/^in practice\b/i,        { label: 'In practice',    icon: Wrench,        tone: 'kicker-emerald', kind: 'practice' }],
+  [/^exam trap\b/i,          { label: 'Exam trap',      icon: AlertTriangle, tone: 'kicker-rose',    kind: 'trap' }],
+  [/^mental model\b/i,       { label: 'Mental model',   icon: Brain,         tone: 'kicker-indigo',  kind: 'model' }],
+  [/^the story\b/i,          { label: 'Story',          icon: BookOpen,      tone: 'kicker-slate',   kind: 'story' }],
+  [/^(\d+\.\s*)?worked scenario\b/i, { label: 'Worked scenario', icon: FileText, tone: 'kicker-slate', kind: 'practice' }],
+  [/^(\d+\.\s*)?memory aid\b/i,      { label: 'Memory aid',      icon: Brain,    tone: 'kicker-indigo', kind: 'model' }],
+  [/^(\d+\.\s*)?exam strategy\b/i,   { label: 'Exam strategy',   icon: Target,   tone: 'kicker-amber', kind: 'watch' }],
+  [/^(\d+\.\s*)?the connective narrative\b/i, { label: 'Narrative', icon: Compass, tone: 'kicker-slate', kind: 'story' }],
+  [/^(watch out|common mistakes?|gotchas?|important)\b/i, { label: 'Watch out', icon: AlertTriangle, tone: 'kicker-amber', kind: 'watch' }],
+  [/^cheat ?sheet\b/i,       { label: 'Cheat sheet',    icon: ListChecks,    tone: 'kicker-amber',   kind: 'reference' }],
 ];
-
 /** Classify a study-block heading. `rest` is any title after the label ("Mental Model: \"The Restaurant Host\"" → "The Restaurant Host"). */
 export function headingKicker(text: string): { kicker: Kicker; rest: string } | null {
   const clean = stripEmoji(text);

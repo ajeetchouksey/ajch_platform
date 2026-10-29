@@ -32,7 +32,11 @@ export function saveQuizDraft(examId: string, draft: QuizDraft): void {
 export function loadQuizDraft(examId: string): QuizDraft | null {
   try {
     const raw = localStorage.getItem(QUIZ_DRAFT_KEY_PREFIX + examId);
-    return raw ? (JSON.parse(raw) as QuizDraft) : null;
+    if (!raw) return null;
+    // Drafts saved before multiple-select stored one number per answer.
+    const d = JSON.parse(raw) as Omit<QuizDraft, 'answers' | 'chosen'> & { answers: Record<string, number | number[]>; chosen: number | number[] | null };
+    const asList = (v: number | number[] | null | undefined) => (v == null ? [] : Array.isArray(v) ? v : [v]);
+    return { ...d, answers: Object.fromEntries(Object.entries(d.answers ?? {}).map(([k, v]) => [k, asList(v)])), chosen: asList(d.chosen) };
   } catch {
     return null;
   }
@@ -102,6 +106,25 @@ export function markNotesSeen(examId: string, domainId: number): void {
 /** Return ISO timestamp when notes for this domain were last seen, or null. */
 export function getNotesSeenAt(examId: string, domainId: number): string | null {
   return getNotesSeen()[`${examId}:${domainId}`] ?? null;
+}
+
+// Key: aarya_lessons_read  Value: Record<"examId:domainId:heading", ISO8601>
+const LESSONS_READ_KEY = 'aarya_lessons_read';
+
+export function getLessonsRead(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(LESSONS_READ_KEY) ?? '{}') as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+export const lessonKey = (examId: string, domainId: number, heading: string) => `${examId}:${domainId}:${heading}`;
+
+export function markLessonRead(examId: string, domainId: number, heading: string): void {
+  const read = getLessonsRead();
+  read[lessonKey(examId, domainId, heading)] = new Date().toISOString();
+  try { localStorage.setItem(LESSONS_READ_KEY, JSON.stringify(read)); } catch { /* storage unavailable */ }
 }
 
 /** Replace the entire notes-seen map (used when pulling from Gist sync). */

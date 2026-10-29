@@ -14,8 +14,16 @@ function tokens(text: string): string[] {
   return plainText(text).toLowerCase().match(/[a-z][a-z0-9-]{3,}/g)?.filter((w) => !STOP.has(w)) ?? [];
 }
 
+/** A note's study sections (`## ` blocks), minus overview/cheat-sheet style ones. */
+export function noteSections(markdown: string): { heading: string; body: string }[] {
+  return markdown.split(/^## +/m).slice(1).map((sec) => {
+    const nl = sec.indexOf('\n');
+    return { heading: (nl === -1 ? sec : sec.slice(0, nl)).replace(/`[^`]*`/g, '').trim(), body: nl === -1 ? '' : sec.slice(nl + 1) };
+  }).filter((s) => s.heading && !SKIP.test(plainText(s.heading)));
+}
+
 /** `## ` heading text (as the notes TOC shows it) → candidate questions, best match first. */
-export function matchQuestionsToSections(markdown: string, questions: Question[]): Map<string, Question[]> {
+export function matchQuestionsToSections(markdown: string, questions: Question[], limit = 6): Map<string, Question[]> {
   const out = new Map<string, Question[]>();
   if (!questions.length) return out;
   const text = markdown.replace(/```[\s\S]*?```/g, '');
@@ -44,7 +52,7 @@ export function matchQuestionsToSections(markdown: string, questions: Question[]
     if (best >= 0 && bestScore >= 4) scored.set(best, [...(scored.get(best) ?? []), { q, score: bestScore }]);
   }
   for (const [i, list] of scored) {
-    out.set(sections[i].heading, list.sort((a, b) => b.score - a.score).slice(0, 6).map((x) => x.q));
+    out.set(sections[i].heading, list.sort((a, b) => b.score - a.score).slice(0, limit).map((x) => x.q));
   }
   return out;
 }

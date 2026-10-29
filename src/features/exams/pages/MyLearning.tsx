@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, CheckCircle2, Circle, Flame, Layers, Target, GraduationCap } from 'lucide-react';
 import { loadExamRegistry, loadTaskStatementsForExam } from '@/lib/content-loader';
 import { getAttempts } from '@/lib/adaptive-quiz';
-import { examMastery, type ExamMastery, type ObjectiveMastery } from '@/lib/objective-mastery';
+import { examMastery, domainWeights, masteryLabel, type ExamMastery, type ObjectiveMastery } from '@/lib/objective-mastery';
 import { getReadinessBreakdown, getResumeState, getStreak, getDomainCompletion, resumeLabel } from '@/lib/study-tracker';
 import { getNotesSeen, getSessions } from '@/lib/storage';
 import { dueCount, getCardStates } from '@/lib/flashcards';
@@ -84,7 +84,7 @@ export default function MyLearning() {
       if (!p.started || requested.current.has(p.exam.id)) continue;
       requested.current.add(p.exam.id);
       loadTaskStatementsForExam(p.exam.id)
-        .then((ts) => { if (ts) setMasteries((m) => ({ ...m, [p.exam.id]: examMastery(ts, getAttempts(p.exam.id)) })); })
+        .then((ts) => { if (ts) setMasteries((m) => ({ ...m, [p.exam.id]: examMastery(ts, getAttempts(p.exam.id), domainWeights(p.exam.domains)) })); })
         .catch(() => {});
     }
   }, [exams, progress]);
@@ -240,7 +240,6 @@ export default function MyLearning() {
             <ul className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3">
               {shown.map((p) => {
                 const next = nextStep(p);
-                const cov = Math.round((p.mastery?.coverage ?? 0) * 100);
                 return (
                   <li key={p.exam.id} className="glass-card rounded-2xl p-4 flex flex-col gap-3 border border-slate-600/20 hover:border-brand-lilac/45 transition-colors">
                     <div className="flex items-center justify-between gap-2">
@@ -256,7 +255,7 @@ export default function MyLearning() {
                       <span className="min-w-0">
                         <span className="block text-[15px] font-semibold text-white leading-snug group-hover:text-brand-tint">{p.exam.title}</span>
                         <span className="block text-xs text-slate-400 mt-0.5">
-                          {p.started ? (p.mastery ? `${cov}% of objectives covered` : `${p.attempts.length} questions answered`) : `${p.exam.domains.length} domains · ${p.exam.duration}`}
+                          {p.started ? (p.mastery ? `${p.mastery.objectives.filter((o) => o.attempted > 0).length} of ${p.mastery.objectives.length} objectives practised` : `${p.attempts.length} questions answered`) : `${p.exam.domains.length} domains · ${p.exam.duration}`}
                         </span>
                       </span>
                     </Link>
@@ -284,7 +283,7 @@ export default function MyLearning() {
                       <span className="h-1.5 w-16 rounded-full bg-slate-700/60 overflow-hidden" aria-hidden="true">
                         <span className="block h-full rounded-full bg-rose-400" style={{ width: `${Math.round(o.mastery * 100)}%` }} />
                       </span>
-                      {Math.round(o.mastery * 100)}% mastery
+                      {masteryLabel(o.status)}
                     </span>
                     <Link
                       to={`/skillup/${p.exam.id}/quiz?task=${encodeURIComponent(o.task.id)}`}
