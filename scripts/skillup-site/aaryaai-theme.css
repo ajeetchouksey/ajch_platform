@@ -8,7 +8,7 @@
   --ink:#e2e8f0; --mute:#a3afc4; --faint:#7d8aa3; --line:rgba(148,163,184,.16);
   --teal:#8b7cf6; --teal-deep:#a99bff; --teal-soft:rgba(91,75,214,.18); --on-teal:#ffffff;
   --indigo:#5b4bd6; --on-indigo:#ffffff;
-  --amber:#fbbf24; --amber-soft:rgba(251,191,36,.12);
+  --amber:var(--part); --amber-soft:rgba(245,185,74,.12);
   --green:#2fbf71; --green-soft:rgba(47,191,113,.14);
   --rose:#fb7185; --rose-soft:rgba(251,113,133,.13);
   --input:rgba(56,189,248,.10); --input-line:#7dd3fc;

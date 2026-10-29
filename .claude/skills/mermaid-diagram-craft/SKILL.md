@@ -72,6 +72,13 @@ Error / never-do      →  fill:#2a1a1a,stroke:#fb7185   (rose)
 Data / storage        →  fill:#162236,stroke:#60a5fa   (blue)
 ```
 
+**SkillUp diagrams** (anything under `content/skillup/`) use the SkillUp colour
+code instead, so diagrams match the lesson UI: data/input `stroke:#5ec8f2` (sky),
+warning/false fix `stroke:#f5b94a` (saffron), focal path indigo `#5B4BD6`;
+green and rose are unchanged. The values come from
+`scripts/skillup-site/colour-code.json` (its `diagram` block); see Visual Language
+in `.claude/skills/learner-experience-standard/SKILL.md`.
+
 Every `fill` must pair with an explicit `color` (text color) — see the
 Enforced Standards Checklist § Color & Contrast below for why.
 
