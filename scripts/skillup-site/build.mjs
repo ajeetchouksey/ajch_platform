@@ -147,6 +147,10 @@ function buildEntry(entry) {
   return { data: { meta, domains, topics, domainPages, qs, cases }, images };
 }
 
+// JSON is valid JS; escape "<" (no "</script>" breakout) and the two line separators JS strings reject in old engines.
+const LS = new RegExp(String.fromCharCode(0x2028), 'g'), PS = new RegExp(String.fromCharCode(0x2029), 'g');
+const BS = String.fromCharCode(92); // literal backslash: emit the 6-char escape, not the character itself
+const jsSafe = s => s.replace(/</g, BS + 'u003c').replace(LS, BS + 'u2028').replace(PS, BS + 'u2029');
 const entries = catalog.exams.filter(e => !e.deprecatedAt && e.available !== false && (!ONLY?.length || ONLY.includes(e.id)));
 mkdirSync(OUT, { recursive: true });
 const blocks = [], list = [];
@@ -159,7 +163,8 @@ for (const e of entries) {
     if (INLINE) json = json.split(`${e.id}/images/${f}`).join(`data:image/${f.endsWith('.svg') ? 'svg+xml' : f.split('.').pop()};base64,` + readFileSync(src).toString('base64'));
     else { mkdirSync(join(OUT, e.id, 'images'), { recursive: true }); copyFileSync(src, join(OUT, e.id, 'images', f)); }
   }
-  blocks.push(`<script type="application/json" id="x-${e.id}">${json.replace(/</g, '\\u003c')}</script>`);
+  // Data is embedded as script values, never JSON text read back out of the DOM.
+  blocks.push(`<script>SKILLUP.exams[${JSON.stringify(e.id)}]=${jsSafe(json)};</script>`);
   const m = data.meta;
   list.push({ id: e.id, code: m.code, title: m.title, provider: m.provider, level: m.level, kind: m.kind, mode: m.mode, version: m.version, updated: m.updated, description: m.description,
     topics: Object.keys(data.topics).length, questions: m.questions, cases: data.cases.length, diagrams: images.size });
@@ -175,7 +180,7 @@ const page = `<title>SkillUp</title>
 <div class="wrap" id="app"></div>
 <div class="drawer" id="drawer" hidden></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script type="application/json" id="catalog">${JSON.stringify({ built: new Date().toISOString().slice(0, 10), exams: list }).replace(/</g, '\\u003c')}</script>
+<script>var SKILLUP={exams:{},catalog:${jsSafe(JSON.stringify({ built: new Date().toISOString().slice(0, 10), exams: list }))}};</script>
 ${blocks.join('\n')}
 <script>${app}</script>
 `;
