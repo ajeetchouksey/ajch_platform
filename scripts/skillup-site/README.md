@@ -46,7 +46,13 @@ Where the colours show: exam cards take their provider colour; the exam home til
 
 ## Live feel
 
-The exam home shows **Today's session**: up to three tasks (read the next topic, test it, refresh one flagged topic) fixed for the day and stored with the learner's progress. A task is ticked only when the learner actually does it, and each tick confirms with a toast. Readiness rings fill from the last value the learner saw and count up; result rings count up from zero. Answers pop or shake, and lists arrive in sequence. All motion is off under `prefers-reduced-motion`. Nothing shows invented activity (no "N learners online"). While the assets load, `SkillUpHost.tsx` shows a placeholder shaped like the catalog.
+The exam home shows **Today's session**: up to three tasks (read the next topic, test it, then review the pile, or refresh one flagged topic when nothing is due) fixed for the day and stored with the learner's progress. A task is ticked only when the learner actually does it, and each tick confirms with a toast. Readiness rings fill from the last value the learner saw and count up; result rings count up from zero. Answers pop or shake, and lists arrive in sequence. All motion is off under `prefers-reduced-motion`. Nothing shows invented activity (no "N learners online"). While the assets load, `SkillUpHost.tsx` shows a placeholder shaped like the catalog.
+
+## Review pile and streak
+
+Every question the learner misses or guesses goes into that exam's **review pile** (`rq` in its stored state), due the next day. A confident right answer moves it on to 4 days, then 10, then out of the pile; a miss or a guess starts it again tomorrow. Practice exams add their wrong answers. A review session takes up to 10 due questions, and result pages state what really comes back and when. The pile uses the Flagged state (★, lilac).
+
+Any study (opening a lesson, answering a question) marks the day in `skillup:days`, which all exams share. The exam home shows the current week, with studied days filled on the mastery ramp and today pulsing until the learner studies, plus the streak length. After three or more days away, a "Welcome back" note promises a lighter day; nothing piles up and nothing is shown as lost. Dates are local calendar days, so the day turns over at the learner's midnight.
 
 ## Content modes
 
