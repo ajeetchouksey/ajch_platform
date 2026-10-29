@@ -11,7 +11,8 @@
  * --inline   embed every diagram as a data: URI → one self-contained index.html
  * --exam     build only these ids (default: every catalog entry)
  * --embed    write skillup-data.js + skillup-app.js + skillup.css (scoped, AaryaAI theme) for the React
- *            host page instead of a standalone index.html; use with --asset-base
+ *            host page instead of a standalone index.html; use with --asset-base, which also splits
+ *            each exam into exams/<id>.js so a visitor downloads only the exam they open
  * --asset-base URL prefix for diagrams in --embed mode, e.g. /skillup-assets/
  * --base     URL path the site is served from, e.g. /skillup/ (sets <base> so diagrams resolve with or without a trailing slash)
  *
@@ -29,6 +30,7 @@
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { createHash } from 'crypto';
 import { micromark } from 'micromark';
 import { gfm, gfmHtml } from 'micromark-extension-gfm';
 
@@ -43,6 +45,7 @@ const EMBED = process.argv.includes('--embed');
 const ASSET_BASE = arg('--asset-base', '');
 if (ASSET_BASE && !/^\/[\w\-/]*\/$/.test(ASSET_BASE)) throw new Error('--asset-base must look like /path/');
 if (BASE && !/^\/[\w\-/]*\/$/.test(BASE)) throw new Error('--base must look like /path/');
+const SPLIT = EMBED && !!ASSET_BASE;
 
 const rd = p => readFileSync(join(CONTENT, p), 'utf-8');
 const tryJSON = p => { try { return JSON.parse(rd(p)); } catch { return null; } };
@@ -176,10 +179,19 @@ for (const e of entries) {
     }
   }
   // Data is embedded as script values, never JSON text read back out of the DOM.
-  dataLines.push(`SKILLUP.exams[${JSON.stringify(e.id)}]=${jsSafe(json)};`);
+  const line = `SKILLUP.exams[${JSON.stringify(e.id)}]=${jsSafe(json)};`;
+  dataLines.push(line);
   const m = data.meta;
+  // --embed with --asset-base: each exam is its own script, fetched when the learner opens it.
+  // The content hash in ?v= changes whenever the exam's data does, so caches never serve a stale exam.
+  let src;
+  if (SPLIT) {
+    mkdirSync(join(OUT, 'exams'), { recursive: true });
+    writeFileSync(join(OUT, 'exams', `${e.id}.js`), line);
+    src = `${ASSET_BASE}exams/${e.id}.js?v=${createHash('sha256').update(line).digest('hex').slice(0, 12)}`;
+  }
   list.push({ id: e.id, code: m.code, title: m.title, provider: m.provider, level: m.level, kind: m.kind, mode: m.mode, version: m.version, updated: m.updated, description: m.description,
-    topics: Object.keys(data.topics).length, questions: m.questions, cases: data.cases.length, diagrams: images.size });
+    topics: Object.keys(data.topics).length, questions: m.questions, cases: data.cases.length, diagrams: images.size, ...(src ? { src } : {}) });
   console.log(`  ${e.id.padEnd(17)} ${m.mode.padEnd(8)} v${m.version.padEnd(7)} ${String(Object.keys(data.topics).length).padStart(3)} topics ${String(m.questions).padStart(4)} q ${String(data.cases.length).padStart(2)} cases ${String(images.size).padStart(3)} img`);
 }
 const style = readFileSync(join(HERE, 'styles.css'), 'utf-8');
@@ -200,12 +212,15 @@ const catalogJs = `var SKILLUP={exams:{},catalog:${jsSafe(JSON.stringify({ built
 
 if (EMBED) {
   // React host mode: the AaryaAI layout supplies header, menu, footer and fonts.
-  const data = catalogJs + '\n' + dataLines.join('\n');
+  // skillup-data.js carries the catalog; with --asset-base every exam is a separate exams/<id>.js.
+  const data = SPLIT ? catalogJs : catalogJs + '\n' + dataLines.join('\n');
   writeFileSync(join(OUT, 'skillup-data.js'), data);
   writeFileSync(join(OUT, 'skillup-app.js'), app);
   const css = scopeCss(style, '.skillup-host') + '\n' + tokensCss + readFileSync(join(HERE, 'aaryaai-theme.css'), 'utf-8');
   writeFileSync(join(OUT, 'skillup.css'), css);
-  console.log(`✓ ${entries.length} entries → ${OUT}/skillup-{data,app}.js + skillup.css (${(data.length / 1048576).toFixed(1)} MB data)`);
+  const kb = n => `${Math.ceil(n / 1024)} KB`;
+  console.log(`✓ ${entries.length} entries → ${OUT}/skillup-{data,app}.js + skillup.css (catalog ${kb(data.length)}` +
+    (SPLIT ? `; exams/*.js ${kb(Math.min(...dataLines.map(l => l.length)))}–${kb(Math.max(...dataLines.map(l => l.length)))} each)` : `, all exams inline)`));
 } else {
   const page = `${BASE ? `<base href="${BASE}">\n` : ''}<title>SkillUp</title>
 <meta name="claude:viewport-fit-sides" content="cover">

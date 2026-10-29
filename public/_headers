@@ -10,7 +10,7 @@
 /content/*
   Cache-Control: public, max-age=300, must-revalidate
 
-# SkillUp runtime (skillup-app.js, skillup-data.js, skillup.css, diagrams) — built into
+# SkillUp runtime (skillup-app.js, skillup-data.js = catalog, exams/<id>.js, skillup.css, diagrams) — built into
 # /skillup-assets/ on each deploy under the same names. Revalidate every load (a cheap
 # 304 via ETag) so a merged change shows at once instead of after a 4-hour browser cache.
 /skillup-assets/*

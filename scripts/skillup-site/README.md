@@ -24,7 +24,7 @@ node scripts/skillup-site/build.mjs --content ../ajch_skillup --out dist/skillup
 | `--inline` | Embed diagrams as `data:` URIs so `index.html` stands alone |
 | `--exam` | Comma-separated ids to build (default: every available, non-deprecated entry) |
 | `--embed` | Write `skillup-data.js`, `skillup-app.js` and `skillup.css` for the in-site host page instead of `index.html` |
-| `--asset-base` | URL prefix for diagrams with `--embed`, for example `/skillup-assets/` |
+| `--asset-base` | URL prefix for diagrams and exam files with `--embed`, for example `/skillup-assets/`. Also splits the data into one file per exam |
 | `--base` | URL path a standalone build is served from (adds a `<base>` tag) |
 
 ## Production: SkillUp inside the AaryaAI site
@@ -32,7 +32,7 @@ node scripts/skillup-site/build.mjs --content ../ajch_skillup --out dist/skillup
 SkillUp runs at `/skillup` inside the site layout (header, navigation, footer, AaryaAI theme):
 
 - `.github/workflows/deploy-cloudflare-pages.yml` checks out `ajch_skillup` at the commit pinned in `content-manifest.json` and runs `build.mjs --embed --asset-base /skillup-assets/` into `dist/skillup-assets/`. Promoting content (`promote-content.yml`) therefore also updates SkillUp.
-- `--embed` writes `skillup-data.js`, `skillup-app.js` and `skillup.css`. The CSS is `styles.css` scoped to `.skillup-host` plus `aaryaai-theme.css` (the site's dark tokens), so nothing leaks into the rest of the site.
+- `--embed` writes `skillup-data.js`, `skillup-app.js` and `skillup.css`. With `--asset-base`, `skillup-data.js` holds only the catalog (about 5 KB), and each exam's data goes to `exams/<id>.js` (about 200–730 KB each). Each catalog entry's `src` carries a content hash (`?v=…`), so a changed exam is never served from cache. The runtime fetches an exam's file the first time the learner opens it, or as soon as they point at or focus its card. It shows a shimmer while the file loads, and if the download fails it returns to the catalog with a message. The CSS is `styles.css` scoped to `.skillup-host` plus `aaryaai-theme.css` (the site's dark tokens), so nothing leaks into the rest of the site.
 - `src/features/skillup/SkillUpHost.tsx` loads those files once and calls `SkillUpApp.start(host, { embedded, scroller, exam, onRoute })`. The URL follows the open exam (`/skillup/ai901`).
 - For local development, run `npm run skillup:dev` (writes `public/skillup-assets/`, which is git-ignored), then `npm run dev`.
 
