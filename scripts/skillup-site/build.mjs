@@ -162,7 +162,7 @@ const BS = String.fromCharCode(92); // literal backslash: emit the 6-char escape
 const jsSafe = s => s.replace(/</g, BS + 'u003c').replace(LS, BS + 'u2028').replace(PS, BS + 'u2029');
 const entries = catalog.exams.filter(e => !e.deprecatedAt && e.available !== false && (!ONLY?.length || ONLY.includes(e.id)));
 mkdirSync(OUT, { recursive: true });
-const blocks = [], list = [];
+const dataLines = [], list = [];
 for (const e of entries) {
   const { data, images } = buildEntry(e);
   let json = JSON.stringify(data);
@@ -176,7 +176,7 @@ for (const e of entries) {
     }
   }
   // Data is embedded as script values, never JSON text read back out of the DOM.
-  blocks.push(`<script>SKILLUP.exams[${JSON.stringify(e.id)}]=${jsSafe(json)};</script>`);
+  dataLines.push(`SKILLUP.exams[${JSON.stringify(e.id)}]=${jsSafe(json)};`);
   const m = data.meta;
   list.push({ id: e.id, code: m.code, title: m.title, provider: m.provider, level: m.level, kind: m.kind, mode: m.mode, version: m.version, updated: m.updated, description: m.description,
     topics: Object.keys(data.topics).length, questions: m.questions, cases: data.cases.length, diagrams: images.size });
@@ -188,7 +188,7 @@ const catalogJs = `var SKILLUP={exams:{},catalog:${jsSafe(JSON.stringify({ built
 
 if (EMBED) {
   // React host mode: the AaryaAI layout supplies header, menu, footer and fonts.
-  const data = catalogJs + '\n' + blocks.map(b => b.replace(/^<script>|<\/script>$/g, '')).join('\n');
+  const data = catalogJs + '\n' + dataLines.join('\n');
   writeFileSync(join(OUT, 'skillup-data.js'), data);
   writeFileSync(join(OUT, 'skillup-app.js'), app);
   const css = scopeCss(style, '.skillup-host') + '\n' + readFileSync(join(HERE, 'aaryaai-theme.css'), 'utf-8');
@@ -202,7 +202,7 @@ if (EMBED) {
 <style>${style}</style>
 <div id="skillup-standalone"></div>
 <script>${catalogJs}</script>
-${blocks.join('\n')}
+${dataLines.map(l => `<script>${l}</script>`).join('\n')}
 <script>${app}</script>
 `;
   writeFileSync(join(OUT, 'index.html'), page);
