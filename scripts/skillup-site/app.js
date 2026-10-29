@@ -18,9 +18,10 @@ const iso=d=>d.toISOString().slice(0,10);
 /* ---------- global + per-exam state ---------- */
 const G={view:"catalog",filter:"",q:"",exam:null};
 let D=null,M=null,TOP=null,QS=null,ORDER=[],Q2T={},S=null;
-const cache={};
-function load(id){if(!cache[id]){const x=window.SKILLUP.exams[id];if(!x)return false;cache[id]=x}
- D=cache[id];M=D.meta;TOP=D.topics;QS=D.qs;ORDER=D.domains.flatMap(d=>d.tasks);Q2T={};ORDER.forEach(t=>(TOP[t].qids||[]).forEach(q=>{Q2T[q]=Q2T[q]||t}));
+const cache=new Map(); // Map, not an object: ids can come from the URL hash (no prototype keys)
+function load(id){if(typeof id!=="string"||!Object.prototype.hasOwnProperty.call(window.SKILLUP.exams,id))return false;
+ if(!cache.has(id))cache.set(id,window.SKILLUP.exams[id]);
+ D=cache.get(id);M=D.meta;TOP=D.topics;QS=D.qs;ORDER=D.domains.flatMap(d=>d.tasks);Q2T={};ORDER.forEach(t=>(TOP[t].qids||[]).forEach(q=>{Q2T[q]=Q2T[q]||t}));
  S=Object.assign({step:0,goal:null,exp:null,date:iso(new Date(TODAY.getTime()+28*864e5)),mins:20,progress:{},review:{},open:{},setupDone:false,missed:false},store.get("skillup:"+id)||{});
  S.topic=null;S.dom=null;S.test=null;S.mid=null;D.domains.forEach(d=>{if(S.open[d.id]==null)S.open[d.id]=d.id===D.domains[0].id});G.exam=id;return true}
 function save(){if(!S)return;const{topic,dom,test,mid,...keep}=S;store.set("skillup:"+G.exam,keep)}
