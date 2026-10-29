@@ -21,7 +21,8 @@ const ic=(n,a='')=>`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stro
 const MARK=`<span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="var(--on-indigo)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20L12 4l7 16"/><path d="M8.5 13h7"/></svg></span>`;
 const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const TODAY=new Date();TODAY.setHours(0,0,0,0);
-const iso=d=>d.toISOString().slice(0,10);
+/* local calendar day (not UTC), so dates and streaks turn over at the learner's midnight */
+const lday=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 
 /* ---------- global + per-exam state ---------- */
 const G={view:"catalog",filter:"",q:"",exam:null};
@@ -30,7 +31,7 @@ const cache=new Map(); // Map, not an object: ids can come from the URL hash (no
 function load(id){if(typeof id!=="string"||!Object.prototype.hasOwnProperty.call(window.SKILLUP.exams,id))return false;
  if(!cache.has(id))cache.set(id,window.SKILLUP.exams[id]);
  D=cache.get(id);M=D.meta;TOP=D.topics;QS=D.qs;ORDER=D.domains.flatMap(d=>d.tasks);Q2T={};ORDER.forEach(t=>(TOP[t].qids||[]).forEach(q=>{Q2T[q]=Q2T[q]||t}));
- S=Object.assign({step:0,goal:null,exp:null,date:iso(new Date(TODAY.getTime()+28*864e5)),mins:20,progress:{},review:{},open:{},setupDone:false,missed:false},store.get("skillup:"+id)||{});
+ S=Object.assign({step:0,goal:null,exp:null,date:lday(new Date(TODAY.getTime()+28*864e5)),mins:20,progress:{},review:{},rq:{},open:{},setupDone:false,missed:false},store.get("skillup:"+id)||{});if(!S.rq||typeof S.rq!=="object")S.rq={};
  S.topic=null;S.dom=null;S.test=null;S.mid=null;D.domains.forEach(d=>{if(S.open[d.id]==null)S.open[d.id]=d.id===D.domains[0].id});G.exam=id;return true}
 function save(){if(!S)return;const{topic,dom,test,mid,...keep}=S;store.set("skillup:"+G.exam,keep)}
 const progressOf=id=>{const s=store.get("skillup:"+id);if(!s||!s.progress)return null;const done=Object.values(s.progress).filter(v=>v==="done").length;return{done,started:Object.keys(s.progress).length>0}};
@@ -39,7 +40,7 @@ const progressOf=id=>{const s=store.get("skillup:"+id);if(!s||!s.progress)return
 const daysTo=()=>Math.max(1,Math.round((new Date(S.date+"T00:00:00")-TODAY)/864e5));
 const passed=()=>ORDER.filter(id=>S.progress[id]==="done").length;
 function readiness(){let tot=0,w=0;D.domains.forEach(d=>{const wt=parseFloat(d.weight)||100/D.domains.length;const sc=d.tasks.reduce((a,id)=>a+({done:1,weak:.45,read:.2}[S.progress[id]]||0),0)/Math.max(1,d.tasks.length);tot+=sc*wt;w+=wt});return Math.round(100*tot/Math.max(1,w))}
-function plan(){const speed={new:1,some:.8,hands:.6}[S.exp]||1,depth={exam:.85,skill:1.2,both:1}[S.goal]||1;const need=Math.round(ORDER.length*13*speed*depth+120);const days=Math.ceil(need/S.mins),avail=daysTo();return{days,avail,weeks:Math.max(1,Math.ceil(avail/7)),fit:days<=avail-4,ready:iso(new Date(TODAY.getTime()+days*864e5))}}
+function plan(){const speed={new:1,some:.8,hands:.6}[S.exp]||1,depth={exam:.85,skill:1.2,both:1}[S.goal]||1;const need=Math.round(ORDER.length*13*speed*depth+120);const days=Math.ceil(need/S.mins),avail=daysTo();return{days,avail,weeks:Math.max(1,Math.ceil(avail/7)),fit:days<=avail-4,ready:lday(new Date(TODAY.getTime()+days*864e5))}}
 const nextTopic=()=>ORDER.find(id=>S.progress[id]!=="done")||ORDER[0];
 const domOf=id=>D.domains.find(d=>d.tasks.includes(id));
 /* colour code: each domain keeps one hue (d1–d6) everywhere; readiness uses a single-hue tier */
@@ -96,7 +97,7 @@ function vSetup(){const st=STEPS()[S.step];let h=bar(S.step?"_back":"_cat",S.ste
  h+=`<div class="setup"><div class="stack fade"><div class="steps">${[0,1,2].map(i=>`<i class="${i<=S.step?"on":""}"></i>`).join("")}</div>
  <div class="stack" style="gap:6px"><div class="eyebrow">${esc(M.code)} · ${esc(M.title)}</div><h1>${st.q}</h1><p class="mute">${st.sub}</p></div>`;
  if(st.opts)h+=`<div class="stack" style="gap:10px">${st.opts.map(o=>`<button class="choice" aria-pressed="${S[st.k]===o[0]}" data-a="pick" data-k="${st.k}" data-v="${o[0]}"><span class="ic">${ic(o[1])}</span><span><b>${o[2]}</b><span>${o[3]}</span></span></button>`).join("")}</div>`;
- else h+=`<label for="ed" class="eyebrow">${isTrack()?"Target date":"Exam date"}</label><input id="ed" type="date" value="${esc(S.date)}" min="${iso(new Date(TODAY.getTime()+864e5))}" data-c="date">
+ else h+=`<label for="ed" class="eyebrow">${isTrack()?"Target date":"Exam date"}</label><input id="ed" type="date" value="${esc(S.date)}" min="${lday(new Date(TODAY.getTime()+864e5))}" data-c="date">
  <div class="eyebrow">Time a day</div><div class="mins">${[[10,"light"],[20,"steady"],[30,"focused"],[45,"intensive"]].map(m=>`<button aria-pressed="${S.mins===m[0]}" data-a="mins" data-v="${m[0]}">${m[0]}<small>min · ${m[1]}</small></button>`).join("")}</div>
  <button class="btn go full" data-a="build">Build my plan</button>`;
  return h+`</div>${preview()}</div>`}
@@ -107,26 +108,46 @@ function vReady(){const p=plan(),maxT=Math.max(...D.domains.map(x=>x.tasks.lengt
  <button class="door lead" data-a="assess"><span class="ic">${ic("check")}</span><span><b>Find out what I already know</b><span class="mute small">A quick check across the ${isTrack()?"modules":"domains"}. ${isTrack()?"Lessons":"Topics"} you know are marked done.</span></span><span class="arrow">›</span></button>
  <button class="door" data-a="go" data-v="notes"><span class="ic">${ic("book")}</span><span><b>Start studying</b><span class="mute small">Begin with ${esc(ORDER[0]+" "+nm(ORDER[0]))}.</span></span><span class="arrow">›</span></button></div>${footer()}`}
 
+/* ---------- review pile: questions missed or guessed come back after 1, 4 and 10 days.
+   A confident right answer moves a question on; a miss or a guess starts it again tomorrow. ---------- */
+const dayOff=n=>{const x=new Date(TODAY);x.setDate(x.getDate()+n);return lday(x)},GAPS=[1,4,10];
+function pile(q,ok,sure){const r=S.rq[q.id];if(ok&&sure){if(!r)return;if(r.s+1>=GAPS.length)delete S.rq[q.id];else S.rq[q.id]={s:r.s+1,due:dayOff(GAPS[r.s+1])};return}
+ S.rq[q.id]={s:0,due:dayOff(GAPS[0])}}
+const dueQs=()=>Object.keys(S.rq).filter(id=>QS[id]&&S.rq[id]&&String(S.rq[id].due)<=lday(TODAY)),pileSize=()=>Object.keys(S.rq).filter(id=>QS[id]).length;
+const startReview=()=>start("review",shuffle(dueQs()).slice(0,10).map(id=>QS[id]));
+
+/* ---------- streak: days with any study, shared by every exam in this browser ---------- */
+const studied=()=>{const d=store.get("skillup:days");return Array.isArray(d)?d.filter(x=>typeof x==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(x)):[]};
+function streak(){const d=new Set(studied());let k=d.has(lday(TODAY))?0:1,n=0;while(d.has(dayOff(-(k+n))))n++;return n}
+function mark(){const d=studied(),t=lday(TODAY);if(d.includes(t))return;d.push(t);store.set("skillup:days",d.slice(-120));const n=streak();if(n>1)toast(`✓ ${n}-day streak`)}
+const awayDays=()=>{const last=studied().sort().pop();return last?Math.round((new Date(lday(TODAY))-new Date(last))/864e5):0};
+function week(){const d=new Set(studied()),t=lday(TODAY),dow=(TODAY.getDay()+6)%7,n=streak();
+ return `<div class="week"><div class="days">${["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map((w,i)=>{const k=dayOff(i-dow),s=d.has(k);
+  return `<span class="${s?"on":k===t?"now":k>t?"later":""}" title="${w}${s?": studied":""}"><span aria-hidden="true">${s?"✓":w[0]}</span><span class="vh">${w}${s?", studied":k===t?", today, not yet":""}</span></span>`}).join("")}</div>
+ <span class="tiny mute">${n?`${n}-day streak${d.has(t)?"":" · study today to keep it going"}`:"Study today to start a streak"}</span></div>`}
+
 /* ---------- today's session: a short list built from the plan; ticks come only from what the learner did ---------- */
-function today(){const d=iso(TODAY);if(!S.day||S.day.d!==d||!Array.isArray(S.day.tasks)){const n=nextTopic(),due=Object.keys(S.review).filter(id=>TOP[id]&&id!==n),tasks=[];
-  if(M.mode!=="classic")tasks.push(["read",n]);if((TOP[n].qids||[]).length)tasks.push(["test",n]);if(due[0])tasks.push(["refresh",due[0]]);S.day={d,tasks,did:{}}}
- S.day.tasks=S.day.tasks.filter(x=>Array.isArray(x)&&TOP[x[1]]);S.day.did=S.day.did||{};return S.day}
+function today(){const d=lday(TODAY);if(!S.day||S.day.d!==d||!Array.isArray(S.day.tasks)){const n=nextTopic(),due=Object.keys(S.review).filter(id=>TOP[id]&&id!==n),tasks=[];
+  if(M.mode!=="classic")tasks.push(["read",n]);if((TOP[n].qids||[]).length)tasks.push(["test",n]);if(dueQs().length)tasks.push(["review","pile"]);else if(due[0])tasks.push(["refresh",due[0]]);S.day={d,tasks,did:{}}}
+ S.day.tasks=S.day.tasks.filter(x=>Array.isArray(x)&&(x[0]==="review"||TOP[x[1]]));S.day.did=S.day.did||{};return S.day}
 function did(k,id){const t=today(),key=k+":"+id;if(t.did[key]||!t.tasks.some(x=>x[0]===k&&x[1]===id))return;t.did[key]=1;
  const n=t.tasks.filter(x=>t.did[x[0]+":"+x[1]]).length;toast(n===t.tasks.length?"✓ Today's session done":`✓ Today: ${n} of ${t.tasks.length} done`)}
-function vToday(t){if(!t.tasks.length)return"";const lab={read:"Read",test:"Test",refresh:"Refresh"},done=x=>t.did[x[0]+":"+x[1]],n=t.tasks.filter(done).length;
- const mins=x=>x[0]==="read"?(TOP[x[1]].mins||3):x[0]==="test"?Math.max(2,Math.round((TOP[x[1]].qids||[]).length*.8)):2;
- return `<div class="today card"><div class="spread"><b>Today's session</b><span class="tiny mute">${n===t.tasks.length?"All done. See you tomorrow.":`${n} of ${t.tasks.length} done · about ${t.tasks.filter(x=>!done(x)).reduce((a,x)=>a+mins(x),0)} min left`}</span></div>
- ${t.tasks.map(x=>{const ok=done(x),d=domOf(x[1]);return `<button class="task${ok?" done":""}"${d?dc(d):""} data-a="${x[0]==="read"?"open":"test"}" data-v="${x[1]}"><span class="bx" aria-hidden="true">${ok?"✓":""}</span><span><b>${lab[x[0]]} ${esc(x[1]+" "+nm(x[1]))}</b><span class="tiny mute">${x[0]==="refresh"?"You were unsure last time · ":""}about ${mins(x)} min</span></span><span class="vh">${ok?"Done":"To do"}</span></button>`}).join("")}</div>`}
+function vToday(t){const lab={read:"Read",test:"Test",refresh:"Refresh"},done=x=>t.did[x[0]+":"+x[1]],n=t.tasks.filter(done).length,rv=Math.min(10,dueQs().length);
+ const mins=x=>x[0]==="read"?(TOP[x[1]].mins||3):x[0]==="test"?Math.max(2,Math.round((TOP[x[1]].qids||[]).length*.8)):x[0]==="review"?Math.max(2,Math.round(rv*.7)):2;
+ const row=x=>{const ok=done(x);if(x[0]==="review")return `<button class="task${ok?" done":""}" data-a="review" ${!ok&&!rv?"disabled":""}><span class="bx" aria-hidden="true">${ok?"✓":"★"}</span><span><b>Review ${ok?"your flagged questions":rv+" flagged question"+(rv===1?"":"s")}</b><span class="tiny mute">Missed or guessed before · about ${mins(x)} min</span></span><span class="vh">${ok?"Done":"To do"}</span></button>`;
+  const d=domOf(x[1]);return `<button class="task${ok?" done":""}"${d?dc(d):""} data-a="${x[0]==="read"?"open":"test"}" data-v="${x[1]}"><span class="bx" aria-hidden="true">${ok?"✓":""}</span><span><b>${lab[x[0]]} ${esc(x[1]+" "+nm(x[1]))}</b><span class="tiny mute">${x[0]==="refresh"?"You were unsure last time · ":""}about ${mins(x)} min</span></span><span class="vh">${ok?"Done":"To do"}</span></button>`};
+ return `<div class="today card"><div class="spread"><b>Today's session</b>${t.tasks.length?`<span class="tiny mute">${n===t.tasks.length?"All done. See you tomorrow.":`${n} of ${t.tasks.length} done · about ${t.tasks.filter(x=>!done(x)).reduce((a,x)=>a+mins(x),0)} min left`}</span>`:""}</div>
+ ${t.tasks.map(row).join("")}${week()}</div>`}
 
 /* ---------- exam home ---------- */
-function vHome(){const n=nextTopic(),t=TOP[n],r=readiness(),day=today(),due=Object.keys(S.review).filter(id=>TOP[id]&&!day.tasks.some(x=>x[1]===id));
+function vHome(){const n=nextTopic(),t=TOP[n],r=readiness(),day=today(),dq=dueQs().length,ps=pileSize(),away=S.missed||(awayDays()>=3&&S.back!==lday(TODAY));
  const from=S.lastR==null?0:S.lastR,gain=S.lastR!=null&&r>from?r-from:0;S.lastR=r;
  let h=bar();
- if(S.missed)h+=`<div class="welcome fade"><b class="h" style="font-size:22px">Welcome back.</b><p>You were away for a few days. Nothing is lost and there's no catch-up pile. Today is a lighter 15-minute session.</p><div class="row"><button class="btn sm go" data-a="unmiss">Sounds good</button><button class="btn sm" data-a="replan">Change my plan</button></div></div>`;
- h+=`<div class="stack fade" style="margin-top:${S.missed?18:0}px"><div class="hero"><div class="spread"><span class="eyebrow">Next up${t.mins?" · about "+t.mins+" min":""}</span><span class="pill">${esc(n)}</span></div>
+ if(away)h+=`<div class="welcome fade"><b class="h" style="font-size:22px">Welcome back.</b><p>You were away for a few days. Nothing is lost, and nothing piles up: the review pile waits at the same size. Today is a lighter 15-minute session.</p><div class="row"><button class="btn sm go" data-a="unmiss">Sounds good</button><button class="btn sm" data-a="replan">Change my plan</button></div></div>`;
+ h+=`<div class="stack fade" style="margin-top:${away?18:0}px"><div class="hero"><div class="spread"><span class="eyebrow">Next up${t.mins?" · about "+t.mins+" min":""}</span><span class="pill">${esc(n)}</span></div>
  <h1 style="font-size:36px">${esc(nm(n))}</h1><button class="btn go" data-a="open" data-v="${n}">Continue learning</button></div>
  ${vToday(day)}
- ${due.length?`<div class="due">${ic("alert",'style="width:22px;height:22px;stroke:var(--amber);flex:none"')}<span style="flex:1"><b>${due.length} more ${unit()}${due.length>1?"s":""} to refresh.</b> <span class="mute small">You were unsure last time. Two minutes now makes it stick.</span></span><button class="btn sm" data-a="test" data-v="${due[0]}">Refresh ${esc(due[0])}</button></div>`:""}
+ ${ps?`<div class="pile card"><span class="pn" aria-hidden="true">${dq?"★ "+dq:"✓"}</span><span style="flex:1;min-width:180px"><b>${dq?`${dq} question${dq>1?"s":""} to review`:"Review pile clear for today"}</b><span class="mute small">${dq?"You missed or guessed these before. A few minutes now makes them stick.":`${ps} question${ps>1?"s":""} come${ps>1?"":"s"} back on later days.`}</span></span>${dq?`<button class="btn sm" data-a="review">Review ${Math.min(10,dq)}</button>`:""}</div>`:""}
  <div class="row card"><div class="ring" data-t="${tier(r)}" style="--p:${from}" data-v="${from}%" data-from="${from}" data-to="${r}"></div><div style="flex:1;min-width:170px"><b>${isTrack()?"Track progress":"Exam readiness"}</b>${gain?` <span class="xp">+${gain}% since last time</span>`:""}<div class="mute small">${passed()} of ${ORDER.length} ${unit()}s passed · ${daysTo()} days to ${fmtS(S.date)} · ${S.mins} min a day</div></div><button class="btn sm" data-a="replan">Plan</button></div>
  <div class="grid3"><button class="tile t-notes" data-a="go" data-v="notes">${ic("book")}<b>Study notes</b><span>${ORDER.length} ${unit()}s</span></button><button class="tile t-prac" data-a="go" data-v="practice">${ic("check")}<b>Practice</b><span>${M.questions} questions</span></button><button class="tile t-cases" data-a="go" data-v="cases" ${D.cases.length?"":"disabled"}>${ic("users")}<b>Case studies</b><span>${D.cases.length||"None yet"}</span></button></div>
  ${pageMeta()}</div><div class="demo"><span>Prototype controls:</span><button data-a="miss">Simulate days away</button><button data-a="reset">Reset this exam</button></div>${footer()}`;
@@ -184,8 +205,9 @@ SC.addEventListener("scroll",track,{passive:true});
 function anchorHeadings(){document.querySelectorAll(".md.classic h2").forEach(h=>{h.id=slug(h.textContent.trim())})}
 
 /* ---------- practice, cases, tests ---------- */
-function vPractice(){const weak=ORDER.filter(id=>S.progress[id]==="weak"),n=Math.min(40,M.questions);
+function vPractice(){const weak=ORDER.filter(id=>S.progress[id]==="weak"),n=Math.min(40,M.questions),dq=dueQs().length;
  return bar("home",M.code)+`<div class="stack fade"><h1>Practice</h1><p class="mute">Every answer explains why each option is right or wrong.</p>${pageMeta(`<span>${M.questions} questions</span>`)}
+ ${dq?`<button class="door" data-a="review"><span class="ic">${ic("check")}</span><span><b>Review pile · ${Math.min(10,dq)} question${dq>1?"s":""}</b><span class="mute small">${dq} due: questions you missed or guessed. Get one right with confidence and it moves on.</span></span><span class="arrow">›</span></button>`:""}
  <button class="door lead" data-a="assess"><span class="ic">${ic("check")}</span><span><b>Skill check · up to 12 questions</b><span class="mute small">About 10 minutes across the ${isTrack()?"modules":"domains"}. Updates your progress.</span></span><span class="arrow">›</span></button>
  ${weak.length?`<button class="door" data-a="test" data-v="${weak[0]}"><span class="ic">${ic("alert")}</span><span><b>Refresh weak ${unit()}s</b><span class="mute small">${weak.length} marked "refresh soon", starting with ${esc(weak[0]+" "+nm(weak[0]))}.</span></span><span class="arrow">›</span></button>`:""}
  ${n>=10?`<button class="door" data-a="xstart"><span class="ic">${ic("clock")}</span><span><b>Practice exam · ${n} questions · ${Math.round(n*1.1)} min</b><span class="mute small">Timed, no feedback until the end, scored against ${M.passThreshold}%.</span></span><span class="arrow">›</span></button>`:""}
@@ -201,7 +223,7 @@ const startTopic=id=>start("topic",(TOP[id].qids||[]).map(q=>QS[q]),{topic:id});
 function startAssess(){const per=Math.max(2,Math.ceil(12/D.domains.length)),items=[];D.domains.forEach(d=>{shuffle(d.tasks.filter(id=>(TOP[id].qids||[]).length)).slice(0,per).forEach(id=>{const ids=TOP[id].qids;items.push(QS[ids.find(q=>QS[q].d!=="hard")||ids[0]])})});start("check",items.slice(0,12))}
 function startExam(){const n=Math.min(40,M.questions);start("exam",shuffle(Object.values(QS)).slice(0,n),{ends:Date.now()+Math.round(n*1.1)*60e3})}
 const startCase=id=>start("case",D.cases.find(x=>x.id===id).qs,{caseId:id});
-function head(t){const back=t.mode==="topic"?"notes":t.mode==="case"?"cases":"practice",label={topic:(isTrack()?"Lesson ":"Topic ")+t.topic,check:"Skill check",exam:"Practice exam",case:"Case study"}[t.mode];
+function head(t){const back=t.mode==="topic"?"notes":t.mode==="case"?"cases":t.mode==="review"?"home":"practice",label={topic:(isTrack()?"Lesson ":"Topic ")+t.topic,check:"Skill check",exam:"Practice exam",case:"Case study",review:"Review pile"}[t.mode];
  return bar(back,"Leave")+`<div class="qprog">${t.items.map((_,i)=>`<i class="${i<t.res.length?(t.res[i].ok?"r":"w"):t.mode==="exam"&&t.answers[i]!=null?"c2":i===t.i?"c":""}"></i>`).join("")}</div>
  <div class="spread"><span class="eyebrow">${label} · question ${t.i+1} of ${t.items.length}</span>${t.mode==="exam"?`<span class="pill">${ic("clock",'style="width:14px;height:14px;stroke:currentColor"')} <span id="tleft">--:--</span></span>`:""}</div>`}
 function vTest(){const t=S.test,q=t.items[t.i];if(!q)return vResult();
@@ -214,7 +236,8 @@ function vTest(){const t=S.test,q=t.items[t.i];if(!q)return vResult();
  if(answered){const ok=t.pick===q.c,msg=ok&&t.sure?"Correct, and you knew it.":ok?"Correct, but you were guessing. We'll bring this back to lock it in.":t.sure?"Not quite, and you felt sure. That's the most useful kind of mistake to catch now.":"Not quite. Good call flagging it as a guess.";
   const tid=Q2T[q.id];const st=ok&&t.sure?"ok":ok?"part":"no";h+=`<div class="fb fade ${st}" role="status"><b><span class="si" aria-hidden="true">${{ok:"✓",part:"◐",no:"✕"}[st]}</span>${msg}</b><p class="why">${esc(q.e)}</p>${!ok&&tid&&t.mode!=="topic"&&M.mode!=="classic"?`<button class="plink" data-a="open" data-v="${tid}">Read ${esc(tid+" "+nm(tid))} ›</button>`:""}</div><button class="btn go full" data-a="next">${t.i+1<t.items.length?"Next question":"See my result"}</button>`}
  return h+`</div>`}
-function finish(){const t=S.test;if(t.mode==="exam")t.res=t.items.map((q,i)=>({ok:t.answers[i]===q.c,sure:true}));
+function finish(){const t=S.test;if(t.mode==="exam"){t.res=t.items.map((q,i)=>({ok:t.answers[i]===q.c,sure:true}));t.items.forEach((q,i)=>pile(q,t.res[i].ok,true))}
+ if(t.mode==="review")did("review","pile");
  const r=t.res.filter(x=>x.ok).length,n=t.items.length,shaky=t.res.filter(x=>x.ok&&!x.sure).length;
  if(t.mode==="topic"){const pass=r===n;S.progress[t.topic]=pass?"done":"weak";if(!pass||shaky)S.review[t.topic]=1;else delete S.review[t.topic];toast("✓ Progress saved");did("test",t.topic);did("refresh",t.topic)}
  else if(t.mode==="check")t.items.forEach((q,i)=>{const id=Q2T[q.id];if(!id)return;if(t.res[i].ok&&t.res[i].sure)S.progress[id]="done";else{S.progress[id]="weak";S.review[id]=1}});
@@ -224,11 +247,11 @@ function vResult(){const t=S.test;if(!t.done)finish();const{r,n,shaky}=t.done,pc
   return bar("practice","Practice")+`<div class="result fade"><div class="eyebrow">Practice exam complete</div><div class="ring big" data-t="${tier(pc)}" style="--p:0" data-v="0%" data-from="0" data-to="${pc}"></div><h1>${ok?"That's a pass.":"Not a pass yet."}</h1><p class="mute">You scored ${r} of ${n}. The pass mark is ${M.passThreshold}%.</p>
   <div class="sched">${D.domains.map(d=>{const b=by[d.id]||{r:0,n:0};return b.n?`<div${dc(d)}><b>${domWord()} ${d.id}</b><span>${b.r} of ${b.n} correct · ${esc(d.title)}</span></div>`:""}).join("")}</div>
   <div class="row" style="width:100%"><button class="btn go" style="flex:1" data-a="go" data-v="notes">Study notes</button><button class="btn" style="flex:1" data-a="go" data-v="practice">Practice</button></div></div>${footer()}`}
- const back=t.mode==="topic"?"notes":t.mode==="case"?"cases":"home";
- const headline=t.mode==="check"?"Here's where you stand.":pass&&!shaky?"Locked in.":pass?"Right, but a little shaky.":"Nearly there.";
- const blurb=t.mode==="check"?`You got ${r} of ${n}. What you answered confidently is marked done; the rest is flagged to study first.`:pass&&!shaky?"You got every one and you knew it.":pass?`You guessed ${shaky}. We'll bring ${shaky>1?"them":"it"} back for a 2-minute refresh.`:"The explanations show the gap. A quick re-read usually fixes it.";
- return bar(back,"Done")+`<div class="result fade"><div class="eyebrow">${{topic:(isTrack()?"Lesson ":"Topic ")+t.topic,check:"Skill check",case:"Case study"}[t.mode]} complete</div><div class="ring big" data-t="${tier(pc)}" style="--p:0" data-v="0/${n}" data-from="0" data-to="${pc}" data-n="${r}" data-suf="/${n}"></div><h1>${headline}</h1><p class="mute">${blurb}</p>
- <div class="sched"><div><b>Tomorrow</b><span>${pass&&!shaky?"Nothing to do here":"2-minute refresh of what you missed"}</span></div><div><b>In 4 days</b><span>One question to check it stuck</span></div><div><b>${isTrack()?"Final week":"Exam week"}</b><span>Included in your final review</span></div></div>
+ const back=t.mode==="topic"?"notes":t.mode==="case"?"cases":"home",again=t.res.filter(x=>!(x.ok&&x.sure)).length,qw=k=>`${k} question${k===1?"":"s"}`;
+ const headline=t.mode==="check"?"Here's where you stand.":t.mode==="review"?(again?"Pile shrinking.":"Cleared for today."):pass&&!shaky?"Locked in.":pass?"Right, but a little shaky.":"Nearly there.";
+ const blurb=t.mode==="check"?`You got ${r} of ${n}. What you answered confidently is marked done; the rest is flagged to study first.`:t.mode==="review"?`${qw(n-again)} moved on; ${again?qw(again)+" come back tomorrow":"nothing comes back tomorrow"}. ${pileSize()} left in your pile.`:pass&&!shaky?"You got every one and you knew it.":pass?`You guessed ${shaky}. We'll bring ${shaky>1?"them":"it"} back in your review pile.`:"The explanations show the gap. A quick re-read usually fixes it.";
+ return bar(back,"Done")+`<div class="result fade"><div class="eyebrow">${{topic:(isTrack()?"Lesson ":"Topic ")+t.topic,check:"Skill check",case:"Case study",review:"Review pile"}[t.mode]} complete</div><div class="ring big" data-t="${tier(pc)}" style="--p:0" data-v="0/${n}" data-from="0" data-to="${pc}" data-n="${r}" data-suf="/${n}"></div><h1>${headline}</h1><p class="mute">${blurb}</p>
+ <div class="sched"><div><b>Tomorrow</b><span>${again?`${qw(again)} back in your review pile`:"Nothing from this comes back"}</span></div><div><b>Then</b><span>${again?"Again after 4 and 10 days, until you answer with confidence":"Answered with confidence, so they move on"}</span></div><div><b>${isTrack()?"Final week":"Exam week"}</b><span>Included in your final review</span></div></div>
  <div class="row" style="width:100%">${t.mode==="topic"&&!pass&&M.mode!=="classic"?`<button class="btn go" style="flex:1" data-a="open" data-v="${t.topic}">Re-read ${esc(t.topic)}</button>`:""}<button class="btn ${t.mode==="topic"&&!pass&&M.mode!=="classic"?"":"go"}" style="flex:1" data-a="go" data-v="${t.mode==="check"?"home":back}">${t.mode==="check"?"See my plan":"Continue"}</button></div></div>${footer()}`}
 const TIMER=setInterval(()=>{const el=$("#tleft");if(!el||!S||!S.test||!S.test.ends)return;const s=Math.max(0,Math.round((S.test.ends-Date.now())/1000));el.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;if(!s){S.test.i=S.test.items.length;render()}},1000);
 
@@ -251,16 +274,16 @@ const ACT={
  info:()=>sheet(infoSheet()),undrawer:()=>{$("#drawer").hidden=true},
  pick:(v,el)=>{S[el.dataset.k]=v;render();setTimeout(()=>{S.step++;render()},240)},
  mins:v=>{S.mins=+v;render()},build:()=>{S.setupDone=true;go("ready")},replan:()=>{S.step=2;S.missed=false;go("setup")},
- assess:()=>startAssess(),xstart:()=>startExam(),case:v=>startCase(v),
- open:v=>{S.topic=v;S.progress[v]=S.progress[v]||"read";did("read",v);go("lesson")},dpage:v=>{S.dom=+v;go("dpage")},
+ assess:()=>startAssess(),xstart:()=>startExam(),case:v=>startCase(v),review:()=>startReview(),
+ open:v=>{S.topic=v;S.progress[v]=S.progress[v]||"read";mark();did("read",v);go("lesson")},dpage:v=>{S.dom=+v;go("dpage")},
  test:v=>startTopic(v),fold:v=>{S.open[v]=!S.open[v];render()},
- mid:v=>{S.mid=+v;const y=sTop();render();toTop(y)},
+ mid:v=>{S.mid=+v;mark();const y=sTop();render();toTop(y)},
  drawer:()=>sheet(topicsNav(S.topic)+tocNav(TOP[S.topic])+'<button class="btn full" data-a="undrawer">Close</button>'),nav:()=>{$("#drawer").hidden=true},
  ans:v=>{S.test.pick=+v;render()},
- sure:v=>{const t=S.test;t.sure=v==="1";t.res.push({ok:t.pick===t.items[t.i].c,sure:t.sure});render()},
+ sure:v=>{const t=S.test,q=t.items[t.i];t.sure=v==="1";const ok=t.pick===q.c;t.res.push({ok,sure:t.sure});pile(q,ok,t.sure);mark();render()},
  next:()=>{const t=S.test;t.i++;t.pick=null;t.sure=null;render();toTop(0)},
- xans:v=>{S.test.answers[S.test.i]=+v;render()},xprev:()=>{S.test.i--;render()},xnext:()=>{S.test.i++;render();toTop(0)},
- miss:()=>{S.missed=true;render()},unmiss:()=>{S.missed=false;toast("Today: a light 15 minutes");render()},
+ xans:v=>{S.test.answers[S.test.i]=+v;mark();render()},xprev:()=>{S.test.i--;render()},xnext:()=>{S.test.i++;render();toTop(0)},
+ miss:()=>{S.missed=true;render()},unmiss:()=>{S.missed=false;S.back=lday(TODAY);toast("Today: a light 15 minutes");render()},
  reset:()=>{store.del("skillup:"+G.exam);load(G.exam);go("setup")}};
 const OK={goal:["exam","skill","both"],exp:["new","some","hands"]};
 function clean(a,v,el){if(v==null||v==="")return v;if(a==="pick")return (OK[el.dataset.k]||[]).includes(v)?v:null;if(a==="open"||a==="test")return TOP&&TOP[v]?v:null;if(a==="exam")return CAT.exams.some(x=>x.id===v)?v:null;if(a==="case")return D&&D.cases.some(x=>x.id===v)?v:null;if(a==="dpage"||a==="fold")return D&&D.domains.some(d=>String(d.id)===v)?v:null;if(a==="go")return ["_back","_cat","catalog","setup","ready","home","notes","practice","cases"].includes(v)?v:null;if(a==="filter")return v==="track"||CAT.exams.some(x=>x.provider===v)?v:null;return /^[\w.-]{0,40}$/.test(v)?v:null}

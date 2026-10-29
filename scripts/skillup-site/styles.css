@@ -348,3 +348,15 @@ button[disabled]{opacity:.45;cursor:default}
 .cgrid>:nth-child(2),.grid3>:nth-child(2),.today>.task:nth-child(3),.sched>div:nth-child(2){animation-delay:.06s}
 .cgrid>:nth-child(3),.grid3>:nth-child(3),.today>.task:nth-child(4),.sched>div:nth-child(3){animation-delay:.12s}
 .cgrid>:nth-child(n+4),.sched>div:nth-child(n+4){animation-delay:.18s}
+/* review pile + study week */
+.pile{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.pile b{display:block}
+.pile .pn{min-width:56px;height:46px;padding:0 10px;border-radius:14px;display:grid;place-items:center;font-family:var(--h);font-weight:700;font-size:20px;color:var(--teal-deep);background:var(--teal-soft)}
+.task:disabled{opacity:.6;cursor:default}
+.week{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-top:10px;margin-top:2px;border-top:1px solid var(--line)}
+.days{display:flex;gap:6px}
+.days>span{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--mute);background:color-mix(in srgb,var(--mute) 12%,transparent)}
+.days>span.on{background:var(--teal);color:var(--on-teal)}
+.days>span.now{box-shadow:0 0 0 2px var(--teal);color:var(--ink);animation:beat 1.6s ease infinite}
+.days>span.later{opacity:.45}
+@keyframes beat{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--teal) 18%,transparent)}}

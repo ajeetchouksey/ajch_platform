@@ -93,3 +93,9 @@
 .skillup-host .task.done{border-color:color-mix(in srgb,var(--ok) 40%,transparent);background:color-mix(in srgb,var(--ok) 8%,rgba(15,23,42,.45))}
 .skillup-host .task.done .bx{background:var(--ok);border-color:var(--ok);color:#06281b}
 .skillup-host .xp{color:var(--ok)}
+/* Review pile uses the Flagged state (★, lilac); studied days use the mastery ramp, never red */
+.skillup-host .pile .pn{color:var(--flag);background:color-mix(in srgb,var(--flag) 15%,transparent);border:1px solid color-mix(in srgb,var(--flag) 30%,transparent)}
+.skillup-host .days>span.on{background:linear-gradient(135deg,var(--m2),var(--m4));color:#fff}
+.skillup-host .days>span.now{box-shadow:0 0 0 2px var(--m4)}
+.skillup-host .task[data-a="review"] .bx{border-color:var(--flag);color:var(--flag)}
+.skillup-host .task.done[data-a="review"] .bx{color:#06281b}
