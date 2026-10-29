@@ -84,7 +84,7 @@ function vSetup(){const st=STEPS()[S.step];let h=bar(S.step?"_back":"_cat",S.ste
  h+=`<div class="setup"><div class="stack fade"><div class="steps">${[0,1,2].map(i=>`<i class="${i<=S.step?"on":""}"></i>`).join("")}</div>
  <div class="stack" style="gap:6px"><div class="eyebrow">${esc(M.code)} · ${esc(M.title)}</div><h1>${st.q}</h1><p class="mute">${st.sub}</p></div>`;
  if(st.opts)h+=`<div class="stack" style="gap:10px">${st.opts.map(o=>`<button class="choice" aria-pressed="${S[st.k]===o[0]}" data-a="pick" data-k="${st.k}" data-v="${o[0]}"><span class="ic">${ic(o[1])}</span><span><b>${o[2]}</b><span>${o[3]}</span></span></button>`).join("")}</div>`;
- else h+=`<label for="ed" class="eyebrow">${isTrack()?"Target date":"Exam date"}</label><input id="ed" type="date" value="${S.date}" min="${iso(new Date(TODAY.getTime()+864e5))}" data-c="date">
+ else h+=`<label for="ed" class="eyebrow">${isTrack()?"Target date":"Exam date"}</label><input id="ed" type="date" value="${esc(S.date)}" min="${iso(new Date(TODAY.getTime()+864e5))}" data-c="date">
  <div class="eyebrow">Time a day</div><div class="mins">${[[10,"light"],[20,"steady"],[30,"focused"],[45,"intensive"]].map(m=>`<button aria-pressed="${S.mins===m[0]}" data-a="mins" data-v="${m[0]}">${m[0]}<small>min · ${m[1]}</small></button>`).join("")}</div>
  <button class="btn go full" data-a="build">Build my plan</button>`;
  return h+`</div>${preview()}</div>`}
@@ -231,9 +231,11 @@ const ACT={
  xans:v=>{S.test.answers[S.test.i]=+v;render()},xprev:()=>{S.test.i--;render()},xnext:()=>{S.test.i++;render();scrollTo(0,0)},
  miss:()=>{S.missed=true;render()},unmiss:()=>{S.missed=false;toast("Today: a light 15 minutes");render()},
  reset:()=>{store.del("skillup:"+G.exam);load(G.exam);go("setup")}};
-document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!el)return;const f=ACT[el.dataset.a];if(!f)return;if(el.tagName==="A"&&el.dataset.a!=="nav")e.preventDefault();f(el.dataset.v,el)});
+const OK={goal:["exam","skill","both"],exp:["new","some","hands"]};
+function clean(a,v,el){if(v==null||v==="")return v;if(a==="pick")return (OK[el.dataset.k]||[]).includes(v)?v:null;if(a==="open"||a==="test")return TOP&&TOP[v]?v:null;if(a==="exam")return CAT.exams.some(x=>x.id===v)?v:null;if(a==="case")return D&&D.cases.some(x=>x.id===v)?v:null;if(a==="dpage"||a==="fold")return D&&D.domains.some(d=>String(d.id)===v)?v:null;if(a==="go")return ["_back","_cat","catalog","setup","ready","home","notes","practice","cases"].includes(v)?v:null;if(a==="filter")return v==="track"||CAT.exams.some(x=>x.provider===v)?v:null;return /^[\w.-]{0,40}$/.test(v)?v:null}
+document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!el)return;const f=ACT[el.dataset.a];if(!f)return;if(el.tagName==="A"&&el.dataset.a!=="nav")e.preventDefault();const v=clean(el.dataset.a,el.dataset.v,el);if(v===null)return;f(v,el)});
 $("#drawer").addEventListener("click",e=>{if(e.target.id==="drawer")e.target.hidden=true});
-document.addEventListener("change",e=>{if(e.target.dataset.c==="date"){S.date=e.target.value;render()}});
+document.addEventListener("change",e=>{if(e.target.dataset.c==="date"){const v=String(e.target.value||"");if(/^\d{4}-\d{2}-\d{2}$/.test(v)){S.date=v;render()}}});
 document.addEventListener("input",e=>{if(e.target.dataset.c==="q"){G.q=String(e.target.value||"").slice(0,80);const tmp=document.createElement("div");tmp.innerHTML=vCatalog();const fresh=tmp.querySelector("#cres"),cur=$("#cres");if(fresh&&cur)cur.replaceChildren(...fresh.childNodes)}});
 render();
 })();
