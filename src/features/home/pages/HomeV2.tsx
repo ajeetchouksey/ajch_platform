@@ -15,28 +15,58 @@ import {
 
 import { loadPlatformStats, type PlatformStats } from '@/lib/content-loader';
 import { fetchGitHubRepo, type GitHubRepoStats } from '@/lib/github-stats';
-import { getSessions } from '@/lib/storage';
+import { loadExamRegistry } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import { maintainer } from '@/data/maintainer';
 import { SubscribeForm } from '@/components/SubscribeForm';
-import quizScreenshot from '@/assets/quiz-screenshot.png';
+import skillupScreenshot from '@/assets/skillup-screenshot.jpg';
+
+/** The SkillUp exam this browser has studied most. SkillUp keeps progress in localStorage under `skillup:<examId>`. */
+interface SkillUpResume { id: string; passed: number; started: number; review: number; streak: number }
+function readSkillUpResume(): SkillUpResume | null {
+  try {
+    let best: SkillUpResume | null = null;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key?.startsWith('skillup:') || key === 'skillup:days') continue;
+      const id = key.slice(8);
+      if (!/^[a-z0-9-]+$/.test(id)) continue;
+      const s = JSON.parse(localStorage.getItem(key) ?? 'null') as { progress?: Record<string, string>; rq?: Record<string, unknown> } | null;
+      const marks = s?.progress && typeof s.progress === 'object' ? Object.values(s.progress) : [];
+      if (!marks.length) continue;
+      const entry = { id, passed: marks.filter(m => m === 'done').length, started: marks.length, review: s?.rq && typeof s.rq === 'object' ? Object.keys(s.rq).length : 0, streak: 0 };
+      if (!best || entry.started > best.started) best = entry;
+    }
+    if (!best) return null;
+    // Streak: consecutive local days ending today or yesterday, as SkillUp counts it.
+    const raw = JSON.parse(localStorage.getItem('skillup:days') ?? '[]') as unknown;
+    const days = new Set(Array.isArray(raw) ? raw.filter((d): d is string => typeof d === 'string') : []);
+    const day = (n: number) => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+    let k = days.has(day(0)) ? 0 : 1;
+    while (days.has(day(k))) { best.streak++; k++; }
+    return best;
+  } catch {
+    return null;
+  }
+}
 
 // ── Platform feature cards ────────────────────────────────────────────────────
 const features = [
   {
-    to: '/skillup/ccaf',
+    // SkillUp's brand lilac, matching scripts/skillup-site/colour-code.json (action.lilac)
+    to: '/skillup',
     icon: GraduationCap,
-    color: '#8b5cf6',
-    bg: 'rgba(139,92,246,0.10)',
-    border: 'rgba(139,92,246,0.30)',
+    color: '#a99bff',
+    bg: 'rgba(169,155,255,0.10)',
+    border: 'rgba(169,155,255,0.30)',
     badge: 'LIVE',
-    badgeColor: '#8b5cf6',
-    title: 'Practice Real Scenarios',
-    subtitle: '590+ Practice Qs · 4 Certifications',
-    desc: 'Practitioner-grade scenarios across multiple AI certification tracks. Agentic patterns, MCP tool design, context management — the kind of problems you face in production.',
-    bullets: ['590+ production-grade scenarios', 'Instant scoring + explanations', 'Track progress across domains'],
-    cta: 'Start Practicing',
-    screenshot: quizScreenshot,
+    badgeColor: '#a99bff',
+    title: 'SkillUp Certification Prep',
+    subtitle: 'Microsoft · GitHub · Anthropic',
+    desc: 'Short lessons with diagrams, real use cases, practice that adapts to what you know, and a plan that fits your week.',
+    bullets: ['Practice questions that explain every option', 'A review pile that brings back what you missed', 'A daily session, streak and readiness for each exam'],
+    cta: 'Open SkillUp',
+    screenshot: skillupScreenshot,
   },
   {
     to: '/blog',
@@ -199,9 +229,16 @@ export default function HomeV2() {
       .catch(() => {});
   }, []);
 
-  const [sessions, setSessions] = useState<ReturnType<typeof getSessions>>([]);
+  const [resume, setResume] = useState<SkillUpResume | null>(null);
+  const [resumeName, setResumeName] = useState<string | null>(null);
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setSessions(getSessions().filter(s => !!s.finishedAt)); }, []);
+  useEffect(() => { setResume(readSkillUpResume()); }, []);
+  useEffect(() => {
+    if (!resume) return;
+    loadExamRegistry()
+      .then(r => { const e = r.exams.find(x => x.id === resume.id); if (e) setResumeName(e.shortTitle || e.title); })
+      .catch(() => {});
+  }, [resume]);
 
   const dynamicFeatures = useMemo(() => {
     if (!pStats) return features;
@@ -209,8 +246,9 @@ export default function HomeV2() {
     return features.map((f, i) => ({
       ...f,
       ...(i === 0 ? {
-        desc: `${questions} practitioner-grade scenarios across 5 AI domains. Agentic patterns, MCP tool design, context management — the kind of problems you face in production.`,
-        bullets: [`${questions} production-grade scenarios`, 'Instant scoring + explanations', 'Track progress across domains'],
+        // stats.json's exam count includes catalog entries SkillUp doesn't show, so name the providers instead
+        subtitle: `${questions}+ practice questions · Microsoft, GitHub, Anthropic`,
+        bullets: [`${questions} practice questions that explain every option`, 'A review pile that brings back what you missed', 'A daily session, streak and readiness for each exam'],
       } : i === 1 ? {
         bullets: [`${blog_posts}+ in-depth articles`, 'Azure, DevOps, AI Architecture', 'New posts every week'],
       } : i === 2 ? {
@@ -280,7 +318,7 @@ export default function HomeV2() {
           {/* Screenshot — featured card only, real product UI, not an icon abstraction */}
           {featured && screenshot && (
             <div className="mb-5 rounded-xl overflow-hidden" style={{ border: `1px solid ${border}` }}>
-              <img src={screenshot} alt="Live quiz interface — a real scenario question with answer options"
+              <img src={screenshot} alt="SkillUp exam home: next lesson, today's session with a study streak, and the review pile"
                 className="w-full h-[160px] object-cover object-top" loading="lazy" />
             </div>
           )}
@@ -675,51 +713,32 @@ export default function HomeV2() {
       {/*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           § PROGRESS TEASER — returning user nudge, moved up after Learning Path
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/}
-      {sessions.length > 0 && (
+      {resume && (
         <section className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
           style={{ transitionDelay: '140ms' }}>
+          {/* SkillUp colours: lilac highlight, indigo action, ★ for the review pile (colour-code.json) */}
           <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5"
             style={{
-              background: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(15,23,42,0.98) 100%)',
-              border: '1px solid rgba(139,92,246,0.28)',
+              background: 'linear-gradient(135deg, rgba(91,75,214,0.16) 0%, rgba(15,23,42,0.98) 100%)',
+              border: '1px solid rgba(169,155,255,0.28)',
             }}>
-            {/* Left: welcome back */}
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1" style={{ color: '#a78bfa' }}>Welcome back</p>
-              <p className="text-base font-black text-white mb-0.5">Continue your CCA-F prep</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1" style={{ color: '#a99bff' }}>Welcome back</p>
+              <p className="text-base font-black text-white mb-0.5">Continue your {resumeName ?? resume.id.toUpperCase()} prep</p>
               <p className="text-xs text-slate-400">
-                {sessions.length} session{sessions.length !== 1 ? 's' : ''} completed
-                {sessions.at(-1) && (
-                  <> · Last score:{' '}
-                    <span className="font-bold" style={{ color: '#a78bfa' }}>
-                      {Math.round((sessions.at(-1)!.score / sessions.at(-1)!.total) * 100)}%
-                    </span>
-                  </>
-                )}
+                {resume.passed} topic{resume.passed !== 1 ? 's' : ''} passed · {resume.started} started
+                {resume.review > 0 && <> · <span style={{ color: '#a99bff' }}>★ {resume.review}</span> in your review pile</>}
               </p>
             </div>
-            {/* Middle: best score bar */}
-            {(() => {
-              const best = Math.max(...sessions.map(s => Math.round((s.score / s.total) * 100)));
-              const passing = best >= 72;
-              return (
-                <div className="w-full sm:w-44 shrink-0">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] text-slate-500">Best score</span>
-                    <span className="text-sm font-black" style={{ color: passing ? '#10b981' : '#a78bfa' }}>{best}%</span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${best}%`, background: passing ? '#10b981' : 'linear-gradient(90deg,#7c3aed,#a78bfa)' }} />
-                  </div>
-                  <p className="text-[9px] text-slate-700 mt-1">Pass threshold: 72% {passing ? '✓ Ready' : '· Keep going'}</p>
-                </div>
-              );
-            })()}
-            {/* Right: CTA */}
-            <Link to="/skillup/ccaf/quiz"
+            {resume.streak > 0 && (
+              <div className="shrink-0 text-center sm:px-4">
+                <p className="text-2xl font-black leading-none" style={{ color: '#c9c0ff' }}>{resume.streak}</p>
+                <p className="text-[10px] text-slate-400 mt-1">day streak</p>
+              </div>
+            )}
+            <Link to={`/skillup/${resume.id}`}
               className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black rounded-xl text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: '1px solid rgba(139,92,246,0.55)' }}>
+              style={{ background: 'linear-gradient(135deg, #5b4bd6, #7c6cf0)', border: '1px solid rgba(169,155,255,0.45)' }}>
               Continue <ArrowRight size={14} />
             </Link>
           </div>

@@ -42,7 +42,15 @@ Without `--embed`, the build still produces a standalone `index.html`, used for 
 
 `colour-code.json` is the only place a SkillUp hue is defined: six domain colours, the four lesson parts, the answer states, the five mastery levels, provider colours, and the diagram node kinds. `build.mjs --embed` validates it and writes it as custom properties (`--d1`…`--d6`, `--k-key`, `--ok`, `--m1`…, `--pv-microsoft`…) ahead of `aaryaai-theme.css`, which only refers to the variables. `ajch_skillup/scripts/build-svg-diagrams.py` mirrors the `diagram` block, so diagrams use the same colours. The rules for using them (only indigo is clickable, colour always paired with an icon and a word, mastery never red) are in `.claude/skills/learner-experience-standard/SKILL.md` under Visual Language. To change a colour, edit the JSON, rebuild, and regenerate the diagrams if you changed the `diagram` block.
 
-Where the colours show: exam cards take their provider colour; the exam home tiles take a lesson-part colour (notes = key idea, practice = choose when, case studies = real use); topic numbers, case-study stripes and topic chips take their domain colour; status pills and Today's session ticks use the answer states.
+Where the colours show:
+
+- **Provider colour** (`--acc`): exam cards, the featured exam, and the provider filter chips.
+- **Lesson-part colour**: the exam home tiles (notes = key idea, practice = choose when, case studies = real use); the setup goals (pass = key idea, skill = real use, both = choose when); the plan doors (find out = key idea, start studying = choose when); and the Practice options (skill check = key idea, case studies = real use). The official objective uses key-idea lilac.
+- **Domain colour** (`--dc`): topic numbers, case-study stripes and topic chips, the case panel during a case study, domain overview pages, and lesson headers.
+- **Mastery ramp**: the setup starting levels (new → some → hands-on climb `--m2`…`--m4`), the practice exam option, studied days, and the plan preview's concept bars.
+- **Answer states**: status pills and Today's session ticks. Refresh weak topics = partly right. Review pile = flagged ★.
+
+Surfaces that take a colour get it through one variable (`--oc`, `--acc` or `--dc`) set by `app.js`, and only as a tint or edge; indigo stays the only filled action.
 
 ## Live feel
 

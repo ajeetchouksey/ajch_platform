@@ -384,3 +384,25 @@ button[disabled]{opacity:.45;cursor:default}
 .sres .tk{margin-top:1px}
 .sres .tk.sq{color:var(--mute);background:transparent;border-color:var(--line)}
 .sres mark{background:color-mix(in srgb,var(--teal) 26%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+/* own-colour surfaces: a door or setup choice tints its icon and edge with --oc (set from the colour code) */
+.door[style*="--oc"] .ic,.choice[style*="--oc"] .ic{background:color-mix(in srgb,var(--oc) 16%,transparent)}
+.door[style*="--oc"] .ic svg,.choice[style*="--oc"] .ic svg{stroke:var(--oc)}
+.door[style*="--oc"]:hover,.choice[style*="--oc"]:hover{border-color:var(--oc)}
+.door[style*="--oc"] .arrow{color:var(--oc)}
+.choice[style*="--oc"][aria-pressed="true"]{border-color:var(--oc);background:color-mix(in srgb,var(--oc) 12%,transparent)}
+.choice[style*="--oc"][aria-pressed="true"] .ic{background:var(--oc)}
+.choice[style*="--oc"][aria-pressed="true"] .ic svg{stroke:var(--on-teal)}
+.legend .lg-c{--c:var(--teal-soft)}.legend .lg-b{--c:var(--teal)}.legend .lg-r{--c:var(--amber)}
+/* case panel: the situation, the people and the topics stay in view on every question */
+details.case{display:block;padding:0;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);overflow:hidden}
+details.case summary{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;padding:14px 16px;cursor:pointer;list-style:none}
+details.case summary::-webkit-details-marker{display:none}
+details.case summary::after{content:"+";font-family:var(--h);font-size:24px;line-height:1;color:var(--mute)}
+details.case[open] summary::after{content:"−"}
+details.case summary b{display:block;font-family:var(--h);font-size:18px;font-weight:600;line-height:1.2}
+.case .cbody{display:flex;flex-direction:column;gap:12px;padding:0 16px 16px 74px}
+@media (max-width:520px){.case .cbody{padding-left:16px}}
+.cpeople{display:flex;flex-wrap:wrap;gap:10px 18px}
+.cpeople>span{display:flex;gap:8px;align-items:center}
+.cpeople .av{margin:0}
+.cpeople b{display:block;font-size:14px;line-height:1.2}.cpeople small{display:block;font-size:12.5px;color:var(--mute)}
