@@ -10,6 +10,12 @@
 /content/*
   Cache-Control: public, max-age=300, must-revalidate
 
+# SkillUp runtime (skillup-app.js, skillup-data.js, skillup.css, diagrams) — built into
+# /skillup-assets/ on each deploy under the same names. Revalidate every load (a cheap
+# 304 via ETag) so a merged change shows at once instead of after a 4-hour browser cache.
+/skillup-assets/*
+  Cache-Control: public, max-age=0, must-revalidate
+
 # HTML shell — always revalidate so a new deploy is visible on next load, not stuck
 # behind a stale cached shell referencing old (possibly now-404) hashed asset URLs.
 /index.html
