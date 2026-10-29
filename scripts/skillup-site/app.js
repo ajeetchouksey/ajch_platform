@@ -33,6 +33,18 @@ function load(id){if(typeof id!=="string"||!Object.prototype.hasOwnProperty.call
  D=cache.get(id);M=D.meta;TOP=D.topics;QS=D.qs;ORDER=D.domains.flatMap(d=>d.tasks);Q2T={};ORDER.forEach(t=>(TOP[t].qids||[]).forEach(q=>{Q2T[q]=Q2T[q]||t}));
  S=Object.assign({step:0,goal:null,exp:null,date:lday(new Date(TODAY.getTime()+28*864e5)),mins:20,progress:{},review:{},rq:{},open:{},setupDone:false,missed:false},store.get("skillup:"+id)||{});if(!S.rq||typeof S.rq!=="object")S.rq={};
  S.topic=null;S.dom=null;S.test=null;S.mid=null;D.domains.forEach(d=>{if(S.open[d.id]==null)S.open[d.id]=d.id===D.domains[0].id});G.exam=id;return true}
+/* Exam data is inline (standalone build) or one script per exam (embed build: catalog entry .src),
+   fetched the first time the learner opens or hovers that exam, then kept for the visit. */
+const fetching=new Map(),has=id=>Object.prototype.hasOwnProperty.call(window.SKILLUP.exams,id);
+function fetchExam(id){if(has(id))return Promise.resolve(true);const e=CAT.exams.find(x=>x.id===id);
+ if(!e||typeof e.src!=="string"||!/^\/[\w\-/]+\.js\?v=[0-9a-f]+$/.test(e.src))return Promise.resolve(false);
+ if(!fetching.has(id))fetching.set(id,new Promise(res=>{const s=document.createElement("script");s.src=e.src;s.async=true;
+  s.onload=()=>res(has(id));s.onerror=()=>{fetching.delete(id);s.remove();res(false)};document.head.appendChild(s)}));
+ return fetching.get(id)}
+function enter(id,route){if(!CAT.exams.some(x=>x.id===id))return;if(load(id)){route();return}
+ G.wait=id;G.view="loading";render();
+ fetchExam(id).then(ok=>{if(G.wait!==id)return;G.wait=null;if(ok&&load(id)){route();return}
+  G.view="catalog";render();toast("That exam didn't load. Check your connection and try again.")})}
 function save(){if(!S)return;const{topic,dom,test,mid,...keep}=S;store.set("skillup:"+G.exam,keep)}
 const progressOf=id=>{const s=store.get("skillup:"+id);if(!s||!s.progress)return null;const done=Object.values(s.progress).filter(v=>v==="done").length;return{done,started:Object.keys(s.progress).length>0}};
 
@@ -255,11 +267,15 @@ function vResult(){const t=S.test;if(!t.done)finish();const{r,n,shaky}=t.done,pc
  <div class="row" style="width:100%">${t.mode==="topic"&&!pass&&M.mode!=="classic"?`<button class="btn go" style="flex:1" data-a="open" data-v="${t.topic}">Re-read ${esc(t.topic)}</button>`:""}<button class="btn ${t.mode==="topic"&&!pass&&M.mode!=="classic"?"":"go"}" style="flex:1" data-a="go" data-v="${t.mode==="check"?"home":back}">${t.mode==="check"?"See my plan":"Continue"}</button></div></div>${footer()}`}
 const TIMER=setInterval(()=>{const el=$("#tleft");if(!el||!S||!S.test||!S.test.ends)return;const s=Math.max(0,Math.round((S.test.ends-Date.now())/1000));el.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;if(!s){S.test.i=S.test.items.length;render()}},1000);
 
+/* ---------- loading an exam: a shimmer shaped like the exam home ---------- */
+function vLoading(){const e=CAT.exams.find(x=>x.id===G.wait)||{},sk=h=>`<div class="skel" style="height:${h}px"></div>`;
+ return `<div class="stack fade" role="status" aria-live="polite"><span class="eyebrow">Opening ${esc(e.code||"exam")}…</span>${sk(150)}${sk(120)}<div class="grid3">${sk(110)}${sk(110)}${sk(110)}</div></div>`}
+
 /* ---------- router ---------- */
 const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
-function go(v){const run=()=>{G.view=v;if(OPTS.onRoute)OPTS.onRoute(v==="catalog"?null:G.exam);if(S)S.mid=null;$("#drawer").hidden=true;render();toTop(0)};if(document.startViewTransition&&!calm)document.startViewTransition(run);else run()}
+function go(v){const run=()=>{G.view=v;G.wait=null;if(OPTS.onRoute)OPTS.onRoute(v==="catalog"?null:G.exam);if(S)S.mid=null;$("#drawer").hidden=true;render();toTop(0)};if(document.startViewTransition&&!calm)document.startViewTransition(run);else run()}
 function render(){app.className="wrap"+(G.view==="lesson"||(G.view==="dpage"&&M&&M.mode==="classic")?" wide":G.view==="setup"?" setupw":G.view==="catalog"?" wide":"");
- app.innerHTML=({catalog:vCatalog,setup:vSetup,ready:vReady,home:vHome,notes:vNotes,dpage:vDomain,lesson:vLesson,practice:vPractice,cases:vCases,test:vTest})[G.view]();
+ app.innerHTML=({catalog:vCatalog,loading:vLoading,setup:vSetup,ready:vReady,home:vHome,notes:vNotes,dpage:vDomain,lesson:vLesson,practice:vPractice,cases:vCases,test:vTest})[G.view]();
  if(G.view==="catalog"){const s=$("#cq");if(s)s.value=G.q}
  if(G.view==="dpage"||G.view==="lesson")anchorHeadings();track();save();rings()}
 /* rings fill from where they were (home: last visit; results: zero) and count up with them */
@@ -268,7 +284,7 @@ function rings(){HOST.querySelectorAll(".ring[data-to]").forEach(el=>{const to=+
  const t0=performance.now(),step=now=>{if(!el.isConnected)return;const k=Math.min(1,(now-t0)/900);set(1-Math.pow(1-k,3));if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)})}
 const ACT={
  go:v=>{if(v==="_back"){S.step--;render();return}if(v==="_cat"){go("catalog");return}go(v)},
- cat:()=>go("catalog"),exam:v=>{if(!load(v))return;go(S.setupDone?"home":"setup")},
+ cat:()=>go("catalog"),exam:v=>enter(v,()=>go(S.setupDone?"home":"setup")),
  filter:v=>{G.filter=v;render()},
  theme:()=>{const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=d?"light":"dark"},
  info:()=>sheet(infoSheet()),undrawer:()=>{$("#drawer").hidden=true},
@@ -289,14 +305,17 @@ const OK={goal:["exam","skill","both"],exp:["new","some","hands"]};
 function clean(a,v,el){if(v==null||v==="")return v;if(a==="pick")return (OK[el.dataset.k]||[]).includes(v)?v:null;if(a==="open"||a==="test")return TOP&&TOP[v]?v:null;if(a==="exam")return CAT.exams.some(x=>x.id===v)?v:null;if(a==="case")return D&&D.cases.some(x=>x.id===v)?v:null;if(a==="dpage"||a==="fold")return D&&D.domains.some(d=>String(d.id)===v)?v:null;if(a==="go")return ["_back","_cat","catalog","setup","ready","home","notes","practice","cases"].includes(v)?v:null;if(a==="filter")return v==="track"||CAT.exams.some(x=>x.provider===v)?v:null;return /^[\w.-]{0,40}$/.test(v)?v:null}
 HOST.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!el)return;const f=ACT[el.dataset.a];if(!f)return;if(el.tagName==="A"&&el.dataset.a!=="nav")e.preventDefault();const v=clean(el.dataset.a,el.dataset.v,el);if(v===null)return;f(v,el)});
 $("#drawer").addEventListener("click",e=>{if(e.target.id==="drawer")e.target.hidden=true});
+// Start fetching an exam as soon as the pointer or focus reaches its card, so opening it feels instant.
+const warm=e=>{const c=e.target.closest&&e.target.closest('[data-a="exam"]');if(c&&CAT.exams.some(x=>x.id===c.dataset.v))fetchExam(c.dataset.v)};
+HOST.addEventListener("pointerover",warm);HOST.addEventListener("focusin",warm);
 HOST.addEventListener("change",e=>{if(e.target.dataset.c==="date"){const v=String(e.target.value||"");if(/^\d{4}-\d{2}-\d{2}$/.test(v)){S.date=v;render()}}});
 HOST.addEventListener("input",e=>{if(e.target.dataset.c==="q"){G.q=String(e.target.value||"").slice(0,80);const tmp=document.createElement("div");tmp.innerHTML=vCatalog();const fresh=tmp.querySelector("#cres"),cur=$("#cres");if(fresh&&cur)cur.replaceChildren(...fresh.childNodes)}});
 // deep link: /skillup/#ai901 opens that exam (old /skillup/:examId routes redirect here)
 const deep=OPTS.exam||(location.hash||"").slice(1);
-if(CAT.exams.some(x=>x.id===deep)&&load(deep))G.view=S.setupDone?"home":"setup";
-render();
+const arrive=()=>{G.view=S.setupDone?"home":"setup";render()};
+if(CAT.exams.some(x=>x.id===deep))enter(deep,arrive);else render();
 return{destroy(){clearInterval(TIMER);SC.removeEventListener("scroll",track);HOST.innerHTML=""},
- openExam(id){if(id&&id!==G.exam&&load(id)){G.view=S.setupDone?"home":"setup";render()}else if(!id&&G.view!=="catalog"){G.view="catalog";render()}}};
+ openExam(id){if(id&&id!==G.exam&&id!==G.wait)enter(id,arrive);else if(!id&&G.view!=="catalog"){G.wait=null;G.view="catalog";render()}}};
 }
 window.SkillUpApp={start};
 const standalone=document.getElementById("skillup-standalone");

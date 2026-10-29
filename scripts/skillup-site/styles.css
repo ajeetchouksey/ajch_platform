@@ -360,3 +360,6 @@ button[disabled]{opacity:.45;cursor:default}
 .days>span.now{box-shadow:0 0 0 2px var(--teal);color:var(--ink);animation:beat 1.6s ease infinite}
 .days>span.later{opacity:.45}
 @keyframes beat{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--teal) 18%,transparent)}}
+/* loading shimmer while an exam's data arrives */
+.skel{border-radius:16px;background:linear-gradient(90deg,var(--line),color-mix(in srgb,var(--mute) 22%,transparent),var(--line));background-size:200% 100%;animation:shimmer 1.3s linear infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
