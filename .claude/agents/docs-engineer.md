@@ -59,6 +59,8 @@ Sections are keyed on the exam's official blueprint: **one `##` section per task
 
 {≤ 1 short paragraph. Optional **bolded analogy** as its own sentence.}
 
+![{one-sentence plain-language description of the diagram}](/content/skillup/{examId}/images/{examId}-{taskid}-{slug}.svg)
+
 ### Real use
 
 {≤ 3 sentences: a positive, concrete real-world use — who, what, outcome.}
@@ -93,6 +95,8 @@ Sections are keyed on the exam's official blueprint: **one `##` section per task
 **Heading names are load-bearing.** `ajch_platform`'s `src/lib/flashcards.ts` builds flashcards from every `### Key Concept` (its bolded first line) and every `### Exam Trap` (its `note-trap` text). Keep those two heading names exactly, with the claim as the first line and the trap inside the `note-trap` div.
 
 **Size**: aim for ≤ ~25 non-blank lines per task section (code-heavy tasks may run longer). Links carry the depth — don't reproduce documentation.
+
+**Diagrams (REQUIRED)**: every task section gets at least one explanatory SVG — the topic's outcome or mental model at a glance — placed right after the Key Concept content and before `### Real use`. Add more only where a sub-topic genuinely needs a picture. Build them with `scripts/build-svg-diagrams.py` (brand fonts, 680px wide, its visual grammar: one indigo focal element, colour by meaning) by adding to `scripts/diagrams/{examId}.py`; follow `.claude/skills/mermaid-diagram-craft/SKILL.md` for when a diagram earns its place. People remember pictures far longer than prose, so this is not optional decoration. Never put an image inside the Key Concept's first line or inside the `note-trap` div (flashcards parse those).
 
 **Go deeper links**: 1–2 per task, official documentation only (for Microsoft exams, learn.microsoft.com). Verify every URL loads before writing it; never invent or guess one, and drop a link you can't verify.
 
