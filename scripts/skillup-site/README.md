@@ -85,3 +85,11 @@ Each catalog entry is rendered in the best mode its content supports. Upgrading 
 5. Rebuild. The catalog card shows "New lessons" once the exam qualifies.
 
 AI-901 is the reference implementation of this path.
+
+## Phone tab bar and search
+
+On screens up to 760px wide, exam pages show a tab bar: Home, Notes (also lit on lessons and domain pages), Practice (also lit on case studies), Review (with a ★ count of due questions; with none due it says when the next review is), and Search. It is hidden during tests and on setup screens.
+
+Search covers the open exam: topic titles and lesson text, classic domain notes, and question stems. Words match at the start of a word, all words must match, and results come in two groups, topics first (up to 8) and then questions (up to 12, each opening as a single practice question). Open it from the search icon in the exam header, the tab bar, or by pressing `/`; Escape closes it.
+
+When embedded, the tab bar, side sheet and toast live in a `.skillup-host.su-dock` element on `<body>`, not inside the host. The site's page wrapper keeps a `transform` after its fade-in, which would otherwise pin `position: fixed` elements to the wrapper instead of the screen (the same reason `ConfirmDialog.tsx` portals to body). `destroy()` removes the dock.

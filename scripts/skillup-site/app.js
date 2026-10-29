@@ -6,8 +6,14 @@
    Embedded (inside the AaryaAI site layout): no own brand bar/theme switch, scrolls `scroller`,
    reports exam changes through onRoute so the site URL can follow. */
 function start(HOST,OPTS){OPTS=OPTS||{};
-HOST.innerHTML='<div class="wrap" id="app"></div><div class="drawer" id="drawer" hidden></div><div class="toast" id="toast" role="status" aria-live="polite"></div>';
 const EMBED=!!OPTS.embedded,SC=OPTS.scroller||window;
+/* Screen-fixed UI (tab bar, side sheet, toast) lives in a dock on <body> when embedded: the site's page
+   wrapper keeps a transform after its fade-in, which would pin fixed children to the wrapper instead of
+   the screen (same reason ConfirmDialog.tsx portals to body). Standalone, the dock is the host itself. */
+HOST.innerHTML='<div class="wrap" id="app"></div>';
+const DOCK=EMBED?document.body.appendChild(Object.assign(document.createElement("div"),{className:"skillup-host su-dock"})):HOST;
+DOCK.insertAdjacentHTML("beforeend",'<div id="su-tabs"></div><div class="drawer" id="su-drawer" hidden></div><div class="toast" id="su-toast" role="status" aria-live="polite"></div>');
+const $d=s=>DOCK.querySelector(s);
 const sTop=()=>SC===window?window.scrollY:SC.scrollTop,toTop=y=>{if(SC===window)window.scrollTo(0,y||0);else SC.scrollTop=y||0};
 const viewH=()=>SC===window?window.innerHeight:SC.clientHeight,fullH=()=>SC===window?document.documentElement.scrollHeight:SC.scrollHeight;
 const CAT=window.SKILLUP.catalog;
@@ -15,8 +21,8 @@ const $=s=>HOST.querySelector(s),app=$("#app");
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fmt=d=>{if(!d)return"";try{return new Date(d+"T00:00:00").toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}catch(e){return d}};
 const fmtS=d=>new Date(d+"T00:00:00").toLocaleDateString(undefined,{day:"numeric",month:"short"});
-function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove("on"),2400)}
-const I={target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',both:'<path d="M4 17l5-5 4 4 7-8"/><path d="M14 8h6v6"/>',seed:'<path d="M12 20v-8"/><path d="M12 12c0-4 3-7 8-7 0 5-3 7-8 7z"/><path d="M12 14c0-3-2-5-7-5 0 4 2 5 7 5z"/>',sprout:'<path d="M12 20V9"/><path d="M12 9c0-3 2-5 6-5 0 4-2 5-6 5z"/><path d="M12 13c0-2.5-2-4-5-4 0 3 2 4 5 4z"/><path d="M6 20h12"/>',tree:'<path d="M12 21v-6"/><path d="M12 3l6 8H6z"/><path d="M12 8l7 8H5z"/>',book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/><path d="M9 7h6"/>',check:'<path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>',alert:'<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14a6.5 6.5 0 0 1 3.5 6"/>',layers:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'};
+function toast(t){const e=$d("#su-toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove("on"),2400)}
+const I={target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',both:'<path d="M4 17l5-5 4 4 7-8"/><path d="M14 8h6v6"/>',seed:'<path d="M12 20v-8"/><path d="M12 12c0-4 3-7 8-7 0 5-3 7-8 7z"/><path d="M12 14c0-3-2-5-7-5 0 4 2 5 7 5z"/>',sprout:'<path d="M12 20V9"/><path d="M12 9c0-3 2-5 6-5 0 4-2 5-6 5z"/><path d="M12 13c0-2.5-2-4-5-4 0 3 2 4 5 4z"/><path d="M6 20h12"/>',tree:'<path d="M12 21v-6"/><path d="M12 3l6 8H6z"/><path d="M12 8l7 8H5z"/>',book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/><path d="M9 7h6"/>',check:'<path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>',alert:'<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14a6.5 6.5 0 0 1 3.5 6"/>',layers:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',search:'<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',home:'<path d="M4 11l8-7 8 7"/><path d="M6 9.5V20h12V9.5"/>',star:'<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>'};
 const ic=(n,a='')=>`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${a}>${I[n]}</svg>`;
 const MARK=`<span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="var(--on-indigo)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20L12 4l7 16"/><path d="M8.5 13h7"/></svg></span>`;
 const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
@@ -65,7 +71,7 @@ const domWord=()=>isTrack()?"Module":"Domain";
 
 /* ---------- chrome ---------- */
 function bar(back,label){return `<div class="bar">${back?`<button class="back" data-a="go" data-v="${back}">‹ ${label||"Back"}</button>`:EMBED?(G.view==="catalog"?"<span></span>":`<span class="eyebrow">${esc(M.code)} · SkillUp</span>`):`<button class="lock" data-a="cat" aria-label="SkillUp catalog">${MARK}<span class="word">Skill<span>Up</span><small>${G.view==="catalog"?"by AaryaAI":esc(M.code)+" · by AaryaAI"}</small></span></button>`}
- <div class="tools">${G.view!=="catalog"?`<button class="ibtn" data-a="cat" aria-label="All exams">${ic("grid")}</button><button class="ibtn" data-a="info" aria-label="Page and version info">${ic("info")}</button>`:""}${EMBED?"":`<button class="ibtn" data-a="theme" aria-label="Switch light or dark">${ic("moon")}</button>`}</div></div>`}
+ <div class="tools">${G.view!=="catalog"?`${G.view!=="test"?`<button class="ibtn" data-a="search" aria-label="Search ${esc(M.code)} (press /)" title="Search (/)">${ic("search")}</button>`:""}<button class="ibtn" data-a="cat" aria-label="All exams">${ic("grid")}</button><button class="ibtn" data-a="info" aria-label="Page and version info">${ic("info")}</button>`:""}${EMBED?"":`<button class="ibtn" data-a="theme" aria-label="Switch light or dark">${ic("moon")}</button>`}</div></div>`}
 function pageMeta(extra){return `<div class="pmeta"><span title="Content version">v${esc(M.version)}</span><span>Updated ${esc(fmt(M.updated))}</span>${M.asOf?`<span>Skills outline ${esc(M.asOf)}</span>`:""}${extra||""}<button class="plink" data-a="info">Page info</button></div>`}
 const footer=()=>G.view==="catalog"?(EMBED?"":`<footer class="foot"><span>${MARK.replace('class="mark"','class="mark sm"')} SkillUp by AaryaAI</span><span>${CAT.exams.length} learning spaces · built ${esc(fmt(CAT.built))} from the SkillUp content repository</span></footer>`)
  :`<footer class="foot"><span>${MARK.replace('class="mark"','class="mark sm"')} SkillUp ${esc(M.code)} · ${esc(M.title)}</span><span>Content v${esc(M.version)} · updated ${esc(fmt(M.updated))}${M.asOf?" · aligned to the official skills outline of "+esc(M.asOf):""}</span></footer>`;
@@ -76,7 +82,7 @@ function infoSheet(){const t=G.view==="lesson"&&S.topic?TOP[S.topic]:null;
  ${M.studyGuide?`<dt>Source</dt><dd><a href="${esc(M.studyGuide)}" target="_blank" rel="noopener">Official reference ↗</a></dd>`:""}<dt>Published by</dt><dd>AaryaAI SkillUp</dd></dl>
  ${M.changelog.length?`<div class="sl" style="margin-top:6px">Recent changes</div><ol class="clog">${M.changelog.map(c=>`<li><b>v${esc(c.version)}</b> <span class="mute">${esc(fmt(c.date))}</span><p>${esc((c.summary||"").length>220?c.summary.slice(0,217)+"…":c.summary)}</p></li>`).join("")}</ol>`:""}
  <button class="btn full" data-a="undrawer">Close</button>`}
-function sheet(h){const d=$("#drawer");d.innerHTML=`<div class="dpanel">${h}</div>`;d.hidden=false}
+function sheet(h){const d=$d("#su-drawer");d.innerHTML=`<div class="dpanel">${h}</div>`;d.hidden=false}
 
 /* ---------- catalog ---------- */
 function vCatalog(){const ex=CAT.exams,provs=[...new Set(ex.map(e=>e.provider).filter(Boolean))].sort();
@@ -126,7 +132,9 @@ const dayOff=n=>{const x=new Date(TODAY);x.setDate(x.getDate()+n);return lday(x)
 function pile(q,ok,sure){const r=S.rq[q.id];if(ok&&sure){if(!r)return;if(r.s+1>=GAPS.length)delete S.rq[q.id];else S.rq[q.id]={s:r.s+1,due:dayOff(GAPS[r.s+1])};return}
  S.rq[q.id]={s:0,due:dayOff(GAPS[0])}}
 const dueQs=()=>Object.keys(S.rq).filter(id=>QS[id]&&S.rq[id]&&String(S.rq[id].due)<=lday(TODAY)),pileSize=()=>Object.keys(S.rq).filter(id=>QS[id]).length;
-const startReview=()=>start("review",shuffle(dueQs()).slice(0,10).map(id=>QS[id]));
+function startReview(){const due=dueQs();if(due.length){start("review",shuffle(due).slice(0,10).map(id=>QS[id]));return}
+ const next=Object.keys(S.rq).filter(id=>QS[id]).map(id=>String(S.rq[id].due)).sort()[0];
+ toast(next?`Nothing due now. Next review ${fmtS(next)}`:"Nothing to review yet. Missed or guessed questions land here")}
 
 /* ---------- streak: days with any study, shared by every exam in this browser ---------- */
 const studied=()=>{const d=store.get("skillup:days");return Array.isArray(d)?d.filter(x=>typeof x==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(x)):[]};
@@ -235,7 +243,7 @@ const startTopic=id=>start("topic",(TOP[id].qids||[]).map(q=>QS[q]),{topic:id});
 function startAssess(){const per=Math.max(2,Math.ceil(12/D.domains.length)),items=[];D.domains.forEach(d=>{shuffle(d.tasks.filter(id=>(TOP[id].qids||[]).length)).slice(0,per).forEach(id=>{const ids=TOP[id].qids;items.push(QS[ids.find(q=>QS[q].d!=="hard")||ids[0]])})});start("check",items.slice(0,12))}
 function startExam(){const n=Math.min(40,M.questions);start("exam",shuffle(Object.values(QS)).slice(0,n),{ends:Date.now()+Math.round(n*1.1)*60e3})}
 const startCase=id=>start("case",D.cases.find(x=>x.id===id).qs,{caseId:id});
-function head(t){const back=t.mode==="topic"?"notes":t.mode==="case"?"cases":t.mode==="review"?"home":"practice",label={topic:(isTrack()?"Lesson ":"Topic ")+t.topic,check:"Skill check",exam:"Practice exam",case:"Case study",review:"Review pile"}[t.mode];
+function head(t){const back=t.mode==="topic"?"notes":t.mode==="case"?"cases":t.mode==="review"||t.mode==="one"?"home":"practice",label={topic:(isTrack()?"Lesson ":"Topic ")+t.topic,check:"Skill check",exam:"Practice exam",case:"Case study",review:"Review pile",one:"From search"}[t.mode];
  return bar(back,"Leave")+`<div class="qprog">${t.items.map((_,i)=>`<i class="${i<t.res.length?(t.res[i].ok?"r":"w"):t.mode==="exam"&&t.answers[i]!=null?"c2":i===t.i?"c":""}"></i>`).join("")}</div>
  <div class="spread"><span class="eyebrow">${label} · question ${t.i+1} of ${t.items.length}</span>${t.mode==="exam"?`<span class="pill">${ic("clock",'style="width:14px;height:14px;stroke:currentColor"')} <span id="tleft">--:--</span></span>`:""}</div>`}
 function vTest(){const t=S.test,q=t.items[t.i];if(!q)return vResult();
@@ -262,10 +270,46 @@ function vResult(){const t=S.test;if(!t.done)finish();const{r,n,shaky}=t.done,pc
  const back=t.mode==="topic"?"notes":t.mode==="case"?"cases":"home",again=t.res.filter(x=>!(x.ok&&x.sure)).length,qw=k=>`${k} question${k===1?"":"s"}`;
  const headline=t.mode==="check"?"Here's where you stand.":t.mode==="review"?(again?"Pile shrinking.":"Cleared for today."):pass&&!shaky?"Locked in.":pass?"Right, but a little shaky.":"Nearly there.";
  const blurb=t.mode==="check"?`You got ${r} of ${n}. What you answered confidently is marked done; the rest is flagged to study first.`:t.mode==="review"?`${qw(n-again)} moved on; ${again?qw(again)+" come back tomorrow":"nothing comes back tomorrow"}. ${pileSize()} left in your pile.`:pass&&!shaky?"You got every one and you knew it.":pass?`You guessed ${shaky}. We'll bring ${shaky>1?"them":"it"} back in your review pile.`:"The explanations show the gap. A quick re-read usually fixes it.";
- return bar(back,"Done")+`<div class="result fade"><div class="eyebrow">${{topic:(isTrack()?"Lesson ":"Topic ")+t.topic,check:"Skill check",case:"Case study",review:"Review pile"}[t.mode]} complete</div><div class="ring big" data-t="${tier(pc)}" style="--p:0" data-v="0/${n}" data-from="0" data-to="${pc}" data-n="${r}" data-suf="/${n}"></div><h1>${headline}</h1><p class="mute">${blurb}</p>
+ return bar(back,"Done")+`<div class="result fade"><div class="eyebrow">${{topic:(isTrack()?"Lesson ":"Topic ")+t.topic,check:"Skill check",case:"Case study",review:"Review pile",one:"Question"}[t.mode]} complete</div><div class="ring big" data-t="${tier(pc)}" style="--p:0" data-v="0/${n}" data-from="0" data-to="${pc}" data-n="${r}" data-suf="/${n}"></div><h1>${headline}</h1><p class="mute">${blurb}</p>
  <div class="sched"><div><b>Tomorrow</b><span>${again?`${qw(again)} back in your review pile`:"Nothing from this comes back"}</span></div><div><b>Then</b><span>${again?"Again after 4 and 10 days, until you answer with confidence":"Answered with confidence, so they move on"}</span></div><div><b>${isTrack()?"Final week":"Exam week"}</b><span>Included in your final review</span></div></div>
  <div class="row" style="width:100%">${t.mode==="topic"&&!pass&&M.mode!=="classic"?`<button class="btn go" style="flex:1" data-a="open" data-v="${t.topic}">Re-read ${esc(t.topic)}</button>`:""}<button class="btn ${t.mode==="topic"&&!pass&&M.mode!=="classic"?"":"go"}" style="flex:1" data-a="go" data-v="${t.mode==="check"?"home":back}">${t.mode==="check"?"See my plan":"Continue"}</button></div></div>${footer()}`}
 const TIMER=setInterval(()=>{const el=$("#tleft");if(!el||!S||!S.test||!S.test.ends)return;const s=Math.max(0,Math.round((S.test.ends-Date.now())/1000));el.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;if(!s){S.test.i=S.test.items.length;render()}},1000);
+
+/* ---------- search: topics, lesson text, domain notes and questions in the open exam ---------- */
+const plain=h=>String(h||"").replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,"&").replace(/\s+/g," ").trim();
+let IDX=null,IDXFOR=null;
+function sindex(){if(IDXFOR===G.exam)return IDX;IDXFOR=G.exam;IDX=[];const add=(k,id,head,text)=>{text=plain(text);IDX.push({k,id,head:head.toLowerCase(),text,low:text.toLowerCase()})};
+ ORDER.forEach(id=>{const t=TOP[id];add("topic",id,`${id} ${t.title} ${t.short||""}`,[t.claim,t.keyHtml,...(t.secs||[]).map(s=>s.html),t.classicHtml,(t.objectives||[]).join(" ")].join(" "))});
+ if(M.mode==="classic")D.domains.forEach(d=>{const p=D.domainPages[d.id];if(p&&p.classicHtml)add("dom",String(d.id),`${domWord()} ${d.id} ${d.title}`,p.classicHtml)});
+ Object.values(QS).forEach(q=>add("q",q.id,q.q,[q.s,...q.o].join(" ")));return IDX}
+const words=q=>[...new Set(q.toLowerCase().split(/\s+/).filter(w=>w.length>1))].slice(0,6);
+// A word matches only where a word starts ("ai" finds "AI" and "AI-901", not "mainly").
+const wordAt=(lo,w,from)=>{for(let i=lo.indexOf(w,from||0);i>-1;i=lo.indexOf(w,i+1))if(!i||!/[a-z0-9]/.test(lo[i-1]))return i;return -1};
+// Topics (and domain notes) first, then questions, each ranked by how many words hit the title.
+function search(q){const ws=words(q);if(!ws.length)return{t:[],q:[]};const t=[],qq=[];
+ for(const e of sindex()){if(!ws.every(w=>wordAt(e.head,w)>-1||wordAt(e.low,w)>-1))continue;(e.k==="q"?qq:t).push([ws.reduce((a,w)=>a+(wordAt(e.head,w)>-1?3:1),0),e])}
+ const top=(l,n)=>l.sort((a,b)=>b[0]-a[0]).slice(0,n).map(x=>x[1]);return{t:top(t,8),q:top(qq,12)}}
+// Highlight on the raw text, escaping each piece, so a match can never cut through an HTML entity.
+function hl(s,ws){const lo=s.toLowerCase(),m=[];ws.forEach(w=>{for(let i=wordAt(lo,w);i>-1;i=wordAt(lo,w,i+w.length))m.push([i,i+w.length])});m.sort((a,b)=>a[0]-b[0]);
+ let out="",p=0;for(const[a,b]of m){if(a<p)continue;out+=esc(s.slice(p,a))+"<mark>"+esc(s.slice(a,b))+"</mark>";p=b}return out+esc(s.slice(p))}
+function snip(e,ws){const at=ws.map(w=>wordAt(e.low,w)).filter(i=>i>-1);if(!at.length)return e.text.slice(0,140)+(e.text.length>140?"…":"");const a=Math.max(0,Math.min(...at)-50);
+ return (a?"…":"")+e.text.slice(a,a+150)+(a+150<e.text.length?"…":"")}
+function sresults(q){if(!words(q).length)return `<p class="tiny mute">Search ${ORDER.length} ${unit()}s and ${Object.keys(QS).length} questions in ${esc(M.code)}. Try a service, an idea or an exam term.</p>`;
+ const ws=words(q),r=search(q);if(!r.t.length&&!r.q.length)return `<p class="mute small">Nothing matches “${esc(q)}”. Try fewer or different words.</p>`;
+ const group=(label,l)=>l.length?`<div class="sl" style="margin-top:6px">${label}</div>`+l.map(e=>srow(e,ws)).join(""):"";
+ return group(isTrack()?"Lessons":"Topics",r.t)+group("Questions",r.q)}
+function srow(e,ws){
+  if(e.k==="q")return `<button class="sres" data-a="qone" data-v="${esc(e.id)}"><span class="tk sq" aria-hidden="true">Q</span><span><b>${hl(QS[e.id].q,ws)}</b><span class="tiny mute">Practise this question${Q2T[e.id]?" · "+esc(Q2T[e.id]):""}</span></span></button>`;
+  if(e.k==="dom"){const d=D.domains.find(x=>String(x.id)===e.id);return `<button class="sres" data-a="dpage" data-v="${esc(e.id)}"><span class="tk"${dc(d)}>${domWord()[0]}${esc(e.id)}</span><span><b>${hl(d.title,ws)}</b><span class="tiny mute">${hl(snip(e,ws),ws)}</span></span></button>`}
+  const d=domOf(e.id);return `<button class="sres" data-a="${M.mode==="classic"?"test":"open"}" data-v="${esc(e.id)}"><span class="tk"${dc(d)}>${esc(e.id.replace(/^m(\d+)-l/,"$1."))}</span><span><b>${hl(nm(e.id),ws)}</b><span class="tiny mute">${hl(snip(e,ws),ws)}</span></span></button>`}
+function openSearch(){if(!D)return;sheet(`<div class="sl">Search ${esc(M.code)}</div><input class="search" id="sq" type="search" data-c="sq" placeholder="Topic, service or keyword" aria-label="Search ${esc(M.code)}" autocomplete="off" enterkeyhint="search"><div id="sres" aria-live="polite">${sresults(G.sq||"")}</div><button class="btn full" data-a="undrawer">Close</button>`);
+ const i=$d("#sq");i.value=G.sq||"";i.focus();i.select()}
+
+/* ---------- phone tab bar: the four places learners move between, plus search ---------- */
+const TABV={home:["home"],notes:["notes","lesson","dpage"],practice:["practice","cases"]};
+function tabbar(){if(!D||!["home","notes","practice","lesson","dpage","cases"].includes(G.view))return"";const dq=dueQs().length,cur=k=>TABV[k].includes(G.view)?' aria-current="page"':"";
+ return `<nav class="tabbar" aria-label="${esc(M.code)} sections"><button data-a="go" data-v="home"${cur("home")}>${ic("home")}<span>Home</span></button><button data-a="go" data-v="notes"${cur("notes")}>${ic("book")}<span>Notes</span></button><button data-a="go" data-v="practice"${cur("practice")}>${ic("check")}<span>Practice</span></button>
+ <button data-a="review" aria-label="Review${dq?`, ${dq} due`:""}">${ic("star")}<span>Review</span>${dq?`<i class="badge" aria-hidden="true">${dq>99?"99+":dq}</i>`:""}</button><button data-a="search">${ic("search")}<span>Search</span></button></nav>`}
 
 /* ---------- loading an exam: a shimmer shaped like the exam home ---------- */
 function vLoading(){const e=CAT.exams.find(x=>x.id===G.wait)||{},sk=h=>`<div class="skel" style="height:${h}px"></div>`;
@@ -273,9 +317,10 @@ function vLoading(){const e=CAT.exams.find(x=>x.id===G.wait)||{},sk=h=>`<div cla
 
 /* ---------- router ---------- */
 const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
-function go(v){const run=()=>{G.view=v;G.wait=null;if(OPTS.onRoute)OPTS.onRoute(v==="catalog"?null:G.exam);if(S)S.mid=null;$("#drawer").hidden=true;render();toTop(0)};if(document.startViewTransition&&!calm)document.startViewTransition(run);else run()}
-function render(){app.className="wrap"+(G.view==="lesson"||(G.view==="dpage"&&M&&M.mode==="classic")?" wide":G.view==="setup"?" setupw":G.view==="catalog"?" wide":"");
+function go(v){const run=()=>{G.view=v;G.wait=null;if(OPTS.onRoute)OPTS.onRoute(v==="catalog"?null:G.exam);if(S)S.mid=null;$d("#su-drawer").hidden=true;render();toTop(0)};if(document.startViewTransition&&!calm)document.startViewTransition(run);else run()}
+function render(){const tabs=tabbar();app.className="wrap"+(G.view==="lesson"||(G.view==="dpage"&&M&&M.mode==="classic")?" wide":G.view==="setup"?" setupw":G.view==="catalog"?" wide":"")+(tabs?" tabs":"");
  app.innerHTML=({catalog:vCatalog,loading:vLoading,setup:vSetup,ready:vReady,home:vHome,notes:vNotes,dpage:vDomain,lesson:vLesson,practice:vPractice,cases:vCases,test:vTest})[G.view]();
+ $d("#su-tabs").innerHTML=tabs;DOCK.classList.toggle("has-tabs",!!tabs);
  if(G.view==="catalog"){const s=$("#cq");if(s)s.value=G.q}
  if(G.view==="dpage"||G.view==="lesson")anchorHeadings();track();save();rings()}
 /* rings fill from where they were (home: last visit; results: zero) and count up with them */
@@ -287,14 +332,15 @@ const ACT={
  cat:()=>go("catalog"),exam:v=>enter(v,()=>go(S.setupDone?"home":"setup")),
  filter:v=>{G.filter=v;render()},
  theme:()=>{const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=d?"light":"dark"},
- info:()=>sheet(infoSheet()),undrawer:()=>{$("#drawer").hidden=true},
+ info:()=>sheet(infoSheet()),undrawer:()=>{$d("#su-drawer").hidden=true},
  pick:(v,el)=>{S[el.dataset.k]=v;render();setTimeout(()=>{S.step++;render()},240)},
  mins:v=>{S.mins=+v;render()},build:()=>{S.setupDone=true;go("ready")},replan:()=>{S.step=2;S.missed=false;go("setup")},
  assess:()=>startAssess(),xstart:()=>startExam(),case:v=>startCase(v),review:()=>startReview(),
+ search:()=>openSearch(),qone:v=>start("one",[QS[v]]),
  open:v=>{S.topic=v;S.progress[v]=S.progress[v]||"read";mark();did("read",v);go("lesson")},dpage:v=>{S.dom=+v;go("dpage")},
  test:v=>startTopic(v),fold:v=>{S.open[v]=!S.open[v];render()},
  mid:v=>{S.mid=+v;mark();const y=sTop();render();toTop(y)},
- drawer:()=>sheet(topicsNav(S.topic)+tocNav(TOP[S.topic])+'<button class="btn full" data-a="undrawer">Close</button>'),nav:()=>{$("#drawer").hidden=true},
+ drawer:()=>sheet(topicsNav(S.topic)+tocNav(TOP[S.topic])+'<button class="btn full" data-a="undrawer">Close</button>'),nav:()=>{$d("#su-drawer").hidden=true},
  ans:v=>{S.test.pick=+v;render()},
  sure:v=>{const t=S.test,q=t.items[t.i];t.sure=v==="1";const ok=t.pick===q.c;t.res.push({ok,sure:t.sure});pile(q,ok,t.sure);mark();render()},
  next:()=>{const t=S.test;t.i++;t.pick=null;t.sure=null;render();toTop(0)},
@@ -302,19 +348,26 @@ const ACT={
  miss:()=>{S.missed=true;render()},unmiss:()=>{S.missed=false;S.back=lday(TODAY);toast("Today: a light 15 minutes");render()},
  reset:()=>{store.del("skillup:"+G.exam);load(G.exam);go("setup")}};
 const OK={goal:["exam","skill","both"],exp:["new","some","hands"]};
-function clean(a,v,el){if(v==null||v==="")return v;if(a==="pick")return (OK[el.dataset.k]||[]).includes(v)?v:null;if(a==="open"||a==="test")return TOP&&TOP[v]?v:null;if(a==="exam")return CAT.exams.some(x=>x.id===v)?v:null;if(a==="case")return D&&D.cases.some(x=>x.id===v)?v:null;if(a==="dpage"||a==="fold")return D&&D.domains.some(d=>String(d.id)===v)?v:null;if(a==="go")return ["_back","_cat","catalog","setup","ready","home","notes","practice","cases"].includes(v)?v:null;if(a==="filter")return v==="track"||CAT.exams.some(x=>x.provider===v)?v:null;return /^[\w.-]{0,40}$/.test(v)?v:null}
-HOST.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!el)return;const f=ACT[el.dataset.a];if(!f)return;if(el.tagName==="A"&&el.dataset.a!=="nav")e.preventDefault();const v=clean(el.dataset.a,el.dataset.v,el);if(v===null)return;f(v,el)});
-$("#drawer").addEventListener("click",e=>{if(e.target.id==="drawer")e.target.hidden=true});
+function clean(a,v,el){if(v==null||v==="")return v;if(a==="pick")return (OK[el.dataset.k]||[]).includes(v)?v:null;if(a==="open"||a==="test")return TOP&&TOP[v]?v:null;if(a==="exam")return CAT.exams.some(x=>x.id===v)?v:null;if(a==="qone")return QS&&Object.prototype.hasOwnProperty.call(QS,v)?v:null;if(a==="case")return D&&D.cases.some(x=>x.id===v)?v:null;if(a==="dpage"||a==="fold")return D&&D.domains.some(d=>String(d.id)===v)?v:null;if(a==="go")return ["_back","_cat","catalog","setup","ready","home","notes","practice","cases"].includes(v)?v:null;if(a==="filter")return v==="track"||CAT.exams.some(x=>x.provider===v)?v:null;return /^[\w.-]{0,40}$/.test(v)?v:null}
+const onClick=e=>{const el=e.target.closest("[data-a]");if(!el)return;const f=ACT[el.dataset.a];if(!f)return;if(el.tagName==="A"&&el.dataset.a!=="nav")e.preventDefault();const v=clean(el.dataset.a,el.dataset.v,el);if(v===null)return;f(v,el)};
+HOST.addEventListener("click",onClick);if(DOCK!==HOST)DOCK.addEventListener("click",onClick);
+$d("#su-drawer").addEventListener("click",e=>{if(e.target.id==="su-drawer")e.target.hidden=true});
 // Start fetching an exam as soon as the pointer or focus reaches its card, so opening it feels instant.
 const warm=e=>{const c=e.target.closest&&e.target.closest('[data-a="exam"]');if(c&&CAT.exams.some(x=>x.id===c.dataset.v))fetchExam(c.dataset.v)};
 HOST.addEventListener("pointerover",warm);HOST.addEventListener("focusin",warm);
 HOST.addEventListener("change",e=>{if(e.target.dataset.c==="date"){const v=String(e.target.value||"");if(/^\d{4}-\d{2}-\d{2}$/.test(v)){S.date=v;render()}}});
+let sqT;DOCK.addEventListener("input",e=>{if(e.target.dataset.c!=="sq")return;G.sq=String(e.target.value||"").slice(0,60);clearTimeout(sqT);sqT=setTimeout(()=>{const r=$d("#sres");if(r)r.innerHTML=sresults(G.sq)},120)});
+// "/" opens search inside an exam (not while typing); Escape closes the side sheet.
+const onKey=e=>{if(!HOST.isConnected)return;const typing=/^(INPUT|TEXTAREA|SELECT)$/.test((e.target&&e.target.tagName)||"")||(e.target&&e.target.isContentEditable);
+ if(e.key==="/"&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&D&&G.view!=="catalog"&&G.view!=="loading"&&G.view!=="test"){e.preventDefault();openSearch()}
+ else if(e.key==="Escape"&&!$d("#su-drawer").hidden)$d("#su-drawer").hidden=true};
+document.addEventListener("keydown",onKey);
 HOST.addEventListener("input",e=>{if(e.target.dataset.c==="q"){G.q=String(e.target.value||"").slice(0,80);const tmp=document.createElement("div");tmp.innerHTML=vCatalog();const fresh=tmp.querySelector("#cres"),cur=$("#cres");if(fresh&&cur)cur.replaceChildren(...fresh.childNodes)}});
 // deep link: /skillup/#ai901 opens that exam (old /skillup/:examId routes redirect here)
 const deep=OPTS.exam||(location.hash||"").slice(1);
 const arrive=()=>{G.view=S.setupDone?"home":"setup";render()};
 if(CAT.exams.some(x=>x.id===deep))enter(deep,arrive);else render();
-return{destroy(){clearInterval(TIMER);SC.removeEventListener("scroll",track);HOST.innerHTML=""},
+return{destroy(){clearInterval(TIMER);SC.removeEventListener("scroll",track);document.removeEventListener("keydown",onKey);HOST.innerHTML="";if(DOCK!==HOST)DOCK.remove()},
  openExam(id){if(id&&id!==G.exam&&id!==G.wait)enter(id,arrive);else if(!id&&G.view!=="catalog"){G.wait=null;G.view="catalog";render()}}};
 }
 window.SkillUpApp={start};
