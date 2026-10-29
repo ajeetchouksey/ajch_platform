@@ -62,9 +62,9 @@ jobs:
           VITE_STATS_GIST_ID: 4ccf1b49e144256342d92bab727fbb89
         run: npm run build
 
-      # SkillUp is served as a static experience at /skillup/, built by
-      # scripts/skillup-site from the exact ajch_skillup commit promoted in
-      # content-manifest.json, so the site always matches the promoted content.
+      # SkillUp runs inside the site at /skillup (src/features/skillup/SkillUpHost.tsx), which loads
+      # assets built by scripts/skillup-site from the exact ajch_skillup commit promoted in
+      # content-manifest.json, so the experience always matches the promoted content.
       - name: Read promoted SkillUp commit
         id: skillup
         run: echo "sha=$(node -p "require('./content-manifest.json').skillup.sha")" >> "$GITHUB_OUTPUT"
@@ -78,7 +78,7 @@ jobs:
           persist-credentials: false
 
       - name: Build SkillUp experience
-        run: node scripts/skillup-site/build.mjs --content .skillup-content --out dist/skillup --base /skillup/
+        run: node scripts/skillup-site/build.mjs --content .skillup-content --out dist/skillup-assets --embed --asset-base /skillup-assets/
 
       # Cloudflare Pages only enables its native SPA fallback (any unmatched path →
       # index.html, 200) when there's no top-level 404.html in the deployment. This

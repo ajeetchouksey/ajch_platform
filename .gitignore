@@ -46,3 +46,6 @@ branch-protection-log.txt
 __pycache__/
 
 coverage/
+
+# SkillUp assets built locally by `npm run skillup:dev` (production builds them in the deploy)
+public/skillup-assets/

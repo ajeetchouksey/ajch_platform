@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "skillup:site": "node scripts/skillup-site/build.mjs --content ../ajch_skillup --out dist/skillup-site",
+    "skillup:dev": "node scripts/skillup-site/build.mjs --content ../ajch_skillup --out public/skillup-assets --embed --asset-base /skillup-assets/",
     "dev": "vite",
     "prebuild": "node scripts/generate-rss.mjs",
     "build": "tsc -b && vite build && node scripts/generate-og-shells.mjs && node scripts/generate-sitemap.mjs",

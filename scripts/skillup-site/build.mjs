@@ -10,6 +10,9 @@
  * --out      output folder: index.html (+ <exam>/images/* unless --inline)
  * --inline   embed every diagram as a data: URI → one self-contained index.html
  * --exam     build only these ids (default: every catalog entry)
+ * --embed    write skillup-data.js + skillup-app.js + skillup.css (scoped, AaryaAI theme) for the React
+ *            host page instead of a standalone index.html; use with --asset-base
+ * --asset-base URL prefix for diagrams in --embed mode, e.g. /skillup-assets/
  * --base     URL path the site is served from, e.g. /skillup/ (sets <base> so diagrams resolve with or without a trailing slash)
  *
  * Content modes are detected per entry, so upgrading an exam's notes needs no
@@ -36,6 +39,9 @@ const OUT = arg('--out', 'dist/skillup-site');
 const INLINE = process.argv.includes('--inline');
 const ONLY = arg('--exam', '')?.split(',').filter(Boolean);
 const BASE = arg('--base', '');
+const EMBED = process.argv.includes('--embed');
+const ASSET_BASE = arg('--asset-base', '');
+if (ASSET_BASE && !/^\/[\w\-/]*\/$/.test(ASSET_BASE)) throw new Error('--asset-base must look like /path/');
 if (BASE && !/^\/[\w\-/]*\/$/.test(BASE)) throw new Error('--base must look like /path/');
 
 const rd = p => readFileSync(join(CONTENT, p), 'utf-8');
@@ -164,7 +170,10 @@ for (const e of entries) {
     const src = join(CONTENT, 'content', 'skillup', e.id, 'images', f);
     if (!existsSync(src)) continue;
     if (INLINE) json = json.split(`${e.id}/images/${f}`).join(`data:image/${f.endsWith('.svg') ? 'svg+xml' : f.split('.').pop()};base64,` + readFileSync(src).toString('base64'));
-    else { mkdirSync(join(OUT, e.id, 'images'), { recursive: true }); copyFileSync(src, join(OUT, e.id, 'images', f)); }
+    else {
+      mkdirSync(join(OUT, e.id, 'images'), { recursive: true }); copyFileSync(src, join(OUT, e.id, 'images', f));
+      if (ASSET_BASE) json = json.split(`${e.id}/images/${f}`).join(`${ASSET_BASE}${e.id}/images/${f}`);
+    }
   }
   // Data is embedded as script values, never JSON text read back out of the DOM.
   blocks.push(`<script>SKILLUP.exams[${JSON.stringify(e.id)}]=${jsSafe(json)};</script>`);
@@ -175,18 +184,59 @@ for (const e of entries) {
 }
 const style = readFileSync(join(HERE, 'styles.css'), 'utf-8');
 const app = readFileSync(join(HERE, 'app.js'), 'utf-8');
-const page = `${BASE ? `<base href="${BASE}">
-` : ''}<title>SkillUp</title>
+const catalogJs = `var SKILLUP={exams:{},catalog:${jsSafe(JSON.stringify({ built: new Date().toISOString().slice(0, 10), exams: list }))}};`;
+
+if (EMBED) {
+  // React host mode: the AaryaAI layout supplies header, menu, footer and fonts.
+  const data = catalogJs + '\n' + blocks.map(b => b.replace(/^<script>|<\/script>$/g, '')).join('\n');
+  writeFileSync(join(OUT, 'skillup-data.js'), data);
+  writeFileSync(join(OUT, 'skillup-app.js'), app);
+  const css = scopeCss(style, '.skillup-host') + '\n' + readFileSync(join(HERE, 'aaryaai-theme.css'), 'utf-8');
+  writeFileSync(join(OUT, 'skillup.css'), css);
+  console.log(`✓ ${entries.length} entries → ${OUT}/skillup-{data,app}.js + skillup.css (${(data.length / 1048576).toFixed(1)} MB data)`);
+} else {
+  const page = `${BASE ? `<base href="${BASE}">\n` : ''}<title>SkillUp</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <style>${style}</style>
-<div class="wrap" id="app"></div>
-<div class="drawer" id="drawer" hidden></div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script>var SKILLUP={exams:{},catalog:${jsSafe(JSON.stringify({ built: new Date().toISOString().slice(0, 10), exams: list }))}};</script>
+<div id="skillup-standalone"></div>
+<script>${catalogJs}</script>
 ${blocks.join('\n')}
 <script>${app}</script>
 `;
-writeFileSync(join(OUT, 'index.html'), page);
-console.log(`✓ ${entries.length} entries → ${join(OUT, 'index.html')} (${(page.length / 1048576).toFixed(1)} MB${INLINE ? ', diagrams inlined' : ''})`);
+  writeFileSync(join(OUT, 'index.html'), page);
+  console.log(`✓ ${entries.length} entries → ${join(OUT, 'index.html')} (${(page.length / 1048576).toFixed(1)} MB${INLINE ? ', diagrams inlined' : ''})`);
+}
+
+/**
+ * Scope a stylesheet to one container for embedding: every selector is prefixed with `scope`,
+ * :root/body/html rules map onto the scope (or are dropped when page-level), colour-scheme
+ * switching and view-transition rules are dropped (the host site owns theme and page chrome).
+ */
+function scopeCss(css, scope) {
+  css = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const out = [];
+  const pre = sel => sel.split(',').map(x => x.trim()).filter(Boolean).map(x => {
+    if (/^(:root|html|body)$/.test(x)) return scope;
+    if (/^\*$/.test(x)) return `${scope} *,${scope}`;
+    if (/^(body::before|html)\b/.test(x) || /view-transition/.test(x) || /\[data-theme/.test(x)) return null;
+    return `${scope} ${x}`;
+  }).filter(Boolean).join(',');
+  let i = 0;
+  while (i < css.length) {
+    const open = css.indexOf('{', i); if (open < 0) break;
+    const head = css.slice(i, open).trim();
+    let depth = 1, j = open + 1;
+    while (j < css.length && depth) { if (css[j] === '{') depth++; else if (css[j] === '}') depth--; j++; }
+    const body = css.slice(open + 1, j - 1);
+    i = j;
+    if (/^@keyframes/.test(head)) { out.push(`${head}{${body}}`); continue; }
+    if (/^@media[^{]*prefers-color-scheme/.test(head)) continue;
+    if (/^@media/.test(head)) { const inner = scopeCss(body, scope); if (inner.trim()) out.push(`${head}{${inner}}`); continue; }
+    if (/^@/.test(head)) continue;
+    const sel = pre(head);
+    if (sel) out.push(`${sel}{${body}}`);
+  }
+  return out.join('\n');
+}

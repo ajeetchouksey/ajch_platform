@@ -189,7 +189,8 @@ export default function Layout({ children }: { children: ReactNode }) {
   const pageKey = location.pathname + location.search;
   const [currentExam, setCurrentExam] = useState<ExamConfig | null>(null);
 
-  const examIdMatch = location.pathname.match(/^\/(?:exams|skillup)\/([^/]+)/);
+  // /skillup/* renders the SkillUp experience with its own navigation; only legacy /exams/* URLs get this bar.
+  const examIdMatch = location.pathname.match(/^\/exams\/([^/]+)/);
   // /skillup/my-learning is the cross-exam dashboard, not an exam.
   const currentExamId = examIdMatch && examIdMatch[1] !== 'my-learning' ? examIdMatch[1] : null;
   const isInExam = Boolean(currentExamId);

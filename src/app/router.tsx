@@ -1,12 +1,11 @@
-import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
-import { lazy, useEffect } from 'react';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { lazy } from 'react';
 // ── Home ──────────────────────────────────────────────────────────────────────
 const HomeV2 = lazy(() => import('@/features/home/pages/HomeV2'));
 
 // ── Skill Up (Exams) ──────────────────────────────────────────────────────────
-// SkillUp is served as a static experience at /skillup/ (scripts/skillup-site, built in the
-// Cloudflare Pages deploy). ExamCatalog stays only as the fallback if that build is missing.
-const ExamCatalog = lazy(() => import('@/features/exams/pages/ExamCatalog'));
+// SkillUp runs inside the site layout; its experience is built by scripts/skillup-site.
+const SkillUpHost = lazy(() => import('@/features/skillup/SkillUpHost'));
 const Notes = lazy(() => import('@/features/exams/pages/Notes'));
 
 // ── Pathways ──────────────────────────────────────────────────────────────────
@@ -72,23 +71,6 @@ const Subscribe = lazy(() => import('@/pages/Subscribe'));
 const AuthCallback = lazy(() => import('@/pages/AuthCallback'));
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Hands any /skillup/... route to the static SkillUp (dist/skillup/, built in the Cloudflare
-// Pages deploy) with a full page load, keeping the exam: /skillup/ai901/notes → /skillup/#ai901.
-// The server serves that static page for exactly "/skillup/", so the SPA only ever renders
-// "/skillup/" itself when the static build is missing. That is the one case that could loop;
-// show the old catalog there instead. App links use "/skillup" (no slash) and are unaffected.
-function OpenSkillUp() {
-  const { pathname } = useLocation();
-  const staticMissing = pathname === '/skillup/';
-  useEffect(() => {
-    if (staticMissing) return;
-    const exam = pathname.split('/')[2] || '';
-    const hash = /^[a-z0-9-]{2,40}$/.test(exam) && exam !== 'my-learning' ? `#${exam}` : '';
-    window.location.replace(`/skillup/${hash}`);
-  }, [pathname, staticMissing]);
-  return staticMissing ? <ExamCatalog /> : null;
-}
-
 // Backward-compat redirect helpers for /exams/:examId/* → /skillup/:examId/*
 function ExamIdRedirect() {
   const { examId } = useParams<{ examId: string }>();
@@ -106,8 +88,7 @@ export default function AppRoutes() {
       <Route path="/learn" element={<Navigate to="/discovery" replace />} />
 
       {/* Skill Up — primary routes */}
-      <Route path="/skillup" element={<OpenSkillUp />} />
-      <Route path="/skillup/*" element={<OpenSkillUp />} />
+      <Route path="/skillup/*" element={<SkillUpHost />} />
       <Route path="/notes" element={<Notes />} />
 
       {/* /exams → /skillup backward-compat redirects */}
