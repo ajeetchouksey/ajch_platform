@@ -18,9 +18,10 @@ const iso=d=>d.toISOString().slice(0,10);
 /* ---------- global + per-exam state ---------- */
 const G={view:"catalog",filter:"",q:"",exam:null};
 let D=null,M=null,TOP=null,QS=null,ORDER=[],Q2T={},S=null;
-const cache={};
-function load(id){if(!cache[id]){const x=window.SKILLUP.exams[id];if(!x)return false;cache[id]=x}
- D=cache[id];M=D.meta;TOP=D.topics;QS=D.qs;ORDER=D.domains.flatMap(d=>d.tasks);Q2T={};ORDER.forEach(t=>(TOP[t].qids||[]).forEach(q=>{Q2T[q]=Q2T[q]||t}));
+const cache=new Map(); // Map, not an object: ids can come from the URL hash (no prototype keys)
+function load(id){if(typeof id!=="string"||!Object.prototype.hasOwnProperty.call(window.SKILLUP.exams,id))return false;
+ if(!cache.has(id))cache.set(id,window.SKILLUP.exams[id]);
+ D=cache.get(id);M=D.meta;TOP=D.topics;QS=D.qs;ORDER=D.domains.flatMap(d=>d.tasks);Q2T={};ORDER.forEach(t=>(TOP[t].qids||[]).forEach(q=>{Q2T[q]=Q2T[q]||t}));
  S=Object.assign({step:0,goal:null,exp:null,date:iso(new Date(TODAY.getTime()+28*864e5)),mins:20,progress:{},review:{},open:{},setupDone:false,missed:false},store.get("skillup:"+id)||{});
  S.topic=null;S.dom=null;S.test=null;S.mid=null;D.domains.forEach(d=>{if(S.open[d.id]==null)S.open[d.id]=d.id===D.domains[0].id});G.exam=id;return true}
 function save(){if(!S)return;const{topic,dom,test,mid,...keep}=S;store.set("skillup:"+G.exam,keep)}
@@ -237,5 +238,8 @@ document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!
 $("#drawer").addEventListener("click",e=>{if(e.target.id==="drawer")e.target.hidden=true});
 document.addEventListener("change",e=>{if(e.target.dataset.c==="date"){const v=String(e.target.value||"");if(/^\d{4}-\d{2}-\d{2}$/.test(v)){S.date=v;render()}}});
 document.addEventListener("input",e=>{if(e.target.dataset.c==="q"){G.q=String(e.target.value||"").slice(0,80);const tmp=document.createElement("div");tmp.innerHTML=vCatalog();const fresh=tmp.querySelector("#cres"),cur=$("#cres");if(fresh&&cur)cur.replaceChildren(...fresh.childNodes)}});
+// deep link: /skillup/#ai901 opens that exam (old /skillup/:examId routes redirect here)
+const deep=(location.hash||"").slice(1);
+if(CAT.exams.some(x=>x.id===deep)&&load(deep))G.view=S.setupDone?"home":"setup";
 render();
 })();

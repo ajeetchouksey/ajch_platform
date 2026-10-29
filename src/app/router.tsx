@@ -1,18 +1,13 @@
-import { Routes, Route, Navigate, useParams } from 'react-router-dom';
-import { lazy } from 'react';
+import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
+import { lazy, useEffect, useState } from 'react';
 // ── Home ──────────────────────────────────────────────────────────────────────
 const HomeV2 = lazy(() => import('@/features/home/pages/HomeV2'));
 
 // ── Skill Up (Exams) ──────────────────────────────────────────────────────────
+// SkillUp is served as a static experience at /skillup/ (scripts/skillup-site, built in the
+// Cloudflare Pages deploy). ExamCatalog stays only as the fallback if that build is missing.
 const ExamCatalog = lazy(() => import('@/features/exams/pages/ExamCatalog'));
-const ExamHome = lazy(() => import('@/features/exams/pages/ExamHome'));
-const Quiz = lazy(() => import('@/features/exams/pages/Quiz'));
 const Notes = lazy(() => import('@/features/exams/pages/Notes'));
-const Scenarios = lazy(() => import('@/features/exams/pages/Scenarios'));
-const Progress = lazy(() => import('@/features/exams/pages/Progress'));
-const StudyPlan = lazy(() => import('@/features/exams/pages/StudyPlan'));
-const MyLearning = lazy(() => import('@/features/exams/pages/MyLearning'));
-const Flashcards = lazy(() => import('@/features/exams/pages/Flashcards'));
 
 // ── Pathways ──────────────────────────────────────────────────────────────────
 const Pathways = lazy(() => import('@/features/pathways/pages/Pathways'));
@@ -77,6 +72,26 @@ const Subscribe = lazy(() => import('@/pages/Subscribe'));
 const AuthCallback = lazy(() => import('@/pages/AuthCallback'));
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Hands any /skillup/... route to the static SkillUp with a full page load, keeping the exam
+// (/skillup/ai901/notes → /skillup/#ai901). A short-lived marker prevents a redirect loop if the
+// static build is ever absent (the SPA would be served for /skillup/ again): show the old catalog.
+const SKILLUP_HOP = 'skillup:hop';
+function OpenSkillUp() {
+  const { pathname } = useLocation();
+  // Read once on mount (lazy initial state), so render stays pure.
+  const [looping] = useState(() => {
+    try { return Date.now() - Number(sessionStorage.getItem(SKILLUP_HOP) || 0) < 10_000; } catch { return false; }
+  });
+  useEffect(() => {
+    if (looping) return;
+    try { sessionStorage.setItem(SKILLUP_HOP, String(Date.now())); } catch { /* storage blocked: redirect anyway */ }
+    const exam = pathname.split('/')[2] || '';
+    const hash = /^[a-z0-9-]{2,40}$/.test(exam) && exam !== 'my-learning' ? `#${exam}` : '';
+    window.location.replace(`/skillup/${hash}`);
+  }, [pathname, looping]);
+  return looping ? <ExamCatalog /> : null;
+}
+
 // Backward-compat redirect helpers for /exams/:examId/* → /skillup/:examId/*
 function ExamIdRedirect() {
   const { examId } = useParams<{ examId: string }>();
@@ -94,16 +109,9 @@ export default function AppRoutes() {
       <Route path="/learn" element={<Navigate to="/discovery" replace />} />
 
       {/* Skill Up — primary routes */}
-      <Route path="/skillup" element={<ExamCatalog />} />
-      <Route path="/skillup/my-learning" element={<MyLearning />} />
-      <Route path="/skillup/:examId" element={<ExamHome />} />
-      <Route path="/skillup/:examId/flashcards" element={<Flashcards />} />
-      <Route path="/skillup/:examId/quiz" element={<Quiz />} />
-      <Route path="/skillup/:examId/notes" element={<Notes />} />
+      <Route path="/skillup" element={<OpenSkillUp />} />
+      <Route path="/skillup/*" element={<OpenSkillUp />} />
       <Route path="/notes" element={<Notes />} />
-      <Route path="/skillup/:examId/scenarios" element={<Scenarios />} />
-      <Route path="/skillup/:examId/progress" element={<Progress />} />
-      <Route path="/skillup/:examId/plan" element={<StudyPlan />} />
 
       {/* /exams → /skillup backward-compat redirects */}
       <Route path="/exams" element={<Navigate to="/skillup" replace />} />
