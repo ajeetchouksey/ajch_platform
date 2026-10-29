@@ -237,5 +237,8 @@ document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!
 $("#drawer").addEventListener("click",e=>{if(e.target.id==="drawer")e.target.hidden=true});
 document.addEventListener("change",e=>{if(e.target.dataset.c==="date"){const v=String(e.target.value||"");if(/^\d{4}-\d{2}-\d{2}$/.test(v)){S.date=v;render()}}});
 document.addEventListener("input",e=>{if(e.target.dataset.c==="q"){G.q=String(e.target.value||"").slice(0,80);const tmp=document.createElement("div");tmp.innerHTML=vCatalog();const fresh=tmp.querySelector("#cres"),cur=$("#cres");if(fresh&&cur)cur.replaceChildren(...fresh.childNodes)}});
+// deep link: /skillup/#ai901 opens that exam (old /skillup/:examId routes redirect here)
+const deep=(location.hash||"").slice(1);
+if(CAT.exams.some(x=>x.id===deep)&&load(deep))G.view=S.setupDone?"home":"setup";
 render();
 })();

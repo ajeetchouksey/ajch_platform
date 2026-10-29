@@ -10,6 +10,7 @@
  * --out      output folder: index.html (+ <exam>/images/* unless --inline)
  * --inline   embed every diagram as a data: URI → one self-contained index.html
  * --exam     build only these ids (default: every catalog entry)
+ * --base     URL path the site is served from, e.g. /skillup/ (sets <base> so diagrams resolve with or without a trailing slash)
  *
  * Content modes are detected per entry, so upgrading an exam's notes needs no
  * framework change:
@@ -34,6 +35,8 @@ const CONTENT = arg('--content', '../ajch_skillup');
 const OUT = arg('--out', 'dist/skillup-site');
 const INLINE = process.argv.includes('--inline');
 const ONLY = arg('--exam', '')?.split(',').filter(Boolean);
+const BASE = arg('--base', '');
+if (BASE && !/^\/[\w\-/]*\/$/.test(BASE)) throw new Error('--base must look like /path/');
 
 const rd = p => readFileSync(join(CONTENT, p), 'utf-8');
 const tryJSON = p => { try { return JSON.parse(rd(p)); } catch { return null; } };
@@ -172,7 +175,8 @@ for (const e of entries) {
 }
 const style = readFileSync(join(HERE, 'styles.css'), 'utf-8');
 const app = readFileSync(join(HERE, 'app.js'), 'utf-8');
-const page = `<title>SkillUp</title>
+const page = `${BASE ? `<base href="${BASE}">
+` : ''}<title>SkillUp</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">

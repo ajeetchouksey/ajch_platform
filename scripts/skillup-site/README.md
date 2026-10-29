@@ -23,6 +23,11 @@ node scripts/skillup-site/build.mjs --content ../ajch_skillup --out dist/skillup
 | `--out` | Output folder (default `dist/skillup-site`) |
 | `--inline` | Embed diagrams as `data:` URIs so `index.html` stands alone |
 | `--exam` | Comma-separated ids to build (default: every available, non-deprecated entry) |
+| `--base` | URL path the site is served from, for example `/skillup/` (adds a `<base>` tag) |
+
+## Production
+
+`.github/workflows/deploy-cloudflare-pages.yml` builds this into `dist/skillup/` on every deploy, from the `ajch_skillup` commit pinned in `content-manifest.json`. Promoting new SkillUp content (`promote-content.yml`) therefore also updates the experience. In the React app, every `/skillup/...` route does a full page load to `/skillup/`, keeping the exam as a deep link (`/skillup/ai901/notes` becomes `/skillup/#ai901`).
 
 No new dependencies: Markdown is rendered with `micromark` and `micromark-extension-gfm`, which the app already has through `react-markdown`/`remark-gfm`.
 
