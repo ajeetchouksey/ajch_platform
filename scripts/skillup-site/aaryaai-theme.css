@@ -1,0 +1,43 @@
+/* SkillUp inside the AaryaAI site (--embed): AaryaAI's dark navy surface, slate glass cards,
+   brand indigo for actions and lilac for highlights — the same tokens as src/index.css @theme.
+   The site layout supplies header, navigation, footer, background and fonts. */
+.skillup-host{
+  --paper:transparent;
+  --surface:linear-gradient(135deg,rgba(51,65,85,.55),rgba(30,41,59,.78));
+  --raised:rgba(30,41,59,.55);
+  --ink:#e2e8f0; --mute:#a3afc4; --faint:#7d8aa3; --line:rgba(148,163,184,.16);
+  --teal:#8b7cf6; --teal-deep:#a99bff; --teal-soft:rgba(91,75,214,.18); --on-teal:#ffffff;
+  --indigo:#5b4bd6; --on-indigo:#ffffff;
+  --amber:#fbbf24; --amber-soft:rgba(251,191,36,.12);
+  --green:#2fbf71; --green-soft:rgba(47,191,113,.14);
+  --rose:#fb7185; --rose-soft:rgba(251,113,133,.13);
+  --input:rgba(56,189,248,.10); --input-line:#7dd3fc;
+  --shadow:0 0 0 1px rgba(148,163,184,.05),inset 0 1px 0 rgba(255,255,255,.05),0 8px 32px -10px rgba(0,0,0,.45);
+  --h:'Barlow Condensed',ui-sans-serif,system-ui,sans-serif; --b:'Barlow',ui-sans-serif,system-ui,sans-serif;
+  color:var(--ink); background:transparent; font:16px/1.6 var(--b); color-scheme:dark;
+}
+.skillup-host .wrap{padding-block:20px 56px}
+/* Actions: brand indigo fill, lilac on hover; text accents read in lilac on navy */
+.skillup-host .btn.go{background:linear-gradient(135deg,#5b4bd6,#7c6cf0);border-color:transparent;box-shadow:0 6px 20px -8px rgba(91,75,214,.7)}
+.skillup-host .btn.go:hover{background:linear-gradient(135deg,#6a5ae0,#8b7cf6)}
+.skillup-host .btn,.skillup-host .choice,.skillup-host .door,.skillup-host .tile,.skillup-host .ccard,.skillup-host .opt,.skillup-host .mins button{backdrop-filter:blur(10px)}
+.skillup-host .btn:hover,.skillup-host .choice:hover,.skillup-host .door:hover,.skillup-host .tile:hover,.skillup-host .ccard:hover{border-color:rgba(169,155,255,.45);box-shadow:0 0 32px -10px rgba(91,75,214,.45)}
+.skillup-host .ccard::before{background:linear-gradient(90deg,#4c3fbd,#5b4bd6,#a99bff)}
+.skillup-host .cat-hero h1 span,.skillup-host .bignum,.skillup-host .fstats b{background:linear-gradient(135deg,#a99bff,#5b4bd6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.skillup-host .feature,.skillup-host .hero{background:linear-gradient(135deg,rgba(91,75,214,.22),rgba(30,41,59,.7) 60%);border-color:rgba(169,155,255,.22)}
+.skillup-host .path,.skillup-host .preview,.skillup-host .case-card,.skillup-host .card,.skillup-host .welcome,.skillup-host .fb,.skillup-host .fig:not(.img),.skillup-host .tbl,.skillup-host .md .tw,.skillup-host .md>table,.skillup-host .md pre,.skillup-host .links a,.skillup-host .md-more li a,.skillup-host .objective,.skillup-host .objectives,.skillup-host .sched div,.skillup-host .classic-note{background:var(--surface)}
+.skillup-host .people div{background:rgba(15,23,42,.55)}
+.skillup-host .md code{background:rgba(91,75,214,.22);color:#d9d3ff}
+.skillup-host .note-trap,.skillup-host .trap{background:rgba(251,191,36,.10)}
+.skillup-host .fig.img{background:rgba(15,23,42,.55);border:1px solid var(--line);padding:8px}
+.skillup-host .fig.img figcaption{color:var(--mute)}
+/* Things that assumed an opaque page background */
+.skillup-host .mob{background:rgba(14,26,45,.94);backdrop-filter:blur(10px);top:0}
+.skillup-host .drawer{z-index:60;background:rgba(2,6,23,.6)}
+.skillup-host .dpanel{background:#0f1b2e;border-left:1px solid var(--line);padding-top:72px}
+.skillup-host .toast{background:#e2e8f0;color:#0f172a;z-index:70}
+.skillup-host .ring::after{background:#13203a}
+.skillup-host input[type=date],.skillup-host .search{background:rgba(15,23,42,.6);color:var(--ink)}
+.skillup-host .demo{display:none}
+/* Sticky side rails sit below the site header inside <main>'s scroll area */
+@media (min-width:1040px){.skillup-host .side{top:16px;max-height:calc(100vh - 56px - 32px)}}

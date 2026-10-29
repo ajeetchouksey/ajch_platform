@@ -2,8 +2,16 @@
    All data is build output from PR-reviewed ajch_skillup content; notes HTML is rendered Markdown by design. */
 (function(){
 "use strict";
+/* SkillUpApp.start(host, {embedded, scroller, exam, onRoute}) renders SkillUp into `host`.
+   Embedded (inside the AaryaAI site layout): no own brand bar/theme switch, scrolls `scroller`,
+   reports exam changes through onRoute so the site URL can follow. */
+function start(HOST,OPTS){OPTS=OPTS||{};
+HOST.innerHTML='<div class="wrap" id="app"></div><div class="drawer" id="drawer" hidden></div><div class="toast" id="toast" role="status" aria-live="polite"></div>';
+const EMBED=!!OPTS.embedded,SC=OPTS.scroller||window;
+const sTop=()=>SC===window?window.scrollY:SC.scrollTop,toTop=y=>{if(SC===window)window.scrollTo(0,y||0);else SC.scrollTop=y||0};
+const viewH=()=>SC===window?window.innerHeight:SC.clientHeight,fullH=()=>SC===window?document.documentElement.scrollHeight:SC.scrollHeight;
 const CAT=window.SKILLUP.catalog;
-const $=s=>document.querySelector(s),app=$("#app");
+const $=s=>HOST.querySelector(s),app=$("#app");
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fmt=d=>{if(!d)return"";try{return new Date(d+"T00:00:00").toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}catch(e){return d}};
 const fmtS=d=>new Date(d+"T00:00:00").toLocaleDateString(undefined,{day:"numeric",month:"short"});
@@ -40,10 +48,10 @@ const unit=()=>isTrack()?"lesson":"topic";
 const domWord=()=>isTrack()?"Module":"Domain";
 
 /* ---------- chrome ---------- */
-function bar(back,label){return `<div class="bar">${back?`<button class="back" data-a="go" data-v="${back}">‹ ${label||"Back"}</button>`:`<button class="lock" data-a="cat" aria-label="SkillUp catalog">${MARK}<span class="word">Skill<span>Up</span><small>${G.view==="catalog"?"by AaryaAI":esc(M.code)+" · by AaryaAI"}</small></span></button>`}
- <div class="tools">${G.view!=="catalog"?`<button class="ibtn" data-a="cat" aria-label="All exams">${ic("grid")}</button><button class="ibtn" data-a="info" aria-label="Page and version info">${ic("info")}</button>`:""}<button class="ibtn" data-a="theme" aria-label="Switch light or dark">${ic("moon")}</button></div></div>`}
+function bar(back,label){return `<div class="bar">${back?`<button class="back" data-a="go" data-v="${back}">‹ ${label||"Back"}</button>`:EMBED?(G.view==="catalog"?"<span></span>":`<span class="eyebrow">${esc(M.code)} · SkillUp</span>`):`<button class="lock" data-a="cat" aria-label="SkillUp catalog">${MARK}<span class="word">Skill<span>Up</span><small>${G.view==="catalog"?"by AaryaAI":esc(M.code)+" · by AaryaAI"}</small></span></button>`}
+ <div class="tools">${G.view!=="catalog"?`<button class="ibtn" data-a="cat" aria-label="All exams">${ic("grid")}</button><button class="ibtn" data-a="info" aria-label="Page and version info">${ic("info")}</button>`:""}${EMBED?"":`<button class="ibtn" data-a="theme" aria-label="Switch light or dark">${ic("moon")}</button>`}</div></div>`}
 function pageMeta(extra){return `<div class="pmeta"><span title="Content version">v${esc(M.version)}</span><span>Updated ${esc(fmt(M.updated))}</span>${M.asOf?`<span>Skills outline ${esc(M.asOf)}</span>`:""}${extra||""}<button class="plink" data-a="info">Page info</button></div>`}
-const footer=()=>G.view==="catalog"?`<footer class="foot"><span>${MARK.replace('class="mark"','class="mark sm"')} SkillUp by AaryaAI</span><span>${CAT.exams.length} learning spaces · built ${esc(fmt(CAT.built))} from the SkillUp content repository</span></footer>`
+const footer=()=>G.view==="catalog"?(EMBED?"":`<footer class="foot"><span>${MARK.replace('class="mark"','class="mark sm"')} SkillUp by AaryaAI</span><span>${CAT.exams.length} learning spaces · built ${esc(fmt(CAT.built))} from the SkillUp content repository</span></footer>`)
  :`<footer class="foot"><span>${MARK.replace('class="mark"','class="mark sm"')} SkillUp ${esc(M.code)} · ${esc(M.title)}</span><span>Content v${esc(M.version)} · updated ${esc(fmt(M.updated))}${M.asOf?" · aligned to the official skills outline of "+esc(M.asOf):""}</span></footer>`;
 function infoSheet(){const t=G.view==="lesson"&&S.topic?TOP[S.topic]:null;
  return `<div class="sl">Page info</div><h2 style="font-size:24px">${t?esc(t.id+" "+nm(t.id)):esc(M.code+" · "+M.title)}</h2>
@@ -155,8 +163,8 @@ function vLesson(){const id=S.topic,t=TOP[id],d=domOf(id),i=d.tasks.indexOf(id),
  <aside class="side">${tocNav(t)}<div class="tiny mute" style="margin-top:6px">Reading progress</div><div class="rprog"><i class="rp"></i></div></aside></div>`}
 function track(){if(G.view!=="lesson"&&G.view!=="dpage")return;let ids;if(G.view==="lesson")ids=secList(TOP[S.topic]).map(s=>s[0]);else ids=[...document.querySelectorAll(".toc a")].map(a=>a.getAttribute("href").slice(1));
  let cur=0;ids.forEach((s,i)=>{const el=document.getElementById(s);if(el&&el.getBoundingClientRect().top<140)cur=i});
- document.querySelectorAll(".toc a").forEach((a,i)=>a.classList.toggle("on",i===cur));const h=document.documentElement,pc=Math.min(100,100*scrollY/Math.max(1,h.scrollHeight-innerHeight));document.querySelectorAll(".rp").forEach(e=>e.style.width=pc+"%")}
-addEventListener("scroll",track,{passive:true});
+ document.querySelectorAll(".toc a").forEach((a,i)=>a.classList.toggle("on",i===cur));const pc=Math.min(100,100*sTop()/Math.max(1,fullH()-viewH()));document.querySelectorAll(".rp").forEach(e=>e.style.width=pc+"%")}
+SC.addEventListener("scroll",track,{passive:true});
 function anchorHeadings(){document.querySelectorAll(".md.classic h2").forEach(h=>{h.id=slug(h.textContent.trim())})}
 
 /* ---------- practice, cases, tests ---------- */
@@ -204,11 +212,11 @@ function vResult(){const t=S.test;if(!t.done)finish();const{r,n,shaky}=t.done,pc
  return bar(back,"Done")+`<div class="result fade"><div class="eyebrow">${{topic:(isTrack()?"Lesson ":"Topic ")+t.topic,check:"Skill check",case:"Case study"}[t.mode]} complete</div><div class="ring big" style="--p:${pc}" data-v="${r}/${n}"></div><h1>${headline}</h1><p class="mute">${blurb}</p>
  <div class="sched"><div><b>Tomorrow</b><span>${pass&&!shaky?"Nothing to do here":"2-minute refresh of what you missed"}</span></div><div><b>In 4 days</b><span>One question to check it stuck</span></div><div><b>${isTrack()?"Final week":"Exam week"}</b><span>Included in your final review</span></div></div>
  <div class="row" style="width:100%">${t.mode==="topic"&&!pass&&M.mode!=="classic"?`<button class="btn go" style="flex:1" data-a="open" data-v="${t.topic}">Re-read ${esc(t.topic)}</button>`:""}<button class="btn ${t.mode==="topic"&&!pass&&M.mode!=="classic"?"":"go"}" style="flex:1" data-a="go" data-v="${t.mode==="check"?"home":back}">${t.mode==="check"?"See my plan":"Continue"}</button></div></div>${footer()}`}
-setInterval(()=>{const el=$("#tleft");if(!el||!S||!S.test||!S.test.ends)return;const s=Math.max(0,Math.round((S.test.ends-Date.now())/1000));el.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;if(!s){S.test.i=S.test.items.length;render()}},1000);
+const TIMER=setInterval(()=>{const el=$("#tleft");if(!el||!S||!S.test||!S.test.ends)return;const s=Math.max(0,Math.round((S.test.ends-Date.now())/1000));el.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;if(!s){S.test.i=S.test.items.length;render()}},1000);
 
 /* ---------- router ---------- */
 const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
-function go(v){const run=()=>{G.view=v;if(S)S.mid=null;$("#drawer").hidden=true;render();scrollTo(0,0)};if(document.startViewTransition&&!calm)document.startViewTransition(run);else run()}
+function go(v){const run=()=>{G.view=v;if(OPTS.onRoute)OPTS.onRoute(v==="catalog"?null:G.exam);if(S)S.mid=null;$("#drawer").hidden=true;render();toTop(0)};if(document.startViewTransition&&!calm)document.startViewTransition(run);else run()}
 function render(){app.className="wrap"+(G.view==="lesson"||(G.view==="dpage"&&M&&M.mode==="classic")?" wide":G.view==="setup"?" setupw":G.view==="catalog"?" wide":"");
  app.innerHTML=({catalog:vCatalog,setup:vSetup,ready:vReady,home:vHome,notes:vNotes,dpage:vDomain,lesson:vLesson,practice:vPractice,cases:vCases,test:vTest})[G.view]();
  if(G.view==="catalog"){const s=$("#cq");if(s)s.value=G.q}
@@ -224,22 +232,28 @@ const ACT={
  assess:()=>startAssess(),xstart:()=>startExam(),case:v=>startCase(v),
  open:v=>{S.topic=v;S.progress[v]=S.progress[v]||"read";go("lesson")},dpage:v=>{S.dom=+v;go("dpage")},
  test:v=>startTopic(v),fold:v=>{S.open[v]=!S.open[v];render()},
- mid:v=>{S.mid=+v;const y=scrollY;render();scrollTo(0,y)},
+ mid:v=>{S.mid=+v;const y=sTop();render();toTop(y)},
  drawer:()=>sheet(topicsNav(S.topic)+tocNav(TOP[S.topic])+'<button class="btn full" data-a="undrawer">Close</button>'),nav:()=>{$("#drawer").hidden=true},
  ans:v=>{S.test.pick=+v;render()},
  sure:v=>{const t=S.test;t.sure=v==="1";t.res.push({ok:t.pick===t.items[t.i].c,sure:t.sure});render()},
- next:()=>{const t=S.test;t.i++;t.pick=null;t.sure=null;render();scrollTo(0,0)},
- xans:v=>{S.test.answers[S.test.i]=+v;render()},xprev:()=>{S.test.i--;render()},xnext:()=>{S.test.i++;render();scrollTo(0,0)},
+ next:()=>{const t=S.test;t.i++;t.pick=null;t.sure=null;render();toTop(0)},
+ xans:v=>{S.test.answers[S.test.i]=+v;render()},xprev:()=>{S.test.i--;render()},xnext:()=>{S.test.i++;render();toTop(0)},
  miss:()=>{S.missed=true;render()},unmiss:()=>{S.missed=false;toast("Today: a light 15 minutes");render()},
  reset:()=>{store.del("skillup:"+G.exam);load(G.exam);go("setup")}};
 const OK={goal:["exam","skill","both"],exp:["new","some","hands"]};
 function clean(a,v,el){if(v==null||v==="")return v;if(a==="pick")return (OK[el.dataset.k]||[]).includes(v)?v:null;if(a==="open"||a==="test")return TOP&&TOP[v]?v:null;if(a==="exam")return CAT.exams.some(x=>x.id===v)?v:null;if(a==="case")return D&&D.cases.some(x=>x.id===v)?v:null;if(a==="dpage"||a==="fold")return D&&D.domains.some(d=>String(d.id)===v)?v:null;if(a==="go")return ["_back","_cat","catalog","setup","ready","home","notes","practice","cases"].includes(v)?v:null;if(a==="filter")return v==="track"||CAT.exams.some(x=>x.provider===v)?v:null;return /^[\w.-]{0,40}$/.test(v)?v:null}
-document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!el)return;const f=ACT[el.dataset.a];if(!f)return;if(el.tagName==="A"&&el.dataset.a!=="nav")e.preventDefault();const v=clean(el.dataset.a,el.dataset.v,el);if(v===null)return;f(v,el)});
+HOST.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!el)return;const f=ACT[el.dataset.a];if(!f)return;if(el.tagName==="A"&&el.dataset.a!=="nav")e.preventDefault();const v=clean(el.dataset.a,el.dataset.v,el);if(v===null)return;f(v,el)});
 $("#drawer").addEventListener("click",e=>{if(e.target.id==="drawer")e.target.hidden=true});
-document.addEventListener("change",e=>{if(e.target.dataset.c==="date"){const v=String(e.target.value||"");if(/^\d{4}-\d{2}-\d{2}$/.test(v)){S.date=v;render()}}});
-document.addEventListener("input",e=>{if(e.target.dataset.c==="q"){G.q=String(e.target.value||"").slice(0,80);const tmp=document.createElement("div");tmp.innerHTML=vCatalog();const fresh=tmp.querySelector("#cres"),cur=$("#cres");if(fresh&&cur)cur.replaceChildren(...fresh.childNodes)}});
+HOST.addEventListener("change",e=>{if(e.target.dataset.c==="date"){const v=String(e.target.value||"");if(/^\d{4}-\d{2}-\d{2}$/.test(v)){S.date=v;render()}}});
+HOST.addEventListener("input",e=>{if(e.target.dataset.c==="q"){G.q=String(e.target.value||"").slice(0,80);const tmp=document.createElement("div");tmp.innerHTML=vCatalog();const fresh=tmp.querySelector("#cres"),cur=$("#cres");if(fresh&&cur)cur.replaceChildren(...fresh.childNodes)}});
 // deep link: /skillup/#ai901 opens that exam (old /skillup/:examId routes redirect here)
-const deep=(location.hash||"").slice(1);
+const deep=OPTS.exam||(location.hash||"").slice(1);
 if(CAT.exams.some(x=>x.id===deep)&&load(deep))G.view=S.setupDone?"home":"setup";
 render();
+return{destroy(){clearInterval(TIMER);SC.removeEventListener("scroll",track);HOST.innerHTML=""},
+ openExam(id){if(id&&id!==G.exam&&load(id)){G.view=S.setupDone?"home":"setup";render()}else if(!id&&G.view!=="catalog"){G.view="catalog";render()}}};
+}
+window.SkillUpApp={start};
+const standalone=document.getElementById("skillup-standalone");
+if(standalone)start(standalone,{});
 })();
