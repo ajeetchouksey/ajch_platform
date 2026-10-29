@@ -19,10 +19,12 @@ skill detects when the copy has fallen behind.
 ## Procedure
 
 1. **Load the local blueprint.** Read `task-statements.json`. If `sourceUrl` is
-   missing, report `NO_SOURCE` and stop — never guess a URL.
+   missing, use a study-guide link from the exam's `index.json` `resources[]`
+   if one exists (say so); otherwise report `NO_SOURCE` and stop — never guess a URL.
 2. **Fetch the official guide** from `sourceUrl` (WebFetch). Extract: domain
-   titles + weight ranges, task ids + titles, and the guide's own
-   "last updated"/"skills measured as of" date if shown.
+   titles + weight ranges, task ids + titles, each task's bullet list, and the
+   guide's date. Date order: "skills measured as of" → page metadata
+   (`ms.date`, `updated_at`) → none. Always name which one you used.
 3. **Diff**, matching tasks by id first, then by normalized title:
 
    | Drift | Rule |
@@ -31,7 +33,9 @@ skill detects when the copy has fallen behind.
    | `REMOVED` | Local task absent from the guide — its questions may test retired content |
    | `RENAMED` | Same id, title changed materially (not just punctuation) |
    | `REWEIGHTED` | Domain `officialWeight` range differs from the guide |
-   | `NEW_DATE` | Guide's "as of" date is newer than the exam's `contentUpdatedAt` |
+   | `NEW_DATE` | Guide's date (from step 2) is newer than the exam's `contentUpdatedAt` |
+   | `CONDENSED` | Task matches, but the guide has bullets with no counterpart in the local `knowledge[]` + `skills[]` — list them; coverage of those bullets can't be checked |
+   | `MISSING_WEIGHT` | A local domain has no `officialWeight` — report the guide's range so it can be filled in |
 
 4. **Check identity** against `content/skillup/catalog.json`: two entries
    sharing one `examCode` (e.g. `gh300` and `ghc` both `GH-300`) is a `DUPLICATE`

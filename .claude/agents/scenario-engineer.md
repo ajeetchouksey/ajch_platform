@@ -34,6 +34,7 @@ Before creating any scenario:
   "difficulty": "easy | medium | hard",
   "estimatedMinutes": 15,
   "domains": [1, 3],
+  "taskIds": ["1.2", "3.1"],
   "scenario": {
     "background": "Prose context (3–5 sentences). Real company, real stack, real constraint.",
     "characters": [
@@ -68,6 +69,7 @@ Before creating any scenario:
 ## Quality Rules
 
 1. **Multi-domain** — every scenario must span ≥ 2 domains listed in the `domains` array
+1a. **Task-tagged** — `taskIds` lists every `task-statements.json` task id the questions test; gap analysis measures scenario reach per task from it. When editing an older scenario without `taskIds`, add them
 2. **Narrative continuity** — questions must build on the same scenario; later questions may reference earlier decisions
 3. **3–5 questions per scenario** — enough to test depth without becoming exhausting
 4. **Realistic characters** — at least 2 characters with distinct concerns that create natural decision tension
