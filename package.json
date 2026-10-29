@@ -4,6 +4,7 @@
   "version": "3.5.0",
   "type": "module",
   "scripts": {
+    "skillup:site": "node scripts/skillup-site/build.mjs --content ../ajch_skillup --out dist/skillup-site",
     "dev": "vite",
     "prebuild": "node scripts/generate-rss.mjs",
     "build": "tsc -b && vite build && node scripts/generate-og-shells.mjs && node scripts/generate-sitemap.mjs",
