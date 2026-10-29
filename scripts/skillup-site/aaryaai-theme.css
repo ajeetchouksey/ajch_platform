@@ -41,3 +41,35 @@
 .skillup-host .demo{display:none}
 /* Sticky side rails sit below the site header inside <main>'s scroll area */
 @media (min-width:1040px){.skillup-host .side{top:16px;max-height:calc(100vh - 56px - 32px)}}
+/* Colour code. Indigo stays the only action colour; every other hue has one job.
+   Domains: six equal-lightness hues in fixed order. Lesson parts: concept, real use, choose, trap.
+   Answer states always pair the colour with an icon and words. Readiness is one indigo ramp, never red. */
+.skillup-host{
+  --d1:#a99bff; --d2:#5ec8f2; --d3:#3dd9b3; --d4:#f5b94a; --d5:#ff8a7a; --d6:#e58ae8;
+  --k-key:#a99bff; --k-use:#5ec8f2; --k-choose:#3dd9b3; --k-trap:#f5b94a;
+  --ok:#34d399; --part:#f5b94a; --no:#fb7185;
+}
+/* Domains: notes list, plan route, side rails, result breakdown */
+.skillup-host .dom[style*="--dc"]{border-top:none;margin-top:10px;padding:0 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--dc) 26%,transparent);border-left:4px solid var(--dc);background:linear-gradient(90deg,color-mix(in srgb,var(--dc) 12%,transparent),rgba(15,23,42,.35) 60%)}
+.skillup-host .dom[style*="--dc"] .eyebrow,.skillup-host .dom[style*="--dc"]>button>.h{color:var(--dc)!important}
+.skillup-host .dom[style*="--dc"] .mbar i,.skillup-host [style*="--dc"]>.lane i.k{background:var(--dc)}
+.skillup-host [style*="--dc"]>.lane i{border-color:var(--dc)}
+.skillup-host [style*="--dc"]>.tiny.mute:first-child{color:var(--dc)}
+.skillup-host .tlist[style*="--dc"] .n,.skillup-host .tlist button[style*="--dc"] .n{color:var(--dc)}
+.skillup-host .tlist[style*="--dc"] button.cur,.skillup-host .tlist button.cur[style*="--dc"]{background:color-mix(in srgb,var(--dc) 16%,transparent);box-shadow:inset 3px 0 0 var(--dc)}
+.skillup-host .sched div[style*="--dc"]{border-left:3px solid var(--dc)}.skillup-host .sched div[style*="--dc"] b{color:var(--dc)}
+/* Lesson parts */
+.skillup-host .sec.k-key{--kc:var(--k-key)}.skillup-host .sec.k-use{--kc:var(--k-use)}.skillup-host .sec.k-choose{--kc:var(--k-choose)}.skillup-host .sec.k-trap{--kc:var(--k-trap)}
+.skillup-host .sec[class*="k-"]{border-left:3px solid var(--kc);padding-left:16px;background:linear-gradient(90deg,color-mix(in srgb,var(--kc) 8%,transparent),transparent 45%);border-radius:0 12px 12px 0}
+.skillup-host .sec[class*="k-"]>h3{color:var(--kc)}
+.skillup-host .sec.k-key>h3::before{content:"◆ "}.skillup-host .sec.k-use>h3::before{content:"▸ "}.skillup-host .sec.k-choose>h3::before{content:"⇄ "}.skillup-host .sec.k-trap>h3::before{content:"⚠ "}
+/* Answer states */
+.skillup-host .opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 13%,transparent)}.skillup-host .opt.right .l{background:var(--ok);border-color:var(--ok);color:#06281b}
+.skillup-host .opt.wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 13%,transparent)}.skillup-host .opt.wrong .l{background:var(--no);border-color:var(--no);color:#3a0a12}
+.skillup-host .fb.ok{--fc:var(--ok)}.skillup-host .fb.part{--fc:var(--part)}.skillup-host .fb.no{--fc:var(--no)}
+.skillup-host .fb.ok,.skillup-host .fb.part,.skillup-host .fb.no{border-color:color-mix(in srgb,var(--fc) 45%,transparent);background:color-mix(in srgb,var(--fc) 10%,rgba(15,23,42,.5))}
+.skillup-host .fb .si{color:var(--fc);margin-right:8px;font-size:1.1em}
+.skillup-host .ts{font-weight:600}
+/* Readiness: one indigo ramp from New to Exam-ready */
+.skillup-host .ring[data-t="1"]{--rc:#64748b}.skillup-host .ring[data-t="2"]{--rc:#6d5ff0}.skillup-host .ring[data-t="3"]{--rc:#7c6cf0}.skillup-host .ring[data-t="4"]{--rc:#a99bff}.skillup-host .ring[data-t="5"]{--rc:#c9c0ff}
+.skillup-host .ring[data-t]{background:conic-gradient(var(--rc) calc(var(--p)*1%),var(--line) 0)}
