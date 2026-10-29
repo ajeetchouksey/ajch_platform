@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
-import { lazy, useEffect, useState } from 'react';
+import { lazy, useEffect } from 'react';
 // ── Home ──────────────────────────────────────────────────────────────────────
 const HomeV2 = lazy(() => import('@/features/home/pages/HomeV2'));
 
@@ -72,24 +72,21 @@ const Subscribe = lazy(() => import('@/pages/Subscribe'));
 const AuthCallback = lazy(() => import('@/pages/AuthCallback'));
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Hands any /skillup/... route to the static SkillUp with a full page load, keeping the exam
-// (/skillup/ai901/notes → /skillup/#ai901). A short-lived marker prevents a redirect loop if the
-// static build is ever absent (the SPA would be served for /skillup/ again): show the old catalog.
-const SKILLUP_HOP = 'skillup:hop';
+// Hands any /skillup/... route to the static SkillUp (dist/skillup/, built in the Cloudflare
+// Pages deploy) with a full page load, keeping the exam: /skillup/ai901/notes → /skillup/#ai901.
+// The server serves that static page for exactly "/skillup/", so the SPA only ever renders
+// "/skillup/" itself when the static build is missing. That is the one case that could loop;
+// show the old catalog there instead. App links use "/skillup" (no slash) and are unaffected.
 function OpenSkillUp() {
   const { pathname } = useLocation();
-  // Read once on mount (lazy initial state), so render stays pure.
-  const [looping] = useState(() => {
-    try { return Date.now() - Number(sessionStorage.getItem(SKILLUP_HOP) || 0) < 10_000; } catch { return false; }
-  });
+  const staticMissing = pathname === '/skillup/';
   useEffect(() => {
-    if (looping) return;
-    try { sessionStorage.setItem(SKILLUP_HOP, String(Date.now())); } catch { /* storage blocked: redirect anyway */ }
+    if (staticMissing) return;
     const exam = pathname.split('/')[2] || '';
     const hash = /^[a-z0-9-]{2,40}$/.test(exam) && exam !== 'my-learning' ? `#${exam}` : '';
     window.location.replace(`/skillup/${hash}`);
-  }, [pathname, looping]);
-  return looping ? <ExamCatalog /> : null;
+  }, [pathname, staticMissing]);
+  return staticMissing ? <ExamCatalog /> : null;
 }
 
 // Backward-compat redirect helpers for /exams/:examId/* → /skillup/:examId/*
