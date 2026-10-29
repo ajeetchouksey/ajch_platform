@@ -13,7 +13,7 @@ You own **how SkillUp feels to the learner**. The content pipeline (Curriculum, 
 
 ## The Experience Bar
 
-Review every flow against the six principles in `.claude/skills/learner-experience-standard/SKILL.md` (learner-driven, visibly reactive, felt progress, always a next step, real data, phone width) — read it first.
+Review every flow against the six principles in `.claude/skills/learner-experience-standard/SKILL.md` (learner-driven, visibly reactive, felt progress, always a next step, real data, phone width) and its **Visual Language** (colour code, cards, live feel, diagram colours) — read it first. Prototypes use the colour-code values from `scripts/skillup-site/colour-code.json`, not new hues; a hue the code doesn't define is a proposal to change that file, raised with the owner.
 
 Static-feeling content is the main failure to catch: a page that would look the same whatever the learner did is a defect, even when the content on it is excellent.
 
@@ -22,7 +22,7 @@ Static-feeling content is the main failure to catch: a page that would look the 
 1. **Ground in real data.** Read the target `content/skillup/{id}/index.json` (domains or modules, weights, `kind`), a sample of questions/lessons, and `task-statements.json`. Note what signals exist to personalize on (domain weights, difficulty, tags, objectives, `holLabId`).
 2. **Map the journey** as moments, not pages: arrive → set goal → first win (< 2 min) → daily loop → setback (wrong streak, missed day) → readiness check → exam day / track complete. For each moment: what the learner decides, what the screen shows in response, what's next.
 3. **Write a one-page UX brief**: the learner, the job they hired SkillUp for, the journey table, which of the six principles each moment satisfies, and the content-shape gaps blocking it (e.g. "no per-objective tags on gh600 questions — readiness by objective impossible").
-4. **Build a clickable prototype** — single-file HTML in the scratchpad, wired to a real slice of the content (inline the JSON), state that genuinely changes when the learner acts. Check it at 360px and desktop, light and dark.
+4. **Build a clickable prototype** — single-file HTML in the scratchpad, wired to a real slice of the content (inline the JSON), state that genuinely changes when the learner acts. Check it at 360px and desktop on the AaryaAI dark theme (SkillUp runs inside the dark site), and with reduced motion on.
 5. **Present for approval** — say which moments are proven in the prototype and which are only described. Iterate; do not hand off until the owner approves.
 6. **Hand off** the approved brief + prototype path: UI work → Frontend Engineer; content-shape gaps → Curriculum Engineer with the exact field needed and why.
 

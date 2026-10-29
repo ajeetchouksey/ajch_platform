@@ -3,9 +3,10 @@ name: learner-experience-standard
 description: >
   The SkillUp learner-experience bar: six checkable principles every learner-facing
   flow and every content set must support (learner-driven, visibly reactive,
-  felt progress, always a next step, real data, phone width), plus the content
-  signals that make adaptive experiences possible. Load when designing, building,
-  or reviewing any SkillUp flow, and when authoring content that a flow will adapt on.
+  felt progress, always a next step, real data, phone width), the Visual Language
+  (colour code, cards, live feel, diagram colours), and the content signals that
+  make adaptive experiences possible. Load when designing, building, or reviewing
+  any SkillUp flow or diagram, and when authoring content that a flow will adapt on.
 ---
 
 # Learner Experience Standard
@@ -25,7 +26,35 @@ Every flow is prototyped and approved before it is built.
 | 5 | **Real data** | Built from the real `index.json`, question bank, and task statements | Placeholder numbers, fake readiness, lorem ipsum |
 | 6 | **Phone width** | Works at 360px: no sideways scroll, primary action visible | Breaks or hides the action on mobile |
 
-Report a review as `Bar: 1 ✓ 2 ✗ 3 ✓ 4 ✗ 5 ✓ 6 ✓` plus the single biggest problem.
+Report a review as `Bar: 1 ✓ 2 ✗ 3 ✓ 4 ✗ 5 ✓ 6 ✓ · Visual ✓` plus the single biggest problem.
+
+## Visual Language
+
+SkillUp sits on the AaryaAI brand (dark navy, indigo, lilac, Barlow) and adds a
+colour code where **every hue has exactly one job**. The values live in one file,
+`ajch_platform/scripts/skillup-site/colour-code.json`; the build turns them into CSS
+custom properties and the diagram script mirrors its `diagram` block. Never type a
+colour-code hex anywhere else; change the JSON.
+
+| Role | Colours | Where it shows |
+|---|---|---|
+| Action | Indigo `#5B4BD6` (lilac on hover) | Buttons and links only |
+| Domain 1–6 | Lilac, Sky, Jade, Saffron, Coral, Orchid, in that fixed order | Domain cards, topic numbers, plan route, side rails, result breakdown, case-study chips |
+| Lesson parts | Key idea ◆ lilac · Real use ▸ sky · Choose when ⇄ jade · Exam trap ⚠ saffron | Lesson section edge, heading and icon |
+| Answer states | ✓ Correct green · ◐ Partly right saffron · ✕ Not quite rose · ★ Flagged lilac | Quiz feedback and options |
+| Mastery | One indigo ramp: New → Seen → Practising → Confident → Exam-ready | Readiness ring and per-domain mastery |
+| Provider | Microsoft sky · GitHub orchid · Anthropic saffron | Catalog cards |
+
+Visual pass when all hold:
+
+- **Only indigo is clickable.** No domain, part or state colour on a button.
+- **Colour is never alone.** States and lesson parts always pair the hue with an icon and a word.
+- **Tints, not fills.** Surfaces at 10–16% of the hue, borders about 30%; full colour only for edges, text, bars and icons.
+- **Mastery is never red.** Low readiness means "not yet", not "failing".
+- **Contrast.** Every hue used as text reaches 4.5:1 on `#0E1A2D` (the six domain hues and the state hues measure 6.5–9.9); rings, bars and edges reach 3:1. Indigo is a fill under white text, never text on navy.
+- **Cards.** Glass surface tinted by the card's own colour, one primary action, a hover lift of at most 3px.
+- **Live feel.** Every learner action gets a visible reaction within about 300ms (fill, count-up, toast, next step); motion stops under `prefers-reduced-motion`; loading shows a shimmer, never a blank page; any "live" number is the learner's own data, never invented activity.
+- **Diagrams speak the same code.** Node kinds: `data` (input) sky, `good` (outcome or mitigation) green, `warn` (caution or false fix) saffron, `risk` rose, `focus` indigo; legend words match those meanings.
 
 ## Content Signals That Enable Adaptation
 

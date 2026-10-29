@@ -8,7 +8,7 @@
   --ink:#e2e8f0; --mute:#a3afc4; --faint:#7d8aa3; --line:rgba(148,163,184,.16);
   --teal:#8b7cf6; --teal-deep:#a99bff; --teal-soft:rgba(91,75,214,.18); --on-teal:#ffffff;
   --indigo:#5b4bd6; --on-indigo:#ffffff;
-  --amber:#fbbf24; --amber-soft:rgba(251,191,36,.12);
+  --amber:var(--part); --amber-soft:rgba(245,185,74,.12);
   --green:#2fbf71; --green-soft:rgba(47,191,113,.14);
   --rose:#fb7185; --rose-soft:rgba(251,113,133,.13);
   --input:rgba(56,189,248,.10); --input-line:#7dd3fc;
@@ -43,12 +43,9 @@
 @media (min-width:1040px){.skillup-host .side{top:16px;max-height:calc(100vh - 56px - 32px)}}
 /* Colour code. Indigo stays the only action colour; every other hue has one job.
    Domains: six equal-lightness hues in fixed order. Lesson parts: concept, real use, choose, trap.
-   Answer states always pair the colour with an icon and words. Readiness is one indigo ramp, never red. */
-.skillup-host{
-  --d1:#a99bff; --d2:#5ec8f2; --d3:#3dd9b3; --d4:#f5b94a; --d5:#ff8a7a; --d6:#e58ae8;
-  --k-key:#a99bff; --k-use:#5ec8f2; --k-choose:#3dd9b3; --k-trap:#f5b94a;
-  --ok:#34d399; --part:#f5b94a; --no:#fb7185;
-}
+   Answer states always pair the colour with an icon and words. Readiness is one indigo ramp, never red.
+   The hues come from colour-code.json: build.mjs emits --d1…--d6, --k-*, --ok/--part/--no/--flag
+   and --m1…--m5 ahead of this file. Never hard-code a colour-code hue here. */
 /* Domains: notes list, plan route, side rails, result breakdown */
 .skillup-host .dom[style*="--dc"]{border-top:none;margin-top:10px;padding:0 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--dc) 26%,transparent);border-left:4px solid var(--dc);background:linear-gradient(90deg,color-mix(in srgb,var(--dc) 12%,transparent),rgba(15,23,42,.35) 60%)}
 .skillup-host .dom[style*="--dc"] .eyebrow,.skillup-host .dom[style*="--dc"]>button>.h{color:var(--dc)!important}
@@ -71,5 +68,5 @@
 .skillup-host .fb .si{color:var(--fc);margin-right:8px;font-size:1.1em}
 .skillup-host .ts{font-weight:600}
 /* Readiness: one indigo ramp from New to Exam-ready */
-.skillup-host .ring[data-t="1"]{--rc:#64748b}.skillup-host .ring[data-t="2"]{--rc:#6d5ff0}.skillup-host .ring[data-t="3"]{--rc:#7c6cf0}.skillup-host .ring[data-t="4"]{--rc:#a99bff}.skillup-host .ring[data-t="5"]{--rc:#c9c0ff}
+.skillup-host .ring[data-t="1"]{--rc:var(--m1)}.skillup-host .ring[data-t="2"]{--rc:var(--m2)}.skillup-host .ring[data-t="3"]{--rc:var(--m3)}.skillup-host .ring[data-t="4"]{--rc:var(--m4)}.skillup-host .ring[data-t="5"]{--rc:var(--m5)}
 .skillup-host .ring[data-t]{background:conic-gradient(var(--rc) calc(var(--p)*1%),var(--line) 0)}

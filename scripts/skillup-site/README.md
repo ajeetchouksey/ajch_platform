@@ -38,6 +38,10 @@ SkillUp runs at `/skillup` inside the site layout (header, navigation, footer, A
 
 Without `--embed`, the build still produces a standalone `index.html`, used for previews.
 
+## Colour code
+
+`colour-code.json` is the only place a SkillUp hue is defined: six domain colours, the four lesson parts, the answer states, the five mastery levels, provider colours, and the diagram node kinds. `build.mjs --embed` validates it and writes it as custom properties (`--d1`…`--d6`, `--k-key`, `--ok`, `--m1`…) ahead of `aaryaai-theme.css`, which only refers to the variables. `ajch_skillup/scripts/build-svg-diagrams.py` mirrors the `diagram` block, so diagrams use the same colours. The rules for using them (only indigo is clickable, colour always paired with an icon and a word, mastery never red) are in `.claude/skills/learner-experience-standard/SKILL.md` under Visual Language. To change a colour, edit the JSON, rebuild, and regenerate the diagrams if you changed the `diagram` block.
+
 ## Content modes
 
 Each catalog entry is rendered in the best mode its content supports. Upgrading an exam's notes needs **no framework change**; rebuild and it moves up a mode.

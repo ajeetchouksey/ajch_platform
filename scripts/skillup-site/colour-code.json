@@ -1,0 +1,44 @@
+{
+  "$comment": "SkillUp colour code: the single source for every hue SkillUp uses on top of the AaryaAI brand. build.mjs turns it into CSS custom properties on .skillup-host; ajch_skillup/scripts/build-svg-diagrams.py mirrors the 'diagram' block; .claude/skills/learner-experience-standard/SKILL.md (Visual Language) states the rules. Change a value here, never in the CSS or a diagram.",
+  "version": "1.0.0",
+  "action": { "indigo": "#5B4BD6", "lilac": "#A99BFF" },
+  "domains": [
+    { "name": "Lilac", "hex": "#A99BFF" },
+    { "name": "Sky", "hex": "#5EC8F2" },
+    { "name": "Jade", "hex": "#3DD9B3" },
+    { "name": "Saffron", "hex": "#F5B94A" },
+    { "name": "Coral", "hex": "#FF8A7A" },
+    { "name": "Orchid", "hex": "#E58AE8" }
+  ],
+  "lessonParts": {
+    "key": { "label": "Key idea", "icon": "◆", "hex": "#A99BFF" },
+    "use": { "label": "Real use", "icon": "▸", "hex": "#5EC8F2" },
+    "choose": { "label": "Choose when", "icon": "⇄", "hex": "#3DD9B3" },
+    "trap": { "label": "Exam trap", "icon": "⚠", "hex": "#F5B94A" }
+  },
+  "states": {
+    "ok": { "label": "Correct", "icon": "✓", "hex": "#34D399" },
+    "part": { "label": "Partly right", "icon": "◐", "hex": "#F5B94A" },
+    "no": { "label": "Not quite", "icon": "✕", "hex": "#FB7185" },
+    "flag": { "label": "Flagged to revisit", "icon": "★", "hex": "#A99BFF" }
+  },
+  "mastery": [
+    { "label": "New", "hex": "#64748B" },
+    { "label": "Seen", "hex": "#6D5FF0" },
+    { "label": "Practising", "hex": "#7C6CF0" },
+    { "label": "Confident", "hex": "#A99BFF" },
+    { "label": "Exam-ready", "hex": "#C9C0FF" }
+  ],
+  "providers": {
+    "Microsoft": "#5EC8F2",
+    "GitHub": "#E58AE8",
+    "Anthropic": "#F5B94A"
+  },
+  "diagram": {
+    "data": { "meaning": "input", "hex": "#5EC8F2" },
+    "good": { "meaning": "outcome or mitigation", "hex": "#34D399" },
+    "warn": { "meaning": "caution, false fix, lever", "hex": "#F5B94A" },
+    "risk": { "meaning": "risk or anti-pattern", "hex": "#FB7185" },
+    "focus": { "meaning": "the one focal element", "hex": "#5B4BD6" }
+  }
+}
