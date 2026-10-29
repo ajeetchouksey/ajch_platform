@@ -38,46 +38,63 @@ content/skillup/
 
 ## Notes Format Standard
 
-### File Structure
+### File Structure — one section per official task
+
+Sections are keyed on the exam's official blueprint: **one `##` section per task in `task-statements.json`, titled `## {taskId} {exact official title}`, in official order.** Never merge two tasks into one section or renumber them — the app routes a wrong answer on task X to section X, and gap analysis measures coverage per section.
 
 ```markdown
 # D{N}: {Domain Title}
 
-> **Exam weight**: {N}% · **Questions**: ~{N} of 60
+> **Exam weight**: {official range} · **Questions**: ~{N}
 
 ## Overview
 
-Brief domain summary (2–3 sentences).
+≤ 5 lines: what this domain is for and how its tasks fit together. Optional 💡 Human Angle line.
 
-> 💡 **Human Angle**: {One memorable analogy, proverb, or real-world punch line that makes this domain click — e.g., *"Context management is like packing a suitcase: what you leave out matters as much as what you put in."* Clearly marked, not part of exam content. Omit if no natural fit exists.}
-
-## {Topic}
+## {taskId} {Official task title}
 
 ### Key Concept
 
 **{One-line claim, ≤20 words — the whole idea stated flat.}**
 
-{Paragraph 1: 2-3 sentences, first sentence signposts what it does.}
+{≤ 1 short paragraph. Optional **bolded analogy** as its own sentence.}
 
-{Paragraph 2: 2-3 sentences, ending in a **bolded analogy** stated as its own clause.}
+### Real use
 
-```mermaid
-graph TD
-  A[Input] --> B[Process] --> C[Output]
-```
+{≤ 3 sentences: a positive, concrete real-world use — who, what, outcome.}
+
+### How it works
+
+{The reasoning: ≤ 2 short paragraphs or ≤ 4 bullets. Include what breaks without it.}
+
+### Choose when
+
+| Option | Choose it when | Trade-off |
+|---|---|---|
+| {this} | {decision trigger} | {cost / limit} |
+
+### How to do it
+
+{≤ 5 numbered steps OR one snippet ≤ 12 lines; "build an app" tasks may have snippet + ≤ 3 steps. Omit for purely conceptual tasks.}
 
 ### Exam Trap ⚠️
 
-<div class="note-trap">
-Common distractor: students confuse X with Y because... {A memorable framing or analogy is encouraged here to aid retention — e.g., *"Think of X as a fire alarm: loud when triggered, silent when not — students miss it because they expect a warning light."*}
-</div>
+<div class="note-trap">{≤ 2 sentences: the distractor and why it's wrong.}</div>
+
+### Go deeper
+
+- [{Official doc title}]({verified official URL})
+
+## Deep Dive: {Making {Domain} Click}
 
 ## Cheat Sheet 📋
-
-| Concept | Key Rule |
-|---------|----------|
-| X | Always do Y when Z |
 ```
+
+**Heading names are load-bearing.** `ajch_platform`'s `src/lib/flashcards.ts` builds flashcards from every `### Key Concept` (its bolded first line) and every `### Exam Trap` (its `note-trap` text). Keep those two heading names exactly, with the claim as the first line and the trap inside the `note-trap` div.
+
+**Size**: aim for ≤ ~25 non-blank lines per task section (code-heavy tasks may run longer). Links carry the depth — don't reproduce documentation.
+
+**Go deeper links**: 1–2 per task, official documentation only (for Microsoft exams, learn.microsoft.com). Verify every URL loads before writing it; never invent or guess one, and drop a link you can't verify.
 
 ## Key Concept Formatting Standard (REQUIRED for every Key Concept block)
 
@@ -90,12 +107,10 @@ before/after example. Every `### Key Concept` block follows this shape:
 
 **{One-line claim, ≤20 words, the whole idea stated flat.}**
 
-{Paragraph 1 — 2-3 sentences. First sentence signposts what this paragraph does
-(define, contrast, situate). Do not open with throat-clearing ("It is important
-to understand that...").}
+{≤ 1 short paragraph — first sentence signposts what it does (define, contrast,
+situate). No throat-clearing ("It is important to understand that...").}
 
-{Paragraph 2 — 2-3 sentences, ending in **a bolded analogy or metaphor** stated
-as its own clause, not buried as a trailing dependent clause. E.g. "**Think of
+{Optional: **a bolded analogy or metaphor** as its own sentence. E.g. "**Think of
 it like a junk drawer**: the more you cram in, the longer it takes to find what
 you need."}
 ```
@@ -117,7 +132,7 @@ you need."}
 
 ## Deep Dive Standard (REQUIRED for every domain note)
 
-Pointer tables and cheat sheets tell learners *what* to remember; they do not build *understanding*. Every domain note **must** include a `## Deep Dive` section, placed after the topic bodies and before the Cheat Sheet. It has four required elements:
+Pointer tables and cheat sheets tell learners *what* to remember; they do not build *understanding*. Every domain note **must** include a `## Deep Dive` section, placed after the task sections and before the Cheat Sheet. Keep it to ~10–25 non-blank lines. It has four elements (narrative and exam strategy may be 1–3 sentences each):
 
 ```markdown
 ## Deep Dive: {Making {Domain} Click}
@@ -149,35 +164,14 @@ honest: the letters must map to real, load-bearing concepts, not filler.
 
 **Rules**: Depth over pointers — a Deep Dive that just restates the cheat sheet fails review. The worked scenario must be genuinely *worked* (reasoning shown, not just a conclusion). The memory aid must be defensible. Omitting any of the four elements is a review failure.
 
-## In Practice Standard (REQUIRED for every topic section)
+## Production Context (folded into every task section)
 
-Every `### Key Concept` block must be followed by an **In Practice** block before the Exam Trap.
-This is the skill-transfer layer — it connects the documented rule to how engineers actually use it.
+There is no separate `### In Practice` heading any more. Its three questions still have to be answered in every task section:
+- **What breaks without this** → in `### How it works`, leading with the concrete production failure, not exam language.
+- **Decision trigger** → the "Choose it when" column of `### Choose when`.
+- **When you'd choose differently** → the other rows of `### Choose when` (and their Trade-off column).
 
-```markdown
-### In Practice
-
-**What breaks without this**: [Concrete production failure mode — a real system behaviour,
-not exam language. E.g. "tool selection accuracy degrades above 18 tools, causing the wrong
-tool to fire on ambiguous requests" — not "this is less reliable".]
-
-**Decision trigger**: [The question a practitioner asks when they need this pattern.
-Not "when the exam says" — e.g. "Ask: do any two tools in this set act on the same object
-type? If yes, you need routing."]
-
-**When you'd choose differently**: [One legitimate scenario where this pattern doesn't apply
-or a different approach is better. Shows the learner the boundary of the rule, not just the rule.]
-```
-
-**Rules (punch-first)**: each of the three fields above should lead with its sharpest sentence
-first, not build up to it — a practitioner scanning under exam-week time pressure should get the
-payoff from the first sentence of each field, not the last.
-
-**Anti-patterns for In Practice blocks**:
-- Restating the key concept in different words (adds no value)
-- Using exam framing: "this is tested because...", "remember for the exam..."
-- Leaving out the "when you'd choose differently" — knowing the limits of a rule is part of understanding it
-- Burying the actual failure mode or trigger question after a sentence of setup instead of leading with it
+Anti-patterns: restating the Key Concept in different words; exam framing ("remember for the exam"); a Choose when table with only one row.
 
 ## Custom HTML Classes (rendered by MermaidDiagram component)
 
@@ -194,7 +188,7 @@ Use these in markdown for special styling:
 
 ## Writing Standards
 
-1. **Accuracy first** — only document what Anthropic has publicly documented
+1. **Accuracy first** — only document what the exam provider has publicly documented (its official docs and study guide); verify anything you're unsure of rather than guess
 2. **Skill-first** — every paragraph should answer "why does this matter in practice?" Frame exam relevance as a *consequence* of real-world importance, not the reason for learning it. The exam tests whether you understand the concept; understanding the concept is the goal. Never write "remember this for the exam" — write "this is why systems fail without it".
 3. **Concrete examples** — use real API calls, real token counts, real limits
 4. **Cross-domain links** — note connections: "The 18-tool limit (D4) explains why coordinators exist (D1)"
@@ -202,20 +196,15 @@ Use these in markdown for special styling:
 6. **Depth over pointers** — every domain note must teach understanding, not just list facts. A note that only points at concepts (tables, bullets, term lists) without a `## Deep Dive` section that explains *how* and *why* fails review.
 7. **Worked scenarios** — include at least one end-to-end worked scenario per domain (inside the Deep Dive) that shows the reasoning, not just the answer. Use real numbers, real tool names, real config.
 8. **Human Angle** — include one memorable analogy, proverb, or punch line in the Overview section of each domain file. Mark it clearly with the 💡 callout. This aids retention without distorting exam content. Rule: *proverbs support memory, never replace precision.* If no natural fit exists, omit — a forced analogy is worse than none.
-9. **In Practice** — every topic section must include a production context block (see format below). This is what separates skill-building notes from exam-pointer notes.
-10. **Punch-first prose** — inside Key Concept and In Practice blocks, lead with the sharpest, most memorable sentence before elaborating; see Key Concept Formatting Standard for the required shape. Craft rule only — it changes how prose opens, not what headings exist.
+9. **Production context** — every task section answers what breaks without it, when to choose it, and when to choose differently (see Production Context above). This is what separates skill-building notes from exam-pointer notes.
+10. **Punch-first prose** — inside Key Concept, How it works and Choose when, lead with the sharpest, most memorable sentence before elaborating; see Key Concept Formatting Standard for the required shape. Craft rule only — it changes how prose opens, not what headings exist.
 11. **Structure and callout economy** — see `.claude/skills/content-structure-craft/SKILL.md` for when a `note-trap`/`note-important`/`note-scribble` callout earns its place versus when it's clutter, and for avoiding generic AI-prose patterns.
 
 > **AI Guardrail**: Human Angle and Deep Dive content must be professional, culturally neutral, and must not alter the technical accuracy of any documented fact. Memory aids (mnemonics/checklists) must map to real, load-bearing concepts — never invented filler. Deep Dive narrative and worked scenarios live within the exam content boundary and must be factually correct; the Human Angle callout exists outside it.
 
 ## Version Bump (required after every write)
 
-After creating or updating a notes file, update `content/skillup/{examId}/index.json`:
-1. Read the current `contentVersion` (semver string).
-2. Increment the **patch** digit (e.g. `"1.0.0"` → `"1.0.1"`).
-3. Set `contentUpdatedAt` to today's date (YYYY-MM-DD).
-4. Append a `changelog` entry: `{ "version": "<new>", "date": "<today>", "type": "patch", "summary": "Updated D{N} notes: <one-line description>" }`.
-5. Write the updated `index.json` back.
+Follow the content-versioning protocol in `.claude/skills/content-standard/SKILL.md` (and the repo's `CLAUDE.md`): bump `contentVersion` in `content/skillup/{examId}/index.json` — **patch** for small edits, **minor** for new task coverage or a rewrite — set `contentUpdatedAt` to today, and append a `changelog` entry describing what changed. Then regenerate the catalog (`python scripts/generate-catalog.py`).
 
 ## Update Workflow
 
@@ -228,5 +217,5 @@ After creating or updating a notes file, update `content/skillup/{examId}/index.
 
 Stop and report to Exam Lead if:
 - Asked to write outside `content/skillup/*/notes/`
-- Source material contradicts existing documented Anthropic behavior
+- Source material contradicts the provider's current official documentation
 - Mermaid diagram syntax is invalid
