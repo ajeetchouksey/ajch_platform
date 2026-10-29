@@ -44,6 +44,7 @@ const nextTopic=()=>ORDER.find(id=>S.progress[id]!=="done")||ORDER[0];
 const domOf=id=>D.domains.find(d=>d.tasks.includes(id));
 /* colour code: each domain keeps one hue (d1–d6) everywhere; readiness uses a single-hue tier */
 const dc=d=>` style="--dc:var(--d${D.domains.indexOf(d)%6+1})"`,tier=p=>p>=85?5:p>=65?4:p>=40?3:p>0?2:1;
+const pv=p=>` style="--acc:var(--pv-${String(p||"").toLowerCase().replace(/[^a-z0-9]+/g,"")},var(--teal))"`;
 const nm=id=>TOP[id].short||TOP[id].title;
 const isTrack=()=>M.kind==="skill-track";
 const unit=()=>isTrack()?"lesson":"topic";
@@ -69,7 +70,7 @@ function vCatalog(){const ex=CAT.exams,provs=[...new Set(ex.map(e=>e.provider).f
  const q=G.q.toLowerCase(),list=ex.filter(e=>(!G.filter||(G.filter==="track"?e.kind==="skill-track":e.provider===G.filter))&&(!q||(e.code+" "+e.title+" "+e.description).toLowerCase().includes(q)));
  const feat=ex.find(e=>e.mode==="lessons")||ex[0];const fp=progressOf(feat.id);
  const card=e=>{const p=progressOf(e.id),pc=p?Math.round(100*p.done/Math.max(1,e.topics)):0;
-  return `<button class="ccard" data-a="exam" data-v="${e.id}"><div class="spread"><span class="eyebrow">${esc(e.provider)}${e.level?" · L"+esc(e.level):""}</span><span class="badges">${e.kind==="skill-track"?'<span class="pill">Skill track</span>':""}${e.mode==="lessons"?'<span class="pill green">New lessons</span>':""}</span></div>
+  return `<button class="ccard" data-a="exam" data-v="${e.id}"${pv(e.provider)}><div class="spread"><span class="eyebrow">${esc(e.provider)}${e.level?" · L"+esc(e.level):""}</span><span class="badges">${p&&p.started?'<span class="pill">In progress</span>':""}${e.kind==="skill-track"?'<span class="pill">Skill track</span>':""}${e.mode==="lessons"?'<span class="pill green">New lessons</span>':""}</span></div>
   <span class="code">${esc(e.code)}</span><span class="ct">${esc(e.title)}</span><span class="cd">${esc(e.description)}</span>
   <span class="stats"><span><b>${e.topics}</b> ${e.kind==="skill-track"?"lessons":"topics"}</span><span><b>${e.questions}</b> questions</span>${e.cases?`<span><b>${e.cases}</b> cases</span>`:""}${e.diagrams?`<span><b>${e.diagrams}</b> diagrams</span>`:""}</span>
   <span class="cm">${p&&p.started?`<span class="spread tiny"><span>${p.done} of ${e.topics} passed</span><span>${pc}%</span></span><span class="prog" style="margin-top:6px"><i style="width:${pc}%"></i></span>`:`<span class="pmeta" style="font-size:12px"><span>v${esc(e.version)}</span><span>Updated ${esc(fmt(e.updated))}</span></span>`}</span></button>`};
@@ -106,20 +107,33 @@ function vReady(){const p=plan(),maxT=Math.max(...D.domains.map(x=>x.tasks.lengt
  <button class="door lead" data-a="assess"><span class="ic">${ic("check")}</span><span><b>Find out what I already know</b><span class="mute small">A quick check across the ${isTrack()?"modules":"domains"}. ${isTrack()?"Lessons":"Topics"} you know are marked done.</span></span><span class="arrow">›</span></button>
  <button class="door" data-a="go" data-v="notes"><span class="ic">${ic("book")}</span><span><b>Start studying</b><span class="mute small">Begin with ${esc(ORDER[0]+" "+nm(ORDER[0]))}.</span></span><span class="arrow">›</span></button></div>${footer()}`}
 
+/* ---------- today's session: a short list built from the plan; ticks come only from what the learner did ---------- */
+function today(){const d=iso(TODAY);if(!S.day||S.day.d!==d||!Array.isArray(S.day.tasks)){const n=nextTopic(),due=Object.keys(S.review).filter(id=>TOP[id]&&id!==n),tasks=[];
+  if(M.mode!=="classic")tasks.push(["read",n]);if((TOP[n].qids||[]).length)tasks.push(["test",n]);if(due[0])tasks.push(["refresh",due[0]]);S.day={d,tasks,did:{}}}
+ S.day.tasks=S.day.tasks.filter(x=>Array.isArray(x)&&TOP[x[1]]);S.day.did=S.day.did||{};return S.day}
+function did(k,id){const t=today(),key=k+":"+id;if(t.did[key]||!t.tasks.some(x=>x[0]===k&&x[1]===id))return;t.did[key]=1;
+ const n=t.tasks.filter(x=>t.did[x[0]+":"+x[1]]).length;toast(n===t.tasks.length?"✓ Today's session done":`✓ Today: ${n} of ${t.tasks.length} done`)}
+function vToday(t){if(!t.tasks.length)return"";const lab={read:"Read",test:"Test",refresh:"Refresh"},done=x=>t.did[x[0]+":"+x[1]],n=t.tasks.filter(done).length;
+ const mins=x=>x[0]==="read"?(TOP[x[1]].mins||3):x[0]==="test"?Math.max(2,Math.round((TOP[x[1]].qids||[]).length*.8)):2;
+ return `<div class="today card"><div class="spread"><b>Today's session</b><span class="tiny mute">${n===t.tasks.length?"All done. See you tomorrow.":`${n} of ${t.tasks.length} done · about ${t.tasks.filter(x=>!done(x)).reduce((a,x)=>a+mins(x),0)} min left`}</span></div>
+ ${t.tasks.map(x=>{const ok=done(x),d=domOf(x[1]);return `<button class="task${ok?" done":""}"${d?dc(d):""} data-a="${x[0]==="read"?"open":"test"}" data-v="${x[1]}"><span class="bx" aria-hidden="true">${ok?"✓":""}</span><span><b>${lab[x[0]]} ${esc(x[1]+" "+nm(x[1]))}</b><span class="tiny mute">${x[0]==="refresh"?"You were unsure last time · ":""}about ${mins(x)} min</span></span><span class="vh">${ok?"Done":"To do"}</span></button>`}).join("")}</div>`}
+
 /* ---------- exam home ---------- */
-function vHome(){const n=nextTopic(),t=TOP[n],r=readiness(),due=Object.keys(S.review).filter(id=>TOP[id]);
+function vHome(){const n=nextTopic(),t=TOP[n],r=readiness(),day=today(),due=Object.keys(S.review).filter(id=>TOP[id]&&!day.tasks.some(x=>x[1]===id));
+ const from=S.lastR==null?0:S.lastR,gain=S.lastR!=null&&r>from?r-from:0;S.lastR=r;
  let h=bar();
  if(S.missed)h+=`<div class="welcome fade"><b class="h" style="font-size:22px">Welcome back.</b><p>You were away for a few days. Nothing is lost and there's no catch-up pile. Today is a lighter 15-minute session.</p><div class="row"><button class="btn sm go" data-a="unmiss">Sounds good</button><button class="btn sm" data-a="replan">Change my plan</button></div></div>`;
  h+=`<div class="stack fade" style="margin-top:${S.missed?18:0}px"><div class="hero"><div class="spread"><span class="eyebrow">Next up${t.mins?" · about "+t.mins+" min":""}</span><span class="pill">${esc(n)}</span></div>
  <h1 style="font-size:36px">${esc(nm(n))}</h1><button class="btn go" data-a="open" data-v="${n}">Continue learning</button></div>
- ${due.length?`<div class="due">${ic("alert",'style="width:22px;height:22px;stroke:var(--amber);flex:none"')}<span style="flex:1"><b>${due.length} ${unit()}${due.length>1?"s":""} to refresh.</b> <span class="mute small">You were unsure last time. Two minutes now makes it stick.</span></span><button class="btn sm" data-a="test" data-v="${due[0]}">Refresh ${esc(due[0])}</button></div>`:""}
- <div class="row card"><div class="ring" data-t="${tier(r)}" style="--p:${r}" data-v="${r}%"></div><div style="flex:1;min-width:170px"><b>${isTrack()?"Track progress":"Exam readiness"}</b><div class="mute small">${passed()} of ${ORDER.length} ${unit()}s passed · ${daysTo()} days to ${fmtS(S.date)} · ${S.mins} min a day</div></div><button class="btn sm" data-a="replan">Plan</button></div>
- <div class="grid3"><button class="tile" data-a="go" data-v="notes">${ic("book")}<b>Study notes</b><span>${ORDER.length} ${unit()}s</span></button><button class="tile" data-a="go" data-v="practice">${ic("check")}<b>Practice</b><span>${M.questions} questions</span></button><button class="tile" data-a="go" data-v="cases" ${D.cases.length?"":"disabled"}>${ic("users")}<b>Case studies</b><span>${D.cases.length||"None yet"}</span></button></div>
+ ${vToday(day)}
+ ${due.length?`<div class="due">${ic("alert",'style="width:22px;height:22px;stroke:var(--amber);flex:none"')}<span style="flex:1"><b>${due.length} more ${unit()}${due.length>1?"s":""} to refresh.</b> <span class="mute small">You were unsure last time. Two minutes now makes it stick.</span></span><button class="btn sm" data-a="test" data-v="${due[0]}">Refresh ${esc(due[0])}</button></div>`:""}
+ <div class="row card"><div class="ring" data-t="${tier(r)}" style="--p:${from}" data-v="${from}%" data-from="${from}" data-to="${r}"></div><div style="flex:1;min-width:170px"><b>${isTrack()?"Track progress":"Exam readiness"}</b>${gain?` <span class="xp">+${gain}% since last time</span>`:""}<div class="mute small">${passed()} of ${ORDER.length} ${unit()}s passed · ${daysTo()} days to ${fmtS(S.date)} · ${S.mins} min a day</div></div><button class="btn sm" data-a="replan">Plan</button></div>
+ <div class="grid3"><button class="tile t-notes" data-a="go" data-v="notes">${ic("book")}<b>Study notes</b><span>${ORDER.length} ${unit()}s</span></button><button class="tile t-prac" data-a="go" data-v="practice">${ic("check")}<b>Practice</b><span>${M.questions} questions</span></button><button class="tile t-cases" data-a="go" data-v="cases" ${D.cases.length?"":"disabled"}>${ic("users")}<b>Case studies</b><span>${D.cases.length||"None yet"}</span></button></div>
  ${pageMeta()}</div><div class="demo"><span>Prototype controls:</span><button data-a="miss">Simulate days away</button><button data-a="reset">Reset this exam</button></div>${footer()}`;
  return h}
 
 /* ---------- study notes list ---------- */
-const stLabel=id=>({done:'<div class="ts" style="color:var(--green)">Passed</div>',weak:'<div class="ts" style="color:var(--amber)">Refresh soon</div>',read:'<div class="ts" style="color:var(--teal)">Read, not tested</div>'})[S.progress[id]]||"";
+const stLabel=id=>({done:'<div><span class="sp done">✓ Passed</span></div>',weak:'<div><span class="sp weak">◐ Refresh soon</span></div>',read:'<div><span class="sp read">○ Read, not tested</span></div>'})[S.progress[id]]||"";
 function vNotes(){let h=bar("home",M.code)+`<div class="stack fade" style="gap:8px;margin-bottom:10px"><h1>Study notes</h1><p class="mute">Read a ${unit()}, or test yourself if you think you already know it.</p>${pageMeta(`<span>${ORDER.length} ${unit()}s</span>`)}${M.mode==="classic"?`<p class="classic-note">These notes are organised by domain. They're being rewritten into one short lesson per objective; tests and practice already work per ${unit()}.</p>`:""}</div>`;
  h+=D.domains.map(d=>{const dn=d.tasks.filter(id=>S.progress[id]==="done").length,pc=Math.round(100*dn/Math.max(1,d.tasks.length));
   const domRow=M.mode==="lessons"?`<div class="topic dov"><span class="tid">${ic("layers",'style="width:20px;height:20px;stroke:var(--teal)"')}</span><div class="tn">${domWord()} overview, deep dive and cheat sheet</div><div class="acts"><button class="btn sm" data-a="dpage" data-v="${d.id}">Open</button></div></div>`
@@ -177,8 +191,10 @@ function vPractice(){const weak=ORDER.filter(id=>S.progress[id]==="weak"),n=Math
  ${n>=10?`<button class="door" data-a="xstart"><span class="ic">${ic("clock")}</span><span><b>Practice exam · ${n} questions · ${Math.round(n*1.1)} min</b><span class="mute small">Timed, no feedback until the end, scored against ${M.passThreshold}%.</span></span><span class="arrow">›</span></button>`:""}
  ${D.cases.length?`<button class="door" data-a="go" data-v="cases"><span class="ic">${ic("users")}</span><span><b>Case studies</b><span class="mute small">${D.cases.length} real-world scenarios that span several ${unit()}s.</span></span><span class="arrow">›</span></button>`:""}</div>${footer()}`}
 function vCases(){return bar("home",M.code)+`<div class="stack fade"><h1>Case studies</h1><p class="mute">One realistic situation, several decisions. This is how the knowledge gets used at work.</p>${pageMeta()}
- ${D.cases.map(c=>`<article class="case-card"><span class="eyebrow">${c.mins||10} min · ${c.qs.length} decisions${c.taskIds.length?" · "+c.taskIds.slice(0,4).join(", ")+(c.taskIds.length>4?"…":""):""}</span><h2>${esc(c.title)}</h2><p class="mute small">${esc(c.desc)}</p>
- ${c.chars.length?`<div class="people">${c.chars.map(p=>`<div><b>${esc(p.name)}</b><span>${esc(p.role)}</span><p>${esc(p.concern||"")}</p></div>`).join("")}</div>`:""}<button class="btn go" data-a="case" data-v="${c.id}">Work through it</button></article>`).join("")}</div>${footer()}`}
+ ${D.cases.map(c=>{const ds=c.taskIds.map(id=>TOP[id]?domOf(id):null).filter(Boolean);
+ return `<article class="case-card"${ds[0]?dc(ds[0]):""}>${ds.length?`<div class="stripe" aria-hidden="true">${ds.map(d=>`<i${dc(d)}></i>`).join("")}</div>`:""}<span class="eyebrow">${c.mins||10} min · ${c.qs.length} decisions</span><h2>${esc(c.title)}</h2><p class="mute small">${esc(c.desc)}</p>
+ ${c.taskIds.length?`<div class="tks" aria-label="${isTrack()?"Lessons":"Topics"} covered">${c.taskIds.map(id=>{const d=TOP[id]?domOf(id):null;return `<span class="tk"${d?dc(d):""}${TOP[id]?` title="${esc(nm(id))}"`:""}>${esc(id)}</span>`}).join("")}</div>`:""}
+ ${c.chars.length?`<div class="people">${c.chars.map(p=>`<div><span class="av" aria-hidden="true">${esc(String(p.name||"").split(/\s+/).map(w=>w[0]||"").join("").slice(0,2).toUpperCase())}</span><b>${esc(p.name)}</b><span>${esc(p.role)}</span><p>${esc(p.concern||"")}</p></div>`).join("")}</div>`:""}<button class="btn go" data-a="case" data-v="${c.id}">Work through it</button></article>`}).join("")}</div>${footer()}`}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function start(mode,items,extra){items=items.filter(Boolean);if(!items.length){toast("No questions for this yet");return}S.test=Object.assign({mode,items,i:0,pick:null,sure:null,res:[],answers:[]},extra||{});go("test")}
 const startTopic=id=>start("topic",(TOP[id].qids||[]).map(q=>QS[q]),{topic:id});
@@ -200,18 +216,18 @@ function vTest(){const t=S.test,q=t.items[t.i];if(!q)return vResult();
  return h+`</div>`}
 function finish(){const t=S.test;if(t.mode==="exam")t.res=t.items.map((q,i)=>({ok:t.answers[i]===q.c,sure:true}));
  const r=t.res.filter(x=>x.ok).length,n=t.items.length,shaky=t.res.filter(x=>x.ok&&!x.sure).length;
- if(t.mode==="topic"){const pass=r===n;S.progress[t.topic]=pass?"done":"weak";if(!pass||shaky)S.review[t.topic]=1;else delete S.review[t.topic]}
+ if(t.mode==="topic"){const pass=r===n;S.progress[t.topic]=pass?"done":"weak";if(!pass||shaky)S.review[t.topic]=1;else delete S.review[t.topic];toast("✓ Progress saved");did("test",t.topic);did("refresh",t.topic)}
  else if(t.mode==="check")t.items.forEach((q,i)=>{const id=Q2T[q.id];if(!id)return;if(t.res[i].ok&&t.res[i].sure)S.progress[id]="done";else{S.progress[id]="weak";S.review[id]=1}});
  t.done={r,n,shaky};save()}
 function vResult(){const t=S.test;if(!t.done)finish();const{r,n,shaky}=t.done,pc=Math.round(100*r/n),pass=r===n;
  if(t.mode==="exam"){const by={};t.items.forEach((q,i)=>{const b=by[q.dom]=by[q.dom]||{r:0,n:0};b.n++;if(t.res[i].ok)b.r++});const ok=pc>=M.passThreshold;
-  return bar("practice","Practice")+`<div class="result fade"><div class="eyebrow">Practice exam complete</div><div class="ring big" style="--p:${pc}" data-v="${pc}%"></div><h1>${ok?"That's a pass.":"Not a pass yet."}</h1><p class="mute">You scored ${r} of ${n}. The pass mark is ${M.passThreshold}%.</p>
+  return bar("practice","Practice")+`<div class="result fade"><div class="eyebrow">Practice exam complete</div><div class="ring big" data-t="${tier(pc)}" style="--p:0" data-v="0%" data-from="0" data-to="${pc}"></div><h1>${ok?"That's a pass.":"Not a pass yet."}</h1><p class="mute">You scored ${r} of ${n}. The pass mark is ${M.passThreshold}%.</p>
   <div class="sched">${D.domains.map(d=>{const b=by[d.id]||{r:0,n:0};return b.n?`<div${dc(d)}><b>${domWord()} ${d.id}</b><span>${b.r} of ${b.n} correct · ${esc(d.title)}</span></div>`:""}).join("")}</div>
   <div class="row" style="width:100%"><button class="btn go" style="flex:1" data-a="go" data-v="notes">Study notes</button><button class="btn" style="flex:1" data-a="go" data-v="practice">Practice</button></div></div>${footer()}`}
  const back=t.mode==="topic"?"notes":t.mode==="case"?"cases":"home";
  const headline=t.mode==="check"?"Here's where you stand.":pass&&!shaky?"Locked in.":pass?"Right, but a little shaky.":"Nearly there.";
  const blurb=t.mode==="check"?`You got ${r} of ${n}. What you answered confidently is marked done; the rest is flagged to study first.`:pass&&!shaky?"You got every one and you knew it.":pass?`You guessed ${shaky}. We'll bring ${shaky>1?"them":"it"} back for a 2-minute refresh.`:"The explanations show the gap. A quick re-read usually fixes it.";
- return bar(back,"Done")+`<div class="result fade"><div class="eyebrow">${{topic:(isTrack()?"Lesson ":"Topic ")+t.topic,check:"Skill check",case:"Case study"}[t.mode]} complete</div><div class="ring big" style="--p:${pc}" data-v="${r}/${n}"></div><h1>${headline}</h1><p class="mute">${blurb}</p>
+ return bar(back,"Done")+`<div class="result fade"><div class="eyebrow">${{topic:(isTrack()?"Lesson ":"Topic ")+t.topic,check:"Skill check",case:"Case study"}[t.mode]} complete</div><div class="ring big" data-t="${tier(pc)}" style="--p:0" data-v="0/${n}" data-from="0" data-to="${pc}" data-n="${r}" data-suf="/${n}"></div><h1>${headline}</h1><p class="mute">${blurb}</p>
  <div class="sched"><div><b>Tomorrow</b><span>${pass&&!shaky?"Nothing to do here":"2-minute refresh of what you missed"}</span></div><div><b>In 4 days</b><span>One question to check it stuck</span></div><div><b>${isTrack()?"Final week":"Exam week"}</b><span>Included in your final review</span></div></div>
  <div class="row" style="width:100%">${t.mode==="topic"&&!pass&&M.mode!=="classic"?`<button class="btn go" style="flex:1" data-a="open" data-v="${t.topic}">Re-read ${esc(t.topic)}</button>`:""}<button class="btn ${t.mode==="topic"&&!pass&&M.mode!=="classic"?"":"go"}" style="flex:1" data-a="go" data-v="${t.mode==="check"?"home":back}">${t.mode==="check"?"See my plan":"Continue"}</button></div></div>${footer()}`}
 const TIMER=setInterval(()=>{const el=$("#tleft");if(!el||!S||!S.test||!S.test.ends)return;const s=Math.max(0,Math.round((S.test.ends-Date.now())/1000));el.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;if(!s){S.test.i=S.test.items.length;render()}},1000);
@@ -222,7 +238,11 @@ function go(v){const run=()=>{G.view=v;if(OPTS.onRoute)OPTS.onRoute(v==="catalog
 function render(){app.className="wrap"+(G.view==="lesson"||(G.view==="dpage"&&M&&M.mode==="classic")?" wide":G.view==="setup"?" setupw":G.view==="catalog"?" wide":"");
  app.innerHTML=({catalog:vCatalog,setup:vSetup,ready:vReady,home:vHome,notes:vNotes,dpage:vDomain,lesson:vLesson,practice:vPractice,cases:vCases,test:vTest})[G.view]();
  if(G.view==="catalog"){const s=$("#cq");if(s)s.value=G.q}
- if(G.view==="dpage"||G.view==="lesson")anchorHeadings();track();save()}
+ if(G.view==="dpage"||G.view==="lesson")anchorHeadings();track();save();rings()}
+/* rings fill from where they were (home: last visit; results: zero) and count up with them */
+function rings(){HOST.querySelectorAll(".ring[data-to]").forEach(el=>{const to=+el.dataset.to,from=+el.dataset.from||0,n=el.dataset.n!=null?+el.dataset.n:to,suf=el.dataset.suf||"%",n0=to?Math.round(from*n/to):0;
+ const set=k=>{el.style.setProperty("--p",from+(to-from)*k);el.dataset.v=Math.round(n0+(n-n0)*k)+suf};if(calm||from===to){set(1);return}
+ const t0=performance.now(),step=now=>{if(!el.isConnected)return;const k=Math.min(1,(now-t0)/900);set(1-Math.pow(1-k,3));if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)})}
 const ACT={
  go:v=>{if(v==="_back"){S.step--;render();return}if(v==="_cat"){go("catalog");return}go(v)},
  cat:()=>go("catalog"),exam:v=>{if(!load(v))return;go(S.setupDone?"home":"setup")},
@@ -232,7 +252,7 @@ const ACT={
  pick:(v,el)=>{S[el.dataset.k]=v;render();setTimeout(()=>{S.step++;render()},240)},
  mins:v=>{S.mins=+v;render()},build:()=>{S.setupDone=true;go("ready")},replan:()=>{S.step=2;S.missed=false;go("setup")},
  assess:()=>startAssess(),xstart:()=>startExam(),case:v=>startCase(v),
- open:v=>{S.topic=v;S.progress[v]=S.progress[v]||"read";go("lesson")},dpage:v=>{S.dom=+v;go("dpage")},
+ open:v=>{S.topic=v;S.progress[v]=S.progress[v]||"read";did("read",v);go("lesson")},dpage:v=>{S.dom=+v;go("dpage")},
  test:v=>startTopic(v),fold:v=>{S.open[v]=!S.open[v];render()},
  mid:v=>{S.mid=+v;const y=sTop();render();toTop(y)},
  drawer:()=>sheet(topicsNav(S.topic)+tocNav(TOP[S.topic])+'<button class="btn full" data-a="undrawer">Close</button>'),nav:()=>{$("#drawer").hidden=true},

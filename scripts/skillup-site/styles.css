@@ -324,3 +324,27 @@ button[disabled]{opacity:.45;cursor:default}
 .md h4{font-family:var(--h);font-size:19px;margin:6px 0 0}
 .md hr{border:none;border-top:1px solid var(--line);margin:8px 0}
 .objectives{margin:0;padding:12px 14px 12px 34px;border-radius:12px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px;font-size:15px}
+/* today's session, status pills, case chips */
+.today{display:flex;flex-direction:column;gap:8px}
+.task{display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:center;width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--raised);color:inherit;font:inherit;cursor:pointer;transition:border-color .2s,background .25s}
+.task:hover{border-color:var(--teal)}
+.task .bx{width:22px;height:22px;border-radius:7px;border:2px solid var(--dc,var(--teal));display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;transition:background .25s,border-color .25s}
+.task b{display:block;font-weight:600;line-height:1.3}.task .tiny{display:block}
+.task.done .bx{background:var(--green);border-color:var(--green)}
+.task.done b{text-decoration:line-through;color:var(--mute)}
+.sp{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;font-weight:600;padding:1px 9px;border-radius:99px;margin-top:4px;color:var(--sc);background:color-mix(in srgb,var(--sc) 14%,transparent)}
+.sp.done{--sc:var(--green)}.sp.weak{--sc:var(--amber)}.sp.read{--sc:var(--teal)}
+.stripe{display:flex;gap:2px;height:4px;width:100%;border-radius:4px;overflow:hidden}.stripe i{flex:1;background:var(--dc,var(--teal))}
+.tks{display:flex;flex-wrap:wrap;gap:6px}
+.tk{font-family:var(--h);font-weight:600;font-size:13px;letter-spacing:.03em;padding:1px 9px;border-radius:99px;color:var(--dc,var(--teal));background:color-mix(in srgb,var(--dc,var(--teal)) 14%,transparent);border:1px solid color-mix(in srgb,var(--dc,var(--teal)) 30%,transparent)}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-family:var(--h);font-weight:700;font-size:14px;background:var(--teal-soft);color:var(--teal-deep);margin-bottom:4px}
+.xp{font-family:var(--h);font-weight:700;font-size:15px;color:var(--green);display:inline-block;animation:rise 2.4s ease both}
+@keyframes rise{0%{opacity:0;transform:translateY(8px)}20%{opacity:1;transform:none}}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* live feel: answers react, lists arrive in sequence (all off under reduced motion) */
+.opt.right{animation:ok-pop .35s ease}.opt.wrong{animation:no-shake .35s ease}
+@keyframes ok-pop{50%{transform:scale(1.015)}}@keyframes no-shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.cgrid>*,.grid3>*,.today>.task,.sched>div,.case-card{animation:fade .4s ease both}
+.cgrid>:nth-child(2),.grid3>:nth-child(2),.today>.task:nth-child(3),.sched>div:nth-child(2){animation-delay:.06s}
+.cgrid>:nth-child(3),.grid3>:nth-child(3),.today>.task:nth-child(4),.sched>div:nth-child(3){animation-delay:.12s}
+.cgrid>:nth-child(n+4),.sched>div:nth-child(n+4){animation-delay:.18s}

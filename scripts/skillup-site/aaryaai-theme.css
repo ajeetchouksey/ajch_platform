@@ -70,3 +70,26 @@
 /* Readiness: one indigo ramp from New to Exam-ready */
 .skillup-host .ring[data-t="1"]{--rc:var(--m1)}.skillup-host .ring[data-t="2"]{--rc:var(--m2)}.skillup-host .ring[data-t="3"]{--rc:var(--m3)}.skillup-host .ring[data-t="4"]{--rc:var(--m4)}.skillup-host .ring[data-t="5"]{--rc:var(--m5)}
 .skillup-host .ring[data-t]{background:conic-gradient(var(--rc) calc(var(--p)*1%),var(--line) 0)}
+/* Cards v2: each card is tinted with its own hue (provider, part or domain) and lifts on hover.
+   The tint is a surface, never a button: indigo stays the only filled action. */
+.skillup-host .ccard[style*="--acc"]{background:linear-gradient(160deg,color-mix(in srgb,var(--acc) 13%,rgba(30,41,59,.85)),rgba(15,23,42,.8) 55%);border-color:color-mix(in srgb,var(--acc) 26%,rgba(148,163,184,.12));box-shadow:0 12px 32px -22px color-mix(in srgb,var(--acc) 70%,transparent),inset 0 1px 0 rgba(255,255,255,.05)}
+.skillup-host .ccard[style*="--acc"]:hover{border-color:color-mix(in srgb,var(--acc) 55%,transparent);box-shadow:0 18px 40px -16px color-mix(in srgb,var(--acc) 70%,transparent)}
+.skillup-host .ccard[style*="--acc"]::before{background:var(--acc)}
+.skillup-host .ccard[style*="--acc"] .spread>.eyebrow,.skillup-host .ccard[style*="--acc"] .code{color:var(--acc)}
+.skillup-host .ccard[style*="--acc"] .prog i{background:var(--acc)}
+.skillup-host .tile.t-notes{--tc:var(--k-key)}.skillup-host .tile.t-prac{--tc:var(--k-choose)}.skillup-host .tile.t-cases{--tc:var(--k-use)}
+.skillup-host .tile[class*=" t-"]{background:linear-gradient(160deg,color-mix(in srgb,var(--tc) 13%,rgba(30,41,59,.85)),rgba(15,23,42,.8) 60%);border-color:color-mix(in srgb,var(--tc) 26%,transparent);transition:border-color .2s,transform .2s,box-shadow .2s}
+.skillup-host .tile[class*=" t-"] svg{stroke:var(--tc);width:22px;height:22px;padding:9px;box-sizing:content-box;border-radius:12px;background:color-mix(in srgb,var(--tc) 18%,transparent)}
+.skillup-host .tile[class*=" t-"]:not(:disabled):hover{border-color:color-mix(in srgb,var(--tc) 55%,transparent);transform:translateY(-2px);box-shadow:0 16px 36px -18px color-mix(in srgb,var(--tc) 75%,transparent)}
+.skillup-host .tile:disabled{opacity:.55;cursor:default}
+.skillup-host .topic{grid-template-columns:46px 1fr auto}
+.skillup-host .dom[style*="--dc"] .topic:not(.dov) .tid{color:var(--dc);background:color-mix(in srgb,var(--dc) 14%,transparent);border-radius:8px;text-align:center;font-size:15px;padding:2px 0}
+.skillup-host .sp.done{--sc:var(--ok)}.skillup-host .sp.weak{--sc:var(--part)}.skillup-host .sp.read{--sc:var(--k-key)}
+.skillup-host .case-card[style*="--dc"]{background:linear-gradient(160deg,color-mix(in srgb,var(--dc) 11%,rgba(30,41,59,.85)),rgba(15,23,42,.8) 55%);border-color:color-mix(in srgb,var(--dc) 24%,transparent)}
+.skillup-host .av{background:rgba(169,155,255,.18);color:#d9d3ff}
+/* Today's session: ticks use the Correct state, boxes take the topic's domain */
+.skillup-host .task{background:rgba(15,23,42,.45)}
+.skillup-host .task:hover{border-color:color-mix(in srgb,var(--dc,#a99bff) 50%,transparent)}
+.skillup-host .task.done{border-color:color-mix(in srgb,var(--ok) 40%,transparent);background:color-mix(in srgb,var(--ok) 8%,rgba(15,23,42,.45))}
+.skillup-host .task.done .bx{background:var(--ok);border-color:var(--ok);color:#06281b}
+.skillup-host .xp{color:var(--ok)}
