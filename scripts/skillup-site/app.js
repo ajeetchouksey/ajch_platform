@@ -64,11 +64,11 @@ function vCatalog(){const ex=CAT.exams,provs=[...new Set(ex.map(e=>e.provider).f
  let h=bar()+`<div class="stack fade"><div class="cat-hero"><div class="eyebrow">AaryaAI SkillUp</div><h1>Learn it. Use it. <span>Pass it.</span></h1><p class="mute" style="max-width:60ch">Certification prep that also builds the skill: short lessons with diagrams, real use cases, practice that adapts to what you know, and a plan that fits your week.</p></div>
  <div class="feature"><div class="stack" style="gap:10px"><span class="badges"><span class="pill green">New lesson format</span><span class="pill brand">Featured</span></span><h2 style="font-size:34px">${esc(feat.code)} · ${esc(feat.title)}</h2><p class="mute">${esc(feat.description)}</p>${pageMetaCat(feat)}<div class="row"><button class="btn go" data-a="exam" data-v="${feat.id}">${fp&&fp.started?"Continue":"Start "+esc(feat.code)}</button></div></div>
  <div class="fstats"><div><b>${feat.topics}</b><span>skill lessons</span></div><div><b>${feat.questions}</b><span>questions</span></div><div><b>${feat.diagrams}</b><span>diagrams</span></div></div></div>
- <div class="stack" style="gap:10px;margin-top:10px"><input class="search" id="cq" type="search" placeholder="Search exams and skills" value="${esc(G.q)}" data-c="q" aria-label="Search exams and skills">
+ <div class="stack" style="gap:10px;margin-top:10px"><input class="search" id="cq" type="search" placeholder="Search exams and skills" data-c="q" aria-label="Search exams and skills">
  <div class="chips"><button aria-pressed="${!G.filter}" data-a="filter" data-v="">All</button>${provs.map(p=>`<button aria-pressed="${G.filter===p}" data-a="filter" data-v="${esc(p)}">${esc(p)}</button>`).join("")}${ex.some(e=>e.kind==="skill-track")?`<button aria-pressed="${G.filter==="track"}" data-a="filter" data-v="track">Skill tracks</button>`:""}</div></div>`;
- const groups={};list.forEach(e=>(groups[e.provider]=groups[e.provider]||[]).push(e));
- h+=Object.keys(groups).sort().map(p=>`<div class="provider">${esc(p)}</div><div class="cgrid">${groups[p].map(card).join("")}</div>`).join("")||`<p class="mute" style="margin-top:20px">No exams match "${esc(G.q)}".</p>`;
- return h+`</div>${footer()}`}
+ return h+`<div id="cres">${catalogResults(list,card)}</div></div>${footer()}`}
+function catalogResults(list,card){const groups={};list.forEach(e=>(groups[e.provider]=groups[e.provider]||[]).push(e));
+ return Object.keys(groups).sort().map(p=>`<div class="provider">${esc(p)}</div><div class="cgrid">${groups[p].map(card).join("")}</div>`).join("")||`<p class="mute" style="margin-top:20px">No exams match your search.</p>`}
 const pageMetaCat=e=>`<div class="pmeta"><span>v${esc(e.version)}</span><span>Updated ${esc(fmt(e.updated))}</span><span>${e.topics} ${e.kind==="skill-track"?"lessons":"topics"}</span></div>`;
 
 /* ---------- setup + plan ---------- */
@@ -209,6 +209,7 @@ const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function go(v){const run=()=>{G.view=v;if(S)S.mid=null;$("#drawer").hidden=true;render();scrollTo(0,0)};if(document.startViewTransition&&!calm)document.startViewTransition(run);else run()}
 function render(){app.className="wrap"+(G.view==="lesson"||(G.view==="dpage"&&M&&M.mode==="classic")?" wide":G.view==="setup"?" setupw":G.view==="catalog"?" wide":"");
  app.innerHTML=({catalog:vCatalog,setup:vSetup,ready:vReady,home:vHome,notes:vNotes,dpage:vDomain,lesson:vLesson,practice:vPractice,cases:vCases,test:vTest})[G.view]();
+ if(G.view==="catalog"){const s=$("#cq");if(s)s.value=G.q}
  if(G.view==="dpage"||G.view==="lesson")anchorHeadings();track();save()}
 const ACT={
  go:v=>{if(v==="_back"){S.step--;render();return}if(v==="_cat"){go("catalog");return}go(v)},
@@ -232,6 +233,6 @@ const ACT={
 document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!el)return;const f=ACT[el.dataset.a];if(!f)return;if(el.tagName==="A"&&el.dataset.a!=="nav")e.preventDefault();f(el.dataset.v,el)});
 $("#drawer").addEventListener("click",e=>{if(e.target.id==="drawer")e.target.hidden=true});
 document.addEventListener("change",e=>{if(e.target.dataset.c==="date"){S.date=e.target.value;render()}});
-document.addEventListener("input",e=>{if(e.target.dataset.c==="q"){G.q=e.target.value;const pos=e.target.selectionStart;render();const s=$("#cq");if(s){s.focus();s.setSelectionRange(pos,pos)}}});
+document.addEventListener("input",e=>{if(e.target.dataset.c==="q"){G.q=String(e.target.value||"").slice(0,80);const tmp=document.createElement("div");tmp.innerHTML=vCatalog();const fresh=tmp.querySelector("#cres"),cur=$("#cres");if(fresh&&cur)cur.replaceChildren(...fresh.childNodes)}});
 render();
 })();
