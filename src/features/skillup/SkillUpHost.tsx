@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '@/lib/auth';
+import { SignInChoices } from '@/components/LoginWidget';
 
 /**
  * Hosts the SkillUp learning experience inside the AaryaAI layout (header, navigation, footer).
  * The experience is built from ajch_skillup content by scripts/skillup-site (`--embed`) into
  * /skillup-assets/ during the Cloudflare Pages deploy; this page loads it once and mounts it.
  * The URL follows the open exam (/skillup, /skillup/ai901) so Back and shared links work.
+ * The catalog is public; opening an exam needs an account, so a signed-out visitor who picks an
+ * exam (or follows a /skillup/:id link) gets a sign-in panel for it instead, and lands in the
+ * exam once signed in.
  */
 const ASSETS = '/skillup-assets/';
 
@@ -19,10 +24,15 @@ interface SkillUpRuntime {
     scroller?: HTMLElement;
     exam?: string;
     onRoute?: (examId: string | null) => void;
+    canOpen?: (examId: string) => boolean;
   }): SkillUpInstance;
 }
+interface CatalogExam { id: string; code: string; title: string; provider: string; description?: string; topics: number; questions: number }
 declare global {
-  interface Window { SkillUpApp?: SkillUpRuntime }
+  interface Window {
+    SkillUpApp?: SkillUpRuntime;
+    SKILLUP?: { catalog?: { exams?: CatalogExam[] } };
+  }
 }
 
 let loading: Promise<void> | null = null;
@@ -52,14 +62,25 @@ export default function SkillUpHost() {
   const params = useParams();
   const examId = (params['*'] || '').split('/')[0] || null;
   const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
+  const signedIn = useRef(!!user);
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<SkillUpInstance | null>(null);
   const initialExam = useRef(examId);
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
+  const gated = !!examId && !authLoading && !user;
 
-  // Load and mount once; the instance lives as long as the user stays in /skillup.
+  // canOpen runs inside the SkillUp runtime, outside React, so it reads sign-in state from a ref.
+  // Declared first so it's current before the effects below run in the same commit.
   useEffect(() => {
+    signedIn.current = !!user;
+  }, [user]);
+
+  // Load and mount once auth has settled (so a deep link isn't gated while the session is
+  // still being restored); the instance lives as long as the user stays in /skillup.
+  useEffect(() => {
+    if (authLoading) return;
     let cancelled = false;
     loadSkillUp()
       .then(() => {
@@ -72,6 +93,14 @@ export default function SkillUpHost() {
             const to = id ? `/skillup/${id}` : '/skillup';
             if (window.location.pathname.replace(/\/$/, '') !== to) navigate(to);
           },
+          // Signed out: keep the catalog, move the URL to the exam and let the gate below ask
+          // for sign-in. OAuth returns to this URL, so the exam opens right after.
+          canOpen: (id) => {
+            if (signedIn.current) return true;
+            const to = `/skillup/${id}`;
+            if (window.location.pathname.replace(/\/$/, '') !== to) navigate(to);
+            return false;
+          },
         });
         setReady(true);
       })
@@ -81,12 +110,13 @@ export default function SkillUpHost() {
       appRef.current?.destroy();
       appRef.current = null;
     };
-  }, [navigate]);
+  }, [navigate, authLoading]);
 
-  // Back/forward or an in-site link changed the exam in the URL.
+  // Back/forward or an in-site link changed the exam in the URL, or the visitor just signed in
+  // on a gated exam.
   useEffect(() => {
     appRef.current?.openExam(examId);
-  }, [examId]);
+  }, [examId, user]);
 
   if (failed) {
     return (
@@ -99,9 +129,42 @@ export default function SkillUpHost() {
   }
   return (
     <>
-      {!ready && <LoadingShimmer />}
-      <div ref={hostRef} className="skillup-host w-full" />
+      {gated ? <SignInGate examId={examId} onBack={() => navigate('/skillup')} /> : !ready && <LoadingShimmer />}
+      <div ref={hostRef} className="skillup-host w-full" hidden={gated} />
     </>
+  );
+}
+
+/** Shown instead of an exam to signed-out visitors: what the exam is, and the sign-in choices. */
+function SignInGate({ examId, onBack }: { examId: string; onBack: () => void }) {
+  const exam = window.SKILLUP?.catalog?.exams?.find((e) => e.id === examId);
+  return (
+    <div className="max-w-md mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <button onClick={onBack} className="text-sm text-violet-300 hover:text-white transition-colors mb-6">
+        ← All exams
+      </button>
+      <div className="rounded-2xl border border-slate-700/80 bg-slate-900/80 p-5 sm:p-6 space-y-5">
+        <div className="space-y-2">
+          {exam && (
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              {[exam.provider, exam.code].filter(Boolean).join(' · ')}
+            </p>
+          )}
+          <h1 className="text-2xl font-semibold text-white text-balance">
+            Sign in to start {exam ? exam.title : 'this exam'}
+          </h1>
+          {exam && (
+            <p className="text-sm text-slate-400">
+              {exam.topics} topics · {exam.questions} practice questions
+            </p>
+          )}
+          <p className="text-sm text-slate-300 leading-relaxed">
+            SkillUp is free. Signing in keeps your progress, review pile and streak with your account.
+          </p>
+        </div>
+        <SignInChoices />
+      </div>
+    </div>
   );
 }
 

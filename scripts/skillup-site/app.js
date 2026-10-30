@@ -2,9 +2,10 @@
    All data is build output from PR-reviewed ajch_skillup content; notes HTML is rendered Markdown by design. */
 (function(){
 "use strict";
-/* SkillUpApp.start(host, {embedded, scroller, exam, onRoute}) renders SkillUp into `host`.
+/* SkillUpApp.start(host, {embedded, scroller, exam, onRoute, canOpen}) renders SkillUp into `host`.
    Embedded (inside the AaryaAI site layout): no own brand bar/theme switch, scrolls `scroller`,
-   reports exam changes through onRoute so the site URL can follow. */
+   reports exam changes through onRoute so the site URL can follow. canOpen(examId), when given, is asked
+   before any exam opens; returning false keeps the catalog and leaves the next step to the host (sign-in). */
 function start(HOST,OPTS){OPTS=OPTS||{};
 const EMBED=!!OPTS.embedded,SC=OPTS.scroller||window;
 /* Screen-fixed UI (tab bar, side sheet, toast) lives in a dock on <body> when embedded: the site's page
@@ -47,7 +48,7 @@ function fetchExam(id){if(has(id))return Promise.resolve(true);const e=CAT.exams
  if(!fetching.has(id))fetching.set(id,new Promise(res=>{const s=document.createElement("script");s.src=e.src;s.async=true;
   s.onload=()=>res(has(id));s.onerror=()=>{fetching.delete(id);s.remove();res(false)};document.head.appendChild(s)}));
  return fetching.get(id)}
-function enter(id,route){if(!CAT.exams.some(x=>x.id===id))return;if(load(id)){route();return}
+function enter(id,route){if(!CAT.exams.some(x=>x.id===id))return false;if(OPTS.canOpen&&!OPTS.canOpen(id))return false;if(load(id)){route();return}
  G.wait=id;G.view="loading";render();
  fetchExam(id).then(ok=>{if(G.wait!==id)return;G.wait=null;if(ok&&load(id)){route();return}
   G.view="catalog";render();toast("That exam didn't load. Check your connection and try again.")})}
@@ -373,7 +374,7 @@ HOST.addEventListener("input",e=>{if(e.target.dataset.c==="q"){G.q=String(e.targ
 // deep link: /skillup/#ai901 opens that exam (old /skillup/:examId routes redirect here)
 const deep=OPTS.exam||(location.hash||"").slice(1);
 const arrive=()=>{G.view=S.setupDone?"home":"setup";render()};
-if(CAT.exams.some(x=>x.id===deep))enter(deep,arrive);else render();
+if(enter(deep,arrive)===false)render();
 return{destroy(){clearInterval(TIMER);SC.removeEventListener("scroll",track);document.removeEventListener("keydown",onKey);HOST.innerHTML="";if(DOCK!==HOST)DOCK.remove()},
  openExam(id){if(id&&id!==G.exam&&id!==G.wait)enter(id,arrive);else if(!id&&G.view!=="catalog"){G.wait=null;G.view="catalog";render()}}};
 }
