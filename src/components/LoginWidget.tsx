@@ -37,9 +37,9 @@ function GoogleIcon({ size = 16 }: { size?: number }) {
 
 // Microsoft login is deferred (see AuthProviderId in auth.tsx) — add an icon + entry
 // here once an Entra app registration exists.
-const PROVIDER_META: Record<AuthProviderId, { label: string; icon: (props: { size?: number }) => React.JSX.Element }> = {
+const PROVIDER_META: Record<AuthProviderId, { label: string; hint?: string; icon: (props: { size?: number }) => React.JSX.Element }> = {
   github: { label: 'GitHub', icon: GithubIcon },
-  google: { label: 'Google', icon: GoogleIcon },
+  google: { label: 'Google', hint: 'Gmail or any Google account', icon: GoogleIcon },
 };
 
 /** Shared backdrop + centered panel shell used by both the provider picker and the PAT panel. */
@@ -139,14 +139,15 @@ export function SignInChoices({ onSignedIn }: { onSignedIn?: () => void }) {
   }
 
   // ── Provider picker ──────────────────────────────────────────────────────
-  const providers: AuthProviderId[] = (['github', 'google'] as const)
+  // Google first: most learners have a Gmail address; fewer have GitHub.
+  const providers: AuthProviderId[] = (['google', 'github'] as const)
     .filter((p) => p === 'github' || isProviderConfigured(p));
 
   return (
     <div className="space-y-3">
       <div className="space-y-2">
         {providers.map((provider) => {
-          const { label, icon: Icon } = PROVIDER_META[provider];
+          const { label, hint, icon: Icon } = PROVIDER_META[provider];
           return (
             <button
               key={provider}
@@ -161,7 +162,10 @@ export function SignInChoices({ onSignedIn }: { onSignedIn?: () => void }) {
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:border-violet-500/40 text-sm text-slate-200 transition-colors"
             >
               <Icon size={16} />
-              <span className="flex-1 text-left">Continue with {label}</span>
+              <span className="flex-1 text-left">
+                Continue with {label}
+                {hint && <span className="block text-[11px] text-slate-500">{hint}</span>}
+              </span>
               <ChevronRight size={14} className="text-slate-600" />
             </button>
           );
