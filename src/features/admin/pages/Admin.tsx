@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth, useIsOwner, OWNER_LOGIN } from '@/lib/auth';
-import { BarChart2, Activity, Video, GitPullRequest, Lock, ChevronRight, ShieldAlert, KeyRound, CheckCircle2, LogOut } from 'lucide-react';
+import { BarChart2, Activity, Video, GitPullRequest, Lock, ChevronRight, ShieldAlert, KeyRound, CheckCircle2, LogOut, GraduationCap } from 'lucide-react';
 
 const PAGES = [
   {
@@ -9,6 +9,15 @@ const PAGES = [
     icon: BarChart2,
     label: 'MVP Dashboard',
     desc: 'Track progress toward MVP targets: content coverage, community metrics, and evidence pack.',
+    color: 'text-violet-400',
+    bg: 'rgba(139,92,246,0.08)',
+    border: 'rgba(139,92,246,0.22)',
+  },
+  {
+    to: '/admin/learners',
+    icon: GraduationCap,
+    label: 'SkillUp Learners',
+    desc: 'Unique signed-in learners per exam: totals, new in 7 and 30 days, active this week, Google vs GitHub.',
     color: 'text-violet-400',
     bg: 'rgba(139,92,246,0.08)',
     border: 'rgba(139,92,246,0.22)',

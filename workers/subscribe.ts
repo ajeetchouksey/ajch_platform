@@ -88,6 +88,10 @@ export interface Env {
    * changes here, just a new AUTHORIZE_CONFIG entry + callback handler.
    */
   SESSION_SIGNING_KEY?: string;
+  /** HMAC key for anonymising SkillUp learner identities (skillup_learners.learner).
+   * Optional: falls back to SESSION_SIGNING_KEY. Set it separately so rotating the
+   * session key doesn't make every returning learner count as new. */
+  LEARNER_HASH_KEY?: string;
   /** Feature flag gating public comment intake (IDEA-0009 NFR-6) — must be the
    * exact string 'true' to enable; unset or any other value keeps POST
    * /api/comment returning 503. Set as a plaintext var in wrangler.toml, not
@@ -409,6 +413,12 @@ const RATE_LIMIT_POLICIES = {
     windowMs: 15 * 60 * 1000,
     max: 10,
     ttlSeconds: 1800,
+  },
+  // SkillUp records an exam open once per tab session, so an hour of real use stays far below this.
+  skillupEnrol: {
+    keyPrefix: 'sul',
+    windowMs: 60 * 60 * 1000,
+    max: 60,
   },
   // Generous relative to legitimate admin usage — this is defense-in-depth against
   // ADMIN_API_SECRET-guessing automation, not a limit a real admin should ever hit.
@@ -1270,6 +1280,135 @@ async function handleOAuthGoogleCallback(request: Request, env: Env): Promise<Re
   }
 }
 
+// ── SkillUp learners: unique signed-in learners per exam ─────────────────────
+// POST /api/skillup/enrol records the signed-in learner against an exam (first open
+// creates the row, later opens move last_seen). GET /api/skillup/learners returns the
+// public per-exam counts shown on catalog cards; GET /api/admin/skillup/learners adds
+// new/active breakdowns for admins. Only an HMAC of the account id is stored.
+
+const EXAM_ID_RE = /^[a-z0-9][a-z0-9-]{1,39}$/;
+/** Caps junk exam ids a single account can create; real learners open a handful of exams. */
+const MAX_EXAMS_PER_LEARNER = 40;
+/** Public counts list only exams with at least this many learners (matches the catalog cards), so
+ * arbitrary exam ids recorded by a few accounts never appear in the public response. */
+const PUBLIC_MIN_LEARNERS = 5;
+
+interface SkillUpLearner { provider: 'github' | 'google'; id: string }
+
+/**
+ * Like authenticateCommentUser, but returns the account's stable id: Google `sub`, or the
+ * GitHub numeric user id (a GitHub login can be renamed, which would count one person twice).
+ */
+async function authenticateLearner(request: Request, env: Env): Promise<SkillUpLearner | null> {
+  const match = /^Bearer (.+)$/.exec(request.headers.get('Authorization') ?? '');
+  if (!match) return null;
+  const token = match[1];
+  if (env.SESSION_SIGNING_KEY) {
+    const session = await verifySessionToken(token, env.SESSION_SIGNING_KEY);
+    if (session) return { provider: 'google', id: session.id };
+  }
+  try {
+    const res = await fetch('https://api.github.com/user', {
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'User-Agent': 'aarya-subscribe-worker/1.0' },
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as { id?: number };
+    return typeof data.id === 'number' ? { provider: 'github', id: String(data.id) } : null;
+  } catch {
+    return null;
+  }
+}
+
+async function learnerHash(env: Env, learner: SkillUpLearner): Promise<string | null> {
+  const secret = env.LEARNER_HASH_KEY ?? env.SESSION_SIGNING_KEY;
+  if (!secret) return null;
+  const sig = await crypto.subtle.sign('HMAC', await hmacKey(secret), new TextEncoder().encode(`${learner.provider}:${learner.id}`));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function handleSkillUpEnrol(request: Request, env: Env, origin: string): Promise<Response> {
+  const learner = await authenticateLearner(request, env);
+  if (!learner) return json({ error: 'unauthorized' }, 401, origin);
+
+  let examId: unknown;
+  try {
+    examId = (await request.json() as { examId?: unknown }).examId;
+  } catch {
+    return json({ error: 'Invalid JSON' }, 400, origin);
+  }
+  if (typeof examId !== 'string' || !EXAM_ID_RE.test(examId)) return json({ error: 'Invalid examId' }, 400, origin);
+
+  const key = await learnerHash(env, learner);
+  if (!key) return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  if (!(await checkWindowedRateLimit(env, key, RATE_LIMIT_POLICIES.skillupEnrol))) {
+    return json({ error: 'rate_limited' }, 429, origin);
+  }
+
+  try {
+    const now = new Date().toISOString();
+    const seen = await env.DB.prepare('SELECT 1 FROM skillup_learners WHERE exam_id = ?1 AND learner = ?2')
+      .bind(examId, key).first();
+    if (!seen) {
+      const row = await env.DB.prepare('SELECT COUNT(*) AS n FROM skillup_learners WHERE learner = ?1')
+        .bind(key).first<{ n: number }>();
+      if ((row?.n ?? 0) >= MAX_EXAMS_PER_LEARNER) return json({ error: 'Too many exams' }, 429, origin);
+    }
+    await env.DB.prepare(
+      `INSERT INTO skillup_learners (exam_id, learner, provider, first_seen, last_seen) VALUES (?1, ?2, ?3, ?4, ?4)
+       ON CONFLICT(exam_id, learner) DO UPDATE SET last_seen = excluded.last_seen`,
+    ).bind(examId, key, learner.provider, now).run();
+    return json({ status: 'ok', first: !seen }, 200, origin);
+  } catch (err) {
+    console.error('skillup-enrol-failed:', (err as Error).message);
+    return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  }
+}
+
+/** Public: unique learners per exam (from PUBLIC_MIN_LEARNERS up), for the catalog cards. Cached 5 minutes. */
+async function handleSkillUpLearnerCounts(env: Env, origin: string): Promise<Response> {
+  try {
+    const { results } = await env.DB.prepare('SELECT exam_id, COUNT(*) AS n FROM skillup_learners GROUP BY exam_id HAVING n >= ?1')
+      .bind(PUBLIC_MIN_LEARNERS).all<{ exam_id: string; n: number }>();
+    const exams: Record<string, number> = {};
+    for (const r of results ?? []) exams[r.exam_id] = r.n;
+    return new Response(JSON.stringify({ exams }), {
+      status: 200,
+      headers: { ...corsHeadersFor(origin), 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' },
+    });
+  } catch (err) {
+    console.error('skillup-counts-failed:', (err as Error).message);
+    return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  }
+}
+
+/** Admin: per-exam totals with new and active learners, plus unique learners across all exams. */
+async function handleSkillUpLearnerStats(request: Request, env: Env, origin: string): Promise<Response> {
+  if (!(await resolveAdmin(request, env))) return json({ error: 'forbidden' }, 403, origin);
+  const day = 24 * 60 * 60 * 1000, now = Date.now();
+  const d7 = new Date(now - 7 * day).toISOString(), d30 = new Date(now - 30 * day).toISOString();
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT exam_id,
+              COUNT(*) AS total,
+              SUM(first_seen >= ?1) AS new7,
+              SUM(first_seen >= ?2) AS new30,
+              SUM(last_seen >= ?1) AS active7,
+              SUM(provider = 'google') AS google,
+              SUM(provider = 'github') AS github
+         FROM skillup_learners GROUP BY exam_id ORDER BY total DESC`,
+    ).bind(d7, d30).all();
+    const overall = await env.DB.prepare(
+      `SELECT COUNT(DISTINCT learner) AS learners,
+              COUNT(DISTINCT CASE WHEN last_seen >= ?1 THEN learner END) AS active7
+         FROM skillup_learners`,
+    ).bind(d7).first();
+    return json({ exams: results ?? [], overall, generatedAt: new Date(now).toISOString() }, 200, origin);
+  } catch (err) {
+    console.error('skillup-stats-failed:', (err as Error).message);
+    return json({ error: 'Service temporarily unavailable' }, 503, origin);
+  }
+}
+
 // ── /profile/load, /profile/save — D1-backed progress store for Google logins ──
 // GitHub logins never hit these; they sync via a private Gist instead (gist-sync.ts).
 
@@ -1544,6 +1683,16 @@ export default {
       return handleSignalGet(env, origin);
     }
 
+    // SkillUp learner counts: public counts for the catalog, and admin-only breakdowns
+    if (pathname === '/api/skillup/learners' && request.method === 'GET') {
+      if (!isAllowedOrigin(origin)) return new Response('Forbidden', { status: 403 });
+      return handleSkillUpLearnerCounts(env, origin);
+    }
+    if (pathname === '/api/admin/skillup/learners' && request.method === 'GET') {
+      if (!isAllowedOrigin(origin)) return new Response('Forbidden', { status: 403 });
+      return handleSkillUpLearnerStats(request, env, origin);
+    }
+
     // Comment list — simple GET, no preflight; open to allowed origins only
     if (pathname === '/api/comment' && request.method === 'GET') {
       if (!isAllowedOrigin(origin)) return new Response('Forbidden', { status: 403 });
@@ -1590,6 +1739,7 @@ export default {
     if (pathname === '/api/comment') return handleCommentPost(request, env, origin);
     if (pathname === '/profile/load') return handleProfileLoad(request, env, origin);
     if (pathname === '/profile/save') return handleProfileSave(request, env, origin);
+    if (pathname === '/api/skillup/enrol') return handleSkillUpEnrol(request, env, origin);
     if (pathname !== '/subscribe') return new Response('Not Found', { status: 404 });
 
     // Per-IP rate limiting (5 req / 15 min)

@@ -57,6 +57,7 @@ const YoutubeTracker = lazy(() => import('@/features/admin/pages/YoutubeTracker'
 const IssueBoard = lazy(() => import('@/features/admin/pages/IssueBoard'));
 const Reactions = lazy(() => import('@/features/admin/pages/Reactions'));
 const CommentModeration = lazy(() => import('@/features/admin/pages/CommentModeration'));
+const SkillUpLearners = lazy(() => import('@/features/admin/pages/SkillUpLearners'));
 
 // ── Maintainer ─────────────────────────────────────────────────────────────────
 const Maintainer = lazy(() => import('@/features/analytics/pages/Maintainer'));
@@ -145,6 +146,7 @@ export default function AppRoutes() {
       <Route path="/admin/monitoring" element={<Monitoring />} />
       <Route path="/admin/youtube" element={<YoutubeTracker />} />
       <Route path="/admin/issues" element={<IssueBoard />} />
+      <Route path="/admin/learners" element={<SkillUpLearners />} />
       <Route path="/admin/reactions" element={<Reactions />} />
       <Route path="/admin/comments" element={<CommentModeration />} />
 
