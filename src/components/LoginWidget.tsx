@@ -37,9 +37,9 @@ function GoogleIcon({ size = 16 }: { size?: number }) {
 
 // Microsoft login is deferred (see AuthProviderId in auth.tsx) — add an icon + entry
 // here once an Entra app registration exists.
-const PROVIDER_META: Record<AuthProviderId, { label: string; icon: (props: { size?: number }) => React.JSX.Element }> = {
+const PROVIDER_META: Record<AuthProviderId, { label: string; hint?: string; icon: (props: { size?: number }) => React.JSX.Element }> = {
   github: { label: 'GitHub', icon: GithubIcon },
-  google: { label: 'Google', icon: GoogleIcon },
+  google: { label: 'Google', hint: 'Gmail or any Google account', icon: GoogleIcon },
 };
 
 /** Shared backdrop + centered panel shell used by both the provider picker and the PAT panel. */
@@ -66,38 +66,22 @@ function SignInPanel({ title, icon, onClose, children }: { title: string; icon: 
   );
 }
 
-export function LoginWidget() {
-  const { user, isLoading, login, loginWithToken, logout } = useAuth();
-  const [showPicker, setShowPicker] = useState(false);
+/**
+ * The sign-in choices: GitHub and Google buttons, the GitHub token fallback and the trust note.
+ * Rendered inside the header's sign-in panel, and inline on pages that need an account (SkillUp exams).
+ * OAuth sign-in leaves the page and returns to the current URL; onSignedIn fires only for the
+ * in-page token flow.
+ */
+export function SignInChoices({ onSignedIn }: { onSignedIn?: () => void }) {
+  const { login, loginWithToken } = useAuth();
   const [showTokenInput, setShowTokenInput] = useState(false);
   const [tokenValue, setTokenValue] = useState('');
   const [error, setError] = useState('');
 
-  const closeAll = () => { setShowPicker(false); setShowTokenInput(false); setError(''); setTokenValue(''); };
-
-  if (isLoading) return <div className="w-8 h-8 rounded-full bg-gray-700 animate-pulse" />;
-
-  if (user) {
-    return (
-      <div className="flex items-center gap-2">
-        <Link to="/profile" className="flex items-center gap-2 hover:opacity-80 group" title="My Profile">
-          <div className="relative shrink-0">
-            <img src={user.avatar_url} alt={user.login} className="w-7 h-7 rounded-full ring-1 ring-slate-700 group-hover:ring-violet-500/50 transition-all duration-200" />
-            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
-          </div>
-          <span className="text-sm text-slate-200 hidden sm:inline">{user.name || user.login}</span>
-        </Link>
-        <button onClick={logout} className="p-1 text-slate-400 hover:text-red-400 transition-colors" title="Logout">
-          <LogOut size={16} />
-        </button>
-      </div>
-    );
-  }
-
   // ── PAT token input (GitHub only) ──────────────────────────────────────────
   if (showTokenInput) {
     return (
-      <SignInPanel title="Sign in with GitHub" icon={<GithubIcon size={14} />} onClose={closeAll}>
+      <div className="space-y-3">
         <p className="text-[11px] text-slate-400 leading-relaxed">
           Save your quiz scores across devices with a free GitHub token.
         </p>
@@ -137,7 +121,7 @@ export function LoginWidget() {
             if (!tokenValue.trim()) return;
             const ok = await loginWithToken(tokenValue.trim(), 'github');
             if (!ok) setError('Invalid token — check the token and scopes');
-            else closeAll();
+            else onSignedIn?.();
           }}
           className="w-full px-3 py-2 text-xs bg-violet-600 hover:bg-violet-500 text-white rounded-xl transition-colors font-semibold"
         >
@@ -145,58 +129,88 @@ export function LoginWidget() {
         </button>
         {error && <p className="text-[11px] text-red-400">{error}</p>}
         <button
-          onClick={() => { setShowTokenInput(false); setShowPicker(true); }}
+          onClick={() => { setShowTokenInput(false); setError(''); setTokenValue(''); }}
           className="w-full text-center text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
         >
           ← Back to sign-in options
         </button>
-      </SignInPanel>
+      </div>
     );
   }
 
   // ── Provider picker ──────────────────────────────────────────────────────
-  if (showPicker) {
-    const providers: AuthProviderId[] = (['github', 'google'] as const)
-      .filter((p) => p === 'github' || isProviderConfigured(p));
+  // Google first: most learners have a Gmail address; fewer have GitHub.
+  const providers: AuthProviderId[] = (['google', 'github'] as const)
+    .filter((p) => p === 'github' || isProviderConfigured(p));
 
+  return (
+    <div className="space-y-3">
+      <div className="space-y-2">
+        {providers.map((provider) => {
+          const { label, hint, icon: Icon } = PROVIDER_META[provider];
+          return (
+            <button
+              key={provider}
+              onClick={() => {
+                if (provider === 'github' && !isOAuthConfigured()) {
+                  setShowTokenInput(true);
+                  return;
+                }
+                const started = login(provider);
+                if (!started && provider === 'github') setShowTokenInput(true);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:border-violet-500/40 text-sm text-slate-200 transition-colors"
+            >
+              <Icon size={16} />
+              <span className="flex-1 text-left">
+                Continue with {label}
+                {hint && <span className="block text-[11px] text-slate-500">{hint}</span>}
+              </span>
+              <ChevronRight size={14} className="text-slate-600" />
+            </button>
+          );
+        })}
+      </div>
+
+      <TrustBadge />
+
+      <button
+        onClick={() => setShowTokenInput(true)}
+        className="w-full flex items-center justify-center gap-1.5 text-[11px] text-slate-500 hover:text-slate-300 transition-colors pt-1"
+      >
+        <KeyRound size={11} /> Use a GitHub personal access token instead
+      </button>
+    </div>
+  );
+}
+
+export function LoginWidget() {
+  const { user, isLoading, logout } = useAuth();
+  const [showPicker, setShowPicker] = useState(false);
+
+  if (isLoading) return <div className="w-8 h-8 rounded-full bg-gray-700 animate-pulse" />;
+
+  if (user) {
     return (
-      <SignInPanel title="Sign in to Aarya" icon={<LogIn size={14} />} onClose={closeAll}>
-        <div className="space-y-2">
-          {providers.map((provider) => {
-            const { label, icon: Icon } = PROVIDER_META[provider];
-            return (
-              <button
-                key={provider}
-                onClick={() => {
-                  if (provider === 'github' && !isOAuthConfigured()) {
-                    setShowPicker(false);
-                    setShowTokenInput(true);
-                    return;
-                  }
-                  const started = login(provider);
-                  if (!started && provider === 'github') {
-                    setShowPicker(false);
-                    setShowTokenInput(true);
-                  }
-                }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:border-violet-500/40 text-sm text-slate-200 transition-colors"
-              >
-                <Icon size={16} />
-                <span className="flex-1 text-left">Continue with {label}</span>
-                <ChevronRight size={14} className="text-slate-600" />
-              </button>
-            );
-          })}
-        </div>
-
-        <TrustBadge />
-
-        <button
-          onClick={() => { setShowPicker(false); setShowTokenInput(true); }}
-          className="w-full flex items-center justify-center gap-1.5 text-[11px] text-slate-500 hover:text-slate-300 transition-colors pt-1"
-        >
-          <KeyRound size={11} /> Use a GitHub personal access token instead
+      <div className="flex items-center gap-2">
+        <Link to="/profile" className="flex items-center gap-2 hover:opacity-80 group" title="My Profile">
+          <div className="relative shrink-0">
+            <img src={user.avatar_url} alt={user.login} className="w-7 h-7 rounded-full ring-1 ring-slate-700 group-hover:ring-violet-500/50 transition-all duration-200" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
+          </div>
+          <span className="text-sm text-slate-200 hidden sm:inline">{user.name || user.login}</span>
+        </Link>
+        <button onClick={logout} className="p-1 text-slate-400 hover:text-red-400 transition-colors" title="Logout">
+          <LogOut size={16} />
         </button>
+      </div>
+    );
+  }
+
+  if (showPicker) {
+    return (
+      <SignInPanel title="Sign in to Aarya" icon={<LogIn size={14} />} onClose={() => setShowPicker(false)}>
+        <SignInChoices onSignedIn={() => setShowPicker(false)} />
       </SignInPanel>
     );
   }
