@@ -4,7 +4,7 @@ const GIST_DESCRIPTION = 'Aarya — AI Learning Hub Progress';
 import type { QuizSession, QuestionAttempt, PrepLoop } from '../types/content';
 import type { StudyPlan } from './plan-generator';
 import { getSessions } from './storage';
-import { getNotesSeen } from './storage';
+import { getNotesSeen, getUiFlags } from './storage';
 import { getAllStudyPlans } from './plan-generator';
 import { getAllAttempts } from './adaptive-quiz';
 import { getAllPrepLoops } from './prep-loop';
@@ -18,6 +18,8 @@ export interface ProgressData {
   sessions?: QuizSession[];
   /** Notes-seen timestamps keyed by "examId:domainId". */
   notesSeen?: Record<string, string>;
+  /** One-time UI moments for the account, e.g. "skillup.tour" (ISO time it was seen). */
+  uiFlags?: Record<string, string>;
   /** Study plans keyed by examId. */
   studyPlans?: Record<string, StudyPlan>;
   // v3.x: adaptive quiz engine + prep loop + exam visit stats
@@ -58,6 +60,7 @@ export async function saveProgress(token: string, data: ProgressData): Promise<b
     ...data,
     sessions: getSessions(),
     notesSeen: getNotesSeen(),
+    uiFlags: getUiFlags(),
     studyPlans: getAllStudyPlans(),
     adaptiveAttempts: getAllAttempts(),
     prepLoops: getAllPrepLoops(),

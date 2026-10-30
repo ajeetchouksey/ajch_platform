@@ -140,3 +140,7 @@
 .skillup-host .objective span{color:var(--k-key)}
 .skillup-host .sec.qc>h3{color:#c9c0ff}.skillup-host .sec.qc>h3::before{content:"✎ "}
 .skillup-host .check{border-color:rgba(124,108,240,.55);background:linear-gradient(160deg,rgba(91,75,214,.14),rgba(15,23,42,.6) 60%)}
+
+/* First-run tour on the site's navy: the glass --surface is translucent, so the card gets a solid panel */
+.skillup-host .su-tour-card{background:#141d31;border-color:rgba(148,163,184,.22)}
+.skillup-host .su-tour-btn.go:hover{background:#6d5ce6}

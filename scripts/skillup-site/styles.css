@@ -406,3 +406,38 @@ details.case summary b{display:block;font-family:var(--h);font-size:18px;font-we
 .cpeople>span{display:flex;gap:8px;align-items:center}
 .cpeople .av{margin:0}
 .cpeople b{display:block;font-size:14px;line-height:1.2}.cpeople small{display:block;font-size:12.5px;color:var(--mute)}
+
+/* ---- First-run tour: a spotlight on the real screen, a card beside it ---- */
+.su-tour-shade{position:fixed;z-index:9000;border-radius:16px;box-shadow:0 0 0 200vmax rgba(15,13,28,.58);pointer-events:none;
+  transition:top .38s cubic-bezier(.2,.8,.2,1),left .38s cubic-bezier(.2,.8,.2,1),width .38s cubic-bezier(.2,.8,.2,1),height .38s cubic-bezier(.2,.8,.2,1),border-radius .38s}
+.su-tour-shade.su-glow::after{content:"";position:absolute;inset:-5px;border-radius:inherit;border:2px solid var(--indigo);animation:su-tour-pulse 1.9s ease-out infinite}
+@keyframes su-tour-pulse{0%{transform:scale(1);opacity:.85}75%,100%{transform:scale(1.035);opacity:0}}
+.su-tour-block{position:fixed;z-index:8999}
+.su-tour-card{position:fixed;z-index:9001;width:min(372px,calc(100vw - 32px));box-sizing:border-box;background:var(--surface);color:var(--ink);
+  border:1px solid var(--line);border-radius:var(--r);box-shadow:0 22px 60px -16px rgba(15,13,28,.55);padding:18px 18px 14px;font-family:var(--b);
+  transition:opacity .22s,transform .28s cubic-bezier(.2,.8,.2,1)}
+.su-tour-card.enter{opacity:0;transform:translateY(8px)}
+.su-tour-card.welcome{width:min(420px,calc(100vw - 32px));padding:24px 22px 18px}
+.su-tour-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.su-tour-eyebrow{font:600 12px/1 var(--h);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.su-tour-dots{display:flex;gap:5px}
+.su-tour-dots i{display:block;width:6px;height:6px;border-radius:3px;background:var(--line);transition:width .28s,background .28s}
+.su-tour-dots i.done{background:var(--teal-soft)}
+.su-tour-dots i.on{width:18px;background:var(--indigo)}
+.su-tour-title{font:700 23px/1.12 var(--h);margin:12px 0 6px;text-wrap:balance}
+.su-tour-card.welcome .su-tour-title{font-size:30px}
+.su-tour-body{margin:0;font-size:14.5px;line-height:1.55;color:var(--mute)}
+.su-tour-body b{color:var(--ink);font-weight:600}
+.su-tour-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0 4px}
+.su-tour-facts div{background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:10px 10px 9px}
+.su-tour-facts b{display:block;font:700 24px/1 var(--h);color:var(--ink);font-variant-numeric:tabular-nums}
+.su-tour-facts span{font-size:12px;color:var(--mute)}
+.su-tour-hint{margin-top:10px;font-size:12.5px;color:var(--teal);font-weight:500}
+.su-tour-row{display:flex;align-items:center;gap:8px;margin-top:16px}
+.su-tour-row .sp{flex:1}
+.su-tour-btn{font:600 15.5px/1 var(--h);letter-spacing:.02em;border-radius:10px;padding:11px 16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.su-tour-btn.go{background:var(--indigo);border-color:var(--indigo);color:var(--on-indigo)}
+.su-tour-link{background:none;border:0;color:var(--mute);font:500 13px var(--b);cursor:pointer;padding:8px 4px}
+.su-tour-link:hover{color:var(--ink)}
+.su-tour-btn:focus-visible,.su-tour-link:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.su-tour-shade,.su-tour-card,.su-tour-dots i{transition:none}.su-tour-shade.su-glow::after{animation:none}}

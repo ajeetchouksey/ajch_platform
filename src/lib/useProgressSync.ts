@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useAuth } from './auth';
 import { loadProgress, saveProgress } from './gist-sync';
 import { loadProfileProgress, saveProfileProgress } from './profile-sync';
-import { getSessions, saveSessions, getNotesSeen, setNotesSeen, clearAllProgressData } from './storage';
+import { getSessions, saveSessions, getNotesSeen, setNotesSeen, getUiFlags, setUiFlags, clearAllProgressData } from './storage';
 import { loadPlan, savePlan } from './plan-generator';
 
 // localStorage isn't scoped per-user — it's shared by whichever account is
@@ -111,6 +111,16 @@ export function useProgressSync() {
         didWrite = true;
       }
 
+      // ── UI flags ────────────────────────────────────────────────────────────
+      // Union: a moment seen on any device counts as seen here too
+      if (remote.uiFlags) {
+        const localFlags = getUiFlags();
+        const missing = Object.keys(remote.uiFlags).filter((k) => !localFlags[k]);
+        if (missing.length) {
+          setUiFlags({ ...remote.uiFlags, ...localFlags });
+          didWrite = true;
+        }
+      }
       // ── Study plans ─────────────────────────────────────────────────────────
       // Remote plan wins per exam if it was generated more recently
       if (remote.studyPlans) {

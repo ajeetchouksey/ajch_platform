@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { SignInChoices } from '@/components/LoginWidget';
+import { getUiFlag, setUiFlag } from '@/lib/storage';
+import { useProgressSync } from '@/lib/useProgressSync';
 
 /**
  * Hosts the SkillUp learning experience inside the AaryaAI layout (header, navigation, footer).
@@ -13,6 +15,7 @@ import { SignInChoices } from '@/components/LoginWidget';
  * exam once signed in.
  */
 const ASSETS = '/skillup-assets/';
+const TOUR_FLAG = 'skillup.tour';
 
 interface SkillUpInstance {
   destroy(): void;
@@ -25,6 +28,7 @@ interface SkillUpRuntime {
     exam?: string;
     onRoute?: (examId: string | null) => void;
     canOpen?: (examId: string) => boolean;
+    tour?: { seen(): boolean; done(): void };
   }): SkillUpInstance;
 }
 interface CatalogExam { id: string; code: string; title: string; provider: string; description?: string; topics: number; questions: number }
@@ -64,6 +68,8 @@ export default function SkillUpHost() {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
   const signedIn = useRef(!!user);
+  const { syncToGist } = useProgressSync();
+  const sync = useRef(syncToGist);
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<SkillUpInstance | null>(null);
   const initialExam = useRef(examId);
@@ -75,7 +81,8 @@ export default function SkillUpHost() {
   // Declared first so it's current before the effects below run in the same commit.
   useEffect(() => {
     signedIn.current = !!user;
-  }, [user]);
+    sync.current = syncToGist;
+  }, [user, syncToGist]);
 
   // Load and mount once auth has settled (so a deep link isn't gated while the session is
   // still being restored); the instance lives as long as the user stays in /skillup.
@@ -100,6 +107,11 @@ export default function SkillUpHost() {
             const to = `/skillup/${id}`;
             if (window.location.pathname.replace(/\/$/, '') !== to) navigate(to);
             return false;
+          },
+          // The first-run tour shows once per account: the flag syncs with the rest of the progress.
+          tour: {
+            seen: () => !!getUiFlag(TOUR_FLAG),
+            done: () => { setUiFlag(TOUR_FLAG); void sync.current(); },
           },
         });
         setReady(true);
