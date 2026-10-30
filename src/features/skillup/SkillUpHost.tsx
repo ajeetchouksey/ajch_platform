@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { SignInChoices } from '@/components/LoginWidget';
+import { getUiFlag, setUiFlag } from '@/lib/storage';
+import { useProgressSync } from '@/lib/useProgressSync';
+import { recordSkillUpLearner, fetchSkillUpLearnerCounts } from '@/lib/skillup-learners';
 
 /**
  * Hosts the SkillUp learning experience inside the AaryaAI layout (header, navigation, footer).
@@ -13,10 +16,12 @@ import { SignInChoices } from '@/components/LoginWidget';
  * exam once signed in.
  */
 const ASSETS = '/skillup-assets/';
+const TOUR_FLAG = 'skillup.tour';
 
 interface SkillUpInstance {
   destroy(): void;
   openExam(id: string | null): void;
+  setLearners(counts: Record<string, number>): void;
 }
 interface SkillUpRuntime {
   start(host: HTMLElement, opts: {
@@ -25,6 +30,7 @@ interface SkillUpRuntime {
     exam?: string;
     onRoute?: (examId: string | null) => void;
     canOpen?: (examId: string) => boolean;
+    tour?: { seen(): boolean; done(): void };
   }): SkillUpInstance;
 }
 interface CatalogExam { id: string; code: string; title: string; provider: string; description?: string; topics: number; questions: number }
@@ -62,8 +68,10 @@ export default function SkillUpHost() {
   const params = useParams();
   const examId = (params['*'] || '').split('/')[0] || null;
   const navigate = useNavigate();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
   const signedIn = useRef(!!user);
+  const { syncToGist } = useProgressSync();
+  const sync = useRef(syncToGist);
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<SkillUpInstance | null>(null);
   const initialExam = useRef(examId);
@@ -75,7 +83,8 @@ export default function SkillUpHost() {
   // Declared first so it's current before the effects below run in the same commit.
   useEffect(() => {
     signedIn.current = !!user;
-  }, [user]);
+    sync.current = syncToGist;
+  }, [user, syncToGist]);
 
   // Load and mount once auth has settled (so a deep link isn't gated while the session is
   // still being restored); the instance lives as long as the user stays in /skillup.
@@ -101,8 +110,15 @@ export default function SkillUpHost() {
             if (window.location.pathname.replace(/\/$/, '') !== to) navigate(to);
             return false;
           },
+          // The first-run tour shows once per account: the flag syncs with the rest of the progress.
+          tour: {
+            seen: () => !!getUiFlag(TOUR_FLAG),
+            done: () => { setUiFlag(TOUR_FLAG); void sync.current(); },
+          },
         });
         setReady(true);
+        // Public learner counts for the catalog cards; best-effort, the catalog doesn't wait for them.
+        void fetchSkillUpLearnerCounts().then((counts) => { if (!cancelled) appRef.current?.setLearners(counts); });
       })
       .catch(() => { if (!cancelled) setFailed(true); });
     return () => {
@@ -117,6 +133,11 @@ export default function SkillUpHost() {
   useEffect(() => {
     appRef.current?.openExam(examId);
   }, [examId, user]);
+
+  // Count a signed-in learner once per exam (the Worker dedupes; this sends at most once per tab).
+  useEffect(() => {
+    if (ready && examId && token) recordSkillUpLearner(examId, token);
+  }, [ready, examId, token]);
 
   if (failed) {
     return (

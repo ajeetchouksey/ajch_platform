@@ -109,6 +109,35 @@ export function setNotesSeen(data: Record<string, string>): void {
   localStorage.setItem(NOTES_SEEN_KEY, JSON.stringify(data));
 }
 
+// ── Account-level UI flags ────────────────────────────────────────────────────
+// One-time UI moments that should follow the account across devices, such as
+// SkillUp's first-run tour having been seen. Key: aarya_ui_flags
+// Value: Record<flag name, ISO8601 when it was set>. Synced with progress.
+const UI_FLAGS_KEY = 'aarya_ui_flags';
+
+export function getUiFlags(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(UI_FLAGS_KEY) ?? '{}') as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+/** Replace the entire flags map (used when pulling from sync). */
+export function setUiFlags(flags: Record<string, string>): void {
+  try {
+    localStorage.setItem(UI_FLAGS_KEY, JSON.stringify(flags));
+  } catch { /* storage blocked: the flag just won't persist */ }
+}
+
+export function getUiFlag(name: string): string | null {
+  return getUiFlags()[name] ?? null;
+}
+
+export function setUiFlag(name: string): void {
+  setUiFlags({ ...getUiFlags(), [name]: new Date().toISOString() });
+}
+
 // ── Cross-account isolation ───────────────────────────────────────────────────
 // localStorage is shared by whichever account happens to be signed in on this
 // browser — it isn't scoped per-user on its own. useProgressSync calls this
@@ -120,7 +149,7 @@ export function setNotesSeen(data: Record<string, string>): void {
 // UI-only preferences (preferred AI tool, focus timer, cached AI chat answers)
 // since those aren't privacy-sensitive per-account data.
 const PROGRESS_KEY_PREFIXES = ['study_plan_', 'study_daily_mins_', 'aarya_attempts_', 'aarya_preploop_'];
-const PROGRESS_EXACT_KEYS = [SESSIONS_KEY, NOTES_SEEN_KEY, 'aarya_progress', 'ccaf_progress', 'aarya_exam_stats'];
+const PROGRESS_EXACT_KEYS = [SESSIONS_KEY, NOTES_SEEN_KEY, UI_FLAGS_KEY, 'aarya_progress', 'ccaf_progress', 'aarya_exam_stats'];
 
 export function clearAllProgressData(): void {
   const toRemove: string[] = [...PROGRESS_EXACT_KEYS];

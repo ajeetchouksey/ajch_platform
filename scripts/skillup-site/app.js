@@ -2,10 +2,11 @@
    All data is build output from PR-reviewed ajch_skillup content; notes HTML is rendered Markdown by design. */
 (function(){
 "use strict";
-/* SkillUpApp.start(host, {embedded, scroller, exam, onRoute, canOpen}) renders SkillUp into `host`.
+/* SkillUpApp.start(host, {embedded, scroller, exam, onRoute, canOpen, tour}) renders SkillUp into `host`.
    Embedded (inside the AaryaAI site layout): no own brand bar/theme switch, scrolls `scroller`,
    reports exam changes through onRoute so the site URL can follow. canOpen(examId), when given, is asked
-   before any exam opens; returning false keeps the catalog and leaves the next step to the host (sign-in). */
+   before any exam opens; returning false keeps the catalog and leaves the next step to the host (sign-in).
+   tour, when given, is {seen(), done()} for the first-run tour, so the host can keep it with the account. */
 function start(HOST,OPTS){OPTS=OPTS||{};
 const EMBED=!!OPTS.embedded,SC=OPTS.scroller||window;
 /* Screen-fixed UI (tab bar, side sheet, toast) lives in a dock on <body> when embedded: the site's page
@@ -32,7 +33,10 @@ const TODAY=new Date();TODAY.setHours(0,0,0,0);
 const lday=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 
 /* ---------- global + per-exam state ---------- */
-const G={view:"catalog",filter:"",q:"",exam:null};
+const G={view:"catalog",filter:"",q:"",exam:null,learners:{}};
+/* Learner counts on catalog cards appear once an exam has a few learners, so a new exam never reads "1 learner"
+   (the Worker applies the same minimum, PUBLIC_MIN_LEARNERS in workers/subscribe.ts). */
+const LEARNERS_SHOWN_FROM=5;
 let D=null,M=null,TOP=null,QS=null,ORDER=[],Q2T={},S=null;
 const cache=new Map(); // Map, not an object: ids can come from the URL hash (no prototype keys)
 function load(id){if(typeof id!=="string"||!Object.prototype.hasOwnProperty.call(window.SKILLUP.exams,id))return false;
@@ -83,7 +87,7 @@ function infoSheet(){const t=G.view==="lesson"&&S.topic?TOP[S.topic]:null;
  ${t?`<dt>Read time</dt><dd>${t.mins||"—"} min</dd><dt>Practice questions</dt><dd>${(t.qids||[]).length}</dd>`:`<dt>${isTrack()?"Lessons":"Topics"}</dt><dd>${ORDER.length} across ${D.domains.length} ${isTrack()?"modules":"domains"}</dd><dt>Questions</dt><dd>${M.questions}</dd>${M.duration?`<dt>Exam</dt><dd>${esc(M.duration)} · pass ${esc(M.pass)}</dd>`:""}`}
  ${M.studyGuide?`<dt>Source</dt><dd><a href="${esc(M.studyGuide)}" target="_blank" rel="noopener">Official reference ↗</a></dd>`:""}<dt>Published by</dt><dd>AaryaAI SkillUp</dd></dl>
  ${M.changelog.length?`<div class="sl" style="margin-top:6px">Recent changes</div><ol class="clog">${M.changelog.map(c=>`<li><b>v${esc(c.version)}</b> <span class="mute">${esc(fmt(c.date))}</span><p>${esc((c.summary||"").length>220?c.summary.slice(0,217)+"…":c.summary)}</p></li>`).join("")}</ol>`:""}
- <button class="btn full" data-a="undrawer">Close</button>`}
+ ${G.view!=="catalog"&&D&&M.mode!=="track"?'<button class="btn full" data-a="tour">Take the tour</button>':""}<button class="btn full" data-a="undrawer">Close</button>`}
 function sheet(h){const d=$d("#su-drawer");d.innerHTML=`<div class="dpanel">${h}</div>`;d.hidden=false}
 
 /* ---------- catalog ---------- */
@@ -93,7 +97,7 @@ function vCatalog(){const ex=CAT.exams,provs=[...new Set(ex.map(e=>e.provider).f
  const card=e=>{const p=progressOf(e.id),pc=p?Math.round(100*p.done/Math.max(1,e.topics)):0;
   return `<button class="ccard" data-a="exam" data-v="${e.id}"${pv(e.provider)}><div class="spread"><span class="eyebrow">${esc(e.provider)}${e.level?" · L"+esc(e.level):""}</span><span class="badges">${p&&p.started?'<span class="pill">In progress</span>':""}${e.kind==="skill-track"?'<span class="pill">Skill track</span>':""}${e.mode==="lessons"?'<span class="pill green">New lessons</span>':""}</span></div>
   <span class="code">${esc(e.code)}</span><span class="ct">${esc(e.title)}</span><span class="cd">${esc(e.description)}</span>
-  <span class="stats"><span><b>${e.topics}</b> ${e.kind==="skill-track"?"lessons":"topics"}</span><span><b>${e.questions}</b> questions</span>${e.cases?`<span><b>${e.cases}</b> cases</span>`:""}${e.diagrams?`<span><b>${e.diagrams}</b> diagrams</span>`:""}</span>
+  <span class="stats"><span><b>${e.topics}</b> ${e.kind==="skill-track"?"lessons":"topics"}</span><span><b>${e.questions}</b> questions</span>${e.cases?`<span><b>${e.cases}</b> cases</span>`:""}${e.diagrams?`<span><b>${e.diagrams}</b> diagrams</span>`:""}${(G.learners[e.id]||0)>=LEARNERS_SHOWN_FROM?`<span class="lrn"><b>${G.learners[e.id]}</b> learners</span>`:""}</span>
   <span class="cm">${p&&p.started?`<span class="spread tiny"><span>${p.done} of ${e.topics} passed</span><span>${pc}%</span></span><span class="prog" style="margin-top:6px"><i style="width:${pc}%"></i></span>`:`<span class="pmeta" style="font-size:12px"><span>v${esc(e.version)}</span><span>Updated ${esc(fmt(e.updated))}</span></span>`}</span></button>`};
  let h=bar()+`<div class="stack fade"><div class="cat-hero"><div class="eyebrow">AaryaAI SkillUp</div><h1>Learn it. Use it. <span>Pass it.</span></h1><p class="mute" style="max-width:60ch">Certification prep that also builds the skill: short lessons with diagrams, real use cases, practice that adapts to what you know, and a plan that fits your week.</p></div>
  <div class="feature"${pv(feat.provider)}><div class="stack" style="gap:10px"><span class="badges"><span class="pill feat-pv">${esc(feat.provider)}</span><span class="pill green">New lesson format</span><span class="pill brand">Featured</span></span><h2 style="font-size:34px">${esc(feat.code)} · ${esc(feat.title)}</h2><p class="mute">${esc(feat.description)}</p>${pageMetaCat(feat)}<div class="row"><button class="btn go" data-a="exam" data-v="${feat.id}">${fp&&fp.started?"Continue":"Start "+esc(feat.code)}</button></div></div>
@@ -330,17 +334,105 @@ function render(){const tabs=tabbar();app.className="wrap"+(G.view==="lesson"||(
  app.innerHTML=({catalog:vCatalog,loading:vLoading,setup:vSetup,ready:vReady,home:vHome,notes:vNotes,dpage:vDomain,lesson:vLesson,practice:vPractice,cases:vCases,test:vTest})[G.view]();
  $d("#su-tabs").innerHTML=tabs;DOCK.classList.toggle("has-tabs",!!tabs);
  if(G.view==="catalog"){const s=$("#cq");if(s)s.value=G.q}
- if(G.view==="dpage"||G.view==="lesson")anchorHeadings();track();save();rings()}
+ if(G.view==="dpage"||G.view==="lesson")anchorHeadings();track();save();rings();tourCheck()}
 /* rings fill from where they were (home: last visit; results: zero) and count up with them */
 function rings(){HOST.querySelectorAll(".ring[data-to]").forEach(el=>{const to=+el.dataset.to,from=+el.dataset.from||0,n=el.dataset.n!=null?+el.dataset.n:to,suf=el.dataset.suf||"%",n0=to?Math.round(from*n/to):0;
  const set=k=>{el.style.setProperty("--p",from+(to-from)*k);el.dataset.v=Math.round(n0+(n-n0)*k)+suf};if(calm||from===to){set(1);return}
  const t0=performance.now(),step=now=>{if(!el.isConnected)return;const k=Math.min(1,(now-t0)/900);set(1-Math.pow(1-k,3));if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)})}
+/* First-run tour: the first time a learner reaches an exam's home screen (right after setup) it spotlights
+   the real parts of that screen, quoting their own numbers, then opens the first lesson with one tip.
+   Seen/done is per account when the host passes OPTS.tour ({seen(), done()}); standalone keeps it locally.
+   Replay from Page info. Tapping the highlighted element moves the tour on. */
+const TOUR=OPTS.tour||{seen:()=>!!store.get("skillup:tour"),done:()=>store.set("skillup:tour",new Date().toISOString())};
+const T={ui:null,i:-1,step:null,raf:0,side:"",ro:null,want:false,lesson:false,checked:false};
+const narrowV=()=>document.documentElement.clientWidth<=640;
+const shown=el=>{if(!el)return false;const r=el.getBoundingClientRect();return r.width>0&&r.height>0};
+const txt=el=>el?el.innerText.replace(/\s+/g," ").trim():"";
+function tourFacts(){const ring=$(".ring"),ready=ring&&ring.closest(".card"),t=txt($(".today")),r=txt(ready);
+ return{tasks:HOST.querySelectorAll(".today .task").length,mins:(t.match(/about (\d+) min/)||[])[1]||"",passed:(r.match(/(\d+) of \d+ topics/)||[])[1]||"0",
+  topics:ORDER.length,days:(r.match(/(\d+) days?/)||[])[1]||"",date:(r.match(/to ([A-Z][a-z]{2} \d{1,2})/)||[])[1]||"",perDay:(S&&S.mins)||"",
+  questions:M.questions,cases:D.cases.length,code:M.code,
+  lesson:txt($('.task[data-a="open"]')).replace(/^Read\s+[\d.]+\s*/,"").replace(/\s*about \d+ min.*$/,"")}}
+const TSTEPS=[
+ {el:()=>$(".today"),title:"Your plan for today",
+  body:f=>`SkillUp turned your exam date and daily time into <b>${f.tasks} short tasks</b> for today${f.mins?`, about <b>${f.mins} minutes</b>`:""}. Finish them and today counts.`},
+ {el:()=>$(".week"),title:"Build a streak",
+  body:()=>"Every day you study lights up here. If you miss a few days, SkillUp starts you back with a short review instead of a pile of catch-up."},
+ {el:()=>{const r=$(".ring");return r&&r.closest(".card")},title:"Watch readiness climb",
+  body:f=>`It rises as you pass topic tests: <b>${f.passed} of ${f.topics}</b> so far${f.days?`, with <b>${f.days} days</b> to your exam${f.date?" on "+esc(f.date):""}`:""}. Exam date or daily time changed? Tap <b>Plan</b>.`},
+ {el:()=>{const t=$(".t-notes");return t&&t.parentElement},title:"Or go your own way",
+  body:f=>`<b>${f.topics} lessons</b> by exam objective, <b>${f.questions} practice questions</b> and <b>${f.cases} case studies</b>, whenever you'd rather explore than follow the plan.`},
+ {el:()=>{const bar=$d(".tabbar");return narrowV()&&shown(bar)?bar:$('.ibtn[data-a="search"]')},title:()=>narrowV()?"Everything is one tap away":"Find anything",
+  body:()=>narrowV()?"Home, notes, practice, your review pile and search live in this bar.":"Search every lesson and question in this exam. On a keyboard, press <b>/</b> from anywhere."},
+ {el:()=>{const b=$('.btn.go[data-a="open"]');return b&&(b.closest(".card")||b)},title:"Start your first lesson",pass:true,go:"Start lesson",alt:"Not now",
+  body:f=>`<b>${esc(f.lesson||"Your first topic")}</b> takes about 2 minutes: the key idea, a real example, then a quick check.`}];
+const TWELCOME={title:"Your plan is ready",body:()=>`Here's how SkillUp works, in ${TSTEPS.length} quick stops. You can skip at any time.`,
+ facts:f=>`<div class="su-tour-facts">${f.days?`<div><b>${f.days}</b><span>days to go</span></div>`:""}${f.perDay?`<div><b>${f.perDay}</b><span>min a day</span></div>`:""}<div><b>${f.topics}</b><span>topics</span></div></div>`};
+const TLESSON={el:()=>!narrowV()&&shown($(".toc"))?$(".toc"):$(".claim")||$("#s-key"),title:"Every lesson has the same shape",last:true,go:"Got it",
+ body:()=>"The key idea first, then a real use, when to choose it and how to do it. A quick check closes the lesson, and the test for this topic is next on today's plan."};
+const tq=()=>{cancelAnimationFrame(T.raf);T.raf=requestAnimationFrame(tourPlace)};
+function tourBuild(){const mk=c=>DOCK.appendChild(Object.assign(document.createElement("div"),{className:c}));
+ const shade=mk("su-tour-shade"),blocks=[0,1,2,3].map(()=>mk("su-tour-block")),card=mk("su-tour-card enter");
+ card.setAttribute("role","dialog");card.setAttribute("aria-modal","true");card.setAttribute("aria-labelledby","su-tour-title");
+ T.ui={shade,blocks,card};SC.addEventListener("scroll",tq,{passive:true});addEventListener("resize",tq);
+ if(window.ResizeObserver){T.ro=new ResizeObserver(tq);T.ro.observe(HOST)}}
+function tourClose(){const u=T.ui;if(!u)return;cancelAnimationFrame(T.raf);SC.removeEventListener("scroll",tq);removeEventListener("resize",tq);
+ if(T.ro){T.ro.disconnect();T.ro=null}u.shade.remove();u.card.remove();u.blocks.forEach(b=>b.remove());T.ui=null;T.step=null;T.i=-1}
+/* Spotlight the target, block clicks around it, and keep the card on one side of it while scrolling. */
+function tourPlace(){const u=T.ui;if(!u)return;const el=T.step&&T.step.el&&T.step.el(),card=u.card,W=document.documentElement.clientWidth,H=innerHeight,g=16,
+ top0=SC===window?g:Math.max(g,SC.getBoundingClientRect().top+8);
+ if(!el){u.shade.style.cssText=`top:${H/2}px;left:${W/2}px;width:0;height:0`;u.shade.classList.remove("su-glow");
+  u.blocks.forEach((b,i)=>{b.style.cssText=i?"display:none":"inset:0"});
+  card.style.left=Math.max(g,(W-card.offsetWidth)/2)+"px";card.style.top=Math.max(top0,(H-card.offsetHeight)/2)+"px";return}
+ const r=el.getBoundingClientRect(),p=8,top=r.top-p,left=r.left-p,w=r.width+2*p,h=r.height+2*p,rad=(parseFloat(getComputedStyle(el).borderRadius)||12)+p;
+ u.shade.style.cssText=`top:${top}px;left:${left}px;width:${w}px;height:${h}px;border-radius:${rad}px`;u.shade.classList.add("su-glow");
+ const b=u.blocks;b[0].style.cssText=`left:0;top:0;width:100%;height:${Math.max(0,top)}px`;b[1].style.cssText=`left:0;top:${top+h}px;width:100%;bottom:0`;
+ b[2].style.cssText=`left:0;top:${top}px;width:${Math.max(0,left)}px;height:${h}px`;b[3].style.cssText=`left:${left+w}px;top:${top}px;right:0;height:${h}px`;
+ const cw=card.offsetWidth,ch=card.offsetHeight,below=top+h+14,above=top-14-ch,fitsB=below+ch<=H-g,fitsA=above>=top0;
+ if(!T.side||(T.side==="below"&&!fitsB)||(T.side==="above"&&!fitsA))T.side=fitsB?"below":fitsA?"above":"dock";
+ card.style.left=Math.min(Math.max(g,narrowV()?(W-cw)/2:left),W-cw-g)+"px";card.style.top=(T.side==="below"?below:T.side==="above"?above:H-ch-g)+"px"}
+function tourShow(s,n,total){T.step=s;T.side="";if(!T.ui)tourBuild();const card=T.ui.card,f=tourFacts(),title=typeof s.title==="function"?s.title():s.title;
+ let dots="";for(let i=0;i<total;i++)dots+=`<i class="${i<n?"done":i===n?"on":""}"></i>`;
+ const eyebrow=s.el?(s.last?"Tip":`Tour · ${n+1} of ${total}`):"Welcome to "+esc(f.code),
+  hint=s.el&&!s.last?`<div class="su-tour-hint">${s.pass?"Tap it to start":"Tap the highlighted area, or press Next"}</div>`:"",
+  back=n>0&&!s.last?'<button type="button" class="su-tour-link" data-t="back">Back</button>':"",
+  skip=s.last?"":`<button type="button" class="su-tour-link" data-t="skip">${esc(s.alt||(s.el?"Skip tour":"I'll explore"))}</button>`;
+ card.classList.add("enter");card.classList.toggle("welcome",!s.el);
+ card.innerHTML=`<div class="su-tour-top"><span class="su-tour-eyebrow">${eyebrow}</span>${s.last?"":`<span class="su-tour-dots" aria-hidden="true">${dots}</span>`}</div>`+
+  `<h2 class="su-tour-title" id="su-tour-title">${esc(title)}</h2><p class="su-tour-body">${s.body(f)}</p>${s.facts?s.facts(f):""}${hint}`+
+  `<div class="su-tour-row">${back}<span class="sp"></span>${skip}<button type="button" class="su-tour-btn go" data-t="next">${esc(s.go||(s.el?"Next":"Show me"))}</button></div>`;
+ card.querySelectorAll("[data-t]").forEach(x=>x.addEventListener("click",e=>{e.stopPropagation();tourAct(x.dataset.t)}));
+ const el=s.el&&s.el(),reveal=()=>{tourPlace();setTimeout(tq,600);requestAnimationFrame(()=>{card.classList.remove("enter");const nx=card.querySelector('[data-t="next"]');if(nx)nx.focus({preventScroll:true})})};
+ if(!el){reveal();return}
+ const r=el.getBoundingClientRect();
+ if(el.closest(".tabbar")||(r.top>=80&&r.bottom<=innerHeight-card.offsetHeight-40)){reveal();return}
+ el.scrollIntoView({block:"center",behavior:calm?"auto":"smooth"});setTimeout(reveal,calm?0:420)}
+function tourGo(i){T.i=i;if(i<0){tourShow(TWELCOME,0,TSTEPS.length);return}const s=TSTEPS[i];
+ if(!s.el()){if(i+1<TSTEPS.length)tourGo(i+1);else tourEnd();return}tourShow(s,i,TSTEPS.length)}
+function tourAct(t){if(t==="skip"){tourEnd();return}if(t==="back"){tourGo(T.i-1);return}if(T.step===TLESSON){tourEnd();return}
+ if(T.step&&T.step.pass){tourLesson();return}if(T.i+1<TSTEPS.length)tourGo(T.i+1);else tourEnd()}
+function tourLesson(){const b=$('.btn.go[data-a="open"]');tourClose();T.lesson=true;if(b)b.click()}
+function tourEnd(){T.lesson=false;tourClose();try{TOUR.done()}catch(e){}}
+/* After every render: start on the first home visit (or a replay); after the first lesson opens, give one tip. */
+function tourCheck(){if(T.ui)return;
+ if(T.lesson&&G.view==="lesson"){T.lesson=false;setTimeout(()=>{if(!T.ui&&G.view==="lesson")tourShow(TLESSON,0,1)},calm?0:500);return}
+ if(G.view!=="home"||!$(".today"))return;
+ let want=T.want;if(!want&&!T.checked){T.checked=true;try{want=!TOUR.seen()}catch(e){want=false}}
+ if(want){T.want=false;setTimeout(()=>{if(!T.ui&&G.view==="home")tourGo(-1)},calm?0:450)}}
+function tourReplay(){$d("#su-drawer").hidden=true;T.want=true;if(G.view==="home")tourCheck();else go("home")}
+const tourClick=e=>{if(!T.ui||!T.step||!T.step.el||!HOST.isConnected)return;const el=T.step.el();
+ if(el&&el.contains(e.target)){e.preventDefault();e.stopPropagation();if(T.step.pass)tourLesson();else tourAct("next")}};
+const tourKey=e=>{if(!T.ui)return;const k=e.key;
+ if(k==="Escape"||k==="ArrowRight"||(k==="ArrowLeft"&&T.i>0&&T.step!==TLESSON)){e.preventDefault();e.stopPropagation();
+  tourAct(k==="Escape"?(T.step===TLESSON?"next":"skip"):k==="ArrowRight"?"next":"back")}
+ else if(k==="/")e.stopPropagation()};
+document.addEventListener("click",tourClick,true);document.addEventListener("keydown",tourKey,true);
 const ACT={
  go:v=>{if(v==="_back"){S.step--;render();return}if(v==="_cat"){go("catalog");return}go(v)},
  cat:()=>go("catalog"),exam:v=>enter(v,()=>go(S.setupDone?"home":"setup")),
  filter:v=>{G.filter=v;render()},
  theme:()=>{const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=d?"light":"dark"},
- info:()=>sheet(infoSheet()),undrawer:()=>{$d("#su-drawer").hidden=true},
+ info:()=>sheet(infoSheet()),undrawer:()=>{$d("#su-drawer").hidden=true},tour:()=>tourReplay(),
  pick:(v,el)=>{S[el.dataset.k]=v;render();setTimeout(()=>{S.step++;render()},240)},
  mins:v=>{S.mins=+v;render()},build:()=>{S.setupDone=true;go("ready")},replan:()=>{S.step=2;S.missed=false;go("setup")},
  assess:()=>startAssess(),xstart:()=>startExam(),case:v=>startCase(v),review:()=>startReview(),
@@ -375,8 +467,9 @@ HOST.addEventListener("input",e=>{if(e.target.dataset.c==="q"){G.q=String(e.targ
 const deep=OPTS.exam||(location.hash||"").slice(1);
 const arrive=()=>{G.view=S.setupDone?"home":"setup";render()};
 if(enter(deep,arrive)===false)render();
-return{destroy(){clearInterval(TIMER);SC.removeEventListener("scroll",track);document.removeEventListener("keydown",onKey);HOST.innerHTML="";if(DOCK!==HOST)DOCK.remove()},
- openExam(id){if(id&&id!==G.exam&&id!==G.wait)enter(id,arrive);else if(!id&&G.view!=="catalog"){G.wait=null;G.view="catalog";render()}}};
+return{destroy(){clearInterval(TIMER);tourClose();document.removeEventListener("click",tourClick,true);document.removeEventListener("keydown",tourKey,true);SC.removeEventListener("scroll",track);document.removeEventListener("keydown",onKey);HOST.innerHTML="";if(DOCK!==HOST)DOCK.remove()},
+ openExam(id){if(id&&id!==G.exam&&id!==G.wait)enter(id,arrive);else if(!id&&G.view!=="catalog"){G.wait=null;G.view="catalog";render()}},
+ setLearners(m){G.learners=m&&typeof m==="object"?m:{};if(G.view==="catalog")render()}};
 }
 window.SkillUpApp={start};
 const standalone=document.getElementById("skillup-standalone");

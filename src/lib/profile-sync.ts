@@ -5,7 +5,7 @@
 // already provider-agnostic aside from its name, so adding it back later is
 // just a new OAuth callback on the Worker side.
 import type { ProgressData } from './gist-sync';
-import { getSessions, getNotesSeen } from './storage';
+import { getSessions, getNotesSeen, getUiFlags } from './storage';
 import { getAllStudyPlans } from './plan-generator';
 import { getAllAttempts } from './adaptive-quiz';
 import { getAllPrepLoops } from './prep-loop';
@@ -34,6 +34,7 @@ export async function saveProfileProgress(sessionToken: string, data: ProgressDa
     ...data,
     sessions: getSessions(),
     notesSeen: getNotesSeen(),
+    uiFlags: getUiFlags(),
     studyPlans: getAllStudyPlans(),
     adaptiveAttempts: getAllAttempts(),
     prepLoops: getAllPrepLoops(),
