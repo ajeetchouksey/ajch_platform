@@ -108,3 +108,35 @@
 .skillup-host .sres mark{background:rgba(169,155,255,.28);color:#fff}
 /* The dock (tab bar, side sheet, toast) is a body-level .skillup-host; lift the toast above the tab bar */
 @media (max-width:760px){.skillup-host.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+/* ---- Component sweep: every remaining surface takes its colour-code hue ---- */
+/* Featured exam: provider tint like the cards below it */
+.skillup-host .feature[style*="--acc"]{background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 16%,rgba(30,41,59,.85)),rgba(15,23,42,.8) 62%);border-color:color-mix(in srgb,var(--acc) 30%,transparent);box-shadow:0 18px 44px -26px color-mix(in srgb,var(--acc) 75%,transparent)}
+.skillup-host .feature[style*="--acc"] .fstats div{background:color-mix(in srgb,var(--acc) 8%,rgba(15,23,42,.55));border-color:color-mix(in srgb,var(--acc) 24%,transparent)}
+.skillup-host .feature[style*="--acc"] .fstats b{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--acc)}
+.skillup-host .pill.feat-pv{color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent)}
+/* Provider filter chips */
+.skillup-host .chips button[style*="--acc"]{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 30%,transparent);background:color-mix(in srgb,var(--acc) 7%,rgba(15,23,42,.5))}
+.skillup-host .chips button[style*="--acc"][aria-pressed="true"]{color:#fff;border-color:var(--acc);background:color-mix(in srgb,var(--acc) 26%,rgba(15,23,42,.5))}
+/* Doors (plan start, practice options) and setup choices: tinted surfaces, never filled — indigo stays the action */
+.skillup-host .door[style*="--oc"],.skillup-host .choice[style*="--oc"]{background:linear-gradient(100deg,color-mix(in srgb,var(--oc) 9%,rgba(30,41,59,.8)),rgba(15,23,42,.6) 55%);border-color:color-mix(in srgb,var(--oc) 22%,rgba(148,163,184,.14))}
+.skillup-host .door[style*="--oc"]:hover,.skillup-host .choice[style*="--oc"]:hover{border-color:color-mix(in srgb,var(--oc) 60%,transparent);box-shadow:0 14px 34px -20px color-mix(in srgb,var(--oc) 75%,transparent)}
+.skillup-host .door.lead[style*="--oc"]{border-color:color-mix(in srgb,var(--oc) 50%,transparent)}
+.skillup-host .choice[style*="--oc"][aria-pressed="true"]{background:color-mix(in srgb,var(--oc) 16%,rgba(15,23,42,.6));border-color:var(--oc)}
+.skillup-host .choice[style*="--oc"][aria-pressed="true"] .ic svg{stroke:#0e1a2d}
+/* Plan preview: concepts on the ramp, build in real-use sky, review as flagged ★ */
+.skillup-host .preview{background:linear-gradient(160deg,rgba(91,75,214,.16),rgba(15,23,42,.75) 60%);border-color:rgba(169,155,255,.22)}
+.skillup-host .legend .lg-c{--c:var(--m2)}.skillup-host .legend .lg-b{--c:var(--k-use)}.skillup-host .legend .lg-r{--c:var(--flag)}
+.skillup-host .weeks i{background:color-mix(in srgb,var(--m2) 60%,transparent)}.skillup-host .weeks i.d2{background:var(--k-use)}.skillup-host .weeks i.rv{background:var(--flag)}
+/* Case panel during a case study: domain edge, real-use sky label */
+.skillup-host details.case{background:var(--surface)}
+.skillup-host details.case[style*="--dc"]{border-left:4px solid var(--dc);background:linear-gradient(100deg,color-mix(in srgb,var(--dc) 10%,rgba(30,41,59,.8)),rgba(15,23,42,.6) 60%)}
+.skillup-host details.case .ic{background:color-mix(in srgb,var(--k-use) 16%,transparent)}.skillup-host details.case .ic svg{stroke:var(--k-use)}.skillup-host details.case .who{color:var(--k-use)}
+/* Domain pages and lesson headers carry their domain colour */
+.skillup-host .read[style*="--dc"]>.lhead .eyebrow{color:var(--dc)}
+.skillup-host .read.dpg[style*="--dc"] .sec{border-left:3px solid var(--dc);padding-left:16px;background:linear-gradient(90deg,color-mix(in srgb,var(--dc) 7%,transparent),transparent 45%);border-radius:0 12px 12px 0}
+.skillup-host .read.dpg[style*="--dc"] .sec>h3{color:var(--dc)}
+/* Official objective (key-idea lilac) and Quick check (✎, indigo ramp) */
+.skillup-host .objective{border-left:3px solid var(--k-key);background:linear-gradient(90deg,rgba(169,155,255,.08),rgba(15,23,42,.5) 60%)}
+.skillup-host .objective span{color:var(--k-key)}
+.skillup-host .sec.qc>h3{color:#c9c0ff}.skillup-host .sec.qc>h3::before{content:"✎ "}
+.skillup-host .check{border-color:rgba(124,108,240,.55);background:linear-gradient(160deg,rgba(91,75,214,.14),rgba(15,23,42,.6) 60%)}
