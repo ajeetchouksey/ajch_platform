@@ -9,7 +9,7 @@ function TrustBadge() {
     <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/30">
       <ShieldCheck size={13} className="text-emerald-400 shrink-0 mt-0.5" />
       <div className="text-[10px] leading-relaxed text-slate-400 space-y-0.5">
-        <p><span className="text-emerald-400 font-medium">We will:</span> read your public name &amp; avatar, save your quiz scores to your account, synced across devices.</p>
+        <p><span className="text-emerald-400 font-medium">We will:</span> read your public name &amp; avatar, save your quiz scores to your account, synced across devices, and count you (anonymously) as a learner of the exams you open.</p>
         <p><span className="text-slate-500 font-medium">We will not:</span> access code, repos, emails, or DMs.</p>
       </div>
     </div>

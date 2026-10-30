@@ -33,7 +33,10 @@ const TODAY=new Date();TODAY.setHours(0,0,0,0);
 const lday=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 
 /* ---------- global + per-exam state ---------- */
-const G={view:"catalog",filter:"",q:"",exam:null};
+const G={view:"catalog",filter:"",q:"",exam:null,learners:{}};
+/* Learner counts on catalog cards appear once an exam has a few learners, so a new exam never reads "1 learner"
+   (the Worker applies the same minimum, PUBLIC_MIN_LEARNERS in workers/subscribe.ts). */
+const LEARNERS_SHOWN_FROM=5;
 let D=null,M=null,TOP=null,QS=null,ORDER=[],Q2T={},S=null;
 const cache=new Map(); // Map, not an object: ids can come from the URL hash (no prototype keys)
 function load(id){if(typeof id!=="string"||!Object.prototype.hasOwnProperty.call(window.SKILLUP.exams,id))return false;
@@ -94,7 +97,7 @@ function vCatalog(){const ex=CAT.exams,provs=[...new Set(ex.map(e=>e.provider).f
  const card=e=>{const p=progressOf(e.id),pc=p?Math.round(100*p.done/Math.max(1,e.topics)):0;
   return `<button class="ccard" data-a="exam" data-v="${e.id}"${pv(e.provider)}><div class="spread"><span class="eyebrow">${esc(e.provider)}${e.level?" · L"+esc(e.level):""}</span><span class="badges">${p&&p.started?'<span class="pill">In progress</span>':""}${e.kind==="skill-track"?'<span class="pill">Skill track</span>':""}${e.mode==="lessons"?'<span class="pill green">New lessons</span>':""}</span></div>
   <span class="code">${esc(e.code)}</span><span class="ct">${esc(e.title)}</span><span class="cd">${esc(e.description)}</span>
-  <span class="stats"><span><b>${e.topics}</b> ${e.kind==="skill-track"?"lessons":"topics"}</span><span><b>${e.questions}</b> questions</span>${e.cases?`<span><b>${e.cases}</b> cases</span>`:""}${e.diagrams?`<span><b>${e.diagrams}</b> diagrams</span>`:""}</span>
+  <span class="stats"><span><b>${e.topics}</b> ${e.kind==="skill-track"?"lessons":"topics"}</span><span><b>${e.questions}</b> questions</span>${e.cases?`<span><b>${e.cases}</b> cases</span>`:""}${e.diagrams?`<span><b>${e.diagrams}</b> diagrams</span>`:""}${(G.learners[e.id]||0)>=LEARNERS_SHOWN_FROM?`<span class="lrn"><b>${G.learners[e.id]}</b> learners</span>`:""}</span>
   <span class="cm">${p&&p.started?`<span class="spread tiny"><span>${p.done} of ${e.topics} passed</span><span>${pc}%</span></span><span class="prog" style="margin-top:6px"><i style="width:${pc}%"></i></span>`:`<span class="pmeta" style="font-size:12px"><span>v${esc(e.version)}</span><span>Updated ${esc(fmt(e.updated))}</span></span>`}</span></button>`};
  let h=bar()+`<div class="stack fade"><div class="cat-hero"><div class="eyebrow">AaryaAI SkillUp</div><h1>Learn it. Use it. <span>Pass it.</span></h1><p class="mute" style="max-width:60ch">Certification prep that also builds the skill: short lessons with diagrams, real use cases, practice that adapts to what you know, and a plan that fits your week.</p></div>
  <div class="feature"${pv(feat.provider)}><div class="stack" style="gap:10px"><span class="badges"><span class="pill feat-pv">${esc(feat.provider)}</span><span class="pill green">New lesson format</span><span class="pill brand">Featured</span></span><h2 style="font-size:34px">${esc(feat.code)} · ${esc(feat.title)}</h2><p class="mute">${esc(feat.description)}</p>${pageMetaCat(feat)}<div class="row"><button class="btn go" data-a="exam" data-v="${feat.id}">${fp&&fp.started?"Continue":"Start "+esc(feat.code)}</button></div></div>
@@ -465,7 +468,8 @@ const deep=OPTS.exam||(location.hash||"").slice(1);
 const arrive=()=>{G.view=S.setupDone?"home":"setup";render()};
 if(enter(deep,arrive)===false)render();
 return{destroy(){clearInterval(TIMER);tourClose();document.removeEventListener("click",tourClick,true);document.removeEventListener("keydown",tourKey,true);SC.removeEventListener("scroll",track);document.removeEventListener("keydown",onKey);HOST.innerHTML="";if(DOCK!==HOST)DOCK.remove()},
- openExam(id){if(id&&id!==G.exam&&id!==G.wait)enter(id,arrive);else if(!id&&G.view!=="catalog"){G.wait=null;G.view="catalog";render()}}};
+ openExam(id){if(id&&id!==G.exam&&id!==G.wait)enter(id,arrive);else if(!id&&G.view!=="catalog"){G.wait=null;G.view="catalog";render()}},
+ setLearners(m){G.learners=m&&typeof m==="object"?m:{};if(G.view==="catalog")render()}};
 }
 window.SkillUpApp={start};
 const standalone=document.getElementById("skillup-standalone");

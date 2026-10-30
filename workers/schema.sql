@@ -79,3 +79,19 @@ CREATE TABLE IF NOT EXISTS moderation_log (
 );
 
 CREATE INDEX IF NOT EXISTS idx_moderation_log_target_content_id ON moderation_log(target_content_id);
+
+-- SkillUp learners: one row per signed-in learner per exam, written the first time they open
+-- the exam (last_seen moves on later opens). `learner` is an HMAC of "provider:stable id"
+-- (Google `sub`, GitHub numeric user id), so no email, name or username is stored and the
+-- same person counts once per exam however often they return.
+CREATE TABLE IF NOT EXISTS skillup_learners (
+  exam_id    TEXT NOT NULL,
+  learner    TEXT NOT NULL,
+  provider   TEXT NOT NULL CHECK (provider IN ('github', 'google')),
+  first_seen TEXT NOT NULL,
+  last_seen  TEXT NOT NULL,
+  PRIMARY KEY (exam_id, learner)
+);
+
+-- Serves the per-learner exam cap in POST /api/skillup/enrol.
+CREATE INDEX IF NOT EXISTS idx_skillup_learners_learner ON skillup_learners(learner);

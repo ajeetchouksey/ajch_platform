@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth';
 import { SignInChoices } from '@/components/LoginWidget';
 import { getUiFlag, setUiFlag } from '@/lib/storage';
 import { useProgressSync } from '@/lib/useProgressSync';
+import { recordSkillUpLearner, fetchSkillUpLearnerCounts } from '@/lib/skillup-learners';
 
 /**
  * Hosts the SkillUp learning experience inside the AaryaAI layout (header, navigation, footer).
@@ -20,6 +21,7 @@ const TOUR_FLAG = 'skillup.tour';
 interface SkillUpInstance {
   destroy(): void;
   openExam(id: string | null): void;
+  setLearners(counts: Record<string, number>): void;
 }
 interface SkillUpRuntime {
   start(host: HTMLElement, opts: {
@@ -66,7 +68,7 @@ export default function SkillUpHost() {
   const params = useParams();
   const examId = (params['*'] || '').split('/')[0] || null;
   const navigate = useNavigate();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
   const signedIn = useRef(!!user);
   const { syncToGist } = useProgressSync();
   const sync = useRef(syncToGist);
@@ -115,6 +117,8 @@ export default function SkillUpHost() {
           },
         });
         setReady(true);
+        // Public learner counts for the catalog cards; best-effort, the catalog doesn't wait for them.
+        void fetchSkillUpLearnerCounts().then((counts) => { if (!cancelled) appRef.current?.setLearners(counts); });
       })
       .catch(() => { if (!cancelled) setFailed(true); });
     return () => {
@@ -129,6 +133,11 @@ export default function SkillUpHost() {
   useEffect(() => {
     appRef.current?.openExam(examId);
   }, [examId, user]);
+
+  // Count a signed-in learner once per exam (the Worker dedupes; this sends at most once per tab).
+  useEffect(() => {
+    if (ready && examId && token) recordSkillUpLearner(examId, token);
+  }, [ready, examId, token]);
 
   if (failed) {
     return (
