@@ -175,7 +175,8 @@ for (const e of entries) {
     if (INLINE) json = json.split(`${e.id}/images/${f}`).join(`data:image/${f.endsWith('.svg') ? 'svg+xml' : f.split('.').pop()};base64,` + readFileSync(src).toString('base64'));
     else {
       mkdirSync(join(OUT, e.id, 'images'), { recursive: true }); copyFileSync(src, join(OUT, e.id, 'images', f));
-      if (ASSET_BASE) json = json.split(`${e.id}/images/${f}`).join(`${ASSET_BASE}${e.id}/images/${f}`);
+      // A redrawn diagram keeps its file name, so the URL carries a content hash like exams/<id>.js does.
+      if (ASSET_BASE) json = json.split(`${e.id}/images/${f}`).join(`${ASSET_BASE}${e.id}/images/${f}?v=${createHash('sha256').update(readFileSync(src)).digest('hex').slice(0, 12)}`);
     }
   }
   // Data is embedded as script values, never JSON text read back out of the DOM.

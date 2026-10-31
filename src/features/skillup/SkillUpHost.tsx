@@ -16,6 +16,8 @@ import { recordSkillUpLearner, fetchSkillUpLearnerCounts } from '@/lib/skillup-l
  * exam once signed in.
  */
 const ASSETS = '/skillup-assets/';
+// Same file names on every deploy, so the URL carries the deploy version (see vite.config.ts).
+const V = `?v=${__SKILLUP_ASSETS_VERSION__}`;
 const TOUR_FLAG = 'skillup.tour';
 
 interface SkillUpInstance {
@@ -56,9 +58,9 @@ function loadSkillUp(): Promise<void> {
   if (!loading) {
     const css = document.createElement('link');
     css.rel = 'stylesheet';
-    css.href = `${ASSETS}skillup.css`;
+    css.href = `${ASSETS}skillup.css${V}`;
     document.head.appendChild(css);
-    loading = addScript(`${ASSETS}skillup-data.js`).then(() => addScript(`${ASSETS}skillup-app.js`));
+    loading = addScript(`${ASSETS}skillup-data.js${V}`).then(() => addScript(`${ASSETS}skillup-app.js${V}`));
     loading.catch(() => { loading = null; });
   }
   return loading;
