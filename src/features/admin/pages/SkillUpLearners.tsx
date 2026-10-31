@@ -16,7 +16,7 @@ function useExamNames(): Record<string, CatalogExam> {
     };
     if ((window as { SKILLUP?: unknown }).SKILLUP) { read(); return; }
     const s = document.createElement('script');
-    s.src = '/skillup-assets/skillup-data.js';
+    s.src = `/skillup-assets/skillup-data.js?v=${__SKILLUP_ASSETS_VERSION__}`;
     s.onload = read;
     document.body.appendChild(s);
   }, []);
