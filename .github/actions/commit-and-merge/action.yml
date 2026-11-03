@@ -27,10 +27,14 @@ description: >
   while an explicit --admin merge with the same token succeeded immediately.
 
   A code-owner-review requirement can still block even --admin (seen on
-  PR #622, promoting skillup) -- that's a real gap this action does not
-  paper over: it fails loudly (non-zero exit, PR left open) rather than
-  hanging, so the calling workflow's own failure is visible instead of a
-  silent stuck PR.
+  PR #622, promoting skillup, and on every promote-content run since the
+  ruleset required code-owner review). That block is the ruleset doing its
+  job, not a workflow fault, so the action no longer fails on it: once the
+  required checks are green it queues native `gh pr merge --auto` (the
+  repo allows auto-merge), so the PR lands the moment a code owner approves,
+  and surfaces a notice plus a job-summary entry saying so. A genuinely
+  failed required check, or an --admin/--auto error that is NOT a review
+  requirement, still fails the step loudly.
 
 inputs:
   github-token:
@@ -121,8 +125,9 @@ runs:
     # calling workflow's App is already an "always" bypass actor on this
     # repo's ruleset -- see this action's own description for why native
     # `gh pr merge --auto` doesn't work here). A code-owner-review
-    # requirement can still block even --admin -- that fails this step
-    # loudly rather than hanging silently.
+    # requirement can still block even --admin -- in that case queue native
+    # auto-merge and exit 0 (see this action's description); any other merge
+    # error still fails the step.
     - name: Poll required checks, then merge
       if: steps.commit.outputs.changed == 'true'
       shell: bash
@@ -139,8 +144,25 @@ runs:
             exit 1
           fi
           if ! echo "${checks_output}" | grep -qi 'pending'; then
-            gh pr merge "${pr_url}" --squash --delete-branch --admin
-            exit 0
+            if merge_output=$(gh pr merge "${pr_url}" --squash --delete-branch --admin 2>&1); then
+              echo "${merge_output}"
+              exit 0
+            fi
+            echo "${merge_output}"
+            # Checks are green but the ruleset wants a human (code-owner)
+            # review that --admin can't bypass. Queue auto-merge so the PR
+            # lands as soon as it is approved, rather than failing the run.
+            if echo "${merge_output}" | grep -qiE 'code owner|Repository rule violations|review'; then
+              gh pr merge "${pr_url}" --squash --delete-branch --auto
+              echo "::notice::Required checks passed on ${pr_url}; auto-merge queued, waiting on code-owner approval."
+              {
+                echo "### Awaiting code-owner approval"
+                echo ""
+                echo "${pr_url} has passing required checks and auto-merge is queued. It will merge once a code owner approves."
+              } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+              exit 0
+            fi
+            exit 1
           fi
           sleep 15
         done
