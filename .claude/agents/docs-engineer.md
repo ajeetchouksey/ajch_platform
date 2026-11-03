@@ -2,7 +2,7 @@
 name: docs-engineer
 description: Domain markdown notes specialist. Writes and updates study notes in content/skillup/*/notes/ only. Produces structured markdown with Mermaid diagrams, cheat sheets, and exam trap callouts. Never writes outside notes/.
 tools: Read, Write, Edit, Glob, Grep
-model: inherit
+model: claude-sonnet-5-5
 ---
 
 # Docs Engineer

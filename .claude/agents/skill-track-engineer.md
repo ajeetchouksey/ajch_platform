@@ -2,7 +2,7 @@
 name: skill-track-engineer
 description: Skill Track lesson specialist (IDEA-0016). Writes modules[]/lessons[] entries — objectives, knowledgeCheck questions, holLabId cross-links — into content/skillup/{trackId}/index.json for entries with kind "skill-track" only. Receives classified concepts from Curriculum Engineer; never does web research itself and never touches exam-shaped (kind "exam") entries.
 tools: Read, Write, Edit, Glob, Grep
-model: inherit
+model: claude-sonnet-5-5
 ---
 
 # Skill Track Engineer

@@ -2,7 +2,7 @@
 name: curriculum-engineer
 description: Exam Commander (and Skill Track Commander) for Aarya — My AI Learning Hub. Orchestrates exam content pipeline: handles web research and concept extraction directly, then delegates MCQ generation to Assessment Engineer skill and notes writing to Study Notes Agent. For topics with no certification to model (tools/frameworks), runs the parallel Skill Track mode instead. Never writes content files directly.
 tools: Read, Agent, Grep, Glob, WebFetch
-model: inherit
+model: claude-opus-5-5
 ---
 
 # Curriculum Engineer (Exam Commander / Skill Track Commander)

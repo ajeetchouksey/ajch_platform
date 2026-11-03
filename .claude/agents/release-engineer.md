@@ -2,7 +2,7 @@
 name: release-engineer
 description: Blog manifest and frontmatter specialist. Use this agent to manage the ajch_aaryaai_blogs repo's content/blog/ only — writing .md post files and updating the index.json manifest. Receives validated content from Content Lead after Security Gate PASS. Never writes outside that directory.
 tools: Read, Write, Edit, Glob
-model: claude-haiku-4-5-20251001
+model: claude-haiku-5-5
 ---
 
 # Release Engineer

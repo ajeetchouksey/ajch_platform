@@ -98,6 +98,31 @@ Bad distractors:
 - Answers that are "too long" or "too short" (length bias)
 - Answers containing "always" or "never" (test-taking heuristics)
 
+### Distractor rule (no strawmen)
+
+Every wrong option must be an answer a competent practitioner could genuinely pick, wrong for a specific, statable reason (a real misconception, a right tool for a different constraint, or a correct idea applied at the wrong layer or time). Before finalising each question, write one line per distractor: "someone picks this because ___; it fails because ___". Rewrite any distractor where the first blank is empty or silly.
+
+Reject on sight:
+- Absurd or self-sabotaging options ("bypass security", "ignore the requirement", "do it manually and hope")
+- Absolutes and hedged-away giveaways ("never", "cannot ... at all", "always", "assume")
+- An option that merely negates the key
+- Options that name a different product category with no plausible link to the scenario
+
+### Uniqueness rule
+
+Within one batch, no two questions may test the same decision with the same answer in different words, and no question may contradict another's guidance. Before writing, list the topics already covered (existing question file plus this batch so far) and pick the next question from an uncovered task statement or an uncovered decision within one.
+
+### Length-bias rule (hard, machine-checked)
+
+The correct option must not be recognisable by its length. Models drift toward writing the right answer as the most complete, most qualified sentence and the wrong ones as terse fragments — a learner can then pass by picking the longest option. Enforced limits:
+
+- **Per question**: the correct option's character length is at most **1.3×** the mean length of the three distractors (and at least 0.7×).
+- **Per set**: the correct option is the single longest option in at most **50%** of the questions.
+
+How to comply: give every distractor the same level of specificity and the same kind of qualifying clause as the key (a distractor should name a concrete service, condition or trade-off, not a bare label); trim hedging from the key rather than only padding the distractors; write the options, then compare lengths before finalising. Vary which position holds the key.
+
+Check a draft file with `node scripts/check-option-lengths.mjs <questions.json>` (exits non-zero on violations) before returning it.
+
 ## ID Assignment Rules
 
 Check existing questions to determine next available ID:
@@ -156,6 +181,7 @@ Before outputting a question, verify:
 - [ ] Explanation mentions why at least 2 distractors fail
 - [ ] Scenario is realistic (not contrived)
 - [ ] No two options are functionally identical
+- [ ] Length-bias rule passes (`node scripts/check-option-lengths.mjs <file>`; script lives in `ajch_skillup`)
 - [ ] Tags are from the approved taxonomy
 - [ ] ID follows sequential pattern: `{examId}-d{N}-{NNN}`
 - [ ] Domain number matches the topic

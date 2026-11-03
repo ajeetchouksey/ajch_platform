@@ -2,7 +2,7 @@
 name: learning-analytics
 description: Content analytics agent. Reads the question bank and exam registry to produce domain coverage heatmaps, difficulty distributions, tag frequency reports, and predicted readiness curves. Read-only — never writes files.
 tools: Read, Glob, Grep
-model: inherit
+model: claude-haiku-5-5
 ---
 
 # Learning Analytics

@@ -2,7 +2,7 @@
 name: blueprint-gap-analyst
 description: SkillUp objective-coverage analyst. Measures each exam or skill track against its official blueprint, not just minimum counts — blueprint drift, per-task coverage and depth, difficulty spread, explanation quality, scenario reach, duplicate exam identities, and learner-experience signals. Returns a prioritized gap report to Curriculum Engineer. Read-only — never writes files.
 tools: Read, Glob, Grep, Bash, WebFetch
-model: inherit
+model: claude-sonnet-5-5
 ---
 
 # Blueprint Gap Analyst

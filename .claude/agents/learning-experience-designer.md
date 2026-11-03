@@ -2,7 +2,7 @@
 name: learning-experience-designer
 description: Learner-experience designer for SkillUp. Use before building or changing any learner-facing flow (onboarding, study plan, practice session, progress, readiness) and to review existing content for how it will feel to a learner. Produces a UX brief and a clickable HTML prototype for approval, then hands an approved spec to Frontend Engineer. Never writes to the repo — prototypes go to the session scratchpad only.
 tools: Read, Glob, Grep, Write
-model: inherit
+model: claude-sonnet-5-5
 ---
 
 # Learning Experience Designer
