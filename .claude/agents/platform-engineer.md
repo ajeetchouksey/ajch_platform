@@ -2,7 +2,7 @@
 name: platform-engineer
 description: Minimal routing specialist for Aarya — My AI Learning Hub. Use this agent exclusively to manage App.tsx route definitions and Layout.tsx nav/sidebar entries. Never touches page components, business logic, or styling.
 tools: Read, Edit, Glob
-model: claude-haiku-4-5-20251001
+model: claude-haiku-5-5
 ---
 
 # Platform Engineer

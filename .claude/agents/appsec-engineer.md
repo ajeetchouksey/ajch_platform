@@ -2,7 +2,7 @@
 name: appsec-engineer
 description: Hard security gate for Aarya — My AI Learning Hub. Validates every mutating task before any write reaches disk. Returns PASS ✓ or BLOCK ✗ + reason. Never writes files itself — read-only validator only.
 tools: Read, Glob, Grep
-model: inherit
+model: claude-sonnet-5-5
 ---
 
 # AppSec Engineer

@@ -29,16 +29,34 @@ Used precisely and consistently across subagent files, skill files, and docs:
 
 ## Model tiering
 
-Every subagent defaulted to `model: inherit` (whatever model the parent session uses) until this pass. Mechanical, narrow-scope subagents are now pinned to a cheaper model instead:
+Rule: pay for the strongest model only where an error is expensive to detect later, or where one run steers many downstream runs. Everything mechanical goes to the cheapest tier.
 
 | Subagent | Model | Why |
 |---|---|---|
-| `sre` | `claude-haiku-4-5-20251001` | Routine git/CI/CHANGELOG ops — mechanical, not reasoning-heavy. |
-| `qa-engineer` | `claude-haiku-4-5-20251001` | Pattern-matches Mermaid syntax against fixed rules. |
-| `platform-engineer` | `claude-haiku-4-5-20251001` | Edits exactly two files (`App.tsx` routes, `Layout.tsx` nav). |
-| `release-engineer` | `claude-haiku-4-5-20251001` | Writes pre-validated markdown to disk; no editorial judgment. |
+| `curriculum-engineer` | `claude-opus-5-5` | Orchestrator: research, concept extraction, delegation. Low volume, high leverage; a bad plan poisons every sub-agent. |
+| `assessment-engineer` | `claude-sonnet-5-5` | MCQ generation (largest volume); needs correct keys and plausible distractors. |
+| `docs-engineer`, `skill-track-engineer` | `claude-sonnet-5-5` | Long-form structured writing. |
+| `scenario-engineer` | `claude-sonnet-5-5` | Structured multi-step JSON, schema-validated afterwards. |
+| `blueprint-gap-analyst`, `learning-experience-designer` | `claude-sonnet-5-5` | Read-only judgment over coverage / flows. |
+| `appsec-engineer` | `claude-sonnet-5-5` | PASS/BLOCK gate; a false PASS is costly, do not downgrade. |
+| `learning-analytics` | `claude-haiku-5-5` | Aggregation and formatting of data. |
+| `exam-coach` | `claude-haiku-5-5` | Serves and scores pre-authored questions. |
+| `sre`, `qa-engineer`, `platform-engineer`, `release-engineer`, `hol-lab-publisher`, `usecase-publisher` | `claude-haiku-5-5` | Mechanical git/CI, rule-matching, two-file edits, writing pre-validated content. |
 
-Reasoning-heavy subagents (`staff-engineer`, `principal-mentor`, `platform-architect`, `curriculum-engineer`, `product-manager`, and the rest) stay on `model: inherit`.
+**Pilot evidence (2026-11-03, `assessment-engineer`, AB-100 Domain 1, 20 questions per run, blind Opus judge, 1-5 scores):**
+
+| Run | Key | Distractors | Blueprint | No giveaways |
+|---|---|---|---|---|
+| Opus 5.5 | 4.95 | 3.75–3.80 | 4.50–4.75 | 3.95–4.00 |
+| Sonnet 5.5, unmodified skill | 4.90 | 2.45 | 4.65 | 1.95 |
+| Haiku 5.5, unmodified skill | 4.95 | 2.75 | 4.50 | 2.00 |
+| Sonnet 5.5, + length / distractor / uniqueness rules | 4.85 | 3.50 | 4.80 | 4.70 |
+
+Out of the box, Sonnet and Haiku both wrote the correct option longest (Sonnet 20/20, mean 2.1x the distractors) and used strawman distractors. The rules added to `question-generator` (length-bias, distractor, uniqueness) plus the checker `ajch_skillup/scripts/check-option-lengths.mjs` closed most of the gap, which is why `assessment-engineer` stays on Sonnet. Single domain, one run per condition, same-family judge: re-pilot on another exam before treating this as settled. Haiku-tier (`learning-analytics`, `exam-coach`) and the other Sonnet-tier agents are not yet piloted.
+
+Move an agent up a tier if it regresses.
+
+Other subagents (`staff-engineer`, `principal-mentor`, `platform-architect`, `product-manager`, and the rest) stay on `model: inherit`.
 
 ## Deprecated
 

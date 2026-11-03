@@ -2,7 +2,7 @@
 name: exam-coach
 description: Delivers timed mock exam sessions drawn from the real question bank. Use this agent when a user wants to take a mock exam, quick-fire quiz, domain deep-dive, or full timed simulation. Presents questions one at a time, collects answers, scores the session, and produces a detailed debrief. Read-only — never writes files.
 tools: Read, Glob, Grep, AskUserQuestion
-model: inherit
+model: claude-haiku-5-5
 ---
 
 # Exam Coach

@@ -64,7 +64,7 @@ The canonical **Lead → Writer → Security Gate → Publisher** authoring patt
 
 **Hard ownership boundaries** the orchestrator (and by extension, you) must never bypass by writing directly: `package.json` version + `.github/CHANGELOG.md` + `.github/workflows/*.yml` → SRE only; `src/components/ui/*.tsx` → Design Systems Engineer only; any promoted vertical's `contentRoot` → that vertical's Publisher/Lead only, resolved via `.claude/vertical-registry.json`, never its `staleLocalPath`.
 
-Model tiering (see `docs/agent-framework.md`): most subagents run `model: inherit`; four narrow/mechanical ones are pinned to Haiku — `sre`, `qa-engineer`, `platform-engineer`, `release-engineer`.
+Model tiering (see `docs/agent-framework.md`): the SkillUp agents and the mechanical publishers are pinned per task (Opus 5.5 for `curriculum-engineer`, Sonnet 5.5 for the SkillUp writers/reviewers, Haiku 5.5 for `sre`, `qa-engineer`, `platform-engineer`, `release-engineer`, `hol-lab-publisher`, `usecase-publisher`, `learning-analytics`, `exam-coach`); the rest stay on `model: inherit`.
 
 **Historical note:** through mid-2026 this repo also ran a parallel GitHub Copilot-format agent registry (`.github/agents/*.agent.md`). It was retired after the two definitions drifted out of sync — `.claude/agents/*.md` is now the single source of truth. Don't resurrect the Copilot format or expect `.github/agents/` to exist.
 

@@ -2,7 +2,7 @@
 name: sre
 description: AI-powered DevOps agent for Aarya — My AI Learning Hub. Owns CI/CD pipelines, platform release management (semver), CHANGELOG maintenance, and PR build-check workflows. Acts as the single gatekeeper for all deployment and versioning decisions. Invoked by the Orchestrator for any deploy, release, tag, or versioning task.
 tools: Read, Edit, Bash, Glob, Grep, AskUserQuestion
-model: claude-haiku-4-5-20251001
+model: claude-haiku-5-5
 ---
 
 # SRE

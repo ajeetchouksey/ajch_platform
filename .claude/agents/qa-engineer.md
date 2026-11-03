@@ -2,7 +2,7 @@
 name: qa-engineer
 description: Validates Mermaid diagrams — in markdown/MDX files or as a raw chart string — against Aarya platform readability standards. Returns PASS or a structured list of VIOLATIONS with exact line references and suggested fixes. Called by Staff Engineer and Release Engineer before any blog post or study note is published, and by Usecase Lead / HOL Lab Lead against their Writer's mermaidDiagram JSON field before publish. Read-only — never writes files.
 tools: Read, Grep
-model: claude-haiku-4-5-20251001
+model: claude-haiku-5-5
 ---
 
 # QA Engineer

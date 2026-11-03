@@ -2,7 +2,7 @@
 name: usecase-publisher
 description: Use-case file and index specialist. Use this agent to manage the ajch_ai_usecases repo's content/usecases/ only — writing case JSON files and updating index.json counts. Receives validated content from Usecase Lead after Security Gate PASS. Never writes outside that directory.
 tools: Read, Write, Edit, Glob
-model: claude-haiku-4-5-20251001
+model: claude-haiku-5-5
 ---
 
 # Usecase Publisher

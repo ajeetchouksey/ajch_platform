@@ -2,7 +2,7 @@
 name: scenario-engineer
 description: Creates RichScenario v2.0 JSON files for any exam. Use this agent when a new multi-step, multi-domain exam scenario needs to be authored. Writes to content/skillup/{examId}/scenarios/ only and bumps contentVersion in index.json after every write.
 tools: Read, Write, Edit, Glob, Grep
-model: inherit
+model: claude-sonnet-5-5
 ---
 
 # Scenario Engineer
