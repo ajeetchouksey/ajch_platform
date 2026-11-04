@@ -1,25 +1,25 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Briefcase, ArrowRight } from 'lucide-react';
-import { loadInterviewIndex, type InterviewRoleSummary } from '@/lib/content-loader';
+import { loadRolePrepIndex, type RolePrepRoleSummary } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import { GlassCard, Badge, SectionHeader } from '@/components/ui';
 
 const SKILL_GROUPS = ['All', 'AI Core', 'Engineering', 'Governance', 'Domain', 'Leadership'] as const;
 type SkillGroup = (typeof SKILL_GROUPS)[number];
 
-export default function InterviewCatalog() {
+export default function RolePrepCatalog() {
   useMeta({
     title: 'Role Prep · Aarya',
-    description: 'Skill-focused interview preparation packs built from real job descriptions — technical, behavioural, and system-design questions with worked examples.',
+    description: 'Role Prep: skill-focused interview practice packs built from real job descriptions — technical, behavioural, and system-design questions with worked examples.',
   });
 
-  const [roles, setRoles] = useState<InterviewRoleSummary[]>([]);
+  const [roles, setRoles] = useState<RolePrepRoleSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeGroup, setActiveGroup] = useState<SkillGroup>('All');
 
   useEffect(() => {
-    loadInterviewIndex()
+    loadRolePrepIndex()
       .then((idx) => setRoles(idx.roles))
       .catch(() => setError('Could not load role packs.'));
   }, []);

@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Search, X, ArrowLeft, ArrowRight, Filter } from 'lucide-react';
 import {
-  loadInterviewPack, loadResolvedPackItems, loadInterviewCompetencies,
-  type InterviewPack as Pack, type ResolvedInterviewItem, type InterviewCompetency,
+  loadRolePrepPack, loadResolvedPackItems, loadRolePrepCompetencies,
+  type RolePrepPack as Pack, type ResolvedRolePrepItem, type RolePrepCompetency,
 } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import { GlassCard, Badge, type BadgeVariant } from '@/components/ui';
@@ -19,7 +19,7 @@ const DIFF_VARIANT: Record<string, BadgeVariant> = {
   principal: 'purple',
 };
 
-function tokenMatch(item: ResolvedInterviewItem, q: string): boolean {
+function tokenMatch(item: ResolvedRolePrepItem, q: string): boolean {
   if (!q) return true;
   const hay = [
     item.question,
@@ -30,12 +30,12 @@ function tokenMatch(item: ResolvedInterviewItem, q: string): boolean {
   return q.toLowerCase().split(/\s+/).every((t) => hay.includes(t));
 }
 
-export default function InterviewPack() {
+export default function RolePrepPack() {
   const { roleId = '' } = useParams<{ roleId: string }>();
 
   const [pack, setPack] = useState<Pack | null>(null);
-  const [items, setItems] = useState<ResolvedInterviewItem[]>([]);
-  const [competencies, setCompetencies] = useState<InterviewCompetency[]>([]);
+  const [items, setItems] = useState<ResolvedRolePrepItem[]>([]);
+  const [competencies, setCompetencies] = useState<RolePrepCompetency[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   // Facets
@@ -46,19 +46,19 @@ export default function InterviewPack() {
   const [tagFilter, setTagFilter] = useState<string | null>(null);
 
   useMeta({
-    title: pack ? `${pack.title} · Interview Prep` : 'Interview Prep',
-    description: pack ? `Interview prep pack for ${pack.title} (${pack.seniority}).` : undefined,
+    title: pack ? `${pack.title} · Role Prep` : 'Role Prep',
+    description: pack ? `Role Prep pack for ${pack.title} (${pack.seniority}).` : undefined,
   });
 
   useEffect(() => {
     if (!roleId) return;
     Promise.all([
-      loadInterviewPack(roleId),
+      loadRolePrepPack(roleId),
       loadResolvedPackItems(roleId),
-      loadInterviewCompetencies(),
+      loadRolePrepCompetencies(),
     ])
       .then(([p, its, comps]) => { setPack(p); setItems(its); setCompetencies(comps); })
-      .catch(() => setError('Could not load this interview pack.'));
+      .catch(() => setError('Could not load this Role Prep pack.'));
   }, [roleId]);
 
   const compTitle = useMemo(() => {
@@ -90,7 +90,7 @@ export default function InterviewPack() {
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <p className="text-sm text-rose-300">{error}</p>
         <Link to="/roleprep" className="mt-4 inline-flex items-center gap-1 text-sm text-violet-300">
-          <ArrowLeft size={14} /> Back to Interview Prep
+          <ArrowLeft size={14} /> Back to Role Prep
         </Link>
       </div>
     );
@@ -101,7 +101,7 @@ export default function InterviewPack() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
       <Link to="/roleprep" className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200 mb-6">
-        <ArrowLeft size={13} /> Interview Prep
+        <ArrowLeft size={13} /> Role Prep
       </Link>
 
       {pack && (

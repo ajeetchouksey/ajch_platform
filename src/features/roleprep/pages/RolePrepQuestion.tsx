@@ -6,8 +6,8 @@ import {
 
 const MermaidDiagram = lazy(() => import('@/components/MermaidDiagram'));
 import {
-  loadInterviewBank, loadInterviewCompetencies, loadResolvedPackItems,
-  type InterviewBankItem, type InterviewCompetency, type InterviewAddendum,
+  loadRolePrepBank, loadRolePrepCompetencies, loadResolvedPackItems,
+  type RolePrepBankItem, type RolePrepCompetency, type RolePrepAddendum,
 } from '@/lib/content-loader';
 import { useMeta } from '@/lib/useMeta';
 import { GlassCard, Badge, type BadgeVariant } from '@/components/ui';
@@ -41,23 +41,23 @@ function Section({ icon: Icon, title, children, accent }: {
   );
 }
 
-export default function InterviewQuestion() {
+export default function RolePrepQuestion() {
   const { id = '' } = useParams<{ id: string }>();
   const [params] = useSearchParams();
   const roleId = params.get('role');
 
-  const [item, setItem] = useState<InterviewBankItem | null>(null);
-  const [competencies, setCompetencies] = useState<InterviewCompetency[]>([]);
-  const [addendum, setAddendum] = useState<InterviewAddendum | null>(null);
+  const [item, setItem] = useState<RolePrepBankItem | null>(null);
+  const [competencies, setCompetencies] = useState<RolePrepCompetency[]>([]);
+  const [addendum, setAddendum] = useState<RolePrepAddendum | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useMeta({
-    title: item ? `${item.question.slice(0, 60)}… · Interview Prep` : 'Interview Prep',
+    title: item ? `${item.question.slice(0, 60)}… · Role Prep` : 'Role Prep',
     description: item?.detailedAnswer?.summary,
   });
 
   useEffect(() => {
-    Promise.all([loadInterviewBank(), loadInterviewCompetencies()])
+    Promise.all([loadRolePrepBank(), loadRolePrepCompetencies()])
       .then(([bank, comps]) => {
         const found = bank.find((q) => q.id === id) ?? null;
         setItem(found);
@@ -89,7 +89,7 @@ export default function InterviewQuestion() {
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
         <p className="text-sm text-rose-300">{error}</p>
         <Link to="/roleprep" className="mt-4 inline-flex items-center gap-1 text-sm text-violet-300">
-          <ArrowLeft size={14} /> Back to Interview Prep
+          <ArrowLeft size={14} /> Back to Role Prep
         </Link>
       </div>
     );

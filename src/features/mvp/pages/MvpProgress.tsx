@@ -135,7 +135,7 @@ const METRICS: { key: string; label: string; color: string; fill: string; live?:
   { key: 'videos',        label: '▶ Videos',           color: '#8b5cf6', fill: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' },
   { key: 'architectures', label: '⬡ Architectures',    color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)', live: true },
   { key: 'useCases',      label: '🏭 Use Cases',       color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)', live: true },
-  { key: 'interviewQuestions', label: '🧑‍💼 Interviews', color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)', live: true },
+  { key: 'interviewQuestions', label: '🧑‍💼 Role Prep', color: '#f59e0b', fill: 'linear-gradient(90deg,#d97706,#fbbf24)', live: true },
   { key: 'skillupExams',  label: '📚 Skillup Exams',   color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)', live: true },
   { key: 'aiTools',       label: '🛠 AI Tools',         color: '#34d399', fill: 'linear-gradient(90deg,#059669,#34d399)', live: true },
   { key: 'communityArticles', label: '🌍 Community Articles', color: '#22d3ee', fill: 'linear-gradient(90deg,#0891b2,#22d3ee)', live: true },
@@ -215,7 +215,7 @@ function QuarterCard({ q, current }: { q: Quarter; current: Record<string, numbe
 
   const METRIC_LABELS: Record<string, string> = {
     blogs: 'Blogs', skillupExams: 'Exams', aiTools: 'Tools', useCases: 'Use Cases',
-    interviewQuestions: 'Interviews', communityArticles: 'Community Art.', videos: 'Videos',
+    interviewQuestions: 'Role Prep', communityArticles: 'Community Art.', videos: 'Videos',
     speaking: 'Speaking', mentoring: 'Mentoring', linkedin: 'LinkedIn',
     architectures: 'Architecture', ossRepos: 'OSS Repos', githubStars: 'Stars',
   };

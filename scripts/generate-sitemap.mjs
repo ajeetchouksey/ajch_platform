@@ -12,7 +12,7 @@
 import { writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { loadBlogIndex, loadSkillupCatalog, loadInterviewsIndex, loadUsecasesSourceIntel } from './lib/content-sources.mjs';
+import { loadBlogIndex, loadSkillupCatalog, loadRolePrepIndex, loadUsecasesSourceIntel } from './lib/content-sources.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root      = join(__dirname, '..');
@@ -106,11 +106,11 @@ if (skillupCatalog) {
 
 // ── role-prep packs ──────────────────────────────────────────────────────────
 
-const interviewsIndex = await loadInterviewsIndex();
-if (interviewsIndex) {
-  for (const role of (interviewsIndex.roles || []).filter(r => r.available)) {
+const rolePrepIndex = await loadRolePrepIndex();
+if (rolePrepIndex) {
+  for (const role of (rolePrepIndex.roles || []).filter(r => r.available)) {
     entries.push(urlEntry(`/roleprep/${role.id}`, {
-      lastmod: interviewsIndex.generated,
+      lastmod: rolePrepIndex.generated,
       changefreq: 'monthly',
       priority: '0.6',
     }));

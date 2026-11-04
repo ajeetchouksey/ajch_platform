@@ -44,11 +44,11 @@ let _manifestCache: BlogManifest | null = null;
 let _manifestFetchedAt = 0;
 const MANIFEST_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-let _interviewBankCache: InterviewQuestion[] | null = null;
-let _interviewBankFetchedAt = 0;
+let _rolePrepBankCache: RolePrepQuestion[] | null = null;
+let _rolePrepBankFetchedAt = 0;
 
-let _interviewIndexCache: InterviewIndex | null = null;
-let _interviewIndexFetchedAt = 0;
+let _rolePrepIndexCache: RolePrepIndex | null = null;
+let _rolePrepIndexFetchedAt = 0;
 
 // ── Types ───────────────────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -72,7 +72,7 @@ interface BlogManifest {
   posts: BlogPost[];
 }
 
-interface InterviewQuestion {
+interface RolePrepQuestion {
   id: string;
   question: string;
   type: string;
@@ -81,7 +81,7 @@ interface InterviewQuestion {
   tags: string[];
 }
 
-interface InterviewIndex {
+interface RolePrepIndex {
   roles: Array<{ id: string; title: string; description: string }>;
 }
 
@@ -114,37 +114,37 @@ async function getBlogManifest(): Promise<BlogManifest> {
   }
 }
 
-async function getInterviewBank(): Promise<InterviewQuestion[]> {
+async function getRolePrepBank(): Promise<RolePrepQuestion[]> {
   const now = Date.now();
-  if (_interviewBankCache && now - _interviewBankFetchedAt < MANIFEST_TTL_MS) {
-    return _interviewBankCache;
+  if (_rolePrepBankCache && now - _rolePrepBankFetchedAt < MANIFEST_TTL_MS) {
+    return _rolePrepBankCache;
   }
   try {
     const res = await fetch(`${SITE_URL}/content/interviews/bank/questions.json`, {
       cf: { cacheEverything: true, cacheTtl: 300 },
     });
     if (!res.ok) return [];
-    _interviewBankCache = (await res.json()) as InterviewQuestion[];
-    _interviewBankFetchedAt = now;
-    return _interviewBankCache;
+    _rolePrepBankCache = (await res.json()) as RolePrepQuestion[];
+    _rolePrepBankFetchedAt = now;
+    return _rolePrepBankCache;
   } catch {
     return [];
   }
 }
 
-async function getInterviewIndex(): Promise<InterviewIndex> {
+async function getRolePrepIndex(): Promise<RolePrepIndex> {
   const now = Date.now();
-  if (_interviewIndexCache && now - _interviewIndexFetchedAt < MANIFEST_TTL_MS) {
-    return _interviewIndexCache;
+  if (_rolePrepIndexCache && now - _rolePrepIndexFetchedAt < MANIFEST_TTL_MS) {
+    return _rolePrepIndexCache;
   }
   try {
     const res = await fetch(`${SITE_URL}/content/interviews/index.json`, {
       cf: { cacheEverything: true, cacheTtl: 300 },
     });
     if (!res.ok) return { roles: [] };
-    _interviewIndexCache = (await res.json()) as InterviewIndex;
-    _interviewIndexFetchedAt = now;
-    return _interviewIndexCache;
+    _rolePrepIndexCache = (await res.json()) as RolePrepIndex;
+    _rolePrepIndexFetchedAt = now;
+    return _rolePrepIndexCache;
   } catch {
     return { roles: [] };
   }
@@ -243,14 +243,14 @@ export default {
       return handleBlogSlug(rest[1], `${SITE_URL}${url.pathname}`);
     }
 
-    // /interview/q/:id — individual question detail page
-    if (section === 'interview' && rest[0] === 'q' && rest[1]) {
-      const bank = await getInterviewBank();
+    // /roleprep/q/:id — individual question detail page
+    if (section === 'roleprep' && rest[0] === 'q' && rest[1]) {
+      const bank = await getRolePrepBank();
       const q = bank.find((item) => item.id === rest[1]);
       if (q) {
         const stem = q.question.length > 120 ? q.question.slice(0, 120) + '…' : q.question;
         return buildOgShell({
-          title: `${stem} · Interview Prep | Aarya`,
+          title: `${stem} · Role Prep | Aarya`,
           description: q.detailedAnswer.summary,
           image: OG_IMAGE_FALLBACK,
           url: `${SITE_URL}${url.pathname}`,
@@ -259,13 +259,13 @@ export default {
       }
     }
 
-    // /interview/:roleId — role pack overview page
-    if (section === 'interview' && rest[0] && rest[0] !== 'q') {
-      const index = await getInterviewIndex();
+    // /roleprep/:roleId — role pack overview page
+    if (section === 'roleprep' && rest[0] && rest[0] !== 'q') {
+      const index = await getRolePrepIndex();
       const role = index.roles.find((r) => r.id === rest[0]);
       if (role) {
         return buildOgShell({
-          title: `${role.title} Interview Prep · Aarya`,
+          title: `${role.title} Role Prep · Aarya`,
           description: role.description,
           image: OG_IMAGE_FALLBACK,
           url: `${SITE_URL}${url.pathname}`,
@@ -273,13 +273,13 @@ export default {
       }
     }
 
-    // /interview — catalog
-    if (section === 'interview' && rest.length === 0) {
+    // /roleprep — catalog
+    if (section === 'roleprep' && rest.length === 0) {
       return buildOgShell({
-        title: 'AI Interview Prep — Aarya',
+        title: 'AI Role Prep — Aarya',
         description: 'Deep-dive Q&A for AI platform engineers and architects. Real scenarios, worked examples, and architecture diagrams. Free forever.',
         image: OG_IMAGE_FALLBACK,
-        url: `${SITE_URL}/interview`,
+        url: `${SITE_URL}/roleprep`,
       });
     }
 

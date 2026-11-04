@@ -26,7 +26,7 @@ src/
   features/       Feature modules (one per domain)
     blog/         Blog index + post pages
     exams/        Exam catalog + quiz + notes + scenarios
-    interview/    Interview Prep — catalog, pack, question pages
+    roleprep/     Role Prep — catalog, pack, question pages
     home/         Landing page and Learn page
     profile/      Team / maintainer profile
     tools/        Developer Tools hub
@@ -38,7 +38,7 @@ src/
 public/content/   All static content (fetched at runtime)
   blog/           Blog manifest + Markdown posts
   exams/          Exam registry + question banks + notes
-  interviews/     Interview Prep — bank, competencies, role packs
+  interviews/     Role Prep (archived job-ad packs) — bank, competencies, role packs
     bank/         questions.json + competencies.json
     roles/        Per-role pack.json + jd.md
   skillup/        SkillUp multi-cert catalog + per-exam questions
@@ -141,9 +141,9 @@ node scripts/build-content-intelligence.mjs
 | `/skillup/:examId/quiz` | Quiz |
 | `/skillup/:examId/notes` | Study Notes |
 | `/skillup/:examId/scenarios` | Scenarios |
-| `/interview` | Interview Prep Catalog |
-| `/interview/:roleId` | Interview Pack (Q&A list) |
-| `/interview/q/:id` | Interview Question Detail |
+| `/roleprep` | Role Prep catalog |
+| `/roleprep/:roleId` | Role Prep pack (Q&A list) |
+| `/roleprep/q/:id` | Role Prep question detail |
 | `/blog` | Blog Index |
 | `/blog/:slug` | Blog Post |
 | `/horizons` | Horizons Learning Paths |

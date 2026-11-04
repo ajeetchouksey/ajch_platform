@@ -60,7 +60,7 @@ export const maintainer: MaintainerProfile = {
     },
     {
       name: 'Aarya — My AI Learning Hub',
-      description: 'Multi-cert AI exam prep platform with SkillUp SkillUp catalog (CCA-F, AB-100, GH Copilot), Interview Prep module with canonical Q&A bank, 58+ blog articles, and a 24-agent AI orchestration system.',
+      description: 'Multi-cert AI exam prep platform with SkillUp SkillUp catalog (CCA-F, AB-100, GH Copilot), Role Prep module with canonical Q&A bank, 58+ blog articles, and a 24-agent AI orchestration system.',
       url: 'https://github.com/ajeetchouksey/ajch_platform',
       tech: ['React 19', 'TypeScript', 'Vite', 'Tailwind CSS', 'Multi-Agent AI'],
     },

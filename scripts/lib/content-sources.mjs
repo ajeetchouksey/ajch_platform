@@ -123,7 +123,7 @@ export async function loadSkillupNoteFile(relativePath) {
 }
 
 // interviews/index.json — not yet a promoted vertical, always local.
-export async function loadInterviewsIndex() {
+export async function loadRolePrepIndex() {
   const localPath = join(contentDir, 'interviews', 'index.json');
   if (!existsSync(localPath)) return null;
   return JSON.parse(readFileSync(localPath, 'utf-8'));
@@ -131,7 +131,7 @@ export async function loadInterviewsIndex() {
 
 // interviews/bank/questions.json — the actual tagged question items (index.json
 // above is just the role-pack index). Not yet a promoted vertical, always local.
-export async function loadInterviewsBank() {
+export async function loadRolePrepBank() {
   const localPath = join(contentDir, 'interviews', 'bank', 'questions.json');
   if (!existsSync(localPath)) return null;
   return JSON.parse(readFileSync(localPath, 'utf-8'));

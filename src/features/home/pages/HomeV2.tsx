@@ -122,7 +122,7 @@ const features = [
     title: 'Enterprise AI Use Cases',
     subtitle: '31 Use Cases · 12 Verticals · 6 Patterns',
     desc: 'Real enterprise AI deployments across finance, banking, insurance, legal, and more — with architecture diagrams, workflow breakdowns, and cross-links to interview questions.',
-    bullets: ['31 production AI blueprints', 'Mermaid architecture diagrams', 'Linked to interview prep'],
+    bullets: ['31 production AI blueprints', 'Mermaid architecture diagrams', 'Linked to Role Prep'],
     cta: 'Browse Use Cases',
   },
 ];
@@ -798,7 +798,7 @@ export default function HomeV2() {
                 </p>
                 <h2 className="text-xl font-black text-white">What AI Agents Are Doing in Production</h2>
                 <p className="text-sm text-slate-500 mt-1">
-                  31 real enterprise blueprints — architecture diagrams, workflow breakdowns, linked to interview prep.
+                  31 real enterprise blueprints — architecture diagrams, workflow breakdowns, linked to Role Prep.
                 </p>
               </div>
               <Link to="/usecases"
@@ -864,7 +864,7 @@ export default function HomeV2() {
                 ['12', 'Enterprise verticals'],
                 ['6', 'Agent patterns'],
                 ['14', 'With architecture diagrams'],
-                ['5', 'Interview Q cross-links'],
+                ['5', 'Role Prep cross-links'],
               ].map(([n, label]) => (
                 <span key={label} className="text-[11px] text-slate-500">
                   <span className="font-black text-slate-300">{n}</span> {label}

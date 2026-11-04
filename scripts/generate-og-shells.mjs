@@ -18,7 +18,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { loadBlogIndex, loadSkillupCatalog, loadInterviewsIndex, loadUsecasesSourceIntel } from './lib/content-sources.mjs';
+import { loadBlogIndex, loadSkillupCatalog, loadRolePrepIndex, loadUsecasesSourceIntel } from './lib/content-sources.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root      = join(__dirname, '..');
@@ -148,15 +148,15 @@ if (skillupCatalog) {
 
 // ── role-prep packs ──────────────────────────────────────────────────────────
 
-const interviewsIndex = await loadInterviewsIndex();
-if (interviewsIndex) {
-  const roles = (interviewsIndex.roles || []).filter(r => r.available);
+const rolePrepIndex = await loadRolePrepIndex();
+if (rolePrepIndex) {
+  const roles = (rolePrepIndex.roles || []).filter(r => r.available);
 
   for (const role of roles) {
     const html = injectOG(template, {
       url:         `${SITE}/roleprep/${role.id}`,
-      title:       `${role.title} — Interview Prep | Aarya`,
-      description: role.description || `Interview prep pack for ${role.title} on Aarya.`,
+      title:       `${role.title} — Role Prep | Aarya`,
+      description: role.description || `Role Prep pack for ${role.title} on Aarya.`,
       type:        'article',
     });
     writeShell(`roleprep/${role.id}`, html);
