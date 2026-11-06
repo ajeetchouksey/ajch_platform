@@ -5,7 +5,6 @@
  * and use case it writes:
  *   dist/blog/{slug}/index.html
  *   dist/skillup/{examId}/index.html
- *   dist/roleprep/{roleId}/index.html
  *   dist/usecases/{id}/index.html
  *
  * Each file is a copy of dist/index.html with per-page OG / Twitter meta tags
@@ -18,7 +17,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { loadBlogIndex, loadSkillupCatalog, loadRolePrepIndex, loadUsecasesSourceIntel } from './lib/content-sources.mjs';
+import { loadBlogIndex, loadSkillupCatalog, loadUsecasesSourceIntel } from './lib/content-sources.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root      = join(__dirname, '..');
@@ -147,22 +146,6 @@ if (skillupCatalog) {
 }
 
 // ── role-prep packs ──────────────────────────────────────────────────────────
-
-const rolePrepIndex = await loadRolePrepIndex();
-if (rolePrepIndex) {
-  const roles = (rolePrepIndex.roles || []).filter(r => r.available);
-
-  for (const role of roles) {
-    const html = injectOG(template, {
-      url:         `${SITE}/roleprep/${role.id}`,
-      title:       `${role.title} — Role Prep | Aarya`,
-      description: role.description || `Role Prep pack for ${role.title} on Aarya.`,
-      type:        'article',
-    });
-    writeShell(`roleprep/${role.id}`, html);
-    count++;
-  }
-}
 
 // ── use cases ─────────────────────────────────────────────────────────────────
 

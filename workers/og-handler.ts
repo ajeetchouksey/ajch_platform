@@ -38,17 +38,13 @@ const SITE_DESCRIPTION =
   'Practitioner-built AI learning hub. Certification prep, 60+ technical articles, and developer tools. Free forever, open source.';
 const OG_IMAGE_FALLBACK = `${SITE_URL}/og-preview.png`;
 
+const ROLEPREP_URL = 'https://roleprep.aaryaai.dev';
+
 // Manifest cache — avoids a fetch-on-every-request for bots
 // Workers are single-threaded so no race conditions.
 let _manifestCache: BlogManifest | null = null;
 let _manifestFetchedAt = 0;
 const MANIFEST_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-let _rolePrepBankCache: RolePrepQuestion[] | null = null;
-let _rolePrepBankFetchedAt = 0;
-
-let _rolePrepIndexCache: RolePrepIndex | null = null;
-let _rolePrepIndexFetchedAt = 0;
 
 // ── Types ───────────────────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -70,19 +66,6 @@ interface BlogPost {
 
 interface BlogManifest {
   posts: BlogPost[];
-}
-
-interface RolePrepQuestion {
-  id: string;
-  question: string;
-  type: string;
-  difficulty: string;
-  detailedAnswer: { summary: string };
-  tags: string[];
-}
-
-interface RolePrepIndex {
-  roles: Array<{ id: string; title: string; description: string }>;
 }
 
 // ── OWASP A03 — HTML entity escaping ─────────────────────────────────────────
@@ -111,42 +94,6 @@ async function getBlogManifest(): Promise<BlogManifest> {
     return _manifestCache;
   } catch {
     return { posts: [] };
-  }
-}
-
-async function getRolePrepBank(): Promise<RolePrepQuestion[]> {
-  const now = Date.now();
-  if (_rolePrepBankCache && now - _rolePrepBankFetchedAt < MANIFEST_TTL_MS) {
-    return _rolePrepBankCache;
-  }
-  try {
-    const res = await fetch(`${SITE_URL}/content/interviews/bank/questions.json`, {
-      cf: { cacheEverything: true, cacheTtl: 300 },
-    });
-    if (!res.ok) return [];
-    _rolePrepBankCache = (await res.json()) as RolePrepQuestion[];
-    _rolePrepBankFetchedAt = now;
-    return _rolePrepBankCache;
-  } catch {
-    return [];
-  }
-}
-
-async function getRolePrepIndex(): Promise<RolePrepIndex> {
-  const now = Date.now();
-  if (_rolePrepIndexCache && now - _rolePrepIndexFetchedAt < MANIFEST_TTL_MS) {
-    return _rolePrepIndexCache;
-  }
-  try {
-    const res = await fetch(`${SITE_URL}/content/interviews/index.json`, {
-      cf: { cacheEverything: true, cacheTtl: 300 },
-    });
-    if (!res.ok) return { roles: [] };
-    _rolePrepIndexCache = (await res.json()) as RolePrepIndex;
-    _rolePrepIndexFetchedAt = now;
-    return _rolePrepIndexCache;
-  } catch {
-    return { roles: [] };
   }
 }
 
@@ -221,6 +168,13 @@ async function handleBlogSlug(slug: string, pageUrl: string): Promise<Response> 
 // ── Main handler ──────────────────────────────────────────────────────────────
 export default {
   async fetch(request: Request): Promise<Response> {
+    // Role Prep moved to its own app. Every /roleprep URL (including the retired
+    // job-ad pack and question pages) goes to its home there, for people and bots.
+    const { pathname } = new URL(request.url);
+    if (pathname === '/roleprep' || pathname.startsWith('/roleprep/')) {
+      return Response.redirect(`${ROLEPREP_URL}/`, 301);
+    }
+
     const ua = request.headers.get('user-agent') ?? '';
 
     // ── Real user — transparent pass-through to the SPA ──────────────────────
@@ -241,46 +195,6 @@ export default {
     // /horizons/:track/:slug — Horizons learning-path articles (also in blog manifest)
     if (section === 'horizons' && rest.length >= 2 && rest[1]) {
       return handleBlogSlug(rest[1], `${SITE_URL}${url.pathname}`);
-    }
-
-    // /roleprep/q/:id — individual question detail page
-    if (section === 'roleprep' && rest[0] === 'q' && rest[1]) {
-      const bank = await getRolePrepBank();
-      const q = bank.find((item) => item.id === rest[1]);
-      if (q) {
-        const stem = q.question.length > 120 ? q.question.slice(0, 120) + '…' : q.question;
-        return buildOgShell({
-          title: `${stem} · Role Prep | Aarya`,
-          description: q.detailedAnswer.summary,
-          image: OG_IMAGE_FALLBACK,
-          url: `${SITE_URL}${url.pathname}`,
-          type: 'article',
-        });
-      }
-    }
-
-    // /roleprep/:roleId — role pack overview page
-    if (section === 'roleprep' && rest[0] && rest[0] !== 'q') {
-      const index = await getRolePrepIndex();
-      const role = index.roles.find((r) => r.id === rest[0]);
-      if (role) {
-        return buildOgShell({
-          title: `${role.title} Role Prep · Aarya`,
-          description: role.description,
-          image: OG_IMAGE_FALLBACK,
-          url: `${SITE_URL}${url.pathname}`,
-        });
-      }
-    }
-
-    // /roleprep — catalog
-    if (section === 'roleprep' && rest.length === 0) {
-      return buildOgShell({
-        title: 'AI Role Prep — Aarya',
-        description: 'Deep-dive Q&A for AI platform engineers and architects. Real scenarios, worked examples, and architecture diagrams. Free forever.',
-        image: OG_IMAGE_FALLBACK,
-        url: `${SITE_URL}/roleprep`,
-      });
     }
 
     // /skillup/:exam — certification exam pages

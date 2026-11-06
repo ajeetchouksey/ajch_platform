@@ -12,7 +12,7 @@
 import { writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { loadBlogIndex, loadSkillupCatalog, loadRolePrepIndex, loadUsecasesSourceIntel } from './lib/content-sources.mjs';
+import { loadBlogIndex, loadSkillupCatalog, loadUsecasesSourceIntel } from './lib/content-sources.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root      = join(__dirname, '..');
@@ -56,7 +56,6 @@ const STATIC_ROUTES = [
   { path: '/',            changefreq: 'weekly',  priority: '1.0' },
   { path: '/skillup',     changefreq: 'weekly',  priority: '0.9' },
   { path: '/blog',        changefreq: 'daily',   priority: '0.9' },
-  { path: '/roleprep',    changefreq: 'weekly',  priority: '0.8' },
   { path: '/usecases',    changefreq: 'weekly',  priority: '0.8' },
   { path: '/notes',       changefreq: 'weekly',  priority: '0.8' },
   { path: '/discovery',   changefreq: 'weekly',  priority: '0.7' },
@@ -100,19 +99,6 @@ if (skillupCatalog) {
       lastmod: exam.contentUpdatedAt || skillupCatalog.generated,
       changefreq: 'weekly',
       priority: '0.8',
-    }));
-  }
-}
-
-// ── role-prep packs ──────────────────────────────────────────────────────────
-
-const rolePrepIndex = await loadRolePrepIndex();
-if (rolePrepIndex) {
-  for (const role of (rolePrepIndex.roles || []).filter(r => r.available)) {
-    entries.push(urlEntry(`/roleprep/${role.id}`, {
-      lastmod: rolePrepIndex.generated,
-      changefreq: 'monthly',
-      priority: '0.6',
     }));
   }
 }

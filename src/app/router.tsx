@@ -30,9 +30,7 @@ const PromptTester = lazy(() => import('@/features/tools/pages/PromptTester'));
 const PromptLibrary = lazy(() => import('@/features/tools/pages/PromptLibrary'));
 
 // ── Role Prep ────────────────────────────────────────────────────────────
-const RolePrepCatalog = lazy(() => import('@/features/roleprep/pages/RolePrepCatalog'));
-const RolePrepPack = lazy(() => import('@/features/roleprep/pages/RolePrepPack'));
-const RolePrepQuestion = lazy(() => import('@/features/roleprep/pages/RolePrepQuestion'));
+const RolePrepRedirect = lazy(() => import('@/features/roleprep/pages/RolePrepRedirect'));
 
 // ── AI Use Cases ──────────────────────────────────────────────────────────────
 const UseCasesCatalog = lazy(() => import('@/features/usecases/pages/UseCasesCatalog'));
@@ -122,9 +120,7 @@ export default function AppRoutes() {
       <Route path="/tools/prompt-library" element={<PromptLibrary />} />
 
       {/* Role Prep */}
-      <Route path="/roleprep" element={<RolePrepCatalog />} />
-      <Route path="/roleprep/q/:id" element={<RolePrepQuestion />} />
-      <Route path="/roleprep/:roleId" element={<RolePrepPack />} />
+      <Route path="/roleprep/*" element={<RolePrepRedirect />} />
 
       {/* AI Use Cases */}
       <Route path="/usecases" element={<UseCasesCatalog />} />

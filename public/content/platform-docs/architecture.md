@@ -26,7 +26,7 @@ src/
   features/       Feature modules (one per domain)
     blog/         Blog index + post pages
     exams/        Exam catalog + quiz + notes + scenarios
-    roleprep/     Role Prep — catalog, pack, question pages
+    roleprep/     Role Prep — redirect to roleprep.aaryaai.dev (its own app)
     home/         Landing page and Learn page
     profile/      Team / maintainer profile
     tools/        Developer Tools hub
@@ -141,9 +141,7 @@ node scripts/build-content-intelligence.mjs
 | `/skillup/:examId/quiz` | Quiz |
 | `/skillup/:examId/notes` | Study Notes |
 | `/skillup/:examId/scenarios` | Scenarios |
-| `/roleprep` | Role Prep catalog |
-| `/roleprep/:roleId` | Role Prep pack (Q&A list) |
-| `/roleprep/q/:id` | Role Prep question detail |
+| `/roleprep/*` | Redirects to https://roleprep.aaryaai.dev (Role Prep's own app, repo ajch_role_prep) |
 | `/blog` | Blog Index |
 | `/blog/:slug` | Blog Post |
 | `/horizons` | Horizons Learning Paths |

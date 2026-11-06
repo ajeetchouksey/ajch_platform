@@ -26,7 +26,7 @@ An AI-powered learning platform for practitioners building production AI systems
 | `/skillup` | Practice exam questions with instant scoring, explanations, and progress tracking |
 | `/blog` | Technical field notes on AI, DevOps, Azure, and agentic systems |
 | `/tools` | Client-side Claude API utilities — token counter, context visualiser, MCP scaffolder, prompt tester |
-| `/roleprep` | Role Prep: interview practice packs (moving to `ajch_role_prep`, topic → sub-topic with Tech, Tech Lead and Leadership answers) |
+| `/roleprep` | Redirects to [roleprep.aaryaai.dev](https://roleprep.aaryaai.dev): Role Prep's own app (repo `ajch_role_prep`), interview practice with Tech, Tech Lead and Leadership answers |
 | `/notes` | Architecture decision records, system design guides, platform runbooks |
 | `/horizons` | Learning pathways for AI architecture and enterprise governance |
 | `/learn` | Platform orientation and getting-started guide |
