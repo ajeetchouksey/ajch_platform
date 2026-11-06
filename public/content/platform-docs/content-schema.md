@@ -149,7 +149,7 @@ The home page reads this file on mount to display live platform counters. The sa
 
 ---
 
-## Interview Prep — `interviews/`
+## Role Prep — `interviews/`
 
 The Interview Prep feature uses a canonical bank (dedup model) with per-role packs that reference bank questions and add role-specific addenda.
 

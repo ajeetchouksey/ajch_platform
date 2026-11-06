@@ -6,7 +6,7 @@ description: >
   mechanism, and the platform's enforced readability/contrast rules. QA
   Engineer's validation checklist is generated from this file — do not
   hardcode diagram rules anywhere else. Docs Engineer, Usecase Writer, HOL
-  Lab Writer, Tech Writer, and Interview Prep Engineer must follow it
+  Lab Writer, Tech Writer, and Role Prep agents must follow it
   whenever they author a mermaidDiagram/diagram.chart field or a ```mermaid
   fenced block.
 ---
@@ -95,7 +95,7 @@ Enforced Standards Checklist § Color & Contrast below for why.
 
 For any consumer whose diagram lives inside a JSON string field
 (`usecase-writer`'s `mermaidDiagram`, `hol-lab-writer`'s `mermaidDiagram`,
-`interview-prep-engineer`'s `diagram.chart`):
+the legacy Role Prep bank's `diagram.chart`):
 
 - Newlines **must** be encoded as `\n` (JSON string escape) — never literal
   newlines.
@@ -114,7 +114,7 @@ Every diagram that reaches a reader needs a stated caption — a sighted
 user and a screen reader should both get a claim about what the diagram
 shows, not just its topic. Where the consumer's schema has a
 `mermaidDiagramCaption` (`usecase-writer`, `hol-lab-writer`) or
-`diagram.caption` (`interview-prep-engineer`) field, populate it:
+`diagram.caption` (legacy Role Prep bank) field, populate it:
 
 - 5-10 words, lowercase except proper nouns.
 - Describes what the diagram *shows*, not just the topic — e.g.

@@ -108,12 +108,12 @@ export function buildToolDocs(): SearchDocument[] {
 }
 
 /**
- * Build SearchDocument[] from interview-prep bank items.
+ * Build SearchDocument[] from Role Prep bank items.
  * Bank item IDs are hardcoded slug-style identifiers (e.g. "q-orch-001")
- * authored by the Interview Prep Engineer, never derived from raw JD text.
+ * authored by the Role Prep Legacy Engineer, never derived from raw JD text.
  * Results are deduped by design because the bank is the single source of truth.
  */
-export function buildInterviewDocs(items: Array<{
+export function buildRolePrepDocs(items: Array<{
   id: string;
   question: string;
   competency: string;
@@ -193,7 +193,7 @@ export function buildHolLabDocs(labs: Array<{
 export function buildFullIndex(sources: {
   blogPosts?: Parameters<typeof buildBlogDocs>[0];
   exams?: Parameters<typeof buildExamDocs>[0];
-  interviewItems?: Parameters<typeof buildInterviewDocs>[0];
+  rolePrepItems?: Parameters<typeof buildRolePrepDocs>[0];
   useCases?: Parameters<typeof buildUseCaseDocs>[0];
   holLabs?: Parameters<typeof buildHolLabDocs>[0];
 }): SearchDocument[] {
@@ -201,7 +201,7 @@ export function buildFullIndex(sources: {
     ...buildBlogDocs(sources.blogPosts ?? []),
     ...buildExamDocs(sources.exams ?? []),
     ...buildToolDocs(),
-    ...buildInterviewDocs(sources.interviewItems ?? []),
+    ...buildRolePrepDocs(sources.rolePrepItems ?? []),
     ...buildUseCaseDocs(sources.useCases ?? []),
     ...buildHolLabDocs(sources.holLabs ?? []),
   ];

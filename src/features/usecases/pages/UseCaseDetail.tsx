@@ -422,7 +422,7 @@ export default function UseCaseDetail() {
             <div>
               <h2 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
                 <MessageSquare size={14} className="text-blue-400" />
-                Related Interview Questions
+                Related Role Prep questions
               </h2>
               <div className="flex flex-wrap gap-2">
                 {featured.relatedInterviewQs.map((qid) => (

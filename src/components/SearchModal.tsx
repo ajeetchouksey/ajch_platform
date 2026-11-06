@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, X, ArrowRight } from 'lucide-react';
 import { search, buildFullIndex } from '@/lib/search';
 import type { SearchDocument, SearchResult } from '@/lib/search';
-import { loadBlogManifest, loadExamRegistry, loadInterviewBank, loadAllUseCases, loadHolLabsIndex } from '@/lib/content-loader';
+import { loadBlogManifest, loadExamRegistry, loadRolePrepBank, loadAllUseCases, loadHolLabsIndex } from '@/lib/content-loader';
 import { TYPE_ICON, TYPE_COLOR } from '@/lib/content-types';
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -22,22 +22,22 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   const navigate = useNavigate();
 
   // Build index once on first open. Use cases and HOL labs are loaded
-  // best-effort (.catch(() => []/null)) same as interview bank — a missing
+  // best-effort (.catch(() => []/null)) same as Role Prep bank — a missing
   // or slow-to-fetch vertical must not block the rest of the index.
   useEffect(() => {
     if (!open || index.length > 0) return;
     Promise.all([
       loadBlogManifest(),
       loadExamRegistry(),
-      loadInterviewBank().catch(() => []),
+      loadRolePrepBank().catch(() => []),
       loadAllUseCases().catch(() => []),
       loadHolLabsIndex().catch(() => null),
     ])
-      .then(([blog, exams, interview, useCases, holLabs]) => {
+      .then(([blog, exams, rolePrep, useCases, holLabs]) => {
         setIndex(buildFullIndex({
           blogPosts: blog.posts,
           exams: exams.exams,
-          interviewItems: interview,
+          rolePrepItems: rolePrep,
           useCases,
           holLabs: holLabs?.labs ?? [],
         }));

@@ -404,7 +404,7 @@ const TICKER_ITEMS = [
   '🎨 Design Systems Engineer: UX audit',
   '📊 Product Manager scoring backlog',
   '🔍 AI Researcher scanning arXiv',
-  '📋 Interview Prep Engineer: parsing new JD pack',
+  '📋 Role Prep Legacy Engineer: parsing new JD pack',
 ];
 
 /* ─── Pipeline steps (hero) ─────────────────────────────────────────────────── */
@@ -420,7 +420,7 @@ const PIPELINE_STEPS = [
 
 const ARCH_LAYERS = [
   { label: 'Dispatch Layer',      color: '#8b5cf6', agents: ['Staff Engineer', 'Product Manager'],                          count: 2  },
-  { label: 'Domain Leads',        color: '#3b82f6', agents: ['Platform Architect', 'Content Lead', 'Curriculum Eng', 'Interview Prep Eng'], count: 4 },
+  { label: 'Domain Leads',        color: '#3b82f6', agents: ['Platform Architect', 'Content Lead', 'Curriculum Eng', 'Role Prep Eng'], count: 4 },
   { label: 'Platform Foundation', color: '#f59e0b', agents: ['AppSec Engineer', 'Design Systems', 'SRE', 'DevRel'],         count: 4  },
   { label: 'Specialists',         color: '#10b981', agents: ['23 sub-agents across all domain leads'],                      count: 23 },
 ];
@@ -598,11 +598,11 @@ export default function TeamV2() {
           profileFile: 'ai-researcher.md',
         },
         {
-          id: 'interview-prep', name: 'Interview Prep Engineer', role: 'Interview Commander',
+          id: 'roleprep-legacy', name: 'Role Prep Legacy Engineer', role: 'Role Prep pack maintainer (legacy)',
           tagline: 'JD in. Canon pack out. Never duplicate.',
           capabilities: ['JD Parser', 'Competency Mapper', 'Q&A Bank', 'Industry Context'],
           status: 'active' as const, icon: Handshake,
-          profileFile: 'interview-prep-engineer.md',
+          profileFile: 'roleprep-legacy-engineer.md',
         },
       ],
     },

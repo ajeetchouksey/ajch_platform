@@ -29,10 +29,8 @@ const RagChunkVisualizer = lazy(() => import('@/features/tools/pages/RagChunkVis
 const PromptTester = lazy(() => import('@/features/tools/pages/PromptTester'));
 const PromptLibrary = lazy(() => import('@/features/tools/pages/PromptLibrary'));
 
-// ── Interview Prep ────────────────────────────────────────────────────────────
-const InterviewCatalog = lazy(() => import('@/features/interview/pages/InterviewCatalog'));
-const InterviewPack = lazy(() => import('@/features/interview/pages/InterviewPack'));
-const InterviewQuestion = lazy(() => import('@/features/interview/pages/InterviewQuestion'));
+// ── Role Prep ────────────────────────────────────────────────────────────
+const RolePrepRedirect = lazy(() => import('@/features/roleprep/pages/RolePrepRedirect'));
 
 // ── AI Use Cases ──────────────────────────────────────────────────────────────
 const UseCasesCatalog = lazy(() => import('@/features/usecases/pages/UseCasesCatalog'));
@@ -121,10 +119,8 @@ export default function AppRoutes() {
       <Route path="/tools/prompt-tester" element={<PromptTester />} />
       <Route path="/tools/prompt-library" element={<PromptLibrary />} />
 
-      {/* Interview Prep */}
-      <Route path="/roleprep" element={<InterviewCatalog />} />
-      <Route path="/roleprep/q/:id" element={<InterviewQuestion />} />
-      <Route path="/roleprep/:roleId" element={<InterviewPack />} />
+      {/* Role Prep */}
+      <Route path="/roleprep/*" element={<RolePrepRedirect />} />
 
       {/* AI Use Cases */}
       <Route path="/usecases" element={<UseCasesCatalog />} />

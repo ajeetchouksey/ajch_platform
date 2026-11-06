@@ -14,7 +14,7 @@ graph TD
     SE --> SRE["SRE\nRelease / CI / CHANGELOG"]
     SE --> DR["DevRel\nCommunity / social"]
     SE --> PD["Platform Docs\nPlatform documentation"]
-    SE --> IPE["Interview Prep Engineer\nInterview content"]
+    SE --> IPE["Role Prep Legacy Engineer\nArchived job-ad packs"]
     SE --> DM["Delivery Manager\nSprint ceremonies"]
     SE --> AIR["AI Researcher\nModel & tool research"]
     CL --> TW["Tech Writer\nDraft content"]
@@ -48,7 +48,7 @@ graph TD
 | Curriculum Engineer | v1.0.0 | Exam questions, notes, scenarios — orchestrates Assessment Engineer + Docs Engineer |
 | Assessment Engineer | v1.0.0 | MCQ generation, schema-validated question JSON |
 | Docs Engineer | v1.0.0 | Domain study notes with Deep Dive standard |
-| Interview Prep Engineer | v1.0.0 | Interview Commander — JD packs, canonical Q&A bank, industry context |
+| Role Prep Legacy Engineer | v1.0.0 | Maintains the archived job-ad packs; new Role Prep work lives in ajch_role_prep |
 | Platform Docs | v1.0.0 | Platform-facing documentation (this file) |
 | DevRel | v1.0.0 | Community posts, social content (LinkedIn, Twitter/X) |
 | Delivery Manager | v1.0.0 | Sprint ceremonies, backlog grooming, velocity commentary |

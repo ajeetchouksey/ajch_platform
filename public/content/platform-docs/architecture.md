@@ -26,7 +26,7 @@ src/
   features/       Feature modules (one per domain)
     blog/         Blog index + post pages
     exams/        Exam catalog + quiz + notes + scenarios
-    interview/    Interview Prep — catalog, pack, question pages
+    roleprep/     Role Prep — redirect to roleprep.aaryaai.dev (its own app)
     home/         Landing page and Learn page
     profile/      Team / maintainer profile
     tools/        Developer Tools hub
@@ -38,7 +38,7 @@ src/
 public/content/   All static content (fetched at runtime)
   blog/           Blog manifest + Markdown posts
   exams/          Exam registry + question banks + notes
-  interviews/     Interview Prep — bank, competencies, role packs
+  interviews/     Role Prep (archived job-ad packs) — bank, competencies, role packs
     bank/         questions.json + competencies.json
     roles/        Per-role pack.json + jd.md
   skillup/        SkillUp multi-cert catalog + per-exam questions
@@ -141,9 +141,7 @@ node scripts/build-content-intelligence.mjs
 | `/skillup/:examId/quiz` | Quiz |
 | `/skillup/:examId/notes` | Study Notes |
 | `/skillup/:examId/scenarios` | Scenarios |
-| `/interview` | Interview Prep Catalog |
-| `/interview/:roleId` | Interview Pack (Q&A list) |
-| `/interview/q/:id` | Interview Question Detail |
+| `/roleprep/*` | Redirects to https://roleprep.aaryaai.dev (Role Prep's own app, repo ajch_role_prep) |
 | `/blog` | Blog Index |
 | `/blog/:slug` | Blog Post |
 | `/horizons` | Horizons Learning Paths |

@@ -80,7 +80,7 @@ owns package.json version / CHANGELOG / workflows, but even SRE must get an expl
 | **Usecase Lead** | use case, usecase, enterprise AI scenario, industry vertical, catalog gap | UseCase Commander: delegates write → Usecase Writer → Security Gate → Usecase Publisher — owns `ajch_ai_usecases`'s `content/usecases/**` cross-repo. Small batches only (2-4 per run) |
 | **HOL Lab Lead** | hands-on lab, HOL, lab, walkthrough, practice exercise, tutorial, lab exercise | Lab Commander: delegates write → HOL Lab Writer → Security Gate → HOL Lab Publisher — owns `ajch_hol_labs`'s `content/hol-labs/**` cross-repo. Small batches only (2-4 per run) |
 | **Curriculum Engineer** | question, quiz content, exam, notes, domain, scenario, study material, add from URL, **add exam**, **new certification**, **new learning topic**, **learning** | Exam Commander: delegates MCQs → Assessment Engineer, notes → Docs Engineer |
-| **Interview Prep Engineer** | job description, JD, interview prep, role prep, interview questions, competency, interview pack, behavioural questions, system design questions | Interview Commander: parses JDs, maps to competency taxonomy, generates Q&A packs — owns `public/content/interviews/**` |
+| **Role Prep** (`ajch_role_prep`, `roleprep-lead`) | role prep, interview prep, interview questions, mock interview, Tech / Tech Lead / Leadership answers | New Role Prep work happens in `ajch_role_prep` with its own agent kit; route it there. Only fixes to the archived job-ad packs in `public/content/interviews/**` go to **Role Prep Legacy Engineer** (`roleprep-legacy-engineer`) |
 | **Product Manager** | roadmap, backlog, user story, epic, sprint, iteration, milestone, prioritize, RICE, release notes, changelog, stakeholder update, content calendar, **what should we build**, **what's next**, **project board**, feature request, acceptance criteria, planning | Product decisions, backlog management, GitHub Project board operations, content roadmap |
 
 ### Study (L1 — split)
@@ -143,7 +143,7 @@ User Request
     │   │   ├─ Use case / enterprise AI scenario? → Usecase Lead
     │   │   ├─ Social/community post? → DevRel
     │   │   ├─ Exam questions/notes? → Curriculum Engineer
-    │   │   ├─ Interview prep / JD / role prep? → Interview Prep Engineer
+    │   │   ├─ Role Prep / interview prep? → ajch_role_prep (roleprep-lead); legacy pack fix → Role Prep Legacy Engineer
     │   │   ├─ Hands-on lab content? → HOL Lab Lead
     │   │   ├─ Platform docs/architecture? → Platform Docs
     │   │   ├─ Release/version/CI/CHANGELOG? → SRE

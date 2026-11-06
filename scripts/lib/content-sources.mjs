@@ -123,7 +123,7 @@ export async function loadSkillupNoteFile(relativePath) {
 }
 
 // interviews/index.json — not yet a promoted vertical, always local.
-export async function loadInterviewsIndex() {
+export async function loadRolePrepIndex() {
   const localPath = join(contentDir, 'interviews', 'index.json');
   if (!existsSync(localPath)) return null;
   return JSON.parse(readFileSync(localPath, 'utf-8'));
@@ -131,10 +131,36 @@ export async function loadInterviewsIndex() {
 
 // interviews/bank/questions.json — the actual tagged question items (index.json
 // above is just the role-pack index). Not yet a promoted vertical, always local.
-export async function loadInterviewsBank() {
+export async function loadRolePrepBank() {
   const localPath = join(contentDir, 'interviews', 'bank', 'questions.json');
   if (!existsSync(localPath)) return null;
   return JSON.parse(readFileSync(localPath, 'utf-8'));
+}
+
+// Role Prep is its own app (ajch_role_prep, served at roleprep.aaryaai.dev).
+// Its live sub-topics and their taxonomy concepts are read from the deployed app,
+// so related lists elsewhere on aaryaai.dev link to real practice pages.
+export const ROLEPREP_ORIGIN = 'https://roleprep.aaryaai.dev';
+export async function loadRolePrepSubtopics(origin = ROLEPREP_ORIGIN) {
+  const get = async (path) => {
+    const res = await fetch(origin + path);
+    if (!res.ok) throw new Error(`${origin}${path}: HTTP ${res.status}`);
+    return res.json();
+  };
+  const catalog = await get('/content/roleprep/catalog.json');
+  const subtopics = [];
+  for (const t of catalog.topics.filter((x) => x.live > 0)) {
+    const topic = await get(`/content/roleprep/topics/${t.id}/index.json`);
+    for (const s of topic.subtopics.filter((x) => x.status === 'live')) {
+      const sub = await get(`/content/roleprep/topics/${t.id}/${s.id}.json`);
+      subtopics.push({
+        topicId: t.id, id: s.id, title: sub.title, updatedAt: sub.updatedAt,
+        taxonomyIds: [...new Set([...(sub.taxonomyIds ?? []), ...(topic.taxonomyIds ?? [])])],
+        url: `${origin}/topics/${t.id}/${s.id}`,
+      });
+    }
+  }
+  return subtopics;
 }
 
 // usecases/_source-intel.json — CDN when promoted, else local.

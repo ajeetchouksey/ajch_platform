@@ -175,9 +175,9 @@ export async function loadScenariosForExam(examId: string): Promise<Scenario[]> 
   return Promise.all(exam.scenarioFiles.map((f) => fetchJSON<Scenario>(f)));
 }
 
-// ── Interview-prep loaders ──────────────────────────────────────────────────
+// ── Role Prep loaders ──────────────────────────────────────────────────
 
-export interface InterviewBankItem {
+export interface RolePrepBankItem {
   id: string;
   competency: string;
   type: string;
@@ -202,68 +202,68 @@ export interface InterviewBankItem {
   relatedUseCases?: UseCaseRelatedLink[];
 }
 
-export async function loadInterviewBank(): Promise<InterviewBankItem[]> {
-  return fetchJSON<InterviewBankItem[]>('content/interviews/bank/questions.json');
+export async function loadRolePrepBank(): Promise<RolePrepBankItem[]> {
+  return fetchJSON<RolePrepBankItem[]>('content/interviews/bank/questions.json');
 }
 
-export interface InterviewIndustry {
+export interface RolePrepIndustry {
   label: string;
   domain?: string;
   summary: string;
   focusAreas: string[];
 }
 
-export interface InterviewTopSkill {
+export interface RolePrepTopSkill {
   id: string;
   label: string;
   group: string;
 }
 
-export interface InterviewRoleSummary {
+export interface RolePrepRoleSummary {
   id: string;
   title: string;
   shortTitle?: string;
   seniority: string;
   location?: string;
   description: string;
-  industry?: InterviewIndustry;
+  industry?: RolePrepIndustry;
   colorScheme: string;
   accentColor?: string;
   questionCount: number;
   available: boolean;
   jdFile: string;
   packFile: string;
-  topSkills?: InterviewTopSkill[];
+  topSkills?: RolePrepTopSkill[];
   skillGroup?: string;
 }
 
-export interface InterviewIndex {
+export interface RolePrepIndex {
   schema: string;
   generated: string;
   bank: { competenciesFile: string; questionsFile: string };
-  roles: InterviewRoleSummary[];
+  roles: RolePrepRoleSummary[];
 }
 
-export interface InterviewCompetency {
+export interface RolePrepCompetency {
   id: string;
   title: string;
   group: string;
 }
 
-export interface InterviewAddendum {
+export interface RolePrepAddendum {
   whyForThisRole?: string;
   additionalContext?: string;
   industryAngle?: string;
   extraFollowUps?: Array<{ q: string; a: string }>;
 }
 
-export interface InterviewPackItemRef {
+export interface RolePrepPackItemRef {
   ref?: string;
-  addendum?: InterviewAddendum;
+  addendum?: RolePrepAddendum;
   id?: string;
 }
 
-export interface InterviewPack {
+export interface RolePrepPack {
   schema: string;
   roleId: string;
   title: string;
@@ -271,45 +271,45 @@ export interface InterviewPack {
   experience?: string;
   location?: string;
   jdFile: string;
-  industry?: InterviewIndustry;
+  industry?: RolePrepIndustry;
   competencyWeights: Record<string, number>;
-  items: InterviewPackItemRef[];
+  items: RolePrepPackItemRef[];
 }
 
-export async function loadInterviewIndex(): Promise<InterviewIndex> {
-  return fetchJSON<InterviewIndex>('content/interviews/index.json');
+export async function loadRolePrepIndex(): Promise<RolePrepIndex> {
+  return fetchJSON<RolePrepIndex>('content/interviews/index.json');
 }
 
-export async function loadInterviewCompetencies(): Promise<InterviewCompetency[]> {
-  const data = await fetchJSON<{ competencies: InterviewCompetency[] }>(
+export async function loadRolePrepCompetencies(): Promise<RolePrepCompetency[]> {
+  const data = await fetchJSON<{ competencies: RolePrepCompetency[] }>(
     'content/interviews/bank/competencies.json',
   );
   return data.competencies;
 }
 
-export async function loadInterviewPack(roleId: string): Promise<InterviewPack> {
-  const index = await loadInterviewIndex();
+export async function loadRolePrepPack(roleId: string): Promise<RolePrepPack> {
+  const index = await loadRolePrepIndex();
   const role = index.roles.find((r) => r.id === roleId);
-  if (!role) throw new Error(`Interview role "${roleId}" not found`);
-  return fetchJSON<InterviewPack>(role.packFile);
+  if (!role) throw new Error(`Role Prep role "${roleId}" not found`);
+  return fetchJSON<RolePrepPack>(role.packFile);
 }
 
-export async function loadInterviewJd(roleId: string): Promise<string> {
-  const index = await loadInterviewIndex();
+export async function loadRolePrepJd(roleId: string): Promise<string> {
+  const index = await loadRolePrepIndex();
   const role = index.roles.find((r) => r.id === roleId);
-  if (!role) throw new Error(`Interview role "${roleId}" not found`);
+  if (!role) throw new Error(`Role Prep role "${roleId}" not found`);
   return fetchText(role.jdFile);
 }
 
 /** Resolve a pack's items against the canonical bank, merging any addendum deltas. */
-export interface ResolvedInterviewItem extends InterviewBankItem {
-  addendum?: InterviewAddendum;
+export interface ResolvedRolePrepItem extends RolePrepBankItem {
+  addendum?: RolePrepAddendum;
 }
 
-export async function loadResolvedPackItems(roleId: string): Promise<ResolvedInterviewItem[]> {
-  const [pack, bank] = await Promise.all([loadInterviewPack(roleId), loadInterviewBank()]);
+export async function loadResolvedPackItems(roleId: string): Promise<ResolvedRolePrepItem[]> {
+  const [pack, bank] = await Promise.all([loadRolePrepPack(roleId), loadRolePrepBank()]);
   const byId = new Map(bank.map((q) => [q.id, q]));
-  const resolved: ResolvedInterviewItem[] = [];
+  const resolved: ResolvedRolePrepItem[] = [];
   for (const item of pack.items) {
     if (item.ref) {
       const base = byId.get(item.ref);

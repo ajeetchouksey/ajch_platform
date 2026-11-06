@@ -56,7 +56,7 @@ import {
   loadUsecasesSourceIntel,
   loadHolLabsIndex,
   loadHolLabFile,
-  loadInterviewsBank,
+  loadRolePrepSubtopics,
   listUsecasesCaseFileIds,
   loadUsecaseCaseFile,
 } from './lib/content-sources.mjs';
@@ -189,7 +189,7 @@ function buildToolDocs() {
 // Skillup only has an exam-level entry here (no domain-level breakdown) since
 // exams don't carry taxonomyIds yet (Phase 4) — nothing is lost by keeping
 // this minimal until that phase actually needs the finer granularity.
-export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex, interviewsBank, extraUsecaseDocs = [], toolDocs = [] }) {
+export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex, rolePrepSubtopics, extraUsecaseDocs = [], toolDocs = [] }) {
   const docs = [];
 
   for (const p of blogIndex?.posts ?? []) {
@@ -252,8 +252,10 @@ export function collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabs
     docs.push({ id: `lab/${l.id}`, type: 'lab', title: l.title, url: `/hol-labs/${l.id}`, taxonomyIds: l.taxonomyIds ?? [], updatedAt: l.updatedDate });
   }
 
-  for (const q of interviewsBank ?? []) {
-    docs.push({ id: `interview/${q.id}`, type: 'interview', title: q.question, url: `/roleprep/q/${q.id}`, taxonomyIds: q.taxonomyIds ?? [] });
+  // Role Prep sub-topics (roleprep.aaryaai.dev). The 'interview' type is the stored
+  // data contract; its label reads "Role Prep".
+  for (const s of rolePrepSubtopics ?? []) {
+    docs.push({ id: `interview/${s.topicId}.${s.id}`, type: 'interview', title: `${s.title}: interview practice`, url: s.url, taxonomyIds: s.taxonomyIds, updatedAt: s.updatedAt });
   }
 
   return docs;
@@ -333,12 +335,12 @@ async function buildWhyLookup(holLabsIndex, sourceIntel) {
 async function main() {
   const manifest = loadManifest();
 
-  const [blogIndex, skillupCatalog, sourceIntel, holLabsIndex, interviewsBank] = await Promise.all([
+  const [blogIndex, skillupCatalog, sourceIntel, holLabsIndex, rolePrepSubtopics] = await Promise.all([
     loadBlogIndex().catch((e) => { console.error(`⚠ blog: ${e.message}`); return null; }),
     loadSkillupCatalog().catch((e) => { console.error(`⚠ skillup: ${e.message}`); return null; }),
     loadUsecasesSourceIntel().catch((e) => { console.error(`⚠ usecases: ${e.message}`); return null; }),
     loadHolLabsIndex().catch((e) => { console.error(`⚠ hol-labs: ${e.message}`); return null; }),
-    loadInterviewsBank().catch((e) => { console.error(`⚠ interviews: ${e.message}`); return null; }),
+    loadRolePrepSubtopics().catch((e) => { console.error(`⚠ roleprep: ${e.message}`); return null; }),
   ]);
 
   const skillupCounts = countSkillupAggregates(skillupCatalog);
@@ -391,7 +393,7 @@ async function main() {
   const now = Date.now();
   const extraUsecaseDocs = await findExtraUsecaseDocs(sourceIntel);
   const toolDocs = buildToolDocs();
-  const relDocs = collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex, interviewsBank, extraUsecaseDocs, toolDocs });
+  const relDocs = collectRelDocs({ blogIndex, skillupCatalog, sourceIntel, holLabsIndex, rolePrepSubtopics, extraUsecaseDocs, toolDocs });
   const tier1Ids = loadTaxonomyTier1Ids();
   const whyLookup = await buildWhyLookup(holLabsIndex, sourceIntel);
   const edges = computeRelationshipEdges(relDocs, { tier1Ids, now, whyLookup });
