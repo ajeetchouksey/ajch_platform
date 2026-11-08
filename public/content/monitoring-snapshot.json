@@ -1,8 +1,8 @@
 {
   "schema": "1.1",
-  "generatedAt": "2026-10-25T06:25:42.980Z",
-  "since": "2026-09-27",
-  "until": "2026-10-24",
+  "generatedAt": "2026-11-08T06:16:28.289Z",
+  "since": "2026-10-11",
+  "until": "2026-11-07",
   "ga4Health": {
     "ok": false,
     "reason": "health endpoint returned HTTP 404"
@@ -30,31 +30,31 @@
   "cloudflareWorkers": [
     {
       "scriptName": "aarya-subscribe",
-      "requests": 3416,
+      "requests": 6783,
       "errorRate28d": 0,
       "errorRate7d": 0,
-      "cpuTimeP99Ms": 4690
+      "cpuTimeP99Ms": 4472
     },
     {
       "scriptName": "aarya-cf-monitor",
-      "requests": 8,
+      "requests": 12,
       "errorRate28d": 0,
       "errorRate7d": 0,
-      "cpuTimeP99Ms": 6543
+      "cpuTimeP99Ms": 8142
     },
     {
       "scriptName": "aarya-ga4-proxy",
-      "requests": 37,
+      "requests": 41,
       "errorRate28d": 0,
       "errorRate7d": 0,
-      "cpuTimeP99Ms": 3347
+      "cpuTimeP99Ms": 4842
     }
   ],
   "d1Usage": [
     {
       "database": "aarya-subscribers",
-      "rowsRead": 0,
-      "rowsWritten": 0
+      "rowsRead": 59,
+      "rowsWritten": 3
     },
     {
       "database": "077138b5-baf3-46e7-83d1-fcc555112a17",
@@ -81,162 +81,12 @@
     {
       "severity": "critical",
       "area": "ci",
-      "message": "content-intelligence-sync.yml has failed its last 2 run(s) — https://github.com/ajeetchouksey/ajch_platform/actions/runs/40149126366"
+      "message": "promote-content.yml has failed its last 2 run(s) — https://github.com/ajeetchouksey/ajch_platform/actions/runs/41634050813"
     },
     {
       "severity": "warning",
       "area": "ci",
       "message": "sync-ga4-proxy-secrets.yml has failed its last 1 run(s) — https://github.com/ajeetchouksey/ajch_platform/actions/runs/32239660442"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 5h — https://github.com/ajeetchouksey/ajch_platform/pull/793"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 12h — https://github.com/ajeetchouksey/ajch_platform/pull/792"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 18h — https://github.com/ajeetchouksey/ajch_platform/pull/791"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 24h — https://github.com/ajeetchouksey/ajch_platform/pull/790"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 29h — https://github.com/ajeetchouksey/ajch_platform/pull/789"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 36h — https://github.com/ajeetchouksey/ajch_platform/pull/788"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 42h — https://github.com/ajeetchouksey/ajch_platform/pull/787"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 48h — https://github.com/ajeetchouksey/ajch_platform/pull/786"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 53h — https://github.com/ajeetchouksey/ajch_platform/pull/785"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 60h — https://github.com/ajeetchouksey/ajch_platform/pull/784"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 66h — https://github.com/ajeetchouksey/ajch_platform/pull/783"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 72h — https://github.com/ajeetchouksey/ajch_platform/pull/782"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 77h — https://github.com/ajeetchouksey/ajch_platform/pull/781"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 84h — https://github.com/ajeetchouksey/ajch_platform/pull/780"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 90h — https://github.com/ajeetchouksey/ajch_platform/pull/779"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 96h — https://github.com/ajeetchouksey/ajch_platform/pull/778"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 101h — https://github.com/ajeetchouksey/ajch_platform/pull/777"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 108h — https://github.com/ajeetchouksey/ajch_platform/pull/776"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 114h — https://github.com/ajeetchouksey/ajch_platform/pull/775"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 120h — https://github.com/ajeetchouksey/ajch_platform/pull/774"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 125h — https://github.com/ajeetchouksey/ajch_platform/pull/773"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 132h — https://github.com/ajeetchouksey/ajch_platform/pull/772"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 138h — https://github.com/ajeetchouksey/ajch_platform/pull/771"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 143h — https://github.com/ajeetchouksey/ajch_platform/pull/770"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 149h — https://github.com/ajeetchouksey/ajch_platform/pull/769"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 156h — https://github.com/ajeetchouksey/ajch_platform/pull/768"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 162h — https://github.com/ajeetchouksey/ajch_platform/pull/767"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 168h — https://github.com/ajeetchouksey/ajch_platform/pull/766"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(monitoring): refresh weekly snapshot\" has been stuck BLOCKED for 168h — https://github.com/ajeetchouksey/ajch_platform/pull/765"
-    },
-    {
-      "severity": "critical",
-      "area": "ci",
-      "message": "Automated PR \"chore(content): regenerate stats.json, relationships.json, glossary.json\" has been stuck BLOCKED for 173h — https://github.com/ajeetchouksey/ajch_platform/pull/764"
     },
     {
       "severity": "critical",
